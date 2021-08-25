@@ -17,7 +17,8 @@ from matplotlib.path import Path
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
-from pymatgen import Structure, vis
+from pymatgen import vis
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
@@ -113,9 +114,7 @@ class AdsorbateSiteFinder:
         # TODO: for some reason this works poorly with primitive cells
         #       may want to switch the coordination algorithm eventually
         vnn_bulk = VoronoiNN(tol=0.05)
-        bulk_coords = [
-            len(vnn_bulk.get_nn(structure, n)) for n in range(len(structure))
-        ]
+        bulk_coords = [len(vnn_bulk.get_nn(structure, n)) for n in range(len(structure))]
         struct = structure.copy(site_properties={"bulk_coordinations": bulk_coords})
         slabs = generate_all_slabs(
             struct,
@@ -202,9 +201,7 @@ class AdsorbateSiteFinder:
             return slab
 
         surf_sites = self.find_surface_sites_by_height(slab, height)
-        surf_props = [
-            "surface" if site in surf_sites else "subsurface" for site in slab.sites
-        ]
+        surf_props = ["surface" if site in surf_sites else "subsurface" for site in slab.sites]
         return slab.copy(site_properties={"surface_properties": surf_props})
 
     def get_extended_surface_mesh(self, repeat=(5, 5, 1)):
@@ -224,21 +221,13 @@ class AdsorbateSiteFinder:
         """
         convenience method to return a list of surface sites
         """
-        return [
-            site
-            for site in self.slab.sites
-            if site.properties["surface_properties"] == "surface"
-        ]
+        return [site for site in self.slab.sites if site.properties["surface_properties"] == "surface"]
 
     def subsurface_sites(self):
         """
         convenience method to return list of subsurface sites
         """
-        return [
-            site
-            for site in self.slab.sites
-            if site.properties["surface_properties"] == "subsurface"
-        ]
+        return [site for site in self.slab.sites if site.properties["surface_properties"] == "subsurface"]
 
     def find_adsorption_sites(
         self,
@@ -277,8 +266,7 @@ class AdsorbateSiteFinder:
             ref = self.slab.sites[np.argmax(self.slab.cart_coords[:, 2])]
             # Project diff between highest site and subs site into miller
             ss_sites = [
-                self.mvec * np.dot(ref.coords - s.coords, self.mvec) + s.coords
-                for s in self.subsurface_sites()
+                self.mvec * np.dot(ref.coords - s.coords, self.mvec) + s.coords for s in self.subsurface_sites()
             ]
             ads_sites["subsurface"] = ss_sites
         if "bridge" in positions or "hollow" in positions:
@@ -305,24 +293,13 @@ class AdsorbateSiteFinder:
         for key, sites in ads_sites.items():
             # Pare off outer sites for bridge/hollow
             if key in ["bridge", "hollow"]:
-                frac_coords = [
-                    self.slab.lattice.get_fractional_coords(ads_site)
-                    for ads_site in sites
-                ]
+                frac_coords = [self.slab.lattice.get_fractional_coords(ads_site) for ads_site in sites]
                 frac_coords = [
                     frac_coord
                     for frac_coord in frac_coords
-                    if (
-                        frac_coord[0] > 1
-                        and frac_coord[0] < 4
-                        and frac_coord[1] > 1
-                        and frac_coord[1] < 4
-                    )
+                    if (frac_coord[0] > 1 and frac_coord[0] < 4 and frac_coord[1] > 1 and frac_coord[1] < 4)
                 ]
-                sites = [
-                    self.slab.lattice.get_cartesian_coords(frac_coord)
-                    for frac_coord in frac_coords
-                ]
+                sites = [self.slab.lattice.get_cartesian_coords(frac_coord) for frac_coord in frac_coords]
             if near_reduce:
                 sites = self.near_reduce(sites, threshold=near_reduce)
             if put_inside:
@@ -349,9 +326,7 @@ class AdsorbateSiteFinder:
         symm_ops = surf_sg.get_symmetry_operations()
         unique_coords = []
         # Convert to fractional
-        coords_set = [
-            self.slab.lattice.get_fractional_coords(coords) for coords in coords_set
-        ]
+        coords_set = [self.slab.lattice.get_fractional_coords(coords) for coords in coords_set]
         for coords in coords_set:
             incoord = False
             for op in symm_ops:
@@ -361,9 +336,7 @@ class AdsorbateSiteFinder:
             if not incoord:
                 unique_coords += [coords]
         # convert back to cartesian
-        return [
-            self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords
-        ]
+        return [self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords]
 
     def near_reduce(self, coords_set, threshold=1e-4):
         """
@@ -375,15 +348,11 @@ class AdsorbateSiteFinder:
             threshold (float): threshold value for distance
         """
         unique_coords = []
-        coords_set = [
-            self.slab.lattice.get_fractional_coords(coords) for coords in coords_set
-        ]
+        coords_set = [self.slab.lattice.get_fractional_coords(coords) for coords in coords_set]
         for coord in coords_set:
             if not in_coord_list_pbc(unique_coords, coord, threshold):
                 unique_coords += [coord]
-        return [
-            self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords
-        ]
+        return [self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords]
 
     @classmethod
     def ensemble_center(cls, site_list, indices, cartesian=True):
@@ -404,9 +373,7 @@ class AdsorbateSiteFinder:
 
         return np.average([site_list[i].frac_coords for i in indices], axis=0)
 
-    def add_adsorbate(
-        self, molecule, ads_coord, repeat=None, translate=True, reorient=True
-    ):
+    def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """
         Adds an adsorbate at a particular coordinate.  Adsorbate
         represented by a Molecule object and is translated to (0, 0, 0) if
@@ -429,9 +396,7 @@ class AdsorbateSiteFinder:
             # that have the most negative z coordinate is at (0, 0, 0)
             front_atoms = molecule.copy()
             front_atoms._sites = [
-                s
-                for s in molecule.sites
-                if s.coords[2] == min([s.coords[2] for s in molecule.sites])
+                s for s in molecule.sites if s.coords[2] == min([s.coords[2] for s in molecule.sites])
             ]
             x, y, z = front_atoms.center_of_mass
             molecule.translate_sites(vector=[-x, -y, -z])
@@ -443,13 +408,9 @@ class AdsorbateSiteFinder:
         if repeat:
             struct.make_supercell(repeat)
         if "surface_properties" in struct.site_properties.keys():
-            molecule.add_site_property(
-                "surface_properties", ["adsorbate"] * molecule.num_sites
-            )
+            molecule.add_site_property("surface_properties", ["adsorbate"] * molecule.num_sites)
         if "selective_dynamics" in struct.site_properties.keys():
-            molecule.add_site_property(
-                "selective_dynamics", [[True, True, True]] * molecule.num_sites
-            )
+            molecule.add_site_property("selective_dynamics", [[True, True, True]] * molecule.num_sites)
         for site in molecule:
             struct.append(
                 site.specie,
@@ -470,9 +431,7 @@ class AdsorbateSiteFinder:
         """
         sd_list = []
         sd_list = [
-            [False, False, False]
-            if site.properties["surface_properties"] == "subsurface"
-            else [True, True, True]
+            [False, False, False] if site.properties["surface_properties"] == "subsurface" else [True, True, True]
             for site in slab.sites
         ]
         new_sp = slab.site_properties
@@ -580,9 +539,7 @@ class AdsorbateSiteFinder:
             # the slab using symmetry operations
             for adsorbate in adsorbates:
                 p2 = adslab.get_symmetric_site(adsorbate.frac_coords)
-                slab.append(
-                    adsorbate.specie, p2, properties={"surface_properties": "adsorbate"}
-                )
+                slab.append(adsorbate.specie, p2, properties={"surface_properties": "adsorbate"})
                 slab.append(
                     adsorbate.specie,
                     adsorbate.frac_coords,
@@ -627,13 +584,9 @@ class AdsorbateSiteFinder:
             props = self.slab.site_properties
             if sub_both_sides:
                 # Find an equivalent site on the other surface
-                eq_indices = [
-                    indices for indices in sym_slab.equivalent_indices if i in indices
-                ][0]
+                eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
                 for ii in eq_indices:
-                    if "%.6f" % (sym_slab[ii].frac_coords[2]) != "%.6f" % (
-                        site.frac_coords[2]
-                    ):
+                    if "%.6f" % (sym_slab[ii].frac_coords[2]) != "%.6f" % (site.frac_coords[2]):
                         props["surface_properties"][ii] = "substitute"
                         slab.replace(ii, atom)
                         break
@@ -682,9 +635,7 @@ def get_rot(slab):
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)
-    rot_matrix = np.array(
-        [np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]
-    ).reshape(3, 3)
+    rot_matrix = np.array([np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]).reshape(3, 3)
     rot_matrix = np.transpose(rot_matrix)
     sop = SymmOp.from_rotation_and_translation(rot_matrix)
     return sop
@@ -711,9 +662,7 @@ def reorient_z(structure):
 
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__), "ElementColorSchemes.yaml"))
-color_dict = {
-    el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"].keys()
-}
+color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"].keys()}
 
 
 def plot_slab(
@@ -763,11 +712,7 @@ def plot_slab(
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
         r = sites[n].specie.atomic_radius * scale
-        ax.add_patch(
-            patches.Circle(
-                coord[:2] - lattsum * (repeat // 2), r, color="w", zorder=2 * n
-            )
-        )
+        ax.add_patch(patches.Circle(coord[:2] - lattsum * (repeat // 2), r, color="w", zorder=2 * n))
         color = color_dict[sites[n].species_string]
         ax.add_patch(
             patches.Circle(
@@ -790,15 +735,7 @@ def plot_slab(
         ads_sites = asf.find_adsorption_sites()["all"]
         sop = get_rot(orig_slab)
         ads_sites = [sop.operate(ads_site)[:2].tolist() for ads_site in ads_sites]
-        ax.plot(
-            *zip(*ads_sites),
-            color="k",
-            marker="x",
-            markersize=10,
-            mew=1,
-            linestyle="",
-            zorder=10000
-        )
+        ax.plot(*zip(*ads_sites), color="k", marker="x", markersize=10, mew=1, linestyle="", zorder=10000)
     # Draw unit cell
     if draw_unit_cell:
         verts = np.insert(verts, 1, lattsum, axis=0).tolist()
@@ -807,9 +744,7 @@ def plot_slab(
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         verts = [(np.array(vert) + corner).tolist() for vert in verts]
         path = Path(verts, codes)
-        patch = patches.PathPatch(
-            path, facecolor="none", lw=2, alpha=0.5, zorder=2 * n + 2
-        )
+        patch = patches.PathPatch(path, facecolor="none", lw=2, alpha=0.5, zorder=2 * n + 2)
         ax.add_patch(patch)
     ax.set_aspect("equal")
     center = corner + lattsum / 2.0

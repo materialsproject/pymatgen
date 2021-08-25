@@ -31,26 +31,15 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
 from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )
@@ -126,11 +115,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
             ]
         )
 
-        self.assertTrue(
-            np.allclose(
-                np.array(nb_set.voronoi_grid_surface_points()), nb_set_surface_points
-            )
-        )
+        self.assertTrue(np.allclose(np.array(nb_set.voronoi_grid_surface_points()), nb_set_surface_points))
 
         neighb_sites = nb_set.neighb_sites
         coords = [
@@ -148,9 +133,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         neighb_coords = nb_set.coords
 
         np.testing.assert_array_almost_equal(coords, neighb_coords[1:])
-        np.testing.assert_array_almost_equal(
-            nb_set.structure[nb_set.isite].coords, neighb_coords[0]
-        )
+        np.testing.assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         normdist = nb_set.normalized_distances
         self.assertAlmostEqual(
@@ -190,18 +173,14 @@ class ReadWriteChemenvTest(unittest.TestCase):
         nb_set_info = nb_set.info
 
         self.assertAlmostEqual(nb_set_info["normalized_angles_mean"], 0.996506826547)
-        self.assertAlmostEqual(
-            nb_set_info["normalized_distances_std"], 0.000896138995037
-        )
+        self.assertAlmostEqual(nb_set_info["normalized_distances_std"], 0.000896138995037)
         self.assertAlmostEqual(nb_set_info["angles_std"], 0.0108895833142)
         self.assertAlmostEqual(nb_set_info["distances_std"], 0.00145669776056)
         self.assertAlmostEqual(nb_set_info["distances_mean"], 1.62698328347)
 
         self.assertEqual(
             nb_set.__str__(),
-            "Neighbors Set for site #6 :\n"
-            " - Coordination number : 4\n"
-            " - Voronoi indices : 1, 4, 5, 6\n",
+            "Neighbors Set for site #6 :\n" " - Coordination number : 4\n" " - Voronoi indices : 1, 4, 5, 6\n",
         )
 
         self.assertFalse(nb_set.__ne__(nb_set))
@@ -210,13 +189,9 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()
-        simplest_strategy_2 = SimplestChemenvStrategy(
-            distance_cutoff=1.5, angle_cutoff=0.5
-        )
+        simplest_strategy_2 = SimplestChemenvStrategy(distance_cutoff=1.5, angle_cutoff=0.5)
         self.assertFalse(simplest_strategy_1 == simplest_strategy_2)
-        simplest_strategy_1_from_dict = SimplestChemenvStrategy.from_dict(
-            simplest_strategy_1.as_dict()
-        )
+        simplest_strategy_1_from_dict = SimplestChemenvStrategy.from_dict(simplest_strategy_1.as_dict())
         self.assertTrue(simplest_strategy_1, simplest_strategy_1_from_dict)
 
         effective_csm_estimator = {
@@ -258,16 +233,10 @@ class ReadWriteChemenvTest(unittest.TestCase):
             weight_estimator=weight_estimator,
             symmetry_measure_type=symmetry_measure_type,
         )
-        bias_weight = CNBiasNbSetWeight.linearly_equidistant(
-            weight_cn1=1.0, weight_cn13=4.0
-        )
-        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(
-            weight_cn1=1.0, weight_cn13=5.0
-        )
+        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=4.0)
+        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=5.0)
         angle_weight = AngleNbSetWeight()
-        nad_weight = NormalizedAngleDistanceNbSetWeight(
-            average_type="geometric", aa=1, bb=1
-        )
+        nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
         multi_weights_strategy_1 = MultiWeightsChemenvStrategy(
             dist_ang_area_weight=da_area_weight,
             self_csm_weight=self_csm_weight,
@@ -295,9 +264,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
             normalized_angle_distance_weight=nad_weight,
             symmetry_measure_type=symmetry_measure_type,
         )
-        multi_weights_strategy_1_from_dict = MultiWeightsChemenvStrategy.from_dict(
-            multi_weights_strategy_1.as_dict()
-        )
+        multi_weights_strategy_1_from_dict = MultiWeightsChemenvStrategy.from_dict(multi_weights_strategy_1.as_dict())
 
         self.assertTrue(multi_weights_strategy_1 == multi_weights_strategy_1_from_dict)
         self.assertFalse(simplest_strategy_1 == multi_weights_strategy_1)
@@ -314,9 +281,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         valences = [site.specie.oxi_state for site in struct]
 
-        detailed_voronoi_container = DetailedVoronoiContainer(
-            structure=struct, valences=valences
-        )
+        detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
         f = open("tmp_dir/se.json", "w")
         json.dump(detailed_voronoi_container.as_dict(), f)

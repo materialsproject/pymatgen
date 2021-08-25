@@ -13,7 +13,7 @@ import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 
 try:
@@ -83,12 +83,7 @@ class Control(MSONable, dict):
         "espresso",
     ]
 
-    def __init__(
-        self,
-        ngrid: Optional[List[int]] = None,
-        temperature: Union[float, Dict[str, float]] = 300,
-        **kwargs
-    ):
+    def __init__(self, ngrid: Optional[List[int]] = None, temperature: Union[float, Dict[str, float]] = 300, **kwargs):
         """
         Args:
             ngrid: Reciprocal space grid density as a list of 3 ints.
@@ -134,8 +129,7 @@ class Control(MSONable, dict):
     @classmethod
     @requires(
         f90nml,
-        "ShengBTE Control object requires f90nml to be installed. "
-        "Please get it at https://pypi.org/project/f90nml.",
+        "ShengBTE Control object requires f90nml to be installed. " "Please get it at https://pypi.org/project/f90nml.",
     )
     def from_file(cls, filepath: str):
         """
@@ -175,8 +169,7 @@ class Control(MSONable, dict):
 
     @requires(
         f90nml,
-        "ShengBTE Control object requires f90nml to be installed. "
-        "Please get it at https://pypi.org/project/f90nml.",
+        "ShengBTE Control object requires f90nml to be installed. " "Please get it at https://pypi.org/project/f90nml.",
     )
     def to_file(self, filename: str = "CONTROL"):
         """
@@ -210,9 +203,7 @@ class Control(MSONable, dict):
             file.write(control_str)
 
     @classmethod
-    def from_structure(
-        cls, structure: Structure, reciprocal_density: Optional[int] = 50000, **kwargs
-    ):
+    def from_structure(cls, structure: Structure, reciprocal_density: Optional[int] = 50000, **kwargs):
         """
         Get a ShengBTE control object from a structure.
 
@@ -263,11 +254,8 @@ class Control(MSONable, dict):
             The structure.
         """
         required = ["lattvec", "types", "elements", "positions"]
-        if not all([r in self for r in required]):
-            raise ValueError(
-                "All of ['lattvec', 'types', 'elements', 'positions'] must be "
-                "in control object"
-            )
+        if not all(r in self for r in required):
+            raise ValueError("All of ['lattvec', 'types', 'elements', 'positions'] must be " "in control object")
 
         unique_elements = self["elements"]
         n_unique_elements = len(unique_elements)
@@ -290,8 +278,4 @@ class Control(MSONable, dict):
 
 def _get_subdict(master_dict, subkeys):
     """Helper method to get a set of keys from a larger dictionary"""
-    return {
-        k: master_dict[k]
-        for k in subkeys
-        if k in master_dict and master_dict[k] is not None
-    }
+    return {k: master_dict[k] for k in subkeys if k in master_dict and master_dict[k] is not None}

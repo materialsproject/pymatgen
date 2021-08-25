@@ -1,31 +1,19 @@
 import os
 import unittest
 
-import numpy as np
-
 from pymatgen.analysis.ferroelectricity.polarization import *
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files/BTO_221_99_polarization",
-)
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "BTO_221_99_polarization")
 bto_folders = ["nonpolar_polarization"]
-bto_folders += ["interpolation_{}_polarization".format(str(i)) for i in range(1, 9)][
-    ::-1
-]
+bto_folders += ["interpolation_{}_polarization".format(str(i)) for i in range(1, 9)][::-1]
 bto_folders += ["polar_polarization"]
 
-structures = [
-    Structure.from_file(test_dir + "/" + folder + "/POSCAR") for folder in bto_folders
-]
+structures = [Structure.from_file(test_dir + "/" + folder + "/POSCAR") for folder in bto_folders]
 
 ions = np.array(
     [
@@ -136,9 +124,7 @@ class PolarizationTest(PymatgenTest):
         # We do not use the p_ions values from Outcar.
         # We calculate using calc_ionic_from_zval because it is more reliable.
         self.polarization = Polarization(self.p_elecs, self.p_ions, self.structures)
-        self.outcars = [
-            Outcar(test_dir + "/" + folder + "/OUTCAR") for folder in bto_folders
-        ]
+        self.outcars = [Outcar(test_dir + "/" + folder + "/OUTCAR") for folder in bto_folders]
         self.change = np.array([[-5.79448738e-03, -4.41226597e-03, 4.62887522e01]])
         self.change_norm = 46.288752795325244
         self.max_jumps = [
@@ -164,60 +150,30 @@ class PolarizationTest(PymatgenTest):
         self.decimal_tol = 5
 
     def test_from_outcars_and_structures(self):
-        polarization = Polarization.from_outcars_and_structures(
-            self.outcars, self.structures
-        )
-        p_elecs, p_ions = polarization.get_pelecs_and_pions(
-            convert_to_muC_per_cm2=False
-        )
-        self.assertArrayAlmostEqual(
-            p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            p_ions[0].ravel().tolist(), self.p_ions_outcar[0].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            p_ions[-1].ravel().tolist(), self.p_ions_outcar[-1].ravel().tolist()
-        )
+        polarization = Polarization.from_outcars_and_structures(self.outcars, self.structures)
+        p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
+        self.assertArrayAlmostEqual(p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[0].ravel().tolist(), self.p_ions_outcar[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[-1].ravel().tolist(), self.p_ions_outcar[-1].ravel().tolist())
         # Test for calc_ionic_from_zval=True
         polarization = Polarization.from_outcars_and_structures(
             self.outcars, self.structures, calc_ionic_from_zval=True
         )
-        p_elecs, p_ions = polarization.get_pelecs_and_pions(
-            convert_to_muC_per_cm2=False
-        )
-        self.assertArrayAlmostEqual(
-            p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            p_ions[0].ravel().tolist(), self.p_ions[0].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            p_ions[-1].ravel().tolist(), self.p_ions[-1].ravel().tolist()
-        )
+        p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
+        self.assertArrayAlmostEqual(p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[0].ravel().tolist(), self.p_ions[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[-1].ravel().tolist(), self.p_ions[-1].ravel().tolist())
 
     def test_get_same_branch_polarization_data(self):
         same_branch = self.polarization.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=True, all_in_polar=False
         )
-        self.assertArrayAlmostEqual(
-            same_branch[0].ravel().tolist(), self.same_branch[0].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            same_branch[1].ravel().tolist(), self.same_branch[1].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            same_branch[3].ravel().tolist(), self.same_branch[3].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            same_branch[-1].ravel().tolist(), self.same_branch[-1].ravel().tolist()
-        )
+        self.assertArrayAlmostEqual(same_branch[0].ravel().tolist(), self.same_branch[0].ravel().tolist())
+        self.assertArrayAlmostEqual(same_branch[1].ravel().tolist(), self.same_branch[1].ravel().tolist())
+        self.assertArrayAlmostEqual(same_branch[3].ravel().tolist(), self.same_branch[3].ravel().tolist())
+        self.assertArrayAlmostEqual(same_branch[-1].ravel().tolist(), self.same_branch[-1].ravel().tolist())
         # This will differ only slightly
         same_branch = self.polarization.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=True, all_in_polar=True
@@ -240,70 +196,42 @@ class PolarizationTest(PymatgenTest):
         )
 
     def test_get_lattice_quanta(self):
-        quanta = self.polarization.get_lattice_quanta(
-            convert_to_muC_per_cm2=True, all_in_polar=False
-        )
-        self.assertArrayAlmostEqual(
-            quanta[0].ravel().tolist(), self.quanta[0].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist()
-        )
+        quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True, all_in_polar=False)
+        self.assertArrayAlmostEqual(quanta[0].ravel().tolist(), self.quanta[0].ravel().tolist())
+        self.assertArrayAlmostEqual(quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist())
         # For all_in_polar=True, quanta should be identical to polar quantum
-        quanta = self.polarization.get_lattice_quanta(
-            convert_to_muC_per_cm2=True, all_in_polar=True
-        )
-        self.assertArrayAlmostEqual(
-            quanta[0].ravel().tolist(), self.quanta[-1].ravel().tolist()
-        )
-        self.assertArrayAlmostEqual(
-            quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist()
-        )
+        quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True, all_in_polar=True)
+        self.assertArrayAlmostEqual(quanta[0].ravel().tolist(), self.quanta[-1].ravel().tolist())
+        self.assertArrayAlmostEqual(quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist())
 
     def test_get_polarization_change(self):
-        change = self.polarization.get_polarization_change(
-            convert_to_muC_per_cm2=True, all_in_polar=False
-        )
+        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(change, self.change)
         # Because nonpolar polarization is (0, 0, 0), all_in_polar should have no effect on polarization change
-        change = self.polarization.get_polarization_change(
-            convert_to_muC_per_cm2=True, all_in_polar=True
-        )
+        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=True)
         # No change up to 5 decimal
         self.assertArrayAlmostEqual(change, self.change, self.decimal_tol)
 
     def test_get_polarization_change_norm(self):
-        change_norm = self.polarization.get_polarization_change_norm(
-            convert_to_muC_per_cm2=True, all_in_polar=False
-        )
+        change_norm = self.polarization.get_polarization_change_norm(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertAlmostEqual(change_norm, self.change_norm)
         # Because nonpolar polarization is (0, 0, 0), all_in_polar should have no effect on polarization change norm
-        change = self.polarization.get_polarization_change(
-            convert_to_muC_per_cm2=True, all_in_polar=True
-        )
+        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=True)
         # No change up to 5 decimal
         self.assertArrayAlmostEqual(change, self.change, self.decimal_tol)
 
     def test_max_spline_jumps(self):
-        max_jumps = self.polarization.max_spline_jumps(
-            convert_to_muC_per_cm2=True, all_in_polar=False
-        )
+        max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(self.max_jumps, max_jumps)
         # This will differ slightly
-        max_jumps = self.polarization.max_spline_jumps(
-            convert_to_muC_per_cm2=True, all_in_polar=True
-        )
+        max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=True)
         self.assertArrayAlmostEqual(self.max_jumps_all_in_polar, max_jumps)
 
     def test_smoothness(self):
-        smoothness = self.polarization.smoothness(
-            convert_to_muC_per_cm2=True, all_in_polar=False
-        )
+        smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(self.smoothness, smoothness)
         # This will differ slightly
-        smoothness = self.polarization.smoothness(
-            convert_to_muC_per_cm2=True, all_in_polar=True
-        )
+        smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=True)
         self.assertArrayAlmostEqual(self.smoothness_all_in_polar, smoothness)
 
 

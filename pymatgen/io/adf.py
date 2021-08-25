@@ -191,9 +191,7 @@ class AdfKey(MSONable):
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(
-                        subkey.name, *subkey.options
-                    )
+                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(subkey.name, *subkey.options)
             else:
                 for subkey in self.subkeys:
                     s += str(subkey)
@@ -265,8 +263,8 @@ class AdfKey(MSONable):
         """
         if len(self.subkeys) > 0:
             key = subkey if isinstance(subkey, str) else subkey.key
-            for i in range(len(self.subkeys)):
-                if self.subkeys[i].key == key:
+            for i, v in enumerate(self.subkeys):
+                if v.key == key:
                     self.subkeys.pop(i)
                     break
 
@@ -313,8 +311,8 @@ class AdfKey(MSONable):
             if self._sized_op:
                 if not isinstance(option, str):
                     raise TypeError("``option`` should be a name string!")
-                for i in range(len(self.options)):
-                    if self.options[i][0] == option:
+                for i, v in enumerate(self.options):
+                    if v[0] == option:
                         self.options.pop(i)
                         break
             else:
@@ -475,11 +473,9 @@ class AdfTask(MSONable):
     operations = {
         "energy": "Evaluate the single point energy.",
         "optimize": "Minimize the energy by varying the molecular " "structure.",
-        "frequencies": "Compute second derivatives and print out an "
-        "analysis of molecular vibrations.",
+        "frequencies": "Compute second derivatives and print out an " "analysis of molecular vibrations.",
         "freq": "Same as frequencies.",
-        "numerical_frequencies": "Compute molecular frequencies using"
-        " numerical method.",
+        "numerical_frequencies": "Compute molecular frequencies using" " numerical method.",
     }
 
     def __init__(
@@ -520,9 +516,7 @@ class AdfTask(MSONable):
             raise AdfInputError("Invalid ADF task {:s}".format(operation))
         self.operation = operation
         self.title = title
-        self.basis_set = (
-            basis_set if basis_set is not None else self.get_default_basis_set()
-        )
+        self.basis_set = basis_set if basis_set is not None else self.get_default_basis_set()
         self.xc = xc if xc is not None else self.get_default_xc()
         self.units = units if units is not None else self.get_default_units()
         self.scf = scf if scf is not None else self.get_default_scf()
@@ -822,12 +816,8 @@ class AdfOutput:
 
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
-        energy_patt = re.compile(
-            r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s" "Hartree"
-        )
-        final_energy_patt = re.compile(
-            r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\."
-        )
+        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s" "Hartree")
+        final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
         runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
         end_patt = re.compile(r"<.*>\s<.*>\s+END")
@@ -898,9 +888,7 @@ class AdfOutput:
                     elif parse_cycle:
                         m = coord_patt.search(line)
                         if m:
-                            sites.append(
-                                [m.groups()[1], list(map(float, m.groups()[2:]))]
-                            )
+                            sites.append([m.groups()[1], list(map(float, m.groups()[2:]))])
                         else:
                             m = energy_patt.search(line)
                             if m:
@@ -933,12 +921,8 @@ class AdfOutput:
         """
         Parse the standard ADF output file.
         """
-        numerical_freq_patt = re.compile(
-            r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*"
-        )
-        analytic_freq_patt = re.compile(
-            r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*"
-        )
+        numerical_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*")
+        analytic_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*")
         freq_on_patt = re.compile(r"Vibrations\sand\sNormal\sModes\s+\*+.*\*+")
         freq_off_patt = re.compile(r"List\sof\sAll\sFrequencies:")
         mode_patt = re.compile(r"\s+(\d+)\.([A-Za-z]+)\s+(.*)")
@@ -972,9 +956,7 @@ class AdfOutput:
                     else:
                         m = coord_patt.search(line)
                         if m:
-                            sites.append(
-                                [m.group(2), list(map(float, m.groups()[2:5]))]
-                            )
+                            sites.append([m.group(2), list(map(float, m.groups()[2:5]))])
                             nstrike += 1
                         elif nstrike > 0:
                             find_structure = False

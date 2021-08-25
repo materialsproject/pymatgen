@@ -35,9 +35,9 @@ class EOSBase(metaclass=ABCMeta):
 
     def __init__(self, volumes, energies):
         """
-         Args:
-             volumes (list/numpy.array): volumes in Ang^3
-             energies (list/numpy.array): energy in eV
+        Args:
+            volumes (list/numpy.array): volumes in Ang^3
+            energies (list/numpy.array): energy in eV
         """
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
@@ -67,10 +67,7 @@ class EOSBase(metaclass=ABCMeta):
         vmin, vmax = min(self.volumes), max(self.volumes)
 
         if not vmin < v0 and v0 < vmax:
-            raise EOSError(
-                "The minimum volume of a fitted parabola is "
-                "not in the input volumes\n."
-            )
+            raise EOSError("The minimum volume of a fitted parabola is " "not in the input volumes\n.")
 
         return e0, b0, b1, v0
 
@@ -295,11 +292,7 @@ class Murnaghan(EOSBase):
         From PRB 28,5480 (1983)
         """
         e0, b0, b1, v0 = tuple(params)
-        return (
-            e0
-            + b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1.0) + 1.0)
-            - v0 * b0 / (b1 - 1.0)
-        )
+        return e0 + b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1.0) + 1.0) - v0 * b0 / (b1 - 1.0)
 
 
 class Birch(EOSBase):
@@ -318,12 +311,7 @@ class Birch(EOSBase):
         return (
             e0
             + 9.0 / 8.0 * b0 * v0 * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 2
-            + 9.0
-            / 16.0
-            * b0
-            * v0
-            * (b1 - 4.0)
-            * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 3
+            + 9.0 / 16.0 * b0 * v0 * (b1 - 4.0) * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 3
         )
 
 
@@ -338,9 +326,7 @@ class BirchMurnaghan(EOSBase):
         """
         e0, b0, b1, v0 = tuple(params)
         eta = (v0 / volume) ** (1.0 / 3.0)
-        return e0 + 9.0 * b0 * v0 / 16.0 * (eta ** 2 - 1) ** 2 * (
-            6 + b1 * (eta ** 2 - 1.0) - 4.0 * eta ** 2
-        )
+        return e0 + 9.0 * b0 * v0 / 16.0 * (eta ** 2 - 1) ** 2 * (6 + b1 * (eta ** 2 - 1.0) - 4.0 * eta ** 2)
 
 
 class PourierTarantola(EOSBase):
@@ -370,9 +356,7 @@ class Vinet(EOSBase):
         e0, b0, b1, v0 = tuple(params)
         eta = (volume / v0) ** (1.0 / 3.0)
         return e0 + 2.0 * b0 * v0 / (b1 - 1.0) ** 2 * (
-            2.0
-            - (5.0 + 3.0 * b1 * (eta - 1.0) - 3.0 * eta)
-            * np.exp(-3.0 * (b1 - 1.0) * (eta - 1.0) / 2.0)
+            2.0 - (5.0 + 3.0 * b1 * (eta - 1.0) - 3.0 * eta) * np.exp(-3.0 * (b1 - 1.0) * (eta - 1.0) / 2.0)
         )
 
 
@@ -451,9 +435,7 @@ class DeltaFactor(PolynomialEOS):
             raise EOSError("No minimum could be found")
 
         derivV2 = 4.0 / 9.0 * x ** 5.0 * deriv2(x)
-        derivV3 = -20.0 / 9.0 * x ** (13.0 / 2.0) * deriv2(x) - 8.0 / 27.0 * x ** (
-            15.0 / 2.0
-        ) * deriv3(x)
+        derivV3 = -20.0 / 9.0 * x ** (13.0 / 2.0) * deriv2(x) - 8.0 / 27.0 * x ** (15.0 / 2.0) * deriv3(x)
         b0 = derivV2 / x ** (3.0 / 2.0)
         b1 = -1 - x ** (-3.0 / 2.0) * derivV3 / derivV2
 
@@ -556,9 +538,7 @@ class NumericalEOS(PolynomialEOS):
             norm += weight
             coeffs = np.array(v[0])
             # pad the coefficient array with zeros
-            coeffs = np.lib.pad(
-                coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant"
-            )
+            coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
             weighted_avg_coeffs += weight * coeffs
 
         # normalization
@@ -620,9 +600,7 @@ class EOS:
         if eos_name not in self.MODELS:
             raise EOSError(
                 "The equation of state '{}' is not supported. "
-                "Please choose one from the following list: {}".format(
-                    eos_name, list(self.MODELS.keys())
-                )
+                "Please choose one from the following list: {}".format(eos_name, list(self.MODELS.keys()))
             )
         self._eos_name = eos_name
         self.model = self.MODELS[eos_name]

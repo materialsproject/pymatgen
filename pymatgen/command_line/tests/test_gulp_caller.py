@@ -9,6 +9,7 @@ Created on Jan 22, 2013
 @author: Bharat Medasani
 """
 import os
+import sys
 import unittest
 
 from monty.os.path import which
@@ -25,9 +26,12 @@ from pymatgen.command_line.gulp_caller import (
 )
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-gulp_present = which("gulp") and os.environ.get("GULP_LIB")
+gulp_present = which("gulp") and os.environ.get("GULP_LIB") and ("win" not in sys.platform)
+# disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
+# Ubuntu 20.04.
+gulp_present = False
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -100,9 +104,7 @@ class GulpIOTest(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.Al12O18"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         self.structure = p.structure
         self.gio = GulpIO()
 
@@ -123,9 +125,7 @@ class GulpIOTest(unittest.TestCase):
         self.assertNotIn("cell", inp_str)
 
     def test_structure_lines_no_frac_coords(self):
-        inp_str = self.gio.structure_lines(
-            self.structure, cell_flg=False, frac_flg=False
-        )
+        inp_str = self.gio.structure_lines(self.structure, cell_flg=False, frac_flg=False)
         self.assertNotIn("cell", inp_str)
         self.assertIn("cart", inp_str)
 
@@ -135,9 +135,7 @@ class GulpIOTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_library_line_explicit_path(self):
-        gin = self.gio.library_line(
-            "/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib"
-        )
+        gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
         self.assertIn("lib", gin)
 
     def test_library_line_wrong_file(self):
@@ -253,7 +251,7 @@ class GulpIOTest(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(os.path.join(test_dir, "example21.gout"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout"), "r") as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
@@ -288,9 +286,7 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.Al12O18"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)

@@ -12,9 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 class SetTest(PymatgenTest):
     def setUp(self):
         self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
-        self.out = Cp2kOutput(
-            Path.joinpath(self.TEST_FILES_DIR, "cp2k.out"), auto_load=True
-        )
+        self.out = Cp2kOutput(Path.joinpath(self.TEST_FILES_DIR, "cp2k.out"), auto_load=True)
 
     def test_files(self):
         self.out.parse_files()

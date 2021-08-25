@@ -6,7 +6,7 @@
 import random
 import unittest
 
-from pymatgen.core.composition import Composition, CompositionError
+from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.core.periodic_table import Element
 
@@ -47,7 +47,7 @@ class IonTest(unittest.TestCase):
         ]
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(CompositionError, Ion.from_formula, "(co2)(po4)2")
+        self.assertRaises(ValueError, Ion.from_formula, "(co2)(po4)2")
 
     def test_mixed_valence(self):
         comp = Ion(Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8}))
@@ -123,12 +123,9 @@ class IonTest(unittest.TestCase):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. "
-            + "%s should be equal to %s" % (comp1.formula, comp2.formula),
+            "Composition equality test failed. " + "%s should be equal to %s" % (comp1.formula, comp2.formula),
         )
-        self.assertEqual(
-            comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!"
-        )
+        self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
 
     def test_equality(self):
         self.assertTrue(self.comp[0] == (self.comp[0]))
@@ -145,6 +142,9 @@ class IonTest(unittest.TestCase):
 
     def test_len(self):
         self.assertEqual(len(self.comp[1]), 2, "Lengths are not equal!")
+
+    def test_to_string(self):
+        self.assertEqual(self.comp[1].to_latex_string(), "Mn$_{1}$ O$_{4}$$^{-1}$")
 
 
 if __name__ == "__main__":

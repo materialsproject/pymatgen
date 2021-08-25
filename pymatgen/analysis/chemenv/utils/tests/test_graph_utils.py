@@ -72,15 +72,13 @@ class GraphUtilsTest(PymatgenTest):
         self.assertTrue(np.allclose(get_delta(n1, n2, edge_data), [-2, -6, -4]))
         with self.assertRaisesRegex(
             ValueError,
-            "Trying to find a delta between two nodes with an edge "
-            "that seems not to link these nodes.",
+            "Trying to find a delta between two nodes with an edge " "that seems not to link these nodes.",
         ):
             edge_data = {"start": 6, "end": 3, "delta": [2, 6, 4]}
             get_delta(n1, n2, edge_data)
         with self.assertRaisesRegex(
             ValueError,
-            "Trying to find a delta between two nodes with an edge "
-            "that seems not to link these nodes.",
+            "Trying to find a delta between two nodes with an edge " "that seems not to link these nodes.",
         ):
             edge_data = {"start": 7, "end": 2, "delta": [2, 6, 4]}
             get_delta(n1, n2, edge_data)
@@ -153,21 +151,15 @@ class GraphUtilsTest(PymatgenTest):
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
         #   two cycles in from_edges
-        with self.assertRaisesRegex(
-            ValueError, expected_regex="Could not construct a cycle from edges."
-        ):
+        with self.assertRaisesRegex(ValueError, expected_regex="Could not construct a cycle from edges."):
             edges = [(0, 2), (4, 2), (0, 4), (1, 3), (6, 7), (3, 6), (1, 7)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
-        with self.assertRaisesRegex(
-            ValueError, expected_regex="Could not construct a cycle from edges."
-        ):
+        with self.assertRaisesRegex(ValueError, expected_regex="Could not construct a cycle from edges."):
             edges = [(0, 2), (4, 6), (2, 7), (4, 5), (5, 0)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
-        with self.assertRaisesRegex(
-            ValueError, expected_regex="Could not construct a cycle from edges."
-        ):
+        with self.assertRaisesRegex(ValueError, expected_regex="Could not construct a cycle from edges."):
             edges = [(0, 2), (4, 7), (2, 7), (4, 10), (5, 0)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
@@ -204,8 +196,7 @@ class GraphUtilsTest(PymatgenTest):
         sgc.validate(check_strict_ordering=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : "
-            "The nodes are not sortable.",
+            expected_regex="SimpleGraphCycle is not valid : " "The nodes are not sortable.",
         ):
             sgc.validate(check_strict_ordering=True)
 
@@ -213,8 +204,7 @@ class GraphUtilsTest(PymatgenTest):
         sgc = SimpleGraphCycle([], validate=False, ordered=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : "
-            "Empty cycle is not valid.",
+            expected_regex="SimpleGraphCycle is not valid : " "Empty cycle is not valid.",
         ):
             sgc.validate()
 
@@ -222,8 +212,7 @@ class GraphUtilsTest(PymatgenTest):
         sgc = SimpleGraphCycle([1, 2], validate=False, ordered=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : "
-            "Simple graph cycle with 2 nodes is not valid.",
+            expected_regex="SimpleGraphCycle is not valid : " "Simple graph cycle with 2 nodes is not valid.",
         ):
             sgc.validate()
 
@@ -279,8 +268,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertFalse(sgc.ordered)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : "
-            "The nodes are not sortable.",
+            expected_regex="SimpleGraphCycle is not valid : " "The nodes are not sortable.",
         ):
             sgc.order(raise_on_fail=True)
 
@@ -329,14 +317,11 @@ class GraphUtilsTest(PymatgenTest):
         )
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="Could not order simple graph cycle as the nodes "
-            "are of different classes.",
+            expected_regex="Could not order simple graph cycle as the nodes " "are of different classes.",
         ):
             sgc.order(raise_on_fail=True)
 
-        sgc = SimpleGraphCycle(
-            [FakeNodeWithEqLtMethods(85)], validate=False, ordered=False
-        )
+        sgc = SimpleGraphCycle([FakeNodeWithEqLtMethods(85)], validate=False, ordered=False)
         self.assertFalse(sgc.ordered)
         sgc.order()
         self.assertTrue(sgc.ordered)
@@ -401,12 +386,8 @@ class GraphUtilsTest(PymatgenTest):
             "Number of nodes different from number of "
             "edge indices.",
         ):
-            MultiGraphCycle(
-                [0, 2, 4], [0, 0]
-            )  # number of nodes is different from number of edge_indices
-        with self.assertRaisesRegex(
-            ValueError, expected_regex="MultiGraphCycle is not valid : Duplicate nodes."
-        ):
+            MultiGraphCycle([0, 2, 4], [0, 0])  # number of nodes is different from number of edge_indices
+        with self.assertRaisesRegex(ValueError, expected_regex="MultiGraphCycle is not valid : Duplicate nodes."):
             MultiGraphCycle([0, 2, 4, 3, 2], [0, 0, 0, 0, 0])  # duplicated nodes
         with self.assertRaisesRegex(
             ValueError,
@@ -414,9 +395,7 @@ class GraphUtilsTest(PymatgenTest):
             "Cycles with two nodes cannot use the same "
             "edge for the cycle.",
         ):
-            MultiGraphCycle(
-                [3, 5], [1, 1]
-            )  # number of nodes is different from number of edge_indices
+            MultiGraphCycle([3, 5], [1, 1])  # number of nodes is different from number of edge_indices
 
         # Testing equality
 
@@ -458,24 +437,12 @@ class GraphUtilsTest(PymatgenTest):
         self.assertFalse(MultiGraphCycle([2], [0]) == MultiGraphCycle([2], [1]))
 
         #   Test special case with two nodes
-        self.assertTrue(
-            MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [1, 3])
-        )
-        self.assertTrue(
-            MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [3, 1])
-        )
-        self.assertTrue(
-            MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [3, 1])
-        )
-        self.assertTrue(
-            MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 3])
-        )
-        self.assertFalse(
-            MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 2])
-        )
-        self.assertFalse(
-            MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 0], [1, 3])
-        )
+        self.assertTrue(MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [1, 3]))
+        self.assertTrue(MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [3, 1]))
+        self.assertTrue(MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [3, 1]))
+        self.assertTrue(MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 3]))
+        self.assertFalse(MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 2]))
+        self.assertFalse(MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 0], [1, 3]))
 
         # Test hashing function
         self.assertEqual(hash(mg_cycle1), 4)
@@ -519,8 +486,7 @@ class GraphUtilsTest(PymatgenTest):
         mgc = MultiGraphCycle([], edge_indices=[], validate=False, ordered=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : "
-            "Empty cycle is not valid.",
+            expected_regex="MultiGraphCycle is not valid : " "Empty cycle is not valid.",
         ):
             mgc.validate()
 
@@ -566,8 +532,7 @@ class GraphUtilsTest(PymatgenTest):
         mgc.validate(check_strict_ordering=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : "
-            "The nodes are not sortable.",
+            expected_regex="MultiGraphCycle is not valid : " "The nodes are not sortable.",
         ):
             mgc.validate(check_strict_ordering=True)
 
@@ -626,8 +591,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertFalse(mgc.ordered)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : "
-            "The nodes are not sortable.",
+            expected_regex="MultiGraphCycle is not valid : " "The nodes are not sortable.",
         ):
             mgc.order(raise_on_fail=True)
 
@@ -680,8 +644,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertEqual(mgc.edge_indices, (2, 5, 3, 7))
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="Could not order simple graph cycle as the nodes "
-            "are of different classes.",
+            expected_regex="Could not order simple graph cycle as the nodes " "are of different classes.",
         ):
             mgc.order(raise_on_fail=True)
 
@@ -733,8 +696,8 @@ class GraphUtilsTest(PymatgenTest):
         self.assertEqual(mgc.edge_indices, tuple([0, 1, 4, 0, 2, 2, 5, 3]))
 
         # Testing all cases for a length-4 cycle
-        nodes_ref = tuple([FakeNodeWithEqLtMethods(inode) for inode in [0, 1, 2, 3]])
-        edges_ref = tuple([3, 6, 9, 12])
+        nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in [0, 1, 2, 3])
+        edges_ref = (3, 6, 9, 12)
         for inodes, iedges in [
             ((0, 1, 2, 3), (3, 6, 9, 12)),
             ((1, 2, 3, 0), (6, 9, 12, 3)),
@@ -753,9 +716,7 @@ class GraphUtilsTest(PymatgenTest):
             self.assertEqual(
                 mgc.nodes,
                 nodes_ref,
-                msg="Nodes not equal for inodes = ({})".format(
-                    ", ".join([str(i) for i in inodes])
-                ),
+                msg="Nodes not equal for inodes = ({})".format(", ".join([str(i) for i in inodes])),
             )
             self.assertEqual(
                 mgc.edge_indices,

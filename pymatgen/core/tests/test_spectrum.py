@@ -5,6 +5,7 @@
 import unittest
 
 import numpy as np
+import scipy.stats as stats
 
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.testing import PymatgenTest
@@ -47,26 +48,36 @@ class SpectrumTest(PymatgenTest):
         self.assertTrue(np.allclose(scaled_spect.y, self.spec1.y / 3))
 
         scaled_spect = 3 * self.multi_spec1 + self.multi_spec2
-        self.assertTrue(
-            np.allclose(scaled_spect.y, 3 * self.multi_spec1.y + self.multi_spec2.y)
-        )
+        self.assertTrue(np.allclose(scaled_spect.y, 3 * self.multi_spec1.y + self.multi_spec2.y))
         self.assertArrayAlmostEqual(
             self.multi_spec1.get_interpolated_value(0.05),
             (self.multi_spec1.y[0, :] + self.multi_spec1.y[1, :]) / 2,
         )
 
     def test_smear(self):
-        y = np.array(self.spec1.y)
-        self.spec1.smear(0.2)
-        self.assertFalse(np.allclose(y, self.spec1.y))
-        self.assertAlmostEqual(sum(y), sum(self.spec1.y))
+        y = np.zeros(100)
+        y[25] = 1
+        y[50] = 1
+        y[75] = 1
+        spec = Spectrum(np.linspace(-10, 10, 100), y)
+        spec.smear(0.3)
+        self.assertFalse(np.allclose(y, spec.y))
+        self.assertAlmostEqual(sum(y), sum(spec.y))
+
+        # Test direct callable use of smearing.
+        spec2 = Spectrum(np.linspace(-10, 10, 100), y)
+        spec2.smear(0, func=lambda x: stats.norm.pdf(x, scale=0.3))
+        self.assertTrue(np.allclose(spec.y, spec2.y))
+
+        spec = Spectrum(np.linspace(-10, 10, 100), y)
+        spec.smear(0.3, func="lorentzian")
+        self.assertFalse(np.allclose(y, spec.y))
+        self.assertAlmostEqual(sum(y), sum(spec.y))
 
         y = np.array(self.multi_spec1.y)
         self.multi_spec1.smear(0.2)
         self.assertFalse(np.allclose(y, self.multi_spec1.y))
-        self.assertArrayAlmostEqual(
-            np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0)
-        )
+        self.assertArrayAlmostEqual(np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0))
 
     def test_str(self):
         # Just make sure that these methods work.

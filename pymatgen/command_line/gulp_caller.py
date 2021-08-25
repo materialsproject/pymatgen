@@ -295,9 +295,7 @@ class GulpIO:
         if cell_flg:
             gin += "cell\n"
             l = structure.lattice
-            lat_str = "{0:6f} {1:6f} {2:6f} {3:6f} {4:6f} {5:6f}".format(
-                l.a, l.b, l.c, l.alpha, l.beta, l.gamma
-            )
+            lat_str = "{0:6f} {1:6f} {2:6f} {3:6f} {4:6f} {5:6f}".format(l.a, l.b, l.c, l.alpha, l.beta, l.gamma)
             gin += lat_str + "\n"
 
         if frac_flg:
@@ -311,9 +309,7 @@ class GulpIO:
             specie = site.specie
             core_site_desc = specie.symbol + " core " + " ".join(coord) + "\n"
             gin += core_site_desc
-            if (specie in _anions and anion_shell_flg) or (
-                specie in _cations and cation_shell_flg
-            ):
+            if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
                 shel_site_desc = specie.symbol + " shel " + " ".join(coord) + "\n"
                 gin += shel_site_desc
             else:
@@ -348,9 +344,7 @@ class GulpIO:
             string containing specie and potential specification for gulp
             input.
         """
-        raise NotImplementedError(
-            "gulp_specie_potential not yet implemented." "\nUse library_line instead"
-        )
+        raise NotImplementedError("gulp_specie_potential not yet implemented." "\nUse library_line instead")
 
     @staticmethod
     def library_line(file_name):
@@ -387,9 +381,7 @@ class GulpIO:
             return gin + "\n"
         raise GulpError("GULP Library not found")
 
-    def buckingham_input(
-        self, structure, keywords, library=None, uc=True, valence_dict=None
-    ):
+    def buckingham_input(self, structure, keywords, library=None, uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
         from library.
@@ -522,18 +514,18 @@ class GulpIO:
         gin = "species \n"
         qerfstring = "qerfc\n"
 
-        for key in el_val_dict.keys():
-            if key != "O" and el_val_dict[key] % 1 != 0:
+        for key, value in el_val_dict.items():
+            if key != "O" and value % 1 != 0:
                 raise SystemError("Oxide has mixed valence on metal")
-            specie_string = key + " core " + str(el_val_dict[key]) + "\n"
+            specie_string = key + " core " + str(value) + "\n"
             gin += specie_string
             qerfstring += key + " " + key + " 0.6000 10.0000 \n"
 
         gin += "# noelectrostatics \n Morse \n"
         met_oxi_ters = TersoffPotential().data
-        for key in el_val_dict.keys():
+        for key, value in el_val_dict.items():
             if key != "O":
-                metal = key + "(" + str(int(el_val_dict[key])) + ")"
+                metal = key + "(" + str(int(value)) + ")"
                 ters_pot_str = met_oxi_ters[metal]
                 gin += ters_pot_str
 
@@ -692,14 +684,14 @@ class GulpCaller:
             gout: GULP output string
         """
         with ScratchDir("."):
-            p = subprocess.Popen(
+            with subprocess.Popen(
                 self._gulp_cmd,
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-            )
+            ) as p:
 
-            out, err = p.communicate(bytearray(gin, "utf-8"))
+                out, err = p.communicate(bytearray(gin, "utf-8"))
             out = out.decode("utf-8")
             err = err.decode("utf-8")
 
@@ -743,9 +735,7 @@ def get_energy_tersoff(structure, gulp_cmd="gulp"):
     return gio.get_energy(gout)
 
 
-def get_energy_buckingham(
-    structure, gulp_cmd="gulp", keywords=("optimise", "conp", "qok"), valence_dict=None
-):
+def get_energy_buckingham(structure, gulp_cmd="gulp", keywords=("optimise", "conp", "qok"), valence_dict=None):
     """
     Compute the energy of a structure using Buckingham potential.
 
@@ -763,9 +753,7 @@ def get_energy_buckingham(
     return gio.get_energy(gout)
 
 
-def get_energy_relax_structure_buckingham(
-    structure, gulp_cmd="gulp", keywords=("optimise", "conp"), valence_dict=None
-):
+def get_energy_relax_structure_buckingham(structure, gulp_cmd="gulp", keywords=("optimise", "conp"), valence_dict=None):
     """
     Relax a structure and compute the energy using Buckingham potential.
 
@@ -871,9 +859,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split("_")[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            species_dict[elmnt] = (
-                                metal + " core " + row.split()[2] + "\n"
-                            )
+                            species_dict[elmnt] = metal + " core " + row.split()[2] + "\n"
                     continue
 
                 if pot_flg:
@@ -885,9 +871,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split("_")[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            pot_dict[elmnt] = (
-                                metal + " " + " ".join(row.split()[1:]) + "\n"
-                            )
+                            pot_dict[elmnt] = metal + " " + " ".join(row.split()[1:]) + "\n"
                     continue
 
                 if spring_flg:

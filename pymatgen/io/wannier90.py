@@ -94,8 +94,7 @@ class Unk:
             )
         if len(temp_val.shape) == 5 and temp_val.shape[1] != 2:
             raise ValueError(
-                "invalid noncollinear data, shape should be (nbnd"
-                f", 2, ngx, ngy, ngz), given {temp_val.shape}"
+                "invalid noncollinear data, shape should be (nbnd" f", 2, ngx, ngy, ngz), given {temp_val.shape}"
             )
         self._data = temp_val
 
@@ -125,9 +124,7 @@ class Unk:
                 )
             try:
                 for _ in range(nbnd):
-                    input_data.append(
-                        f.read_record(np.complex128).reshape(ng, order="F")
-                    )
+                    input_data.append(f.read_record(np.complex128).reshape(ng, order="F"))
                 is_noncollinear = True
             except FortranEOFError:
                 is_noncollinear = False

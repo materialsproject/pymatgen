@@ -387,9 +387,7 @@ def measure(function, xs, ys, popt, weights):
                 raise NotImplementedError
             n += 1
         except IndexError:
-            raise RuntimeError(
-                "y does not exist for x = ", x, " this should not happen"
-            )
+            raise RuntimeError("y does not exist for x = ", x, " this should not happen")
 
     return m
 
@@ -440,27 +438,27 @@ def multi_curve_fit(xs, ys, verbose):
 
     fit_results = {}
     best = ["", np.inf]
-    for function in functions:
+    for k, v in functions.items():
         try:
             weights = get_weights(xs, ys)
             popt, pcov = curve_fit(
-                function,
+                k,
                 xs,
                 ys,
-                functions[function](xs, ys),
+                v(xs, ys),
                 maxfev=8000,
                 sigma=weights,
             )
             pcov = []
-            m = measure(function, xs, ys, popt, weights)
-            fit_results.update({function: {"measure": m, "popt": popt, "pcov": pcov}})
-            for f in fit_results:
-                if fit_results[f]["measure"] <= best[1]:
-                    best = f, fit_results[f]["measure"]
+            m = measure(k, xs, ys, popt, weights)
+            fit_results.update({k: {"measure": m, "popt": popt, "pcov": pcov}})
+            for f, v in fit_results.items():
+                if v["measure"] <= best[1]:
+                    best = f, v["measure"]
             if verbose:
-                print(str(function), m)
+                print(str(k), m)
         except RuntimeError:
-            print("no fit found for ", function)
+            print("no fit found for ", k)
 
     return fit_results[best[0]]["popt"], fit_results[best[0]]["pcov"], best
 
@@ -480,9 +478,9 @@ def multi_reciprocal_extra(xs, ys, noise=False):
         m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
         fit_results.update({n: {"measure": m, "popt": popt, "pcov": pcov}})
-    for n in fit_results:
-        if fit_results[n]["measure"] <= best[1]:
-            best = reciprocal, fit_results[n]["measure"], n
+    for n, v in fit_results.items():
+        if v["measure"] <= best[1]:
+            best = reciprocal, v["measure"], n
     return fit_results[best[2]]["popt"], fit_results[best[2]]["pcov"], best
 
 
@@ -491,10 +489,9 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
     idp = id_generator()
-    f = open("convdat." + str(idp), mode="w")
-    for n in range(0, len(ys), 1):
-        f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
-    f.close()
+    with open("convdat." + str(idp), mode="w") as f:
+        for n in range(0, len(ys), 1):
+            f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
     tol = abs(tol)
     line = "plot 'convdat.%s' pointsize 4 lt 0, " % idp
     line += "%s lt 3, %s lt 4, %s lt 4, " % (popt[0], popt[0] - tol, popt[0] + tol)
@@ -522,20 +519,12 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
     with open("plot-fits", mode="a") as f:
         f.write('set title "' + name + " - " + extra + '"\n')
         f.write("set output '" + name + "-" + idp + ".gif'" + "\n")
-        f.write(
-            "set yrange ["
-            + str(popt[0] - 5 * tol)
-            + ":"
-            + str(popt[0] + 5 * tol)
-            + "]\n"
-        )
+        f.write("set yrange [" + str(popt[0] - 5 * tol) + ":" + str(popt[0] + 5 * tol) + "]\n")
         f.write(line + "\n")
         f.write("pause -1 \n")
 
 
-def determine_convergence(
-    xs, ys, name, tol=0.0001, extra="", verbose=False, mode="extra", plots=True
-):
+def determine_convergence(xs, ys, name, tol=0.0001, extra="", verbose=False, mode="extra", plots=True):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """

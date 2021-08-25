@@ -19,24 +19,12 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )
 img_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "images",
 )
@@ -63,9 +51,7 @@ class VoronoiContainerTest(PymatgenTest):
             random.shuffle(order_and_coords)
             sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
             coords.extend([oc[1] for oc in order_and_coords])
-            fake_structure = Structure(
-                cubic_lattice, species, coords, coords_are_cartesian=True
-            )
+            fake_structure = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
 
             # First fake structure with a given normalized_distance_tolerance of 0.0100001
             detailed_voronoi_container = DetailedVoronoiContainer(
@@ -123,9 +109,7 @@ class VoronoiContainerTest(PymatgenTest):
             random.shuffle(order_and_coords)
             sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
             coords2.extend([oc[1] for oc in order_and_coords])
-            fake_structure2 = Structure(
-                cubic_lattice, species, coords2, coords_are_cartesian=True
-            )
+            fake_structure2 = Structure(cubic_lattice, species, coords2, coords_are_cartesian=True)
 
             # Second fake structure with a given normalized_distance_tolerance of 0.0100001
             detailed_voronoi_container = DetailedVoronoiContainer(
@@ -169,9 +153,7 @@ class VoronoiContainerTest(PymatgenTest):
                 [5.0, 3.98, 5.0],
                 [5.0, 5.0, 6.05],
             ]
-            fake_structure3 = Structure(
-                cubic_lattice, species, coords, coords_are_cartesian=True
-            )
+            fake_structure3 = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
             detailed_voronoi_container = DetailedVoronoiContainer(
                 structure=fake_structure3,
                 valences=valences,
@@ -191,12 +173,8 @@ class VoronoiContainerTest(PymatgenTest):
             self.assertTrue(fake_structure3[6] in nbs)
 
             # Test of the as_dict() and from_dict() methods as well as __eq__ method
-            other_detailed_voronoi_container = DetailedVoronoiContainer.from_dict(
-                detailed_voronoi_container.as_dict()
-            )
-            self.assertTrue(
-                detailed_voronoi_container, other_detailed_voronoi_container
-            )
+            other_detailed_voronoi_container = DetailedVoronoiContainer.from_dict(detailed_voronoi_container.as_dict())
+            self.assertTrue(detailed_voronoi_container, other_detailed_voronoi_container)
 
     def test_get_vertices_dist_ang_indices(self):
         with ScratchDir("."):
@@ -214,9 +192,7 @@ class VoronoiContainerTest(PymatgenTest):
                 [5.0, 3.98, 5.0],
                 [5.0, 5.0, 6.05],
             ]
-            fake_structure = Structure(
-                cubic_lattice, species, coords, coords_are_cartesian=True
-            )
+            fake_structure = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
 
             # First fake structure with a given normalized_distance_tolerance of 0.0100001
             detailed_voronoi_container = DetailedVoronoiContainer(
@@ -233,9 +209,7 @@ class VoronoiContainerTest(PymatgenTest):
                 for jj in range(10, 14):
                     fake_parameter_indices_list.append((ii, jj))
 
-            points = detailed_voronoi_container._get_vertices_dist_ang_indices(
-                fake_parameter_indices_list
-            )
+            points = detailed_voronoi_container._get_vertices_dist_ang_indices(fake_parameter_indices_list)
             self.assertEqual(points[0], (2, 7))
             self.assertEqual(points[1], (4, 7))
             self.assertEqual(points[2], (4, 10))

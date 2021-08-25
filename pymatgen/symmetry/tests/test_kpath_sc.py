@@ -11,9 +11,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
 from pymatgen.util.testing import PymatgenTest
 
-test_dir_structs = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "space_group_structs"
-)
+test_dir_structs = os.path.join(PymatgenTest.TEST_FILES_DIR, "space_group_structs")
 
 
 class BandStructureSCTest(PymatgenTest):
@@ -52,9 +50,7 @@ class BandStructureSCTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathSetyawanCurtarolo(
-                struct
-            )  # Throws error if something doesn't work, causing test to fail.
+            kpath = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "ICSD_170.cif")
         struct = Structure.from_file(struct_file_path)

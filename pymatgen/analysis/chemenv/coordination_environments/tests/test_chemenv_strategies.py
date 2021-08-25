@@ -20,9 +20,7 @@ class StrategyOptionsTest(PymatgenTest):
         # DistanceCutoffFloat
         with self.assertRaises(ValueError) as cm:
             DistanceCutoffFloat(0.5)
-        self.assertEqual(
-            str(cm.exception), "Distance cutoff should be between 1.0 and +infinity"
-        )
+        self.assertEqual(str(cm.exception), "Distance cutoff should be between 1.0 and +infinity")
         dc1 = DistanceCutoffFloat(1.2)
         dc1_dict = dc1.as_dict()
         dc2 = DistanceCutoffFloat.from_dict(dc1_dict)
@@ -31,9 +29,7 @@ class StrategyOptionsTest(PymatgenTest):
         # AngleCutoffFloat
         with self.assertRaises(ValueError) as cm:
             AngleCutoffFloat(1.2)
-        self.assertEqual(
-            str(cm.exception), "Angle cutoff should be between 0.0 and 1.0"
-        )
+        self.assertEqual(str(cm.exception), "Angle cutoff should be between 0.0 and 1.0")
         ac1 = AngleCutoffFloat(0.3)
         ac1_dict = ac1.as_dict()
         ac2 = AngleCutoffFloat.from_dict(ac1_dict)
@@ -57,9 +53,7 @@ class StrategyOptionsTest(PymatgenTest):
         self.assertEqual(str(cm.exception), "Additional condition 5 is not allowed")
         with self.assertRaises(ValueError) as cm:
             AdditionalConditionInt(0.458)
-        self.assertEqual(
-            str(cm.exception), "Additional condition 0.458 is not an integer"
-        )
+        self.assertEqual(str(cm.exception), "Additional condition 0.458 is not an integer")
         acd1 = AdditionalConditionInt(3)
         acd1_dict = acd1.as_dict()
         acd2 = AdditionalConditionInt.from_dict(acd1_dict)
@@ -68,9 +62,7 @@ class StrategyOptionsTest(PymatgenTest):
     def test_strategies(self):
         simplest_strategy = SimplestChemenvStrategy()
         self.assertTrue(simplest_strategy.uniquely_determines_coordination_environments)
-        self.assertAlmostEqual(
-            simplest_strategy.continuous_symmetry_measure_cutoff, 10.0
-        )
+        self.assertAlmostEqual(simplest_strategy.continuous_symmetry_measure_cutoff, 10.0)
         self.assertAlmostEqual(simplest_strategy.distance_cutoff, 1.4)
         self.assertAlmostEqual(simplest_strategy.angle_cutoff, 0.3)
 
@@ -79,9 +71,7 @@ class StrategyOptionsTest(PymatgenTest):
             angle_cutoff=0.45,
             continuous_symmetry_measure_cutoff=8.26,
         )
-        self.assertAlmostEqual(
-            simplest_strategy.continuous_symmetry_measure_cutoff, 8.26
-        )
+        self.assertAlmostEqual(simplest_strategy.continuous_symmetry_measure_cutoff, 8.26)
         self.assertAlmostEqual(simplest_strategy.distance_cutoff, 1.3)
         self.assertAlmostEqual(simplest_strategy.angle_cutoff, 0.45)
 
@@ -90,18 +80,14 @@ class StrategyOptionsTest(PymatgenTest):
 
         with self.assertRaises(ValueError) as cm:
             simplest_strategy.set_option("distance_cutoff", 0.5)
-        self.assertEqual(
-            str(cm.exception), "Distance cutoff should be between 1.0 and +infinity"
-        )
+        self.assertEqual(str(cm.exception), "Distance cutoff should be between 1.0 and +infinity")
 
         simplest_strategy.set_option("angle_cutoff", 0.2)
         self.assertAlmostEqual(simplest_strategy.angle_cutoff, 0.2)
 
         with self.assertRaises(ValueError) as cm:
             simplest_strategy.set_option("angle_cutoff", 1.5)
-        self.assertEqual(
-            str(cm.exception), "Angle cutoff should be between 0.0 and 1.0"
-        )
+        self.assertEqual(str(cm.exception), "Angle cutoff should be between 0.0 and 1.0")
 
         simplest_strategy.setup_options(
             {
@@ -111,24 +97,18 @@ class StrategyOptionsTest(PymatgenTest):
             }
         )
         self.assertAlmostEqual(simplest_strategy.distance_cutoff, 1.4)
-        self.assertAlmostEqual(
-            simplest_strategy.continuous_symmetry_measure_cutoff, 8.5
-        )
+        self.assertAlmostEqual(simplest_strategy.continuous_symmetry_measure_cutoff, 8.5)
         self.assertEqual(simplest_strategy.additional_condition, 3)
 
         with self.assertRaises(ValueError) as cm:
-            simplest_strategy.setup_options(
-                {"continuous_symmetry_measure_cutoff": -0.1}
-            )
+            simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": -0.1})
         self.assertEqual(
             str(cm.exception),
             "Continuous symmetry measure limits should be between 0.0 and 100.0",
         )
 
         with self.assertRaises(ValueError) as cm:
-            simplest_strategy.setup_options(
-                {"continuous_symmetry_measure_cutoff": 100.1}
-            )
+            simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": 100.1})
         self.assertEqual(
             str(cm.exception),
             "Continuous symmetry measure limits should be between 0.0 and 100.0",

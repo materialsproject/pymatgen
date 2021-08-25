@@ -130,10 +130,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 # Since multiple files are ambiguous, we will always read
                 # the one that it the last one alphabetically.
                 filepath = sorted(vasprun_files)[-1]
-                warnings.warn(
-                    "%d vasprun.xml.* found. %s is being parsed."
-                    % (len(vasprun_files), filepath)
-                )
+                warnings.warn("%d vasprun.xml.* found. %s is being parsed." % (len(vasprun_files), filepath))
 
         try:
             vasprun = Vasprun(filepath)
@@ -141,9 +138,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             logger.debug("error in {}: {}".format(filepath, ex))
             return None
 
-        entry = vasprun.get_computed_entry(
-            self._inc_structure, parameters=self._parameters, data=self._data
-        )
+        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
         return entry
@@ -247,24 +242,19 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 for filename in filenames:
                     files = sorted(glob.glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR", "DYNMAT"):
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR"):
+                        files_to_parse[filename] = files[0]
+                    elif len(files) == 1 and filename == "DYNMAT":
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
                         # use the first one for POSCAR and the last one
                         # alphabetically for CONTCAR and OSZICAR.
 
-                        files_to_parse[filename] = (
-                            files[0] if filename == "POSCAR" else files[-1]
-                        )
-                        warnings.warn(
-                            "%d files found. %s is being parsed."
-                            % (len(files), files_to_parse[filename])
-                        )
+                        files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
+                        warnings.warn("%d files found. %s is being parsed." % (len(files), files_to_parse[filename]))
 
-            if not set(files_to_parse.keys()).issuperset(
-                {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}
-            ):
+            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(
                     "Unable to parse %s as not all necessary files are present! "
                     "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
@@ -280,9 +270,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             param = {"hubbards": {}}
             if "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
-            param["is_hubbard"] = (
-                incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
-            )
+            param["is_hubbard"] = incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
             param["run_type"] = None
             param["potcar_spec"] = potcar.spec
             energy = oszicar.final_energy
@@ -295,12 +283,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 dynmat = Dynmat(files_to_parse["DYNMAT"])
                 data["phonon_frequencies"] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
-                return ComputedStructureEntry(
-                    structure, energy, parameters=param, data=data
-                )
-            return ComputedEntry(
-                structure.composition, energy, parameters=param, data=data
-            )
+                return ComputedStructureEntry(structure, energy, parameters=param, data=data)
+            return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
         except Exception as ex:
             logger.debug("error in {}: {}".format(path, ex))
@@ -342,9 +326,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         Like the GaussianOutput class, this is still in early beta.
     """
 
-    def __init__(
-        self, inc_structure=False, parameters=None, data=None, file_extensions=(".log",)
-    ):
+    def __init__(self, inc_structure=False, parameters=None, data=None, file_extensions=(".log",)):
         """
         Args:
             inc_structure (bool): Set to True if you want
@@ -404,9 +386,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         for d in self._data:
             data[d] = getattr(gaurun, d)
         if self._inc_structure:
-            entry = ComputedStructureEntry(
-                gaurun.final_structure, gaurun.final_energy, parameters=param, data=data
-            )
+            entry = ComputedStructureEntry(gaurun.final_structure, gaurun.final_energy, parameters=param, data=data)
         else:
             entry = ComputedEntry(
                 gaurun.final_structure.composition,
@@ -428,11 +408,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             List of valid dir/file paths for assimilation
         """
         parent, subdirs, files = path
-        return [
-            os.path.join(parent, f)
-            for f in files
-            if os.path.splitext(f)[1] in self._file_extensions
-        ]
+        return [os.path.join(parent, f) for f in files if os.path.splitext(f)[1] in self._file_extensions]
 
     def __str__(self):
         return " GaussianToComputedEntryDrone"

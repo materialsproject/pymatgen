@@ -9,7 +9,7 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 import logging
 from itertools import chain
 
-import matplotlib.cm as cm
+from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MSONable
@@ -70,9 +70,7 @@ class DefectPhaseDiagram(MSONable):
         self.filter_compatible = filter_compatible
 
         if filter_compatible:
-            self.entries = [
-                e for e in entries if e.parameters.get("is_compatible", True)
-            ]
+            self.entries = [e for e in entries if e.parameters.get("is_compatible", True)]
         else:
             self.entries = entries
 
@@ -156,9 +154,7 @@ class DefectPhaseDiagram(MSONable):
             Used for grouping similar defects of different charges
             Can distinguish identical defects even if they are not in same position
             """
-            pdc = PointDefectComparator(
-                check_charge=False, check_primitive_cell=True, check_lattice_scale=False
-            )
+            pdc = PointDefectComparator(check_charge=False, check_primitive_cell=True, check_lattice_scale=False)
             grp_def_sets = []
             grp_def_indices = []
             for ent_ind, ent in enumerate(entryset):
@@ -181,10 +177,7 @@ class DefectPhaseDiagram(MSONable):
         # Limits for search
         # E_fermi = { -1 eV to band gap+1}
         # E_formation = { (min(Eform) - 30) to (max(Eform) + 30)}
-        all_eform = [
-            one_def.formation_energy(fermi_level=self.band_gap / 2.0)
-            for one_def in self.entries
-        ]
+        all_eform = [one_def.formation_energy(fermi_level=self.band_gap / 2.0) for one_def in self.entries]
         min_y_lim = min(all_eform) - 30
         max_y_lim = max(all_eform) + 30
         limits = [[-1, self.band_gap + 1], [min_y_lim, max_y_lim]]
@@ -232,9 +225,7 @@ class DefectPhaseDiagram(MSONable):
                 ints_and_facets,
             )
             # sort based on transition level
-            ints_and_facets = list(
-                sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0])
-            )
+            ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
 
             # log a defect name for tracking (using full index list to avoid naming
             # in-equivalent defects with same name)
@@ -247,31 +238,19 @@ class DefectPhaseDiagram(MSONable):
                 # Map of transition level: charge states
 
                 transition_level_map[track_name] = {
-                    intersection[0]: [defects[i].charge for i in facet]
-                    for intersection, facet in ints_and_facets
+                    intersection[0]: [defects[i].charge for i in facet] for intersection, facet in ints_and_facets
                 }
 
-                stable_entries[track_name] = list(
-                    set([defects[i] for dual in facets for i in dual])
-                )
+                stable_entries[track_name] = list({defects[i] for dual in facets for i in dual})
 
                 finished_charges[track_name] = [defect.charge for defect in defects]
             else:
                 # if ints_and_facets is empty, then there is likely only one defect...
                 if len(defects) != 1:
                     # confirm formation energies dominant for one defect over other identical defects
-                    name_set = [
-                        one_def.name + "_chg" + str(one_def.charge)
-                        for one_def in defects
-                    ]
-                    vb_list = [
-                        one_def.formation_energy(fermi_level=limits[0][0])
-                        for one_def in defects
-                    ]
-                    cb_list = [
-                        one_def.formation_energy(fermi_level=limits[0][1])
-                        for one_def in defects
-                    ]
+                    name_set = [one_def.name + "_chg" + str(one_def.charge) for one_def in defects]
+                    vb_list = [one_def.formation_energy(fermi_level=limits[0][0]) for one_def in defects]
+                    cb_list = [one_def.formation_energy(fermi_level=limits[0][1]) for one_def in defects]
 
                     vbm_def_index = vb_list.index(min(vb_list))
                     name_stable_below_vbm = name_set[vbm_def_index]
@@ -292,17 +271,10 @@ class DefectPhaseDiagram(MSONable):
                                 cb_list,
                             )
                         )
-                    else:
-                        logger.info(
-                            "{} is only stable defect out of {}".format(
-                                name_stable_below_vbm, name_set
-                            )
-                        )
-                        transition_level_map[track_name] = {}
-                        stable_entries[track_name] = list([defects[vbm_def_index]])
-                        finished_charges[track_name] = [
-                            one_def.charge for one_def in defects
-                        ]
+                    logger.info("{} is only stable defect out of {}".format(name_stable_below_vbm, name_set))
+                    transition_level_map[track_name] = {}
+                    stable_entries[track_name] = list([defects[vbm_def_index]])
+                    finished_charges[track_name] = [one_def.charge for one_def in defects]
                 else:
                     transition_level_map[track_name] = {}
 
@@ -312,14 +284,12 @@ class DefectPhaseDiagram(MSONable):
 
         self.transition_level_map = transition_level_map
         self.transition_levels = {
-            defect_name: list(defect_tls.keys())
-            for defect_name, defect_tls in transition_level_map.items()
+            defect_name: list(defect_tls.keys()) for defect_name, defect_tls in transition_level_map.items()
         }
         self.stable_entries = stable_entries
         self.finished_charges = finished_charges
         self.stable_charges = {
-            defect_name: [entry.charge for entry in entries]
-            for defect_name, entries in stable_entries.items()
+            defect_name: [entry.charge for entry in entries] for defect_name, entries in stable_entries.items()
         }
 
     @property
@@ -344,9 +314,7 @@ class DefectPhaseDiagram(MSONable):
         all_stable_entries = self.all_stable_entries
         return [e for e in self.entries if e not in all_stable_entries]
 
-    def defect_concentrations(
-        self, chemical_potentials, temperature=300, fermi_level=0.0
-    ):
+    def defect_concentrations(self, chemical_potentials, temperature=300, fermi_level=0.0):
         """
         Give list of all concentrations at specified efermi in the DefectPhaseDiagram
         args:
@@ -389,11 +357,7 @@ class DefectPhaseDiagram(MSONable):
                 np.min(self.stable_charges[def_type]) - 1,
                 np.max(self.stable_charges[def_type]) + 2,
             )
-            test_charges = [
-                charge
-                for charge in test_charges
-                if charge not in self.finished_charges[def_type]
-            ]
+            test_charges = [charge for charge in test_charges if charge not in self.finished_charges[def_type]]
 
             if len(self.transition_level_map[def_type].keys()):
                 # More positive charges will shift the minimum transition level down
@@ -401,24 +365,16 @@ class DefectPhaseDiagram(MSONable):
                 min_tl = min(self.transition_level_map[def_type].keys())
                 if min_tl < tolerance:
                     max_charge = max(self.transition_level_map[def_type][min_tl])
-                    test_charges = [
-                        charge for charge in test_charges if charge < max_charge
-                    ]
+                    test_charges = [charge for charge in test_charges if charge < max_charge]
 
                 # More negative charges will shift the maximum transition level up
                 # Minimum charge is limited by this if transition level is near CBM
                 max_tl = max(self.transition_level_map[def_type].keys())
                 if max_tl > (self.band_gap - tolerance):
                     min_charge = min(self.transition_level_map[def_type][max_tl])
-                    test_charges = [
-                        charge for charge in test_charges if charge > min_charge
-                    ]
+                    test_charges = [charge for charge in test_charges if charge > min_charge]
             else:
-                test_charges = [
-                    charge
-                    for charge in test_charges
-                    if charge not in self.stable_charges[def_type]
-                ]
+                test_charges = [charge for charge in test_charges if charge not in self.stable_charges[def_type]]
 
             recommendations[def_type] = test_charges
 
@@ -436,17 +392,13 @@ class DefectPhaseDiagram(MSONable):
                                larger supercells for a given charge
         """
         if self.filter_compatible:
-            raise ValueError(
-                "Cannot suggest larger supercells if filter_compatible is True."
-            )
+            raise ValueError("Cannot suggest larger supercells if filter_compatible is True.")
 
         recommendations = {}
 
         for def_type in self.defect_types:
             template_entry = self.stable_entries[def_type][0].copy()
-            defect_indices = [
-                int(def_ind) for def_ind in def_type.split("@")[-1].split("-")
-            ]
+            defect_indices = [int(def_ind) for def_ind in def_type.split("@")[-1].split("-")]
 
             for charge in self.finished_charges[def_type]:
                 chg_defect = template_entry.defect.copy()
@@ -459,19 +411,17 @@ class DefectPhaseDiagram(MSONable):
 
                 if entry.parameters.get("is_compatible", True):
                     continue
-                else:
-                    # consider if transition level is within
-                    # tolerance of band edges
-                    suggest_bigger_supercell = True
-                    for tl, chgset in self.transition_level_map[def_type].items():
-                        sorted_chgset = list(chgset)
-                        sorted_chgset.sort(reverse=True)
-                        if charge == sorted_chgset[0] and tl < tolerance:
-                            suggest_bigger_supercell = False
-                        elif charge == sorted_chgset[1] and tl > (
-                            self.band_gap - tolerance
-                        ):
-                            suggest_bigger_supercell = False
+
+                # consider if transition level is within
+                # tolerance of band edges
+                suggest_bigger_supercell = True
+                for tl, chgset in self.transition_level_map[def_type].items():
+                    sorted_chgset = list(chgset)
+                    sorted_chgset.sort(reverse=True)
+                    if charge == sorted_chgset[0] and tl < tolerance:
+                        suggest_bigger_supercell = False
+                    elif charge == sorted_chgset[1] and tl > (self.band_gap - tolerance):
+                        suggest_bigger_supercell = False
 
                 if suggest_bigger_supercell:
                     if def_type not in recommendations:
@@ -506,16 +456,12 @@ class DefectPhaseDiagram(MSONable):
                     )
                 ]
             )
-            qd_tot += fdos.get_doping(
-                fermi_level=ef + fdos_vbm, temperature=temperature
-            )
+            qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
 
-    def solve_for_non_equilibrium_fermi_energy(
-        self, temperature, quench_temperature, chemical_potentials, bulk_dos
-    ):
+    def solve_for_non_equilibrium_fermi_energy(self, temperature, quench_temperature, chemical_potentials, bulk_dos):
         """
         Solve for the Fermi energy after quenching in the defect concentrations at a higher
         temperature (the quench temperature),
@@ -530,9 +476,7 @@ class DefectPhaseDiagram(MSONable):
             Fermi energy dictated by charge neutrality with respect to frozen in defect concentrations
         """
 
-        high_temp_fermi_level = self.solve_for_fermi_energy(
-            quench_temperature, chemical_potentials, bulk_dos
-        )
+        high_temp_fermi_level = self.solve_for_fermi_energy(quench_temperature, chemical_potentials, bulk_dos)
         fixed_defect_charge = sum(
             [
                 d["charge"] * d["conc"]
@@ -549,14 +493,10 @@ class DefectPhaseDiagram(MSONable):
 
         def _get_total_q(ef):
             qd_tot = fixed_defect_charge
-            qd_tot += fdos.get_doping(
-                fermi_level=ef + fdos_vbm, temperature=temperature
-            )
+            qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
-
-        return
 
     def get_dopability_limits(self, chemical_potentials):
         """
@@ -594,12 +534,10 @@ class DefectPhaseDiagram(MSONable):
             if min_fl_formen < 0.0 and max_fl_formen < 0.0:
                 logger.error(
                     "Formation energy is negative through entire gap for entry {} q={}."
-                    " Cannot return dopability limits.".format(
-                        def_entry.name, def_entry.charge
-                    )
+                    " Cannot return dopability limits.".format(def_entry.name, def_entry.charge)
                 )
                 return None, None
-            elif np.sign(min_fl_formen) != np.sign(max_fl_formen):
+            if np.sign(min_fl_formen) != np.sign(max_fl_formen):
                 x_crossing = min_fl_range - (min_fl_formen / def_entry.charge)
                 if min_fl_formen < 0.0:
                     if lower_lim is None or lower_lim < x_crossing:
@@ -662,12 +600,8 @@ class DefectPhaseDiagram(MSONable):
                 first_charge = max(def_tl[org_x[0]])
                 for chg_ent in self.stable_entries[defnom]:
                     if chg_ent.charge == first_charge:
-                        form_en = chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=lower_cap
-                        )
-                        fe_left = chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=xlim[0]
-                        )
+                        form_en = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=lower_cap)
+                        fe_left = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=xlim[0])
 
                 xy[defnom][0].append(lower_cap)
                 xy[defnom][1].append(form_en)
@@ -678,9 +612,7 @@ class DefectPhaseDiagram(MSONable):
                     charge = max(def_tl[fl])
                     for chg_ent in self.stable_entries[defnom]:
                         if chg_ent.charge == charge:
-                            form_en = chg_ent.formation_energy(
-                                chemical_potentials=mu_elts, fermi_level=fl
-                            )
+                            form_en = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=fl)
                     xy[defnom][0].append(fl)
                     xy[defnom][1].append(form_en)
                     y_range_vals.append(form_en)
@@ -689,12 +621,8 @@ class DefectPhaseDiagram(MSONable):
                 last_charge = min(def_tl[org_x[-1]])
                 for chg_ent in self.stable_entries[defnom]:
                     if chg_ent.charge == last_charge:
-                        form_en = chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=upper_cap
-                        )
-                        fe_right = chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=xlim[1]
-                        )
+                        form_en = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=upper_cap)
+                        fe_right = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=xlim[1])
                 xy[defnom][0].append(upper_cap)
                 xy[defnom][1].append(form_en)
                 y_range_vals.append(fe_right)
@@ -703,17 +631,9 @@ class DefectPhaseDiagram(MSONable):
                 chg_ent = self.stable_entries[defnom][0]
                 for x_extrem in [lower_cap, upper_cap]:
                     xy[defnom][0].append(x_extrem)
-                    xy[defnom][1].append(
-                        chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=x_extrem
-                        )
-                    )
+                    xy[defnom][1].append(chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=x_extrem))
                 for x_window in xlim:
-                    y_range_vals.append(
-                        chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=x_window
-                        )
-                    )
+                    y_range_vals.append(chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=x_window))
 
         if ylim is None:
             window = max(y_range_vals) - min(y_range_vals)
@@ -721,9 +641,9 @@ class DefectPhaseDiagram(MSONable):
             ylim = (min(y_range_vals) - spacer, max(y_range_vals) + spacer)
 
         if len(xy) <= 8:
-            colors = cm.Dark2(np.linspace(0, 1, len(xy)))
+            colors = cm.Dark2(np.linspace(0, 1, len(xy)))  # pylint: disable=E1101
         else:
-            colors = cm.gist_rainbow(np.linspace(0, 1, len(xy)))
+            colors = cm.gist_rainbow(np.linspace(0, 1, len(xy)))  # pylint: disable=E1101
 
         plt.figure()
         plt.clf()
@@ -741,9 +661,7 @@ class DefectPhaseDiagram(MSONable):
                 x_trans.append(x_val)
                 for chg_ent in self.stable_entries[defnom]:
                     if chg_ent.charge == chargeset[0]:
-                        form_en = chg_ent.formation_energy(
-                            chemical_potentials=mu_elts, fermi_level=x_val
-                        )
+                        form_en = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=x_val)
                 y_trans.append(form_en)
             if len(x_trans):
                 plt.plot(
@@ -759,14 +677,14 @@ class DefectPhaseDiagram(MSONable):
         legends_txt = []
         for dfct in for_legend:
             flds = dfct.name.split("_")
-            if "Vac" == flds[0]:
+            if flds[0] == "Vac":
                 base = "$Vac"
                 sub_str = "_{" + flds[1] + "}$"
-            elif "Sub" == flds[0]:
+            elif flds[0] == "Sub":
                 flds = dfct.name.split("_")
                 base = "$" + flds[1]
                 sub_str = "_{" + flds[3] + "}$"
-            elif "Int" == flds[0]:
+            elif flds[0] == "Int":
                 base = "$" + flds[1]
                 sub_str = "_{inter}$"
             else:
@@ -789,18 +707,12 @@ class DefectPhaseDiagram(MSONable):
         plt.ylim(ylim)
         plt.xlim(xlim)
 
-        plt.plot(
-            [xlim[0], xlim[1]], [0, 0], "k-"
-        )  # black dashed line for Eformation = 0
-        plt.axvline(
-            x=0.0, linestyle="--", color="k", linewidth=3
-        )  # black dashed lines for gap edges
+        plt.plot([xlim[0], xlim[1]], [0, 0], "k-")  # black dashed line for Eformation = 0
+        plt.axvline(x=0.0, linestyle="--", color="k", linewidth=3)  # black dashed lines for gap edges
         plt.axvline(x=self.band_gap, linestyle="--", color="k", linewidth=3)
 
         if fermi_level is not None:
-            plt.axvline(
-                x=fermi_level, linestyle="-.", color="k", linewidth=2
-            )  # smaller dashed lines for gap edges
+            plt.axvline(x=fermi_level, linestyle="-.", color="k", linewidth=2)  # smaller dashed lines for gap edges
 
         plt.xlabel("Fermi energy (eV)", size=ax_fontsize * width)
         plt.ylabel("Defect Formation\nEnergy (eV)", size=ax_fontsize * width)
@@ -811,3 +723,5 @@ class DefectPhaseDiagram(MSONable):
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")
         else:
             return plt
+
+        return None

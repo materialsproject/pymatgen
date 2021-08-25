@@ -9,13 +9,12 @@ import unittest
 
 from monty.json import MontyDecoder
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
     ConversionVoltagePair,
 )
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class ConversionElectrodeTest(unittest.TestCase):
@@ -25,7 +24,7 @@ class ConversionElectrodeTest(unittest.TestCase):
         self.conversion_eletrodes = {}
         for f in self.formulas:
 
-            with open(os.path.join(test_dir, f + "_batt.json"), "r") as fid:
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json"), "r") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
@@ -66,16 +65,14 @@ class ConversionElectrodeTest(unittest.TestCase):
             c = self.conversion_eletrodes[f]["CE"]
 
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
-            self.assertEqual(
-                len(c.get_sub_electrodes(False)), sum(range(1, c.num_steps + 1))
-            )
+            self.assertEqual(len(c.get_sub_electrodes(False)), sum(range(1, c.num_steps + 1)))
             self.assertIsNotNone(str(c))
             p = self.expected_properties[f]
 
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v, 2)
 
-            self.assertIsNotNone(c.as_dict_summary(True))
+            self.assertIsNotNone(c.get_summary_dict(True))
 
             # Test pair to dict
 

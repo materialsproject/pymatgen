@@ -48,9 +48,7 @@ class RotationTransformation(AbstractTransformation):
         self.axis = axis
         self.angle = angle
         self.angle_in_radians = angle_in_radians
-        self._symmop = SymmOp.from_axis_angle_and_translation(
-            self.axis, self.angle, self.angle_in_radians
-        )
+        self._symmop = SymmOp.from_axis_angle_and_translation(self.axis, self.angle, self.angle_in_radians)
 
     def apply_transformation(self, structure):
         """
@@ -67,11 +65,8 @@ class RotationTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return (
-            "Rotation Transformation about axis "
-            + "{} with angle = {:.4f} {}".format(
-                self.axis, self.angle, "radians" if self.angle_in_radians else "degrees"
-            )
+        return "Rotation Transformation about axis " + "{} with angle = {:.4f} {}".format(
+            self.axis, self.angle, "radians" if self.angle_in_radians else "degrees"
         )
 
     def __repr__(self):
@@ -164,9 +159,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         self.max_radius = max_radius
         self.max_permutations = max_permutations
         self.distance_scale_factor = distance_scale_factor
-        self.analyzer = BVAnalyzer(
-            symm_tol, max_radius, max_permutations, distance_scale_factor
-        )
+        self.analyzer = BVAnalyzer(symm_tol, max_radius, max_permutations, distance_scale_factor)
 
     def apply_transformation(self, structure):
         """
@@ -206,7 +199,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         """
         pass
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure):  # pylint: disable=R0201
         """
         Apply the transformation.
 
@@ -267,9 +260,7 @@ class SupercellTransformation(AbstractTransformation):
         Returns:
             SupercellTransformation.
         """
-        return SupercellTransformation(
-            [[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]]
-        )
+        return SupercellTransformation([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
 
     def apply_transformation(self, structure):
         """
@@ -284,9 +275,7 @@ class SupercellTransformation(AbstractTransformation):
         return structure * self.scaling_matrix
 
     def __str__(self):
-        return "Supercell Transformation with scaling matrix " + "{}".format(
-            self.scaling_matrix
-        )
+        return "Supercell Transformation with scaling matrix " + "{}".format(self.scaling_matrix)
 
     def __repr__(self):
         return self.__str__()
@@ -475,14 +464,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
             transmuted structure class.
         """
         sp = get_el_sp(self.specie_to_remove)
-        specie_indices = [
-            i
-            for i in range(len(structure))
-            if structure[i].species == Composition({sp: 1})
-        ]
-        trans = PartialRemoveSitesTransformation(
-            [specie_indices], [self.fraction_to_remove], algo=self.algo
-        )
+        specie_indices = [i for i in range(len(structure)) if structure[i].species == Composition({sp: 1})]
+        trans = PartialRemoveSitesTransformation([specie_indices], [self.fraction_to_remove], algo=self.algo)
         return trans.apply_transformation(structure, return_ranked_list)
 
     @property
@@ -544,9 +527,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(
-        self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False
-    ):
+    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False):
         """
         Args:
             algo (int): Algorithm to use.
@@ -633,9 +614,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             # round total occupancy to possible values
             for k, v in total_occupancy.items():
                 if abs(v - round(v)) > 0.25:
-                    raise ValueError(
-                        "Occupancy fractions not consistent " "with size of unit cell"
-                    )
+                    raise ValueError("Occupancy fractions not consistent " "with size of unit cell")
                 total_occupancy[k] = int(round(v))
             # start with an ordered structure
             initial_sp = max(total_occupancy.keys(), key=lambda x: abs(x.oxi_state))
@@ -798,12 +777,8 @@ class ConventionalCellTransformation(AbstractTransformation):
         Returns:
             The same structure in a conventional standard setting
         """
-        sga = SpacegroupAnalyzer(
-            structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance
-        )
-        return sga.get_conventional_standard_structure(
-            international_monoclinic=self.international_monoclinic
-        )
+        sga = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
+        return sga.get_conventional_standard_structure(international_monoclinic=self.international_monoclinic)
 
     def __str__(self):
         return "Conventional cell transformation"
@@ -833,7 +808,9 @@ class PerturbStructureTransformation(AbstractTransformation):
     """
 
     def __init__(
-        self, distance: float = 0.01, min_distance: Optional[Union[int, float]] = None,
+        self,
+        distance: float = 0.01,
+        min_distance: Optional[Union[int, float]] = None,
     ):
         """
         Args:
@@ -863,9 +840,7 @@ class PerturbStructureTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "PerturbStructureTransformation : " + "Min_distance = {}".format(
-            self.min_distance
-        )
+        return "PerturbStructureTransformation : " + "Min_distance = {}".format(self.min_distance)
 
     def __repr__(self):
         return self.__str__()
@@ -911,9 +886,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return self._deform.apply_to_structure(structure)
 
     def __str__(self):
-        return "DeformStructureTransformation : " + "Deformation = {}".format(
-            str(self.deformation)
-        )
+        return "DeformStructureTransformation : " + "Deformation = {}".format(str(self.deformation))
 
     def __repr__(self):
         return self.__str__()
@@ -979,13 +952,9 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         for sp in species:
             for k, v in sp.items():
                 old_occ = sp[k]
-                new_occ = float(
-                    Fraction(old_occ).limit_denominator(self.max_denominator)
-                )
+                new_occ = float(Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
-                    new_occ = (
-                        around(old_occ * self.max_denominator) / self.max_denominator
-                    )
+                    new_occ = around(old_occ * self.max_denominator) / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError("Cannot discretize structure within tolerance!")
                 sp[k] = new_occ
@@ -1112,17 +1081,13 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         if self.species_map is None:
             match = StructureMatcher()
-            s_map = match.get_best_electronegativity_anonymous_mapping(
-                self.unrelaxed_structure, structure
-            )
+            s_map = match.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure, structure)
         else:
             s_map = self.species_map
 
         params = list(structure.lattice.abc)
         params.extend(structure.lattice.angles)
-        new_lattice = Lattice.from_parameters(
-            *[p * self.params_percent_change[i] for i, p in enumerate(params)]
-        )
+        new_lattice = Lattice.from_parameters(*[p * self.params_percent_change[i] for i, p in enumerate(params)])
         species, frac_coords = [], []
         for site in self.relaxed_structure:
             species.append(s_map[site.specie])

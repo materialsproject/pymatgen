@@ -4,10 +4,8 @@
 
 import unittest
 
-import numpy as np
-from monty.os.path import which
-
 from pymatgen.command_line.bader_caller import *
+from pymatgen.util.testing import PymatgenTest
 
 
 @unittest.skipIf(not which("bader"), "bader executable not present.")
@@ -22,15 +20,11 @@ class BaderAnalysisTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_init(self):
-        test_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files"
-        )
-
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=os.path.join(test_dir, "CHGCAR.Fe3O4"),
-            potcar_filename=os.path.join(test_dir, "POTCAR.Fe3O4"),
-            chgref_filename=os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
+            chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"),
+            potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4"),
+            chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref"),
         )
         self.assertEqual(len(analysis.data), 14)
         self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
@@ -58,19 +52,15 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(s[0].specie.oxi_state, 1.3863218, 3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(chgcar_filename=os.path.join(test_dir, "CHGCAR.Fe3O4"))
+        analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"))
         self.assertEqual(len(analysis.data), 14)
 
         # Test Cube file format parsing
-        analysis = BaderAnalysis(
-            cube_filename=os.path.join(test_dir, "bader/elec.cube.gz")
-        )
+        analysis = BaderAnalysis(cube_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "bader/elec.cube.gz"))
         self.assertEqual(len(analysis.data), 9)
 
     def test_from_path(self):
-        test_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files", "bader"
-        )
+        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
         analysis = BaderAnalysis.from_path(test_dir)
         chgcar = os.path.join(test_dir, "CHGCAR.gz")
         chgref = os.path.join(test_dir, "_CHGCAR_sum.gz")
@@ -82,9 +72,7 @@ class BaderAnalysisTest(unittest.TestCase):
             os.remove("CHGREF")
 
     def test_automatic_runner(self):
-        test_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files/bader"
-        )
+        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
 
         summary = bader_analysis_from_path(test_dir)
 
@@ -123,15 +111,11 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(sum(summary["magmom"]), 28, places=1)
 
     def test_atom_parsing(self):
-        test_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files"
-        )
-
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=os.path.join(test_dir, "CHGCAR.Fe3O4"),
-            potcar_filename=os.path.join(test_dir, "POTCAR.Fe3O4"),
-            chgref_filename=os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
+            chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"),
+            potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4"),
+            chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref"),
             parse_atomic_densities=True,
         )
 

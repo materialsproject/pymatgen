@@ -28,18 +28,13 @@ from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
 from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "4.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -91,11 +86,7 @@ class CifBlock:
         self.header = header[:74]
 
     def __eq__(self, other):
-        return (
-            self.loops == other.loops
-            and self.data == other.data
-            and self.header == other.header
-        )
+        return self.loops == other.loops and self.data == other.data and self.header == other.header
 
     def __getitem__(self, key):
         return self.data[key]
@@ -150,11 +141,7 @@ class CifBlock:
         # add quotes if necessary
         if v == "":
             return '""'
-        if (
-            (" " in v or v[0] == "_")
-            and not (v[0] == "'" and v[-1] == "'")
-            and not (v[0] == '"' and v[-1] == '"')
-        ):
+        if (" " in v or v[0] == "_") and not (v[0] == "'" and v[-1] == "'") and not (v[0] == '"' and v[-1] == '"'):
             if "'" in v:
                 q = '"'
             else:
@@ -243,10 +230,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn(
-                    "Possible issue in cif file"
-                    " at line: {}".format("".join(s).strip())
-                )
+                warnings.warn("Possible issue in cif file" " at line: {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
@@ -279,9 +263,7 @@ class CifFile:
         :return: CifFile
         """
         d = OrderedDict()
-        for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[
-            1:
-        ]:
+        for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
 
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
@@ -416,11 +398,7 @@ class CifParser:
 
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data.keys():
-            attached_hydrogens = [
-                str2float(x)
-                for x in data.data["_atom_site_attached_hydrogens"]
-                if str2float(x) != 0
-            ]
+            attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
                 self.warnings.append(
                     "Structure has implicit hydrogens defined, "
@@ -471,23 +449,14 @@ class CifParser:
                     symbol_str_lst = symbol_str.split(" + ")
                     for elocc_idx, sym in enumerate(symbol_str_lst):
                         # Remove any bracketed items in the string
-                        symbol_str_lst[elocc_idx] = re.sub(
-                            r"\([0-9]*\)", "", sym.strip()
-                        )
+                        symbol_str_lst[elocc_idx] = re.sub(r"\([0-9]*\)", "", sym.strip())
 
                         # Extract element name and its occupancy from the
                         # string, and store it as a
                         # key-value pair in "els_occ".
                         els_occu[
-                            str(
-                                re.findall(r"\D+", symbol_str_lst[elocc_idx].strip())[1]
-                            ).replace("<sup>", "")
-                        ] = float(
-                            "0"
-                            + re.findall(r"\.?\d+", symbol_str_lst[elocc_idx].strip())[
-                                1
-                            ]
-                        )
+                            str(re.findall(r"\D+", symbol_str_lst[elocc_idx].strip())[1]).replace("<sup>", "")
+                        ] = float("0" + re.findall(r"\.?\d+", symbol_str_lst[elocc_idx].strip())[1])
 
                     x = str2float(data["_atom_site_fract_x"][idx])
                     y = str2float(data["_atom_site_fract_y"][idx])
@@ -495,9 +464,7 @@ class CifParser:
 
                     for et, occu in els_occu.items():
                         # new atom site labels have 'fix' appended
-                        new_atom_site_label.append(
-                            et + "_fix" + str(len(new_atom_site_label))
-                        )
+                        new_atom_site_label.append(et + "_fix" + str(len(new_atom_site_label)))
                         new_atom_site_type_symbol.append(et)
                         new_atom_site_occupancy.append(str(occu))
                         new_fract_x.append(str(x))
@@ -600,8 +567,7 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional co-ordinates rounded to ideal values to "
-                "avoid issues with finite precision."
+                "Some fractional co-ordinates rounded to ideal values to " "avoid issues with finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
@@ -679,15 +645,14 @@ class CifParser:
 
                         lengths = (l for l in length_strings if l in required_args)
                         angles = (a for a in angle_strings if a in required_args)
-                        return self.get_lattice(
-                            data, lengths, angles, lattice_type=lattice_type
-                        )
+                        return self.get_lattice(data, lengths, angles, lattice_type=lattice_type)
                     except AttributeError as exc:
                         self.warnings.append(str(exc))
                         warnings.warn(exc)
 
                 else:
                     return None
+        return None
 
     def get_symops(self, data):
         """
@@ -817,13 +782,9 @@ class CifParser:
                 for op in magsymmops:
                     for centering_op in centering_symops:
                         new_translation = [
-                            i - np.floor(i)
-                            for i in op.translation_vector
-                            + centering_op.translation_vector
+                            i - np.floor(i) for i in op.translation_vector + centering_op.translation_vector
                         ]
-                        new_time_reversal = (
-                            op.time_reversal * centering_op.time_reversal
-                        )
+                        new_time_reversal = op.time_reversal * centering_op.time_reversal
                         all_ops.append(
                             MagSymmOp.from_rotation_and_translation_and_time_reversal(
                                 rotation_matrix=op.rotation_matrix,
@@ -834,9 +795,7 @@ class CifParser:
                 magsymmops = all_ops
 
         # else check to see if it specifies a magnetic space group
-        elif data.data.get("_space_group_magn.name_BNS") or data.data.get(
-            "_space_group_magn.number_BNS"
-        ):
+        elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
 
             if data.data.get("_space_group_magn.name_BNS"):
                 # get BNS label for MagneticSpaceGroup()
@@ -844,15 +803,10 @@ class CifParser:
             else:
                 # get BNS number for MagneticSpaceGroup()
                 # by converting string to list of ints
-                id = list(
-                    map(int, (data.data.get("_space_group_magn.number_BNS").split(".")))
-                )
+                id = list(map(int, (data.data.get("_space_group_magn.number_BNS").split("."))))
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
-                if (
-                    data.data.get("_space_group_magn.transform_BNS_Pp_abc")
-                    != "a,b,c;0,0,0"
-                ):
+                if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
 
                     jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
                     msg = MagneticSpaceGroup(id, jf)
@@ -879,17 +833,13 @@ class CifParser:
         """
         try:
             oxi_states = {
-                data["_atom_type_symbol"][i]: str2float(
-                    data["_atom_type_oxidation_number"][i]
-                )
+                data["_atom_type_symbol"][i]: str2float(data["_atom_type_oxidation_number"][i])
                 for i in range(len(data["_atom_type_symbol"]))
             }
             # attempt to strip oxidation state from _atom_type_symbol
             # in case the label does not contain an oxidation state
             for i, symbol in enumerate(data["_atom_type_symbol"]):
-                oxi_states[re.sub(r"\d?[\+,\-]?$", "", symbol)] = str2float(
-                    data["_atom_type_oxidation_number"][i]
-                )
+                oxi_states[re.sub(r"\d?[\+,\-]?$", "", symbol)] = str2float(data["_atom_type_oxidation_number"][i])
 
         except (ValueError, KeyError):
             oxi_states = None
@@ -955,16 +905,14 @@ class CifParser:
             if m:
                 parsed_sym = m.group()
 
-        if parsed_sym is not None and (
-            m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)
-        ):
+        if parsed_sym is not None and (m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)):
             msg = "{} parsed as {}".format(sym, parsed_sym)
             warnings.warn(msg)
             self.warnings.append(msg)
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive):
+    def _get_structure(self, data, primitive, symmetrized):
         """
         Generate structure from part of the cif.
         """
@@ -978,9 +926,7 @@ class CifParser:
         # if magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict
         if self.feature_flags["magcif_incommensurate"]:
-            raise NotImplementedError(
-                "Incommensurate structures not currently supported."
-            )
+            raise NotImplementedError("Incommensurate structures not currently supported.")
         if self.feature_flags["magcif"]:
             self.symmetry_operations = self.get_magsymops(data)
             magmoms = self.parse_magmoms(data, lattice=lattice)
@@ -1006,6 +952,7 @@ class CifParser:
             return False
 
         for i in range(len(data["_atom_site_label"])):
+
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
@@ -1061,17 +1008,13 @@ class CifParser:
                     coord_to_magmoms[match] = None
 
         sum_occu = [
-            sum(c.values())
-            for c in coord_to_species.values()
-            if not set(c.elements) == {Element("O"), Element("H")}
+            sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
         ]
-        if any([o > 1 for o in sum_occu]):
+        if any(o > 1 for o in sum_occu):
             msg = (
                 "Some occupancies ({}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
-                "The current occupancy_tolerance is set to: {}".format(
-                    sum_occu, self._occupancy_tolerance
-                )
+                "The current occupancy_tolerance is set to: {}".format(sum_occu, self._occupancy_tolerance)
             )
             warnings.warn(msg)
             self.warnings.append(msg)
@@ -1080,6 +1023,7 @@ class CifParser:
         allcoords = []
         allmagmoms = []
         allhydrogens = []
+        equivalent_indices = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -1090,22 +1034,20 @@ class CifParser:
                     # property, but this introduces ambiguities for end user
                     # (such as unintended use of `spin` and Species will have
                     # fictious oxidation state).
-                    raise NotImplementedError(
-                        "Disordered magnetic structures not currently supported."
-                    )
+                    raise NotImplementedError("Disordered magnetic structures not currently supported.")
 
         if coord_to_species.items():
-            for comp, group in groupby(
-                sorted(list(coord_to_species.items()), key=lambda x: x[1]),
-                key=lambda x: x[1],
+            for idx, (comp, group) in enumerate(
+                groupby(
+                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    key=lambda x: x[1],
+                )
             ):
                 tmp_coords = [site[0] for site in group]
                 tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
                 if self.feature_flags["magcif"]:
-                    coords, magmoms = self._unique_coords(
-                        tmp_coords, magmoms_in=tmp_magmom, lattice=lattice
-                    )
+                    coords, magmoms = self._unique_coords(tmp_coords, magmoms_in=tmp_magmom, lattice=lattice)
                 else:
                     coords, magmoms = self._unique_coords(tmp_coords)
 
@@ -1116,6 +1058,17 @@ class CifParser:
                 else:
                     im_h = 0
                     species = comp
+
+                # The following might be a more natural representation of equivalent indicies,
+                # but is not in the format expect by SymmetrizedStructure:
+                #   equivalent_indices.append(list(range(len(allcoords), len(coords)+len(allcoords))))
+                # The above gives a list like:
+                #   [[0, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10, 11]] where the
+                # integers are site indices, whereas the version used below will give a version like:
+                #   [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+                # which is a list in the same order as the sites, but where if a site has the same integer
+                # it is equivalent.
+                equivalent_indices += len(coords) * [idx]
 
                 allhydrogens.extend(len(coords) * [im_h])
                 allcoords.extend(coords)
@@ -1128,11 +1081,7 @@ class CifParser:
                 if 1 < totaloccu <= self._occupancy_tolerance:
                     allspecies[i] = species / totaloccu
 
-        if (
-            allspecies
-            and len(allspecies) == len(allcoords)
-            and len(allspecies) == len(allmagmoms)
-        ):
+        if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
             site_properties = dict()
             if any(allhydrogens):
                 assert len(allhydrogens) == len(allcoords)
@@ -1144,9 +1093,20 @@ class CifParser:
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(
-                lattice, allspecies, allcoords, site_properties=site_properties
-            )
+            struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+
+            if symmetrized:
+
+                # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
+                # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
+                wyckoffs = ["Not Parsed"] * len(struct)
+
+                # Names of space groups are likewise not parsed (again, not all CIFs will contain this information)
+                # What is stored are the lists of symmetry operations used to generate the structure
+                # TODO: ensure space group labels are stored if present
+                sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
+
+                return SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
 
             struct = struct.get_sorted_structure()
 
@@ -1158,7 +1118,7 @@ class CifParser:
 
             return struct
 
-    def get_structures(self, primitive=True):
+    def get_structures(self, primitive=True, symmetrized=False):
         """
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
@@ -1167,14 +1127,29 @@ class CifParser:
             primitive (bool): Set to False to return conventional unit cells.
                 Defaults to True. With magnetic CIF files, will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
+            symmetrized (bool): If True, return a SymmetrizedStructure which will
+                include the equivalent indices and symmetry operations used to
+                create the Structure as provided by the CIF (if explicit symmetry
+                operations are included in the CIF) or generated from information
+                in the CIF (if only space group labels are provided). Note that
+                currently Wyckoff labels and space group labels or numbers are
+                not included in the generated SymmetrizedStructure, these will be
+                notated as "Not Parsed" or -1 respectively.
 
         Returns:
             List of Structures.
         """
+
+        if primitive and symmetrized:
+            raise ValueError(
+                "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
+                "since unexpected behavior might result."
+            )
+
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive)
+                s = self._get_structure(d, primitive, symmetrized)
                 if s:
                     structures.append(s)
             except (KeyError, ValueError) as exc:
@@ -1182,17 +1157,12 @@ class CifParser:
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 self.warnings.append(str(exc))
-                warnings.warn(
-                    "No structure parsed for %d structure in CIF. Section of CIF file below."
-                    % (i + 1)
-                )
+                warnings.warn("No structure parsed for %d structure in CIF. Section of CIF file below." % (i + 1))
                 warnings.warn(str(d))
                 warnings.warn("Error is %s." % str(exc))
 
         if self.warnings:
-            warnings.warn(
-                "Issues encountered while parsing CIF: %s" % "\n".join(self.warnings)
-            )
+            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
@@ -1262,15 +1232,11 @@ class CifParser:
                     bibtex_entry.get("page_first", ""),
                     bibtex_entry.get("page_last", ""),
                 )
-                bibtex_entry.pop(
-                    "page_first", None
-                )  # and remove page_first, page_list if present
+                bibtex_entry.pop("page_first", None)  # and remove page_first, page_list if present
                 bibtex_entry.pop("page_last", None)
 
             # cite keys are given as cif-reference-idx in order they are found
-            entries["cifref{}".format(idx)] = Entry(
-                "article", list(bibtex_entry.items())
-            )
+            entries["cifref{}".format(idx)] = Entry("article", list(bibtex_entry.items()))
 
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
@@ -1325,10 +1291,7 @@ class CifWriter:
         """
 
         if write_magmoms and symprec:
-            warnings.warn(
-                "Magnetic symmetry cannot currently be detected by pymatgen,"
-                "disabling symmetry detection."
-            )
+            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen," "disabling symmetry detection.")
             symprec = None
 
         format_str = "{:.%df}" % significant_figures
@@ -1350,13 +1313,9 @@ class CifWriter:
         no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ["a", "b", "c"]:
-            block["_cell_length_" + cell_attr] = format_str.format(
-                getattr(latt, cell_attr)
-            )
+            block["_cell_length_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
         for cell_attr in ["alpha", "beta", "gamma"]:
-            block["_cell_angle_" + cell_attr] = format_str.format(
-                getattr(latt, cell_attr)
-            )
+            block["_cell_angle_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
@@ -1374,29 +1333,21 @@ class CifWriter:
             symmops = []
             for op in sf.get_symmetry_operations():
                 v = op.translation_vector
-                symmops.append(
-                    SymmOp.from_rotation_and_translation(op.rotation_matrix, v)
-                )
+                symmops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
 
             ops = [op.as_xyz_string() for op in symmops]
-            block["_symmetry_equiv_pos_site_id"] = [
-                "%d" % i for i in range(1, len(ops) + 1)
-            ]
+            block["_symmetry_equiv_pos_site_id"] = ["%d" % i for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
 
         loops.append(["_symmetry_equiv_pos_site_id", "_symmetry_equiv_pos_as_xyz"])
 
         try:
-            symbol_to_oxinum = OrderedDict(
-                [(el.__str__(), float(el.oxi_state)) for el in sorted(comp.elements)]
-            )
+            symbol_to_oxinum = OrderedDict([(el.__str__(), float(el.oxi_state)) for el in sorted(comp.elements)])
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
         except (TypeError, AttributeError):
-            symbol_to_oxinum = OrderedDict(
-                [(el.symbol, 0) for el in sorted(comp.elements)]
-            )
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in sorted(comp.elements)])
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []
@@ -1421,32 +1372,20 @@ class CifWriter:
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
 
-                    magmom = Magmom(
-                        site.properties.get("magmom", getattr(sp, "spin", 0))
-                    )
+                    magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
                     if write_magmoms and abs(magmom) > 0:
-                        moment = Magmom.get_moment_relative_to_crystal_axes(
-                            magmom, latt
-                        )
+                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                         atom_site_moment_label.append("{}{}".format(sp.symbol, count))
-                        atom_site_moment_crystalaxis_x.append(
-                            format_str.format(moment[0])
-                        )
-                        atom_site_moment_crystalaxis_y.append(
-                            format_str.format(moment[1])
-                        )
-                        atom_site_moment_crystalaxis_z.append(
-                            format_str.format(moment[2])
-                        )
+                        atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
+                        atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
+                        atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
 
                     count += 1
         else:
             # The following just presents a deterministic ordering.
             unique_sites = [
                 (
-                    sorted(sites, key=lambda s: tuple([abs(x) for x in s.frac_coords]))[
-                        0
-                    ],
+                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
                     len(sites),
                 )
                 for sites in sf.get_symmetrized_structure().equivalent_sites
@@ -1543,3 +1482,4 @@ def str2float(text):
         if text.strip() == ".":
             return 0
         raise ex
+    raise ValueError(f"{text} cannot be converted to float")

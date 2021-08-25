@@ -22,8 +22,6 @@ import numpy as np
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class PiezoTest(PymatgenTest):
     def setUp(self):

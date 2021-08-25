@@ -222,8 +222,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`"
-                % (self.path, dimnames, kwargs)
+                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" % (self.path, dimnames, kwargs)
             )
 
     def _read_variables(self, *varnames, **kwargs):
@@ -236,8 +235,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading variables: `%s` with kwargs `%s`."
-                % (self.path, varnames, kwargs)
+                "In file %s:\nError while reading variables: `%s` with kwargs `%s`." % (self.path, varnames, kwargs)
             )
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
@@ -283,10 +281,7 @@ class ETSF_Reader(NetcdfReader):
         return self.chemical_symbols.index(symbol)
 
     def read_structure(self, cls=Structure):
-        """Returns the crystalline structure."""
-        if self.ngroups != 1:
-            raise NotImplementedError("In file %s: ngroups != 1" % self.path)
-
+        """Returns the crystalline structure stored in the rootgrp."""
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
@@ -317,14 +312,9 @@ class ETSF_Reader(NetcdfReader):
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(
-                        bs.decode("utf-8").strip() for bs in d[hvar.name]
-                    )
+                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
                 else:
-                    d[hvar.name] = [
-                        "".join(bs.decode("utf-8") for bs in astr).strip()
-                        for astr in d[hvar.name]
-                    ]
+                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in d[hvar.name]]
 
         return AbinitHeader(d)
 
@@ -361,7 +351,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     d = {}
     if site_properties is not None:
         for prop in site_properties:
-            d[property] = ncdata.read_value(prop)
+            d[prop] = ncdata.read_value(prop)
 
     structure = cls(lattice, species, red_coords, site_properties=d)
 

@@ -14,8 +14,6 @@ from pymatgen.core import PeriodicSite
 from pymatgen.io.vasp import Outcar, Poscar, Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class DefectCompatibilityTest(PymatgenTest):
     def setUp(self):
@@ -26,17 +24,9 @@ class DefectCompatibilityTest(PymatgenTest):
 
         abc = self.vac.bulk_structure.lattice.abc
         axisdata = [np.arange(0.0, lattval, 0.2) for lattval in abc]
-        bldata = [
-            np.array([1.0 for u in np.arange(0.0, lattval, 0.2)]) for lattval in abc
-        ]
+        bldata = [np.array([1.0 for u in np.arange(0.0, lattval, 0.2)]) for lattval in abc]
         dldata = [
-            np.array(
-                [
-                    (-1 - np.cos(2 * np.pi * u / lattval))
-                    for u in np.arange(0.0, lattval, 0.2)
-                ]
-            )
-            for lattval in abc
+            np.array([(-1 - np.cos(2 * np.pi * u / lattval)) for u in np.arange(0.0, lattval, 0.2)]) for lattval in abc
         ]
         self.frey_params = {
             "axis_grid": axisdata,
@@ -48,38 +38,36 @@ class DefectCompatibilityTest(PymatgenTest):
         }
 
         kumagai_bulk_struc = Poscar.from_file(
-            os.path.join(test_dir, "defect", "CONTCAR_bulk")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "CONTCAR_bulk")
         ).structure
-        bulk_out = Outcar(os.path.join(test_dir, "defect", "OUTCAR_bulk.gz"))
-        defect_out = Outcar(os.path.join(test_dir, "defect", "OUTCAR_vac_Ga_-3.gz"))
-        self.kumagai_vac = Vacancy(
-            kumagai_bulk_struc, kumagai_bulk_struc.sites[0], charge=-3
-        )
+        bulk_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_bulk.gz"))
+        defect_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_vac_Ga_-3.gz"))
+        self.kumagai_vac = Vacancy(kumagai_bulk_struc, kumagai_bulk_struc.sites[0], charge=-3)
         kumagai_defect_structure = self.kumagai_vac.generate_defect_structure()
         self.kumagai_params = {
             "bulk_atomic_site_averages": bulk_out.electrostatic_potential,
             "defect_atomic_site_averages": defect_out.electrostatic_potential,
-            "site_matching_indices": [
-                [ind, ind - 1] for ind in range(len(kumagai_bulk_struc))
-            ],
+            "site_matching_indices": [[ind, ind - 1] for ind in range(len(kumagai_bulk_struc))],
             "defect_frac_sc_coords": [0.0, 0.0, 0.0],
             "initial_defect_structure": kumagai_defect_structure,
             "dielectric": 18.118 * np.identity(3),
             "gamma": 0.153156,  # not neccessary to load gamma, but speeds up unit test
         }
 
-        v = Vasprun(os.path.join(test_dir, "vasprun.xml"))
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
         eigenvalues = v.eigenvalues.copy()
         kptweights = v.actual_kpoints_weights
         potalign = -0.1
         vbm = v.eigenvalue_band_properties[2]
         cbm = v.eigenvalue_band_properties[1]
+        defect_incar = v.incar
         self.bandfill_params = {
             "eigenvalues": eigenvalues,
             "kpoint_weights": kptweights,
             "potalign": potalign,
             "vbm": vbm,
             "cbm": cbm,
+            "run_metadata": {"defect_incar": defect_incar},
         }
 
         self.band_edge_params = {
@@ -109,11 +97,12 @@ class DefectCompatibilityTest(PymatgenTest):
         params = self.frey_params.copy()
         params.update(self.bandfill_params)
         params.update(
-            {"hybrid_cbm": params["cbm"] + 0.2, "hybrid_vbm": params["vbm"] - 0.4,}
+            {
+                "hybrid_cbm": params["cbm"] + 0.2,
+                "hybrid_vbm": params["vbm"] - 0.4,
+            }
         )
-        dentry = DefectEntry(
-            self.vac, 0.0, corrections={}, parameters=params, entry_id=None
-        )
+        dentry = DefectEntry(self.vac, 0.0, corrections={}, parameters=params, entry_id=None)
         dc = DefectCompatibility()
         dentry = dc.process_entry(dentry)
         self.assertAlmostEqual(dentry.corrections["bandedgeshifting_correction"], 1.2)
@@ -121,6 +110,13 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 5.44595036)
 
         # test over delocalized free carriers which forces skipping charge correction
+        params = self.bandfill_params.copy()  # No Freysoldt metadata
+        params.update(
+            {
+                "hybrid_cbm": params["cbm"] + 0.2,
+                "hybrid_vbm": params["vbm"] - 0.4,
+            }
+        )
         # modify the eigenvalue list to have free holes
         hole_eigenvalues = {}
         for spinkey, spinset in params["eigenvalues"].items():
@@ -134,23 +130,15 @@ class DefectCompatibilityTest(PymatgenTest):
                         hole_eigenvalues[spinkey][-1].append(eig)
 
         params.update({"eigenvalues": hole_eigenvalues})
-        dentry = DefectEntry(
-            self.vac, 0.0, corrections={}, parameters=params, entry_id=None
-        )
+        dentry = DefectEntry(self.vac, 0.0, corrections={}, parameters=params, entry_id=None)
         dc = DefectCompatibility(free_chg_cutoff=0.8)
         dentry = dc.process_entry(dentry)
-        self.assertAlmostEqual(
-            dentry.corrections["bandedgeshifting_correction"], 1.19999999
-        )
-        self.assertAlmostEqual(
-            dentry.corrections["bandfilling_correction"], -1.62202400
-        )
+        self.assertAlmostEqual(dentry.corrections["bandedgeshifting_correction"], 1.19999999)
+        self.assertAlmostEqual(dentry.corrections["bandfilling_correction"], -0.492633372744)
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 0.0)
 
         # turn off band filling and band edge shifting
-        dc = DefectCompatibility(
-            free_chg_cutoff=0.8, use_bandfilling=False, use_bandedgeshift=False
-        )
+        dc = DefectCompatibility(free_chg_cutoff=0.8, use_bandfilling=False, use_bandedgeshift=False)
         dentry = dc.process_entry(dentry)
         self.assertAlmostEqual(dentry.corrections["bandedgeshifting_correction"], 0.0)
         self.assertAlmostEqual(dentry.corrections["bandfilling_correction"], 0.0)
@@ -167,17 +155,13 @@ class DefectCompatibilityTest(PymatgenTest):
         # all other correction applications are tested in unit tests below
 
     def test_perform_freysoldt(self):
-        de = DefectEntry(
-            self.vac, 0.0, corrections={}, parameters=self.frey_params, entry_id=None
-        )
+        de = DefectEntry(self.vac, 0.0, corrections={}, parameters=self.frey_params, entry_id=None)
         dc = DefectCompatibility()
         dentry = dc.perform_freysoldt(de)
 
         val = dentry.parameters["freysoldt_meta"]
         self.assertAlmostEqual(val["freysoldt_electrostatic"], 0.975893)
-        self.assertAlmostEqual(
-            val["freysoldt_potential_alignment_correction"], 4.4700574
-        )
+        self.assertAlmostEqual(val["freysoldt_potential_alignment_correction"], 4.4700574)
         self.assertAlmostEqual(val["freysoldt_potalign"], 1.4900191)
         self.assertTrue("pot_corr_uncertainty_md" in val.keys())
         self.assertTrue("pot_plot_data" in val.keys())
@@ -189,9 +173,7 @@ class DefectCompatibilityTest(PymatgenTest):
 
         val = dentry.parameters["kumagai_meta"]
         self.assertAlmostEqual(val["kumagai_electrostatic"], 0.88236299)
-        self.assertAlmostEqual(
-            val["kumagai_potential_alignment_correction"], 2.09704862
-        )
+        self.assertAlmostEqual(val["kumagai_potential_alignment_correction"], 2.09704862)
         self.assertAlmostEqual(val["kumagai_potalign"], 0.69901620)
         self.assertTrue("pot_corr_uncertainty_md" in val.keys())
         self.assertTrue("pot_plot_data" in val.keys())
@@ -239,12 +221,8 @@ class DefectCompatibilityTest(PymatgenTest):
         # all other correction applications are tested in unit tests below
 
     def test_check_freysoldt_delocalized(self):
-        de = DefectEntry(
-            self.vac, 0.0, corrections={}, parameters=self.frey_params, entry_id=None
-        )
-        de.parameters.update(
-            {"is_compatible": True}
-        )  # needs to be initialized with this here for unittest
+        de = DefectEntry(self.vac, 0.0, corrections={}, parameters=self.frey_params, entry_id=None)
+        de.parameters.update({"is_compatible": True})  # needs to be initialized with this here for unittest
         dc = DefectCompatibility(plnr_avg_var_tol=0.1, plnr_avg_minmax_tol=0.5)
         dentry = dc.perform_freysoldt(de)
 
@@ -297,9 +275,7 @@ class DefectCompatibilityTest(PymatgenTest):
 
     def test_check_kumagai_delocalized(self):
         de = DefectEntry(self.kumagai_vac, 0.0, parameters=self.kumagai_params)
-        de.parameters.update(
-            {"is_compatible": True}
-        )  # needs to be initialized with this here for unittest
+        de.parameters.update({"is_compatible": True})  # needs to be initialized with this here for unittest
         dc = DefectCompatibility(atomic_site_var_tol=13.3, atomic_site_minmax_tol=20.95)
         dentry = dc.perform_kumagai(de)
 
@@ -362,13 +338,9 @@ class DefectCompatibilityTest(PymatgenTest):
             "defect_frac_sc_coords": defect_frac_sc_coords,
             "is_compatible": True,
         }
-        dentry = DefectEntry(
-            self.vac, 0.0, corrections={}, parameters=params, entry_id=None
-        )
+        dentry = DefectEntry(self.vac, 0.0, corrections={}, parameters=params, entry_id=None)
 
-        dc = DefectCompatibility(
-            tot_relax_tol=0.1, perc_relax_tol=0.1, defect_tot_relax_tol=0.1
-        )
+        dc = DefectCompatibility(tot_relax_tol=0.1, perc_relax_tol=0.1, defect_tot_relax_tol=0.1)
         dentry = dc.check_final_relaxed_structure_delocalized(dentry)
 
         struc_delocal = dentry.parameters["delocalization_meta"]["structure_relax"]
@@ -400,9 +372,7 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertFalse(struc_delocal["metadata"]["structure_tot_relax_compatible"])
         self.assertAlmostEqual(struc_delocal["metadata"]["tot_relax_outside_rad"], 12.5)
         self.assertFalse(struc_delocal["metadata"]["structure_perc_relax_compatible"])
-        self.assertAlmostEqual(
-            struc_delocal["metadata"]["perc_relax_outside_rad"], 77.63975155
-        )
+        self.assertAlmostEqual(struc_delocal["metadata"]["perc_relax_outside_rad"], 77.63975155)
 
         # now test for when an interstitial defect has migrated too much
         inter_def_site = PeriodicSite(
@@ -417,9 +387,7 @@ class DefectCompatibilityTest(PymatgenTest):
         initial_defect_structure = inter.generate_defect_structure()
         final_defect_structure = initial_defect_structure.copy()
         poss_deflist = sorted(
-            final_defect_structure.get_sites_in_sphere(
-                inter.site.coords, 2, include_index=True
-            ),
+            final_defect_structure.get_sites_in_sphere(inter.site.coords, 2, include_index=True),
             key=lambda x: x[1],
         )
         def_index = poss_deflist[0][2]
@@ -435,15 +403,43 @@ class DefectCompatibilityTest(PymatgenTest):
             "defect_frac_sc_coords": defect_frac_sc_coords,
             "is_compatible": True,
         }
-        dentry = DefectEntry(
-            inter, 0.0, corrections={}, parameters=params, entry_id=None
-        )
+        dentry = DefectEntry(inter, 0.0, corrections={}, parameters=params, entry_id=None)
 
         dentry = dc.check_final_relaxed_structure_delocalized(dentry)
 
         defect_delocal = dentry.parameters["delocalization_meta"]["defectsite_relax"]
         self.assertFalse(defect_delocal["is_compatible"])
         self.assertAlmostEqual(defect_delocal["metadata"]["relax_amount"], 0.10836054)
+
+    def test_bandfilling_SOC_calc(self):
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml.int_Te_SOC.gz"))
+        struc = v.structures[0]
+        interstitial = Interstitial(struc, struc.sites[-1], charge=-2)
+        eigenvalues = v.eigenvalues.copy()
+        kptweights = v.actual_kpoints_weights
+        potalign = -0.1
+        defect_incar = v.incar
+
+        bandfill_params = {
+            "eigenvalues": eigenvalues,
+            "kpoint_weights": kptweights,
+            "potalign": potalign,
+            "vbm": 1.6465,  # bulk VBM
+            "cbm": 3.1451,  # bulk CBM
+            "run_metadata": {"defect_incar": defect_incar},
+        }
+
+        soc_dentry = DefectEntry(
+            interstitial,
+            0.0,
+            corrections={},
+            parameters=bandfill_params,
+            entry_id=None,
+        )
+        dc = DefectCompatibility()
+        soc_dentry = dc.process_entry(soc_dentry)
+
+        self.assertAlmostEqual(soc_dentry.corrections["bandfilling_correction"], -1.9628402187500003)
 
 
 if __name__ == "__main__":

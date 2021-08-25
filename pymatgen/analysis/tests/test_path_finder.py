@@ -9,6 +9,7 @@ from numpy import mean
 from pymatgen.analysis.path_finder import ChgcarPotential, NEBPathfinder
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp import Chgcar, Poscar
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Ziqin (Shaun) Rong"
 __version__ = "0.1"
@@ -23,12 +24,8 @@ class PathFinderTest(unittest.TestCase):
 
     def test_image_num(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        test_file_dir = os.path.join(
-            module_dir, "..", "..", "..", "test_files", "path_finder"
-        )
-        start_s = Poscar.from_file(
-            os.path.join(test_file_dir, "LFP_POSCAR_s")
-        ).structure
+        test_file_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "path_finder")
+        start_s = Poscar.from_file(os.path.join(test_file_dir, "LFP_POSCAR_s")).structure
         end_s = Poscar.from_file(os.path.join(test_file_dir, "LFP_POSCAR_e")).structure
         mid_s = start_s.interpolate(end_s, nimages=2, interpolate_lattices=False)[1]
         chg = Chgcar.from_file(os.path.join(test_file_dir, "LFP_CHGCAR.gz"))
@@ -59,10 +56,7 @@ class PathFinderTest(unittest.TestCase):
             mid_struct=mid_s,
         )
         moving_site = relax_sites[0]
-        dists = [
-            s1.sites[moving_site].distance(s2.sites[moving_site])
-            for s1, s2 in zip(pf.images[:-1], pf.images[1:])
-        ]
+        dists = [s1.sites[moving_site].distance(s2.sites[moving_site]) for s1, s2 in zip(pf.images[:-1], pf.images[1:])]
         # check that all the small distances are about equal
         self.assertTrue(abs(min(dists) - max(dists)) / mean(dists) < 0.02)
 

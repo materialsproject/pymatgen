@@ -144,9 +144,7 @@ class Mcsqs:
                     # see to_string() method in this file, since , and = are not valid
                     # species names in AT-AT we replace "," with "__" and "=" with "___",
                     # for pymatgen to parse these back correctly we have to replace them back
-                    species_occ[0] = (
-                        species_occ[0].replace("___", "=").replace("__", ",")
-                    )
+                    species_occ[0] = species_occ[0].replace("___", "=").replace("__", ",")
 
                 species[get_el_sp(species_occ[0])] = float(species_occ[1])
 

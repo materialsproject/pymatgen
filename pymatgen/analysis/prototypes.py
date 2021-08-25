@@ -22,9 +22,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json")
-)
+AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json"))
 
 
 class AflowPrototypeMatcher:
@@ -112,5 +110,4 @@ class AflowPrototypeMatcher:
 
         if len(tags) == 0:
             return None
-        else:
-            return tags
+        return tags
