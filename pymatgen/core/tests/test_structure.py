@@ -470,9 +470,9 @@ class IStructureTest(PymatgenTest):
 
         all_nn = s.get_all_neighbors(0.05)
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
-        
+
         # the following test is from issue #2226
-        poscar = '''POSCAR
+        poscar = """POSCAR
  1.0000000000000000
      6.9082208665474800    0.0000000000000005    0.0000000000000011
     -0.0000000000000008   14.1745610988433715    0.0000000000000004
@@ -494,14 +494,14 @@ Direct
  -0.7653510291469972  0.0275483828607905  0.3788744893630209
  -0.2653510291469959  0.4724516171392097  0.6211255106369801
  -0.2705230397846415  1.4621722452479102  0.0625618775773844
-'''
-        s = Structure.from_str(poscar, fmt='poscar')
+"""
+        s = Structure.from_str(poscar, fmt="poscar")
         site0 = s.sites[1]
         site1 = s.sites[9]
         neigh_sites = s.get_neighbors(site0, 2.0)
         self.assertTrue(len(neigh_sites) == 1)
         neigh_sites = s.get_neighbors(site1, 2.0)
-        self.assertTrue(len(neigh_sites) == 1) 
+        self.assertTrue(len(neigh_sites) == 1)
 
     def test_get_neighbor_list(self):
         s = self.struct
