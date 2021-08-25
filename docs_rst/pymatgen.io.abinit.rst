@@ -14,7 +14,6 @@ Submodules
 .. toctree::
    :maxdepth: 7
 
-   pymatgen.io.abinit.abiinspect
    pymatgen.io.abinit.abiobjects
    pymatgen.io.abinit.abitimer
    pymatgen.io.abinit.inputs
