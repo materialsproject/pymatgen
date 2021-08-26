@@ -608,11 +608,19 @@ class Cp2kOutput:
         self.data["dft"]["cutoffs"]["tau"] = self.data["dft"].pop("tau", None)
 
         # Functional
-        functional = re.compile(r"\s+FUNCTIONAL\|\s+(.+):")
-        self.read_pattern(
-            {"functional": functional}, terminate_on_match=False, postprocess=_postprocessor, reverse=False,
-        )
-        self.data["dft"]["functional"] = [item for sublist in self.data.pop("functional", None) for item in sublist]
+        if self.input and self.input.check('FORCE_EVAL/DFT/XC/XC_FUNCTIONAL'):
+            self.data['dft']['functional'] = \
+                list(self.input['force_eval']['dft']['xc']['xc_functional'].subsections.keys())
+        elif self.input and self.input.check('FORCE_EVAL/DFT/XC'):
+            for v in self.input['force_eval']['dft']['xc'].subsections.values():
+                if v.name.upper() == 'XC_FUNCTIONAL':
+                    self.data['dft']['functional'] = v.section_parameters
+        else:
+            functional = re.compile(r"\s+FUNCTIONAL\|\s+(.+):")
+            self.read_pattern(
+                {"functional": functional}, terminate_on_match=False, postprocess=_postprocessor, reverse=False,
+            )
+            self.data["dft"]["functional"] = [item for sublist in self.data.pop("functional", None) for item in sublist]
 
         # DFT+U
         self.data["dft"]['dft_plus_u'] = self.is_hubbard
