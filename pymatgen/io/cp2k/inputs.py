@@ -1714,17 +1714,6 @@ class XC_FUNCTIONAL(Section):
 
         if functional in built_in:
             section_params = [functional]
-        elif functional.upper() in ["PBESOL", "REVPBE"]:
-            section_params = ["PBE"]
-            self.subsections["PBE"] = Section(
-                "PBE", keywords={"PARAMETERIZATION": Keyword("PARAMETERIZATION", functional)},
-            )
-        else:
-            section_params = []
-            warnings.warn(
-                "The selected functional has no short-cut in CP2K. "
-                "You must specify subsection to define this functional."
-            )
 
         super().__init__(
             "XC_FUNCTIONAL",
