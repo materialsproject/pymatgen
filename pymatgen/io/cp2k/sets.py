@@ -199,15 +199,19 @@ class Cp2kInputSet(Cp2kInput):
             )
 
             if SETTINGS.get(kind, {}).get("dft_plus_u"):
-                if SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"] > 0:
-                    dft_plus_u = Section(
-                        "DFT_PLUS_U",
-                        keywords={
-                            "U_MINUS_J": Keyword("U_MINUS_J", SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"], units="eV"),
-                            "L": Keyword("L", SETTINGS[kind]["dft_plus_u"]["L"]),
-                        },
-                    )
-                    _kind.insert(dft_plus_u)
+                # TODO this could be improved...
+                if "O" in self.structure.composition.get_el_amt_dict().keys():
+                    if SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"] > 0:
+                        dft_plus_u = Section(
+                            "DFT_PLUS_U",
+                            keywords={
+                                "U_MINUS_J": Keyword(
+                                    "U_MINUS_J", SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"], units="eV"
+                                ),
+                                "L": Keyword("L", SETTINGS[kind]["dft_plus_u"]["L"]),
+                            },
+                        )
+                        _kind.insert(dft_plus_u)
 
             subsys.insert(_kind)
 
@@ -372,14 +376,14 @@ class DftSet(Cp2kInputSet):
             scf.insert(Section("DIAGONALIZATION", subsections={}))
             mixing_kwds = {
                 "ALPHA": Keyword("ALPHA", kwargs.get("alpha", 0.05)),
-                "BETA": Keyword("BETA", kwargs.get("beta", .01)),
+                "BETA": Keyword("BETA", kwargs.get("beta", 0.01)),
                 "NBUFFER": Keyword("NBUFFER", kwargs.get("nbuffer", 10)),
                 "N_SIMPLE_MIX": Keyword("N_SIMPLE_MIX", kwargs.get("n_simple_mix", 3)),
-                "METHOD": Keyword("METHOD", kwargs.get("mixing_method", "BROYDEN_MIXING"))
+                "METHOD": Keyword("METHOD", kwargs.get("mixing_method", "BROYDEN_MIXING")),
             }
             mixing = Section("MIXING", keywords=mixing_kwds, subsections=None)
             scf.insert(mixing)
-            scf['MAX_DIIS'] = Keyword("MAX_DIIS", 15)
+            scf["MAX_DIIS"] = Keyword("MAX_DIIS", 15)
 
         # Create the multigrid for FFTs
         if not cutoff:
@@ -406,11 +410,13 @@ class DftSet(Cp2kInputSet):
         if smearing or (band_gap <= 0.0):
             scf.kwargs["ADDED_MOS"] = 100
             scf["ADDED_MOS"] = 100  # TODO: how to grab the appropriate number?
-            scf.insert(Smear(elec_temp=kwargs.get('elec_temp', 500)))
+            scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 500)))
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
-        xc_functional = XC_FUNCTIONAL(functional=kwargs.get("functional", "PBE"))
+        xc_functionals = kwargs.get("xc_functional", "PBE")
+        xc_functionals = xc_functionals if isinstance(xc_functionals, (list, tuple)) else [xc_functionals]
+        xc_functional = XC_FUNCTIONAL(functional='', subsections={xcf: Section(xcf) for xcf in xc_functionals})
         xc = Section("XC", subsections={"XC_FUNCTIONAL": xc_functional})
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
@@ -507,7 +513,7 @@ class DftSet(Cp2kInputSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        omega: float = 0.2,
+        omega: float = 0.11,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
