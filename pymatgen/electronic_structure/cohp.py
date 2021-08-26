@@ -199,7 +199,7 @@ class Cohp(MSONable):
             icohp = {Spin(int(key)): np.array(val) for key, val in d["ICOHP"].items()}
         else:
             icohp = None
-        if not "are_cobis" in d:
+        if "are_cobis" not in d:
             are_cobis = False
         else:
             are_cobis = d["are_cobis"]
@@ -674,7 +674,7 @@ class CompleteCohp(Cohp):
                 icohp = None
             avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp)
 
-        if not "are_cobis" in d:
+        if "are_cobis" not in d:
             are_cobis = False
         else:
             are_cobis = d["are_cobis"]
