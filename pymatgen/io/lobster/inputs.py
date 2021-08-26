@@ -619,7 +619,9 @@ class Lobsterin(dict, MSONable):
             data = f.read()
         if "SHA256" in data or "COPYR" in data:
             warnings.warn(
-                "These POTCARs are not compatible with Lobster up to version 4.1.0.\n The keywords SHA256 and COPYR cannot be handled by Lobster \n and will lead to wrong results."
+                "These POTCARs are not compatible with Lobster up to version 4.1.0."
+                "\n The keywords SHA256 and COPYR cannot be handled by Lobster"
+                " \n and will lead to wrong results."
             )
 
         if potcar.functional != "PBE":
