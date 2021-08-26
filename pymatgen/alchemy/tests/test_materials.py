@@ -55,9 +55,7 @@ class TransformedStructureTest(PymatgenTest):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-        )
+        SETTINGS["PMG_VASP_PSP_DIR"] = PymatgenTest.TEST_FILES_DIR
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
         self.assertEqual("Na_pv\nFe_pv\nP\nO", "\n".join([p.symbol for p in potcar]))
         self.assertEqual(len(self.trans.structures), 2)
