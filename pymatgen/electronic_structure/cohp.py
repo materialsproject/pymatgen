@@ -253,14 +253,14 @@ class CompleteCohp(Cohp):
     """
 
     def __init__(
-            self,
-            structure,
-            avg_cohp,
-            cohp_dict,
-            bonds=None,
-            are_coops=False,
-            are_cobis=False,
-            orb_res_cohp=None,
+        self,
+        structure,
+        avg_cohp,
+        cohp_dict,
+        bonds=None,
+        are_coops=False,
+        are_cobis=False,
+        orb_res_cohp=None,
     ):
         """
         Args:
@@ -450,7 +450,7 @@ class CompleteCohp(Cohp):
         )
 
     def get_summed_cohp_by_label_and_orbital_list(
-            self, label_list, orbital_list, divisor=1, summed_spin_channels=False
+        self, label_list, orbital_list, divisor=1, summed_spin_channels=False
     ):
         """
         Returns a COHP object that includes a summed COHP divided by divisor
@@ -887,21 +887,6 @@ class IcohpValue(MSONable):
         if not self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
-                        "ICOHP "
-                        + str(self._label)
-                        + " between "
-                        + str(self._atom1)
-                        + " and "
-                        + str(self._atom2)
-                        + " ("
-                        + str(self._translation)
-                        + "): "
-                        + str(self._icohp[Spin.up])
-                        + " eV (Spin up) and "
-                        + str(self._icohp[Spin.down])
-                        + " eV (Spin down)"
-                )
-            return (
                     "ICOHP "
                     + str(self._label)
                     + " between "
@@ -912,41 +897,27 @@ class IcohpValue(MSONable):
                     + str(self._translation)
                     + "): "
                     + str(self._icohp[Spin.up])
-                    + " eV (Spin up)"
+                    + " eV (Spin up) and "
+                    + str(self._icohp[Spin.down])
+                    + " eV (Spin down)"
+                )
+            return (
+                "ICOHP "
+                + str(self._label)
+                + " between "
+                + str(self._atom1)
+                + " and "
+                + str(self._atom2)
+                + " ("
+                + str(self._translation)
+                + "): "
+                + str(self._icohp[Spin.up])
+                + " eV (Spin up)"
             )
         if self._are_coops:
             if self._is_spin_polarized:
                 return (
-                        "ICOOP "
-                        + str(self._label)
-                        + " between "
-                        + str(self._atom1)
-                        + " and "
-                        + str(self._atom2)
-                        + " ("
-                        + str(self._translation)
-                        + "): "
-                        + str(self._icohp[Spin.up])
-                        + " (Spin up) and "
-                        + str(self._icohp[Spin.down])
-                        + " (Spin down)"
-                )
-            return (
                     "ICOOP "
-                    + str(self._label)
-                    + " between "
-                    + str(self._atom1)
-                    + " and "
-                    + str(self._atom2)
-                    + " ("
-                    + str(self._translation)
-                    + "): "
-                    + str(self._icohp[Spin.up])
-                    + " (Spin up)"
-            )
-        if self._is_spin_polarized:
-            return (
-                    "ICOBI "
                     + str(self._label)
                     + " between "
                     + str(self._atom1)
@@ -959,9 +930,9 @@ class IcohpValue(MSONable):
                     + " (Spin up) and "
                     + str(self._icohp[Spin.down])
                     + " (Spin down)"
-            )
-        return (
-                "ICOBI "
+                )
+            return (
+                "ICOOP "
                 + str(self._label)
                 + " between "
                 + str(self._atom1)
@@ -972,6 +943,35 @@ class IcohpValue(MSONable):
                 + "): "
                 + str(self._icohp[Spin.up])
                 + " (Spin up)"
+            )
+        if self._is_spin_polarized:
+            return (
+                "ICOBI "
+                + str(self._label)
+                + " between "
+                + str(self._atom1)
+                + " and "
+                + str(self._atom2)
+                + " ("
+                + str(self._translation)
+                + "): "
+                + str(self._icohp[Spin.up])
+                + " (Spin up) and "
+                + str(self._icohp[Spin.down])
+                + " (Spin down)"
+            )
+        return (
+            "ICOBI "
+            + str(self._label)
+            + " between "
+            + str(self._atom1)
+            + " and "
+            + str(self._atom2)
+            + " ("
+            + str(self._translation)
+            + "): "
+            + str(self._icohp[Spin.up])
+            + " (Spin up)"
         )
 
     @property
@@ -1062,17 +1062,17 @@ class IcohpCollection(MSONable):
     """
 
     def __init__(
-            self,
-            list_labels,
-            list_atom1,
-            list_atom2,
-            list_length,
-            list_translation,
-            list_num,
-            list_icohp,
-            is_spin_polarized,
-            are_coops=False,
-            are_cobis=False,
+        self,
+        list_labels,
+        list_atom1,
+        list_atom2,
+        list_length,
+        list_translation,
+        list_num,
+        list_icohp,
+        is_spin_polarized,
+        are_coops=False,
+        are_cobis=False,
     ):
         """
         Args:
@@ -1187,13 +1187,13 @@ class IcohpCollection(MSONable):
         return newicohp_dict
 
     def get_icohp_dict_of_site(
-            self,
-            site,
-            minsummedicohp=None,
-            maxsummedicohp=None,
-            minbondlength=0.0,
-            maxbondlength=8.0,
-            only_bonds_to=None,
+        self,
+        site,
+        minsummedicohp=None,
+        maxsummedicohp=None,
+        minbondlength=0.0,
+        maxbondlength=8.0,
+        only_bonds_to=None,
     ):
         """
         get a dict of IcohpValue for a certain site (indicated by integer)
@@ -1306,7 +1306,7 @@ class IcohpCollection(MSONable):
 
 
 def get_integrated_cohp_in_energy_range(
-        cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+    cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
 ):
     """
     Method that can integrate completecohp objects which include data on integrated COHPs
