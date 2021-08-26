@@ -614,6 +614,13 @@ class Lobsterin(dict, MSONable):
             if pot.potential_type != "PAW":
                 raise IOError("Lobster only works with PAW! Use different POTCARs")
 
+        #Warning about a bug in lobster-4.1.0
+        with zopen(POTCAR_input, "r") as f:
+            data = f.read()
+        if "SHA256" in data or "COPYR" in data:
+            warnings.warn(
+                "These POTCARs are not compatible with Lobster up to version 4.1.0.\n The keywords SHA256 and COPYR cannot be handled by Lobster \n and will lead to wrong results.")
+
         if potcar.functional != "PBE":
             raise IOError("We only have BASIS options for PBE so far")
 
@@ -664,7 +671,11 @@ class Lobsterin(dict, MSONable):
             "onlydos",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
+            "onlymadelung"
+
         ]:
             raise ValueError("The option is not valid!")
 
@@ -679,7 +690,9 @@ class Lobsterin(dict, MSONable):
             "standard",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
             "standard_with_fatband",
         ]:
             # every interaction with a distance of 6.0 is checked
@@ -691,28 +704,47 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             Lobsterindict["loadProjectionFromFile"] = True
 
+        # TODO: add cobi here! might be relevant lobster version
         if option == "onlycohp":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            #lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"]=True
 
         if option == "onlycoop":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlycohpcoop":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlycohpcoopcobi":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlydos":
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlyprojection":
             Lobsterindict["skipdos"] = True
@@ -721,6 +753,28 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
             Lobsterindict["saveProjectionToFile"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option=="onlycobi":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipcohp"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option=="onlymadelung":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipcohp"] = True
+            Lobsterindict["skipcoop"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            Lobsterindict["saveProjectionToFile"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
 
         incar = Incar.from_file(INCAR_input)
         if incar["ISMEAR"] == 0:
