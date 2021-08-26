@@ -996,11 +996,11 @@ class IcohpValue(MSONable):
     @property
     def are_cobis(self):
         """
-        tells if icobis or not
+        tells if ICOBIs or not
         Returns:
-         Boolean
+            Boolean
         """
-        self._are_cobis
+        return self._are_cobis
 
     @property
     def is_spin_polarized(self):
@@ -1105,13 +1105,15 @@ class IcohpCollection(MSONable):
 
         for ilist, listel in enumerate(list_labels):
             self._icohplist[listel] = IcohpValue(
-                listel,
-                list_atom1[ilist],
-                list_atom2[ilist],
-                list_length[ilist],
-                list_translation[ilist],
-                list_num[ilist],
-                list_icohp[ilist],
+                label=listel,
+                atom1=list_atom1[ilist],
+                atom2=list_atom2[ilist],
+                length=list_length[ilist],
+                translation=list_translation[ilist],
+                num=list_num[ilist],
+                icohp=list_icohp[ilist],
+                are_coops=are_coops,
+                are_cobis=are_cobis,
             )
 
     def __str__(self):
@@ -1172,7 +1174,7 @@ class IcohpCollection(MSONable):
 
     def get_icohp_dict_by_bondlengths(self, minbondlength=0.0, maxbondlength=8.0):
         """
-        get a dict of IcohpValues corresponding to certaind bond lengths
+        get a dict of IcohpValues corresponding to certain bond lengths
         Args:
             minbondlength: defines the minimum of the bond lengths of the bonds
             maxbondlength: defines the maximum of the bond lengths of the bonds
@@ -1251,10 +1253,10 @@ class IcohpCollection(MSONable):
         Returns:
             lowest ICOHP/largest ICOOP value (i.e. ICOHP/ICOOP value of strongest bond)
         """
-        if not self._are_coops and not self._are_cobis:
-            extremum = sys.float_info.max
-        else:
+        if self._are_coops or self._are_cobis:
             extremum = -sys.float_info.max
+        else:
+            extremum = sys.float_info.max
 
         if not self._is_spin_polarized:
             if spin == Spin.down:
@@ -1272,7 +1274,7 @@ class IcohpCollection(MSONable):
                         extremum = value.icohpvalue(spin)
                         # print(extremum)
             else:
-                if not self._are_coops and self._are_cobis:
+                if not self._are_coops and not self._are_cobis:
                     if value.summed_icohp < extremum:
                         extremum = value.summed_icohp
                         # print(extremum)

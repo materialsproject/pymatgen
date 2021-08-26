@@ -111,8 +111,8 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
         self.energies = data[0]
         cohp_data = {
             "average": {
@@ -479,10 +479,10 @@ class Doscar:
     """
 
     def __init__(
-            self,
-            doscar: str = "DOSCAR.lobster",
-            structure_file: str = "POSCAR",
-            dftprogram: str = "Vasp",
+        self,
+        doscar: str = "DOSCAR.lobster",
+        structure_file: str = "POSCAR",
+        dftprogram: str = "Vasp",
     ):
         """
         Args:
@@ -815,16 +815,16 @@ class Lobsterout:
 
         self.has_DOSCAR = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
         self.has_COHPCAR = (
-                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
-                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
+            "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
+            and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
         )
         self.has_COOPCAR = (
-                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
-                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
+            "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
+            and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
         )
         self.has_COBICAR = (
-                "writing COBICAR.lobster and ICOBILIST.lobster..." in data
-                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
+            "writing COBICAR.lobster and ICOBILIST.lobster..." in data
+            and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
         )
 
         self.has_CHARGE = "SKIPPING writing CHARGE.lobster..." not in data
@@ -834,8 +834,8 @@ class Lobsterout:
         self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
         self.has_madelung = (
-                "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
-                and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
+            "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
+            and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
         )
 
     def get_doc(self):
@@ -1175,7 +1175,7 @@ class Fatband:
                 self.is_spinpolarized = True
             else:
                 linenumbers = []
-                for iline, line in enumerate(contents[1: self.nbands * 2 + 4]):
+                for iline, line in enumerate(contents[1 : self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
                         linenumbers.append(iline)
 
@@ -1261,7 +1261,7 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts:], start=0):
+        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
 
             if label is not None:
                 label_dict[label] = kpoints_array[ilabel]
@@ -1358,11 +1358,11 @@ class Bandoverlaps:
         return True
 
     def has_good_quality_check_occupied_bands(
-            self,
-            number_occ_bands_spin_up: int,
-            number_occ_bands_spin_down: Optional[int] = None,
-            spin_polarized: bool = False,
-            limit_deviation: float = 0.1,
+        self,
+        number_occ_bands_spin_up: int,
+        number_occ_bands_spin_down: Optional[int] = None,
+        spin_polarized: bool = False,
+        limit_deviation: float = 0.1,
     ) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
@@ -1648,9 +1648,9 @@ class Wavefunction:
 
         """
         if not (
-                hasattr(self, "volumetricdata_real")
-                and hasattr(self, "volumetricdata_imaginary")
-                and hasattr(self, "volumetricdata_density")
+            hasattr(self, "volumetricdata_real")
+            and hasattr(self, "volumetricdata_imaginary")
+            and hasattr(self, "volumetricdata_density")
         ):
             self.set_volumetric_data(self.grid, self.structure)
         if part == "real":
