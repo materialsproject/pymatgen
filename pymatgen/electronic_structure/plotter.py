@@ -575,15 +575,15 @@ class BSPlotter:
         return int_distances, int_energies
 
     def get_plot(
-            self,
-            zero_to_efermi=True,
-            ylim=None,
-            smooth=False,
-            vbm_cbm_marker=False,
-            smooth_tol=0,
-            smooth_k=3,
-            smooth_np=100,
-            bs_labels=[],
+        self,
+        zero_to_efermi=True,
+        ylim=None,
+        smooth=False,
+        vbm_cbm_marker=False,
+        smooth_tol=0,
+        smooth_k=3,
+        smooth_np=100,
+        bs_labels=[],
     ):
         """
         Get a matplotlib object for the bandstructures plot.
@@ -1516,17 +1516,17 @@ class BSPlotterProjected(BSPlotter):
         return proj_br_d, dictio_d, dictpa_d, indices
 
     def get_projected_plots_dots_patom_pmorb(
-            self,
-            dictio,
-            dictpa,
-            sum_atoms=None,
-            sum_morbs=None,
-            zero_to_efermi=True,
-            ylim=None,
-            vbm_cbm_marker=False,
-            selected_branches=None,
-            w_h_size=(12, 8),
-            num_column=None,
+        self,
+        dictio,
+        dictpa,
+        sum_atoms=None,
+        sum_morbs=None,
+        zero_to_efermi=True,
+        ylim=None,
+        vbm_cbm_marker=False,
+        selected_branches=None,
+        w_h_size=(12, 8),
+        num_column=None,
     ):
         """
         Method returns a plot composed of subplots for different atoms and
@@ -2254,21 +2254,21 @@ class BSDOSPlotter:
     """
 
     def __init__(
-            self,
-            bs_projection="elements",
-            dos_projection="elements",
-            vb_energy_range=4,
-            cb_energy_range=4,
-            fixed_cb_energy=False,
-            egrid_interval=1,
-            font="Times New Roman",
-            axis_fontsize=20,
-            tick_fontsize=15,
-            legend_fontsize=14,
-            bs_legend="best",
-            dos_legend="best",
-            rgb_legend=True,
-            fig_size=(11, 8.5),
+        self,
+        bs_projection="elements",
+        dos_projection="elements",
+        vb_energy_range=4,
+        cb_energy_range=4,
+        fixed_cb_energy=False,
+        egrid_interval=1,
+        font="Times New Roman",
+        axis_fontsize=20,
+        tick_fontsize=15,
+        legend_fontsize=14,
+        bs_legend="best",
+        dos_legend="best",
+        rgb_legend=True,
+        fig_size=(11, 8.5),
     ):
         """
         Instantiate plotter settings.
@@ -2332,13 +2332,13 @@ class BSDOSPlotter:
             elements = []
 
         rgb_legend = (
-                self.rgb_legend and bs_projection and bs_projection.lower() == "elements" and len(elements) in [2, 3]
+            self.rgb_legend and bs_projection and bs_projection.lower() == "elements" and len(elements) in [2, 3]
         )
 
         if (
-                bs_projection
-                and bs_projection.lower() == "elements"
-                and (len(elements) not in [2, 3] or not bs.get_projection_on_elements())
+            bs_projection
+            and bs_projection.lower() == "elements"
+            and (len(elements) not in [2, 3] or not bs.get_projection_on_elements())
         ):
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
@@ -2449,15 +2449,15 @@ class BSDOSPlotter:
                 for band_idx, band in enumerate(band_energies[spin]):
                     current_pos = 0
                     for x_distances in x_distances_list:
-                        sub_band = band[current_pos: current_pos + len(x_distances)]
+                        sub_band = band[current_pos : current_pos + len(x_distances)]
 
                         self._rgbline(
                             bs_ax,
                             x_distances,
                             sub_band,
-                            colordata[spin][band_idx, :, 0][current_pos: current_pos + len(x_distances)],
-                            colordata[spin][band_idx, :, 1][current_pos: current_pos + len(x_distances)],
-                            colordata[spin][band_idx, :, 2][current_pos: current_pos + len(x_distances)],
+                            colordata[spin][band_idx, :, 0][current_pos : current_pos + len(x_distances)],
+                            colordata[spin][band_idx, :, 1][current_pos : current_pos + len(x_distances)],
+                            colordata[spin][band_idx, :, 2][current_pos : current_pos + len(x_distances)],
                             linestyles=linestyles,
                         )
 
@@ -2517,7 +2517,7 @@ class BSDOSPlotter:
 
             # determine DOS x-axis range
             dos_xmin = (
-                0 if Spin.down not in dos.densities else -max(dos.densities[Spin.down][emin_idx: emax_idx + 1] * 1.05)
+                0 if Spin.down not in dos.densities else -max(dos.densities[Spin.down][emin_idx : emax_idx + 1] * 1.05)
             )
             dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) * 1.05, abs(dos_xmin)])
 
@@ -3739,12 +3739,12 @@ class CohpPlotter:
         return jsanitize(self._cohps)
 
     def get_plot(
-            self,
-            xlim=None,
-            ylim=None,
-            plot_negative=None,
-            integrated=False,
-            invert_axes=True,
+        self,
+        xlim=None,
+        ylim=None,
+        plot_negative=None,
+        integrated=False,
+        invert_axes=True,
     ):
         """
         Get a matplotlib plot showing the COHP.
@@ -3910,18 +3910,18 @@ class CohpPlotter:
 
 @requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
 def plot_fermi_surface(
-        data,
-        structure,
-        cbm,
-        energy_levels=None,
-        multiple_figure=True,
-        mlab_figure=None,
-        kpoints_dict=None,
-        colors=None,
-        transparency_factor=None,
-        labels_scale_factor=0.05,
-        points_scale_factor=0.02,
-        interative=True,
+    data,
+    structure,
+    cbm,
+    energy_levels=None,
+    multiple_figure=True,
+    mlab_figure=None,
+    kpoints_dict=None,
+    colors=None,
+    transparency_factor=None,
+    labels_scale_factor=0.05,
+    points_scale_factor=0.02,
+    interative=True,
 ):
     """
     Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
@@ -4017,9 +4017,9 @@ def plot_fermi_surface(
             for line in itertools.combinations(bz[iface], 2):
                 for jface in range(len(bz)):  # pylint: disable=C0200
                     if (
-                            iface < jface
-                            and any(np.all(line[0] == x) for x in bz[jface])
-                            and any(np.all(line[1] == x) for x in bz[jface])
+                        iface < jface
+                        and any(np.all(line[0] == x) for x in bz[jface])
+                        and any(np.all(line[1] == x) for x in bz[jface])
                     ):
                         mlab.plot3d(
                             *zip(line[0], line[1]),
@@ -4053,9 +4053,9 @@ def plot_fermi_surface(
                 for line in itertools.combinations(bz[iface], 2):
                     for jface in range(len(bz)):
                         if (
-                                iface < jface
-                                and any(np.all(line[0] == x) for x in bz[jface])
-                                and any(np.all(line[1] == x) for x in bz[jface])
+                            iface < jface
+                            and any(np.all(line[0] == x) for x in bz[jface])
+                            and any(np.all(line[1] == x) for x in bz[jface])
                         ):
                             mlab.plot3d(
                                 *zip(line[0], line[1]),
@@ -4133,9 +4133,9 @@ def plot_wigner_seitz(lattice, ax=None, **kwargs):
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
                 if (
-                        iface < jface
-                        and any(np.all(line[0] == x) for x in bz[jface])
-                        and any(np.all(line[1] == x) for x in bz[jface])
+                    iface < jface
+                    and any(np.all(line[0] == x) for x in bz[jface])
+                    and any(np.all(line[1] == x) for x in bz[jface])
                 ):
                     ax.plot(*zip(line[0], line[1]), **kwargs)
 
@@ -4356,14 +4356,14 @@ def plot_brillouin_zone_from_kpath(kpath, ax=None, **kwargs):
 
 @add_fig_kwargs
 def plot_brillouin_zone(
-        bz_lattice,
-        lines=None,
-        labels=None,
-        kpoints=None,
-        fold=False,
-        coords_are_cartesian=False,
-        ax=None,
-        **kwargs,
+    bz_lattice,
+    lines=None,
+    labels=None,
+    kpoints=None,
+    fold=False,
+    coords_are_cartesian=False,
+    ax=None,
+    **kwargs,
 ):
     """
     Plots a 3D representation of the Brillouin zone of the structure.
@@ -4421,14 +4421,14 @@ def plot_brillouin_zone(
 
 
 def plot_ellipsoid(
-        hessian,
-        center,
-        lattice=None,
-        rescale=1.0,
-        ax=None,
-        coords_are_cartesian=False,
-        arrows=False,
-        **kwargs,
+    hessian,
+    center,
+    lattice=None,
+    rescale=1.0,
+    ax=None,
+    coords_are_cartesian=False,
+    arrows=False,
+    **kwargs,
 ):
     """
     Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
