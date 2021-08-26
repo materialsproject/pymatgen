@@ -766,15 +766,21 @@ class CompleteCohpTest(PymatgenTest):
         structure = os.path.join(test_dir, "POSCAR.Na2UO4")
         self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
-        # #TODO: spinpolarized case:
+        # spinpolarized case:
         filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
         structure = os.path.join(test_dir, "environments", "POSCAR.mp_190")
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
+        # COBI
+        filepath = os.path.join(test_dir, "COBICAR.lobster")
+        structure = os.path.join(test_dir, "POSCAR.COBI")
+
+        self.cobi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_cobis=True)
 
     def test_attiributes(self):
         self.assertFalse(self.cohp_lobster.are_coops)
+        self.assertFalse(self.cohp_lobster.are_cobis)
         self.assertFalse(self.cohp_lobster_dict.are_coops)
         self.assertFalse(self.cohp_lmto.are_coops)
         self.assertFalse(self.cohp_lmto_dict.are_coops)
@@ -792,6 +798,9 @@ class CompleteCohpTest(PymatgenTest):
         self.assertEqual(self.cohp_lmto.efermi, -2.3433)
         self.assertEqual(self.coop_lobster.efermi, 5.90043)
         self.assertEqual(self.cohp_lobster_forb.efermi, 4.12875)
+
+        self.assertTrue(self.cobi.are_cobis)
+        self.assertFalse(self.cobi.are_coops)
 
     def test_dict(self):
         # The json files are dict representations of the COHPs from the LMTO

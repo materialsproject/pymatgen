@@ -14,7 +14,6 @@ import warnings
 
 import numpy as np
 from monty.json import MSONable
-from scipy.interpolate import InterpolatedUnivariateSpline
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -22,6 +21,7 @@ from pymatgen.io.lmto import LMTOCopl
 from pymatgen.io.lobster import Cohpcar
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.num import round_to_sigfigs
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -36,16 +36,18 @@ class Cohp(MSONable):
     Basic COHP object.
     """
 
-    def __init__(self, efermi, energies, cohp, are_coops=False, icohp=None):
+    def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, icohp=None):
         """
         Args:
-            are_coops: Indicates whether this object describes COHPs or COOPs.
+            are_coops: Indicates whether this object describes COOPs.
+            are_cobis: Indicates whether this object describes COBIs.
             efermi: Fermi energy.
             energies: A sequence of energies.
             cohp ({Spin: np.array}): representing the COHP for each spin.
             icohp ({Spin: np.array}): representing the ICOHP for each spin.
         """
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         self.efermi = efermi
         self.energies = np.array(energies)
         self.cohp = cohp
@@ -58,7 +60,12 @@ class Cohp(MSONable):
         """
         Returns a string that can be easily plotted (e.g. using gnuplot).
         """
-        cohpstring = "COOP" if self.are_coops else "COHP"
+        if self.are_coops:
+            cohpstring = "COOP"
+        elif self.are_cobis:
+            cohpstring = "COBI"
+        else:
+            cohpstring = "COHP"
         header = ["Energy", cohpstring + "Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
@@ -85,6 +92,7 @@ class Cohp(MSONable):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "are_coops": self.are_coops,
+            "are_cobis": self.are_cobis,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "COHP": {str(spin): pops.tolist() for spin, pops in self.cohp.items()},
@@ -191,12 +199,17 @@ class Cohp(MSONable):
             icohp = {Spin(int(key)): np.array(val) for key, val in d["ICOHP"].items()}
         else:
             icohp = None
+        if not "are_cobis" in d:
+            are_cobis = False
+        else:
+            are_cobis = d["are_cobis"]
         return Cohp(
             d["efermi"],
             d["energies"],
             {Spin(int(key)): np.array(val) for key, val in d["COHP"].items()},
             icohp=icohp,
             are_coops=d["are_coops"],
+            are_cobis=are_cobis,
         )
 
 
@@ -206,7 +219,13 @@ class CompleteCohp(Cohp):
 
     .. attribute: are_coops
 
-         Indicates whether the object is of COOPs or COHPs.
+         Indicates whether the object is consisting of COOPs.
+
+
+    .. attribute: are_cobis
+
+         Indicates whether the object is consisting of COBIs.
+
 
     .. attribute: efermi
 
@@ -240,6 +259,7 @@ class CompleteCohp(Cohp):
         cohp_dict,
         bonds=None,
         are_coops=False,
+        are_cobis=False,
         orb_res_cohp=None,
     ):
         """
@@ -253,19 +273,25 @@ class CompleteCohp(Cohp):
                 the user wants to put in, but typically contains the sites,
                 the bond length, and the number of bonds. If nothing is
                 supplied, it will default to an empty dict.
-            are_coops: indicates whether the Cohp objects are COHPs or COOPs.
+            are_coops: indicates whether the Cohp objects are COOPs.
+                Defauls to False for COHPs.
+            are_cobis: indicates whether the Cohp objects are COBIs.
                 Defauls to False for COHPs.
             orb_res_cohp: Orbital-resolved COHPs.
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         super().__init__(
             avg_cohp.efermi,
             avg_cohp.energies,
             avg_cohp.cohp,
             are_coops=are_coops,
+            are_cobis=are_cobis,
             icohp=avg_cohp.icohp,
         )
         self.structure = structure
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         self.all_cohps = cohp_dict
         self.orb_res_cohp = orb_res_cohp
         if bonds is None:
@@ -276,6 +302,8 @@ class CompleteCohp(Cohp):
     def __str__(self):
         if self.are_coops:
             return "Complete COOPs for " + str(self.structure)
+        if self.are_cobis:
+            return "Complete COBIs for " + str(self.structure)
         return "Complete COHPs for " + str(self.structure)
 
     def as_dict(self):
@@ -286,6 +314,7 @@ class CompleteCohp(Cohp):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "are_coops": self.are_coops,
+            "are_cobis": self.are_cobis,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
             "energies": self.energies.tolist(),
@@ -363,6 +392,7 @@ class CompleteCohp(Cohp):
             energies=self.energies,
             cohp=final_cohp,
             are_coops=self.are_coops,
+            are_cobis=self.are_cobis,
             icohp=final_icohp,
         )
 
@@ -415,6 +445,7 @@ class CompleteCohp(Cohp):
             energies=first_cohpobject.energies,
             cohp=final_cohp,
             are_coops=first_cohpobject.are_coops,
+            are_cobis=first_cohpobject.are_coops,
             icohp=final_icohp,
         )
 
@@ -473,6 +504,7 @@ class CompleteCohp(Cohp):
             energies=first_cohpobject.energies,
             cohp=final_cohp,
             are_coops=first_cohpobject.are_coops,
+            are_cobis=first_cohpobject.are_cobis,
             icohp=final_icohp,
         )
 
@@ -541,6 +573,7 @@ class CompleteCohp(Cohp):
             final_cohp,
             icohp=final_icohp,
             are_coops=self.are_coops,
+            are_cobis=self.are_cobis,
         )
 
     @classmethod
@@ -641,17 +674,23 @@ class CompleteCohp(Cohp):
                 icohp = None
             avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp)
 
+        if not "are_cobis" in d:
+            are_cobis = False
+        else:
+            are_cobis = d["are_cobis"]
+
         return CompleteCohp(
             structure,
             avg_cohp,
             cohp_dict,
             bonds=bonds,
             are_coops=d["are_coops"],
+            are_cobis=are_cobis,
             orb_res_cohp=orb_cohp,
         )
 
     @classmethod
-    def from_file(cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis= False):
+    def from_file(cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False):
         """
         Creates a CompleteCohp object from an output file of a COHP
         calculation. Valid formats are either LMTO (for the Stuttgart
@@ -664,7 +703,7 @@ class CompleteCohp(Cohp):
             are_coops: Indicates whether the populations are COOPs or
                 COHPs. Defaults to False for COHPs.
 
-            are_coops: Indicates whether the populations are COBIs or
+            are_cobis: Indicates whether the populations are COBIs or
                 COHPs. Defaults to False for COHPs.
 
             fmt: A string for the code that was used to calculate
@@ -678,10 +717,13 @@ class CompleteCohp(Cohp):
         Returns:
             A CompleteCohp object.
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         fmt = fmt.upper()
         if fmt == "LMTO":
             # LMTO COOPs and orbital-resolved COHP cannot be handled yet.
             are_coops = False
+            are_cobis = False
             orb_res_cohp = None
             if structure_file is None:
                 structure_file = "CTRL"
@@ -762,17 +804,12 @@ class CompleteCohp(Cohp):
                 cohp_data["average"]["COHP"],
                 icohp=cohp_data["average"]["COHP"],
                 are_coops=are_coops,
+                are_cobis=are_cobis,
             )
             del cohp_data["average"]
 
         cohp_dict = {
-            label: Cohp(
-                efermi,
-                energies,
-                v["COHP"],
-                icohp=v["ICOHP"],
-                are_coops=are_coops,
-            )
+            label: Cohp(efermi, energies, v["COHP"], icohp=v["ICOHP"], are_coops=are_coops, are_cobis=are_cobis)
             for label, v in cohp_data.items()
         }
 
@@ -790,6 +827,7 @@ class CompleteCohp(Cohp):
             cohp_dict,
             bonds=bond_dict,
             are_coops=are_coops,
+            are_cobis=are_cobis,
             orb_res_cohp=orb_res_cohp,
         )
 
@@ -802,7 +840,10 @@ class IcohpValue(MSONable):
             number of bonds used for the average cohp (relevant for Lobster versions <3.0) (int)
 
     .. attribute:: are_coops
-            Boolean to indicate whether ICOOP or not
+            Boolean to indicates ICOOPs
+
+    .. attribute:: are_cobis
+            Boolean to indicates ICOBIs
 
     .. attribute:: icohp
             dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
@@ -812,7 +853,7 @@ class IcohpValue(MSONable):
 
     """
 
-    def __init__(self, label, atom1, atom2, length, translation, num, icohp, are_coops=False):
+    def __init__(self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False):
         """
         Args:
             label: label for the icohp
@@ -822,8 +863,13 @@ class IcohpValue(MSONable):
             translation: translation list, e.g. [0,0,0]
             num: integer describing how often the bond exists
             icohp: dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+            are_coops: if True, this are COOPs
+            are_cobis: if True, this are COBIs
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         self._are_coops = are_coops
+        self._are_cobis = are_cobis
         self._label = label
         self._atom1 = atom1
         self._atom2 = atom2
@@ -838,7 +884,7 @@ class IcohpValue(MSONable):
 
     def __str__(self):
 
-        if not self._are_coops:
+        if not self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
                     "ICOHP "
@@ -868,7 +914,23 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " eV (Spin up)"
             )
-        if self._is_spin_polarized:
+        elif self._are_coops:
+            if self._is_spin_polarized:
+                return (
+                    "ICOOP "
+                    + str(self._label)
+                    + " between "
+                    + str(self._atom1)
+                    + " and "
+                    + str(self._atom2)
+                    + " ("
+                    + str(self._translation)
+                    + "): "
+                    + str(self._icohp[Spin.up])
+                    + " (Spin up) and "
+                    + str(self._icohp[Spin.down])
+                    + " (Spin down)"
+                )
             return (
                 "ICOOP "
                 + str(self._label)
@@ -880,23 +942,38 @@ class IcohpValue(MSONable):
                 + str(self._translation)
                 + "): "
                 + str(self._icohp[Spin.up])
-                + " (Spin up) and "
-                + str(self._icohp[Spin.down])
-                + " (Spin down)"
+                + " (Spin up)"
             )
-        return (
-            "ICOOP "
-            + str(self._label)
-            + " between "
-            + str(self._atom1)
-            + " and "
-            + str(self._atom2)
-            + " ("
-            + str(self._translation)
-            + "): "
-            + str(self._icohp[Spin.up])
-            + " (Spin up)"
-        )
+        elif self._are_cobis:
+            if self._is_spin_polarized:
+                return (
+                    "ICOBI "
+                    + str(self._label)
+                    + " between "
+                    + str(self._atom1)
+                    + " and "
+                    + str(self._atom2)
+                    + " ("
+                    + str(self._translation)
+                    + "): "
+                    + str(self._icohp[Spin.up])
+                    + " (Spin up) and "
+                    + str(self._icohp[Spin.down])
+                    + " (Spin down)"
+                )
+            return (
+                "ICOBI "
+                + str(self._label)
+                + " between "
+                + str(self._atom1)
+                + " and "
+                + str(self._atom2)
+                + " ("
+                + str(self._translation)
+                + "): "
+                + str(self._icohp[Spin.up])
+                + " (Spin up)"
+            )
 
     @property
     def num_bonds(self):
@@ -915,6 +992,15 @@ class IcohpValue(MSONable):
             Boolean
         """
         return self._are_coops
+
+    @property
+    def are_cobis(self):
+        """
+        tells if icobis or not
+        Returns:
+         Boolean
+        """
+        self._are_cobis
 
     @property
     def is_spin_polarized(self):
@@ -966,7 +1052,10 @@ class IcohpCollection(MSONable):
     Class to store IcohpValues
 
     .. attribute:: are_coops
-        Boolean to indicate whether ICOHPs or ICOOPs are stored
+        Boolean to indicate if this are ICOOPs
+
+    .. attribute:: are_cobis
+        Boolean to indicate if this are ICOOPs
 
     .. attribute:: is_spin_polarized
         Boolean to indicate if the Lobster calculation was done spin polarized or not
@@ -984,12 +1073,14 @@ class IcohpCollection(MSONable):
         list_icohp,
         is_spin_polarized,
         are_coops=False,
+        are_cobis=False,
     ):
         """
         Args:
             is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
                 indicate if the Lobster calculation was done spin polarized or not
-            are_coops: Boolean to indicate whether ICOHPs or ICOOPs are stored
+            are_coops: Boolean to indicate whether ICOOPs are stored
+            are_cobis: Boolean to indicate whether ICOBIs are stored
             list_labels: list of labels for ICOHP/ICOOP values
             list_atom1: list of str of atomnames e.g. "O1"
             list_atom2: list of str of atomnames e.g. "O1"
@@ -998,7 +1089,10 @@ class IcohpCollection(MSONable):
             list_num: list of equivalent bonds, usually 1 starting from Lobster 3.0.0
             list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         self._are_coops = are_coops
+        self._are_cobis = are_cobis
         self._icohplist = {}
         self._is_spin_polarized = is_spin_polarized
         self._list_labels = list_labels
@@ -1157,7 +1251,7 @@ class IcohpCollection(MSONable):
         Returns:
             lowest ICOHP/largest ICOOP value (i.e. ICOHP/ICOOP value of strongest bond)
         """
-        if not self._are_coops:
+        if not self._are_coops and not self._are_cobis:
             extremum = sys.float_info.max
         else:
             extremum = -sys.float_info.max
@@ -1169,7 +1263,7 @@ class IcohpCollection(MSONable):
 
         for value in self._icohplist.values():
             if not value.is_spin_polarized or not summed_spin_channels:
-                if not self._are_coops:
+                if not self._are_coops and not self._are_cobis:
                     if value.icohpvalue(spin) < extremum:
                         extremum = value.icohpvalue(spin)
                         # print(extremum)
@@ -1178,7 +1272,7 @@ class IcohpCollection(MSONable):
                         extremum = value.icohpvalue(spin)
                         # print(extremum)
             else:
-                if not self._are_coops:
+                if not self._are_coops and self._are_cobis:
                     if value.summed_icohp < extremum:
                         extremum = value.summed_icohp
                         # print(extremum)
@@ -1198,9 +1292,16 @@ class IcohpCollection(MSONable):
     @property
     def are_coops(self):
         """
-        :return: Whether this is coops.
+        :return: Whether this is a coop.
         """
         return self._are_coops
+
+    @property
+    def are_cobis(self):
+        """
+        :return: Whether this a cobi.
+        """
+        return self._are_cobis
 
 
 def get_integrated_cohp_in_energy_range(
