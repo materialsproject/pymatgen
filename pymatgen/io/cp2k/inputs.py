@@ -1712,8 +1712,7 @@ class XC_FUNCTIONAL(Section):
             "TPSS",
         ]
 
-        if functional in built_in:
-            section_params = [functional]
+        section_params = [functional] if functional in built_in else []
 
         super().__init__(
             "XC_FUNCTIONAL",
