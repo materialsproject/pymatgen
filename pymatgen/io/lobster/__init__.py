@@ -19,8 +19,8 @@ from .outputs import (  # noqa
     Fatband,  # noqa
     Grosspop,  # noqa
     Icohplist,  # noqa
-    MadelungEnergies, #noqa
+    MadelungEnergies,  # noqa
     Lobsterout,  # noqa
-    SitePotential, #noqa
+    SitePotential,  # noqa
     Wavefunction,  # noqa
 )  # noqa
