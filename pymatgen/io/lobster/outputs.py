@@ -331,7 +331,7 @@ class Icohplist:
 
         # check if orbitalwise ICOHPLIST
         # include case when there is only one ICOHP!!!
-        if len(data)>2 and "_" in (data[2].split()[1]):
+        if len(data) > 2 and "_" in (data[2].split()[1]):
             self.orbitalwise = True
             warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
         else:
@@ -1675,6 +1675,12 @@ class MadelungEnergies:
     """
 
     def __init__(self, filename: str = "MadelungEnergies.lobster"):
+        """
+
+        Args:
+            filename: filename of the "MadelungEnergies.lobster" file
+        """
+
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[5]
         if len(data) == 0:
@@ -1683,7 +1689,6 @@ class MadelungEnergies:
         self.ewald_splitting = float(line[0])
         self.madelungenergies_Mulliken = float(line[1])
         self.madelungenergies_Loewdin = float(line[2])
-
 
 
 class SitePotential:
