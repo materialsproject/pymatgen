@@ -18,7 +18,6 @@ import spglib
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -41,48 +40,7 @@ class Lobsterin(dict, MSONable):
     There are also several standard lobsterin files that can be easily generated.
     """
 
-    # all keywords known to this class so far
     # reminder: lobster is not case sensitive
-    AVAILABLEKEYWORDS = [
-        "COHPstartEnergy",
-        "COHPendEnergy",
-        "basisSet",
-        "cohpGenerator",
-        "gaussianSmearingWidth",
-        "saveProjectionToFile",
-        "basisfunctions",
-        "skipdos",
-        "skipcohp",
-        "skipcoop",
-        "skipPopulationAnalysis",
-        "skipGrossPopulation",
-        "userecommendedbasisfunctions",
-        "loadProjectionFromFile",
-        "forceEnergyRange",
-        "DensityOfEnergy",
-        "BWDF",
-        "BWDFCOHP",
-        "skipProjection",
-        "createFatband",
-        "writeBasisFunctions",
-        "writeMatricesToFile",
-        "realspaceHamiltonian",
-        "realspaceOverlap",
-        "printPAWRealSpaceWavefunction",
-        "printLCAORealSpaceWavefunction",
-        "noFFTforVisualization",
-        "RMSp",
-        "onlyReadVasprun.xml",
-        "noMemoryMappedFiles",
-        "skipPAWOrthonormalityTest",
-        "doNotIgnoreExcessiveBands",
-        "doNotUseAbsoluteSpilling",
-        "skipReOrthonormalization",
-        "forceV1HMatrix",
-        "useOriginalTetrahedronMethod",
-        "useDecimalPlaces",
-        "kSpaceCOHP",
-    ]
 
     # keyword + one float can be used in file
     FLOATKEYWORDS = [
@@ -101,6 +59,7 @@ class Lobsterin(dict, MSONable):
         "printPAWRealSpaceWavefunction",
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
+        "EwaldSum",
     ]
     # the keyword alone will turn on or off a function
     BOOLEANKEYWORDS = [
@@ -108,6 +67,8 @@ class Lobsterin(dict, MSONable):
         "skipdos",
         "skipcohp",
         "skipcoop",
+        "skipcobi",
+        "skipMadelungEnergy",
         "loadProjectionFromFile",
         "forceEnergyRange",
         "DensityOfEnergy",
@@ -135,6 +96,9 @@ class Lobsterin(dict, MSONable):
     ]
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
+
+    # all keywords known to this class so far
+    AVAILABLEKEYWORDS = FLOATKEYWORDS + STRINGKEYWORDS + BOOLEANKEYWORDS + LISTKEYWORDS
 
     def __init__(self, settingsdict: dict):
         """
@@ -650,6 +614,18 @@ class Lobsterin(dict, MSONable):
             if pot.potential_type != "PAW":
                 raise IOError("Lobster only works with PAW! Use different POTCARs")
 
+        # Warning about a bug in lobster-4.1.0
+        with zopen(POTCAR_input, "r") as f:
+            data = f.read()
+        if "SHA256" in data or "COPYR" in data:
+            warnings.warn(
+                "These POTCARs are not compatible with "
+                "Lobster up to version 4.1.0."
+                "\n The keywords SHA256 and COPYR "
+                "cannot be handled by Lobster"
+                " \n and will lead to wrong results."
+            )
+
         if potcar.functional != "PBE":
             raise IOError("We only have BASIS options for PBE so far")
 
@@ -700,7 +676,10 @@ class Lobsterin(dict, MSONable):
             "onlydos",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
+            "onlymadelung",
         ]:
             raise ValueError("The option is not valid!")
 
@@ -715,7 +694,9 @@ class Lobsterin(dict, MSONable):
             "standard",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
             "standard_with_fatband",
         ]:
             # every interaction with a distance of 6.0 is checked
@@ -727,28 +708,47 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             Lobsterindict["loadProjectionFromFile"] = True
 
+        # TODO: add cobi here! might be relevant lobster version
         if option == "onlycohp":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlycoop":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlycohpcoop":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlycohpcoopcobi":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlydos":
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlyprojection":
             Lobsterindict["skipdos"] = True
@@ -757,6 +757,28 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
             Lobsterindict["saveProjectionToFile"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlycobi":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipcohp"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlymadelung":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipcohp"] = True
+            Lobsterindict["skipcoop"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            Lobsterindict["saveProjectionToFile"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
 
         incar = Incar.from_file(INCAR_input)
         if incar["ISMEAR"] == 0:

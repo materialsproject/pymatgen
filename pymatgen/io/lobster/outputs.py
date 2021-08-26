@@ -71,17 +71,28 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
         """
         Args:
             are_coops: Determines if the file is a list of COHPs or COOPs.
               Default is False for COHPs.
+            are_cobis: Determines if the file is a list of COHPs or COOPs.
+              Default is False for COHPs.
+
             filename: Name of the COHPCAR file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         if filename is None:
-            filename = "COOPCAR.lobster" if are_coops else "COHPCAR.lobster"
+            if are_coops:
+                filename = "COOPCAR.lobster"
+            elif are_cobis:
+                filename = "COBICAR.lobster"
+            else:
+                filename = "COHPCAR.lobster"
 
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
@@ -272,17 +283,27 @@ class Icohplist:
 
     """
 
-    def __init__(self, are_coops: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
         """
         Args:
-            are_coops: Determines if the file is a list of ICOHPs or ICOOPs.
+            are_coops: Determines if the file is a list of ICOOPs.
+              Defaults to False for ICOHPs.
+            are_cobis: Determines if the file is a list of ICOBIs.
               Defaults to False for ICOHPs.
             filename: Name of the ICOHPLIST file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         if filename is None:
-            filename = "ICOOPLIST.lobster" if are_coops else "ICOHPLIST.lobster"
+            if are_coops:
+                filename = "ICOOPLIST.lobster"
+            elif are_cobis:
+                filename = "ICOBILIST.lobster"
+            else:
+                filename = "ICOHPLIST.lobster"
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
@@ -303,13 +324,34 @@ class Icohplist:
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
         if "distance" in data[len(data) // 2]:
-            num_bonds = len(data) // 2
-            if num_bonds == 0:
-                raise IOError("ICOHPLIST file contains no data.")
+            # TODO: adapt this for orbitalwise stuff
             self.is_spin_polarized = True
         else:
-            num_bonds = len(data)
             self.is_spin_polarized = False
+
+        # check if orbitalwise ICOHPLIST
+        # include case when there is only one ICOHP!!!
+        if len(data) > 2 and "_" in data[2].split()[1]:
+            self.orbitalwise = True
+            warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
+        else:
+            self.orbitalwise = False
+
+        if self.orbitalwise:
+            data_without_orbitals = []
+            for line in data:
+                if "_" not in line.split()[1]:
+                    data_without_orbitals.append(line)
+        else:
+            data_without_orbitals = data
+
+        if "distance" in data_without_orbitals[len(data_without_orbitals) // 2]:
+            # TODO: adapt this for orbitalwise stuff
+            num_bonds = len(data_without_orbitals) // 2
+            if num_bonds == 0:
+                raise IOError("ICOHPLIST file contains no data.")
+        else:
+            num_bonds = len(data_without_orbitals)
 
         list_labels = []
         list_atom1 = []
@@ -319,7 +361,7 @@ class Icohplist:
         list_num = []
         list_icohp = []
         for bond in range(num_bonds):
-            line = data[bond].split()
+            line = data_without_orbitals[bond].split()
             icohp = {}
             if version == "2.2.1":
                 label = "%s" % (line[0])
@@ -330,7 +372,7 @@ class Icohplist:
                 num = int(line[5])
                 translation = [0, 0, 0]
                 if self.is_spin_polarized:
-                    icohp[Spin.down] = float(data[bond + num_bonds + 1].split()[4])
+                    icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[4])
 
             elif version == "3.1.1":
                 label = "%s" % (line[0])
@@ -342,7 +384,7 @@ class Icohplist:
                 num = int(1)
 
                 if self.is_spin_polarized:
-                    icohp[Spin.down] = float(data[bond + num_bonds + 1].split()[7])
+                    icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
 
             list_labels.append(label)
             list_atom1.append(atom1)
@@ -351,6 +393,8 @@ class Icohplist:
             list_translation.append(translation)
             list_num.append(num)
             list_icohp.append(icohp)
+
+        # TODO: add functions to get orbital resolved iCOHPs
 
         # to avoid circular dependencies
         from pymatgen.electronic_structure.cohp import IcohpCollection
@@ -661,8 +705,14 @@ class Lobsterout:
       .. attribute: has_COHPCAR
         Boolean, indicates that COHPCAR.lobster and ICOHPLIST.lobster are present
 
+      .. attribute: has_madelung
+        Boolean, indicates that SitePotentials.lobster and MadelungEnergies.lobster are present
+
       .. attribute: has_COOPCAR
         Boolean, indicates that COOPCAR.lobster and ICOOPLIST.lobster are present
+
+      .. attribute: has_COBICAR
+        Boolean, indicates that COBICAR.lobster and ICOBILIST.lobster are present
 
       .. attribute: has_DOSCAR
         Boolean, indicates that DOSCAR.lobster is present
@@ -712,12 +762,13 @@ class Lobsterout:
 
     """
 
+    # TODO: add tests for skipping COBI and madelung
+    # TODO: add tests for including COBI and madelung
     def __init__(self, filename="lobsterout"):
         """
         Args:
             filename: filename of lobsterout
         """
-        warnings.warn("Make sure the lobsterout is read in correctly. This is a brand new class.")
         # read in file
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")  # [3:-3]
@@ -771,12 +822,21 @@ class Lobsterout:
             "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
             and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
         )
+        self.has_COBICAR = (
+            "writing COBICAR.lobster and ICOBILIST.lobster..." in data
+            and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
+        )
+
         self.has_CHARGE = "SKIPPING writing CHARGE.lobster..." not in data
         self.has_Projection = "saving projection to projectionData.lobster..." in data
         self.has_bandoverlaps = "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
         self.has_fatbands = self._has_fatband(data=data)
         self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
+        self.has_madelung = (
+            "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
+            and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
+        )
 
     def get_doc(self):
         """
@@ -808,7 +868,9 @@ class Lobsterout:
         LobsterDict["hasDOSCAR"] = self.has_DOSCAR
         LobsterDict["hasCOHPCAR"] = self.has_COHPCAR
         LobsterDict["hasCOOPCAR"] = self.has_COOPCAR
+        LobsterDict["hasCOBICAR"] = self.has_COBICAR
         LobsterDict["hasCHARGE"] = self.has_CHARGE
+        LobsterDict["hasmadelung"] = self.has_madelung
         LobsterDict["hasProjection"] = self.has_Projection
         LobsterDict["hasbandoverlaps"] = self.has_bandoverlaps
         LobsterDict["hasfatband"] = self.has_fatbands
@@ -1599,3 +1661,103 @@ class Wavefunction:
             self.volumetricdata_density.write_file(filename)
         else:
             raise ValueError('part can be only "real" or "imaginary" or "density"')
+
+
+# madleung and sitepotential classes
+class MadelungEnergies:
+    """
+    Class to read MadelungEnergies.lobster files generated by LOBSTER
+
+    .. attribute: madelungenergies_Mulliken
+        float that gives the madelung energy based on the Mulliken approach
+    .. attribute: madelungenergies_Loewdin
+        float that gives the madelung energy based on the Loewdin approach
+    .. attribute: ewald_splitting
+        Ewald Splitting parameter to compute SitePotentials
+
+    """
+
+    def __init__(self, filename: str = "MadelungEnergies.lobster"):
+        """
+
+        Args:
+            filename: filename of the "MadelungEnergies.lobster" file
+        """
+
+        with zopen(filename, "rt") as f:
+            data = f.read().split("\n")[5]
+        if len(data) == 0:
+            raise IOError("MadelungEnergies file contains no data.")
+        line = data.split()
+        self.ewald_splitting = float(line[0])
+        self.madelungenergies_Mulliken = float(line[1])
+        self.madelungenergies_Loewdin = float(line[2])
+
+
+class SitePotential:
+    """
+    Class to read SitePotentials.lobster files generated by LOBSTER
+
+    .. attribute: atomlist
+        List of atoms in SitePotentials.lobster
+    .. attribute: types
+        List of types of atoms in SitePotentials.lobster
+    .. attribute: num_atoms
+        Number of atoms in SitePotentials.lobster
+    .. attribute: sitepotentials_Mulliken
+        List of Mulliken potentials of sites in SitePotentials.lobster
+    .. attribute: sitepotentials_Loewdin
+        List of Loewdin potentials of sites in SitePotentials.lobster
+    .. attribute: madelung_Mulliken
+        float that gives the madelung energy based on the Mulliken approach
+    .. attribute: madelung_Loewdin
+        float that gives the madelung energy based on the Loewdin approach
+    .. attribute: ewald_splitting
+        Ewald Splitting parameter to compute SitePotentials
+    """
+
+    def __init__(self, filename: str = "SitePotentials.lobster"):
+        """
+        Args:
+            filename: filename for the SitePotentials file, typically "SitePotentials.lobster"
+        """
+
+        # site_potentials
+        with zopen(filename, "rt") as f:
+            data = f.read().split("\n")
+        if len(data) == 0:
+            raise IOError("SitePotentials file contains no data.")
+
+        self.ewald_splitting = float(data[0].split()[9])
+
+        data = data[5:-1]
+        self.num_atoms = len(data) - 2
+        self.atomlist = []  # type: List[str]
+        self.types = []  # type: List[str]
+        self.sitepotentials_Mulliken = []  # type: List[float]
+        self.sitepotentials_Loewdin = []  # type: List[float]
+        for atom in range(0, self.num_atoms):
+            line = data[atom].split()
+            self.atomlist.append(line[1] + str(line[0]))
+            self.types.append(line[1])
+            self.sitepotentials_Mulliken.append(float(line[2]))
+            self.sitepotentials_Loewdin.append(float(line[3]))
+
+        self.madelungenergies_Mulliken = float(data[self.num_atoms + 1].split()[3])
+        self.madelungenergies_Loewdin = float(data[self.num_atoms + 1].split()[4])
+
+    def get_structure_with_site_potentials(self, structure_filename):
+        """
+        get a Structure with Mulliken and Loewdin charges as site properties
+        Args:
+            structure_filename: filename of POSCAR
+        Returns:
+            Structure Object with Mulliken and Loewdin charges as site properties
+        """
+
+        struct = Structure.from_file(structure_filename)
+        Mulliken = self.sitepotentials_Mulliken
+        Loewdin = self.sitepotentials_Loewdin
+        site_properties = {"Mulliken Site Potentials (eV)": Mulliken, "Loewdin Site Potentials (eV)": Loewdin}
+        new_struct = struct.copy(site_properties=site_properties)
+        return new_struct

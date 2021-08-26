@@ -26,11 +26,17 @@ class CohpTest(unittest.TestCase):
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
         with open(os.path.join(test_dir, "coop.json"), "r") as f:
             self.coop = Cohp.from_dict(json.load(f))
+        with open(os.path.join(test_dir, "cobi.json"), "r") as f:
+            self.cobi = Cohp.from_dict(json.load(f))
 
     def test_as_from_dict(self):
         with open(os.path.join(test_dir, "cohp.json"), "r") as f:
             cohp_dict = json.load(f)
         self.assertEqual(self.cohp.as_dict(), cohp_dict)
+
+        with open(os.path.join(test_dir, "cobi.json"), "r") as f:
+            cobi_dict = json.load(f)
+        self.assertEqual(self.cobi.as_dict(), cobi_dict)
 
     def test_attributes(self):
         self.assertEqual(len(self.cohp.energies), 301)
@@ -38,6 +44,9 @@ class CohpTest(unittest.TestCase):
         self.assertEqual(self.coop.efermi, 5.90043)
         self.assertFalse(self.cohp.are_coops)
         self.assertTrue(self.coop.are_coops)
+        self.assertFalse(self.coop.are_cobis)
+        self.assertFalse(self.cobi.are_coops)
+        self.assertTrue(self.cobi.are_cobis)
 
     def test_get_icohp(self):
         self.assertEqual(self.cohp.get_icohp(), self.cohp.get_cohp(integrated=True))
@@ -152,6 +161,7 @@ class CombinedIcohpTest(unittest.TestCase):
     def setUp(self):
         # without spin polarization:
         are_coops = False
+        are_cobis = False
         is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
         list_icohp = [
@@ -185,6 +195,7 @@ class CombinedIcohpTest(unittest.TestCase):
         self.icohpcollection_KF = IcohpCollection(
             is_spin_polarized=is_spin_polarized,
             are_coops=are_coops,
+            are_cobis=are_cobis,
             list_labels=list_labels,
             list_atom1=list_atom1,
             list_atom2=list_atom2,
@@ -227,6 +238,7 @@ class CombinedIcohpTest(unittest.TestCase):
         self.icohpcollection_Fe = IcohpCollection(
             is_spin_polarized=is_spin_polarized_sp,
             are_coops=are_coops_sp,
+            are_cobis=False,
             list_labels=list_labels_sp,
             list_atom1=list_atom1_sp,
             list_atom2=list_atom2_sp,
@@ -321,6 +333,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "length": 2.71199,
             "icohp": {Spin.up: -0.40075},
             "are_coops": False,
+            "are_cobis": False,
             "label": "1",
             "atom2": "K2",
             "@class": "IcohpValue",
@@ -333,6 +346,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "length": 2.71199,
             "icohp": {Spin.up: -0.40074},
             "are_coops": False,
+            "are_cobis": False,
             "label": "2",
             "atom2": "K2",
             "@class": "IcohpValue",
@@ -345,6 +359,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "length": 2.71199,
             "icohp": {Spin.up: -0.40079},
             "are_coops": False,
+            "are_cobis": False,
             "label": "3",
             "atom2": "K2",
             "@class": "IcohpValue",
@@ -357,6 +372,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "length": 2.71199,
             "icohp": {Spin.up: -0.40079},
             "are_coops": False,
+            "are_cobis": False,
             "label": "4",
             "atom2": "K2",
             "@class": "IcohpValue",
@@ -369,6 +385,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "length": 2.71199,
             "icohp": {Spin.up: -0.40074},
             "are_coops": False,
+            "are_cobis": False,
             "label": "5",
             "atom2": "K2",
             "@class": "IcohpValue",
@@ -381,6 +398,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "length": 2.71199,
             "icohp": {Spin.up: -0.40075},
             "are_coops": False,
+            "are_cobis": False,
             "label": "6",
             "atom2": "K2",
             "@class": "IcohpValue",
@@ -408,6 +426,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "translation": [0, 0, 0],
             "@module": "pymatgen.electronic_structure.cohp",
             "are_coops": False,
+            "are_cobis": False,
             "atom1": "Fe8",
             "label": "1",
             "length": 2.83189,
@@ -420,6 +439,7 @@ class CombinedIcohpTest(unittest.TestCase):
             "translation": [0, 0, 0],
             "@module": "pymatgen.electronic_structure.cohp",
             "are_coops": False,
+            "are_cobis": False,
             "atom1": "Fe8",
             "label": "2",
             "length": 2.45249,
@@ -448,6 +468,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohpvalue["1"] = {
             "translation": [0, -1, -1],
             "are_coops": False,
+            "are_cobis": False,
             "@module": "pymatgen.electronic_structure.cohp",
             "length": 2.71199,
             "atom2": "K2",
@@ -460,6 +481,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohpvalue["2"] = {
             "translation": [-1, 0, -1],
             "are_coops": False,
+            "are_cobis": False,
             "@module": "pymatgen.electronic_structure.cohp",
             "length": 2.71199,
             "atom2": "K2",
@@ -472,6 +494,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohpvalue["3"] = {
             "translation": [0, 0, -1],
             "are_coops": False,
+            "are_cobis": False,
             "@module": "pymatgen.electronic_structure.cohp",
             "length": 2.71199,
             "atom2": "K2",
@@ -484,6 +507,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohpvalue["4"] = {
             "translation": [-1, -1, 0],
             "are_coops": False,
+            "are_cobis": False,
             "@module": "pymatgen.electronic_structure.cohp",
             "length": 2.71199,
             "atom2": "K2",
@@ -496,6 +520,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohpvalue["5"] = {
             "translation": [0, -1, 0],
             "are_coops": False,
+            "are_cobis": False,
             "@module": "pymatgen.electronic_structure.cohp",
             "length": 2.71199,
             "atom2": "K2",
@@ -508,6 +533,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohpvalue["6"] = {
             "translation": [-1, 0, 0],
             "are_coops": False,
+            "are_cobis": False,
             "@module": "pymatgen.electronic_structure.cohp",
             "length": 2.71199,
             "atom2": "K2",
@@ -589,6 +615,7 @@ class CombinedIcohpTest(unittest.TestCase):
         icohplist_Fe = {}
         icohplist_Fe["1"] = {
             "are_coops": False,
+            "are_cobis": False,
             "translation": [0, 0, 0],
             "icohp": {Spin.down: -0.19701, Spin.up: -0.10218},
             "length": 2.83189,
@@ -601,6 +628,7 @@ class CombinedIcohpTest(unittest.TestCase):
         }
         icohplist_Fe["2"] = {
             "are_coops": False,
+            "are_cobis": False,
             "translation": [0, 0, 0],
             "icohp": {Spin.down: -0.58279, Spin.up: -0.28485},
             "length": 2.45249,
@@ -766,15 +794,21 @@ class CompleteCohpTest(PymatgenTest):
         structure = os.path.join(test_dir, "POSCAR.Na2UO4")
         self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
-        # #TODO: spinpolarized case:
+        # spinpolarized case:
         filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
         structure = os.path.join(test_dir, "environments", "POSCAR.mp_190")
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
+        # COBI
+        filepath = os.path.join(test_dir, "COBICAR.lobster")
+        structure = os.path.join(test_dir, "POSCAR.COBI")
+
+        self.cobi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_cobis=True)
 
     def test_attiributes(self):
         self.assertFalse(self.cohp_lobster.are_coops)
+        self.assertFalse(self.cohp_lobster.are_cobis)
         self.assertFalse(self.cohp_lobster_dict.are_coops)
         self.assertFalse(self.cohp_lmto.are_coops)
         self.assertFalse(self.cohp_lmto_dict.are_coops)
@@ -792,6 +826,9 @@ class CompleteCohpTest(PymatgenTest):
         self.assertEqual(self.cohp_lmto.efermi, -2.3433)
         self.assertEqual(self.coop_lobster.efermi, 5.90043)
         self.assertEqual(self.cohp_lobster_forb.efermi, 4.12875)
+
+        self.assertTrue(self.cobi.are_cobis)
+        self.assertFalse(self.cobi.are_coops)
 
     def test_dict(self):
         # The json files are dict representations of the COHPs from the LMTO
