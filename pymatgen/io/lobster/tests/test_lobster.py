@@ -71,7 +71,9 @@ class CohpcarTest(PymatgenTest):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.Na2UO4"),
             are_coops=True,
         )
-        self.cobi = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"), are_cobis=True)
+        self.cobi = Cohpcar(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"), are_cobis=True
+        )
 
     def test_attributes(self):
         self.assertFalse(self.cohp_bise.are_coops)
@@ -419,20 +421,22 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.gz")
         )
         self.icoop_fe = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
-            are_coops=True)
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"), are_coops=True
+        )
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"),
-            are_cobis=True)
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"), are_cobis=True
+        )
         # TODO: test orbitalwise ICOHPs with and without spin polarization
 
         self.icobi = Icohplist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.withoutorbitals"),
-            are_cobis=True)
+            are_cobis=True,
+        )
         self.icobi_orbitalwise_spinpolarized = Icohplist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized"),
-            are_cobis=True)
+            are_cobis=True,
+        )
 
     def test_attributes(self):
         self.assertFalse(self.icohp_bise.are_coops)
@@ -615,12 +619,12 @@ class IcohplistTest(unittest.TestCase):
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
-        self.assertAlmostEqual(self.icobi.icohplist['1']["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist['2']["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist['1']["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist['1']["icohp"][Spin.up], 0.58649 / 2, 3)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist['1']["icohp"][Spin.down], 0.58649 / 2, 3)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist['2']["icohp"][Spin.down], 0.58649 / 2, 3)
+        self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
+        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
+        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
+        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up], 0.58649 / 2, 3)
+        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down], 0.58649 / 2, 3)
+        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down], 0.58649 / 2, 3)
 
 
 class DoscarTest(unittest.TestCase):
@@ -660,8 +664,8 @@ class DoscarTest(unittest.TestCase):
         self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist())
         self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
-                self.DOSCAR_spin_pol.completedos.structure.frac_coords,
-                self.structure.frac_coords,
+            self.DOSCAR_spin_pol.completedos.structure.frac_coords,
+            self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)
@@ -918,11 +922,13 @@ class LobsteroutTest(PymatgenTest):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.onethread")
         )
         self.lobsterout_cobi_madelung = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung"))
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
+        )
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skip_cobi_madelung"))
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skip_cobi_madelung")
+        )
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -1842,7 +1848,7 @@ class LobsterinTest(unittest.TestCase):
             "onlycoop",
             "onlycobi",
             "onlycohpcoop",
-            "onlycohpcoopcobi"
+            "onlycohpcoopcobi",
         ]:
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
                 os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
@@ -2202,16 +2208,16 @@ class LobsterinTest(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                    np.isclose(kpoint[0], kpoint2[0])
-                    and np.isclose(kpoint[1], kpoint2[1])
-                    and np.isclose(kpoint[2], kpoint2[2])
+                np.isclose(kpoint[0], kpoint2[0])
+                and np.isclose(kpoint[1], kpoint2[1])
+                and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                    np.isclose(-kpoint[0], kpoint2[0])
-                    and np.isclose(-kpoint[1], kpoint2[1])
-                    and np.isclose(-kpoint[2], kpoint2[2])
+                np.isclose(-kpoint[0], kpoint2[0])
+                and np.isclose(-kpoint[1], kpoint2[1])
+                and np.isclose(-kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
@@ -2628,31 +2634,36 @@ class WavefunctionTest(PymatgenTest):
 class SitePotentialsTest(PymatgenTest):
     def setUp(self) -> None:
         self.sitepotential = SitePotential(
-            filename=os.path.join(test_dir_doscar, "cohp", "SitePotentials.lobster.perovskite"))
+            filename=os.path.join(test_dir_doscar, "cohp", "SitePotentials.lobster.perovskite")
+        )
 
     def test_attributes(self):
         self.assertListEqual(self.sitepotential.sitepotentials_Loewdin, [-8.77, -17.08, 9.57, 9.57, 8.45])
         self.assertListEqual(self.sitepotential.sitepotentials_Mulliken, [-11.38, -19.62, 11.18, 11.18, 10.09])
         self.assertAlmostEqual(self.sitepotential.madelungenergies_Loewdin, -28.64)
         self.assertAlmostEqual(self.sitepotential.madelungenergies_Mulliken, -40.02)
-        self.assertListEqual(self.sitepotential.atomlist, ['La1', 'Ta2', 'N3', 'N4', 'O5'])
-        self.assertListEqual(self.sitepotential.types, ['La', 'Ta', 'N', 'N', 'O'])
+        self.assertListEqual(self.sitepotential.atomlist, ["La1", "Ta2", "N3", "N4", "O5"])
+        self.assertListEqual(self.sitepotential.types, ["La", "Ta", "N", "N", "O"])
         self.assertEqual(self.sitepotential.num_atoms, 5)
         self.assertAlmostEqual(self.sitepotential.ewald_splitting, 3.14)
 
     def test_get_structure(self):
         structure = self.sitepotential.get_structure_with_site_potentials(
-            os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite"))
-        self.assertListEqual(structure.site_properties["Loewdin Site Potentials (eV)"],
-                             [-8.77, -17.08, 9.57, 9.57, 8.45])
-        self.assertListEqual(structure.site_properties["Mulliken Site Potentials (eV)"],
-                             [-11.38, -19.62, 11.18, 11.18, 10.09])
+            os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite")
+        )
+        self.assertListEqual(
+            structure.site_properties["Loewdin Site Potentials (eV)"], [-8.77, -17.08, 9.57, 9.57, 8.45]
+        )
+        self.assertListEqual(
+            structure.site_properties["Mulliken Site Potentials (eV)"], [-11.38, -19.62, 11.18, 11.18, 10.09]
+        )
 
 
 class MadelungEnergiesTest(PymatgenTest):
     def setUp(self) -> None:
         self.madelungenergies = MadelungEnergies(
-            filename=os.path.join(test_dir_doscar, "cohp", "MadelungEnergies.lobster.perovskite"))
+            filename=os.path.join(test_dir_doscar, "cohp", "MadelungEnergies.lobster.perovskite")
+        )
 
     def test_attributes(self):
         self.assertAlmostEqual(self.madelungenergies.madelungenergies_Loewdin, -28.64)

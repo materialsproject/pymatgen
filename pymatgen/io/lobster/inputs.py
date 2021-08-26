@@ -59,7 +59,7 @@ class Lobsterin(dict, MSONable):
         "printPAWRealSpaceWavefunction",
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
-        "EwaldSum"
+        "EwaldSum",
     ]
     # the keyword alone will turn on or off a function
     BOOLEANKEYWORDS = [
@@ -291,12 +291,12 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module", "@class"]})
 
     def write_INCAR(
-            self,
-            incar_input: str = "INCAR",
-            incar_output: str = "INCAR.lobster",
-            poscar_input: str = "POSCAR",
-            isym: int = -1,
-            further_settings: dict = None,
+        self,
+        incar_input: str = "INCAR",
+        incar_output: str = "INCAR.lobster",
+        poscar_input: str = "POSCAR",
+        isym: int = -1,
+        further_settings: dict = None,
     ):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
@@ -329,9 +329,9 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def get_basis(
-            structure: Structure,
-            potcar_symbols: list,
-            address_basis_file: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml"),
+        structure: Structure,
+        potcar_symbols: list,
+        address_basis_file: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml"),
     ):
         """
         will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
@@ -369,10 +369,10 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def get_all_possible_basis_functions(
-            structure: Structure,
-            potcar_symbols: list,
-            address_basis_file_min: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
-            address_basis_file_max: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
+        structure: Structure,
+        potcar_symbols: list,
+        address_basis_file_min: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
+        address_basis_file_max: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
     ):
         """
 
@@ -423,15 +423,15 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def write_KPOINTS(
-            POSCAR_input: str = "POSCAR",
-            KPOINTS_output="KPOINTS.lobster",
-            reciprocal_density: int = 100,
-            isym: int = -1,
-            from_grid: bool = False,
-            input_grid: list = [5, 5, 5],
-            line_mode: bool = True,
-            kpoints_line_density: int = 20,
-            symprec: float = 0.01,
+        POSCAR_input: str = "POSCAR",
+        KPOINTS_output="KPOINTS.lobster",
+        reciprocal_density: int = 100,
+        isym: int = -1,
+        from_grid: bool = False,
+        input_grid: list = [5, 5, 5],
+        line_mode: bool = True,
+        kpoints_line_density: int = 20,
+        symprec: float = 0.01,
     ):
         """
         writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
@@ -614,12 +614,13 @@ class Lobsterin(dict, MSONable):
             if pot.potential_type != "PAW":
                 raise IOError("Lobster only works with PAW! Use different POTCARs")
 
-        #Warning about a bug in lobster-4.1.0
+        # Warning about a bug in lobster-4.1.0
         with zopen(POTCAR_input, "r") as f:
             data = f.read()
         if "SHA256" in data or "COPYR" in data:
             warnings.warn(
-                "These POTCARs are not compatible with Lobster up to version 4.1.0.\n The keywords SHA256 and COPYR cannot be handled by Lobster \n and will lead to wrong results.")
+                "These POTCARs are not compatible with Lobster up to version 4.1.0.\n The keywords SHA256 and COPYR cannot be handled by Lobster \n and will lead to wrong results."
+            )
 
         if potcar.functional != "PBE":
             raise IOError("We only have BASIS options for PBE so far")
@@ -629,12 +630,12 @@ class Lobsterin(dict, MSONable):
 
     @classmethod
     def standard_calculations_from_vasp_files(
-            cls,
-            POSCAR_input: str = "POSCAR",
-            INCAR_input: str = "INCAR",
-            POTCAR_input: Optional[str] = None,
-            dict_for_basis: Optional[dict] = None,
-            option: str = "standard",
+        cls,
+        POSCAR_input: str = "POSCAR",
+        INCAR_input: str = "INCAR",
+        POTCAR_input: Optional[str] = None,
+        dict_for_basis: Optional[dict] = None,
+        option: str = "standard",
     ):
         """
         will generate Lobsterin with standard settings
@@ -674,8 +675,7 @@ class Lobsterin(dict, MSONable):
             "onlycobi",
             "onlycohpcoop",
             "onlycohpcoopcobi",
-            "onlymadelung"
-
+            "onlymadelung",
         ]:
             raise ValueError("The option is not valid!")
 
@@ -710,9 +710,9 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
-            #lobster-4.1.0
+            # lobster-4.1.0
             Lobsterindict["skipcobi"] = True
-            Lobsterindict["skipMadelungEnergy"]=True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlycoop":
             Lobsterindict["skipdos"] = True
@@ -757,7 +757,7 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["skipcobi"] = True
             Lobsterindict["skipMadelungEnergy"] = True
 
-        if option=="onlycobi":
+        if option == "onlycobi":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
@@ -766,7 +766,7 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["skipcobi"] = True
             Lobsterindict["skipMadelungEnergy"] = True
 
-        if option=="onlymadelung":
+        if option == "onlymadelung":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipcoop"] = True

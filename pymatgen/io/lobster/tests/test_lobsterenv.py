@@ -136,7 +136,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=6,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
         self.chemenvlobster5_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
@@ -145,7 +145,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=5,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
         self.chemenvlobster4_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
@@ -154,7 +154,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=4,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
         self.chemenvlobster3_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
@@ -163,7 +163,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=3,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
         self.chemenvlobster2_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
@@ -172,7 +172,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=2,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
         self.chemenvlobster1_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
@@ -181,7 +181,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=1,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
 
         self.chemenvlobster0_charges_additional_condition = LobsterNeighbors(
@@ -191,7 +191,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=0,
-            adapt_extremum_to_add_cond=True
+            adapt_extremum_to_add_cond=True,
         )
 
     def test_use_of_coop(self):
@@ -216,7 +216,6 @@ class TestLobsterNeighbors(unittest.TestCase):
                 additional_condition=10,
             )
 
-
     def test_set_limits(self):
         test = LobsterNeighbors(
             are_coops=False,
@@ -227,7 +226,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=1,
             limits=[-100000, 0],
         )
-        self.assertListEqual(test.limits,[-100000,0])
+        self.assertListEqual(test.limits, [-100000, 0])
 
     def test_molecules_allowed(self):
         self.chemenvlobster1.molecules_allowed
