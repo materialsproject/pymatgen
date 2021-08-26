@@ -458,20 +458,20 @@ class LobsterNeighbors(NearNeighbors):
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
-            #print(labels)
-            #print(atoms)
+            # print(labels)
+            # print(atoms)
             for label, atompair in zip(labels, atoms):
                 # durchlaufe only_bonds_to=[] und sage ja, falls eines der Labels in atompair ist, dann speichere
                 # new_label
                 present = False
-                #print(only_bonds_to)
+                # print(only_bonds_to)
                 for atomtype in only_bonds_to:
                     if atomtype in (self._split_string(atompair[0])[0], self._split_string(atompair[1])[0]):
                         present = True
                 if present:
                     new_labels.append(label)
                     new_atoms.append(atompair)
-            #print(new_labels)
+            # print(new_labels)
             if len(new_labels) > 0:
                 if per_bond:
                     divisor = len(new_labels)
@@ -750,9 +750,9 @@ class LobsterNeighbors(NearNeighbors):
                     index_here_list.append(index_here)
                     cell_here = neigh_new[3]
                     newcoords = [
-                        site_here.frac_coords[0] + np.float(cell_here[0]),
-                        site_here.frac_coords[1] + np.float(cell_here[1]),
-                        site_here.frac_coords[2] + np.float(cell_here[2]),
+                        site_here.frac_coords[0] + float(cell_here[0]),
+                        site_here.frac_coords[1] + float(cell_here[1]),
+                        site_here.frac_coords[2] + float(cell_here[2]),
                     ]
                     coords.append(site_here.lattice.get_cartesian_coords(newcoords))
 
@@ -1071,7 +1071,23 @@ class LobsterNeighbors(NearNeighbors):
                     val2 = self.valences[atomnr2]
 
                     if (val1 > 0.0 and val2 > 0.0) or (val1 < 0.0 and val2 < 0.0):
-                            list_icohps.append(value.summed_icohp)
+                        list_icohps.append(value.summed_icohp)
+                extremum_based = min(list_icohps) * percentage
+
+            elif additional_condition == 6:
+                # ONLY_CATION_CATION_BONDS=6
+                list_icohps = []
+                for key, value in icohpcollection._icohplist.items():
+                    atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
+                    atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
+                    val1 = self.valences[atomnr1]
+                    val2 = self.valences[atomnr2]
+
+                    if val1 > 0.0 and val2 > 0.0:
+                        list_icohps.append(value.summed_icohp)
+                extremum_based = min(list_icohps) * percentage
+
+
 
         # if not self.are_coops:
         max_here = min(extremum_based, -0.1)
@@ -1137,7 +1153,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                         raise ValueError(
                             "Weird, differences between one site in a periodic image cell is not " "integer ..."
                         )
-                    nb_image_cell = np.array(rounddiff, np.int)
+                    nb_image_cell = np.array(rounddiff, int)
 
                     all_nbs_sites_indices_here.append(counter)
 
