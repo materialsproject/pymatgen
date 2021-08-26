@@ -102,6 +102,13 @@ class TemplateInputSet(InputSet):
         self.template = template
         self.variables = variables if variables else {}
 
+        # load the template
+        with zopen(self.template, "r") as f:
+            template_str = f.read()
+
+        # replace all variables
+        self.data = Template(template_str).safe_substitute(**self.variables)
+
     def write_inputs(
         self,
         directory: Union[str, Path],
@@ -127,16 +134,9 @@ class TemplateInputSet(InputSet):
             raise FileExistsError(f"File {str(filename)} already exists!")
         file.touch()
 
-        # load the template
-        with zopen(self.template, "r") as f:
-            template_str = f.read()
-
-        # replace all variables
-        to_write = Template(template_str).safe_substitute(**self.variables)
-
         # write the file
         with zopen(file, "wt") as f:
-            f.write(to_write)
+            f.write(self.data)
 
 
 class TemplateInputSetGenerator(InputSetGenerator):
