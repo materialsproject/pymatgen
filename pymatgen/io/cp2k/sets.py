@@ -408,9 +408,9 @@ class DftSet(Cp2kInputSet):
         if kpoints:
             dft.insert(Kpoints.from_kpoints(kpoints, structure=self.structure, reduce=True))
         if smearing or (band_gap <= 0.0):
-            scf.kwargs["ADDED_MOS"] = 100
-            scf["ADDED_MOS"] = 100  # TODO: how to grab the appropriate number?
-            scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 500)))
+            scf.kwargs["ADDED_MOS"] = 500
+            scf["ADDED_MOS"] = 500  # TODO: how to grab the appropriate number?
+            scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 300)))
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
