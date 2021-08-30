@@ -4,70 +4,239 @@
 
 import unittest
 import warnings
+import numpy as np
+
 from pathlib import Path
-from pymatgen.core.composition import Element
+from pymatgen.core.composition import Composition, Element
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.analysis.chempot_diagram import ChemicalPotentialDiagram
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.analysis.chempot_diagram import (
+    ChemicalPotentialDiagram,
+    simple_pca,
+    get_2d_orthonormal_vector,
+    get_centroid_2d,
+)
 
+from plotly.graph_objects import Figure
 
 module_dir = Path(__file__).absolute().parent
 
 
 class ChemicalPotentialDiagramTest(PymatgenTest):
     def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
-        self.cpd = ChemicalPotentialDiagram(entries=self.entries,
-                                            default_min_limit=-25)
-        print(self.cpd)
+        self.entries = EntrySet.from_csv(
+            str(module_dir / "pdentries_test.csv")
+        )
+        self.cpd_ternary = ChemicalPotentialDiagram(
+            entries=self.entries, default_min_limit=-25
+        )
+        elements = [Element("Fe"), Element("O")]
+        binary_entries = list(
+            filter(
+                lambda e: set(e.composition.elements).issubset(elements),
+                self.entries,
+            )
+        )
+        self.cpd_binary = ChemicalPotentialDiagram(
+            entries=binary_entries, default_min_limit=-25
+        )
         warnings.simplefilter("ignore")
 
     def tearDown(self):
         warnings.simplefilter("default")
 
-    def test_domains(self):
-        pass
-
     def test_dim(self):
-        pass
-
-    def test_2d_plot(self):
-        pass
-
-    def test_3d_plot(self):
-        pass
-
-    def test_border_hyperplanes(self):
-        pass
-
-    def test_hyperplanes_and_entries(self):
-        pass
-
-    def test_get_min_entries_and_el_refs(self):
-        pass
-
-    def test_domain_simplices(self):
-        pass
-
-    def test_lims(self):
-        pass
+        self.assertEqual(self.cpd_binary.dim, 2)
+        self.assertEqual(self.cpd_ternary.dim, 3)
 
     def test_el_refs(self):
-        el_refs = {elem: entry.energy for elem, entry in
-                   self.cpd.el_refs.items()}
-        print(el_refs)
+        el_refs = {
+            elem: entry.energy
+            for elem, entry in self.cpd_ternary.el_refs.items()
+        }
 
         elems = [Element("Li"), Element("Fe"), Element("O")]
-        energies = [-1.89932649, -6.44218495, -8.49740766]
+        energies = [-1.91301487, -6.5961471, -25.54966885]
         correct_el_refs = dict(zip(elems, energies))
 
         self.assertDictsAlmostEqual(el_refs, correct_el_refs)
 
+    def test_border_hyperplanes(self):
+        desired = np.array(
+            [
+                [-1, 0, 0, -25],
+                [1, 0, 0, 0],
+                [0, -1, 0, -25],
+                [0, 1, 0, 0],
+                [0, 0, -1, -25],
+                [0, 0, 1, 0],
+            ]
+        )
+        self.assertArrayAlmostEqual(
+            self.cpd_ternary.border_hyperplanes, desired
+        )
+
+    def test_lims(self):
+        desired_lims = np.array([[-25, 0], [-25, 0], [-25, 0]])
+        self.assertArrayAlmostEqual(self.cpd_ternary.lims, desired_lims)
+
     def test_pca(self):
-        pass
+        points_3d = np.array(
+            [
+                [-25.0, -6.5961471, -7.11535414],
+                [-25.0, -6.74159386, -6.96990738],
+                [-4.07706195, -6.74159386, -6.96990738],
+                [-3.93161519, -6.5961471, -7.11535414],
+            ]
+        )
+
+        points_2d_desired = np.array(
+            [
+                [10.49782722, 0.10320265],
+                [10.4978342, -0.10249014],
+                [-10.42510384, -0.10320018],
+                [-10.57055758, 0.10248767],
+            ]
+        )
+
+        points_2d, _, _ = simple_pca(points_3d, k=2)
+
+        self.assertArrayAlmostEqual(points_2d, points_2d_desired)
 
     def test_centroid(self):
-        pass
+        vertices = np.array(
+            [
+                [3.30046498, 0.1707431],
+                [-0.63480672, 0.21578376],
+                [-1.37717499, 0.13347465],
+                [-1.61148314, 0.0409329],
+                [-1.77880975, -0.25825963],
+                [2.10180962 - 0.30267477],
+            ]
+        )
+
+        centroid = get_centroid_2d(vertices)
+        centroid_desired = np.array([-0.00069433, -0.00886174])
+
+        self.assertArrayAlmostEqual(centroid, centroid_desired)
+
+    def test_get_plot(self):
+        fig_2d = self.cpd_binary.get_plot()
+        fig_3d = self.cpd_ternary.get_plot()
+
+        self.assertEqual(type(fig_2d), Figure)
+        self.assertEqual(fig_2d["data"][0]["type"], "scatter")
+
+        self.assertEqual(type(fig_3d), Figure)
+        self.assertEqual(fig_3d["data"][0]["type"], "scatter3d")
+
+    def test_domains(self):
+        correct_domains = {
+            "Fe3O4": np.array(
+                [
+                    [-25.0, -7.29639011, -6.55381019],
+                    [-25.0, -6.74159386, -6.96990738],
+                    [-4.35446008, -7.29639011, -6.55381019],
+                    [-4.07706195, -6.74159386, -6.96990738],
+                ]
+            ),
+            "LiFeO2": np.array(
+                [
+                    [-4.35446008, -7.29639011, -6.55381019],
+                    [-4.07706195, -6.74159386, -6.96990738],
+                    [-3.93161519, -6.5961471, -7.11535414],
+                    [-3.62500226, -6.5961471, -7.2686606],
+                    [-4.66220934, -9.70776834, -5.19424644],
+                    [-5.40627456, -10.45183356, -4.45018123],
+                ]
+            ),
+            "Fe2O3": np.array(
+                [
+                    [-25.0, -10.73968818, -4.25827814],
+                    [-25.0, -7.29639011, -6.55381019],
+                    [-4.35446008, -7.29639011, -6.55381019],
+                    [-5.55020187, -10.73968818, -4.25827814],
+                    [-5.40627456, -10.45183356, -4.45018123],
+                ]
+            ),
+            "Li2FeO3": np.array(
+                [
+                    [-4.73988663, -10.25150936, -4.96121458],
+                    [-4.66220934, -9.70776834, -5.19424644],
+                    [-5.44282307, -10.95444579, -4.25827814],
+                    [-5.55020187, -10.73968818, -4.25827814],
+                    [-5.40627456, -10.45183356, -4.45018123],
+                ]
+            ),
+            "Li5FeO4": np.array(
+                [
+                    [-4.61251054, -10.37888545, -5.08859067],
+                    [-3.35159776, -6.5961471, -7.61041623],
+                    [-3.62500226, -6.5961471, -7.2686606],
+                    [-4.73988663, -10.25150936, -4.96121458],
+                    [-4.66220934, -9.70776834, -5.19424644],
+                ]
+            ),
+            "O2": np.array(
+                [
+                    [-25.0, -10.73968818, -4.25827814],
+                    [-25.0, -25.0, -4.25827814],
+                    [-5.44282307, -25.0, -4.25827814],
+                    [-5.44282307, -10.95444579, -4.25827814],
+                    [-5.55020187, -10.73968818, -4.25827814],
+                ]
+            ),
+            "FeO": np.array(
+                [
+                    [-25.0, -6.5961471, -7.11535414],
+                    [-25.0, -6.74159386, -6.96990738],
+                    [-4.07706195, -6.74159386, -6.96990738],
+                    [-3.93161519, -6.5961471, -7.11535414],
+                ]
+            ),
+            "Li2O2": np.array(
+                [
+                    [-5.44282307, -25.0, -4.25827814],
+                    [-4.61251054, -25.0, -5.08859067],
+                    [-4.61251054, -10.37888545, -5.08859067],
+                    [-4.73988663, -10.25150936, -4.96121458],
+                    [-5.44282307, -10.95444579, -4.25827814],
+                ]
+            ),
+            "Li2O": np.array(
+                [
+                    [-1.91301487, -25.0, -10.48758201],
+                    [-1.91301487, -6.5961471, -10.48758201],
+                    [-4.61251054, -25.0, -5.08859067],
+                    [-4.61251054, -10.37888545, -5.08859067],
+                    [-3.35159776, -6.5961471, -7.61041623],
+                ]
+            ),
+            "Li": np.array(
+                [
+                    [-1.91301487, -6.5961471, -25.0],
+                    [-1.91301487, -25.0, -25.0],
+                    [-1.91301487, -25.0, -10.48758201],
+                    [-1.91301487, -6.5961471, -10.48758201],
+                ]
+            ),
+            "Fe": np.array(
+                [
+                    [-25.0, -6.5961471, -25.0],
+                    [-1.91301487, -6.5961471, -25.0],
+                    [-25.0, -6.5961471, -7.11535414],
+                    [-1.91301487, -6.5961471, -10.48758201],
+                    [-3.93161519, -6.5961471, -7.11535414],
+                    [-3.35159776, -6.5961471, -7.61041623],
+                    [-3.62500226, -6.5961471, -7.2686606],
+                ]
+            ),
+        }
+        for formula, domain in correct_domains.items():
+            self.assertArrayAlmostEqual(
+                domain, self.cpd_ternary.domains[formula]
+            )
 
 
 if __name__ == "__main__":
