@@ -609,12 +609,13 @@ class Cp2kOutput:
 
         # Functional
         if self.input and self.input.check('FORCE_EVAL/DFT/XC/XC_FUNCTIONAL'):
-            self.data['dft']['functional'] = \
-                list(self.input['force_eval']['dft']['xc']['xc_functional'].subsections.keys())
-        elif self.input and self.input.check('FORCE_EVAL/DFT/XC'):
-            for v in self.input['force_eval']['dft']['xc'].subsections.values():
-                if v.name.upper() == 'XC_FUNCTIONAL':
-                    self.data['dft']['functional'] = v.section_parameters
+            xcfuncs = list(self.input['force_eval']['dft']['xc']['xc_functional'].subsections.keys())
+            if xcfuncs:
+                self.data['dft']['functional'] = xcfuncs
+            else:
+                for v in self.input['force_eval']['dft']['xc'].subsections.values():
+                    if v.name.upper() == 'XC_FUNCTIONAL':
+                        self.data['dft']['functional'] = v.section_parameters
         else:
             functional = re.compile(r"\s+FUNCTIONAL\|\s+(.+):")
             self.read_pattern(
