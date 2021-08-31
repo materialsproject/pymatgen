@@ -935,7 +935,7 @@ class IStructure(SiteCollection, MSONable):
         all_coords = []  # type: List[List[float]]
         all_magmoms = []  # type: List[float]
         all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
-        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):
+        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
             cc, mm = msg.get_orbit(c, m, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
@@ -1564,7 +1564,7 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
         latt = self._lattice
         matrix = latt.matrix
-        neighbors = [list() for _ in range(len(self._sites))]
+        neighbors = [[] for _ in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
@@ -2597,7 +2597,7 @@ class IMolecule(SiteCollection, MSONable):
             wt = site.species.weight
             center += site.coords * wt
             total_weight += wt
-        return center / total_weight
+        return center / total_weight  # type: ignore
 
     @property
     def sites(self) -> Tuple[Site, ...]:
@@ -2964,9 +2964,9 @@ class IMolecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return self.__class__(
+        return self.__class__(  # type: ignore
             self.species_and_occu,
-            new_coords,
+            new_coords,  # type: ignore
             charge=self._charge,
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
