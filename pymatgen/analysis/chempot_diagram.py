@@ -19,7 +19,6 @@ who outlined many of its possible uses:
 Yokokawa, H. "Generalized chemical potential diagram and its applications to
 chemical reactions at interfaces between dissimilar materials." JPE 20,
 258 (1999). https://doi.org/10.1361/105497199770335794
-
 """
 
 import json
@@ -89,7 +88,6 @@ class ChemicalPotentialDiagram(MSONable):
         )
         self.limits = limits
         self.default_min_limit = default_min_limit
-
         self.elements = list(
             sorted(
                 {els for e in self.entries for els in e.composition.elements}
@@ -127,14 +125,14 @@ class ChemicalPotentialDiagram(MSONable):
         formulas_to_draw: Optional[List[str]] = None,
         draw_formula_meshes: Optional[bool] = True,
         draw_formula_lines: Optional[bool] = True,
-        formula_colors: Optional[List[str]] = px.colors.qualitative.Dark2,
+        formula_colors: List[str] = px.colors.qualitative.Dark2,
     ) -> Figure:
         """
         Plot the 2-dimensional or 3-dimensional chemical potential diagram using an
         interactive Plotly interface.
 
-        Elemental axes can be specified; if none provided, will automatically default to first 2-3
-        elements within the "elements" attribute.
+        Elemental axes can be specified; if none provided, will automatically default
+        to first 2-3 elements within the "elements" attribute.
 
         In 3D, this method also allows for plotting of lower-dimensional "slices" of
         hyperdimensional polytopes (e.g., the LiMnO2 domain within a Y-Mn-O diagram).
@@ -193,7 +191,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         return fig
 
-    def _get_domains(self):
+    def _get_domains(self) -> Dict[str, np.ndarray]:
         """ Returns a dictionary of domains as {formula: np.ndarray}"""
         hyperplanes = self._hyperplanes
         border_hyperplanes = self._border_hyperplanes
@@ -205,7 +203,7 @@ class ChemicalPotentialDiagram(MSONable):
             hs_hyperplanes, np.array(interior_point)
         )
 
-        domains = {entry.composition.reduced_formula: [] for entry in entries}
+        domains = {entry.composition.reduced_formula: [] for entry in entries}  # type: ignore
 
         for intersection, facet in zip(
             hs_int.intersections, hs_int.dual_facets
@@ -233,7 +231,7 @@ class ChemicalPotentialDiagram(MSONable):
         return border_hyperplanes
 
     def _get_hyperplanes_and_entries(self) -> Tuple[np.ndarray, List[PDEntry]]:
-        """Returns both the array of hyperplanes, as well as a list of the minimum
+        """ Returns both the array of hyperplanes, as well as a list of the minimum
         entries"""
         data = np.array(
             [
@@ -244,9 +242,11 @@ class ChemicalPotentialDiagram(MSONable):
         )
         vec = [self.el_refs[el].energy_per_atom for el in self.elements] + [-1]
         form_e = -np.dot(data, vec)
+
         inds = np.where(form_e < -PhaseDiagram.formation_energy_tol)[
             0
         ].tolist()
+
         inds.extend(
             [self._min_entries.index(el) for el in self.el_refs.values()]
         )
@@ -300,7 +300,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_formula_meshes: Optional[bool],
         draw_formula_lines: Optional[bool],
         formula_colors: Optional[List[str]] = px.colors.qualitative.Dark2,
-    ):
+    ) -> Figure:
         """ Returns a Plotly figure for a 3-dimensional chemical potential diagram"""
         if not formulas_to_draw:
             formulas_to_draw = []
@@ -375,14 +375,16 @@ class ChemicalPotentialDiagram(MSONable):
         return fig
 
     @staticmethod
-    def _get_2d_domain_lines(domains, elements) -> List[Scatter]:
-        """Returns a list of Scatter objects tracing the domain lines on a
+    def _get_2d_domain_lines(
+        domains: Dict[str, np.ndarray], elements: List[Element]
+    ) -> List[Scatter]:
+        """ Returns a list of Scatter objects tracing the domain lines on a
         2-dimensional chemical potential diagram"""
         x, y = [], []
-        elements = set(elements)
+        elems = set(elements)
         for formula, pts in domains.items():
             formula_elems = set(Composition(formula).elements)
-            if not formula_elems.issubset(elements):
+            if not formula_elems.issubset(elems):
                 continue
 
             x.extend(pts[:, 0].tolist() + [None])
@@ -400,7 +402,7 @@ class ChemicalPotentialDiagram(MSONable):
         return lines
 
     @staticmethod
-    def _get_3d_domain_lines(domains) -> List[Scatter3d]:
+    def _get_3d_domain_lines(domains: Dict[str, List[Simplex]]) -> List[Scatter3d]:
         """Returns a list of Scatter3d objects tracing the domain lines on a
         3-dimensional chemical potential diagram"""
         x, y, z = [], [], []
@@ -425,7 +427,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_3d_domain_simplexes_and_ann_loc(
-        points_3d,
+        points_3d: np.ndarray,
     ) -> Tuple[List[Simplex], np.ndarray]:
         """Returns a list of Simplex objects and coordinates of annotation for one
         domain in a 3-d chemical potential diagram. Uses PCA to project domain
@@ -443,10 +445,16 @@ class ChemicalPotentialDiagram(MSONable):
         return simplexes, ann_loc
 
     @staticmethod
-    def _get_3d_formula_meshes(draw_domains, formula_colors) -> List[Mesh3d]:
+    def _get_3d_formula_meshes(
+        draw_domains: Dict[str, np.ndarray],
+        formula_colors: Optional[List[str]],
+    ) -> List[Mesh3d]:
         """Returns a list of Mesh3d objects for the domains specified by the
         user (i.e., draw_domains)"""
         meshes = []
+        if formula_colors is None:
+            formula_colors = px.colors.qualitative.Dark2
+
         for idx, (formula, coords) in enumerate(draw_domains.items()):
             points_3d = coords[:, :3]
             mesh = Mesh3d(
@@ -464,8 +472,14 @@ class ChemicalPotentialDiagram(MSONable):
         return meshes
 
     @staticmethod
-    def _get_3d_formula_lines(draw_domains, formula_colors) -> List[Scatter3d]:
+    def _get_3d_formula_lines(
+        draw_domains: Dict[str, np.ndarray],
+        formula_colors: Optional[List[str]],
+    ) -> List[Scatter3d]:
         """ Returns a list of Scatter3d objects defining the bounding polyhedra """
+        if formula_colors is None:
+            formula_colors = px.colors.qualitative.Dark2
+
         lines = []
         for idx, (formula, coords) in enumerate(draw_domains.items()):
             points_3d = coords[:, :3]
@@ -494,7 +508,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_min_entries_and_el_refs(
-        entries,
+        entries: List[PDEntry],
     ) -> Tuple[List[PDEntry], Dict[Element, PDEntry]]:
         """Returns a list of the minimum-energy entries at each composition and the
         entries corresponding to the elemental references"""
@@ -514,19 +528,19 @@ class ChemicalPotentialDiagram(MSONable):
         return min_entries, el_refs
 
     @staticmethod
-    def _get_annotation(ann_loc, formula) -> Dict[str, Union[str, float]]:
+    def _get_annotation(
+        ann_loc: np.ndarray, formula: str
+    ) -> Dict[str, Union[str, float]]:
         """ Returns a Plotly annotation dict given a formula and location"""
         formula = PDPlotter._htmlize_formula(formula)
         annotation = plotly_layouts["default_annotation_layout"].copy()
-        annotation.update(
-            {"x": ann_loc[0], "y": ann_loc[1], "text": formula,}
-        )
+        annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
         if len(ann_loc) == 3:
             annotation.update({"z": ann_loc[2]})
         return annotation
 
     @staticmethod
-    def _get_axis_layout_dict(elements) -> Dict[str, str]:
+    def _get_axis_layout_dict(elements: List[Element]) -> Dict[str, str]:
         """ Returns a Plotly layout dict for either 2-d or 3-d axes"""
         axes = ["xaxis", "yaxis"]
         layout_name = "default_2d_axis_layout"
@@ -586,8 +600,8 @@ class ChemicalPotentialDiagram(MSONable):
         return self._border_hyperplanes
 
     @property
-    def el_refs(self) -> np.ndarray:
-        """ Returns elemental reference entries"""
+    def el_refs(self) -> Dict[Element, PDEntry]:
+        """ Returns a dictionary of elements and reference entries"""
         return self._el_refs
 
     @property
@@ -647,8 +661,6 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     cy = 0
     a = 0
 
-    print(vertices)
-
     for i in range(0, n - 1):
         xi = vertices[i, 0]
         yi = vertices[i, 1]
@@ -662,11 +674,11 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
 
     prefactor = 0.5 / (6 * a)
     centroid = np.array([prefactor * cx, prefactor * cy])
-    print(centroid)
+
     return centroid
 
 
-def get_2d_orthonormal_vector(line_pts):
+def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
     """
     Calculates a vector that is orthonormal to a line given by a set of points. Used
     for determining the location of an annotation on a 2-d chemical potential diagram.
