@@ -24,22 +24,11 @@ module_dir = Path(__file__).absolute().parent
 
 class ChemicalPotentialDiagramTest(PymatgenTest):
     def setUp(self):
-        self.entries = EntrySet.from_csv(
-            str(module_dir / "pdentries_test.csv")
-        )
-        self.cpd_ternary = ChemicalPotentialDiagram(
-            entries=self.entries, default_min_limit=-25
-        )
+        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.cpd_ternary = ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25)
         elements = [Element("Fe"), Element("O")]
-        binary_entries = list(
-            filter(
-                lambda e: set(e.composition.elements).issubset(elements),
-                self.entries,
-            )
-        )
-        self.cpd_binary = ChemicalPotentialDiagram(
-            entries=binary_entries, default_min_limit=-25
-        )
+        binary_entries = list(filter(lambda e: set(e.composition.elements).issubset(elements), self.entries,))
+        self.cpd_binary = ChemicalPotentialDiagram(entries=binary_entries, default_min_limit=-25)
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -50,10 +39,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         self.assertEqual(self.cpd_ternary.dim, 3)
 
     def test_el_refs(self):
-        el_refs = {
-            elem: entry.energy
-            for elem, entry in self.cpd_ternary.el_refs.items()
-        }
+        el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary.el_refs.items()}
 
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [-1.91301487, -6.5961471, -25.54966885]
@@ -63,18 +49,9 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
 
     def test_border_hyperplanes(self):
         desired = np.array(
-            [
-                [-1, 0, 0, -25],
-                [1, 0, 0, 0],
-                [0, -1, 0, -25],
-                [0, 1, 0, 0],
-                [0, 0, -1, -25],
-                [0, 0, 1, 0],
-            ]
+            [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
         )
-        self.assertArrayAlmostEqual(
-            self.cpd_ternary.border_hyperplanes, desired
-        )
+        self.assertArrayAlmostEqual(self.cpd_ternary.border_hyperplanes, desired)
 
     def test_lims(self):
         desired_lims = np.array([[-25, 0], [-25, 0], [-25, 0]])
@@ -246,9 +223,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
             ),
         }
         for formula, domain in correct_domains.items():
-            self.assertArrayAlmostEqual(
-                domain, self.cpd_ternary.domains[formula]
-            )
+            self.assertArrayAlmostEqual(domain, self.cpd_ternary.domains[formula])
 
 
 if __name__ == "__main__":
