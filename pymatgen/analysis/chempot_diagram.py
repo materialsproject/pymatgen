@@ -402,7 +402,9 @@ class ChemicalPotentialDiagram(MSONable):
         return lines
 
     @staticmethod
-    def _get_3d_domain_lines(domains: Dict[str, List[Simplex]]) -> List[Scatter3d]:
+    def _get_3d_domain_lines(
+        domains: Dict[str, List[Simplex]]
+    ) -> List[Scatter3d]:
         """Returns a list of Scatter3d objects tracing the domain lines on a
         3-dimensional chemical potential diagram"""
         x, y, z = [], [], []

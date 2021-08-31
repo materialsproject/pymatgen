@@ -4,21 +4,20 @@
 
 import unittest
 import warnings
-import numpy as np
-
 from pathlib import Path
-from pymatgen.core.composition import Composition, Element
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.analysis.phase_diagram import PDEntry
+
+import numpy as np
+from plotly.graph_objects import Figure
+
 from pymatgen.analysis.chempot_diagram import (
     ChemicalPotentialDiagram,
     simple_pca,
-    get_2d_orthonormal_vector,
     get_centroid_2d,
+    get_2d_orthonormal_vector
 )
-
-from plotly.graph_objects import Figure
+from pymatgen.core.composition import Element
+from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.util.testing import PymatgenTest
 
 module_dir = Path(__file__).absolute().parent
 
@@ -120,6 +119,19 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         centroid_desired = np.array([-0.00069433, -0.00886174])
 
         self.assertArrayAlmostEqual(centroid, centroid_desired)
+
+    def test_get_2d_orthonormal_vector(self):
+        pts_1 = np.array([[1, 1], [2, 2]])
+        pts_2 = np.array([[-2, -5], [-4, 6]])
+
+        vec_1 = get_2d_orthonormal_vector(pts_1)
+        vec_2 = get_2d_orthonormal_vector(pts_2)
+
+        vec_1_desired = np.array([0.70710678, 0.70710678])
+        vec_2_desired = np.array([0.98386991, 0.17888544])
+
+        self.assertArrayAlmostEqual(vec_1, vec_1_desired)
+        self.assertArrayAlmostEqual(vec_2, vec_2_desired)
 
     def test_get_plot(self):
         fig_2d = self.cpd_binary.get_plot()
