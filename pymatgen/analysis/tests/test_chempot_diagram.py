@@ -27,7 +27,12 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
         self.cpd_ternary = ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25)
         elements = [Element("Fe"), Element("O")]
-        binary_entries = list(filter(lambda e: set(e.composition.elements).issubset(elements), self.entries,))
+        binary_entries = list(
+            filter(
+                lambda e: set(e.composition.elements).issubset(elements),
+                self.entries,
+            )
+        )
         self.cpd_binary = ChemicalPotentialDiagram(entries=binary_entries, default_min_limit=-25)
         warnings.simplefilter("ignore")
 
