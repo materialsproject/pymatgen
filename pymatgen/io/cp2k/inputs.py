@@ -770,7 +770,7 @@ class Global(Section):
 
         description = (
             "Section with general information regarding which kind of simulation"
-            + "to perform an parameters for the whole PROGRAM"
+            + " to perform an general settings"
         )
 
         keywords = {
@@ -798,7 +798,7 @@ class ForceEval(Section):
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
 
-        description = "parameters needed to calculate energy and forces and describe the system you want to analyze."
+        description = "Parameters needed to calculate energy and forces and describe the system you want to analyze."
 
         keywords = {
             "METHOD": Keyword("METHOD", kwargs.get("METHOD", "QS")),
@@ -842,7 +842,7 @@ class Dft(Section):
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
 
-        description = "parameter needed by dft programs"
+        description = "Parameter needed by dft programs"
 
         keywords = {
             "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
@@ -870,7 +870,7 @@ class Subsys(Section):
         """
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
-        description = "a subsystem: coordinates, topology, molecules and cell"
+        description = "A subsystem: coordinates, topology, molecules and cell"
         super().__init__("SUBSYS", description=description, subsections=subsections, **kwargs)
 
 
@@ -908,7 +908,7 @@ class QS(Section):
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
 
-        description = "parameters needed to set up the Quickstep framework"
+        description = "Parameters needed to set up the Quickstep framework"
 
         keywords = {
             "METHOD": Keyword("METHOD", method),
@@ -998,7 +998,7 @@ class Mgrid(Section):
         description = (
             "Multigrid information. Multigrid allows for sharp gaussians and diffuse "
             + "gaussians to be treated on different grids, where the spacing of FFT integration "
-            + "points can be tailored to the degree of sharpness/diffusiveness of the gaussians."
+            + "points can be tailored to the degree of sharpness/diffusiveness"
         )
 
         keywords = {
@@ -1040,8 +1040,8 @@ class Diagonalization(Section):
         self.jacobi_threshold = jacobi_threshold
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
-
-        location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
+        self.location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
+        self.description = "Settings for the SCF's diagonalization routines"
 
         keywords = {
             "EPS_ADAPT": Keyword("EPS_ADAPT", eps_adapt),
@@ -1054,7 +1054,8 @@ class Diagonalization(Section):
             "DIAGONALIZATION",
             keywords=keywords,
             repeats=False,
-            location=location,
+            location=self.location,
+            description=self.description,
             subsections=self.subsections,
             **kwargs,
         )
@@ -1184,7 +1185,7 @@ class Cell(Section):
         self.lattice = lattice
         self.kwargs = kwargs
 
-        description = "Input parameters needed to set up the CELL."
+        description = "Lattice parameters and optional settings for creating a the CELL"
 
         keywords = {
             "A": Keyword("A", *lattice.matrix[0]),
@@ -1242,7 +1243,9 @@ class Kind(Section):
         self.aux_basis = aux_basis
         self.kwargs = kwargs
 
-        self.description = "The description of the kind of the atoms (mostly for QM)"
+        self.description = (
+            "The description of this kind of atom including basis sets, element, etc."
+        )
 
         # Special case for closed-shell elements. Cannot impose magnetization in cp2k.
         if Element(self.specie).Z in {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}:
@@ -1262,7 +1265,7 @@ class Kind(Section):
         self.alias = kind_name
 
         self.section_parameters = [kind_name]
-        self.location = None
+        self.location = "FORCE_EVAL/SUBSYS/KIND"
         self.verbose = True
         self.repeats = False
 
@@ -1305,6 +1308,7 @@ class DftPlusU(Section):
         self.l = l
         self.u_minus_j = u_minus_j
         self.u_ramping = u_ramping
+        self.description = "Settings for on-site Hubbard +U correction for this atom kind."
 
         keywords = {
             "EPS_U_RAMPING": Keyword("EPS_U_RAMPING", eps_u_ramping),
