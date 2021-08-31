@@ -717,7 +717,7 @@ class DefectEntry(MSONable):
         Returns:
             defects concentration in cm^-3
         """
-        n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
+        n = self.multiplicity
         conc = n * np.exp(
             -1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature)
         )
