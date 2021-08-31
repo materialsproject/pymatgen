@@ -1094,7 +1094,7 @@ class LocalGeometryFinder:
         """
         aa = 0.4
         bb = -0.2
-        coords = list()
+        coords = []
         for ii in range(coordination + 1):
             coords.append(
                 aa
@@ -1419,10 +1419,10 @@ class LocalGeometryFinder:
         #                                           np.float_)
         if optimization == 2:
             permutations_symmetry_measures = [None] * len(algo.permutations)
-            permutations = list()
-            algos = list()
-            local2perfect_maps = list()
-            perfect2local_maps = list()
+            permutations = []
+            algos = []
+            local2perfect_maps = []
+            perfect2local_maps = []
             for iperm, perm in enumerate(algo.permutations):
 
                 local2perfect_map = {}
@@ -1450,10 +1450,10 @@ class LocalGeometryFinder:
             )
 
         permutations_symmetry_measures = [None] * len(algo.permutations)
-        permutations = list()
-        algos = list()
-        local2perfect_maps = list()
-        perfect2local_maps = list()
+        permutations = []
+        algos = []
+        local2perfect_maps = []
+        perfect2local_maps = []
         for iperm, perm in enumerate(algo.permutations):
             local2perfect_map = {}
             perfect2local_map = {}
@@ -1493,14 +1493,14 @@ class LocalGeometryFinder:
         :param coordination_geometry: The coordination geometry to be investigated
         :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
         """
-        permutations = list()
-        permutations_symmetry_measures = list()
-        plane_separations = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
+        permutations = []
+        permutations_symmetry_measures = []
+        plane_separations = []
+        algos = []
+        perfect2local_maps = []
+        local2perfect_maps = []
         if testing:
-            separation_permutations = list()
+            separation_permutations = []
         nplanes = 0
         for npoints in range(
             separation_plane_algo.minimum_number_of_points,
@@ -1613,11 +1613,11 @@ class LocalGeometryFinder:
             raise ValueError("Optimization should be 1 or 2")
         cn = len(self.local_geometry.coords)
 
-        permutations = list()
-        permutations_symmetry_measures = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
+        permutations = []
+        permutations_symmetry_measures = []
+        algos = []
+        perfect2local_maps = []
+        local2perfect_maps = []
 
         if separation_plane_algo.separation in nb_set.separations:
             for sep_indices, (local_plane, npsep) in nb_set.separations[separation_plane_algo.separation].items():
@@ -2016,10 +2016,10 @@ class LocalGeometryFinder:
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
         """
         permutations_symmetry_measures = [None] * NRANDOM
-        permutations = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
+        permutations = []
+        algos = []
+        perfect2local_maps = []
+        local2perfect_maps = []
         for iperm in range(NRANDOM):
             perm = np.random.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)

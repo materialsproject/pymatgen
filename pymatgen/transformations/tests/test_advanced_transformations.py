@@ -86,7 +86,7 @@ class SuperTransformationTest(unittest.TestCase):
             SubstitutionTransformation({"Li+": "K+"}),
         ]
         t = SuperTransformation(tl)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -142,7 +142,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         t = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -161,7 +161,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
 class ChargeBalanceTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = ChargeBalanceTransformation("Li+")
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -246,7 +246,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])

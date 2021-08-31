@@ -674,7 +674,7 @@ class LammpsData(MSONable):
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"
-        header_pattern = dict()
+        header_pattern = {}
         header_pattern["counts"] = r"^\s*(\d+)\s+([a-zA-Z]+)$"
         header_pattern["types"] = r"^\s*(\d+)\s+([a-zA-Z]+)\s+types$"
         header_pattern["bounds"] = r"^\s*{}$".format(r"\s+".join([float_group] * 2 + [r"([xyz])lo \3hi"]))
@@ -1250,7 +1250,7 @@ class CombinedData(LammpsData):
         self.box = LammpsBox(np.array(3 * [[min_xyz - 0.5, max_xyz + 0.5]]))
         self.atom_style = atom_style
         self.n = sum(self._list_of_numbers)
-        self.names = list()
+        self.names = []
         for name in self._list_of_names:
             self.names.append("_".join(re.findall(r"\w+", name)))
         self.mols = self._list_of_molecules
@@ -1273,7 +1273,7 @@ class CombinedData(LammpsData):
         self.atoms = pd.DataFrame()
         mol_count = 0
         type_count = 0
-        self.mols_per_data = list()
+        self.mols_per_data = []
         for i, mol in enumerate(self.mols):
             atoms_df = mol.atoms.copy()
             atoms_df["molecule-ID"] += mol_count
@@ -1355,7 +1355,7 @@ class CombinedData(LammpsData):
         Returns:
             [(LammpsBox, ForceField, [Topology]), ...]
         """
-        disassembles = list()
+        disassembles = []
         for mol in self.mols:
             disassembles.append(
                 mol.disassemble(atom_labels=atom_labels, guess_element=guess_element, ff_label=ff_label)
@@ -1496,7 +1496,7 @@ class CombinedData(LammpsData):
             keys, and each value is a DataFrame.
 
         """
-        items = dict()
+        items = {}
         items["box"] = LammpsBox(self.box.bounds, self.box.tilt)
         items["masses"] = self.masses.copy()
         items["atoms"] = self.atoms.copy()

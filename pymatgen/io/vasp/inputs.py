@@ -342,7 +342,7 @@ class Poscar(MSONable):
             iline_natoms_start = 5 + nlines_symbols
             for iline_natoms in range(iline_natoms_start, iline_natoms_start + nlines_symbols):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
-            atomic_symbols = list()
+            atomic_symbols = []
             for i, nat in enumerate(natoms):
                 atomic_symbols.extend([symbols[i]] * nat)
             ipos = 5 + 2 * nlines_symbols
@@ -393,7 +393,7 @@ class Poscar(MSONable):
 
         # read the atomic coordinates
         coords = []
-        selective_dynamics = list() if sdynamics else None
+        selective_dynamics = [] if sdynamics else None
         for i in range(nsites):
             toks = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
@@ -1314,8 +1314,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        kpoints = list()
-        labels = list()
+        kpoints = []
+        labels = []
         for path in ibz.kpath["path"]:
             kpoints.append(ibz.kpath["kpoints"][path[0]])
             labels.append(path[0])

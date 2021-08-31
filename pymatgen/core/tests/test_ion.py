@@ -13,7 +13,7 @@ from pymatgen.core.periodic_table import Element
 
 class IonTest(unittest.TestCase):
     def setUp(self):
-        self.comp = list()
+        self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
         self.comp.append(Ion.from_formula("MnO4-"))
         self.comp.append(Ion.from_formula("Mn++"))

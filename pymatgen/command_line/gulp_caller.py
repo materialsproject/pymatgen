@@ -899,7 +899,7 @@ class TersoffPotential:
         """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "OxideTersoffPotentials"), "r") as f:
-            data = dict()
+            data = {}
             for row in f:
                 metaloxi = row.split()[0]
                 line = row.split(")")

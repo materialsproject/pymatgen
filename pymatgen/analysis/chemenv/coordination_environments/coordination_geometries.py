@@ -977,7 +977,7 @@ class AllCoordinationGeometries(dict):
             only_symbols: Whether to restrict the list of environments to be identified.
         """
         dict.__init__(self)
-        self.cg_list = list()
+        self.cg_list = []
         if only_symbols is None:
             with open("{}/coordination_geometries_files/allcg.txt".format(module_dir), "r") as f:
                 data = f.readlines()
@@ -1075,7 +1075,7 @@ class AllCoordinationGeometries(dict):
             coordination: The coordination number of which the list of coordination geometries are returned.
             returned: Type of objects in the list.
         """
-        geom = list()
+        geom = []
         if coordination is None:
             for gg in self.cg_list:
                 if returned == "cg":
@@ -1139,7 +1139,7 @@ class AllCoordinationGeometries(dict):
             returned: Type of objects in the list.
             include_deactivated: Whether to include CoordinationGeometry that are deactivated.
         """
-        geom = list()
+        geom = []
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is not None and ((not gg.deactivate) or include_deactivated):
@@ -1169,7 +1169,7 @@ class AllCoordinationGeometries(dict):
                 are returned.
             returned: Type of objects in the list.
         """
-        geom = list()
+        geom = []
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is None:

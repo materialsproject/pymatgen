@@ -65,7 +65,7 @@ class LDos(MSONable):
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:
-            pot_dict = dict()
+            pot_dict = {}
             pot_readstart = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
             pot_readend = re.compile(".*ExternalPot.*switch.*")
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
@@ -169,8 +169,8 @@ class LDos(MSONable):
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:
-            dicts = [dict()]
-            pot_dict = dict()
+            dicts = [{}]
+            pot_dict = {}
             dos_index = 1
             begin = 0
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)

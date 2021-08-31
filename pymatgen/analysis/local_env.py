@@ -486,7 +486,7 @@ class NearNeighbors:
         # Each allowed step results in many terminal neighbors
         #  And, different first steps might results in the same neighbor
         #  Now, we condense those neighbors into a single entry per neighbor
-        all_sites = dict()
+        all_sites = {}
         for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
             for term_site in term_sites:
                 key = (term_site["site_index"], tuple(term_site["image"]))

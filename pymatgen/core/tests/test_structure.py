@@ -44,7 +44,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(self.struct), 2, "Wrong number of sites in structure!")
         self.assertTrue(self.struct.is_ordered)
         self.assertTrue(self.struct.ntypesp == 1)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
         self.assertRaises(
@@ -83,7 +83,7 @@ class IStructureTest(PymatgenTest):
         self.assertTrue(ss.matches(self.struct))
 
     def test_bad_structure(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.5, 0.75])
@@ -104,14 +104,14 @@ class IStructureTest(PymatgenTest):
         self.assertAlmostEqual(self.struct.density, 2.33, 2, "Incorrect density")
 
     def test_specie_init(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
         self.assertEqual(s.composition.formula, "Mg0.8 O1")
 
     def test_get_sorted_structure(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, ["O", "Li"], coords, site_properties={"charge": [-2, 1]})
@@ -134,7 +134,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(self.struct.get_space_group_info(), ("Fd-3m", 227))
 
     def test_fractional_occupations(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
@@ -154,7 +154,7 @@ class IStructureTest(PymatgenTest):
     def test_as_dict(self):
         si = Species("Si", 4)
         mn = Element("Mn")
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         struct = IStructure(self.lattice, [{si: 0.5, mn: 0.5}, {si: 0.5}], coords)
@@ -162,7 +162,7 @@ class IStructureTest(PymatgenTest):
         self.assertIn("sites", struct.as_dict())
         d = self.propertied_structure.as_dict()
         self.assertEqual(d["sites"][0]["properties"]["magmom"], 5)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(
@@ -257,7 +257,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(new_struct[0].charge, 2)
         self.assertEqual(new_struct[1].charge, 3)
 
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
 
@@ -271,11 +271,11 @@ class IStructureTest(PymatgenTest):
         self.assertAlmostEqual(new_struct.volume, structure.volume)
 
     def test_interpolate(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
-        coords2 = list()
+        coords2 = []
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
         struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
@@ -296,7 +296,7 @@ class IStructureTest(PymatgenTest):
         struct2 = IStructure(badlattice, ["Si"] * 2, coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
-        coords2 = list()
+        coords2 = []
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
@@ -333,11 +333,11 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Ni3 S2")
 
     def test_interpolate_lattice(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
-        coords2 = list()
+        coords2 = []
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
         l2 = Lattice.from_parameters(3, 4, 4, 100, 100, 70)
@@ -649,7 +649,7 @@ Direct
 
 class StructureTest(PymatgenTest):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice(
@@ -814,7 +814,7 @@ class StructureTest(PymatgenTest):
         o_elem = Element("O")
         co_specie = Species("Co", 2)
         o_specie = Species("O", -2)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice.cubic(10)
@@ -1318,7 +1318,7 @@ class IMoleculeTest(PymatgenTest):
         self.assertAlmostEqual(self.mol.get_angle(3, 1, 2), 60.00001388659683)
         self.assertAlmostEqual(self.mol.get_dihedral(0, 1, 2, 3), -35.26438851071765)
 
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0, 0, 1])
         coords.append([0, 1, 1])
