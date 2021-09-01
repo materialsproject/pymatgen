@@ -726,7 +726,7 @@ $scan
 $end
 """
         scan_test_1 = QCInput.read_scan(str_scan_1)
-        scan_actual_1 = dict()
+        scan_actual_1 = {}
         self.assertDictEqual(scan_test_1, scan_actual_1)
 
         str_scan_2 = """Once more, I'm trying to break you!

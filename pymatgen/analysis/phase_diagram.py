@@ -1399,6 +1399,9 @@ class CompoundPhaseDiagram(PhaseDiagram):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
         for entry in entries:
+            if getattr(entry, "attribute", None) is None:
+                entry.attribute = getattr(entry, "entry_id", None)
+
             try:
                 transformed_entry = TransformedPDEntry(entry, sp_mapping)
                 new_entries.append(transformed_entry)
@@ -2077,7 +2080,7 @@ class PDPlotter:
 
         all_entries = pd.all_entries
         all_data = np.array(pd.all_entries_hulldata)
-        unstable_entries = dict()
+        unstable_entries = {}
         stable = pd.stable_entries  # TODO if we make this _stable_entries it breaks
         for i, entry in enumerate(all_entries):
             if entry not in stable:
@@ -2441,7 +2444,7 @@ class PDPlotter:
         font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
-        newlabels = list()
+        newlabels = []
         for x, y, z in lines:
             ax.plot(x, y, z, "bo-", linewidth=3, markeredgecolor="b", markerfacecolor="r", markersize=10)
         for coords in sorted(labels.keys()):
@@ -2822,7 +2825,7 @@ class PDPlotter:
             Dictionary with Plotly figure layout settings.
         """
         annotations_list = None
-        layout = dict()
+        layout = {}
 
         if label_stable:
             annotations_list = self._create_plotly_element_annotations()
@@ -2861,6 +2864,7 @@ class PDPlotter:
 
                 if hasattr(entry, "original_entry"):
                     comp = entry.original_entry.composition
+                    entry_id = getattr(entry, "attribute", "no ID")
 
                 formula = comp.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
@@ -2900,7 +2904,7 @@ class PDPlotter:
 
         unstable_props = get_marker_props(unstable_coords, unstable_entries, stable=False)
 
-        stable_markers, unstable_markers = dict(), dict()
+        stable_markers, unstable_markers = {}, {}
 
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()

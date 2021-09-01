@@ -97,7 +97,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         dict(). Also extended to allow simple string init.
 
         Args:
-            Any form supported by the Python built-in dict() function.
+            Any form supported by the Python built-in {} function.
 
             1. A dict of either {Element/Species: amount},
 
@@ -119,7 +119,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         self.allow_negative = kwargs.pop("allow_negative", False)
         # it's much faster to recognize a composition and use the elmap than
-        # to pass the composition to dict()
+        # to pass the composition to {}
         if len(args) == 1 and isinstance(args[0], Composition):
             elmap = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
@@ -515,9 +515,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             category (str): one of "noble_gas", "transition_metal",
-            "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
-            "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
-            "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+                "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
+                "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
+                "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
 
         Returns:
             True if any elements in Composition match category, otherwise False

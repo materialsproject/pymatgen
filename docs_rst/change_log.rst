@@ -1,6 +1,25 @@
 Change log
 ==========
 
+v2022.0.12
+----------
+* @chc273 Major bugfix for cython handling of fractional coordinates wrapping. 
+* @mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219
+* @FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.
+* @gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups
+
+v2022.0.11
+----------
+* New features to handle Grüneisen parameters (@JaGeo, @ab5424, @gpetretto, #2190)
+* New option to return SymmetrizedStructure in CifParser (@mkhorton, 0d9a455)
+* Fix for SubstrateAnalyzer (@shyamd, #2198)
+* Fix for BandFillingCorrection (@kavanase, #2193)
+
+v2022.0.10
+----------
+* Add spin-dependent eigenvalue band properties (@arosen93, #2187)
+* Bug fix for settings loading (@ardunn, #2186)
+
 v2022.0.9
 ---------
 * Significant new functionality for handling interfaces between structures (@shyamd, #2149)

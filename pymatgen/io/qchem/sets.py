@@ -145,21 +145,21 @@ class QChemDictSet(QCInput):
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
         if self.opt_variables is None:
-            myopt = dict()
+            myopt = {}
         else:
             myopt = self.opt_variables
 
         if self.scan_variables is None:
-            myscan = dict()
+            myscan = {}
         else:
             myscan = self.scan_variables
 
-        mypcm = dict()
-        mysolvent = dict()
-        mysmx = dict()
-        myvdw = dict()
-        myplots = dict()
-        myrem = dict()
+        mypcm = {}
+        mysolvent = {}
+        mysmx = {}
+        myvdw = {}
+        myplots = {}
+        myrem = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)

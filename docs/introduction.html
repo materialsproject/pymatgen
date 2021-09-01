@@ -1,42 +1,47 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Introduction &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.0.12 documentation</title>
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
   
+  
+
   
   
     <link rel="canonical" href="https://pymatgen.orgintroduction.html"/>
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
@@ -71,7 +76,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.12
               </div>
             
           
@@ -88,6 +93,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -101,7 +107,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-0-9">v2022.0.9</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2022-0-12">v2022.0.12</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -131,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -165,18 +172,20 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Introduction</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -307,30 +316,13 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2022-0-9">
-<h3>v2022.0.9<a class="headerlink" href="#v2022-0-9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2022-0-12">
+<h3>v2022.0.12<a class="headerlink" href="#v2022-0-12" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Significant new functionality for handling interfaces between structures (&#64;shyamd, #2149)</p></li>
-<li><p>Add input/output for CREST (&#64;arepstein, #2020)</p></li>
-<li><p>Add RadialSiteDistortionTransformation (&#64;nwinner, #2108)</p></li>
-<li><p>Add Q-Chem NBO functionality (&#64;samblau, #2174)</p></li>
-<li><p>Change hkl annotation format in diffraction plots (&#64;flaviu-gostin, #2143)</p></li>
-<li><p>Add space group to print output of <cite>SymmetrizedStructure</cite> (&#64;CompRhys, #2139)</p></li>
-<li><p>Better error handling in QCOutput (&#64;rkingsbury, #2147, #2165, #2135)</p></li>
-<li><p>Add progress bar for applying compatibility scheme (&#64;CompRhys, #2136)</p></li>
-<li><p>Allow combining data with multiple molecule IDs in LAMMPS (&#64;htz1992213, #2157)</p></li>
-<li><p>Update EDIFF in DFPT input set to be consistent with atomate (&#64;utf, #2172)</p></li>
-<li><p>Change names of high-symmetry paths (&#64;munrojm, #2144)</p></li>
-<li><p>Change default for filter_solids argument of PourbaixDiagram (&#64;rkingsbury, #2177)</p></li>
-<li><p>Fix to improve precision in <cite>FermiDos</cite>, NOTE: this can result in significant changes in some instances (&#64;nwinner, #2109)</p></li>
-<li><p>Fix for handling of Exceptions (&#64;kmu, #2150)</p></li>
-<li><p>Fix for PourbaixEntry (&#64;JosephMontoya-TRI, #2148)</p></li>
-<li><p>Fix for loading of settings from file when environment variables also set (&#64;ardunn, #2164)</p></li>
-<li><p>Fix equation for calculation of k-spacing in SCAN sets, NOTE: this now results in a lower k-point density (&#64;ab5424, #2163)</p></li>
-<li><p>Fix for parsing of VASP vasprun.xml when ALGO=CHI (&#64;KazMorita, #2171)</p></li>
-<li><p>Documentation update for MP2020 corrections scheme (&#64;rkingsbury, #2141)</p></li>
-<li><p>Documentation update for SCAN sets (&#64;janosh, #2140)</p></li>
-<li><p>Documentation update for using CifWriter (&#64;755452800, #2156)</p></li>
+<li><p>&#64;chc273 Major bugfix for cython handling of fractional coordinates wrapping.</p></li>
+<li><p>&#64;mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219</p></li>
+<li><p>&#64;FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.</p></li>
+<li><p>&#64;gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -715,20 +707,25 @@ to indicate the copyright and license terms:</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2011, Pymatgen Development Team
+        &#169; Copyright 2011, Pymatgen Development Team.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -736,7 +733,6 @@ to indicate the copyright and license terms:</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

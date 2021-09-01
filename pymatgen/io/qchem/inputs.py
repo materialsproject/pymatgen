@@ -445,13 +445,13 @@ class QCInput(MSONable):
         Returns:
             String representing Q-Chem input format for scan section
         """
-        scan_list = list()
+        scan_list = []
         scan_list.append("$scan")
         total_vars = sum([len(v) for v in scan.values()])
         if total_vars > 2:
             raise ValueError("Q-Chem only supports PES_SCAN with two or less " "variables.")
         for var_type, variables in scan.items():
-            if variables not in [None, list()]:
+            if variables not in [None, []]:
                 for var in variables:
                     scan_list.append("   {var_type} {var}".format(var_type=var_type, var=var))
         scan_list.append("$end")
@@ -474,7 +474,7 @@ class QCInput(MSONable):
         Returns:
             String representing Q-Chem input format for van_der_waals section
         """
-        vdw_list = list()
+        vdw_list = []
         vdw_list.append("$van_der_waals")
         if mode == "atomic":
             vdw_list.append("1")
@@ -769,13 +769,13 @@ class QCInput(MSONable):
         row = r"\s*(stre|bend|tors|STRE|BEND|TORS)\s+((?:[\-\.0-9]+\s*)+)"
         footer = r"^\s*\$end"
         scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        if scan_table == list():
+        if scan_table == []:
             print("No valid scan inputs found. Note that there should be no '=' chracters in scan input lines.")
-            return dict()
+            return {}
 
-        stre = list()
-        bend = list()
-        tors = list()
+        stre = []
+        bend = []
+        tors = []
         for row in scan_table[0]:
             if row[0].lower() == "stre":
                 stre.append(row[1].replace("\n", "").rstrip())

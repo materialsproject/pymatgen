@@ -265,13 +265,14 @@ def update_changelog(ctx, version, sim=False):
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}"
             )
             lines.append(f"* PR #{pr_number} from @{contrib} {pr_name}")
-            for ll in response.json()["body"].split("\n"):
-                ll = ll.strip()
-                if ll in ["", "## Summary"]:
-                    continue
-                elif ll.startswith("## Checklist") or ll.startswith("## TODO"):
-                    break
-                lines.append(f"    {ll}")
+            if "body" in response.json():
+                for ll in response.json()["body"].split("\n"):
+                    ll = ll.strip()
+                    if ll in ["", "## Summary"]:
+                        continue
+                    elif ll.startswith("## Checklist") or ll.startswith("## TODO"):
+                        break
+                    lines.append(f"    {ll}")
         misc.append(l)
     with open("CHANGES.rst") as f:
         contents = f.read()

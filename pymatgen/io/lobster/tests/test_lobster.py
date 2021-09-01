@@ -9,7 +9,6 @@ import unittest
 import warnings
 
 import numpy as np
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
@@ -20,8 +19,10 @@ from pymatgen.io.lobster import (
     Fatband,
     Grosspop,
     Icohplist,
+    MadelungEnergies,
     Lobsterin,
     Lobsterout,
+    SitePotential,
     Wavefunction,
 )
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
@@ -70,6 +71,9 @@ class CohpcarTest(PymatgenTest):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.Na2UO4"),
             are_coops=True,
         )
+        self.cobi = Cohpcar(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"), are_cobis=True
+        )
 
     def test_attributes(self):
         self.assertFalse(self.cohp_bise.are_coops)
@@ -98,6 +102,14 @@ class CohpcarTest(PymatgenTest):
         self.assertEqual(len(self.coop_KF.energies), 6)
         self.assertEqual(len(self.cohp_KF.cohp_data), 7)
         self.assertEqual(len(self.coop_KF.cohp_data), 7)
+
+        # Lobster 4.1.0
+        self.assertFalse(self.cohp_KF.are_cobis)
+        self.assertFalse(self.coop_KF.are_cobis)
+        self.assertFalse(self.cobi.are_coops)
+        self.assertTrue(self.cobi.are_cobis)
+        self.assertFalse(self.cobi.is_spin_polarized)
+        print(self.cobi.orb_res_cohp)
 
     def test_energies(self):
         efermi_bise = 5.90043
@@ -409,8 +421,21 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.gz")
         )
         self.icoop_fe = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
-            are_coops=True,
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"), are_coops=True
+        )
+        # ICOBIs and orbitalwise ICOBILIST.lobster
+        self.icobi_orbitalwise = Icohplist(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"), are_cobis=True
+        )
+        # TODO: test orbitalwise ICOHPs with and without spin polarization
+
+        self.icobi = Icohplist(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.withoutorbitals"),
+            are_cobis=True,
+        )
+        self.icobi_orbitalwise_spinpolarized = Icohplist(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized"),
+            are_cobis=True,
         )
 
     def test_attributes(self):
@@ -426,6 +451,19 @@ class IcohplistTest(unittest.TestCase):
         self.assertTrue(self.icoop_fe.is_spin_polarized)
         self.assertEqual(len(self.icohp_fe.icohplist), 2)
         self.assertEqual(len(self.icoop_fe.icohplist), 2)
+        # test are_cobis
+        self.assertFalse(self.icohp_fe.are_coops)
+        self.assertFalse(self.icohp_fe.are_cobis)
+        self.assertTrue(self.icoop_fe.are_coops)
+        self.assertFalse(self.icoop_fe.are_cobis)
+        self.assertTrue(self.icobi.are_cobis)
+        self.assertFalse(self.icobi.are_coops)
+
+        # orbitalwise
+        self.assertTrue(self.icobi_orbitalwise.orbitalwise)
+        self.assertFalse(self.icobi.orbitalwise)
+
+        self.assertTrue(self.icobi_orbitalwise_spinpolarized.orbitalwise)
 
     def test_values(self):
         icohplist_bise = {
@@ -581,6 +619,12 @@ class IcohplistTest(unittest.TestCase):
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
+        self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
+        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
+        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
+        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up], 0.58649 / 2, 3)
+        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down], 0.58649 / 2, 3)
+        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down], 0.58649 / 2, 3)
 
 
 class DoscarTest(unittest.TestCase):
@@ -877,6 +921,14 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_onethread = Lobsterout(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.onethread")
         )
+        self.lobsterout_cobi_madelung = Lobsterout(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
+        )
+
+        # TODO: implement skipping madelung/cobi
+        self.lobsterout_skipping_cobi_madelung = Lobsterout(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skip_cobi_madelung")
+        )
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -1116,6 +1168,8 @@ class LobsteroutTest(PymatgenTest):
         self.assertFalse(self.lobsterout_skipping_all.has_density_of_energies)
         self.assertFalse(self.lobsterout_skipping_all.has_fatbands)
         self.assertFalse(self.lobsterout_skipping_all.has_grosspopulation)
+        self.assertFalse(self.lobsterout_skipping_all.has_COBICAR)
+        self.assertFalse(self.lobsterout_skipping_all.has_madelung)
         self.assertListEqual(
             self.lobsterout_skipping_all.info_lines,
             [
@@ -1304,6 +1358,13 @@ class LobsteroutTest(PymatgenTest):
         self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
 
         self.assertEqual(self.lobsterout_onethread.number_of_threads, 1)
+        # Test lobsterout of lobster-4.1.0
+        self.assertEqual(self.lobsterout_cobi_madelung.has_COBICAR, True)
+        self.assertEqual(self.lobsterout_cobi_madelung.has_COHPCAR, True)
+        self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
+
+        self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_COBICAR, False)
+        self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_madelung, False)
 
     def test_get_doc(self):
         comparedict = {
@@ -1358,16 +1419,17 @@ class LobsteroutTest(PymatgenTest):
             "hasDensityOfEnergies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
-            if isinstance(item, str):
-                self.assertTrue(comparedict[key], item)
-            elif isinstance(item, int):
-                self.assertEqual(comparedict[key], item)
-            elif key in ("chargespilling", "totalspilling"):
-                self.assertAlmostEqual(item[0], comparedict[key][0])
-            elif isinstance(item, list):
-                self.assertListEqual(item, comparedict[key])
-            elif isinstance(item, dict):
-                self.assertDictEqual(item, comparedict[key])
+            if key not in ["hasCOBICAR", "hasmadelung"]:
+                if isinstance(item, str):
+                    self.assertTrue(comparedict[key], item)
+                elif isinstance(item, int):
+                    self.assertEqual(comparedict[key], item)
+                elif key in ("chargespilling", "totalspilling"):
+                    self.assertAlmostEqual(item[0], comparedict[key][0])
+                elif isinstance(item, list):
+                    self.assertListEqual(item, comparedict[key])
+                elif isinstance(item, dict):
+                    self.assertDictEqual(item, comparedict[key])
 
 
 class FatbandTest(PymatgenTest):
@@ -1784,9 +1846,10 @@ class LobsterinTest(unittest.TestCase):
             "onlydos",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
         ]:
-
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
                 os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
                 os.path.join(test_dir_doscar, "INCAR.lobster"),
@@ -1828,22 +1891,34 @@ class LobsterinTest(unittest.TestCase):
                 self.assertEqual("skipcoop" not in lobsterin1, True)
             if option in ["standard_from_projection"]:
                 self.assertTrue(lobsterin1["loadProjectionFromFile"], True)
-            if option in ["onlyprojection", "onlycohp", "onlycoop", "onlycohpcoop"]:
+            if option in ["onlyprojection", "onlycohp", "onlycoop", "onlycobi", "onlycohpcoop", "onlycohpcoopcobi"]:
                 self.assertTrue(lobsterin1["skipdos"], True)
                 self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
                 self.assertTrue(lobsterin1["skipGrossPopulation"], True)
+                self.assertTrue(lobsterin1["skipMadelungEnergy"], True)
+
             if option in ["onlydos"]:
                 self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
                 self.assertTrue(lobsterin1["skipGrossPopulation"], True)
                 self.assertTrue(lobsterin1["skipcohp"], True)
                 self.assertTrue(lobsterin1["skipcoop"], True)
+                self.assertTrue(lobsterin1["skipcobi"], True)
+                self.assertTrue(lobsterin1["skipMadelungEnergy"], True)
             if option in ["onlycohp"]:
                 self.assertTrue(lobsterin1["skipcoop"], True)
+                self.assertTrue(lobsterin1["skipcobi"], True)
             if option in ["onlycoop"]:
                 self.assertTrue(lobsterin1["skipcohp"], True)
+                self.assertTrue(lobsterin1["skipcobi"], True)
             if option in ["onlyprojection"]:
                 self.assertTrue(lobsterin1["skipdos"], True)
-
+            if option in ["onlymadelung"]:
+                self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
+                self.assertTrue(lobsterin1["skipGrossPopulation"], True)
+                self.assertTrue(lobsterin1["skipcohp"], True)
+                self.assertTrue(lobsterin1["skipcoop"], True)
+                self.assertTrue(lobsterin1["skipcobi"], True)
+                self.assertTrue(lobsterin1["skipdos"], True)
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
             os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
@@ -2554,6 +2629,46 @@ class WavefunctionTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+
+
+class SitePotentialsTest(PymatgenTest):
+    def setUp(self) -> None:
+        self.sitepotential = SitePotential(
+            filename=os.path.join(test_dir_doscar, "cohp", "SitePotentials.lobster.perovskite")
+        )
+
+    def test_attributes(self):
+        self.assertListEqual(self.sitepotential.sitepotentials_Loewdin, [-8.77, -17.08, 9.57, 9.57, 8.45])
+        self.assertListEqual(self.sitepotential.sitepotentials_Mulliken, [-11.38, -19.62, 11.18, 11.18, 10.09])
+        self.assertAlmostEqual(self.sitepotential.madelungenergies_Loewdin, -28.64)
+        self.assertAlmostEqual(self.sitepotential.madelungenergies_Mulliken, -40.02)
+        self.assertListEqual(self.sitepotential.atomlist, ["La1", "Ta2", "N3", "N4", "O5"])
+        self.assertListEqual(self.sitepotential.types, ["La", "Ta", "N", "N", "O"])
+        self.assertEqual(self.sitepotential.num_atoms, 5)
+        self.assertAlmostEqual(self.sitepotential.ewald_splitting, 3.14)
+
+    def test_get_structure(self):
+        structure = self.sitepotential.get_structure_with_site_potentials(
+            os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite")
+        )
+        self.assertListEqual(
+            structure.site_properties["Loewdin Site Potentials (eV)"], [-8.77, -17.08, 9.57, 9.57, 8.45]
+        )
+        self.assertListEqual(
+            structure.site_properties["Mulliken Site Potentials (eV)"], [-11.38, -19.62, 11.18, 11.18, 10.09]
+        )
+
+
+class MadelungEnergiesTest(PymatgenTest):
+    def setUp(self) -> None:
+        self.madelungenergies = MadelungEnergies(
+            filename=os.path.join(test_dir_doscar, "cohp", "MadelungEnergies.lobster.perovskite")
+        )
+
+    def test_attributes(self):
+        self.assertAlmostEqual(self.madelungenergies.madelungenergies_Loewdin, -28.64)
+        self.assertAlmostEqual(self.madelungenergies.madelungenergies_Mulliken, -40.02)
+        self.assertAlmostEqual(self.madelungenergies.ewald_splitting, 3.14)
 
 
 if __name__ == "__main__":

@@ -836,10 +836,10 @@ class GaussianOutput:
         routeline = ""
         standard_orientation = False
         parse_bond_order = False
-        input_structures = list()
-        std_structures = list()
+        input_structures = []
+        std_structures = []
         geom_orientation = None
-        opt_structures = list()
+        opt_structures = []
 
         with zopen(filename) as f:
             for line in f:
@@ -1071,12 +1071,12 @@ class GaussianOutput:
                         line = f.readline()
                         line = f.readline()
                         nat = len(input_structures[0])
-                        matrix = list()
+                        matrix = []
                         for iat in range(nat):
                             line = f.readline()
                             matrix.append([float(v) for v in line.split()[2:]])
 
-                        self.bond_orders = dict()
+                        self.bond_orders = {}
                         for iat in range(nat):
                             for jat in range(iat + 1, nat):
                                 self.bond_orders[(iat, jat)] = matrix[iat][jat]
@@ -1276,7 +1276,7 @@ class GaussianOutput:
         coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
 
         # data dict return
-        data = {"energies": list(), "coords": dict()}
+        data = {"energies": [], "coords": {}}
 
         # read in file
         with zopen(self.filename, "r") as f:
@@ -1304,7 +1304,7 @@ class GaussianOutput:
 
                 elif scan_patt.match(line):
                     line = f.readline()
-                    data["coords"] = {icname: list() for icname in line.split()[1:-1]}
+                    data["coords"] = {icname: [] for icname in line.split()[1:-1]}
                     f.readline()
                     line = f.readline()
                     while not re.search(r"^\s-+", line):
@@ -1368,7 +1368,7 @@ class GaussianOutput:
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
 
-        transitions = list()
+        transitions = []
 
         # read in file
         with zopen(self.filename, "r") as f:
