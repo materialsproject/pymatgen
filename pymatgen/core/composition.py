@@ -517,9 +517,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             category (str): one of "noble_gas", "transition_metal",
-            "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
-            "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
-            "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+                "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
+                "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
+                "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
 
         Returns:
             True if any elements in Composition match category, otherwise False
