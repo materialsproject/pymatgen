@@ -1,0 +1,78 @@
+{
+  "default_layout_2d": {
+    "width": 800,
+    "height": 800,
+    "hovermode": "closest",
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "showlegend": true,
+    "legend": {
+      "orientation": "v",
+      "x": 0.1,
+      "y": 0.99,
+      "traceorder": "reversed",
+      "xanchor": "left",
+      "yanchor": "top"
+    }
+  },
+  "default_layout_3d": {
+    "width": 800,
+    "height": 800,
+    "hovermode": "closest",
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "showlegend": true,
+    "legend": {
+      "orientation": "v",
+      "x": 0.1,
+      "y": 0.99,
+      "traceorder": "reversed",
+      "xanchor": "left",
+      "yanchor": "top"
+    },
+    "scene_camera": {
+      "projection": {
+        "type": "orthographic"
+      }
+    },
+    "scene": {}
+  },
+  "default_annotation_layout": {
+    "font": {
+      "color": "black",
+      "size": 16.0
+    },
+    "align": "center",
+    "opacity": 0.7,
+    "showarrow": false,
+    "xanchor": "center",
+    "yanchor": "middle"
+  },
+  "default_2d_axis_layout": {
+    "titlefont": {
+      "size": 30
+    },
+    "gridcolor": "#dbdbdb",
+    "gridwidth": 1.0,
+    "tickfont": {
+      "size": 16
+    },
+    "ticks": "inside",
+    "ticklen": 14,
+    "showline": true
+  },
+  "default_3d_axis_layout": {
+    "titlefont": {
+      "size": 30
+    },
+    "gridcolor": "#dbdbdb",
+    "gridwidth": 5.0,
+    "tickfont": {
+      "size": 16
+    },
+    "ticks": "inside",
+    "ticklen": 14,
+    "showline": true,
+    "backgroundcolor": "rgba(0,0,0,0)"
+  }
+}
