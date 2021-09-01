@@ -155,6 +155,8 @@ class BaderAnalysis:
             self.cube = Cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None
+            chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+            self.reference_used = bool(chgref_filename)
 
         tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
         with ScratchDir("."):
