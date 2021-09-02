@@ -1,6 +1,14 @@
 Change log
 ==========
 
+v2022.0.13
+----------
+* New feature to plot chemical potential diagrams (@mattmcdermott, #2218), see ArXiv:2104.05986 for example
+* Numerous updates to LOBSTER support for new version and including handling COBICAR, SitePotentials and MadelungEnergies (@JaGeo, #2228)
+* Updates and fixes for LAMMPS CombinedData (@htz1992213, #2191)
+* Bug fix for Bader caller (@nwinner, #2230)
+* Documentation fix for Composition (@CompRhys, #2231)
+
 v2022.0.12
 ----------
 * @chc273 Major bugfix for cython handling of fractional coordinates wrapping. 
