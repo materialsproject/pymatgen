@@ -27,7 +27,7 @@ from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify
+from pymatgen.util.string import latexify, htmlify
 
 logger = logging.getLogger(__name__)
 
@@ -2380,7 +2380,7 @@ class PDPlotter:
                 comp = entry.original_entry.composition
 
             formula = list(comp.reduced_formula)
-            text.append(self._htmlize_formula(formula))
+            text.append(htmlify(formula))
 
         visible = True
         if not label_stable or self._dim == 4:
@@ -2430,7 +2430,7 @@ class PDPlotter:
                 clean_formula = str(entry.composition.elements[0])
                 if hasattr(entry, "original_entry"):
                     orig_comp = entry.original_entry.composition
-                    clean_formula = self._htmlize_formula(orig_comp.reduced_formula)
+                    clean_formula = htmlify(orig_comp.reduced_formula)
 
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
@@ -2513,7 +2513,7 @@ class PDPlotter:
                     entry_id = getattr(entry, "attribute", "no ID")
 
                 formula = comp.reduced_formula
-                clean_formula = self._htmlize_formula(formula)
+                clean_formula = htmlify(formula)
                 label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
 
                 if not stable:
@@ -2798,23 +2798,6 @@ class PDPlotter:
             flatshading=True,
             showlegend=True,
         )
-
-    @staticmethod
-    def _htmlize_formula(formula: str):
-        """
-        Adds HTML tags for displaying chemical formula in Plotly figure annotations.
-
-        :param formula: chemical formula
-        :return: clean chemical formula with necessary HTML tags
-        """
-        s = []
-        for char in formula:
-            if char.isdigit():
-                s.append(f"<sub>{char}</sub>")
-            else:
-                s.append(char)
-
-        return "".join(s)
 
 
 def uniquelines(q):

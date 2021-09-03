@@ -1,12 +1,11 @@
 {
   "default_interface_rxn_layout": {
     "autosize": true,
-    "height": 700,
+    "height": 600,
     "xaxis": {
       "title": "Fraction",
       "anchor": "y",
       "mirror": "ticks",
-      "nticks": 8,
       "showgrid": true,
       "showline": true,
       "side": "bottom",

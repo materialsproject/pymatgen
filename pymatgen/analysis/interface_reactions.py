@@ -31,7 +31,7 @@ import numpy as np
 from monty.json import MSONable
 from monty.dev import deprecated
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify
+from pymatgen.util.string import latexify, htmlify
 
 import pandas
 from plotly.graph_objects import Scatter, Figure
@@ -117,8 +117,8 @@ class InterfacialReactivity(MSONable):
         # Composition('SiO2') and  Composition('O') is 2.0. This factor will be used
         # to convert mixing ratio in self.comp1 - self.comp2 tie line to that in
         # self.c1 - self.c2 tie line.
-        self.factor1 = 1.
-        self.factor2 = 1.
+        self.factor1 = 1.0
+        self.factor2 = 1.0
 
         if self.norm:
             self.c1 = c1.fractional_composition
@@ -339,33 +339,84 @@ class InterfacialReactivity(MSONable):
         return sum([rxt.get_el_amount(e) for e in self.pd.elements])
 
     def _get_plotly_figure(self):
-        kinks = list(zip(*self.get_kinks()))
+        kinks = list(map(list, zip(*self.get_kinks())))
         _, x, energy, reactions, _ = kinks
 
-        lines = Scatter(x=x, y=energy, mode="lines")
+        lines = Scatter(
+            x=x,
+            y=energy,
+            mode="lines",
+            name="Lines",
+            line=dict(color="navy", dash="solid", width=5.0),
+            hoverinfo="none",
+        )
 
-        data = [lines]
-        layout = plotly_layouts["default_interface_rxn_plot"]
+        annotations = self._get_plotly_annotations(x, energy, reactions)
+
+        min_idx = energy.index(min(energy))
+
+        x_min = x.pop(min_idx)
+        e_min = energy.pop(min_idx)
+        rxn_min = reactions.pop(min_idx)
+
+        labels = [
+            rf"{htmlify(str(r))} <br>" + "\u0394" + f"E<sub>rxn</sub> =" f" {round(e, 3)} eV/atom"
+            for r, e in zip(reactions, energy)
+        ]
+
+        markers = Scatter(
+            x=x,
+            y=energy,
+            mode="markers",
+            name="Reactions",
+            hoverinfo="text",
+            hovertext=labels,
+            marker=dict(
+                color="black",
+                size=12,
+                opacity=0.8,
+                line=dict(color="black", width=3),
+            ),
+            hoverlabel=dict(bgcolor="navy"),
+        )
+
+        min_label = rf"{htmlify(str(rxn_min))} <br>" + "\u0394" + f"E<sub>rxn</sub> =" f" {round(e_min, 3)} eV/atom"
+
+        minimum = Scatter(
+            x=[x_min],
+            y=[e_min],
+            mode="markers",
+            hoverinfo="text",
+            hovertext=[min_label],
+            marker=dict(color="darkred", size=24, symbol="star"),
+            name="Suggested reaction",
+        )
+
+        data = [lines, markers, minimum]
+
+        layout = plotly_layouts["default_interface_rxn_layout"]
+        layout["xaxis"]["title"] = self._get_xaxis_title(latex=False)
+        layout["annotations"] = annotations
 
         fig = Figure(data=data, layout=layout)
         return fig
 
     def _get_matplotlib_figure(self):
-        plt = pretty_plot(8, 6)
-        plt.xlim([-0.05, 1.05])
+        plt = pretty_plot(8, 5)
+        plt.xlim([-0.1, 1.1])
 
         kinks = list(zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
-        plt.plot(x, energy, "o-", markersize=8, c="navy")
-        plt.scatter(self.minimum[0], self.minimum[1], marker="*", c="red", s=300)
+        plt.plot(x, energy, "o-", markersize=8, c="navy", zorder=1)
+        plt.scatter(self.minimum[0], self.minimum[1], marker="*", c="red", s=400, zorder=2)
 
         for x_coord, y_coord, rxn in zip(x, energy, reactions):
             products = ", ".join([latexify(p.reduced_formula) for p in rxn.products])
             plt.annotate(
                 products,
                 xy=(x_coord, y_coord),
-                xytext=(10, 20),
+                xytext=(10, -30),
                 textcoords="offset points",
                 ha="right",
                 va="bottom",
@@ -377,9 +428,31 @@ class InterfacialReactivity(MSONable):
         else:
             plt.ylabel("Energy (eV/f.u.)")
 
-        plt.xlabel(f"$x$ in $x$ {latexify(self.c1.reduced_formula)} + $(1-x)$ " f"{latexify(self.c2.reduced_formula)}")
+        plt.xlabel(self._get_xaxis_title())
+        plt.ylim(self.minimum[1] - 0.025)
 
         return plt.gcf()
+
+    def _get_xaxis_title(self, latex=True):
+        if latex:
+            f1 = latexify(self.c1.reduced_formula)
+            f2 = latexify(self.c2.reduced_formula)
+            title = f"$x$ in $x${f1} + $(1-x)${f2}"
+        else:
+            f1 = htmlify(self.c1.reduced_formula)
+            f2 = htmlify(self.c2.reduced_formula)
+            title = f"<i>x</i> in <i>x</i>{f1} + (1-<i>x</i>){f2}"
+
+        return title
+
+    @staticmethod
+    def _get_plotly_annotations(x, y, reactions):
+        annotations = []
+        for x_coord, y_coord, rxn in zip(x, y, reactions):
+            products = ", ".join([htmlify(p.reduced_formula) for p in rxn.products])
+            annotation = dict(x=x_coord, y=y_coord, text=products, font=dict(size=18), ax=-25, ay=55)
+            annotations.append(annotation)
+        return annotations
 
     @staticmethod
     def _get_entry_energy(pd: PhaseDiagram, composition: Composition):
@@ -476,7 +549,8 @@ class InterfacialReactivity(MSONable):
         std_temp = 298.15
         std_pres = 1e5
         ideal_gas_const = 8.3144598
-        # Cp and S at standard state in J/(K.mol). Data from
+        # Cp and S at standard state in J/(K.mol). Data from NIST-JANAF tables (
+        # O-029, N-O
         # https://janaf.nist.gov/tables/O-029.html
         # https://janaf.nist.gov/tables/N-023.html
         # https://janaf.nist.gov/tables/Cl-073.html
@@ -554,6 +628,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
     thermodynamics of the open system are provided by the user via the
     GrandPotentialPhaseDiagram class.
     """
+
     def __init__(
         self,
         c1: Composition,
@@ -603,10 +678,8 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         self.pd_non_grand = pd_non_grand
 
         # Excludes element(s) from reservoir.
-        self.comp1 = Composition({k: v for k, v in c1.items() if k not in
-                                  grand_pd.chempots})
-        self.comp2 = Composition({k: v for k, v in c2.items() if k not in
-                                  grand_pd.chempots})
+        self.comp1 = Composition({k: v for k, v in c1.items() if k not in grand_pd.chempots})
+        self.comp2 = Composition({k: v for k, v in c2.items() if k not in grand_pd.chempots})
         # Calculate the factors in case where self.grand = True and
         # self.norm = True.
 
