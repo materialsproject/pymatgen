@@ -25,7 +25,7 @@ import os
 import json
 import warnings
 
-from typing import Optional, List, Tuple
+from typing import List, Tuple
 import numpy as np
 
 from monty.json import MSONable
@@ -80,6 +80,7 @@ class InterfacialReactivity(MSONable):
         pd: PhaseDiagram,
         norm: bool = True,
         use_hull_energy: bool = False,
+        **kwargs
     ):
         """
         Args:
@@ -95,7 +96,9 @@ class InterfacialReactivity(MSONable):
                 composition, convex hull energy will be used associated with a
                 warning message.
         """
-        if isinstance(pd, GrandPotentialPhaseDiagram):
+        bypass_grand_warning = kwargs.get("bypass_grand_warning", False)
+
+        if isinstance(pd, GrandPotentialPhaseDiagram) and not bypass_grand_warning:
             raise ValueError(
                 "Please use the GrandPotentialInterfacialReactivity "
                 "class for interfacial reactions with open elements!"
@@ -126,13 +129,14 @@ class InterfacialReactivity(MSONable):
             self.comp1 = self.comp1.fractional_composition
             self.comp2 = self.comp2.fractional_composition
 
-        # Computes energies for reactants in different scenarios.
-        if self.use_hull_energy:
-            self.e1 = self.pd.get_hull_energy(self.comp1)
-            self.e2 = self.pd.get_hull_energy(self.comp2)
-        else:
-            self.e1 = self._get_entry_energy(self.pd, self.comp1)
-            self.e2 = self._get_entry_energy(self.pd, self.comp2)
+        if not bypass_grand_warning:
+            # Computes energies for reactants in different scenarios.
+            if self.use_hull_energy:
+                self.e1 = self.pd.get_hull_energy(self.comp1)
+                self.e2 = self.pd.get_hull_energy(self.comp2)
+            else:
+                self.e1 = self._get_entry_energy(self.pd, self.comp1)
+                self.e2 = self._get_entry_energy(self.pd, self.comp2)
 
     def get_kinks(self) -> List[Tuple[int, float, float, str, float]]:
         """
@@ -162,7 +166,7 @@ class InterfacialReactivity(MSONable):
             num_atoms = [(x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms) for x in x_kink]
             energy_per_rxt_formula = [
                 energy_kink[i]
-                * self._get_elmt_amt_in_rxt(react_kink[i])
+                * self._get_elmt_amt_in_rxn(react_kink[i])
                 / num_atoms[i]
                 * InterfacialReactivity.EV_TO_KJ_PER_MOL
                 for i in range(2)
@@ -178,7 +182,7 @@ class InterfacialReactivity(MSONable):
                 n_atoms = x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms
                 # Converts mixing ratio in comp1 - comp2 tie line to that in
                 # c1 - c2 tie line.
-                x_converted = InterfacialReactivity._convert(x, self.factor1, self.factor2)
+                x_converted = self._convert(x, self.factor1, self.factor2)
                 x_kink.append(x_converted)
                 # Gets reaction energy at kinks
                 normalized_energy = self._get_energy(x)
@@ -186,8 +190,8 @@ class InterfacialReactivity(MSONable):
                 # Gets balanced reaction at kinks
                 rxt = self._get_reaction(x)
                 react_kink.append(rxt)
-                rxt_energy = normalized_energy * self._get_elmt_amt_in_rxt(rxt) / n_atoms
-                energy_per_rxt_formula.append(rxt_energy * InterfacialReactivity.EV_TO_KJ_PER_MOL)
+                rxt_energy = normalized_energy * self._get_elmt_amt_in_rxn(rxt) / n_atoms
+                energy_per_rxt_formula.append(rxt_energy * self.EV_TO_KJ_PER_MOL)
         index_kink = range(1, len(critical_comp) + 1)
 
         return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula))
@@ -204,7 +208,6 @@ class InterfacialReactivity(MSONable):
         Returns:
             Plot of reaction energies as a function of mixing ratio
         """
-        fig = None
 
         if backend.lower() == "plotly":
             fig = self._get_plotly_figure()
@@ -324,19 +327,19 @@ class InterfacialReactivity(MSONable):
 
         return reaction
 
-    def _get_elmt_amt_in_rxt(self, rxt):
+    def _get_elmt_amt_in_rxn(self, rxn):
         """
         Computes total number of atoms in a reaction formula for elements
         not in external reservoir. This method is used in the calculation
         of reaction energy per mol of reaction formula.
 
         Args:
-            rxt (Reaction): a reaction.
+            rxn (Reaction): a reaction.
 
         Returns:
             Total number of atoms for non_reservoir elements.
         """
-        return sum([rxt.get_el_amount(e) for e in self.pd.elements])
+        return sum([rxn.get_el_amount(e) for e in self.pd.elements])
 
     def _get_plotly_figure(self):
         kinks = list(map(list, zip(*self.get_kinks())))
@@ -549,13 +552,9 @@ class InterfacialReactivity(MSONable):
         std_temp = 298.15
         std_pres = 1e5
         ideal_gas_const = 8.3144598
-        # Cp and S at standard state in J/(K.mol). Data from NIST-JANAF tables (
-        # O-029, N-O
-        # https://janaf.nist.gov/tables/O-029.html
-        # https://janaf.nist.gov/tables/N-023.html
-        # https://janaf.nist.gov/tables/Cl-073.html
-        # https://janaf.nist.gov/tables/F-054.html
-        # https://janaf.nist.gov/tables/H-050.html
+        # Cp and S at standard state in J/(K.mol). Data from NIST-JANAF tables
+        # Tables: O-029, N-O23, Cl-073, F-054, H-050
+
         Cp_dict = {"O": 29.376, "N": 29.124, "Cl": 33.949, "F": 31.302, "H": 28.836}
 
         S_dict = {"O": 205.147, "N": 191.609, "Cl": 223.079, "F": 202.789, "H": 130.680}
@@ -634,17 +633,18 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         c1: Composition,
         c2: Composition,
         grand_pd: GrandPotentialPhaseDiagram,
-        norm: bool = True,
+        pd_non_grand: PhaseDiagram,
         include_no_mixing_energy: bool = False,
-        pd_non_grand: Optional[PhaseDiagram] = None,
+        norm: bool = True,
         use_hull_energy: bool = True,
     ):
         """
         Args:
             c1: Reactant 1 composition
             c2: Reactant 2 composition
-            pd: Phase diagram (can be PhaseDiagram or GrandPotentialPhaseDiagram)
-                object built from all elements in composition c1 and c2.
+            grand_pd: Grand potential phase diagram object built from all elements in
+                composition c1 and c2.
+            pd:
             norm: Whether or not the total number of atoms in composition
                 of reactant will be normalized to 1.
             include_no_mixing_energy: No_mixing_energy for a reactant is the
@@ -673,7 +673,8 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         if is_grand and use_hull_energy and not pd_non_grand:
             raise ValueError("Please provide non-grand phase diagram if" " you want to use convex hull energy.")
 
-        super().__init__(c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy)
+        super().__init__(c1=c1, c2=c2, pd=grand_pd, norm=norm,
+                         use_hull_energy=use_hull_energy, bypass_grand_warning=True)
 
         self.pd_non_grand = pd_non_grand
 
@@ -710,9 +711,11 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
 
         energy1 = self.pd.get_hull_energy(self.comp1) - self._get_grand_potential(self.c1)
         energy2 = self.pd.get_hull_energy(self.comp2) - self._get_grand_potential(self.c2)
+
         unit = "eV/f.u."
         if self.norm:
             unit = "eV/atom"
+
         return [
             (self.c1_original.reduced_formula + " ({0})".format(unit), energy1),
             (self.c2_original.reduced_formula + " ({0})".format(unit), energy2),

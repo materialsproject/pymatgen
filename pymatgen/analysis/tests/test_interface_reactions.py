@@ -290,21 +290,21 @@ class InterfaceReactionTest(unittest.TestCase):
             [Composition("Mn"), Composition("O2"), Composition("Li")],
             [Composition("LiMnO2")],
         )
-        test1 = np.isclose(self.ir[2]._get_elmt_amt_in_rxt(rxt1), 3)
+        test1 = np.isclose(self.ir[2]._get_elmt_amt_in_rxn(rxt1), 3)
         self.assertTrue(test1, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!")
 
         rxt2 = rxt1
         rxt2.normalize_to(Composition("Li"), 0.5)
-        test2 = np.isclose(self.ir[2]._get_elmt_amt_in_rxt(rxt2), 1.5)
+        test2 = np.isclose(self.ir[2]._get_elmt_amt_in_rxn(rxt2), 1.5)
         self.assertTrue(test2, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!")
 
         rxt3 = Reaction([Composition("O2"), Composition("Li")], [Composition("Li2O")])
         # Li is not counted
-        test3 = np.isclose(self.ir[2]._get_elmt_amt_in_rxt(rxt3), 1)
+        test3 = np.isclose(self.ir[2]._get_elmt_amt_in_rxn(rxt3), 1)
         self.assertTrue(test3, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!")
 
         # Li is counted
-        test4 = np.isclose(self.ir[6]._get_elmt_amt_in_rxt(rxt3), 3)
+        test4 = np.isclose(self.ir[6]._get_elmt_amt_in_rxn(rxt3), 3)
         self.assertTrue(test4, "_get_get_elmt_amt_in_rxt: pd elements amounts gets error!")
 
     def test_convert(self):
