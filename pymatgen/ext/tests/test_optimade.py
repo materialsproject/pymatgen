@@ -13,7 +13,7 @@ class OptimadeTest(PymatgenTest):
 
             structs = optimade.get_structures(elements=["Ga", "N"], nelements=2)
 
-        test_struct = next(iter(structs.values()))
+        test_struct = next(iter(structs["mp"].values()))
 
         self.assertEqual([str(el) for el in test_struct.types_of_species], ["Ga", "N"])
 
@@ -23,7 +23,7 @@ class OptimadeTest(PymatgenTest):
 
             structs = optimade.get_structures(elements=["B", "N"], nelements=2)
 
-        test_struct = next(iter(structs.values()))
+        test_struct = next(iter(structs["mcloud.2dstructures"].values()))
 
         self.assertEqual([str(el) for el in test_struct.types_of_species], ["B", "N"])
 
@@ -33,7 +33,3 @@ class OptimadeTest(PymatgenTest):
             optimade.refresh_aliases()
 
         self.assertIn("mp", optimade.aliases)
-
-        from pprint import pprint
-
-        pprint(optimade.aliases)
