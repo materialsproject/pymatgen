@@ -5,8 +5,9 @@ Optimade support.
 import logging
 import sys
 from collections import namedtuple
+from os.path import join
 from typing import Dict, Union, List, Optional
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 
 import requests
 
@@ -220,7 +221,7 @@ class OptimadeRester:
 
             fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
 
-            url = urljoin(resource, f"v1/structures?filter={optimade_filter}&fields={fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&fields={fields}")
 
             try:
 
@@ -334,7 +335,7 @@ class OptimadeRester:
             return None
 
         try:
-            url = urljoin(provider_url, "v1/info")
+            url = join(provider_url, "v1/info")
             provider_info_json = self.session.get(url, timeout=self._timeout).json()
         except Exception as exc:
             _logger.warning(f"Failed to parse {url} when validating: {exc}")
@@ -373,7 +374,7 @@ class OptimadeRester:
         """
 
         try:
-            url = urljoin(provider_url, "v1/links")
+            url = join(provider_url, "v1/links")
             provider_link_json = self.session.get(url, timeout=self._timeout).json()
         except Exception as exc:
             _logger.error(f"Failed to parse {url} when following links: {exc}")
