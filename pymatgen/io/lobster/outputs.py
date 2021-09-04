@@ -1315,9 +1315,9 @@ class Bandoverlaps:
         self.max_deviation = []  # type: List
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
-            if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0" in line:
+            if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1" in line:
                 spin = Spin.up
-            elif "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1" in line:
+            elif "Overlap Matrix (abs) of the orthonormalized projected bands for spin 2" in line:
                 spin = Spin.down
             elif "k-point" in line:
                 kpoint = line.split(" ")
