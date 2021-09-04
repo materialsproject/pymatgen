@@ -121,7 +121,7 @@ class OptimadeRester:
                 self.resources[alias_or_resource_url] = alias_or_resource_url
 
             else:
-                _logger.warning(f"The following is not a known alias or valid url: {alias_or_resource_url}")
+                _logger.error(f"The following is not a known alias or a valid url: {alias_or_resource_url}")
 
         self._providers = {url: self._validate_provider(provider_url=url) for url in self.resources.values()}
 
@@ -220,7 +220,7 @@ class OptimadeRester:
 
             fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
 
-            url = urljoin(resource, f"/v1/structures?filter={optimade_filter}&fields={fields}")
+            url = urljoin(resource, f"v1/structures?filter={optimade_filter}&fields={fields}")
 
             try:
 
@@ -249,7 +249,7 @@ class OptimadeRester:
 
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
-                _logger.warning(
+                _logger.error(
                     f"Could not retrieve required information from provider {identifier} and url {url}: {exc}"
                 )
 
@@ -305,7 +305,7 @@ class OptimadeRester:
                         exceptions.add(str(exc))
 
         if exceptions:
-            _logger.warning(f'Failed to parse returned data for {url}: {", ".join(exceptions)}')
+            _logger.error(f'Failed to parse returned data for {url}: {", ".join(exceptions)}')
 
         return structures
 
@@ -334,9 +334,9 @@ class OptimadeRester:
             return None
 
         try:
-            provider_info_json = self.session.get(urljoin(provider_url, "/v1/info"), timeout=self._timeout).json()
+            provider_info_json = self.session.get(urljoin(provider_url, "v1/info"), timeout=self._timeout).json()
         except Exception as exc:
-            _logger.warning(f"Failed to parse {provider_url}: {exc}")
+            _logger.warning(f"Failed to parse {urljoin(provider_url, 'v1/info')} when validating: {exc}")
             return None
 
         try:
@@ -348,7 +348,7 @@ class OptimadeRester:
                 prefix=provider_info_json["meta"].get("provider", {}).get("prefix", "Unknown"),
             )
         except Exception as exc:
-            _logger.warning(f"Failed to extract required information from {urljoin(provider_url, '/v1/info')}: {exc}")
+            _logger.warning(f"Failed to extract required information from {urljoin(provider_url, 'v1/info')}: {exc}")
             return None
 
     def _parse_provider(self, provider, provider_url) -> Dict[str, Provider]:
@@ -372,9 +372,9 @@ class OptimadeRester:
         """
 
         try:
-            provider_link_json = self.session.get(urljoin(provider_url, "/v1/links"), timeout=self._timeout).json()
+            provider_link_json = self.session.get(urljoin(provider_url, "v1/links"), timeout=self._timeout).json()
         except Exception as exc:
-            _logger.warning(f"Failed to parse {provider_url}: {exc}")
+            _logger.error(f"Failed to parse {urljoin(provider_url, 'v1/links')} when following links: {exc}")
             return {}
 
         def _parse_provider_link(provider, provider_link_json):
