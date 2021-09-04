@@ -4,7 +4,7 @@ Optimade support.
 
 from collections import namedtuple
 from typing import Dict, Union, List, Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import logging
 import requests
@@ -220,7 +220,7 @@ class OptimadeRester:
 
             fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
 
-            url = f"{resource}/v1/structures?filter={optimade_filter}&fields={fields}"
+            url = urljoin(resource, f"/v1/structures?filter={optimade_filter}&fields={fields}")
 
             try:
 
@@ -249,7 +249,9 @@ class OptimadeRester:
 
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
-                _logger.warning(f"Could not retrieve required information from provider ({identifier}): {exc}")
+                _logger.warning(
+                    f"Could not retrieve required information from provider {identifier} and url {url}: {exc}"
+                )
 
         return all_structures
 
@@ -332,21 +334,21 @@ class OptimadeRester:
             return None
 
         try:
-            provider_info_json = self.session.get(f"{provider_url}/v1/info", timeout=self._timeout).json()
+            provider_info_json = self.session.get(urljoin(provider_url, "/v1/info"), timeout=self._timeout).json()
         except Exception as exc:
             _logger.warning(f"Failed to parse {provider_url}: {exc}")
             return None
 
         try:
             return Provider(
-                name=provider_info_json["meta"]["provider"]["name"],
+                name=provider_info_json["meta"].get("provider", {}).get("name", "Unknown"),
                 base_url=provider_url,
-                description=provider_info_json["meta"]["provider"]["description"],
-                homepage=provider_info_json["meta"]["provider"].get("homepage"),
-                prefix=provider_info_json["meta"]["provider"]["prefix"],
+                description=provider_info_json["meta"].get("provider", {}).get("description", "Unknown"),
+                homepage=provider_info_json["meta"].get("provider", {}).get("homepage"),
+                prefix=provider_info_json["meta"].get("provider", {}).get("prefix", "Unknown"),
             )
         except Exception as exc:
-            _logger.warning(f"Failed to extract required information from {provider_url}: {exc}")
+            _logger.warning(f"Failed to extract required information from {urljoin(provider_url, '/v1/info')}: {exc}")
             return None
 
     def _parse_provider(self, provider, provider_url) -> Dict[str, Provider]:
@@ -370,7 +372,7 @@ class OptimadeRester:
         """
 
         try:
-            provider_link_json = self.session.get(f"{provider_url}/v1/links", timeout=self._timeout).json()
+            provider_link_json = self.session.get(urljoin(provider_url, "/v1/links"), timeout=self._timeout).json()
         except Exception as exc:
             _logger.warning(f"Failed to parse {provider_url}: {exc}")
             return {}
