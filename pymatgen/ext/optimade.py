@@ -2,13 +2,13 @@
 Optimade support.
 """
 
+import logging
+import sys
 from collections import namedtuple
 from typing import Dict, Union, List, Optional
 from urllib.parse import urlparse, urljoin
 
-import logging
 import requests
-import sys
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
