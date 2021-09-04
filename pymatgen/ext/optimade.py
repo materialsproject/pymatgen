@@ -6,7 +6,7 @@ import logging
 import sys
 from collections import namedtuple
 from typing import Dict, Union, List, Optional
-from urllib.parse import urlparse, urljoin, quote
+from urllib.parse import urlparse, urljoin
 
 import requests
 
@@ -220,7 +220,7 @@ class OptimadeRester:
 
             fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
 
-            url = quote(urljoin(resource, f"v1/structures?filter={optimade_filter}&fields={fields}"), safe=":/")
+            url = urljoin(resource, f"v1/structures?filter={optimade_filter}&fields={fields}")
 
             try:
 
@@ -334,13 +334,9 @@ class OptimadeRester:
             return None
 
         try:
-            provider_info_json = self.session.get(
-                quote(urljoin(provider_url, "v1/info"), safe=":/"), timeout=self._timeout
-            ).json()
+            provider_info_json = self.session.get(urljoin(provider_url, "v1/info"), timeout=self._timeout).json()
         except Exception as exc:
-            _logger.warning(
-                f"Failed to parse {quote(urljoin(provider_url, 'v1/info'), safe=':/')} when validating: {exc}"
-            )
+            _logger.warning(f"Failed to parse {urljoin(provider_url, 'v1/info')} when validating: {exc}")
             return None
 
         try:
@@ -352,9 +348,7 @@ class OptimadeRester:
                 prefix=provider_info_json["meta"].get("provider", {}).get("prefix", "Unknown"),
             )
         except Exception as exc:
-            _logger.warning(
-                f"Failed to extract required information from {quote(urljoin(provider_url, 'v1/info'), safe=':/')}: {exc}"
-            )
+            _logger.warning(f"Failed to extract required information from {urljoin(provider_url, 'v1/info')}: {exc}")
             return None
 
     def _parse_provider(self, provider, provider_url) -> Dict[str, Provider]:
@@ -378,13 +372,9 @@ class OptimadeRester:
         """
 
         try:
-            provider_link_json = self.session.get(
-                quote(urljoin(provider_url, "v1/links"), safe=":/"), timeout=self._timeout
-            ).json()
+            provider_link_json = self.session.get(urljoin(provider_url, "v1/links"), timeout=self._timeout).json()
         except Exception as exc:
-            _logger.error(
-                f"Failed to parse {quote(urljoin(provider_url, 'v1/links'), safe=':/')} when following links: {exc}"
-            )
+            _logger.error(f"Failed to parse {urljoin(provider_url, 'v1/links')} when following links: {exc}")
             return {}
 
         def _parse_provider_link(provider, provider_link_json):
