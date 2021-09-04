@@ -237,9 +237,9 @@ class OptimadeRester:
                         if isinstance(next_link, dict) and "href" in next_link:
                             next_link = next_link["href"]
                         json = self.session.get(next_link, timeout=self._timeout).json()
-                        additional_strcutures = self._get_structures_from_resource(json, url)
-                        structures.update(additional_strcutures)
-                        pbar.update(len(additional_strcutures))
+                        additional_structures = self._get_structures_from_resource(json, url)
+                        structures.update(additional_structures)
+                        pbar.update(len(additional_structures))
 
                 if structures:
 
