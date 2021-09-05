@@ -10,6 +10,7 @@ from typing import Dict, Union, List, Optional
 from urllib.parse import urlparse
 
 import requests
+from retrying import retry
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
@@ -137,6 +138,14 @@ class OptimadeRester:
         provider_text = "\n".join(map(str, (provider for provider in self._providers.values() if provider)))
         description = f"OptimadeRester connected to:\n{provider_text}"
         return description
+
+    @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
+    def _get_json(self, url):
+        """
+        Retrieves JSON, will attempt to (politely) try again on failure subject to a
+        random delay and a maximum number of attempts.
+        """
+        return self.session.get(url, timeout=self._timeout).json()
 
     @staticmethod
     def _build_filter(
@@ -274,7 +283,7 @@ class OptimadeRester:
 
             try:
 
-                json = self.session.get(url, timeout=self._timeout).json()
+                json = self._get_json(url)
 
                 structures = self._get_snls_from_resource(json, url, identifier)
 
@@ -286,7 +295,7 @@ class OptimadeRester:
                         next_link = json["links"]["next"]
                         if isinstance(next_link, dict) and "href" in next_link:
                             next_link = next_link["href"]
-                        json = self.session.get(next_link, timeout=self._timeout).json()
+                        json = self._get_json(next_link)
                         additional_structures = self._get_snls_from_resource(json, url, identifier)
                         structures.update(additional_structures)
                         pbar.update(len(additional_structures))
@@ -408,7 +417,7 @@ class OptimadeRester:
 
         try:
             url = join(provider_url, "v1/info")
-            provider_info_json = self.session.get(url, timeout=self._timeout).json()
+            provider_info_json = self._get_json(url)
         except Exception as exc:
             _logger.warning(f"Failed to parse {url} when validating: {exc}")
             return None
@@ -447,7 +456,7 @@ class OptimadeRester:
 
         try:
             url = join(provider_url, "v1/links")
-            provider_link_json = self.session.get(url, timeout=self._timeout).json()
+            provider_link_json = self._get_json(url)
         except Exception as exc:
             _logger.error(f"Failed to parse {url} when following links: {exc}")
             return {}
@@ -480,7 +489,7 @@ class OptimadeRester:
         Updates available OPTIMADE structure resources based on the current list of OPTIMADE
         providers.
         """
-        json = self.session.get(url=providers_url, timeout=self._timeout).json()
+        json = self._get_json(providers_url)
         providers_from_url = {
             entry["id"]: entry["attributes"]["base_url"] for entry in json["data"] if entry["attributes"]["base_url"]
         }
