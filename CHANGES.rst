@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2022.0.14
+----------
+* Update OPTIMADE interface to allow querying multiple providers, this changes the 
+  method signature of OptimadeRester and so is considered a backwards incompatible change (@mkhorton, #2238)
+
 v2022.0.13
 ----------
 * New feature to plot chemical potential diagrams (@mattmcdermott, #2218), see ArXiv:2104.05986 for example
