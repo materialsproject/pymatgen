@@ -13,6 +13,7 @@ import requests
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
+from pymatgen.util.provenance import StructureNL
 from pymatgen.util.sequence import PBar
 
 # TODO: importing optimade-python-tool's data structures will make more sense
@@ -77,9 +78,6 @@ class OptimadeRester:
 
         To refresh this list of aliases, generated from the current list of OPTIMADE providers
         at optimade.org, call the refresh_aliases() method.
-
-        This interface is maintained by @mkhorton, please contact him directly with bug reports
-        or open an Issue in the pymatgen repository.
 
         Args:
             aliases_or_resource_urls: the alias or structure resource URL or a list of
@@ -178,9 +176,9 @@ class OptimadeRester:
 
     def get_structures(
         self, elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None,
-    ) -> Dict[str, Structure]:
+    ) -> Dict[str, Dict[str, Structure]]:
         """
-        Retrieve structures from the OPTIMADE database.
+        Retrieve Structures from OPTIMADE providers.
 
         Not all functionality of OPTIMADE is currently exposed in this convenience method. To
         use a custom filter, call get_structures_with_filter().
@@ -192,7 +190,7 @@ class OptimadeRester:
             chemical_formula_anonymous: Anonymous chemical formula
             chemical_formula_hill: Chemical formula following Hill convention
 
-        Returns: Dict of Structures keyed by that database's id system
+        Returns: Dict of (Dict Structures keyed by that database's id system) keyed by provider
         """
 
         optimade_filter = self._build_filter(
@@ -205,7 +203,40 @@ class OptimadeRester:
 
         return self.get_structures_with_filter(optimade_filter)
 
-    def get_structures_with_filter(self, optimade_filter: str) -> Dict[str, Structure]:
+    def get_snls(
+        self, elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None,
+    ) -> Dict[str, Dict[str, StructureNL]]:
+        """
+        Retrieve StructureNL from OPTIMADE providers.
+
+        A StructureNL is an object provided by pymatgen which combines Structure with
+        associated metadata, such as the URL is was downloaded from and any additional namespaced
+        data.
+
+        Not all functionality of OPTIMADE is currently exposed in this convenience method. To
+        use a custom filter, call get_structures_with_filter().
+
+        Args:
+            elements: List of elements
+            nelements: Number of elements, e.g. 4 or [2, 5] for the range >=2 and <=5
+            nsites: Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
+            chemical_formula_anonymous: Anonymous chemical formula
+            chemical_formula_hill: Chemical formula following Hill convention
+
+        Returns: Dict of (Dict of StructureNLs keyed by that database's id system) keyed by provider
+        """
+
+        optimade_filter = self._build_filter(
+            elements=elements,
+            nelements=nelements,
+            nsites=nsites,
+            chemical_formula_anonymous=chemical_formula_anonymous,
+            chemical_formula_hill=chemical_formula_hill,
+        )
+
+        return self.get_snls_with_filter(optimade_filter)
+
+    def get_structures_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, Structure]]:
         """
         Get structures satisfying a given OPTIMADE filter.
 
@@ -215,7 +246,25 @@ class OptimadeRester:
         Returns: Dict of Structures keyed by that database's id system
         """
 
+        all_snls = self.get_snls_with_filter(optimade_filter)
         all_structures = {}
+
+        for identifier, snls_dict in all_snls.items():
+            all_structures[identifier] = {k: snl.structure for k, snl in snls_dict.items()}
+
+        return all_structures
+
+    def get_snls_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, StructureNL]]:
+        """
+        Get structures satisfying a given OPTIMADE filter.
+
+        Args:
+            filter: An OPTIMADE-compliant filter
+
+        Returns: Dict of Structures keyed by that database's id system
+        """
+
+        all_snls = {}
 
         for identifier, resource in self.resources.items():
 
@@ -227,7 +276,7 @@ class OptimadeRester:
 
                 json = self.session.get(url, timeout=self._timeout).json()
 
-                structures = self._get_structures_from_resource(json, url)
+                structures = self._get_snls_from_resource(json, url, identifier)
 
                 pbar = PBar(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
 
@@ -238,13 +287,13 @@ class OptimadeRester:
                         if isinstance(next_link, dict) and "href" in next_link:
                             next_link = next_link["href"]
                         json = self.session.get(next_link, timeout=self._timeout).json()
-                        additional_structures = self._get_structures_from_resource(json, url)
+                        additional_structures = self._get_snls_from_resource(json, url, identifier)
                         structures.update(additional_structures)
                         pbar.update(len(additional_structures))
 
                 if structures:
 
-                    all_structures[identifier] = structures
+                    all_snls[identifier] = structures
 
             except Exception as exc:
 
@@ -254,12 +303,12 @@ class OptimadeRester:
                     f"Could not retrieve required information from provider {identifier} and url {url}: {exc}"
                 )
 
-        return all_structures
+        return all_snls
 
     @staticmethod
-    def _get_structures_from_resource(json, url):
+    def _get_snls_from_resource(json, url, identifier) -> Dict[str, StructureNL]:
 
-        structures = {}
+        snls = {}
 
         exceptions = set()
 
@@ -279,6 +328,7 @@ class OptimadeRester:
         for data in json["data"]:
 
             # TODO: check the spec! and remove this try/except (are all providers following spec?)
+            # e.g. can check data["type"] == "structures"
 
             try:
                 # e.g. COD
@@ -288,7 +338,19 @@ class OptimadeRester:
                     coords=data["attributes"]["cartesian_site_positions"],
                     coords_are_cartesian=True,
                 )
-                structures[data["id"]] = structure
+                namespaced_data = {k: v for k, v in data.items() if k.startswith("_")}
+
+                # TODO: follow `references` to add reference information here
+                snl = StructureNL(
+                    structure,
+                    authors={},
+                    history=[{"name": identifier, "url": url, "description": {"id": data["id"]}}],
+                    data={"_optimade": namespaced_data},
+                )
+
+                snls[data["id"]] = snl
+
+            # TODO: bare exception, remove...
             except Exception:
 
                 try:
@@ -299,7 +361,17 @@ class OptimadeRester:
                         coords=data["attributes"]["cartesian_site_positions"],
                         coords_are_cartesian=True,
                     )
-                    structures[data["id"]] = structure
+                    namespaced_data = {k: v for k, v in data["attributes"].items() if k.startswith("_")}
+
+                    # TODO: follow `references` to add reference information here
+                    snl = StructureNL(
+                        structure,
+                        authors={},
+                        history=[{"name": identifier, "url": url, "description": {"id": data["id"]}}],
+                        data={"_optimade": namespaced_data},
+                    )
+
+                    snls[data["id"]] = snl
 
                 except Exception as exc:
                     if str(exc) not in exceptions:
@@ -308,7 +380,7 @@ class OptimadeRester:
         if exceptions:
             _logger.error(f'Failed to parse returned data for {url}: {", ".join(exceptions)}')
 
-        return structures
+        return snls
 
     def _validate_provider(self, provider_url) -> Optional[Provider]:
         """
