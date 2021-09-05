@@ -28,7 +28,7 @@ class PBarSafe:
     Progress bar.
     """
 
-    def __init__(self, total):
+    def __init__(self, total, **kwargs):
         """
         Args:
             total (): Total value.
