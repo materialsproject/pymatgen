@@ -2382,11 +2382,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=True)
+            s = FleurInput.from_string(input_string, inpgen_input=True).structure
         elif fmt == "fleur":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=False)
+            s = FleurInput.from_string(input_string, inpgen_input=False).structure
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
