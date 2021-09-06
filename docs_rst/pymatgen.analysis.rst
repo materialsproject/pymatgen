@@ -29,6 +29,7 @@ Submodules
    pymatgen.analysis.adsorption
    pymatgen.analysis.bond_dissociation
    pymatgen.analysis.bond_valence
+   pymatgen.analysis.chempot_diagram
    pymatgen.analysis.cost
    pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.dimensionality
