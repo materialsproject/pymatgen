@@ -1257,9 +1257,9 @@ class JmolNN(NearNeighbors):
                 siw.append(
                     {
                         "site": nn,
-                        "image": self._get_image(structure, nn),
+                        "image": nn.image,
                         "weight": weight,
-                        "site_index": self._get_original_site(structure, nn),
+                        "site_index": nn.index,
                     }
                 )
         return siw
@@ -1339,9 +1339,9 @@ class MinimumDistanceNN(NearNeighbors):
                 siw.append(
                     {
                         "site": nn,
-                        "image": self._get_image(structure, nn) if is_periodic else None,
+                        "image": nn.image if is_periodic else None,
                         "weight": w,
-                        "site_index": self._get_original_site(structure, nn),
+                        "site_index": nn.index,
                     }
                 )
         else:
@@ -1353,9 +1353,9 @@ class MinimumDistanceNN(NearNeighbors):
                     siw.append(
                         {
                             "site": nn,
-                            "image": self._get_image(structure, nn) if is_periodic else None,
+                            "image": nn.image if is_periodic else None,
                             "weight": w,
-                            "site_index": self._get_original_site(structure, nn),
+                            "site_index": nn.index,
                         }
                     )
         return siw
@@ -1775,9 +1775,9 @@ class MinimumOKeeffeNN(NearNeighbors):
                 siw.append(
                     {
                         "site": s,
-                        "image": self._get_image(structure, s),
+                        "image": s.image,
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": s.index,
                     }
                 )
 
@@ -1853,9 +1853,9 @@ class MinimumVIRENN(NearNeighbors):
                 siw.append(
                     {
                         "site": s,
-                        "image": self._get_image(vire.structure, s),
+                        "image": s.image,
                         "weight": w,
-                        "site_index": self._get_original_site(vire.structure, s),
+                        "site_index": s.index,
                     }
                 )
 
@@ -3419,9 +3419,9 @@ class BrunnerNN_reciprocal(NearNeighbors):
                 siw.append(
                     {
                         "site": s,
-                        "image": self._get_image(structure, s),
+                        "image": s.image,
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": s.index,
                     }
                 )
         return siw
@@ -3492,9 +3492,9 @@ class BrunnerNN_relative(NearNeighbors):
                 siw.append(
                     {
                         "site": s,
-                        "image": self._get_image(structure, s),
+                        "image": s.image,
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": s.index,
                     }
                 )
         return siw
@@ -3565,9 +3565,9 @@ class BrunnerNN_real(NearNeighbors):
                 siw.append(
                     {
                         "site": s,
-                        "image": self._get_image(structure, s),
+                        "image": s.image,
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": s.index,
                     }
                 )
         return siw
@@ -3681,9 +3681,9 @@ class EconNN(NearNeighbors):
                 if w > self.tol:
                     bonded_site = {
                         "site": nn,
-                        "image": self._get_image(structure, nn),
+                        "image": nn.image,
                         "weight": w,
-                        "site_index": self._get_original_site(structure, nn),
+                        "site_index": nn.index,
                     }
                     siw.append(bonded_site)
         return siw
@@ -4244,9 +4244,9 @@ class CutOffDictNN(NearNeighbors):
                 nn_info.append(
                     {
                         "site": n_site,
-                        "image": self._get_image(structure, n_site),
+                        "image": n_site.image,
                         "weight": dist,
-                        "site_index": self._get_original_site(structure, n_site),
+                        "site_index": n_site.index,
                     }
                 )
 
