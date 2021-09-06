@@ -12,6 +12,7 @@ import json
 import math
 import os
 import warnings
+import collections
 from bisect import bisect_left
 from collections import defaultdict, namedtuple
 from copy import deepcopy
@@ -4226,9 +4227,8 @@ class CutOffDictNN(NearNeighbors):
                 sites.
 
         Returns:
-            siw (list of tuples (Site, array, float)): tuples, each one
-                of which represents a coordinated site, its image location,
-                and its weight.
+            nn_info (list of dicts): each dict represents a coordinated site
+                and contains a site object, its image location, its weight and its site index in the structure.
         """
         site = structure[n]
 
@@ -4251,6 +4251,73 @@ class CutOffDictNN(NearNeighbors):
                 )
 
         return nn_info
+
+    def get_all_nn_info(self, structure, numerical_tol: float = 1e-8):
+        """
+        Precompute global neighbor list to speed up graph generation.
+
+        Adapted from :py:meth:`core.structure.IStructure.get_all_neighbors`.
+
+        Args:
+            structure (Structure): input structure.
+
+        Returns:
+            nn_info (list of (list of dicts)): each dict represents a coordinated site
+                and contains a site object, its image location, its weight and its site index in the structure.
+        """
+        center_indices, points_indices, offset_vectors, distances = structure.get_neighbor_list(self._max_dist)
+
+        f_coords = structure.frac_coords[points_indices] + offset_vectors
+        lattice = structure.lattice
+        nn_info_dict: Dict[int, List] = collections.defaultdict(list)
+        atol = Site.position_atol
+        sites = structure.sites
+        for cindex, pindex, image, f_coord, d in zip(
+            center_indices, points_indices, offset_vectors, f_coords, distances
+        ):
+
+            psite = sites[pindex]
+            csite = sites[cindex]
+
+            # skip if outside of cutoff radius for the respective elements
+            neigh_cut_off_dist = self._lookup_dict.get(structure[cindex].species_string, {}).get(
+                structure[pindex].species_string, 0.0
+            )
+            if d > neigh_cut_off_dist:
+                continue
+
+            if (
+                d > numerical_tol
+                or  # This simply compares the psite and csite. The reason why manual comparison is done is
+                # for speed. This does not check the lattice since they are always equal. Also, the or construct
+                # returns True immediately once one of the conditions are satisfied.
+                psite.species != csite.species
+                or (not np.allclose(psite.coords, csite.coords, atol=atol))
+                or (not psite.properties == csite.properties)
+            ):
+                neighbor_site = PeriodicNeighbor(
+                    species=psite.species,
+                    coords=f_coord,
+                    lattice=lattice,
+                    properties=psite.properties,
+                    nn_distance=d,
+                    index=pindex,
+                    image=tuple(image),
+                )
+                nn_info_dict[cindex].append(
+                    {
+                        "site": neighbor_site,
+                        "image": tuple(image),
+                        "weight": d,
+                        "site_index": pindex,
+                    }
+                )
+
+        neighbors: List[List[PeriodicNeighbor]] = []
+
+        for i in range(len(sites)):
+            neighbors.append(nn_info_dict[i])
+        return neighbors
 
 
 class Critic2NN(NearNeighbors):
