@@ -67,7 +67,7 @@ class OptimadeRester:
         as a way to quickly search an endpoint in a way familiar to users of pymatgen without
         needing to know the full OPTIMADE specification.
 
-        For advanced usage, please see the OPTIMADE documentation at optimate.org and
+        For advanced usage, please see the OPTIMADE documentation at optimade.org and
         consider calling the APIs directly.
 
         For convenience, known OPTIMADE endpoints have been given aliases in pymatgen to save
