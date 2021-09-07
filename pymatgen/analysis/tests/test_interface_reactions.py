@@ -5,7 +5,7 @@ import numpy as np
 from scipy.spatial import ConvexHull
 
 from pymatgen.core.composition import Composition
-from pymatgen.analysis.interface_reactions import InterfacialReactivity
+from pymatgen.analysis.interface_reactions import InterfacialReactivity, GrandPotentialInterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -25,193 +25,143 @@ class InterfaceReactionTest(unittest.TestCase):
             ComputedEntry(Composition("LiMnO2"), -30),
         ]
         self.pd = PhaseDiagram(self.entries)
+
         chempots = {"Li": -3}
         self.gpd = GrandPotentialPhaseDiagram(self.entries, chempots)
-        self.ir = []
-        # ir[0]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("O2"),
-                Composition("Mn"),
-                self.pd,
-                norm=0,
-                include_no_mixing_energy=0,
-                pd_non_grand=None,
-                use_hull_energy=False,
-            )
-        )
-        # ir[1]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("MnO2"),
-                Composition("Mn"),
-                self.gpd,
-                norm=0,
-                include_no_mixing_energy=1,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[2]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Mn"),
-                Composition("O2"),
-                self.gpd,
-                norm=1,
-                include_no_mixing_energy=1,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[3]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O"),
-                Composition("Mn"),
-                self.gpd,
-                norm=0,
-                include_no_mixing_energy=1,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[4]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Mn"),
-                Composition("O2"),
-                self.gpd,
-                norm=1,
-                include_no_mixing_energy=0,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[5]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Mn"),
-                Composition("Li2O"),
-                self.gpd,
-                norm=1,
-                include_no_mixing_energy=1,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[6]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("Li"),
-                self.pd,
-                norm=0,
-                include_no_mixing_energy=0,
-                pd_non_grand=None,
-                use_hull_energy=True,
-            )
-        )
-        # ir[7]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("Li"),
-                self.pd,
-                norm=0,
-                include_no_mixing_energy=0,
-                pd_non_grand=None,
-                use_hull_energy=False,
-            )
-        )
-        # ir[8]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("MnO2"),
-                self.gpd,
-                norm=0,
-                include_no_mixing_energy=0,
-                pd_non_grand=self.pd,
-                use_hull_energy=True,
-            )
-        )
-        # ir[9]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("MnO2"),
-                self.gpd,
-                norm=0,
-                include_no_mixing_energy=0,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[10]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("O2"),
-                Composition("Mn"),
-                self.pd,
-                norm=1,
-                include_no_mixing_energy=0,
-                pd_non_grand=None,
-                use_hull_energy=False,
-            )
-        )
-        # ir[11]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("Li2O2"),
-                self.gpd,
-                norm=1,
-                include_no_mixing_energy=1,
-                pd_non_grand=self.pd,
-                use_hull_energy=False,
-            )
-        )
-        # ir[12]
-        self.ir.append(
-            InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("Li2O2"),
-                self.pd,
-                norm=1,
-                include_no_mixing_energy=0,
-                pd_non_grand=None,
-                use_hull_energy=False,
-            )
-        )
 
+        ir_0 = InterfacialReactivity(
+            c1=Composition("O2"),
+            c2=Composition("Mn"),
+            pd=self.pd,
+            norm=False,
+            use_hull_energy=False,
+        )
+        ir_1 = GrandPotentialInterfacialReactivity(
+            c1=Composition("MnO2"),
+            c2=Composition("Mn"),
+            grand_pd=self.gpd,
+            pd_non_grand=self.pd,
+            norm=False,
+            include_no_mixing_energy=True,
+            use_hull_energy=False,
+        )
+        ir_2 = GrandPotentialInterfacialReactivity(
+            c1=Composition("Mn"),
+            c2=Composition("O2"),
+            grand_pd=self.gpd,
+            pd_non_grand=self.pd,
+            norm=True,
+            include_no_mixing_energy=True,
+            use_hull_energy=False,
+        )
+        ir_3 = GrandPotentialInterfacialReactivity(
+            c1=Composition("Li2O"),
+            c2=Composition("Mn"),
+            grand_pd=self.gpd,
+            norm=False,
+            include_no_mixing_energy=True,
+            pd_non_grand=self.pd,
+            use_hull_energy=False,
+        )
+        ir_4 = GrandPotentialInterfacialReactivity(
+            c1=Composition("Mn"),
+            c2=Composition("O2"),
+            grand_pd=self.gpd,
+            norm=True,
+            include_no_mixing_energy=False,
+            pd_non_grand=self.pd,
+            use_hull_energy=False,
+        )
+        ir_5 = GrandPotentialInterfacialReactivity(
+            c1=Composition("Mn"),
+            c2=Composition("Li2O"),
+            grand_pd=self.gpd,
+            pd_non_grand=self.pd,
+            norm=True,
+            include_no_mixing_energy=False,
+            use_hull_energy=False,
+        )
+        ir_6 = InterfacialReactivity(
+            c1=Composition("Li2O2"),
+            c2=Composition("Li"),
+            pd=self.pd,
+            norm=False,
+            use_hull_energy=True,
+        )
+        ir_7 = InterfacialReactivity(
+            c1=Composition("Li2O2"),
+            c2=Composition("Li"),
+            pd=self.pd,
+            norm=False,
+            use_hull_energy=False,
+        )
+        ir_8 = GrandPotentialInterfacialReactivity(
+            c1=Composition("Li2O2"),
+            c2=Composition("MnO2"),
+            grand_pd=self.gpd,
+            pd_non_grand=self.pd,
+            norm=False,
+            include_no_mixing_energy=False,
+            use_hull_energy=True,
+        )
+        ir_9 = GrandPotentialInterfacialReactivity(
+            c1=Composition("Li2O2"),
+            c2=Composition("MnO2"),
+            grand_pd=self.gpd,
+            pd_non_grand=self.pd,
+            norm=False,
+            include_no_mixing_energy=False,
+            use_hull_energy=False,
+        )
+        ir_10 = InterfacialReactivity(
+            Composition("O2"),
+            Composition("Mn"),
+            pd=self.pd,
+            norm=True,
+            use_hull_energy=False,
+        )
+        ir_11 = GrandPotentialInterfacialReactivity(
+            Composition("Li2O2"),
+            Composition("Li2O2"),
+            self.gpd,
+            norm=True,
+            include_no_mixing_energy=True,
+            pd_non_grand=self.pd,
+            use_hull_energy=False,
+        )
+        ir_12 = InterfacialReactivity(
+            Composition("Li2O2"),
+            Composition("Li2O2"),
+            self.pd,
+            norm=True,
+            use_hull_energy=False,
+        )
         with self.assertRaises(Exception) as context1:
-            self.ir.append(
-                InterfacialReactivity(
-                    Composition("Li2O2"),
-                    Composition("Li"),
-                    self.pd,
-                    norm=1,
-                    include_no_mixing_energy=1,
-                    pd_non_grand=None,
-                )
+            ir_13 = InterfacialReactivity(
+                Composition("Li2O2"),
+                Composition("Li"),
+                pd=self.gpd,
+                norm=True
             )
-        self.assertTrue("Please provide grand phase diagram to compute no_mixing_energy!" == str(context1.exception))
-
+            self.assertTrue(
+                "Please use the GrandPotentialInterfacialReactivity "
+                "class for interfacial reactions with open elements!" == str(context1.exception)
+            )
         with self.assertRaises(Exception) as context2:
-            self.ir.append(
-                InterfacialReactivity(
-                    Composition("O2"),
-                    Composition("Mn"),
-                    self.gpd,
-                    norm=0,
-                    include_no_mixing_energy=1,
-                    pd_non_grand=None,
-                )
+            ir_14 = GrandPotentialInterfacialReactivity(
+                Composition("O2"),
+                Composition("Mn"),
+                grand_pd=self.gpd,
+                pd_non_grand=None,
+                norm=False,
+                include_no_mixing_energy=True,
             )
-        self.assertTrue(
-            "Please provide non-grand phase diagram to compute no_mixing_energy!" == str(context2.exception)
-        )
+            self.assertTrue(
+                "Please provide non-grand phase diagram to compute no_mixing_energy!" == str(context2.exception)
+            )
+
+        self.ir = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10,
+                   ir_11, ir_12]
 
     def test_get_entry_energy(self):
         # Test warning message.

@@ -11,34 +11,32 @@ code in your own work.
 
 References:
 
-    Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
+    (1) Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
     Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
     266–273. https://doi.org/10.1021/acs.chemmater.5b04082
 
-    Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
+    (2) Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
     Understanding interface stability in solid-state batteries.
     Nature Reviews Materials, 5(2), 105–126. https://doi.org/10.1038/s41578-019-0157-5
 
 """
 
-import os
 import json
+import os
 import warnings
-
 from typing import List, Tuple
+
 import numpy as np
-
-from monty.json import MSONable
-from monty.dev import deprecated
-from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify, htmlify
-
 import pandas
+from monty.dev import deprecated
+from monty.json import MSONable
 from plotly.graph_objects import Scatter, Figure
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
+from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.string import latexify, htmlify
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
@@ -80,7 +78,7 @@ class InterfacialReactivity(MSONable):
         pd: PhaseDiagram,
         norm: bool = True,
         use_hull_energy: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -613,9 +611,7 @@ class InterfacialReactivity(MSONable):
     @deprecated(products)
     def get_products(self):
         """
-
-        Returns:
-
+        Deprecated method. Use the "products" property.
         """
         return self.products
 
@@ -673,8 +669,9 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         if is_grand and use_hull_energy and not pd_non_grand:
             raise ValueError("Please provide non-grand phase diagram if" " you want to use convex hull energy.")
 
-        super().__init__(c1=c1, c2=c2, pd=grand_pd, norm=norm,
-                         use_hull_energy=use_hull_energy, bypass_grand_warning=True)
+        super().__init__(
+            c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True
+        )
 
         self.pd_non_grand = pd_non_grand
 
