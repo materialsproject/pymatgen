@@ -184,7 +184,12 @@ class OptimadeRester:
         return " AND ".join(filters)
 
     def get_structures(
-        self, elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None,
+        self,
+        elements=None,
+        nelements=None,
+        nsites=None,
+        chemical_formula_anonymous=None,
+        chemical_formula_hill=None,
     ) -> Dict[str, Dict[str, Structure]]:
         """
         Retrieve Structures from OPTIMADE providers.
@@ -213,7 +218,12 @@ class OptimadeRester:
         return self.get_structures_with_filter(optimade_filter)
 
     def get_snls(
-        self, elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None,
+        self,
+        elements=None,
+        nelements=None,
+        nsites=None,
+        chemical_formula_anonymous=None,
+        chemical_formula_hill=None,
     ) -> Dict[str, Dict[str, StructureNL]]:
         """
         Retrieve StructureNL from OPTIMADE providers.
