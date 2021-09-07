@@ -18,7 +18,7 @@ import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
-from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable
+from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable, Literal
 
 import numpy as np
 from monty.dev import deprecated
@@ -2332,13 +2332,21 @@ class IStructure(SiteCollection, MSONable):
         return writer.__str__()
 
     @classmethod
-    def from_str(cls, input_string: str, fmt: str, primitive=False, sort=False, merge_tol=0.0):
+    def from_str(
+        cls,
+        input_string: str,
+        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs"],
+        primitive=False,
+        sort=False,
+        merge_tol=0.0,
+    ):
         """
         Reads a structure from a string.
 
         Args:
             input_string (str): String to parse.
-            fmt (str): A format specification.
+            fmt (str): A file format specification. One of "cif", "poscar", "cssr",
+                "json", "yaml", "xsf", "mcsqs".
             primitive (bool): Whether to find a primitive cell. Defaults to
                 False.
             sort (bool): Whether to sort the sites in accordance to the default
