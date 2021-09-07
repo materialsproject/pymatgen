@@ -2,12 +2,16 @@ import unittest as unittest
 import warnings
 
 import numpy as np
+from matplotlib.figure import Figure as mpl_figure
+from pandas import DataFrame
+from plotly.graph_objects import Figure as plotly_figure
 from scipy.spatial import ConvexHull
 
-from pymatgen.core.composition import Composition
-from pymatgen.analysis.interface_reactions import InterfacialReactivity, GrandPotentialInterfacialReactivity
+from pymatgen.analysis.interface_reactions import InterfacialReactivity, \
+    GrandPotentialInterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -26,7 +30,7 @@ class InterfaceReactionTest(unittest.TestCase):
         ]
         self.pd = PhaseDiagram(self.entries)
 
-        chempots = {"Li": -3}
+        chempots = {Element("Li"): -3}
         self.gpd = GrandPotentialPhaseDiagram(self.entries, chempots)
 
         ir_0 = InterfacialReactivity(
@@ -78,7 +82,7 @@ class InterfaceReactionTest(unittest.TestCase):
             grand_pd=self.gpd,
             pd_non_grand=self.pd,
             norm=True,
-            include_no_mixing_energy=False,
+            include_no_mixing_energy=True,
             use_hull_energy=False,
         )
         ir_6 = InterfacialReactivity(
@@ -123,7 +127,7 @@ class InterfaceReactionTest(unittest.TestCase):
         ir_11 = GrandPotentialInterfacialReactivity(
             Composition("Li2O2"),
             Composition("Li2O2"),
-            self.gpd,
+            grand_pd=self.gpd,
             norm=True,
             include_no_mixing_energy=True,
             pd_non_grand=self.pd,
@@ -132,17 +136,12 @@ class InterfaceReactionTest(unittest.TestCase):
         ir_12 = InterfacialReactivity(
             Composition("Li2O2"),
             Composition("Li2O2"),
-            self.pd,
+            pd=self.pd,
             norm=True,
             use_hull_energy=False,
         )
         with self.assertRaises(Exception) as context1:
-            ir_13 = InterfacialReactivity(
-                Composition("Li2O2"),
-                Composition("Li"),
-                pd=self.gpd,
-                norm=True
-            )
+            ir_13 = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
             self.assertTrue(
                 "Please use the GrandPotentialInterfacialReactivity "
                 "class for interfacial reactions with open elements!" == str(context1.exception)
@@ -160,11 +159,9 @@ class InterfaceReactionTest(unittest.TestCase):
                 "Please provide non-grand phase diagram to compute no_mixing_energy!" == str(context2.exception)
             )
 
-        self.ir = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10,
-                   ir_11, ir_12]
+        self.ir = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10, ir_11, ir_12]
 
     def test_get_entry_energy(self):
-        # Test warning message.
         comp = Composition("MnO3")
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -297,12 +294,13 @@ class InterfaceReactionTest(unittest.TestCase):
             react_kink_expect,
             energy_per_rxt_kink_expect,
         ):
-            lst = list(ir.get_kinks())
-            index = [i[0] for i in lst]
-            x_kink = [i[1] for i in lst]
-            energy_kink = [i[2] for i in lst]
-            react_kink = [str(i[3]) for i in lst]
-            energy_per_rxt_kink = [i[4] for i in lst]
+            kinks = ir.get_kinks()
+            index = [i[0] for i in kinks]
+            x_kink = [i[1] for i in kinks]
+            energy_kink = [i[2] for i in kinks]
+            react_kink = [str(i[3]) for i in kinks]
+            energy_per_rxt_kink = [i[4] for i in kinks]
+
             test1 = index == index_expect
             self.assertTrue(test1, "get_kinks:index gets error!")
 
@@ -380,19 +378,8 @@ class InterfaceReactionTest(unittest.TestCase):
                 test2 = len(hull.vertices) == len(points)
                 self.assertTrue(test1 and test2, "Error: Generating non-convex plot!")
 
-        test_convexity_helper(self.ir[0])
-        test_convexity_helper(self.ir[1])
-        test_convexity_helper(self.ir[2])
-        test_convexity_helper(self.ir[3])
-        test_convexity_helper(self.ir[4])
-        test_convexity_helper(self.ir[5])
-        test_convexity_helper(self.ir[6])
-        test_convexity_helper(self.ir[7])
-        test_convexity_helper(self.ir[8])
-        test_convexity_helper(self.ir[9])
-        test_convexity_helper(self.ir[10])
-        test_convexity_helper(self.ir[11])
-        test_convexity_helper(self.ir[12])
+        for ir in self.ir:
+            test_convexity_helper(ir)
 
     def test_get_original_composition_ratio(self):
         # expected reaction1: 0.5 O2 + 0.5 Mn -> 0.5 MnO2
@@ -424,7 +411,7 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertTrue(test5, "get_critical_original_kink_ratio: gets error!")
 
     def test_labels(self):
-        d_pymg = self.ir[0].labels()
+        d_pymg = self.ir[0].labels
         d_test = {
             1: "x= 0.0 energy in eV/atom = 0.0 Mn -> Mn",
             2: "x= 0.5 energy in eV/atom = -15.0 0.5 Mn + 0.5 O2 -> 0.5 MnO2",
@@ -439,10 +426,17 @@ class InterfaceReactionTest(unittest.TestCase):
         )
 
     def test_plot(self):
-        # Test plot is hard. Here just to call the plot function to see if any
-        #  error occurs.
         for i in self.ir:
-            i.plot()
+            fig = i.plot(backend="matplotlib")
+            self.assertTrue(fig, isinstance(fig, mpl_figure))
+
+            fig = i.plot(backend="plotly")
+            self.assertTrue(isinstance(fig, plotly_figure))
+
+    def test_get_dataframe(self):
+        for i in self.ir:
+            df = i.get_dataframe()
+            self.assertTrue(isinstance(df, DataFrame))
 
     def test_minimum(self):
         answer = [
@@ -457,22 +451,17 @@ class InterfaceReactionTest(unittest.TestCase):
         ]
         for i, j in zip(self.ir, answer):
             self.assertTrue(
-                np.allclose(i.minimum(), j),
+                np.allclose(i.minimum, j),
                 "minimum: the system with {0} and {1} "
                 "gets error!{2} expected, but gets {3}".format(
                     i.c1_original.reduced_formula,
                     i.c2_original.reduced_formula,
                     str(j),
-                    str(i.minimum()),
+                    str(i.minimum),
                 ),
             )
 
     def test_get_no_mixing_energy(self):
-        with self.assertRaises(Exception) as context1:
-            self.ir[0].get_no_mixing_energy()
-        self.assertTrue(
-            "Please provide grand potential phase diagram for computing no_mixing_energy!" == str(context1.exception)
-        )
         answer = [
             [("MnO2 (eV/f.u.)", 0.0), ("Mn (eV/f.u.)", 0.0)],
             [("Mn (eV/atom)", 0.0), ("O2 (eV/atom)", -4.0)],
@@ -482,12 +471,13 @@ class InterfaceReactionTest(unittest.TestCase):
         ]
 
         def name_lst(lst):
-            return (lst[0][0], lst[1][0])
+            return lst[0][0], lst[1][0]
 
         def energy_lst(lst):
-            return (lst[0][1], lst[1][1])
+            return lst[0][1], lst[1][1]
 
         result_info = [i.get_no_mixing_energy() for i in self.ir if i.grand]
+        print(result_info)
         for i, j in zip(result_info, answer):
             self.assertTrue(
                 name_lst(i) == name_lst(j),
