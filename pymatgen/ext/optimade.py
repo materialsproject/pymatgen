@@ -291,7 +291,7 @@ class OptimadeRester:
 
             fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
 
-            url = join(resource, f"v1/structures?filter={optimade_filter}&fields={fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&{fields}")
 
             try:
 
