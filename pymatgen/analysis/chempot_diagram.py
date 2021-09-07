@@ -32,10 +32,11 @@ from monty.json import MSONable
 from plotly.graph_objects import Scatter, Scatter3d, Mesh3d, Figure
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
-from pymatgen.analysis.phase_diagram import PDPlotter, PhaseDiagram, PDEntry
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
 from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
+from pymatgen.util.string import htmlify
 
 with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as f:
     plotly_layouts = json.load(f)
@@ -473,7 +474,7 @@ class ChemicalPotentialDiagram(MSONable):
     @staticmethod
     def _get_annotation(ann_loc: np.ndarray, formula: str) -> Dict[str, Union[str, float]]:
         """Returns a Plotly annotation dict given a formula and location"""
-        formula = PDPlotter._htmlize_formula(formula)
+        formula = htmlify(formula)
         annotation = plotly_layouts["default_annotation_layout"].copy()
         annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
         if len(ann_loc) == 3:
