@@ -10,7 +10,7 @@ from typing import Dict, Union, List, Optional
 from urllib.parse import urlparse
 
 import requests
-from retrying import retry
+#from retrying import retry
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
@@ -141,7 +141,7 @@ class OptimadeRester:
         description = f"OptimadeRester connected to:\n{provider_text}"
         return description
 
-    @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
+    #@retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):
         """
         Retrieves JSON, will attempt to (politely) try again on failure subject to a
