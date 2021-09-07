@@ -7,8 +7,7 @@ from pandas import DataFrame
 from plotly.graph_objects import Figure as plotly_figure
 from scipy.spatial import ConvexHull
 
-from pymatgen.analysis.interface_reactions import InterfacialReactivity, \
-    GrandPotentialInterfacialReactivity
+from pymatgen.analysis.interface_reactions import InterfacialReactivity, GrandPotentialInterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
