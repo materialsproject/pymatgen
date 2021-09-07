@@ -356,7 +356,7 @@ class InterfacialReactivity(MSONable):
 
         annotations = self._get_plotly_annotations(x, energy, reactions)  # type: ignore
 
-        min_idx = energy.index(min(energy))
+        min_idx = energy.index(min(energy))  # type: ignore
 
         x_min = x.pop(min_idx)
         e_min = energy.pop(min_idx)
