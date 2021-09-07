@@ -51,6 +51,8 @@ class OptimadeRester:
         "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
         "mcloud.threedd": "https://aiida.materialscloud.org/3dd/optimade",
         "mp": "https://optimade.materialsproject.org",
+        "mpds": "https://api.mpds.io",
+        "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
         "odbx": "https://optimade.odbx.science",
         "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
         "oqmd": "http://oqmd.org/optimade/",
