@@ -1,0 +1,62 @@
+{
+  "default_interface_rxn_layout": {
+    "autosize": true,
+    "height": 600,
+    "xaxis": {
+      "title": "Fraction",
+      "anchor": "y",
+      "mirror": "ticks",
+      "showgrid": true,
+      "showline": true,
+      "side": "bottom",
+      "tickfont": {
+        "size": 16.0
+      },
+      "ticks": "inside",
+      "titlefont": {
+        "color": "#000000",
+        "size": 20.0
+      },
+      "type": "linear",
+      "zeroline": false,
+      "gridcolor": "rgba(0,0,0,0.1)"
+    },
+    "yaxis": {
+      "title": "Reaction energy (eV/atom)",
+      "anchor": "x",
+      "mirror": "ticks",
+      "showgrid": true,
+      "showline": true,
+      "side": "left",
+      "tickfont": {
+        "size": 16.0
+      },
+      "ticks": "inside",
+      "titlefont": {
+        "color": "#000000",
+        "size": 20.0
+      },
+      "type": "linear",
+      "gridcolor": "rgba(0,0,0,0.1)"
+    },
+    "hovermode": "closest",
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "showlegend": true,
+    "legend": {
+      "orientation": "h",
+      "traceorder": "reversed",
+      "x": 0,
+      "y": 1.05,
+      "xanchor": "left",
+      "tracegroupgap": 7
+    },
+    "margin": {
+      "b": 20,
+      "l": 10,
+      "pad": 20,
+      "t": 20,
+      "r": 10
+    }
+  }
+}
