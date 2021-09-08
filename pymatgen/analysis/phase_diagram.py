@@ -2379,7 +2379,7 @@ class PDPlotter:
             if hasattr(entry, "original_entry"):
                 comp = entry.original_entry.composition
 
-            formula = list(comp.reduced_formula)
+            formula = comp.reduced_formula
             text.append(htmlify(formula))
 
         visible = True
