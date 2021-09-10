@@ -2364,27 +2364,27 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.xcrysden import XSF
 
-        fmt = fmt.lower()
-        if fmt == "cif":
+        fmt_low = fmt.lower()
+        if fmt_low == "cif":
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
-        elif fmt == "poscar":
+        elif fmt_low == "poscar":
             s = Poscar.from_string(input_string, False, read_velocities=False).structure
-        elif fmt == "cssr":
+        elif fmt_low == "cssr":
             cssr = Cssr.from_string(input_string)
             s = cssr.structure
-        elif fmt == "json":
+        elif fmt_low == "json":
             d = json.loads(input_string)
             s = Structure.from_dict(d)
-        elif fmt == "yaml":
+        elif fmt_low == "yaml":
             d = yaml.safe_load(input_string)
             s = Structure.from_dict(d)
-        elif fmt == "xsf":
+        elif fmt_low == "xsf":
             s = XSF.from_string(input_string).structure
-        elif fmt == "mcsqs":
+        elif fmt_low == "mcsqs":
             s = Mcsqs.structure_from_string(input_string)
         else:
-            raise ValueError("Unrecognized format `%s`!" % fmt)
+            raise ValueError(f"Unrecognized format `{fmt}`!")
 
         if sort:
             s = s.get_sorted_structure()
