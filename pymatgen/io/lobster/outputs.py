@@ -1295,16 +1295,15 @@ class Bandoverlaps:
 
     """
 
-    def __init__(self, filename: str = "bandOverlaps.lobster", old_spin_numbers: bool = False):
+    def __init__(self, filename: str = "bandOverlaps.lobster"):
         """
         Args:
             filename: filename of the "bandOverlaps.lobster" file
-            old_spin_numbers: Set to True for backward compatibility with older version of Lobster.
         """
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
 
-        spin_numbers = [0, 1] if old_spin_numbers else [1, 2]
+        spin_numbers = [0, 1] if contents[0].split()[-1] == "0" else [1, 2]
 
         self._read(contents, spin_numbers)
 
@@ -1313,7 +1312,7 @@ class Bandoverlaps:
         will read in all contents of the file
         Args:
          contents: list of strings
-         spin_numbers: list of spin numbers to be searched
+         spin_numbers: list of spin numbers depending on `Lobster` version.
         """
         self.bandoverlapsdict = {}  # type: Dict
         self.max_deviation = []  # type: List
