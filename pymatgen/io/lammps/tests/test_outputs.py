@@ -70,7 +70,7 @@ class FuncTest(unittest.TestCase):
         self.assertTupleEqual(rdx_25[-1].data.shape, (21, 5))
 
     def test_parse_lammps_log(self):
-        comb_file = "log.5Oct16.comb.Si.elastic.g++.1"
+        comb_file = "log.5Oct16.comb.Si.elastic.g++.1.gz"
         comb = parse_lammps_log(filename=os.path.join(test_dir, comb_file))
         self.assertEqual(len(comb), 6)
         # first comb run
@@ -106,7 +106,7 @@ class FuncTest(unittest.TestCase):
         comb_1_data = [[36, 5.1293854e-06], [46, 2192.8256]]
         np.testing.assert_array_almost_equal(comb_1.iloc[[0, -1], [0, -3]], comb_1_data)
 
-        ehex_file = "log.13Oct16.ehex.g++.8"
+        ehex_file = "log.13Oct16.ehex.g++.8.gz"
         ehex = parse_lammps_log(filename=os.path.join(test_dir, ehex_file))
         self.assertEqual(len(ehex), 3)
         ehex0, ehex1, ehex2 = ehex
@@ -135,7 +135,7 @@ class FuncTest(unittest.TestCase):
         ]
         np.testing.assert_array_almost_equal(ehex2.iloc[[0, -1]], ehex2_data)
 
-        peptide_file = "log.5Oct16.peptide.g++.1"
+        peptide_file = "log.5Oct16.peptide.g++.1.gz"
         peptide = parse_lammps_log(filename=os.path.join(test_dir, peptide_file))
         peptide0 = peptide[0]
         np.testing.assert_array_equal(

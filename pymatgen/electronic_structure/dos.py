@@ -398,8 +398,8 @@ class Dos(MSONable):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
-            "energies": list(self.energies),
-            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
+            "energies": self.energies.tolist(),
+            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
         }
 
 
@@ -499,7 +499,7 @@ class FermiDos(Dos, MSONable):
         )
         vb_integral = np.sum(
             self.tdos[: self.idx_vbm + 1]
-            * (1 - f0(self.energies[: self.idx_vbm + 1], fermi_level, temperature))
+            * f0(-self.energies[: self.idx_vbm + 1], -fermi_level, temperature)
             * self.de[: self.idx_vbm + 1],
             axis=0,
         )
@@ -592,7 +592,7 @@ class FermiDos(Dos, MSONable):
         for _ in range(precision):
             frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, temperature) for f in frange])
-            relative_error = np.abs(calc_doping / concentration - 1.0)
+            relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
 
@@ -620,8 +620,8 @@ class FermiDos(Dos, MSONable):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
-            "energies": list(self.energies),
-            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
+            "energies": self.energies.tolist(),
+            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
             "structure": self.structure,
             "nelecs": self.nelecs,
         }
@@ -697,7 +697,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
-        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = dict()
+        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = {}
         for orb, pdos in self.pdos[site].items():
             orbital_type = _get_orb_type(orb)
             if orbital_type in spd_dos:
@@ -840,8 +840,8 @@ class CompleteDos(Dos):
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
-            "energies": list(self.energies),
-            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
+            "energies": self.energies.tolist(),
+            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
             "pdos": [],
         }
         if len(self.pdos) > 0:
@@ -1054,6 +1054,7 @@ def _get_orb_type_lobster(orb):
         return orbital.orbital_type
     except AttributeError:
         print("Orb not in list")
+    return None
 
 
 def _get_orb_lobster(orb):
@@ -1087,3 +1088,4 @@ def _get_orb_lobster(orb):
         return orbital
     except AttributeError:
         print("Orb not in list")
+    return None

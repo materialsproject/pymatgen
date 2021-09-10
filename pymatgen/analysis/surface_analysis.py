@@ -56,12 +56,7 @@ from pymatgen.util.plotting import pretty_plot
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
 __author__ = "Richard Tran"
-__copyright__ = "Copyright 2017, The Materials Virtual Lab"
-__version__ = "0.2"
-__maintainer__ = "Richard Tran"
 __credits__ = "Joseph Montoya, Xianguo Li"
-__email__ = "rit001@eng.ucsd.edu"
-__date__ = "8/24/17"
 
 
 class SlabEntry(ComputedStructureEntry):
@@ -207,7 +202,7 @@ class SlabEntry(ComputedStructureEntry):
         slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
             list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
-            if not any([el in list_els for el in ucell_entry.composition.as_dict().keys()]):
+            if not any(el in list_els for el in ucell_entry.composition.as_dict().keys()):
                 warnings.warn("Elemental references missing for the non-dopant species.")
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
@@ -289,20 +284,16 @@ class SlabEntry(ComputedStructureEntry):
         Nsurfs = 0
         # Are there adsorbates on top surface?
         if any(
-            [
-                site.species_string in self.ads_entries_dict.keys()
-                for site in struct
-                if site.frac_coords[2] > center_of_mass[2]
-            ]
+            site.species_string in self.ads_entries_dict.keys()
+            for site in struct
+            if site.frac_coords[2] > center_of_mass[2]
         ):
             Nsurfs += 1
         # Are there adsorbates on bottom surface?
         if any(
-            [
-                site.species_string in self.ads_entries_dict.keys()
-                for site in struct
-                if site.frac_coords[2] < center_of_mass[2]
-            ]
+            site.species_string in self.ads_entries_dict.keys()
+            for site in struct
+            if site.frac_coords[2] < center_of_mass[2]
         ):
             Nsurfs += 1
 
@@ -488,10 +479,10 @@ class SurfaceEnergyPlotter:
         self.as_coeffs_dict = as_coeffs_dict
 
         list_of_chempots = []
-        for k in self.as_coeffs_dict.keys():
-            if type(self.as_coeffs_dict[k]).__name__ == "float":
+        for k, v in self.as_coeffs_dict.items():
+            if type(v).__name__ == "float":
                 continue
-            for du in self.as_coeffs_dict[k].keys():
+            for du in v.keys():
                 if du not in list_of_chempots:
                     list_of_chempots.append(du)
         self.list_of_chempots = list_of_chempots
@@ -654,7 +645,7 @@ class SurfaceEnergyPlotter:
             clean_entry = list(self.all_slab_entries[hkl].keys())[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
-            if all([a == 0 for a in hkl_area_dict[hkl]]):
+            if all(a == 0 for a in hkl_area_dict[hkl]):
                 continue
             plt.plot(
                 all_chempots,
@@ -830,21 +821,21 @@ class SurfaceEnergyPlotter:
                 se_dict[entry].append(gamma)
 
         if dmu_at_0:
-            for entry in se_dict.keys():
+            for entry, v in se_dict.items():
                 # if se are of opposite sign, determine chempot when se=0.
                 # Useful for finding a chempot range where se is unphysical
                 if not stable_urange_dict[entry]:
                     continue
-                if se_dict[entry][0] * se_dict[entry][1] < 0:
+                if v[0] * v[1] < 0:
                     # solve for gamma=0
                     se = self.as_coeffs_dict[entry]
-                    se_dict[entry].append(0)
+                    v.append(0)
                     stable_urange_dict[entry].append(solve(sub_chempots(se, delu_dict), ref_delu)[0])
 
         # sort the chempot ranges for each facet
-        for entry in stable_urange_dict.keys():
-            se_dict[entry] = [se for i, se in sorted(zip(stable_urange_dict[entry], se_dict[entry]))]
-            stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+        for entry, v in stable_urange_dict.items():
+            se_dict[entry] = [se for i, se in sorted(zip(v, se_dict[entry]))]
+            stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
             return stable_urange_dict, se_dict
@@ -1277,22 +1268,22 @@ class SurfaceEnergyPlotter:
             )
 
             # Save the chempot range for dmu1 and dmu2
-            for entry in range_dict.keys():
-                if not range_dict[entry]:
+            for entry, v in range_dict.items():
+                if not v:
                     continue
                 if entry not in vertices_dict.keys():
                     vertices_dict[entry] = []
 
                 selist = se_dict[entry]
-                vertices_dict[entry].append({delu1: dmu1, delu2: [range_dict[entry], selist]})
+                vertices_dict[entry].append({delu1: dmu1, delu2: [v, selist]})
 
         # Plot the edges of the phases
-        for entry in vertices_dict.keys():
+        for entry, v in vertices_dict.items():
 
             xvals, yvals = [], []
 
             # Plot each edge of a phase within the borders
-            for ii, pt1 in enumerate(vertices_dict[entry]):
+            for ii, pt1 in enumerate(v):
 
                 # Determine if the surface energy at this lower range
                 # of dmu2 is negative. If so, shade this region.
@@ -1309,9 +1300,9 @@ class SurfaceEnergyPlotter:
                     if not show_unphyiscal_only:
                         plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
-                if ii == len(vertices_dict[entry]) - 1:
+                if ii == len(v) - 1:
                     break
-                pt2 = vertices_dict[entry][ii + 1]
+                pt2 = v[ii + 1]
                 if not show_unphyiscal_only:
                     plt.plot(
                         [pt1[delu1], pt2[delu1]],
@@ -1324,7 +1315,7 @@ class SurfaceEnergyPlotter:
                 yvals.extend([pt1[delu2][0][0], pt2[delu2][0][0]])
 
             # Plot the edge along the max x value
-            pt = vertices_dict[entry][-1]
+            pt = v[-1]
             delu1, delu2 = pt.keys()
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
@@ -1834,8 +1825,8 @@ class NanoscaleStability:
             # By approximating the particle as a Wulff shape
             w_vol = new_wulff.volume
             tot_wulff_se = 0
-            for hkl in new_wulff_area.keys():
-                tot_wulff_se += miller_se_dict[hkl] * new_wulff_area[hkl]
+            for hkl, v in new_wulff_area.items():
+                tot_wulff_se += miller_se_dict[hkl] * v
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = new_wulff.effective_radius
 

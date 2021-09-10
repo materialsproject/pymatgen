@@ -370,7 +370,7 @@ class StructureGraph(MSONable):
         # edges if appropriate
         if to_jimage is None:
             # assume we want the closest site
-            warnings.warn("Please specify to_jimage to be unambiguous, " "trying to automatically detect.")
+            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.")
             dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
             if dist == 0:
                 # this will happen when from_index == to_index,
@@ -402,6 +402,22 @@ class StructureGraph(MSONable):
             tuple(map(int, to_jimage)),
         )
         from_index, to_index = int(from_index), int(to_index)
+
+        # if edge is from site i to site i, constrain direction of edge
+        # this is a convention to avoid duplicate hops
+        if to_index == from_index:
+            if to_jimage == (0, 0, 0):
+                warnings.warn("Tried to create a bond to itself, " "this doesn't make sense so was ignored.")
+                return
+
+            # ensure that the first non-zero jimage index is positive
+            # assumes that at least one non-zero index is present
+            is_positive = [idx for idx in to_jimage if idx != 0][0] > 0
+
+            if not is_positive:
+                # let's flip the jimage,
+                # e.g. (0, 1, 0) is equivalent to (0, -1, 0) in this case
+                to_jimage = tuple(-idx for idx in to_jimage)
 
         # check we're not trying to add a duplicate edge
         # there should only ever be at most one edge
@@ -968,10 +984,10 @@ class StructureGraph(MSONable):
         with open(filename, "w") as f:
 
             args = [algo, "-T", extension, basename + ".dot"]
-            rs = subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True)
-            rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
+            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+                rs.communicate()
+                if rs.returncode != 0:
+                    raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
 
         if not keep_dot:
             os.remove(basename + ".dot")
@@ -1520,7 +1536,7 @@ class StructureGraph(MSONable):
         # these will subgraphs representing crystals
         molecule_subgraphs = []
         for subgraph in all_subgraphs:
-            intersects_boundary = any([d["to_jimage"] != (0, 0, 0) for u, v, d in subgraph.edges(data=True)])
+            intersects_boundary = any(d["to_jimage"] != (0, 0, 0) for u, v, d in subgraph.edges(data=True))
             if not intersects_boundary:
                 molecule_subgraphs.append(nx.MultiDiGraph(subgraph))
 
@@ -2051,7 +2067,7 @@ class MoleculeGraph(MSONable):
             return [copy.deepcopy(self)]
 
         original = copy.deepcopy(self)
-        sub_mols = list()
+        sub_mols = []
 
         # Had to use nx.weakly_connected_components because of deprecation
         # of nx.weakly_connected_component_subgraphs
@@ -2093,7 +2109,7 @@ class MoleculeGraph(MSONable):
             # in order to be used for Molecule instantiation
             for k, v in properties.items():
                 if len(v) != len(species):
-                    del properties[k]
+                    del properties[k]  # pylint: disable=R1733
 
             new_mol = Molecule(species, coords, charge=charge, site_properties=properties)
             graph_data = json_graph.adjacency_data(new_graph)
@@ -2187,9 +2203,9 @@ class MoleculeGraph(MSONable):
 
         # narrow to all unique fragments using graph isomorphism
         unique_frag_dict = {}
-        for key in frag_dict:
+        for key, fragments in frag_dict.items():
             unique_frags = []
-            for frag in frag_dict[key]:
+            for frag in fragments:
                 found = False
                 for f in unique_frags:
                     if _isomorphic(frag, f):
@@ -2201,9 +2217,9 @@ class MoleculeGraph(MSONable):
 
         # convert back to molecule graphs
         unique_mol_graph_dict = {}
-        for key in unique_frag_dict:
+        for key, fragments in unique_frag_dict.items():
             unique_mol_graph_list = []
-            for fragment in unique_frag_dict[key]:
+            for fragment in fragments:
                 mapping = {e: i for i, e in enumerate(sorted(fragment.nodes))}
                 remapped = nx.relabel_nodes(fragment, mapping)
 
@@ -2427,7 +2443,7 @@ class MoleculeGraph(MSONable):
                 )
 
             to_remove = set()
-            sizes = dict()
+            sizes = {}
             disconnected = self.graph.to_undirected()
             disconnected.remove_node(index)
             for neighbor in neighbors:
@@ -2719,10 +2735,10 @@ class MoleculeGraph(MSONable):
         with open(filename, "w") as f:
 
             args = [algo, "-T", extension, basename + ".dot"]
-            rs = subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True)
-            rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
+            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+                rs.communicate()
+                if rs.returncode != 0:
+                    raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
 
         if not keep_dot:
             os.remove(basename + ".dot")

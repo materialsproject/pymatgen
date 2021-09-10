@@ -102,7 +102,7 @@ class ConversionElectrode(AbstractElectrode):
             for i in range(len(profile) - 1)
         ]
 
-        return cls(
+        return ConversionElectrode(  # pylint: disable=E1123
             voltage_pairs=vpairs,
             working_ion_entry=working_ion_entry,
             _initial_comp_formula=comp.reduced_formula,
@@ -126,7 +126,7 @@ class ConversionElectrode(AbstractElectrode):
                     for comparing with insertion electrodes
         """
         pd = PhaseDiagram(entries_in_chemsys)
-        return cls.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
+        return ConversionElectrode.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
 
     def get_sub_electrodes(self, adjacent_only=True):
         """
@@ -150,7 +150,7 @@ class ConversionElectrode(AbstractElectrode):
         # _initial_comp_formula = comp.reduced_formula, _framework_formula = framework.reduced_formula
         if adjacent_only:
             return [
-                self.__class__(
+                ConversionElectrode(  # pylint: disable=E1123
                     voltage_pairs=self.voltage_pairs[i : i + 1],
                     working_ion_entry=self.working_ion_entry,
                     _initial_comp_formula=self._initial_comp_formula,
@@ -162,7 +162,7 @@ class ConversionElectrode(AbstractElectrode):
         for i in range(len(self.voltage_pairs)):
             for j in range(i, len(self.voltage_pairs)):
                 sub_electrodes.append(
-                    self.__class__(
+                    ConversionElectrode(  # pylint: disable=E1123
                         voltage_pairs=self.voltage_pairs[i : j + 1],
                         working_ion_entry=self.working_ion_entry,
                         _initial_comp_formula=self._initial_comp_formula,
@@ -267,10 +267,10 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in range(len(rxn.coeffs)):
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+            for i, v in enumerate(rxn.coeffs):
+                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
@@ -318,10 +318,10 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in range(len(rxn.coeffs)):
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+            for i, v in enumerate(rxn.coeffs):
+                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
@@ -441,7 +441,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = step2["entries"]
         entries_discharge = step1["entries"]
 
-        return cls(
+        return ConversionVoltagePair(  # pylint: disable=E1123
             rxn=rxn,
             voltage=voltage,
             mAh=mAh,

@@ -30,7 +30,7 @@ from monty.os.path import zpath
 from monty.serialization import loadfn
 from tabulate import tabulate
 
-from pymatgen import SETTINGS, __version__
+from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure
@@ -342,7 +342,7 @@ class Poscar(MSONable):
             iline_natoms_start = 5 + nlines_symbols
             for iline_natoms in range(iline_natoms_start, iline_natoms_start + nlines_symbols):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
-            atomic_symbols = list()
+            atomic_symbols = []
             for i, nat in enumerate(natoms):
                 atomic_symbols.extend([symbols[i]] * nat)
             ipos = 5 + 2 * nlines_symbols
@@ -377,7 +377,7 @@ class Poscar(MSONable):
                 # Check if names are appended at the end of the coordinates.
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]]
                 # Ensure symbols are valid elements
-                if not all([Element.is_valid_symbol(sym) for sym in atomic_symbols]):
+                if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
             except (ValueError, IndexError):
@@ -393,7 +393,7 @@ class Poscar(MSONable):
 
         # read the atomic coordinates
         coords = []
-        selective_dynamics = list() if sdynamics else None
+        selective_dynamics = [] if sdynamics else None
         for i in range(nsites):
             toks = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
@@ -955,8 +955,7 @@ class Incar(dict, MSONable):
         keyword), your calculation will still run, however VASP will igore the
         parameter without letting you know, hence why we have this Incar method.
         """
-        for k in self.keys():
-
+        for k, v in self.items():
             # First check if this parameter even exists
             if k not in incar_params.keys():
                 warnings.warn(
@@ -969,15 +968,15 @@ class Incar(dict, MSONable):
                 if type(incar_params[k]).__name__ == "str":
                     # Now we check if this is an appropriate parameter type
                     if incar_params[k] == "float":
-                        if not type(self[k]) not in ["float", "int"]:
+                        if not type(v) not in ["float", "int"]:
                             warnings.warn(
-                                "%s: %s is not real" % (k, self[k]),
+                                "%s: %s is not real" % (k, v),
                                 BadIncarWarning,
                                 stacklevel=2,
                             )
-                    elif type(self[k]).__name__ != incar_params[k]:
+                    elif type(v).__name__ != incar_params[k]:
                         warnings.warn(
-                            "%s: %s is not a %s" % (k, self[k], incar_params[k]),
+                            "%s: %s is not a %s" % (k, v, incar_params[k]),
                             BadIncarWarning,
                             stacklevel=2,
                         )
@@ -985,9 +984,9 @@ class Incar(dict, MSONable):
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
                 elif type(incar_params[k]).__name__ == "list":
-                    if self[k] not in incar_params[k]:
+                    if v not in incar_params[k]:
                         warnings.warn(
-                            "%s: Cannot find %s in the list of parameters" % (k, self[k]),
+                            "%s: Cannot find %s in the list of parameters" % (k, v),
                             BadIncarWarning,
                             stacklevel=2,
                         )
@@ -1220,10 +1219,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (
-            __version__,
-            kppa,
-        )
+        comment = "pymatgen with grid density = %.0f / number of atoms" % (kppa,)
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1235,7 +1231,7 @@ class Kpoints(MSONable):
 
         is_hexagonal = latt.is_hexagonal()
 
-        has_odd = any([i % 2 == 1 for i in num_div])
+        has_odd = any(i % 2 == 1 for i in num_div)
         if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
@@ -1276,10 +1272,7 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (
-            __version__,
-            kppa,
-        )
+        comment = "pymatgen with grid density = %.0f / number of atoms" % (kppa,)
 
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
@@ -1321,8 +1314,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        kpoints = list()
-        labels = list()
+        kpoints = []
+        labels = []
         for path in ibz.kpath["path"]:
             kpoints.append(ibz.kpath["kpoints"][path[0]])
             labels.append(path[0])

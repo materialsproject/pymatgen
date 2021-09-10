@@ -175,7 +175,7 @@ class WulffShape:
             symprec (float): for recp_operation, default is 1e-5.
         """
 
-        if any([se < 0 for se in e_surf_list]):
+        if any(se < 0 for se in e_surf_list):
             warnings.warn("Unphysical (negative) surface energy detected.")
 
         self.color_ind = list(range(len(miller_list)))
@@ -183,8 +183,8 @@ class WulffShape:
         self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]
         # store input data
         self.structure = Structure(lattice, ["H"], [[0, 0, 0]])
-        self.miller_list = tuple([tuple(x) for x in miller_list])
-        self.hkl_list = tuple([(x[0], x[1], x[-1]) for x in miller_list])
+        self.miller_list = tuple(tuple(x) for x in miller_list)
+        self.hkl_list = tuple((x[0], x[1], x[-1]) for x in miller_list)
         self.e_surf_list = tuple(e_surf_list)
         self.lattice = lattice
         self.symprec = symprec
@@ -244,7 +244,7 @@ class WulffShape:
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
             for op in recp_symmops:
-                miller = tuple([int(x) for x in op.operate(hkl)])
+                miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
                     all_hkl.append(miller)
                     normal = recp.get_cartesian_coords(miller)
@@ -588,7 +588,7 @@ class WulffShape:
             x_pts, y_pts, z_pts = all_xyz[0], all_xyz[1], all_xyz[2]
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
-            tri_indices = np.array(itertools.combinations(index_list, 3)).T
+            tri_indices = np.array(list(itertools.combinations(index_list, 3))).T
             hkl = self.miller_list[plane.index]
             hkl = unicodeify_spacegroup("(" + "%s" * len(hkl) % hkl + ")")
             color = "rgba(%.5f, %.5f, %.5f, %.5f)" % tuple(np.array(plane_color) * 255)
@@ -722,7 +722,7 @@ class WulffShape:
         Returns:
             (dict): {hkl: area_hkl/total area on wulff}
         """
-        return {hkl: self.miller_area_dict[hkl] / self.surface_area for hkl in self.miller_area_dict.keys()}
+        return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
     @property
     def anisotropy(self):
@@ -736,8 +736,8 @@ class WulffShape:
         area_frac_dict = self.area_fraction_dict
         miller_energy_dict = self.miller_energy_dict
 
-        for hkl in miller_energy_dict.keys():
-            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy) ** 2 * area_frac_dict[hkl]
+        for hkl, energy in miller_energy_dict.items():
+            square_diff_energy += (energy - weighted_energy) ** 2 * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property
@@ -773,8 +773,8 @@ class WulffShape:
             (float) sum(surface_energy_hkl * area_hkl)
         """
         tot_surface_energy = 0
-        for hkl in self.miller_energy_dict.keys():
-            tot_surface_energy += self.miller_energy_dict[hkl] * self.miller_area_dict[hkl]
+        for hkl, energy in self.miller_energy_dict.items():
+            tot_surface_energy += energy * self.miller_area_dict[hkl]
         return tot_surface_energy
 
     @property

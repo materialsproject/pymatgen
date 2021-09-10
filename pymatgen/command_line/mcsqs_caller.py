@@ -110,8 +110,8 @@ def run_mcsqs(
         mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
 
     # Run mcsqs to find clusters
-    p = Popen(mcsqs_generate_clusters_cmd)
-    p.communicate()
+    with Popen(mcsqs_generate_clusters_cmd) as p:
+        p.communicate()
 
     # Generate SQS structures
     add_ons = [
@@ -128,12 +128,12 @@ def run_mcsqs(
         for i in range(instances):
             instance_cmd = ["-ip {}".format(i + 1)]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
-            p = Popen(cmd)
+            p = Popen(cmd)  # pylint: disable=R1732
             mcsqs_find_sqs_processes.append(p)
     else:
         # run normal mcsqs command
         cmd = mcsqs_find_sqs_cmd + add_ons
-        p = Popen(cmd)
+        p = Popen(cmd)  # pylint: disable=R1732
         mcsqs_find_sqs_processes.append(p)
 
     try:
@@ -141,7 +141,7 @@ def run_mcsqs(
             p.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            p = Popen(["mcsqs", "-best"])
+            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
             p.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -163,7 +163,7 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            p = Popen(["mcsqs", "-best"])
+            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
             p.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -191,8 +191,8 @@ def _parse_sqs_path(path) -> Sqs:
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to cif file and pymatgen Structure
-    p = Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path)
-    p.communicate()
+    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as p:
+        p.communicate()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -216,8 +216,8 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_out = "bestsqs{}.out".format(i + 1)
         sqs_cif = "bestsqs{}.cif".format(i + 1)
         corr_out = "bestcorr{}.out".format(i + 1)
-        p = Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path)
-        p.communicate()
+        with Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path) as p:
+            p.communicate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             sqs = Structure.from_file(path / sqs_out)

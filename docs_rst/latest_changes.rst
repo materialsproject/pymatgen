@@ -1,11 +1,7 @@
 Change log
 ==========
 
-v2021.1.28
+v2022.0.14
 ----------
-* Ability to read Lobster wavefunctions (@JaGeo, #2034) 
-* Method to estimate number of bands for VASP calculation (@rwoodsrobinson, #2044)
-* Q-Chem cube file plotting and improvements to output parsring (@samblau, #2032)
-* Improvements to pymatgen import speed (@mkhorton, #2031)
-* Bug fix for k-path generation (@munrojm, #2037)
-* Bug fix for parsing of core potentials from VASP (@utf, #2033)
+* Update OPTIMADE interface to allow querying multiple providers, this changes the 
+  method signature of OptimadeRester and so is considered a backwards incompatible change (@mkhorton, #2238)

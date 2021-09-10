@@ -62,15 +62,12 @@ class Critic2CallerTest(unittest.TestCase):
         # uses promolecular density
         structure = Structure.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/critic2/MoS2.cif",
+                PymatgenTest.TEST_FILES_DIR,
+                "critic2/MoS2.cif",
             )
         )
 
-        c2c = Critic2Caller(structure)
+        c2c = Critic2Caller.from_chgcar(structure)
 
         # check we have some results!
         self.assertGreaterEqual(len(c2c._stdout), 500)

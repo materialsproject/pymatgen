@@ -20,46 +20,52 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 
 import numpy as np
 
-if __name__ == '__main__':
-    print('+-------------------------------------------------------+\n'
-          '| Development script of the ChemEnv utility of pymatgen |\n'
-          '| Visualization of the model coordination environments  |\n'
-          '+-------------------------------------------------------+\n')
+if __name__ == "__main__":
+    print(
+        "+-------------------------------------------------------+\n"
+        "| Development script of the ChemEnv utility of pymatgen |\n"
+        "| Visualization of the model coordination environments  |\n"
+        "+-------------------------------------------------------+\n"
+    )
     allcg = AllCoordinationGeometries()
     vis = None
     while True:
-        cg_symbol = input('Enter symbol of the geometry you want to see, "l" to see the list '
-                          'of existing geometries or "q" to quit : ')
-        if cg_symbol == 'q':
+        cg_symbol = input(
+            'Enter symbol of the geometry you want to see, "l" to see the list '
+            'of existing geometries or "q" to quit : '
+        )
+        if cg_symbol == "q":
             break
-        if cg_symbol == 'l':
-            print(allcg.pretty_print(maxcn=20, additional_info={'nb_hints': True}))
+        if cg_symbol == "l":
+            print(allcg.pretty_print(maxcn=20, additional_info={"nb_hints": True}))
             continue
         try:
             cg = allcg[cg_symbol]
         except LookupError:
-            print('Wrong geometry, try again ...')
+            print("Wrong geometry, try again ...")
             continue
         print(cg.name)
         for ipoint, point in enumerate(cg.points):
-            print('Point #{:d} : {} {} {}'.format(ipoint, repr(point[0]), repr(point[1]), repr(point[2])))
-        print('Algorithms used :')
+            print("Point #{:d} : {} {} {}".format(ipoint, repr(point[0]), repr(point[1]), repr(point[2])))
+        print("Algorithms used :")
         for ialgo, algo in enumerate(cg.algorithms):
-            print('Algorithm #{:d} :'.format(ialgo))
+            print("Algorithm #{:d} :".format(ialgo))
             print(algo)
-            print('')
+            print("")
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):
-            test = input('Enter index of the algorithm for which you want to visualize the plane : ')
-            if test != '':
+            test = input("Enter index of the algorithm for which you want to visualize the plane : ")
+            if test != "":
                 try:
                     ialgo = int(test)
                     algo = cg.algorithms[ialgo]
                     sepplane = True
                 except Exception:
-                    print('Unable to determine the algorithm/separation_plane you want '
-                          'to visualize for this geometry. Continues without ...')
+                    print(
+                        "Unable to determine the algorithm/separation_plane you want "
+                        "to visualize for this geometry. Continues without ..."
+                    )
         myfactor = 3.0
         if vis is None:
             vis = visualize(cg=cg, zoom=1.0, myfactor=myfactor)
@@ -92,23 +98,17 @@ if __name__ == '__main__':
             radius = 1.5 * target_radius
 
             if algo.minimum_number_of_points == 2:
-                vis.add_partial_sphere(coords=cg_central_site, radius=radius,
-                                       color=[1.0, 0.0, 0.0], start=0, end=360,
-                                       opacity=0.5)
+                vis.add_partial_sphere(
+                    coords=cg_central_site, radius=radius, color=[1.0, 0.0, 0.0], start=0, end=360, opacity=0.5
+                )
             for pp in pts:
-                vis.add_partial_sphere(coords=pp, radius=radius,
-                                       color=[1.0, 0.0, 0.0], start=0, end=360,
-                                       opacity=0.5)
+                vis.add_partial_sphere(coords=pp, radius=radius, color=[1.0, 0.0, 0.0], start=0, end=360, opacity=0.5)
 
             ps1 = [cg_points[ii] for ii in algo.point_groups[0]]
             ps2 = [cg_points[ii] for ii in algo.point_groups[1]]
 
             for pp in ps1:
-                vis.add_partial_sphere(coords=pp, radius=radius,
-                                       color=[0.0, 1.0, 0.0], start=0, end=360,
-                                       opacity=0.5)
+                vis.add_partial_sphere(coords=pp, radius=radius, color=[0.0, 1.0, 0.0], start=0, end=360, opacity=0.5)
             for pp in ps2:
-                vis.add_partial_sphere(coords=pp, radius=radius,
-                                       color=[0.0, 0.0, 1.0], start=0, end=360,
-                                       opacity=0.5)
+                vis.add_partial_sphere(coords=pp, radius=radius, color=[0.0, 0.0, 1.0], start=0, end=360, opacity=0.5)
         vis.show()

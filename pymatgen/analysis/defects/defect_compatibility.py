@@ -43,7 +43,7 @@ class DefectCompatibility(MSONable):
                     "initial_defect_structure", "defect_frac_sc_coords"]
         kumagai: [ "dielectric", "bulk_atomic_site_averages", "defect_atomic_site_averages",
                    "site_matching_indices", "initial_defect_structure", "defect_frac_sc_coords"]
-        bandfilling: ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm"]
+        bandfilling: ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm", "run_metadata"]
         bandshifting: ["hybrid_cbm", "hybrid_vbm", "vbm", "cbm"]
         defect relaxation/structure analysis: ["final_defect_structure", "initial_defect_structure",
                                               "sampling_radius", "defect_frac_sc_coords"]
@@ -287,6 +287,7 @@ class DefectCompatibility(MSONable):
             "potalign",
             "vbm",
             "cbm",
+            "run_metadata",
         ]
         run_bandfilling = len(set(defect_entry.parameters.keys()).intersection(required_bandfilling_params)) == len(
             required_bandfilling_params

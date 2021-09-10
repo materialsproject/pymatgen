@@ -11,7 +11,7 @@ import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 from monty.json import MontyDecoder
 
-from pymatgen import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.core import Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
@@ -110,7 +110,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(s_sorted[0].specie.symbol, "Mn")
 
     def test_potcar_symbols(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.25, 0.75])
@@ -181,7 +181,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertAlmostEqual(incar["EDIFF"], 1e-5)
 
         si = 14
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
 
@@ -199,7 +199,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         incar = MPRelaxSet(struct).incar
         self.assertNotIn("LDAU", incar)
 
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice(
@@ -252,7 +252,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # sulfide vs sulfate test
 
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.25, 0.5, 0])
@@ -306,7 +306,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Test that NELECT is updated when a charge is present
         si = 14
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
 
@@ -513,6 +513,7 @@ class MPStaticSetTest(PymatgenTest):
         leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
         self.assertTrue(leps_vis.incar["LEPSILON"])
         self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertEqual(leps_vis.incar["EDIFF"], 1e-5)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
         self.assertEqual(non_prev_vis.kpoints.kpts, [[11, 10, 10]])
@@ -1278,7 +1279,17 @@ class MPScanRelaxSetTest(PymatgenTest):
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
         scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
         incar = scan_nonmetal_set.incar
-        self.assertAlmostEqual(incar["KSPACING"], 0.29125, places=5)
+        self.assertAlmostEqual(incar["KSPACING"], 0.3064757, places=5)
+        self.assertEqual(incar["ISMEAR"], -5)
+        self.assertEqual(incar["SIGMA"], 0.05)
+
+    def test_kspacing_cap(self):
+        # Test that KSPACING is capped at 0.44 for insulators
+        file_path = self.TEST_FILES_DIR / "POSCAR.O2"
+        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
+        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
+        incar = scan_nonmetal_set.incar
+        self.assertAlmostEqual(incar["KSPACING"], 0.44, places=5)
         self.assertEqual(incar["ISMEAR"], -5)
         self.assertEqual(incar["SIGMA"], 0.05)
 

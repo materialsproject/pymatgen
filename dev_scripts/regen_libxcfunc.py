@@ -49,6 +49,7 @@ def parse_libxc_docs(path):
 def write_libxc_docs_json(xcfuncs, jpath):
     """Write json file with libxc metadata to path jpath."""
     from copy import deepcopy
+
     xcfuncs = deepcopy(xcfuncs)
 
     # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
@@ -110,7 +111,7 @@ def main():
     start = lines.index("#begin_include_dont_touch\n")
     stop = lines.index("#end_include_dont_touch\n")
     lines.insert(stop, enum_list)
-    del lines[start + 1:stop]
+    del lines[start + 1 : stop]
 
     # [2] write new py module
     with open(xcfuncpy_path, "wt") as fh:

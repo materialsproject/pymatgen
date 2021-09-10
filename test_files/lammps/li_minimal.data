@@ -1,0 +1,17 @@
+LAMMPS data file
+# 1 Li
+
+1 atom types
+1 atoms
+
+  -1.000000   54.000000 xlo xhi
+  -1.000000   54.000000 ylo yhi
+  -1.000000   54.000000 zlo zhi
+
+Masses
+
+   1    6.940  #       Li
+
+Atoms
+
+1  1  1  1  16.0126  34.0688  37.8399  #  Li

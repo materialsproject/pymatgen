@@ -26,7 +26,7 @@ from typing import Dict, Tuple
 from monty.json import MSONable
 from scipy.constants import N_A
 
-from pymatgen import Composition, Element
+from pymatgen.core import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 

@@ -29,23 +29,23 @@ class Algo(object):
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Choose the geometry
     allcg = AllCoordinationGeometries()
     while True:
-        cg_symbol = input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
+        cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
         try:
             cg = allcg[cg_symbol]
             break
         except LookupError:
-            print('Wrong geometry, try again ...')
+            print("Wrong geometry, try again ...")
             continue
 
     # Check if the algorithm currently defined for this geometry corresponds to the explicit permutation algorithm
     for algo in cg.algorithms:
-        if algo.algorithm_type != 'EXPLICIT_PERMUTATIONS':
-            raise ValueError('WRONG ALGORITHM !')
+        if algo.algorithm_type != "EXPLICIT_PERMUTATIONS":
+            raise ValueError("WRONG ALGORITHM !")
 
     algo = Algo()
     algo.permutations = []
@@ -54,14 +54,14 @@ if __name__ == '__main__':
 
     lgf = LocalGeometryFinder()
     lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)
-    lgf.setup_test_perfect_environment(cg_symbol, randomness=True, indices='ORDERED')
+    lgf.setup_test_perfect_environment(cg_symbol, randomness=True, indices="ORDERED")
 
     lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
-    res = lgf.coordination_geometry_symmetry_measures_standard(coordination_geometry=cg,
-                                                               algo=algo,
-                                                               points_perfect=points_perfect)
+    res = lgf.coordination_geometry_symmetry_measures_standard(
+        coordination_geometry=cg, algo=algo, points_perfect=points_perfect
+    )
     (csms, perms, algos, local2perfect_maps, perfect2local_maps) = res
 
     csms_with_recorded_permutation = []
@@ -76,25 +76,25 @@ if __name__ == '__main__':
             csms_with_recorded_permutation.append(csm)
             explicit_permutations.append(perms[icsm])
 
-    print('Permutations found : ')
+    print("Permutations found : ")
     print(explicit_permutations)
 
-    print('Current algorithm(s) :')
+    print("Current algorithm(s) :")
     for algo in cg.algorithms:
         print(algo)
-        if algo.algorithm_type == 'EXPLICIT_PERMUTATIONS':
+        if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
             print(algo.permutations)
         else:
-            raise ValueError('WRONG ALGORITHM !')
+            raise ValueError("WRONG ALGORITHM !")
 
     test = input('Save it ? ("y" to confirm)')
-    if test == 'y':
+    if test == "y":
         if len(cg.algorithms) != 1:
-            raise ValueError('Multiple algorithms !')
+            raise ValueError("Multiple algorithms !")
         cg._algorithms = [ExplicitPermutationsAlgorithm(permutations=explicit_permutations)]
-        newgeom_dir = 'new_geometry_files'
+        newgeom_dir = "new_geometry_files"
         if not os.path.exists(newgeom_dir):
             os.makedirs(newgeom_dir)
-        f = open('{}/{}.json'.format(newgeom_dir, cg_symbol), 'w')
+        f = open("{}/{}.json".format(newgeom_dir, cg_symbol), "w")
         json.dump(cg.as_dict(), f)
         f.close()

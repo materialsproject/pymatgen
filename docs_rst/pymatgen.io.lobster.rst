@@ -15,6 +15,7 @@ Submodules
    :maxdepth: 7
 
    pymatgen.io.lobster.inputs
+   pymatgen.io.lobster.lobsterenv
    pymatgen.io.lobster.outputs
 
 Module contents

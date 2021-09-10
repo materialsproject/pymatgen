@@ -173,7 +173,7 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
         self.assertTrue(
-            all([vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))])
+            all(vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps)))
         )
 
         self.assertEqual(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
@@ -232,6 +232,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
 
+        entry = vasprun.get_computed_entry(inc_structure=True)
+        self.assertTrue(entry.entry_id.startswith("vasprun"))
+        self.assertEqual(entry.parameters["run_type"], "PBEO or other Hybrid Functional")
+
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
         with warnings.catch_warnings(record=True) as w:
@@ -275,6 +279,11 @@ class VasprunTest(PymatgenTest):
         self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
         self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
+
+    def test_chi(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.xml.chi.gz"
+        vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
+        self.assertTrue(vasprun_chi.incar.get("ALGO", ""), "CHI")
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.uniform", parse_potcar_file=False)
@@ -497,6 +506,13 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(bs.get_branch(0)[0]["start_index"], 0)
             self.assertEqual(bs.get_branch(0)[0]["end_index"], 0)
 
+    def test_projected_magnetisation(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
+        vasprun = Vasprun(filepath, parse_projected_eigen=True)
+        self.assertTrue(vasprun.projected_magnetisation is not None)
+        self.assertEqual(vasprun.projected_magnetisation.shape, (76, 240, 4, 9, 3))
+        self.assertAlmostEqual(vasprun.projected_magnetisation[0, 0, 0, 0, 0], -0.0712)
+
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiF")
@@ -693,6 +709,21 @@ class VasprunTest(PymatgenTest):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
+
+    def test_eigenvalue_band_properties_separate_spins(self):
+        eig = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=True)
+        props = eig.eigenvalue_band_properties
+        eig2 = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=False)
+        props2 = eig2.eigenvalue_band_properties
+        self.assertAlmostEqual(props[0][0], 2.8772, places=4)
+        self.assertAlmostEqual(props[0][1], 1.2810, places=4)
+        self.assertAlmostEqual(props[1][0], 3.6741, places=4)
+        self.assertAlmostEqual(props[1][1], 1.6225, places=4)
+        self.assertAlmostEqual(props[2][0], 0.7969, places=4)
+        self.assertAlmostEqual(props[2][1], 0.3415, places=4)
+        self.assertAlmostEqual(props2[0], np.min(props[1]) - np.max(props[2]), places=4)
+        self.assertEqual(props[3][0], True)
+        self.assertEqual(props[3][1], True)
 
 
 class OutcarTest(PymatgenTest):
@@ -1395,6 +1426,11 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(outcar.data["nplwv"], [[None]])
         self.assertEqual(outcar.data["nplwvs_at_kpoints"], [85687])
 
+    def test_vasp620_format(self):
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1514,7 +1550,6 @@ class ChgcarTest(PymatgenTest):
         os.remove("CHGCAR_pmg_soc")
 
     def test_hdf5(self):
-        print(self.TEST_FILES_DIR)
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
         import h5py
@@ -1647,6 +1682,12 @@ class XdatcarTest(PymatgenTest):
         x.concatenate(self.TEST_FILES_DIR / "XDATCAR_4")
         self.assertEqual(len(x.structures), 8)
         self.assertIsNotNone(x.get_string())
+
+        filepath = self.TEST_FILES_DIR / "XDATCAR_6"
+        x = Xdatcar(filepath)
+        structures = x.structures
+
+        self.assertNotEqual(structures[0].lattice, structures[-1].lattice)
 
 
 class DynmatTest(PymatgenTest):
@@ -1990,6 +2031,21 @@ class EigenvalTest(PymatgenTest):
         self.assertAlmostEqual(props[1], 7.5587, places=4)
         self.assertAlmostEqual(props[2], 1.1434, places=4)
         self.assertEqual(props[3], False)
+
+    def test_eigenvalue_band_properties_separate_spins(self):
+        eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=True)
+        props = eig.eigenvalue_band_properties
+        eig2 = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=False)
+        props2 = eig2.eigenvalue_band_properties
+        self.assertAlmostEqual(props[0][0], 2.8772, places=4)
+        self.assertAlmostEqual(props[0][1], 1.2810, places=4)
+        self.assertAlmostEqual(props[1][0], 3.6741, places=4)
+        self.assertAlmostEqual(props[1][1], 1.6225, places=4)
+        self.assertAlmostEqual(props[2][0], 0.7969, places=4)
+        self.assertAlmostEqual(props[2][1], 0.3415, places=4)
+        self.assertAlmostEqual(props2[0], np.min(props[1]) - np.max(props[2]), places=4)
+        self.assertEqual(props[3][0], True)
+        self.assertEqual(props[3][1], True)
 
 
 class WavederTest(PymatgenTest):

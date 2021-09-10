@@ -268,7 +268,7 @@ class SimpleGraphCycle(MSONable):
         """
         if edges_are_ordered:
             nodes = [e[0] for e in edges]
-            if not all([e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])]) or edges[-1][1] != edges[0][0]:
+            if not all(e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])) or edges[-1][1] != edges[0][0]:
                 raise ValueError("Could not construct a cycle from edges.")
         else:
             remaining_edges = list(edges)
@@ -498,7 +498,7 @@ def get_all_elementary_cycles(graph):
             cycles_matrix[icycle, iedge] = True
 
     # print(cycles_matrix)
-    elementary_cycles_list = list()
+    elementary_cycles_list = []
 
     for ncycles in range(1, len(cycle_basis) + 1):
         for cycles_combination in itertools.combinations(cycles_matrix, ncycles):

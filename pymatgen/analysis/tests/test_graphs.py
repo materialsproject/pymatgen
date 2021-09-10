@@ -37,8 +37,7 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-molecule_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            "test_files", "molecules")
+molecule_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
 class StructureGraphTest(PymatgenTest):
@@ -84,21 +83,15 @@ class StructureGraphTest(PymatgenTest):
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
         stdout_file = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files/critic2/MoS2_critic2_stdout.txt",
+            PymatgenTest.TEST_FILES_DIR,
+            "critic2/MoS2_critic2_stdout.txt",
         )
         with open(stdout_file, "r") as f:
             reference_stdout = f.read()
         self.structure = Structure.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/critic2/MoS2.cif",
+                PymatgenTest.TEST_FILES_DIR,
+                "critic2/MoS2.cif",
             )
         )
         c2o = Critic2Analysis(self.structure, reference_stdout)
@@ -160,7 +153,7 @@ class StructureGraphTest(PymatgenTest):
         nacl_graph = StructureGraph.with_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
 
         self.assertEqual(len(nacl_graph.get_connected_sites(1)), 12)
-        self.assertEqual(len(nacl_graph.graph.get_edge_data(1, 1)), 12)
+        self.assertEqual(len(nacl_graph.graph.get_edge_data(1, 1)), 6)
 
     def test_set_node_attributes(self):
         self.square_sg.set_node_attributes()
@@ -191,9 +184,11 @@ class StructureGraphTest(PymatgenTest):
         self.assertEqual(new_edge["foo"], "bar")
 
         square.break_edge(0, 0, to_jimage=(1, 0, 0))
-        self.assertEqual(len(square.graph.get_edge_data(0, 0)), 3)
+
+        self.assertEqual(len(square.graph.get_edge_data(0, 0)), 1)
 
     def test_insert_remove(self):
+
         struct_copy = copy.deepcopy(self.square_sg.structure)
         square_copy = copy.deepcopy(self.square_sg)
 
@@ -223,13 +218,12 @@ class StructureGraphTest(PymatgenTest):
             edges=[{"from_index": 1, "to_index": 2, "to_jimage": (0, 0, 0)}],
         )
         square_copy.remove_nodes([1])
+
         self.assertEqual(square_copy.graph.number_of_nodes(), 2)
-        self.assertEqual(square_copy.graph.number_of_edges(), 5)
+        self.assertEqual(square_copy.graph.number_of_edges(), 3)
 
     def test_substitute(self):
-        structure = Structure.from_file(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files", "Li2O.cif")
-        )
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         molecule = FunctionalGroups["methyl"]
 
         structure_copy = copy.deepcopy(structure)
@@ -265,13 +259,12 @@ class StructureGraphTest(PymatgenTest):
         sg.add_edge(0, 0)
 
         ref_edges = [
-            (0, 0, {"to_jimage": (-1, -1, 0)}),
-            (0, 0, {"to_jimage": (-1, 0, 0)}),
-            (0, 0, {"to_jimage": (0, -1, 0)}),
+            (0, 0, {"to_jimage": (1, 1, 0)}),
             (0, 0, {"to_jimage": (0, 1, 0)}),
             (0, 0, {"to_jimage": (1, 0, 0)}),
         ]
-        self.assertEqual(len(list(sg.graph.edges(data=True))), 6)
+
+        self.assertEqual(len(list(sg.graph.edges(data=True))), 3)
 
     def test_str(self):
 
@@ -451,7 +444,7 @@ from    to  to_image
         diff = sg.diff(sg2)
         self.assertEqual(diff["dist"], 0)
 
-        self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
+        self.assertEqual(self.square_sg.get_coordination_of_site(0), 2)
 
     def test_from_edges(self):
         edges = {
@@ -470,11 +463,8 @@ from    to  to_image
     def test_extract_molecules(self):
 
         structure_file = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files/H6PbCI3N_mp-977013_symmetrized.cif",
+            PymatgenTest.TEST_FILES_DIR,
+            "H6PbCI3N_mp-977013_symmetrized.cif",
         )
 
         s = Structure.from_file(structure_file)
@@ -512,17 +502,34 @@ from    to  to_image
         types_anonymous = self.mos2_sg.types_of_coordination_environments(anonymous=True)
         self.assertListEqual(types_anonymous, ["A-B(3)", "A-B(6)"])
 
+    def test_no_duplicate_hops(self):
+
+        test_structure_dict = {
+            "@module": "pymatgen.core.structure",
+            "@class": "Structure",
+            "charge": None,
+            "lattice": {"matrix": [[2.990355, -5.149042, 0.0], [2.990355, 5.149042, 0.0], [0.0, 0.0, 24.51998]]},
+            "sites": [
+                {"species": [{"element": "Ba", "occu": 1}], "abc": [0.005572, 0.994428, 0.151095], "properties": {}},
+            ],
+        }
+
+        test_structure = Structure.from_dict(test_structure_dict)
+
+        nn = MinimumDistanceNN(cutoff=6, get_all_sites=True)
+
+        sg = StructureGraph.with_local_env_strategy(test_structure, nn)
+
+        self.assertEqual(sg.graph.number_of_edges(), 3)
+
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
 
         cyclohexene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/cyclohexene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/cyclohexene.xyz",
             )
         )
         self.cyclohexene = MoleculeGraph.with_empty_graph(
@@ -547,11 +554,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         butadiene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/butadiene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/butadiene.xyz",
             )
         )
         self.butadiene = MoleculeGraph.with_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
@@ -567,11 +571,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         ethylene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/ethylene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/ethylene.xyz",
             )
         )
         self.ethylene = MoleculeGraph.with_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
@@ -581,7 +582,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
-        self.pc = Molecule.from_file(os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC.xyz"))
+        self.pc = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC.xyz"))
         self.pc_edges = [
             [5, 10],
             [5, 12],
@@ -597,11 +598,9 @@ class MoleculeGraphTest(unittest.TestCase):
             [6, 0],
             [6, 2],
         ]
-        self.pc_frag1 = Molecule.from_file(
-            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC_frag1.xyz")
-        )
+        self.pc_frag1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC_frag1.xyz"))
         self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        self.tfsi = Molecule.from_file(os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "TFSI.xyz"))
+        self.tfsi = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "TFSI.xyz"))
         self.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -745,25 +744,27 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(eth_copy.graph.number_of_edges(), 2)
 
     def test_get_disconnected(self):
-        disconnected = Molecule(["C", "H", "H", "H", "H", "He"],
+        disconnected = Molecule(
+            ["C", "H", "H", "H", "H", "He"],
             [
                 [0.0000, 0.0000, 0.0000],
                 [-0.3633, -0.5138, -0.8900],
                 [1.0900, 0.0000, 0.0000],
                 [-0.3633, 1.0277, 0.0000],
                 [-0.3633, -0.5138, -0.8900],
-                [5.0000, 5.0000, 5.0000]
+                [5.0000, 5.0000, 5.0000],
             ],
         )
 
-        no_he = Molecule(["C", "H", "H", "H", "H"],
+        no_he = Molecule(
+            ["C", "H", "H", "H", "H"],
             [
                 [0.0000, 0.0000, 0.0000],
                 [-0.3633, -0.5138, -0.8900],
                 [1.0900, 0.0000, 0.0000],
                 [-0.3633, 1.0277, 0.0000],
-                [-0.3633, -0.5138, -0.8900]
-            ]
+                [-0.3633, -0.5138, -0.8900],
+            ],
         )
 
         just_he = Molecule(["He"], [[5.0000, 5.0000, 5.0000]])
@@ -897,11 +898,8 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_isomorphic(self):
         ethylene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/ethylene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/ethylene.xyz",
             )
         )
         # switch carbons

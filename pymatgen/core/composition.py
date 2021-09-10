@@ -28,15 +28,6 @@ from pymatgen.util.string import formula_double_format, Stringify
 SpeciesLike = Union[str, Element, Species, DummySpecies]
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 10, 2012"
-
-
 @total_ordering
 class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
     """
@@ -106,7 +97,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         dict(). Also extended to allow simple string init.
 
         Args:
-            Any form supported by the Python built-in dict() function.
+            Any form supported by the Python built-in {} function.
 
             1. A dict of either {Element/Species: amount},
 
@@ -128,7 +119,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         self.allow_negative = kwargs.pop("allow_negative", False)
         # it's much faster to recognize a composition and use the elmap than
-        # to pass the composition to dict()
+        # to pass the composition to {}
         if len(args) == 1 and isinstance(args[0], Composition):
             elmap = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
@@ -244,14 +235,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __hash__(self):
         """
-        Minimally effective hash function that just distinguishes between
-        Compositions with different elements.
+        hash based on the chemical system
         """
-        hashcode = 0
-        for el, amt in self.items():
-            if abs(amt) > Composition.amount_tolerance:
-                hashcode += el.Z
-        return hashcode
+        return hash(frozenset(self._data.keys()))
 
     @property
     def average_electroneg(self) -> float:
@@ -531,9 +517,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             category (str): one of "noble_gas", "transition_metal",
-            "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
-            "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
-            "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+                "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
+                "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
+                "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
 
         Returns:
             True if any elements in Composition match category, otherwise False
@@ -563,8 +549,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
 
         if "block" in category:
-            return any([category[0] in el.block for el in self.elements])
-        return any([getattr(el, "is_{}".format(category)) for el in self.elements])
+            return any(category[0] in el.block for el in self.elements)
+        return any(getattr(el, "is_{}".format(category)) for el in self.elements)
 
     def _parse_formula(self, formula):
         """
@@ -644,7 +630,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns True if Composition contains valid elements or species and
         False if the Composition contains any dummy species.
         """
-        return not any([isinstance(el, DummySpecies) for el in self.elements])
+        return not any(isinstance(el, DummySpecies) for el in self.elements)
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -1243,8 +1229,10 @@ class ChemicalPotential(dict, MSONable):
     def __repr__(self):
         return "ChemPots: " + super().__repr__()
 
+
 class CompositionError(Exception):
     """Exception class for composition errors"""
+
 
 if __name__ == "__main__":
     import doctest

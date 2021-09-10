@@ -17,25 +17,22 @@ __date__ = "Feb 20, 2016"
 
 import numpy as np
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    cg_symbol = 'O:6'
+    cg_symbol = "O:6"
     equiv_list = []
 
     # O:6
-    if cg_symbol == 'O:6':
-        opposite_points = {0: 1,
-                           1: 0,
-                           2: 3,
-                           3: 2,
-                           4: 5,
-                           5: 4}
-        perp_plane = {0: [2, 3, 4, 5],
-                      1: [2, 3, 4, 5],
-                      2: [0, 1, 4, 5],
-                      3: [0, 1, 4, 5],
-                      4: [0, 1, 2, 3],
-                      5: [0, 1, 2, 3]}
+    if cg_symbol == "O:6":
+        opposite_points = {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}
+        perp_plane = {
+            0: [2, 3, 4, 5],
+            1: [2, 3, 4, 5],
+            2: [0, 1, 4, 5],
+            3: [0, 1, 4, 5],
+            4: [0, 1, 2, 3],
+            5: [0, 1, 2, 3],
+        }
         # 0. any point
         for i0 in range(6):
             # 1. point opposite to point 0.
@@ -56,7 +53,7 @@ if __name__ == '__main__':
                     equiv_list.append([i0, i1, i2, i3, i4, i5])
 
     # PB:7
-    if cg_symbol == 'PB:7':
+    if cg_symbol == "PB:7":
         for i0 in range(5):
             for turn in [1, -1]:
                 i1 = np.mod(i0 + turn, 5)
@@ -68,7 +65,7 @@ if __name__ == '__main__':
                     equiv_list.append([i0, i1, i2, i3, i4, i5, i6])
 
     # HB:8
-    if cg_symbol == 'HB:8':
+    if cg_symbol == "HB:8":
         for i0 in range(6):
             for turn in [1, -1]:
                 i1 = np.mod(i0 + turn, 6)
@@ -81,7 +78,7 @@ if __name__ == '__main__':
                     equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
 
     # SBT:8
-    if cg_symbol == 'SBT:8':
+    if cg_symbol == "SBT:8":
         # 0. any point on the square face without cap
         for i0 in [0, 1, 3, 4]:
             # 1. point in this square face but also in the triangular plane of point 0
@@ -103,7 +100,7 @@ if __name__ == '__main__':
             equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
 
     # SA:8
-    if cg_symbol == 'SA:8':
+    if cg_symbol == "SA:8":
         sf1 = [0, 2, 1, 3]
         sf2 = [4, 5, 7, 6]
         # 0. any point
@@ -143,5 +140,5 @@ if __name__ == '__main__':
             i7 = 6 if i0 in [1, 4] else 7
             equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
 
-    print('Equivalent indices ({:d}) for {} : '.format(len(equiv_list), cg_symbol))
+    print("Equivalent indices ({:d}) for {} : ".format(len(equiv_list), cg_symbol))
     print(equiv_list)

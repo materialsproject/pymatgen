@@ -376,7 +376,7 @@ class SpaceGroup(SymmetryGroup):
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
-            return all([abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None])
+            return all(abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None)
 
         if crys_system == "cubic":
             a = abc[0]

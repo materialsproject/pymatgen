@@ -167,9 +167,9 @@ class AtomicFile:
         self.__name = name  # permanent name
         self._tempname = _maketemp(name, createmode=createmode)
         if encoding:
-            self._fp = codecs.open(self._tempname, mode, encoding)
+            self._fp = codecs.open(self._tempname, mode, encoding)  # pylint: disable=R1732
         else:
-            self._fp = open(self._tempname, mode)
+            self._fp = open(self._tempname, mode)  # pylint: disable=R1732
 
         # delegated methods
         self.write = self._fp.write

@@ -28,18 +28,13 @@ from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
 from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "4.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -657,6 +652,7 @@ class CifParser:
 
                 else:
                     return None
+        return None
 
     def get_symops(self, data):
         """
@@ -916,7 +912,7 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive):
+    def _get_structure(self, data, primitive, symmetrized):
         """
         Generate structure from part of the cif.
         """
@@ -956,6 +952,7 @@ class CifParser:
             return False
 
         for i in range(len(data["_atom_site_label"])):
+
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
@@ -1013,7 +1010,7 @@ class CifParser:
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
         ]
-        if any([o > 1 for o in sum_occu]):
+        if any(o > 1 for o in sum_occu):
             msg = (
                 "Some occupancies ({}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
@@ -1026,6 +1023,7 @@ class CifParser:
         allcoords = []
         allmagmoms = []
         allhydrogens = []
+        equivalent_indices = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -1039,9 +1037,11 @@ class CifParser:
                     raise NotImplementedError("Disordered magnetic structures not currently supported.")
 
         if coord_to_species.items():
-            for comp, group in groupby(
-                sorted(list(coord_to_species.items()), key=lambda x: x[1]),
-                key=lambda x: x[1],
+            for idx, (comp, group) in enumerate(
+                groupby(
+                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    key=lambda x: x[1],
+                )
             ):
                 tmp_coords = [site[0] for site in group]
                 tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
@@ -1059,6 +1059,17 @@ class CifParser:
                     im_h = 0
                     species = comp
 
+                # The following might be a more natural representation of equivalent indicies,
+                # but is not in the format expect by SymmetrizedStructure:
+                #   equivalent_indices.append(list(range(len(allcoords), len(coords)+len(allcoords))))
+                # The above gives a list like:
+                #   [[0, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10, 11]] where the
+                # integers are site indices, whereas the version used below will give a version like:
+                #   [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+                # which is a list in the same order as the sites, but where if a site has the same integer
+                # it is equivalent.
+                equivalent_indices += len(coords) * [idx]
+
                 allhydrogens.extend(len(coords) * [im_h])
                 allcoords.extend(coords)
                 allspecies.extend(len(coords) * [species])
@@ -1071,7 +1082,7 @@ class CifParser:
                     allspecies[i] = species / totaloccu
 
         if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
-            site_properties = dict()
+            site_properties = {}
             if any(allhydrogens):
                 assert len(allhydrogens) == len(allcoords)
                 site_properties["implicit_hydrogens"] = allhydrogens
@@ -1084,6 +1095,19 @@ class CifParser:
 
             struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
 
+            if symmetrized:
+
+                # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
+                # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
+                wyckoffs = ["Not Parsed"] * len(struct)
+
+                # Names of space groups are likewise not parsed (again, not all CIFs will contain this information)
+                # What is stored are the lists of symmetry operations used to generate the structure
+                # TODO: ensure space group labels are stored if present
+                sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
+
+                return SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
+
             struct = struct.get_sorted_structure()
 
             if primitive and self.feature_flags["magcif"]:
@@ -1094,7 +1118,7 @@ class CifParser:
 
             return struct
 
-    def get_structures(self, primitive=True):
+    def get_structures(self, primitive=True, symmetrized=False):
         """
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
@@ -1103,14 +1127,29 @@ class CifParser:
             primitive (bool): Set to False to return conventional unit cells.
                 Defaults to True. With magnetic CIF files, will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
+            symmetrized (bool): If True, return a SymmetrizedStructure which will
+                include the equivalent indices and symmetry operations used to
+                create the Structure as provided by the CIF (if explicit symmetry
+                operations are included in the CIF) or generated from information
+                in the CIF (if only space group labels are provided). Note that
+                currently Wyckoff labels and space group labels or numbers are
+                not included in the generated SymmetrizedStructure, these will be
+                notated as "Not Parsed" or -1 respectively.
 
         Returns:
             List of Structures.
         """
+
+        if primitive and symmetrized:
+            raise ValueError(
+                "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
+                "since unexpected behavior might result."
+            )
+
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive)
+                s = self._get_structure(d, primitive, symmetrized)
                 if s:
                     structures.append(s)
             except (KeyError, ValueError) as exc:
@@ -1346,7 +1385,7 @@ class CifWriter:
             # The following just presents a deterministic ordering.
             unique_sites = [
                 (
-                    sorted(sites, key=lambda s: tuple([abs(x) for x in s.frac_coords]))[0],
+                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
                     len(sites),
                 )
                 for sites in sf.get_symmetrized_structure().equivalent_sites
@@ -1443,3 +1482,4 @@ def str2float(text):
         if text.strip() == ".":
             return 0
         raise ex
+    raise ValueError(f"{text} cannot be converted to float")

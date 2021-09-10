@@ -765,7 +765,7 @@ class CoordinationGeometry:
             else:
                 mindist_anions = 1000000.0
                 mindist_cation_anion = 1000000.0
-                for ipt1 in range(len(self.points)):
+                for ipt1 in range(len(self.points)):  # pylint: disable=C0200
                     pt1 = np.array(self.points[ipt1])
                     mindist_cation_anion = min(mindist_cation_anion, np.linalg.norm(pt1 - self.central_site))
                     for ipt2 in range(ipt1 + 1, len(self.points)):
@@ -860,7 +860,7 @@ class CoordinationGeometry:
         """
         perms = []
         for eqv_indices in self.equivalent_indices:
-            perms.append(tuple([permutation[ii] for ii in eqv_indices]))
+            perms.append(tuple(permutation[ii] for ii in eqv_indices))
         perms.sort()
         return perms[0]
 
@@ -977,24 +977,21 @@ class AllCoordinationGeometries(dict):
             only_symbols: Whether to restrict the list of environments to be identified.
         """
         dict.__init__(self)
-        self.cg_list = list()
+        self.cg_list = []
         if only_symbols is None:
-            f = open("{}/coordination_geometries_files/allcg.txt".format(module_dir), "r")
-            data = f.readlines()
-            f.close()
+            with open("{}/coordination_geometries_files/allcg.txt".format(module_dir), "r") as f:
+                data = f.readlines()
             for line in data:
                 cg_file = "{}/{}".format(module_dir, line.strip())
-                f = open(cg_file, "r")
-                dd = json.load(f)
-                f.close()
+                with open(cg_file, "r") as f:
+                    dd = json.load(f)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
                 cg_file = "{}/coordination_geometries_files/{}.json".format(module_dir, fsymbol)
-                f = open(cg_file, "r")
-                dd = json.load(f)
-                f.close()
+                with open(cg_file, "r") as f:
+                    dd = json.load(f)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 
         self.cg_list.append(CoordinationGeometry(UNKNOWN_ENVIRONMENT_SYMBOL, "Unknown environment", deactivate=True))
@@ -1078,7 +1075,7 @@ class AllCoordinationGeometries(dict):
             coordination: The coordination number of which the list of coordination geometries are returned.
             returned: Type of objects in the list.
         """
-        geom = list()
+        geom = []
         if coordination is None:
             for gg in self.cg_list:
                 if returned == "cg":
@@ -1142,7 +1139,7 @@ class AllCoordinationGeometries(dict):
             returned: Type of objects in the list.
             include_deactivated: Whether to include CoordinationGeometry that are deactivated.
         """
-        geom = list()
+        geom = []
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is not None and ((not gg.deactivate) or include_deactivated):
@@ -1172,7 +1169,7 @@ class AllCoordinationGeometries(dict):
                 are returned.
             returned: Type of objects in the list.
         """
-        geom = list()
+        geom = []
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is None:

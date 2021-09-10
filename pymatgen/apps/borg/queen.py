@@ -66,13 +66,13 @@ class BorgQueen:
         status["count"] = 0
         status["total"] = len(valid_paths)
         logger.info("{} valid paths found.".format(len(valid_paths)))
-        p = Pool(self._num_drones)
-        p.map(
-            order_assimilation,
-            ((path, self._drone, data, status) for path in valid_paths),
-        )
-        for d in data:
-            self._data.append(json.loads(d, cls=MontyDecoder))
+        with Pool(self._num_drones) as p:
+            p.map(
+                order_assimilation,
+                ((path, self._drone, data, status) for path in valid_paths),
+            )
+            for d in data:
+                self._data.append(json.loads(d, cls=MontyDecoder))
 
     def serial_assimilate(self, rootpath):
         """

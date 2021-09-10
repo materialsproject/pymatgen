@@ -103,7 +103,7 @@ class XASTest(PymatgenTest):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
-            self.assertEqual(len(w), 1)
+            self.assertEqual(len(w), 6)
             self.assertIs(w[-1].category, UserWarning)
             self.assertIn("jump", str(w[-1].message))
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)

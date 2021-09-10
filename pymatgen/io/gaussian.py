@@ -156,8 +156,6 @@ class GaussianInput:
             # Get a title from the molecule name
             self.title = title if title else self._mol.composition.formula
         else:
-            if charge is None or spin_multiplicity is None:
-                raise ValueError("`charge` and `spin_multiplicity` must be specified")
             self.charge = charge
             self.spin_multiplicity = spin_multiplicity
 
@@ -457,18 +455,32 @@ class GaussianInput:
         output = []
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
+
+        # Handle functional or basis set set to None, empty string or whitespace
+        func_str = "" if self.functional is None else self.functional.strip()
+        bset_str = "" if self.basis_set is None else self.basis_set.strip()
+
+        if func_str != "" and bset_str != "":
+            func_bset_str = " {}/{}".format(func_str, bset_str)
+        else:
+            # don't use the slash if either or both are set as empty
+            func_bset_str = " {}{}".format(func_str, bset_str).rstrip()
+
         output.append(
-            "{diez} {func}/{bset} {route}".format(
+            "{diez}{func_bset} {route}".format(
                 diez=self.dieze_tag,
-                func=self.functional,
-                bset=self.basis_set,
+                func_bset=func_bset_str,
                 route=para_dict_to_string(self.route_parameters),
             )
         )
         output.append("")
         output.append(self.title)
         output.append("")
-        output.append("%d %d" % (self.charge, self.spin_multiplicity))
+
+        charge_str = "" if self.charge is None else "%d" % self.charge
+        multip_str = "" if self.spin_multiplicity is None else " %d" % self.spin_multiplicity
+        output.append("{}{}".format(charge_str, multip_str))
+
         if isinstance(self._mol, Molecule):
             if cart_coords is True:
                 output.append(self.get_cart_coords())
@@ -824,10 +836,10 @@ class GaussianOutput:
         routeline = ""
         standard_orientation = False
         parse_bond_order = False
-        input_structures = list()
-        std_structures = list()
+        input_structures = []
+        std_structures = []
         geom_orientation = None
-        opt_structures = list()
+        opt_structures = []
 
         with zopen(filename) as f:
             for line in f:
@@ -975,8 +987,8 @@ class GaussianOutput:
                             ]
                             for j in range(self.num_basis_func):
                                 i = 0
-                                for iat in range(len(self.atom_basis_labels)):
-                                    for label in self.atom_basis_labels[iat]:
+                                for iat, labels in enumerate(self.atom_basis_labels):
+                                    for label in labels:
                                         mo[spin][j][iat][label] = self.eigenvectors[spin][i, j]
                                         i += 1
 
@@ -1059,12 +1071,12 @@ class GaussianOutput:
                         line = f.readline()
                         line = f.readline()
                         nat = len(input_structures[0])
-                        matrix = list()
+                        matrix = []
                         for iat in range(nat):
                             line = f.readline()
                             matrix.append([float(v) for v in line.split()[2:]])
 
-                        self.bond_orders = dict()
+                        self.bond_orders = {}
                         for iat in range(nat):
                             for jat in range(iat + 1, nat):
                                 self.bond_orders[(iat, jat)] = matrix[iat][jat]
@@ -1256,7 +1268,7 @@ class GaussianOutput:
         """
 
         def floatList(l):
-            """ return a list of float from a list of string """
+            """return a list of float from a list of string"""
             return [float(v) for v in l]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
@@ -1264,7 +1276,7 @@ class GaussianOutput:
         coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
 
         # data dict return
-        data = {"energies": list(), "coords": dict()}
+        data = {"energies": [], "coords": {}}
 
         # read in file
         with zopen(self.filename, "r") as f:
@@ -1292,7 +1304,7 @@ class GaussianOutput:
 
                 elif scan_patt.match(line):
                     line = f.readline()
-                    data["coords"] = {icname: list() for icname in line.split()[1:-1]}
+                    data["coords"] = {icname: [] for icname in line.split()[1:-1]}
                     f.readline()
                     line = f.readline()
                     while not re.search(r"^\s-+", line):
@@ -1356,7 +1368,7 @@ class GaussianOutput:
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
 
-        transitions = list()
+        transitions = []
 
         # read in file
         with zopen(self.filename, "r") as f:

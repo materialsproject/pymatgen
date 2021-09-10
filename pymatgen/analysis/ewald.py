@@ -14,9 +14,9 @@ from typing import Dict
 from warnings import warn
 
 import numpy as np
-import scipy.constants as constants
 from monty.json import MSONable
 from scipy.special import comb, erfc
+from scipy import constants
 
 from pymatgen.core.structure import Structure
 
@@ -272,8 +272,8 @@ class EwaldSummation(MSONable):
             self._initialized = True
 
         totalenergy = self._recip + self._real
-        for i in range(len(self._point)):
-            totalenergy[i, i] += self._point[i]
+        for i, energy in enumerate(self._point):
+            totalenergy[i, i] += energy
         return totalenergy
 
     @property

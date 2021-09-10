@@ -1,5 +1,4 @@
 import os
-import sys
 import unittest
 from pathlib import Path
 
@@ -9,14 +8,12 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.io.phonopy import *
 from pymatgen.util.testing import PymatgenTest
 
-if sys.version_info >= (3, 0):
-    try:
-        from phonopy import Phonopy
-        from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
-        from phonopy.structure.atoms import PhonopyAtoms
-    except ImportError:
-        Phonopy = None
-else:
+try:
+    from phonopy import Phonopy
+    from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
+    from phonopy.structure.atoms import PhonopyAtoms
+except ImportError as ex:
+    print(ex)
     Phonopy = None
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
@@ -131,6 +128,7 @@ class GetDisplacedStructuresTest(PymatgenTest):
             self.assertTrue(os.path.exists("test.yaml"))
 
 
+@unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestPhonopyFromForceConstants(unittest.TestCase):
     def setUp(self) -> None:
         test_path = Path(test_dir)
@@ -179,6 +177,44 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         self.assertEqual(bs.nb_bands, 24)
         self.assertEqual(bs.nb_qpoints, 48)
         self.assertAlmostEqual(bs.bands[2][10], 2.869229797603161)
+
+
+@unittest.skipIf(Phonopy is None, "Phonopy not present")
+class TestGruneisen(unittest.TestCase):
+    def test_ph_bs_symm_line(self):
+        self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
+            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_band_Si.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+            fit=True,
+        )
+        self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
+            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_band_Si.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+            fit=False,
+        )
+
+        # check if a bit of the gruneisen parameters happens
+
+        self.assertNotEqual(self.bs_symm_line_1.gruneisen[0][0], self.bs_symm_line_2.gruneisen[0][0])
+        with self.assertRaises(ValueError):
+            self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
+                gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml")
+            )
+
+    def test_gruneisen_parameter(self):
+        self.gruneisenobject_Si = get_gruneisenparameter(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_Si.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+        )
+
+        self.assertAlmostEqual(self.gruneisenobject_Si.frequencies[0][0], 0.2523831291)
+        self.assertAlmostEqual(self.gruneisenobject_Si.gruneisen[0][0], -0.1190736091)
+
+        # catch the exception when no structure is present
+        with self.assertRaises(ValueError):
+            get_gruneisenparameter(
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP_without_struct.yaml")
+            )
 
 
 if __name__ == "__main__":

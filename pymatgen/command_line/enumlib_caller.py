@@ -194,15 +194,15 @@ class EnumlibAdaptor:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
                     species[DummySpecies("X")] = 1 - sum(species.values())
-                for sp in species.keys():
+                for sp, amt in species.items():
                     if sp not in index_species:
                         index_species.append(sp)
                         sp_label.append(len(index_species) - 1)
-                        index_amounts.append(species[sp] * len(sites))
+                        index_amounts.append(amt * len(sites))
                     else:
                         ind = index_species.index(sp)
                         sp_label.append(ind)
-                        index_amounts[ind] += species[sp] * len(sites)
+                        index_amounts[ind] += amt * len(sites)
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
                     coord_str.append("{} {}".format(coord_format.format(*site.coords), sp_label))
@@ -294,27 +294,26 @@ class EnumlibAdaptor:
 
     def _run_multienum(self):
 
-        p = subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
+        with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
+            if self.timeout:
 
-        if self.timeout:
+                timed_out = False
+                timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
-            timed_out = False
-            timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
+                try:
+                    timer.start()
+                    output = p.communicate()[0].decode("utf-8")
+                finally:
+                    if not timer.is_alive():
+                        timed_out = True
+                    timer.cancel()
 
-            try:
-                timer.start()
+                if timed_out:
+                    raise TimeoutError("Enumeration took too long.")
+
+            else:
+
                 output = p.communicate()[0].decode("utf-8")
-            finally:
-                if not timer.is_alive():
-                    timed_out = True
-                timer.cancel()
-
-            if timed_out:
-                raise TimeoutError("Enumeration took too long.")
-
-        else:
-
-            output = p.communicate()[0].decode("utf-8")
 
         count = 0
         start_count = False
@@ -334,13 +333,13 @@ class EnumlibAdaptor:
         else:
             options = ["struct_enum.out", str(0), str(num_structs - 1)]
 
-        rs = subprocess.Popen(
+        with subprocess.Popen(
             [makestr_cmd] + options,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             close_fds=True,
-        )
-        stdout, stderr = rs.communicate()
+        ) as rs:
+            stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
 

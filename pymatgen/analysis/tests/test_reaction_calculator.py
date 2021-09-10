@@ -177,7 +177,7 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(rxn, Reaction.from_string(str(rxn)))
 
         rxn2 = Reaction.from_string("FePO4 + 20 CO -> 1e1 O2 + Fe1P1O4 + 20 C")
-        self.assertEqual(str(rxn2), "20 CO -> 10 O2 + 20 C")
+        self.assertEqual(str(rxn2), "20 CO -> 20 C + 10 O2")
 
     def test_equals(self):
         reactants = [Composition("Fe"), Composition("O2")]

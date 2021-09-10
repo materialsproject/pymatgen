@@ -1,10 +1,12 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
-# cython: cdivision=True
+# cython: cdivision=False
 # cython: profile=True
 # cython: language_level=3
 # distutils: language = c
+# distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
+
 from __future__ import print_function
 
 import numpy as np

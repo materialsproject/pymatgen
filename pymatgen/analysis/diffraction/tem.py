@@ -96,8 +96,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         )
         return wavelength_rel
 
-    @classmethod
-    def generate_points(cls, coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
+    @staticmethod
+    def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
         """
         Generates a bunch of 3D points that span a cube.
         Args:
@@ -372,8 +372,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 max_d = spacings[plane]
         return {max_d_plane: max_d}
 
-    @classmethod
-    def get_interplanar_angle(cls, structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) -> float:
+    @staticmethod
+    def get_interplanar_angle(structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) -> float:
         """
         Returns the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
@@ -424,9 +424,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         phi = np.arccos(r1_dot_r2 / (r1_norm * r2_norm))
         return np.rad2deg(phi)
 
-    @classmethod
+    @staticmethod
     def get_plot_coeffs(
-        cls,
         p1: Tuple[int, int, int],
         p2: Tuple[int, int, int],
         p3: Tuple[int, int, int],
@@ -461,9 +460,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points = self.zone_axis_filter(points)
         # first is the max_d, min_r
         first_point_dict = self.get_first_point(structure, points)
-        for point in first_point_dict:
+        for point, v in first_point_dict.items():
             first_point = point
-            first_d = first_point_dict[point]
+            first_d = v
         spacings = self.get_interplanar_spacings(structure, points)
         # second is the first non-parallel-to-first-point vector when sorted.
         # note 000 is "parallel" to every plane vector.
@@ -512,13 +511,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         bragg_angles = self.bragg_angles(interplanar_spacings)
         cell_intensity = self.normalized_cell_intensity(structure, bragg_angles)
         positions = self.get_positions(structure, points)
-        for plane in cell_intensity.keys():
+        for hkl, intensity in cell_intensity.items():
             dot = namedtuple("dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"])
-            position = positions[plane]
-            hkl = plane
-            intensity = cell_intensity[plane]
+            position = positions[hkl]
             film_radius = 0.91 * (10 ** -3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
-            d_spacing = interplanar_spacings[plane]
+            d_spacing = interplanar_spacings[hkl]
             tem_dot = dot(position, hkl, intensity, film_radius, d_spacing)
             dots.append(tem_dot)
         return dots

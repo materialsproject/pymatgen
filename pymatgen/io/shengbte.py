@@ -254,7 +254,7 @@ class Control(MSONable, dict):
             The structure.
         """
         required = ["lattvec", "types", "elements", "positions"]
-        if not all([r in self for r in required]):
+        if not all(r in self for r in required):
             raise ValueError("All of ['lattvec', 'types', 'elements', 'positions'] must be " "in control object")
 
         unique_elements = self["elements"]

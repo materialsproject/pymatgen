@@ -1,0 +1,56 @@
+name: Testing Mac Windows
+
+on: [ pull_request ]
+
+jobs:
+  test:
+
+    strategy:
+      max-parallel: 20
+      matrix:
+        os: [ macos-latest, windows-latest ]
+        python-version: [ 3.8 ]
+        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
+        pkg:
+          - pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
+          - pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
+          - pymatgen/electronic_structure pymatgen/symmetry pymatgen/ext pymatgen/command_line
+          - pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: "Agg"
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'Windows')
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip wheel
+          pip install -r requirements.txt
+          pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install -e .
+      - name: pytest ${{ matrix.pkg }}
+        run: |
+          pytest ${{ matrix.pkg }}
