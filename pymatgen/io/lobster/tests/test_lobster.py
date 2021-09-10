@@ -2241,18 +2241,14 @@ class BandoverlapsTest(unittest.TestCase):
         warnings.simplefilter("ignore")
         # test spin polarlized calc and non spinpolarized calc
 
-        self.bandoverlaps1 = Bandoverlaps(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.1"), old_spin_numbers=True
-        )
-        self.bandoverlaps2 = Bandoverlaps(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.2"), old_spin_numbers=True
-        )
+        self.bandoverlaps1 = Bandoverlaps(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.1"))
+        self.bandoverlaps2 = Bandoverlaps(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.2"))
 
         self.bandoverlaps1_new = Bandoverlaps(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.1"), old_spin_numbers=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.1")
         )
         self.bandoverlaps2_new = Bandoverlaps(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.2"), old_spin_numbers=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.2")
         )
 
     def test_attributes(self):
