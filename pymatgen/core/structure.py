@@ -18,7 +18,7 @@ import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
-from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable
+from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, Sequence, Set, Tuple, Union
 
 import numpy as np
 from monty.dev import deprecated
@@ -1642,13 +1642,15 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites, charge=self._charge)
 
-    def get_reduced_structure(self, reduction_algo: str = "niggli") -> Union["IStructure", "Structure"]:
+    def get_reduced_structure(
+        self, reduction_algo: Literal["niggli", "LLL"] = "niggli"
+    ) -> Union["IStructure", "Structure"]:
         """
         Get a reduced structure.
 
         Args:
-            reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
+            reduction_algo ("niggli" | "LLL"): The lattice reduction algorithm to use.
+                Defaults to "niggli".
         """
         if reduction_algo == "niggli":
             reduced_latt = self._lattice.get_niggli_reduced_lattice()
@@ -3702,20 +3704,19 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self.lattice = self._lattice.scale(volume)
 
-    def merge_sites(self, tol: float = 0.01, mode: str = "sum"):
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum"):
         """
         Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode (str): Three modes supported. "delete" means duplicate sites are
+            mode ('sum' | 'delete' | 'average'): "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
 
         """
-        mode = mode.lower()[0]
         from scipy.cluster.hierarchy import fcluster, linkage
         from scipy.spatial.distance import squareform
 
@@ -3730,13 +3731,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
             props = self[inds[0]].properties
             for n, i in enumerate(inds[1:]):
                 sp = self[i].species
-                if mode == "s":
+                if mode.lower()[0] == "s":
                     species += sp
                 offset = self[i].frac_coords - coords
                 coords = coords + ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        if mode == "a" and isinstance(props[key], float):
+                        if mode.lower()[0] == "a" and isinstance(props[key], float):
                             # update a running total
                             props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
                         else:
