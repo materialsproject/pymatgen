@@ -9,7 +9,7 @@ JahnTeller distortion analysis.
 
 import os
 import warnings
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 import numpy as np
 
@@ -469,13 +469,13 @@ class JahnTellerAnalyzer:
         return "unknown"
 
     @staticmethod
-    def mu_so(species: Union[str, Species], motif: str, spin_state: str) -> Optional[float]:
+    def mu_so(species: Union[str, Species], motif: Literal["oct", "tet"], spin_state: str) -> Optional[float]:
         """Calculates the spin-only magnetic moment for a
         given species. Only supports transition metals.
 
         Args:
           species: Species
-          motif: "oct" or "tet"
+          motif ("oct" | "tet"): Crystal coordination
           spin_state: "high" or "low"
 
         Returns:

@@ -19,7 +19,7 @@ import warnings
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Dict, Any, Tuple, Sequence, Union
+from typing import Any, Dict, Literal, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
@@ -37,7 +37,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import PathLike, ArrayLike
+from pymatgen.util.typing import ArrayLike, PathLike
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1949,7 +1949,7 @@ class PotcarSingle:
         """
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
-    def identify_potcar(self, mode: str = "data"):
+    def identify_potcar(self, mode: Literal["data", "file"] = "data"):
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
@@ -1958,9 +1958,8 @@ class PotcarSingle:
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode (str): 'data' or 'file'. 'data' mode checks the hash of the POTCAR
-                        data itself, while 'file' mode checks the hash of the entire
-                        POTCAR file, including metadata.
+            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR data itself,
+                while 'file' mode checks the hash of the entire POTCAR file, including metadata.
 
         Returns:
             symbol (List): List of symbols associated with the PotcarSingle
