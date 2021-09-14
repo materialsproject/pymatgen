@@ -596,8 +596,8 @@ class CompositionTest(PymatgenTest):
         self.assertFalse(cmp.contains_element_type("s-block"))
 
     def test_chemical_system(self):
-        self.assertEqual(Composition({"Na": 1, "Cl":1}).chemical_system, "Cl-Na")
-        self.assertEqual(Composition({"Na+": 1, "Cl-":1}).chemical_system, "Cl-Na")
+        self.assertEqual(Composition({"Na": 1, "Cl": 1}).chemical_system, "Cl-Na")
+        self.assertEqual(Composition({"Na+": 1, "Cl-": 1}).chemical_system, "Cl-Na")
 
     def test_is_valid(self):
 
