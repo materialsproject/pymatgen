@@ -6,16 +6,18 @@ import logging
 import sys
 from collections import namedtuple
 from os.path import join
-from typing import Dict, Union, List, Optional
+from typing import Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 import requests
-#from retrying import retry
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.sequence import PBar
+
+# from retrying import retry
+
 
 # TODO: importing optimade-python-tool's data structures will make more sense
 Provider = namedtuple("Provider", ["name", "base_url", "description", "homepage", "prefix"])
@@ -141,7 +143,7 @@ class OptimadeRester:
         description = f"OptimadeRester connected to:\n{provider_text}"
         return description
 
-    #@retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
+    # @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):
         """
         Retrieves JSON, will attempt to (politely) try again on failure subject to a
