@@ -1259,15 +1259,15 @@ class Species(MSONable, Stringify):
         configuration. Only works for transition metal species.
 
         Args:
-            coordination ("oct" | "tet"): Only oct and tet are supported at the moment.
-            spin_config ("low" | "high"): Supported keywords are "high" or "low".
+            coordination ("oct" | "tet"): Tetrahedron or octahedron crystal site coordination
+            spin_config ("low" | "high"): Whether the species is in a high or low spin state
 
         Returns:
             Crystal field spin in Bohr magneton.
 
         Raises:
             AttributeError if species is not a valid transition metal or has
-            an invalid oxidation state.
+                an invalid oxidation state.
             ValueError if invalid coordination or spin_config.
         """
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):

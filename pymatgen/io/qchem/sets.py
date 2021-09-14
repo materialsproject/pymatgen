@@ -8,7 +8,7 @@ Input sets for Qchem
 
 import logging
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 from monty.io import zopen
 
@@ -45,7 +45,7 @@ class QChemDictSet(QCInput):
         plot_cubes: bool = False,
         nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
-        vdw_mode: str = "atomic",
+        vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
         Args:
@@ -110,12 +110,11 @@ class QChemDictSet(QCInput):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
-                In 'sequential' mode, dict keys represent the sequential position of a single
-                specific atom in the input structure.
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
         """
         self.molecule = molecule
         self.job_type = job_type
@@ -303,7 +302,7 @@ class SinglePointSet(QChemDictSet):
         plot_cubes: bool = False,
         nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
-        vdw_mode: str = "atomic",
+        vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
         Args:
@@ -354,12 +353,11 @@ class SinglePointSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
-                In 'sequential' mode, dict keys represent the sequential position of a single
-                specific atom in the input structure.
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -401,7 +399,7 @@ class OptSet(QChemDictSet):
         opt_variables: Optional[Dict[str, List]] = None,
         geom_opt_max_cycles: int = 200,
         overwrite_inputs: Optional[Dict] = None,
-        vdw_mode: str = "atomic",
+        vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
         Args:
@@ -453,12 +451,11 @@ class OptSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
-                In 'sequential' mode, dict keys represent the sequential position of a single
-                specific atom in the input structure.
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -552,12 +549,11 @@ class TransitionStateSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
-                In 'sequential' mode, dict keys represent the sequential position of a single
-                specific atom in the input structure.
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -600,7 +596,7 @@ class ForceSet(QChemDictSet):
         plot_cubes: bool = False,
         nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
-        vdw_mode: str = "atomic",
+        vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
         Args:
@@ -649,12 +645,11 @@ class ForceSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
-                In 'sequential' mode, dict keys represent the sequential position of a single
-                specific atom in the input structure.
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -694,7 +689,7 @@ class FreqSet(QChemDictSet):
         plot_cubes: bool = False,
         nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
-        vdw_mode: str = "atomic",
+        vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
         Args:
@@ -743,12 +738,11 @@ class FreqSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
-                In 'sequential' mode, dict keys represent the sequential position of a single
-                specific atom in the input structure.
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -796,7 +790,7 @@ class PESScanSet(QChemDictSet):
         opt_variables: Optional[Dict[str, List]] = None,
         scan_variables: Optional[Dict[str, List]] = None,
         overwrite_inputs: Optional[Dict] = None,
-        vdw_mode: str = "atomic",
+        vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
         Args:
@@ -857,10 +851,9 @@ class PESScanSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
-                you are using overwrite_inputs to add a $van_der_waals section to the input.
-                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
-                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input. In 'atomic' mode
+                (default), dict keys represent the atomic number associated with each radius (e.g., '12' = carbon).
                 In 'sequential' mode, dict keys represent the sequential position of a single
                 specific atom in the input structure.
         """

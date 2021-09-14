@@ -1051,7 +1051,7 @@ class Kpoints(MSONable):
         is recommended that you use those.
 
         Args:
-            comment (str): String comment for Kpoints
+            comment (str): String comment for Kpoints. Defaults to "Default gamma".
             num_kpts: Following VASP method of defining the KPOINTS file, this
                 parameter is the number of kpoints specified. If set to 0
                 (or negative), VASP automatically generates the KPOINTS.
