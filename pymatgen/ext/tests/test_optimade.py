@@ -13,9 +13,19 @@ class OptimadeTest(PymatgenTest):
 
             structs = optimade.get_structures(elements=["Ga", "N"], nelements=2)
 
+        with OptimadeRester("mp") as optimade:
+
+            _filter = 'elements HAS ALL "Ga", "N" AND nelements=2'
+            raw_filter_structs = optimade.get_structures_with_filter(_filter)
+
         test_struct = next(iter(structs["mp"].values()))
 
         self.assertEqual([str(el) for el in test_struct.types_of_species], ["Ga", "N"])
+        self.assertEqual(
+            len(structs["mp"]),
+            len(raw_filter_structs["mp"]),
+            msg="Raw filter {_filter} did not return the same number of results as the query builder.",
+        )
 
     def test_get_structures_mcloud_2dstructures(self):
 
