@@ -3,9 +3,11 @@ This module defines the abstract interface for pymatgen InputSet and InputSetGen
 """
 
 import abc
+import os
 from pathlib import Path
 from string import Template
 from typing import Union, Optional, Dict
+from zipfile import ZipFile
 from monty.json import MSONable
 from monty.io import zopen
 
@@ -36,7 +38,14 @@ class InputSet(MSONable):
         """
         pass
 
-    def write_inputs(self, directory: Union[str, Path], make_dir: bool = True, overwrite: bool = True, **kwargs):
+    def write_inputs(
+        self,
+        directory: Union[str, Path],
+        make_dir: bool = True,
+        overwrite: bool = True,
+        zip_inputs: bool = False,
+        **kwargs,
+    ):
         """
         Write Inputs to one or more files
 
@@ -45,6 +54,8 @@ class InputSet(MSONable):
             make_dir: Whether to create the directory if it does not already exist.
             overwrite: Whether to overwrite an input file if it already exists.
             Additional kwargs are passed to generate_inputs
+            zip_inputs: If True, inputs will be zipped into a file with the
+                same name as the InputSet (e.g., InputSet.zip)
         """
         path = directory if isinstance(directory, Path) else Path(directory)
         # the following line will trigger a mypy error due to a bug in mypy
@@ -64,6 +75,17 @@ class InputSet(MSONable):
             # write the file
             with zopen(file, "wt") as f:
                 f.write(contents)
+
+        if zip_inputs:
+            zipfilename = path / f"{self.__class__.__name__}.zip"
+            with ZipFile(zipfilename, "w") as zip:
+                for fname, contents in files.items():
+                    file = path / fname
+                    try:
+                        zip.write(file)
+                        os.remove(file)
+                    except FileNotFoundError:
+                        pass
 
     @classmethod
     @abc.abstractmethod

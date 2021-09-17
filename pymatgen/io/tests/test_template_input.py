@@ -40,6 +40,10 @@ class TestTemplateInputSet:
             with open(os.path.join(scratch_dir, "hello_world.in"), "r") as f:
                 assert "400" in f.read()
 
+            tis.write_inputs(scratch_dir, zip_inputs=True, filename="hello_world.in")
+
+            assert "TemplateInputSet.zip" in [f for f in os.listdir(scratch_dir)]
+
     def test_from_directory(self):
         with pytest.raises(NotImplementedError):
             tis = TemplateInputSet.from_directory(test_dir)
