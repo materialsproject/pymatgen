@@ -26,12 +26,17 @@ class InputSet(MSONable):
     """
 
     @abc.abstractmethod
-    def write_inputs(
-        self,
-        directory: Union[str, Path],
-        make_dir: bool = True,
-        overwrite: bool = True,
-    ):
+    def generate_input_data(self) -> Dict[str, str]:
+        """
+        Generate a dictionary of one or more input files to be written. Keys
+        are filenames, values are the contents of each file.
+
+        This method is called by write_inputs(), which performs the actual file
+        write operations.
+        """
+        pass
+
+    def write_inputs(self, directory: Union[str, Path], make_dir: bool = True, overwrite: bool = True, **kwargs):
         """
         Write Inputs to one or more files
 
@@ -39,8 +44,26 @@ class InputSet(MSONable):
             directory: Directory to write input files to
             make_dir: Whether to create the directory if it does not already exist.
             overwrite: Whether to overwrite an input file if it already exists.
+            Additional kwargs are passed to generate_inputs
         """
-        pass
+        path = directory if isinstance(directory, Path) else Path(directory)
+        # the following line will trigger a mypy error due to a bug in mypy
+        # will be fixed soon. See https://github.com/python/mypy/commit/ea7fed1b5e1965f949525e918aa98889fb59aebf
+        files = self.generate_input_data(**kwargs)  # type: ignore
+        for fname, contents in files.items():
+            file = path / fname
+
+            if not path.exists():
+                if make_dir:
+                    path.mkdir(parents=True, exist_ok=True)
+
+            if file.exists() and not overwrite:
+                raise FileExistsError(f"File {str(fname)} already exists!")
+            file.touch()
+
+            # write the file
+            with zopen(file, "wt") as f:
+                f.write(contents)
 
     @classmethod
     @abc.abstractmethod
@@ -109,35 +132,13 @@ class TemplateInputSet(InputSet):
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
 
-    def write_inputs(
-        self,
-        directory: Union[str, Path],
-        make_dir: bool = True,
-        overwrite: bool = True,
-        filename: str = "input.txt",
-    ):
+    def generate_input_data(self, filename: str = "input.txt"):
         """
         Args:
-            directory: Directory to write input files to
-            make_dir: Whether to create the directory if it does not already exist.
-            overwrite: Whether to overwrite an input file if it already exists.
             filename: name of the file to be written
         """
-        path = directory if isinstance(directory, Path) else Path(directory)
-        file = path / filename
+        return {filename: self.data}
 
-        if not path.exists():
-            if make_dir:
-                path.mkdir(parents=True, exist_ok=True)
-
-        if file.exists() and not overwrite:
-            raise FileExistsError(f"File {str(filename)} already exists!")
-        file.touch()
-
-        # write the file
-        with zopen(file, "wt") as f:
-            f.write(self.data)
-    
     @classmethod
     def from_directory(cls, directory: Union[str, Path]):
         """
