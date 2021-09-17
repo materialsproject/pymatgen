@@ -128,7 +128,7 @@ class TemplateInputSet(InputSet):
 
         if not path.exists():
             if make_dir:
-                path.parent.mkdir(parents=True, exist_ok=True)
+                path.mkdir(parents=True, exist_ok=True)
 
         if file.exists() and not overwrite:
             raise FileExistsError(f"File {str(filename)} already exists!")
@@ -137,36 +137,13 @@ class TemplateInputSet(InputSet):
         # write the file
         with zopen(file, "wt") as f:
             f.write(self.data)
-
-
-class TemplateInputSetGenerator(InputSetGenerator):
-    """
-    Concrete implementation of InputSetGenerator that is based on a single template
-    input file with variables. The .get_input_set() method simply substitutes values
-    into the variables.
-
-    This class is provided as a low-barrier way to support new codes and to provide
-    an intuitive way for users to transition from manual scripts to pymatgen I/O
-    classes.
-    """
-
-    def __init__(self, template: Union[str, Path]):
+    
+    @classmethod
+    def from_directory(cls, directory: Union[str, Path]):
         """
-        Args:
-            template: the input file template containing variable strings to be
-                replaced.
-        """
-        self.template = template
-
-    def get_input_set(self, variables: Optional[Dict] = None) -> TemplateInputSet:
-        """
-        Generate a TemplateInputSet object based on a dict of concrete variable
-        substitutions.
+        Construct an InputSet from a directory of one or more files.
 
         Args:
-            variables: dict of variables to replace in the template. Keys are the
-                text to replaced with the values, e.g. {"TEMPERATURE": 298} will
-                replace the text $TEMPERATURE in the template. See Python's
-                Template.safe_substitute() method documentation for more details.
+            directory: Directory to read input files from
         """
-        return TemplateInputSet(self.template, variables)
+        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
