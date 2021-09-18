@@ -154,7 +154,7 @@ class TemplateInputSet(InputSet):
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
 
-    def generate_input_data(self, filename: str = "input.txt"):
+    def _generate_input_data(self, filename: str = "input.txt"):
         """
         Args:
             filename: name of the file to be written
