@@ -170,7 +170,7 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
             potcar=self.potcar,
         )
 
-    def generate_input_data(self, include_cif=False, potcar_spec=False):
+    def _generate_input_data(self, include_cif=False, potcar_spec=False):
         """
         Generate VASP input data for writing to a directory using
         InputSet.write_inputs().

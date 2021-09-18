@@ -28,7 +28,7 @@ class InputSet(MSONable):
     """
 
     @abc.abstractmethod
-    def generate_input_data(self) -> Dict[str, str]:
+    def _generate_input_data(self) -> Dict[str, str]:
         """
         Generate a dictionary of one or more input files to be written. Keys
         are filenames, values are the contents of each file.
@@ -60,7 +60,7 @@ class InputSet(MSONable):
         path = directory if isinstance(directory, Path) else Path(directory)
         # the following line will trigger a mypy error due to a bug in mypy
         # will be fixed soon. See https://github.com/python/mypy/commit/ea7fed1b5e1965f949525e918aa98889fb59aebf
-        files = self.generate_input_data(**kwargs)  # type: ignore
+        files = self._generate_input_data(**kwargs)  # type: ignore
         for fname, contents in files.items():
             file = path / fname
 
