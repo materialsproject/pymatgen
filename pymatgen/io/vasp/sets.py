@@ -62,6 +62,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.io.input import InputSet
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -70,7 +71,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 MODULE_DIR = Path(__file__).resolve().parent
 
 
-class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
+class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
     """
     Base class representing a set of Vasp input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this
@@ -167,6 +168,95 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             kpoints=self.kpoints,
             poscar=self.poscar,
             potcar=self.potcar,
+        )
+
+    def generate_input_data(self, include_cif=False, potcar_spec=False):
+        """
+        Generate VASP input data for writing to a directory using
+        InputSet.write_inputs().
+
+        Args:
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
+            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
+            zip_output (bool): If True, output will be zipped into a file with the
+                same name as the InputSet (e.g., MPStaticSet.zip)
+        Returns:
+            Dict of filename: file contents as string to be written
+        """
+        data = {
+            "INCAR": self.incar.__str__(),
+            "POSCAR": self.poscar.__str__(),
+        }
+
+        if self.kpoints is not None:
+            data.update({"KPOINTS": self.kpoints.__str__()})
+
+        if potcar_spec:
+            data.update({"POTCAR.spec": "\n".join(self.potcar_symbols)})
+        else:
+            data.update({"POTCAR": self.potcar.__str__()})
+
+        cifname = ""
+        if include_cif:
+            from pymatgen.io.cif import CifWriter
+
+            vinput = self.get_vasp_input()
+            s = vinput["POSCAR"].structure
+            writer = CifWriter(s)
+            cifname = "%s.cif" % re.sub(r"\s", "", s.formula)
+            data.update({cifname: writer.__str__()})
+
+        return data
+
+    @classmethod
+    def from_directory(cls, directory: Union[str, Path]):
+        """
+        Construct a VaspInputSet from a directory of one or more files.
+
+        Args:
+            directory: Directory to read input files from
+        """
+        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+
+    def write_inputs(  # type:ignore
+        self,
+        directory: Union[str, Path],
+        make_dir: bool = True,
+        overwrite: bool = True,
+        zip_inputs: bool = False,
+        include_cif: bool = False,
+        potcar_spec: bool = False,
+    ):
+        """
+        Write Inputs to one or more files
+
+        Args:
+            directory: Directory to write input files to
+            make_dir: Whether to create the directory if it does not already exist.
+            overwrite: Whether to overwrite an input file if it already exists.
+            Additional kwargs are passed to generate_inputs
+            zip_inputs: If True, inputs will be zipped into a file with the
+                same name as the InputSet (e.g., InputSet.zip)
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
+            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
+        """
+        return super().write_inputs(
+            directory,
+            make_dir=make_dir,
+            overwrite=overwrite,
+            zip_inputs=zip_inputs,
+            include_cif=include_cif,
+            potcar_spec=potcar_spec,
         )
 
     def write_input(

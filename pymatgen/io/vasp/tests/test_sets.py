@@ -1348,6 +1348,28 @@ class MPScanRelaxSetTest(PymatgenTest):
         for f in ["INCAR", "POSCAR", "POTCAR"]:
             os.remove(f)
 
+    def test_write_inputs(self):
+        self.mp_scan_set.write_inputs(".")
+        self.assertTrue(os.path.exists("INCAR"))
+        self.assertFalse(os.path.exists("KPOINTS"))
+        self.assertTrue(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("POSCAR"))
+
+        for f in ["INCAR", "POSCAR", "POTCAR"]:
+            os.remove(f)
+
+        self.mp_scan_set.write_inputs(".", potcar_spec=True)
+        self.assertTrue(os.path.exists("POTCAR.spec"))
+
+        self.mp_scan_set.write_inputs(".", include_cif=True)
+        self.assertTrue(os.path.exists("Fe4P4O16.cif"))
+
+        self.mp_scan_set.write_inputs(".", zip_inputs=True)
+        self.assertTrue(os.path.exists("MPScanRelaxSet.zip"))
+
+        for f in ["POTCAR.spec", "Fe4P4O16.cif", "MPScanRelaxSet.zip"]:
+            os.remove(f)
+
 
 class MPScanStaticSetTest(PymatgenTest):
     def setUp(self):
