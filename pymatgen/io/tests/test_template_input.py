@@ -19,28 +19,28 @@ class TestTemplateInputSet:
             tis = TemplateInputSet(
                 template=os.path.join(test_dir, "template_input_file.txt"), variables={"TEMPERATURE": 298}
             )
-            tis.write_inputs(scratch_dir, filename="hello_world.in")
+            tis.write_input(scratch_dir, filename="hello_world.in")
             with open(os.path.join(scratch_dir, "hello_world.in"), "r") as f:
                 assert "298" in f.read()
 
             with pytest.raises(FileNotFoundError):
-                tis.write_inputs(os.path.join(scratch_dir, "temp"), make_dir=False, filename="hello_world.in")
+                tis.write_input(os.path.join(scratch_dir, "temp"), make_dir=False, filename="hello_world.in")
 
-            tis.write_inputs(os.path.join(scratch_dir, "temp"), make_dir=True, filename="hello_world.in")
+            tis.write_input(os.path.join(scratch_dir, "temp"), make_dir=True, filename="hello_world.in")
 
             tis = TemplateInputSet(
                 template=os.path.join(test_dir, "template_input_file.txt"), variables={"TEMPERATURE": 400}
             )
 
             with pytest.raises(FileExistsError):
-                tis.write_inputs(scratch_dir, overwrite=False, filename="hello_world.in")
+                tis.write_input(scratch_dir, overwrite=False, filename="hello_world.in")
 
-            tis.write_inputs(scratch_dir, overwrite=True, filename="hello_world.in")
+            tis.write_input(scratch_dir, overwrite=True, filename="hello_world.in")
 
             with open(os.path.join(scratch_dir, "hello_world.in"), "r") as f:
                 assert "400" in f.read()
 
-            tis.write_inputs(scratch_dir, zip_inputs=True, filename="hello_world.in")
+            tis.write_input(scratch_dir, zip_inputs=True, filename="hello_world.in")
 
             assert "TemplateInputSet.zip" in [f for f in os.listdir(scratch_dir)]
 

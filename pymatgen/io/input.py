@@ -23,8 +23,8 @@ class InputSet(MSONable):
     Abstract base class for all InputSet classes. InputSet classes serve
     as containers for all calculation input data.
 
-    All InputSet must implement a write_inputs method. Implementing
-    the from_files and validate methods is optional.
+    All InputSet must implement a write_input and from_directory method.
+    Implementing the validate method is optional.
     """
 
     @abc.abstractmethod
@@ -33,12 +33,12 @@ class InputSet(MSONable):
         Generate a dictionary of one or more input files to be written. Keys
         are filenames, values are the contents of each file.
 
-        This method is called by write_inputs(), which performs the actual file
+        This method is called by write_input(), which performs the actual file
         write operations.
         """
         pass
 
-    def write_inputs(
+    def write_input(
         self,
         directory: Union[str, Path],
         make_dir: bool = True,

@@ -42,7 +42,6 @@ The above are recommendations. The following are UNBREAKABLE rules:
 import abc
 import glob
 import itertools
-import os
 import re
 import shutil
 import warnings
@@ -50,7 +49,6 @@ from copy import deepcopy
 from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
-from zipfile import ZipFile
 
 import numpy as np
 from monty.dev import deprecated
@@ -173,7 +171,7 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
     def _generate_input_data(self, include_cif=False, potcar_spec=False):
         """
         Generate VASP input data for writing to a directory using
-        InputSet.write_inputs().
+        InputSet.write_input.
 
         Args:
             include_cif (bool): Whether to write a CIF file in the output
@@ -223,12 +221,12 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError(f"from_directory has not been implemented in {cls}")
 
-    def write_inputs(  # type:ignore
+    def write_input(  # type:ignore
         self,
-        directory: Union[str, Path],
-        make_dir: bool = True,
+        output_dir: Union[str, Path],
+        make_dir_if_not_present: bool = True,
         overwrite: bool = True,
-        zip_inputs: bool = False,
+        zip_output: bool = False,
         include_cif: bool = False,
         potcar_spec: bool = False,
     ):
@@ -236,11 +234,11 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
         Write Inputs to one or more files
 
         Args:
-            directory: Directory to write input files to
-            make_dir: Whether to create the directory if it does not already exist.
+            output_dir: Directory to write input files to
+            make_dir_if_not_present: Whether to create the directory if it does not already exist.
             overwrite: Whether to overwrite an input file if it already exists.
             Additional kwargs are passed to generate_inputs
-            zip_inputs: If True, inputs will be zipped into a file with the
+            zip_output: If True, inputs will be zipped into a file with the
                 same name as the InputSet (e.g., InputSet.zip)
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
@@ -250,82 +248,82 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
         """
-        return super().write_inputs(
-            directory,
-            make_dir=make_dir,
+        return super().write_input(
+            output_dir,
+            make_dir=make_dir_if_not_present,
             overwrite=overwrite,
-            zip_inputs=zip_inputs,
+            zip_inputs=zip_output,
             include_cif=include_cif,
             potcar_spec=potcar_spec,
         )
 
-    def write_input(
-        self,
-        output_dir,
-        make_dir_if_not_present=True,
-        include_cif=False,
-        potcar_spec=False,
-        zip_output=False,
-    ):
-        """
-        Writes a set of VASP input to a directory.
+    # def write_input(
+    #     self,
+    #     output_dir,
+    #     make_dir_if_not_present=True,
+    #     include_cif=False,
+    #     potcar_spec=False,
+    #     zip_output=False,
+    # ):
+    #     """
+    #     Writes a set of VASP input to a directory.
 
-        Args:
-            output_dir (str): Directory to output the VASP input files
-            make_dir_if_not_present (bool): Set to True if you want the
-                directory (and the whole path) to be created if it is not
-                present.
-            include_cif (bool): Whether to write a CIF file in the output
-                directory for easier opening by VESTA.
-            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
-                This is intended to help sharing an input set with people who might
-                not have a license to specific Potcar files. Given a "POTCAR.spec",
-                the specific POTCAR file can be re-generated using pymatgen with the
-                "generate_potcar" function in the pymatgen CLI.
-            zip_output (bool): If True, output will be zipped into a file with the
-                same name as the InputSet (e.g., MPStaticSet.zip)
-        """
-        if potcar_spec:
-            if make_dir_if_not_present and not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+    #     Args:
+    #         output_dir (str): Directory to output the VASP input files
+    #         make_dir_if_not_present (bool): Set to True if you want the
+    #             directory (and the whole path) to be created if it is not
+    #             present.
+    #         include_cif (bool): Whether to write a CIF file in the output
+    #             directory for easier opening by VESTA.
+    #         potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+    #             This is intended to help sharing an input set with people who might
+    #             not have a license to specific Potcar files. Given a "POTCAR.spec",
+    #             the specific POTCAR file can be re-generated using pymatgen with the
+    #             "generate_potcar" function in the pymatgen CLI.
+    #         zip_output (bool): If True, output will be zipped into a file with the
+    #             same name as the InputSet (e.g., MPStaticSet.zip)
+    #     """
+    #     if potcar_spec:
+    #         if make_dir_if_not_present and not os.path.exists(output_dir):
+    #             os.makedirs(output_dir)
 
-            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
-                f.write("\n".join(self.potcar_symbols))
+    #         with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
+    #             f.write("\n".join(self.potcar_symbols))
 
-            for k, v in {
-                "INCAR": self.incar,
-                "POSCAR": self.poscar,
-                "KPOINTS": self.kpoints,
-            }.items():
-                if v is not None:
-                    with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(v.__str__())
-        else:
-            vinput = self.get_vasp_input()
-            vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
+    #         for k, v in {
+    #             "INCAR": self.incar,
+    #             "POSCAR": self.poscar,
+    #             "KPOINTS": self.kpoints,
+    #         }.items():
+    #             if v is not None:
+    #                 with zopen(os.path.join(output_dir, k), "wt") as f:
+    #                     f.write(v.__str__())
+    #     else:
+    #         vinput = self.get_vasp_input()
+    #         vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
-        cifname = ""
-        if include_cif:
-            s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
-            s.to(filename=cifname)
+    #     cifname = ""
+    #     if include_cif:
+    #         s = vinput["POSCAR"].structure
+    #         cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
+    #         s.to(filename=cifname)
 
-        if zip_output:
-            filename = self.__class__.__name__ + ".zip"
-            with ZipFile(filename, "w") as zip:
-                for file in [
-                    "INCAR",
-                    "POSCAR",
-                    "KPOINTS",
-                    "POTCAR",
-                    "POTCAR.spec",
-                    cifname,
-                ]:
-                    try:
-                        zip.write(file)
-                        os.remove(file)
-                    except FileNotFoundError:
-                        pass
+    #     if zip_output:
+    #         filename = self.__class__.__name__ + ".zip"
+    #         with ZipFile(filename, "w") as zip:
+    #             for file in [
+    #                 "INCAR",
+    #                 "POSCAR",
+    #                 "KPOINTS",
+    #                 "POTCAR",
+    #                 "POTCAR.spec",
+    #                 cifname,
+    #             ]:
+    #                 try:
+    #                     zip.write(file)
+    #                     os.remove(file)
+    #                 except FileNotFoundError:
+    #                     pass
 
     def as_dict(self, verbosity=2):
         """
@@ -798,13 +796,14 @@ class DictSet(VaspInputSet):
     def __repr__(self):
         return self.__class__.__name__
 
-    def write_input(
+    def write_input(  # type:ignore
         self,
-        output_dir: str,
+        output_dir: Union[str, Path],
         make_dir_if_not_present: bool = True,
+        overwrite: bool = True,
+        zip_output: bool = False,
         include_cif: bool = False,
         potcar_spec: bool = False,
-        zip_output: bool = False,
     ):
         """
         Writes out all input to a directory.
@@ -814,6 +813,9 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            overwrite: Whether to overwrite an input file if it already exists.
+            zip_output: If True, inputs will be zipped into a file with the
+                same name as the InputSet (e.g., InputSet.zip)
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
             potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
@@ -825,6 +827,7 @@ class DictSet(VaspInputSet):
         super().write_input(
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
+            overwrite=overwrite,
             include_cif=include_cif,
             potcar_spec=potcar_spec,
             zip_output=zip_output,
