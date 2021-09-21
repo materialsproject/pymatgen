@@ -15,7 +15,7 @@ from monty.io import zopen
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
 __status__ = "Development"
-__date__ = "August 2021"
+__date__ = "September 2021"
 
 
 class InputSet(MSONable):
