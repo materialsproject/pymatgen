@@ -23,7 +23,7 @@ class InputSet(MSONable):
     Abstract base class for all InputSet classes. InputSet classes serve
     as containers for all calculation input data.
 
-    All InputSet must implement a write_input and from_directory method.
+    All InputSet must implement a _generate_input_data and from_directory method.
     Implementing the validate method is optional.
     """
 
