@@ -413,6 +413,9 @@ class MITMPRelaxSetTest(PymatgenTest):
         p = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
         self.assertNotIn("LDAUU", p.incar)
         self.assertEqual(p.incar["EDIFF"], 1e-10)
+        # after testing, we have determined LMAXMIX should still be 4 for d-block
+        # even if U is turned off (thanks Andrew Rosen for reporting)
+        self.assertEqual(p.incar["LMAXMIX"], 4)
 
     def test_write_input(self):
         self.mitset.write_input(".", make_dir_if_not_present=True)
