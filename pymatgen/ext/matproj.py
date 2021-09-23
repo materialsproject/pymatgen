@@ -37,7 +37,7 @@ from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
 from pymatgen.core import __version__ as PMG_VERSION
-
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -128,11 +128,11 @@ class MPRester:
     )
 
     def __init__(
-        self,
-        api_key=None,
-        endpoint=None,
-        notify_db_version=True,
-        include_user_agent=True,
+            self,
+            api_key=None,
+            endpoint=None,
+            notify_db_version=True,
+            include_user_agent=True,
     ):
         """
         Args:
@@ -455,13 +455,13 @@ class MPRester:
             raise MPRestError(str(ex))
 
     def get_entries(
-        self,
-        chemsys_formula_id_criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
+            self,
+            chemsys_formula_id_criteria,
+            compatible_only=True,
+            inc_structure=None,
+            property_data=None,
+            conventional_unit_cell=False,
+            sort_by_e_above_hull=False,
     ):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
@@ -644,6 +644,7 @@ class MPRester:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
+
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
             elt = i_d["Major_Elements"][0]
             correction_factor = ion.composition[elt] / stable_ref.composition[elt]
@@ -652,6 +653,7 @@ class MPRester:
             pbx_entries.append(PourbaixEntry(ion_entry, "ion-{}".format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
+
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
@@ -708,12 +710,12 @@ class MPRester:
         return data[0][prop]
 
     def get_entry_by_material_id(
-        self,
-        material_id,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
+            self,
+            material_id,
+            compatible_only=True,
+            inc_structure=None,
+            property_data=None,
+            conventional_unit_cell=False,
     ):
         """
         Get a ComputedEntry corresponding to a material_id.
@@ -822,12 +824,12 @@ class MPRester:
         return self._make_request("/materials/{}/abinit_ddb".format(material_id))
 
     def get_entries_in_chemsys(
-        self,
-        elements,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
+            self,
+            elements,
+            compatible_only=True,
+            inc_structure=None,
+            property_data=None,
+            conventional_unit_cell=False,
     ):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
@@ -906,12 +908,12 @@ class MPRester:
         return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def query(
-        self,
-        criteria,
-        properties,
-        chunk_size=500,
-        max_tries_per_chunk=5,
-        mp_decode=True,
+            self,
+            criteria,
+            properties,
+            chunk_size=500,
+            max_tries_per_chunk=5,
+            mp_decode=True,
     ):
         r"""
 
@@ -1029,15 +1031,15 @@ class MPRester:
         return data
 
     def submit_structures(
-        self,
-        structures,
-        authors,
-        projects=None,
-        references="",
-        remarks=None,
-        data=None,
-        histories=None,
-        created_at=None,
+            self,
+            structures,
+            authors,
+            projects=None,
+            references="",
+            remarks=None,
+            data=None,
+            histories=None,
+            created_at=None,
     ):
         """
         Submits a list of structures to the Materials Project as SNL files.
@@ -1194,16 +1196,16 @@ class MPRester:
             raise MPRestError(str(ex))
 
     def submit_vasp_directory(
-        self,
-        rootdir,
-        authors,
-        projects=None,
-        references="",
-        remarks=None,
-        master_data=None,
-        master_history=None,
-        created_at=None,
-        ncpus=None,
+            self,
+            rootdir,
+            authors,
+            projects=None,
+            references="",
+            remarks=None,
+            master_data=None,
+            master_history=None,
+            created_at=None,
+            ncpus=None,
     ):
         """
         Assimilates all vasp run directories beneath a particular
@@ -1430,14 +1432,14 @@ class MPRester:
         return WulffShape(lattice, millers, energies)
 
     def get_gb_data(
-        self,
-        material_id=None,
-        pretty_formula=None,
-        chemsys=None,
-        sigma=None,
-        gb_plane=None,
-        rotation_axis=None,
-        include_work_of_separation=False,
+            self,
+            material_id=None,
+            pretty_formula=None,
+            chemsys=None,
+            sigma=None,
+            gb_plane=None,
+            rotation_axis=None,
+            include_work_of_separation=False,
     ):
         """
         Gets grain boundary data for a material.
@@ -1482,22 +1484,24 @@ class MPRester:
             for i, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict["gb_energy"]
                 gb_plane_int = gb_dict["gb_plane"]
-                surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
-                    "surface_energy"
-                ]
-                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
+                surface_energy = self.get_surface_data(
+                    material_id=material_id, miller_index=gb_plane_int
+                )["surface_energy"]
+                wsep = (
+                        2 * surface_energy - gb_energy
+                )  # calculate the work of separation
                 gb_dict["work_of_separation"] = wsep
             return list_of_gbs
 
         return self._make_request("/grain_boundaries", payload=payload)
 
     def get_interface_reactions(
-        self,
-        reactant1,
-        reactant2,
-        open_el=None,
-        relative_mu=None,
-        use_hull_energy=False,
+            self,
+            reactant1,
+            reactant2,
+            open_el=None,
+            relative_mu=None,
+            use_hull_energy=False,
     ):
         """
         Gets critical reactions between two reactants.
@@ -1551,31 +1555,71 @@ class MPRester:
         # task_id's correspond to NoMaD external_id's
         task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
 
-        meta = defaultdict(list)
-        for doc in self.query({"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]):
-
+        meta = dict()
+        for doc in self.query({"task_id": {"$in": material_ids}}, ["task_id", "blessed_tasks"]):
             for task_type, task_id in doc["blessed_tasks"].items():
                 if task_types and task_type not in task_types:
                     continue
-                meta[doc["material_id"]].append({"task_id": task_id, "task_type": task_type})
-
+                mp_id = doc["task_id"]
+                if meta.get(mp_id) is None:
+                    meta[mp_id] = [{"task_id": task_id, "task_type": task_type}]
+                else:
+                    meta[mp_id].append({"task_id": task_id, "task_type": task_type})
         if not meta:
-            raise ValueError("No tasks found.")
+            raise ValueError(f"No tasks found for material id {material_ids}.")
 
         # return a list of URLs for NoMaD Downloads containing the list of files
         # for every external_id in `task_ids`
-        prefix = "http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?"
+        # For reference, please visit https://nomad-lab.eu/prod/rae/api/
+
+        # check if these task ids exist on NOMAD
+        prefix = "https://nomad-lab.eu/prod/rae/api/repo/?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
                 prefix += f"file_pattern={file_pattern}&"
         prefix += "external_id="
 
-        # NOTE: IE has 2kb URL char limit
-        nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
         task_ids = [t["task_id"] for tl in meta.values() for t in tl]
-        chunks = get_chunks(task_ids, size=nmax)
-        urls = [prefix + ",".join(tids) for tids in chunks]
+        nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
+        if len(nomad_exist_task_ids) != len(task_ids):
+            self._print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types)
+
+        # generate download links for those that exist
+        prefix = "https://nomad-lab.eu/prod/rae/api/raw/query?"
+        if file_patterns is not None:
+            for file_pattern in file_patterns:
+                prefix += f"file_pattern={file_pattern}&"
+        prefix += "external_id="
+
+        urls = [prefix + tids for tids in nomad_exist_task_ids]
         return meta, urls
+
+    @staticmethod
+    def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
+        non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
+        warnings.warn(f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+                      f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
+                      f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov")
+
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
+        nomad_exist_task_ids: List[str] = []
+        prefix = prefix.replace("/raw/query", "/repo/")
+        for task_id in task_ids:
+            url = prefix + task_id
+            if self._check_nomad_exist(url):
+                nomad_exist_task_ids.append(task_id)
+        return nomad_exist_task_ids
+
+    @staticmethod
+    def _check_nomad_exist(url) -> bool:
+        response = requests.get(url=url)
+        if response.status_code != 200:
+            return False
+        else:
+            content = json.loads(response.text)
+            if content["pagination"]["total"] == 0:
+                return False
+            return True
 
     @staticmethod
     def parse_criteria(criteria_string):
