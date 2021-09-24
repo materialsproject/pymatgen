@@ -19,7 +19,7 @@ import platform
 import re
 import sys
 import warnings
-from collections import defaultdict
+from typing import List
 from enum import Enum, unique
 from time import sleep
 
@@ -37,7 +37,7 @@ from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
 from pymatgen.core import __version__ as PMG_VERSION
-from typing import List
+
 
 logger = logging.getLogger(__name__)
 
@@ -1555,7 +1555,7 @@ class MPRester:
         # task_id's correspond to NoMaD external_id's
         task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
 
-        meta = dict()
+        meta = {}
         for doc in self.query({"task_id": {"$in": material_ids}}, ["task_id", "blessed_tasks"]):
             for task_type, task_id in doc["blessed_tasks"].items():
                 if task_types and task_type not in task_types:
@@ -1615,11 +1615,10 @@ class MPRester:
         response = requests.get(url=url)
         if response.status_code != 200:
             return False
-        else:
-            content = json.loads(response.text)
-            if content["pagination"]["total"] == 0:
-                return False
-            return True
+        content = json.loads(response.text)
+        if content["pagination"]["total"] == 0:
+            return False
+        return True
 
     @staticmethod
     def parse_criteria(criteria_string):
