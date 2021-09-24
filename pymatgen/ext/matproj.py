@@ -128,11 +128,11 @@ class MPRester:
     )
 
     def __init__(
-            self,
-            api_key=None,
-            endpoint=None,
-            notify_db_version=True,
-            include_user_agent=True,
+        self,
+        api_key=None,
+        endpoint=None,
+        notify_db_version=True,
+        include_user_agent=True,
     ):
         """
         Args:
@@ -455,13 +455,13 @@ class MPRester:
             raise MPRestError(str(ex))
 
     def get_entries(
-            self,
-            chemsys_formula_id_criteria,
-            compatible_only=True,
-            inc_structure=None,
-            property_data=None,
-            conventional_unit_cell=False,
-            sort_by_e_above_hull=False,
+        self,
+        chemsys_formula_id_criteria,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
+        sort_by_e_above_hull=False,
     ):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
@@ -710,12 +710,12 @@ class MPRester:
         return data[0][prop]
 
     def get_entry_by_material_id(
-            self,
-            material_id,
-            compatible_only=True,
-            inc_structure=None,
-            property_data=None,
-            conventional_unit_cell=False,
+        self,
+        material_id,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
     ):
         """
         Get a ComputedEntry corresponding to a material_id.
@@ -824,12 +824,12 @@ class MPRester:
         return self._make_request("/materials/{}/abinit_ddb".format(material_id))
 
     def get_entries_in_chemsys(
-            self,
-            elements,
-            compatible_only=True,
-            inc_structure=None,
-            property_data=None,
-            conventional_unit_cell=False,
+        self,
+        elements,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
     ):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
@@ -908,12 +908,12 @@ class MPRester:
         return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def query(
-            self,
-            criteria,
-            properties,
-            chunk_size=500,
-            max_tries_per_chunk=5,
-            mp_decode=True,
+        self,
+        criteria,
+        properties,
+        chunk_size=500,
+        max_tries_per_chunk=5,
+        mp_decode=True,
     ):
         r"""
 
@@ -1031,15 +1031,15 @@ class MPRester:
         return data
 
     def submit_structures(
-            self,
-            structures,
-            authors,
-            projects=None,
-            references="",
-            remarks=None,
-            data=None,
-            histories=None,
-            created_at=None,
+        self,
+        structures,
+        authors,
+        projects=None,
+        references="",
+        remarks=None,
+        data=None,
+        histories=None,
+        created_at=None,
     ):
         """
         Submits a list of structures to the Materials Project as SNL files.
@@ -1196,16 +1196,16 @@ class MPRester:
             raise MPRestError(str(ex))
 
     def submit_vasp_directory(
-            self,
-            rootdir,
-            authors,
-            projects=None,
-            references="",
-            remarks=None,
-            master_data=None,
-            master_history=None,
-            created_at=None,
-            ncpus=None,
+        self,
+        rootdir,
+        authors,
+        projects=None,
+        references="",
+        remarks=None,
+        master_data=None,
+        master_history=None,
+        created_at=None,
+        ncpus=None,
     ):
         """
         Assimilates all vasp run directories beneath a particular
@@ -1432,14 +1432,14 @@ class MPRester:
         return WulffShape(lattice, millers, energies)
 
     def get_gb_data(
-            self,
-            material_id=None,
-            pretty_formula=None,
-            chemsys=None,
-            sigma=None,
-            gb_plane=None,
-            rotation_axis=None,
-            include_work_of_separation=False,
+        self,
+        material_id=None,
+        pretty_formula=None,
+        chemsys=None,
+        sigma=None,
+        gb_plane=None,
+        rotation_axis=None,
+        include_work_of_separation=False,
     ):
         """
         Gets grain boundary data for a material.
@@ -1484,24 +1484,22 @@ class MPRester:
             for i, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict["gb_energy"]
                 gb_plane_int = gb_dict["gb_plane"]
-                surface_energy = self.get_surface_data(
-                    material_id=material_id, miller_index=gb_plane_int
-                )["surface_energy"]
-                wsep = (
-                        2 * surface_energy - gb_energy
-                )  # calculate the work of separation
+                surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
+                    "surface_energy"
+                ]
+                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
                 gb_dict["work_of_separation"] = wsep
             return list_of_gbs
 
         return self._make_request("/grain_boundaries", payload=payload)
 
     def get_interface_reactions(
-            self,
-            reactant1,
-            reactant2,
-            open_el=None,
-            relative_mu=None,
-            use_hull_energy=False,
+        self,
+        reactant1,
+        reactant2,
+        open_el=None,
+        relative_mu=None,
+        use_hull_energy=False,
     ):
         """
         Gets critical reactions between two reactants.
@@ -1597,9 +1595,11 @@ class MPRester:
     @staticmethod
     def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
         non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
-        warnings.warn(f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
-                      f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
-                      f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov")
+        warnings.warn(
+            f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+            f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
+            f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
+        )
 
     def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
         nomad_exist_task_ids: List[str] = []
