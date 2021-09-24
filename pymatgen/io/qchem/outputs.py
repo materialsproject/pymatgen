@@ -1344,6 +1344,24 @@ class QCOutput(MSONable):
         elif (
             read_pattern(
                 self.text,
+                {"key": r"Unable to find relaxed density"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["failed_cpscf"]
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Out of Iterations- IterZ"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["failed_cpscf"]
+        elif (
+            read_pattern(
+                self.text,
                 {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
                 terminate_on_match=True,
             ).get("key")
