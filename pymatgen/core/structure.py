@@ -2323,6 +2323,10 @@ class IStructure(SiteCollection, MSONable):
                     yaml.safe_dump(self.as_dict(), f)
                 return None
             return yaml.safe_dump(self.as_dict())
+        elif fmt == "fleur-inpgen" or fnmatch(fname, "*.in*"):
+            from pymatgen.io.fleur import FleurInput
+
+            writer = FleurInput(self, **kwargs)
         else:
             raise ValueError("Invalid format: `%s`" % str(fmt))
 
@@ -2375,6 +2379,14 @@ class IStructure(SiteCollection, MSONable):
             s = XSF.from_string(input_string).structure
         elif fmt == "mcsqs":
             s = Mcsqs.structure_from_string(input_string)
+        elif fmt == "fleur-inpgen":
+            from pymatgen.io.fleur import FleurInput
+
+            s = FleurInput.from_string(input_string, inpgen_input=True).structure
+        elif fmt == "fleur":
+            from pymatgen.io.fleur import FleurInput
+
+            s = FleurInput.from_string(input_string, inpgen_input=False).structure
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
@@ -2474,6 +2486,10 @@ class IStructure(SiteCollection, MSONable):
             )
         elif fnmatch(fname, "CTRL*"):
             return LMTOCtrl.from_file(filename=filename).structure
+        elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
+            from pymatgen.io.fleur import FleurInput
+
+            s = FleurInput.from_file(filename).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
