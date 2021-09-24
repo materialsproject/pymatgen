@@ -28,7 +28,7 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class TranslateSitesTransformationTest(PymatgenTest):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -83,7 +83,7 @@ class TranslateSitesTransformationTest(PymatgenTest):
 
 class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -116,7 +116,7 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
 
 class RemoveSitesTransformationTest(unittest.TestCase):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -149,7 +149,7 @@ class RemoveSitesTransformationTest(unittest.TestCase):
 
 class InsertSitesTransformationTest(unittest.TestCase):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -185,7 +185,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
 
 class PartialRemoveSitesTransformationTest(unittest.TestCase):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])

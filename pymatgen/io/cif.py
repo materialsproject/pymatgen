@@ -1082,7 +1082,7 @@ class CifParser:
                     allspecies[i] = species / totaloccu
 
         if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
-            site_properties = dict()
+            site_properties = {}
             if any(allhydrogens):
                 assert len(allhydrogens) == len(allcoords)
                 site_properties["implicit_hydrogens"] = allhydrogens

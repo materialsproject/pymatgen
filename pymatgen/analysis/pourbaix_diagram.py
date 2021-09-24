@@ -661,7 +661,7 @@ class PourbaixDiagram(MSONable):
         combos = []
         for facet in valid_facets:
             for i in range(1, self.dim + 2):
-                these_combos = list()
+                these_combos = []
                 for combo in itertools.combinations(facet, i):
                     these_entries = [min_entries[i] for i in combo]
                     these_combos.append(frozenset(these_entries))

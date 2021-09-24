@@ -2067,7 +2067,7 @@ class MoleculeGraph(MSONable):
             return [copy.deepcopy(self)]
 
         original = copy.deepcopy(self)
-        sub_mols = list()
+        sub_mols = []
 
         # Had to use nx.weakly_connected_components because of deprecation
         # of nx.weakly_connected_component_subgraphs
@@ -2443,7 +2443,7 @@ class MoleculeGraph(MSONable):
                 )
 
             to_remove = set()
-            sizes = dict()
+            sizes = {}
             disconnected = self.graph.to_undirected()
             disconnected.remove_node(index)
             for neighbor in neighbors:

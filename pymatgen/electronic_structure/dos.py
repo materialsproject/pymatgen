@@ -592,7 +592,7 @@ class FermiDos(Dos, MSONable):
         for _ in range(precision):
             frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, temperature) for f in frange])
-            relative_error = np.abs(calc_doping / concentration - 1.0)
+            relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
 
@@ -697,7 +697,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
-        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = dict()
+        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = {}
         for orb, pdos in self.pdos[site].items():
             orbital_type = _get_orb_type(orb)
             if orbital_type in spd_dos:

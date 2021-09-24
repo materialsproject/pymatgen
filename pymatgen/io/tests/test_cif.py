@@ -633,7 +633,7 @@ loop_
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         lattice = Lattice(
@@ -692,7 +692,7 @@ loop_
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)
         n = DummySpecies("X", -3)
-        coords = list()
+        coords = []
         coords.append(np.array([0.5, 0.5, 0.5]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0, 0, 0]))

@@ -53,7 +53,7 @@ class QCOutput(MSONable):
             filename (str): Filename to parse
         """
         self.filename = filename
-        self.data = dict()  # type: Dict[str, Any]
+        self.data = {}  # type: Dict[str, Any]
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
@@ -230,7 +230,7 @@ class QCOutput(MSONable):
         self.data["transition_state"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*ts"}).get(
             "key"
         )
-        if self.data.get("transition_state", list()):
+        if self.data.get("transition_state", []):
             self._read_optimization_data()
 
         # Check if the calculation contains a constraint in an $opt section.
@@ -745,7 +745,7 @@ class QCOutput(MSONable):
                     charge=self.data.get("charge"),
                     spin_multiplicity=self.data.get("multiplicity"),
                 )
-                self.data["molecules_from_optimized_geometries"] = list()
+                self.data["molecules_from_optimized_geometries"] = []
                 for geom in self.data["optimized_geometries"]:
                     mol = Molecule(
                         species=self.data.get("species"),
@@ -1100,7 +1100,7 @@ class QCOutput(MSONable):
             footer_pattern=footer_pattern,
         )
 
-        self.data["scan_energies"] = list()
+        self.data["scan_energies"] = []
         if len(single_data) == 0:
             double_data = read_table_pattern(
                 self.text,
@@ -1133,7 +1133,7 @@ class QCOutput(MSONable):
             footer_pattern=scan_inputs_foot,
         )
 
-        self.data["scan_variables"] = {"stre": list(), "bend": list(), "tors": list()}
+        self.data["scan_variables"] = {"stre": [], "bend": [], "tors": []}
         for row in constraints_meta[0]:
             var_type = row[0].lower()
             self.data["scan_variables"][var_type].append(
@@ -1149,7 +1149,7 @@ class QCOutput(MSONable):
             self.text,
             {"key": r"\s*(Distance\(Angs\)|Angle|Dihedral)\:\s*((?:[0-9]+\s+)+)+([\.0-9]+)\s+([\.0-9]+)"},
         ).get("key")
-        self.data["scan_constraint_sets"] = {"stre": list(), "bend": list(), "tors": list()}
+        self.data["scan_constraint_sets"] = {"stre": [], "bend": [], "tors": []}
         if temp_constraint is not None:
             for entry in temp_constraint:
                 atoms = [int(i) for i in entry[1].split()]

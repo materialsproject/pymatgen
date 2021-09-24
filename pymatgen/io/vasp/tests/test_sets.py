@@ -110,7 +110,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(s_sorted[0].specie.symbol, "Mn")
 
     def test_potcar_symbols(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.25, 0.75])
@@ -181,7 +181,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertAlmostEqual(incar["EDIFF"], 1e-5)
 
         si = 14
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
 
@@ -199,7 +199,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         incar = MPRelaxSet(struct).incar
         self.assertNotIn("LDAU", incar)
 
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice(
@@ -252,7 +252,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # sulfide vs sulfate test
 
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.25, 0.5, 0])
@@ -306,7 +306,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Test that NELECT is updated when a charge is present
         si = 14
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
 
@@ -413,6 +413,9 @@ class MITMPRelaxSetTest(PymatgenTest):
         p = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
         self.assertNotIn("LDAUU", p.incar)
         self.assertEqual(p.incar["EDIFF"], 1e-10)
+        # after testing, we have determined LMAXMIX should still be 4 for d-block
+        # even if U is turned off (thanks Andrew Rosen for reporting)
+        self.assertEqual(p.incar["LMAXMIX"], 4)
 
     def test_write_input(self):
         self.mitset.write_input(".", make_dir_if_not_present=True)

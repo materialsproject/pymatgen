@@ -311,7 +311,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 quotechar=unicode2str('"'),
                 quoting=csv.QUOTE_MINIMAL,
             )
-            entries = list()
+            entries = []
             header_read = False
             elements = []  # type: List[str]
             for row in reader:
@@ -321,7 +321,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 else:
                     name = row[0]
                     energy = float(row[-1])
-                    comp = dict()
+                    comp = {}
                     for ind in range(1, len(row) - 1):
                         if float(row[ind]) > 0:
                             comp[Element(elements[ind - 1])] = float(row[ind])
