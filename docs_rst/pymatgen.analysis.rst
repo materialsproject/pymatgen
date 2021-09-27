@@ -1,6 +1,8 @@
 pymatgen.analysis namespace
 ===========================
 
+.. py:module:: pymatgen.analysis
+
 Subpackages
 -----------
 

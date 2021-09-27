@@ -19,7 +19,7 @@ import platform
 import re
 import sys
 import warnings
-from collections import defaultdict
+from typing import List
 from enum import Enum, unique
 from time import sleep
 
@@ -644,6 +644,7 @@ class MPRester:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
+
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
             elt = i_d["Major_Elements"][0]
             correction_factor = ion.composition[elt] / stable_ref.composition[elt]
@@ -652,6 +653,7 @@ class MPRester:
             pbx_entries.append(PourbaixEntry(ion_entry, "ion-{}".format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
+
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
@@ -1551,31 +1553,72 @@ class MPRester:
         # task_id's correspond to NoMaD external_id's
         task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
 
-        meta = defaultdict(list)
-        for doc in self.query({"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]):
-
+        meta = {}
+        for doc in self.query({"task_id": {"$in": material_ids}}, ["task_id", "blessed_tasks"]):
             for task_type, task_id in doc["blessed_tasks"].items():
                 if task_types and task_type not in task_types:
                     continue
-                meta[doc["material_id"]].append({"task_id": task_id, "task_type": task_type})
-
+                mp_id = doc["task_id"]
+                if meta.get(mp_id) is None:
+                    meta[mp_id] = [{"task_id": task_id, "task_type": task_type}]
+                else:
+                    meta[mp_id].append({"task_id": task_id, "task_type": task_type})
         if not meta:
-            raise ValueError("No tasks found.")
+            raise ValueError(f"No tasks found for material id {material_ids}.")
 
         # return a list of URLs for NoMaD Downloads containing the list of files
         # for every external_id in `task_ids`
-        prefix = "http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?"
+        # For reference, please visit https://nomad-lab.eu/prod/rae/api/
+
+        # check if these task ids exist on NOMAD
+        prefix = "https://nomad-lab.eu/prod/rae/api/repo/?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
                 prefix += f"file_pattern={file_pattern}&"
         prefix += "external_id="
 
-        # NOTE: IE has 2kb URL char limit
-        nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
         task_ids = [t["task_id"] for tl in meta.values() for t in tl]
-        chunks = get_chunks(task_ids, size=nmax)
-        urls = [prefix + ",".join(tids) for tids in chunks]
+        nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
+        if len(nomad_exist_task_ids) != len(task_ids):
+            self._print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types)
+
+        # generate download links for those that exist
+        prefix = "https://nomad-lab.eu/prod/rae/api/raw/query?"
+        if file_patterns is not None:
+            for file_pattern in file_patterns:
+                prefix += f"file_pattern={file_pattern}&"
+        prefix += "external_id="
+
+        urls = [prefix + tids for tids in nomad_exist_task_ids]
         return meta, urls
+
+    @staticmethod
+    def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
+        non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
+        warnings.warn(
+            f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+            f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
+            f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
+        )
+
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
+        nomad_exist_task_ids: List[str] = []
+        prefix = prefix.replace("/raw/query", "/repo/")
+        for task_id in task_ids:
+            url = prefix + task_id
+            if self._check_nomad_exist(url):
+                nomad_exist_task_ids.append(task_id)
+        return nomad_exist_task_ids
+
+    @staticmethod
+    def _check_nomad_exist(url) -> bool:
+        response = requests.get(url=url)
+        if response.status_code != 200:
+            return False
+        content = json.loads(response.text)
+        if content["pagination"]["total"] == 0:
+            return False
+        return True
 
     @staticmethod
     def parse_criteria(criteria_string):
