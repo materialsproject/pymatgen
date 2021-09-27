@@ -27,7 +27,7 @@ class LammpsInputSet(InputSet):
     InputSetGenerator classes elsewhere in this module are used to create
     specific instances of LammpsInputSet that are tailored to specific purposes.
     """
-    
+
     def _generate_input_data(self) -> Dict[str, str]:
         """
         Generate a dictionary of one or more input files to be written. Keys
@@ -37,7 +37,7 @@ class LammpsInputSet(InputSet):
         write operations.
         """
         pass
-    
+
     @classmethod
     def from_directory(cls, directory: Union[str, Path]):
         """
@@ -53,11 +53,11 @@ class LammpsAqueousSet(InputSetGenerator):
     """
     Yields a LammpsInputSet tailored for simulating aqueous electrolytes
     """
-    
+
     def get_input_set(self) -> InputSet:
         """
         Generate a LammpsInputSet tailored for simulating aqueous electrolytes
-        
+
         Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
