@@ -23,12 +23,12 @@ class InputSet(MSONable):
     Abstract base class for all InputSet classes. InputSet classes serve
     as containers for all calculation input data.
 
-    All InputSet must implement a _generate_input_data and from_directory method.
+    All InputSet must implement a _get_inputs and from_directory method.
     Implementing the validate method is optional.
     """
 
     @abc.abstractmethod
-    def _generate_input_data(self) -> Dict[str, str]:
+    def _get_inputs(self) -> Dict[str, str]:
         """
         Generate a dictionary of one or more input files to be written. Keys
         are filenames, values are the contents of each file.
@@ -60,7 +60,7 @@ class InputSet(MSONable):
         path = directory if isinstance(directory, Path) else Path(directory)
         # the following line will trigger a mypy error due to a bug in mypy
         # will be fixed soon. See https://github.com/python/mypy/commit/ea7fed1b5e1965f949525e918aa98889fb59aebf
-        files = self._generate_input_data(**kwargs)  # type: ignore
+        files = self._get_inputs(**kwargs)  # type: ignore
         for fname, contents in files.items():
             file = path / fname
 
@@ -154,7 +154,7 @@ class TemplateInputSet(InputSet):
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
 
-    def _generate_input_data(self, filename: str = "input.txt"):
+    def _get_inputs(self, filename: str = "input.txt"):
         """
         Args:
             filename: name of the file to be written
