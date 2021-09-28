@@ -50,13 +50,13 @@ from copy import deepcopy
 from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
+from zipfile import ZipFile
 
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
-from zipfile import ZipFile
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
