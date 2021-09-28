@@ -16,6 +16,7 @@ import os
 import re
 import subprocess
 import warnings
+from pathlib import Path
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
@@ -24,7 +25,6 @@ from typing import Dict, Any, Tuple, Sequence, Union
 import numpy as np
 import scipy.constants as const
 from monty.io import zopen
-from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import loadfn
@@ -35,6 +35,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.core import InputFile, InputSet
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import PathLike, ArrayLike
@@ -45,7 +46,7 @@ __copyright__ = "Copyright 2011, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-class Poscar(MSONable):
+class Poscar(InputFile):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
@@ -636,7 +637,7 @@ class BadIncarWarning(UserWarning):
     pass
 
 
-class Incar(dict, MSONable):
+class Incar(dict, InputFile):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -737,30 +738,6 @@ class Incar(dict, MSONable):
 
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
-
-    def write_file(self, filename: PathLike):
-        """
-        Write Incar to a file.
-
-        Args:
-            filename (str): filename to write to.
-        """
-        with zopen(filename, "wt") as f:
-            f.write(self.__str__())
-
-    @staticmethod
-    def from_file(filename: PathLike) -> "Incar":
-        """
-        Reads an Incar object from a file.
-
-        Args:
-            filename (str): Filename for file
-
-        Returns:
-            Incar object
-        """
-        with zopen(filename, "rt") as f:
-            return Incar.from_string(f.read())
 
     @staticmethod
     def from_string(string: str) -> "Incar":
@@ -1020,7 +997,7 @@ class Kpoints_supported_modes(Enum):
         raise ValueError("Can't interprete Kpoint mode %s" % s)
 
 
-class Kpoints(MSONable):
+class Kpoints(InputFile):
     """
     KPOINT reader/writer.
     """
@@ -1337,19 +1314,19 @@ class Kpoints(MSONable):
             num_kpts=int(divisions),
         )
 
-    @staticmethod
-    def from_file(filename):
-        """
-        Reads a Kpoints object from a KPOINTS file.
+    # @staticmethod
+    # def from_file(filename):
+    #     """
+    #     Reads a Kpoints object from a KPOINTS file.
 
-        Args:
-            filename (str): filename to read from.
+    #     Args:
+    #         filename (str): filename to read from.
 
-        Returns:
-            Kpoints object
-        """
-        with zopen(filename, "rt") as f:
-            return Kpoints.from_string(f.read())
+    #     Returns:
+    #         Kpoints object
+    #     """
+    #     with zopen(filename, "rt") as f:
+    #         return Kpoints.from_string(f.read())
 
     @staticmethod
     def from_string(string):
@@ -2141,7 +2118,7 @@ class PotcarSingle:
             raise AttributeError(a)
 
 
-class Potcar(list, MSONable):
+class Potcar(list, InputFile):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
@@ -2192,13 +2169,14 @@ class Potcar(list, MSONable):
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @staticmethod
-    def from_file(filename: str):
+    def from_file(filename: Union[str, Path]):
         """
         Reads Potcar from file.
 
         :param filename: Filename
         :return: Potcar
         """
+        filename = filename if isinstance(filename, str) else str(filename)
         try:
             with zopen(filename, "rt") as f:
                 fdata = f.read()
@@ -2223,16 +2201,6 @@ class Potcar(list, MSONable):
 
     def __str__(self):
         return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
-
-    def write_file(self, filename):
-        """
-        Write Potcar to a file.
-
-        Args:
-            filename (str): filename to write to.
-        """
-        with zopen(filename, "wt") as f:
-            f.write(self.__str__())
 
     @property
     def symbols(self):
@@ -2277,7 +2245,7 @@ class Potcar(list, MSONable):
                 self.append(p)
 
 
-class VaspInput(dict, MSONable):
+class VaspInput(InputSet):
     """
     Class to contain a set of vasp input objects corresponding to a run.
     """
@@ -2294,58 +2262,26 @@ class VaspInput(dict, MSONable):
                 conventions in implementing a as_dict() and from_dict method.
         """
         super().__init__(**kwargs)
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})
-        if optional_files is not None:
-            self.update(optional_files)
+        self.incar = incar
+        self.kpoints = kpoints
+        self.poscar = poscar
+        self.potcar = potcar
+        self.optional_files = optional_files
+
+    @property
+    def _inputs(self):
+        d = {"INCAR": self.incar, "KPOINTS": self.kpoints, "POSCAR": self.poscar, "POTCAR": self.potcar}
+        if self.optional_files is not None:
+            d.update(self.optional_files)
+        return d
 
     def __str__(self):
         output = []
-        for k, v in self.items():
+        for k, v in self._inputs.items():
             output.append(k)
             output.append(str(v))
             output.append("")
         return "\n".join(output)
-
-    def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
-        d = {k: v.as_dict() for k, v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        :param d: Dict representation.
-        :return: VaspInput
-        """
-        dec = MontyDecoder()
-        sub_d = {"optional_files": {}}
-        for k, v in d.items():
-            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
-                sub_d[k.lower()] = dec.process_decoded(v)
-            elif k not in ["@module", "@class"]:
-                sub_d["optional_files"][k] = dec.process_decoded(v)
-        return cls(**sub_d)
-
-    def write_input(self, output_dir=".", make_dir_if_not_present=True):
-        """
-        Write VASP input to a directory.
-
-        Args:
-            output_dir (str): Directory to write to. Defaults to current
-                directory (".").
-            make_dir_if_not_present (bool): Create the directory if not
-                present. Defaults to True.
-        """
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        for k, v in self.items():
-            if v is not None:
-                with zopen(os.path.join(output_dir, k), "wt") as f:
-                    f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
@@ -2396,7 +2332,7 @@ class VaspInput(dict, MSONable):
         :param output_file: File to write output.
         :param err_file: File to write err.
         """
-        self.write_input(output_dir=run_dir)
+        self.write_input(directory=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
