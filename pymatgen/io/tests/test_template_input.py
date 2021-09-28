@@ -17,7 +17,9 @@ class TestTemplateInputSet:
 
         with tempfile.TemporaryDirectory() as scratch_dir:
             tis = TemplateInputSet(
-                template=os.path.join(test_dir, "template_input_file.txt"), variables={"TEMPERATURE": 298}, filename='hello_world.in'
+                template=os.path.join(test_dir, "template_input_file.txt"),
+                variables={"TEMPERATURE": 298},
+                filename="hello_world.in",
             )
             tis.write_input(scratch_dir)
             with open(os.path.join(scratch_dir, "hello_world.in"), "r") as f:
@@ -29,7 +31,9 @@ class TestTemplateInputSet:
             tis.write_input(os.path.join(scratch_dir, "temp"), make_dir=True)
 
             tis = TemplateInputSet(
-                template=os.path.join(test_dir, "template_input_file.txt"), variables={"TEMPERATURE": 400}, filename='hello_world.in'
+                template=os.path.join(test_dir, "template_input_file.txt"),
+                variables={"TEMPERATURE": 400},
+                filename="hello_world.in",
             )
 
             with pytest.raises(FileExistsError):
