@@ -5,6 +5,7 @@ This module defines the abstract interface for pymatgen InputSet and InputSetGen
 import abc
 import os
 from pathlib import Path
+from collections.abc import Set
 from string import Template
 from typing import Union, Optional, Dict
 from zipfile import ZipFile
@@ -18,7 +19,63 @@ __status__ = "Development"
 __date__ = "September 2021"
 
 
-class InputSet(MSONable):
+class InputFile(MSONable):
+    """
+    Abstract base class to represent a single input file. Note that use
+    of this class is optional; it is possible create an InputSet that
+    does not rely on underlying Inputfile objects.
+
+    All InputFile classes must implement a __str__ method, which
+    is called by write_file.
+    """
+
+    @abc.abstractmethod
+    def __str__(self):
+        """
+        String representation of an entire input file.
+        """
+
+    def write_file(self, filename: Union[str, Path]):
+        """
+        Write the input file.
+
+        Args:
+            filename: The filename to output to, including path.
+        """
+        filename = filename if isinstance(filename, Path) else Path(filename)
+        with open(filename, "wt") as f:
+            f.write(self.__str__())
+
+    @abc.abstractmethod
+    @staticmethod
+    def from_string(contents):
+        """
+        Create an InputFile object from a string
+
+        Args:
+            contents: The contents of the file as a single string
+
+        Returns:
+            InputFile
+        """
+
+    @classmethod
+    def from_file(cls, filename: Union[str, Path]):
+        """
+        Creates an InputFile object from a file.
+
+        Args:
+            filename: Filename to read, including path.
+
+        Returns:
+            InputFile
+        """
+        filename = filename if isinstance(filename, Path) else Path(filename)
+        with zopen(filename, "rt") as f:
+            return cls.from_string(f.read())
+
+
+class InputSet(MSONable, Set):
     """
     Abstract base class for all InputSet classes. InputSet classes serve
     as containers for all calculation input data.
@@ -28,10 +85,11 @@ class InputSet(MSONable):
     """
 
     @abc.abstractmethod
-    def _get_inputs(self) -> Dict[str, str]:
+    def _get_inputs(self) -> Dict[str, Union[str, InputFile]]:
         """
         Generate a dictionary of one or more input files to be written. Keys
-        are filenames, values are the contents of each file.
+        are filenames, values are InputFile objects or strings representing
+        the entire contents of the file.
 
         This method is called by write_input(), which performs the actual file
         write operations.
@@ -73,8 +131,11 @@ class InputSet(MSONable):
             file.touch()
 
             # write the file
-            with zopen(file, "wt") as f:
-                f.write(contents)
+            if isinstance(contents, str):
+                with zopen(file, "wt") as f:
+                    f.write(contents)
+            else:
+                contents.write_file(file)
 
         if zip_inputs:
             zipfilename = path / f"{self.__class__.__name__}.zip"
@@ -106,6 +167,16 @@ class InputSet(MSONable):
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
         raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
+
+    def __len__(self):
+        return len(self._get_inputs().keys())
+
+    def __contains__(self, item):
+        return item in self._get_inputs().values()
+
+    def __iter__(self):
+        for k, v in self._get_inputs().items():
+            yield k, v
 
 
 class InputSetGenerator(MSONable):
