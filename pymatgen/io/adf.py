@@ -263,8 +263,8 @@ class AdfKey(MSONable):
         """
         if len(self.subkeys) > 0:
             key = subkey if isinstance(subkey, str) else subkey.key
-            for i in range(len(self.subkeys)):
-                if self.subkeys[i].key == key:
+            for i, v in enumerate(self.subkeys):
+                if v.key == key:
                     self.subkeys.pop(i)
                     break
 
@@ -311,8 +311,8 @@ class AdfKey(MSONable):
             if self._sized_op:
                 if not isinstance(option, str):
                     raise TypeError("``option`` should be a name string!")
-                for i in range(len(self.options)):
-                    if self.options[i][0] == option:
+                for i, v in enumerate(self.options):
+                    if v[0] == option:
                         self.options.pop(i)
                         break
             else:

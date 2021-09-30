@@ -279,6 +279,7 @@ class PWInput:
             "cell": {},
         }
         pseudo = {}
+        pseudo_index = 0
         lattice = []
         species = []
         coords = []

@@ -42,17 +42,17 @@ Major Announcement (v2022.0.*)
 
 A **backwards incompatible** change has been introduced in v2022.0.*. Pymatgen root-level convenience imports have been
 removed from in preparation for a change to a more modular, extensible namespace package architecture that will allow
-more developers to contribute. If your existing code uses `from pymatgen import <something>`, you will need to make
-modifications. MPRester should now be imported from `pymatgen.ext.matproj`. All other convenience objects such as
-`Element`, `Species`, `Lattice`, `Structure`, etc. should be imported from `pymatgen.core`. There are a few simple ways
+more developers to contribute. If your existing code uses ``from pymatgen import <something>``, you will need to make
+modifications. ``MPRester`` should now be imported from ``pymatgen.ext.matproj``. All other convenience objects such as
+``Element``, ``Species``, ``Lattice``, ``Structure``, etc. should be imported from ``pymatgen.core``. There are a few simple ways
 you can respond to this change:
 
 * To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<=2022.0.0 since all
   the imports were already available in previous versions), you need to replace all instances of
-  `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`, followed by replacing all instances
-  of `from pymatgen import` with `from pymatgen.core import`. These two steps have to be done in that sequence, since
+  ``from pymatgen import MPRester`` with ``from pymatgen.ext.matproj import MPRester``, followed by replacing all instances
+  of ``from pymatgen import`` with ``from pymatgen.core import``. These two steps have to be done in that sequence, since
   MPRester and the other core imports exist in different subpackages. The easiest way is to use an IDE such
-  as Pycharm to run a `Replace in Files` on the root directory of your code.
+  as Pycharm to run a **Replace in Files** on the root directory of your code.
 * The pymatgen maintainers have also come up with the following terminal commands you can use to perform the migration.
   On a Mac::
 
@@ -65,9 +65,9 @@ you can respond to this change:
     find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
 
   This should resolve most import errors, though you may have to fix a few issues manually, e.g., if your code contains
-  something like `from pymatgen import Element, MPRester`, which will now need to be split into two lines.
+  something like ``from pymatgen import Element, MPRester``, which will now need to be split into two lines.
 
-Last but not least, one option is to pin to pymatgen==2021.*.*, which is the last version to contain the root-level
+Last but not least, one option is to pin to ``pymatgen==2021.*.*``, which is the last version to contain the root-level
 convenience imports, if you are not planning to use future new pymatgen functionality. The new breaking change will
 become default from year 2022. Backports to 2021.*.* will still occur for critical bug fixes.
 
@@ -89,6 +89,10 @@ Why use pymatgen?
 5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project.
    It is also actively being developed and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
+6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over the
+   world. We also now have an architecture to support add-ons that expand pymatgen's functionality even further. Check
+   out the `contributing page <http://pymatgen.org/contributing>`_ and `add-ons page <http://pymatgen.org/addons>`_ for
+   details and examples.
 
 Getting pymatgen
 ================

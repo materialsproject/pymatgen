@@ -412,24 +412,20 @@ class MPResterTest(PymatgenTest):
             self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_download_info(self):
-        material_ids = ["mp-32800", "mp-23494"]
-        task_types = [TaskType.GGA_OPT, TaskType.GGA_UNIFORM]
+        material_ids = ["mvc-2970"]
+        task_types = [TaskType.GGA_OPT, TaskType.GGAU_UNIFORM]
         file_patterns = ["vasprun*", "OUTCAR*"]
         meta, urls = self.rester.get_download_info(material_ids, task_types=task_types, file_patterns=file_patterns)
         self.assertDictEqual(
             dict(meta),
             {
-                "mp-23494": [{"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}],
-                "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
+                "mvc-2970": [{"task_id": "mp-1738602", "task_type": "GGA+U NSCF Uniform"}],
             },
         )
-        prefix = "http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?"
-        # previous test
-        # ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
-        ids = "mp-1752825,mp-739635"
         self.assertEqual(
             urls[0],
-            f"{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}",
+            "https://nomad-lab.eu/prod/rae/api/raw/query?file_pattern=vasprun*&file_pattern=OUTCAR*&external_id=mp"
+            "-1738602",
         )
 
     def test_parse_criteria(self):
@@ -486,6 +482,34 @@ class MPResterTest(PymatgenTest):
 
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
         self.assertIsInstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
+
+    def test_pourbaix_heavy(self):
+
+        entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+
+    def test_pourbaix_mpr_pipeline(self):
+
+        data = self.rester.get_pourbaix_entries(["Zn"])
+        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
+        pbx.find_stable_entry(10, 0)
+
+        data = self.rester.get_pourbaix_entries(["Ag", "Te"])
+        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        self.assertEqual(len(pbx.stable_entries), 29)
+        test_entry = pbx.find_stable_entry(8, 2)
+        self.assertEqual(sorted(test_entry.entry_id), ["ion-10", "mp-499"])
+
+        # Test against ion sets with multiple equivalent ions (Bi-V regression)
+        entries = self.rester.get_pourbaix_entries(["Bi", "V"])
+        pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
+        self.assertTrue(all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries]))
 
 
 if __name__ == "__main__":

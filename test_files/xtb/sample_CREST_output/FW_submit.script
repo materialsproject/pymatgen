@@ -1,0 +1,19 @@
+#!/bin/bash -l
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=40
+#SBATCH --qos=lr6_lowprio
+#SBATCH --time=48:00:00
+#SBATCH --partition=lr6
+#SBATCH --account=ac_mp
+#SBATCH --job-name=lr6_job
+#SBATCH --output=lr6_job-%j.out
+#SBATCH --error=lr6_job-%j.error
+
+
+conda activate cms && module load qchem/5.2.2
+cd /global/scratch/alex_epstein/crest_to_qchem/combined_wf/block_2020-12-22-23-27-28-506134/launcher_2020-12-22-23-27-30-210378
+rlaunch -w /global/home/users/alex_epstein/.conda/envs/cms/config/my_fworker.yaml singleshot
+
+# CommonAdapter (SLURM) completed writing Template

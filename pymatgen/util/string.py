@@ -7,7 +7,6 @@ This module provides utility classes for string operations.
 import re
 from fractions import Fraction
 
-from monty.dev import deprecated
 
 SUBSCRIPT_UNICODE = {
     "0": "₀",
@@ -36,6 +35,10 @@ SUPERSCRIPT_UNICODE = {
     "+": "⁺",
     "-": "⁻",
 }
+
+# TODO: make standalone functions in this module use the same implementation as Stringify
+# Note: previous deprecations of standalone functions in this module were removed due to
+# a community need.
 
 
 class Stringify:
@@ -138,14 +141,13 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     return str(round(afloat, 8))
 
 
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
 def latexify(formula):
     """
     Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
+
+    Note that Composition now has a to_latex_string() method that may
+    be used instead.
 
     Args:
         formula (str): Input formula.
@@ -156,14 +158,13 @@ def latexify(formula):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\2}$", formula)
 
 
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
 def htmlify(formula):
     """
     Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
     Fe<sub>2</sub>O</sub>3</sub>
+
+    Note that Composition now has a to_html_string() method that may
+    be used instead.
 
     :param formula:
     :return:
@@ -171,14 +172,13 @@ def htmlify(formula):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
 
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
 def unicodeify(formula):
     """
     Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
+
+    Note that Composition now has a to_unicode_string() method that may
+    be used instead.
 
     :param formula:
     :return:
@@ -193,14 +193,13 @@ def unicodeify(formula):
     return formula
 
 
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
 def latexify_spacegroup(spacegroup_symbol):
     r"""
     Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
+
+    Note that SymmetryGroup now has a to_latex_string() method that may
+    be called instead.
 
     Args:
         spacegroup_symbol (str): A spacegroup symbol
@@ -212,14 +211,13 @@ def latexify_spacegroup(spacegroup_symbol):
     return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
 
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
 def unicodeify_spacegroup(spacegroup_symbol):
     r"""
     Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
+
+    Note that SymmetryGroup now has a to_unicode_string() method that
+    may be called instead.
 
     Args:
         spacegroup_symbol (str): A spacegroup symbol as LaTeX
@@ -248,14 +246,13 @@ def unicodeify_spacegroup(spacegroup_symbol):
     return symbol
 
 
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
 def unicodeify_species(specie_string):
     r"""
     Generates a unicode formatted species string, with appropriate
     superscripts for oxidation states.
+
+    Note that Species now has a to_unicode_string() method that
+    may be used instead.
 
     Args:
         specie_string (str): Species string, e.g. O2-

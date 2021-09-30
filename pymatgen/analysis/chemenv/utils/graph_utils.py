@@ -498,7 +498,7 @@ def get_all_elementary_cycles(graph):
             cycles_matrix[icycle, iedge] = True
 
     # print(cycles_matrix)
-    elementary_cycles_list = list()
+    elementary_cycles_list = []
 
     for ncycles in range(1, len(cycle_basis) + 1):
         for cycles_combination in itertools.combinations(cycles_matrix, ncycles):

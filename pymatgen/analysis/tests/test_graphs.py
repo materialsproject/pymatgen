@@ -37,7 +37,7 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-molecule_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files", "molecules")
+molecule_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
 class StructureGraphTest(PymatgenTest):
@@ -83,21 +83,15 @@ class StructureGraphTest(PymatgenTest):
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
         stdout_file = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files/critic2/MoS2_critic2_stdout.txt",
+            PymatgenTest.TEST_FILES_DIR,
+            "critic2/MoS2_critic2_stdout.txt",
         )
         with open(stdout_file, "r") as f:
             reference_stdout = f.read()
         self.structure = Structure.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/critic2/MoS2.cif",
+                PymatgenTest.TEST_FILES_DIR,
+                "critic2/MoS2.cif",
             )
         )
         c2o = Critic2Analysis(self.structure, reference_stdout)
@@ -229,9 +223,7 @@ class StructureGraphTest(PymatgenTest):
         self.assertEqual(square_copy.graph.number_of_edges(), 3)
 
     def test_substitute(self):
-        structure = Structure.from_file(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files", "Li2O.cif")
-        )
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         molecule = FunctionalGroups["methyl"]
 
         structure_copy = copy.deepcopy(structure)
@@ -471,11 +463,8 @@ from    to  to_image
     def test_extract_molecules(self):
 
         structure_file = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files/H6PbCI3N_mp-977013_symmetrized.cif",
+            PymatgenTest.TEST_FILES_DIR,
+            "H6PbCI3N_mp-977013_symmetrized.cif",
         )
 
         s = Structure.from_file(structure_file)
@@ -539,11 +528,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         cyclohexene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/cyclohexene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/cyclohexene.xyz",
             )
         )
         self.cyclohexene = MoleculeGraph.with_empty_graph(
@@ -568,11 +554,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         butadiene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/butadiene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/butadiene.xyz",
             )
         )
         self.butadiene = MoleculeGraph.with_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
@@ -588,11 +571,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         ethylene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/ethylene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/ethylene.xyz",
             )
         )
         self.ethylene = MoleculeGraph.with_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
@@ -602,7 +582,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
-        self.pc = Molecule.from_file(os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC.xyz"))
+        self.pc = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC.xyz"))
         self.pc_edges = [
             [5, 10],
             [5, 12],
@@ -618,11 +598,9 @@ class MoleculeGraphTest(unittest.TestCase):
             [6, 0],
             [6, 2],
         ]
-        self.pc_frag1 = Molecule.from_file(
-            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC_frag1.xyz")
-        )
+        self.pc_frag1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC_frag1.xyz"))
         self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        self.tfsi = Molecule.from_file(os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "TFSI.xyz"))
+        self.tfsi = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "TFSI.xyz"))
         self.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -920,11 +898,8 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_isomorphic(self):
         ethylene = Molecule.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/graphs/ethylene.xyz",
+                PymatgenTest.TEST_FILES_DIR,
+                "graphs/ethylene.xyz",
             )
         )
         # switch carbons

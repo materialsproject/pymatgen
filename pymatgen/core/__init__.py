@@ -10,7 +10,7 @@ operations on them.
 import os
 
 try:
-    import ruamel.yaml as yaml
+    from ruamel import yaml
 except ImportError:
     try:
         import ruamel_yaml as yaml  # type: ignore  # noqa
@@ -30,25 +30,31 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.0.7"
+__version__ = "2022.0.14"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
 def _load_pmg_settings():
+    # Load environment variables by default as backup
+    d = {}
+    for k, v in os.environ.items():
+        if k.startswith("PMG_"):
+            d[k] = v
+        elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
+            d["PMG_" + k] = v
+
+    # Override anything in env vars with that in yml file
     try:
         with open(SETTINGS_FILE, "rt") as f:
-            d = yaml.safe_load(f)
+            d_yml = yaml.safe_load(f)
+        d.update(d_yml)
     except IOError:
         # If there are any errors, default to using environment variables
         # if present.
-        d = {}
-        for k, v in os.environ.items():
-            if k.startswith("PMG_"):
-                d[k] = v
-            elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
-                d["PMG_" + k] = v
+        pass
+
     d = d or {}
     return dict(d)
 

@@ -881,7 +881,7 @@ class NwOutput:
                 m = energy_gas_patt.search(l)
                 if m:
                     cosmo_scf_energy = energies[-1]
-                    energies[-1] = dict()
+                    energies[-1] = {}
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
                     energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 

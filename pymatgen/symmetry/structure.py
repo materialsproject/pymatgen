@@ -99,6 +99,7 @@ class SymmetrizedStructure(Structure):
             "SymmetrizedStructure",
             "Full Formula ({s})".format(s=self.composition.formula),
             "Reduced Formula: {}".format(self.composition.reduced_formula),
+            "Spacegroup: {} ({})".format(self.spacegroup.int_symbol, self.spacegroup.int_number),
         ]
 
         def to_s(x):

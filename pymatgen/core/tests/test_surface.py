@@ -29,7 +29,7 @@ from pymatgen.util.testing import PymatgenTest
 
 def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, "..", "..", "..", "test_files", "surface_tests", path_str)
+    path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
     return path
 
 

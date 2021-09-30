@@ -1,6 +1,81 @@
 Change log
 ==========
 
+v2022.0.14
+----------
+* Update OPTIMADE interface to allow querying multiple providers, this changes the 
+  method signature of OptimadeRester and so is considered a backwards incompatible change (@mkhorton, #2238)
+
+v2022.0.13
+----------
+* New feature to plot chemical potential diagrams (@mattmcdermott, #2218), see ArXiv:2104.05986 for example
+* Numerous updates to LOBSTER support for new version and including handling COBICAR, SitePotentials and MadelungEnergies (@JaGeo, #2228)
+* Updates and fixes for LAMMPS CombinedData (@htz1992213, #2191)
+* Bug fix for Bader caller (@nwinner, #2230)
+* Documentation fix for Composition (@CompRhys, #2231)
+
+v2022.0.12
+----------
+* @chc273 Major bugfix for cython handling of fractional coordinates wrapping. 
+* @mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219
+* @FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.
+* @gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups
+
+v2022.0.11
+----------
+* New features to handle Grüneisen parameters (@JaGeo, @ab5424, @gpetretto, #2190)
+* New option to return SymmetrizedStructure in CifParser (@mkhorton, 0d9a455)
+* Fix for SubstrateAnalyzer (@shyamd, #2198)
+* Fix for BandFillingCorrection (@kavanase, #2193)
+
+v2022.0.10
+----------
+* Add spin-dependent eigenvalue band properties (@arosen93, #2187)
+* Bug fix for settings loading (@ardunn, #2186)
+
+v2022.0.9
+---------
+* Significant new functionality for handling interfaces between structures (@shyamd, #2149)
+* Add input/output for CREST (@arepstein, #2020)
+* Add RadialSiteDistortionTransformation (@nwinner, #2108)
+* Add Q-Chem NBO functionality (@samblau, #2174)
+* Change hkl annotation format in diffraction plots (@flaviu-gostin, #2143)
+* Add space group to print output of `SymmetrizedStructure` (@CompRhys, #2139)
+* Better error handling in QCOutput (@rkingsbury, #2147, #2165, #2135)
+* Add progress bar for applying compatibility scheme (@CompRhys, #2136)
+* Allow combining data with multiple molecule IDs in LAMMPS (@htz1992213, #2157)
+* Update EDIFF in DFPT input set to be consistent with atomate (@utf, #2172)
+
+* Change names of high-symmetry paths (@munrojm, #2144)
+* Change default for filter_solids argument of PourbaixDiagram (@rkingsbury, #2177)
+
+* Fix to improve precision in `FermiDos`, NOTE: this can result in significant changes in some instances (@nwinner, #2109)
+* Fix for handling of Exceptions (@kmu, #2150)
+* Fix for PourbaixEntry (@JosephMontoya-TRI, #2148)
+* Fix for loading of settings from file when environment variables also set (@ardunn, #2164)
+* Fix equation for calculation of k-spacing in SCAN sets, NOTE: this now results in a lower k-point density (@ab5424, #2163)
+* Fix for parsing of VASP vasprun.xml when ALGO=CHI (@KazMorita, #2171)
+
+* Documentation update for MP2020 corrections scheme (@rkingsbury, #2141)
+* Documentation update for SCAN sets (@janosh, #2140)
+* Documentation update for using CifWriter (@755452800, #2156)
+
+v2022.0.8
+---------
+* PR #2130 @rkingsbury ensures that energy corrections applied to each anion
+  have unique names (e.g., N vs. Cl vs. Br).
+* PR #2133 @rkingsbury adds support for custom vdW radii to `QCInput` and 
+  `QChemDictSet`. These radii are used in the construction of PCM cavities and
+  when calculating charges.  
+* PR #2123 from @gpetretto fixes bug in `get_conventional_standard_structure` 
+  method of the `SpacegroupAnalyzer` for triclinic crystals.
+* PR #2134 from @ab5424 supports zopen in parsing lammps logs
+* PR #2132 from @htz1992213 speeds up LammpsData.as_string for
+  non-hybrid data with large coeff sections and adds as_lammpsdata method to
+  CombinedData  
+* PR #2129 from @richardtran415 improves analysis of surface symmetry of slabs.
+* PR #2117 from @nwinner contains bug fixes for bader caller.    
+
 v2022.0.7
 ---------
 * Improved Gaussian Cube I/O (@nwinner, #2121)
