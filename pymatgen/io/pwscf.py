@@ -263,6 +263,8 @@ class PWInput:
                 return ("pseudo",)
             if "K_POINTS" in line:
                 return "kpoints", line.split()[1]
+            if "OCCUPATIONS" in line:
+                return("occupations")
             if "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
                 return "structure", line.split()[1]
             if line == "/":
@@ -317,6 +319,9 @@ class PWInput:
                     kpoints_shift = (int(m.group(4)), int(m.group(5)), int(m.group(6)))
                 else:
                     kpoints_mode = mode[1]
+                    kpoints_grid = (1, 1, 1)
+                    kpoints_shift = (0, 0, 0)
+
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
@@ -328,14 +333,13 @@ class PWInput:
                     ]
                 elif m_p:
                     site_properties["pseudo"].append(pseudo[m_p.group(1)])
-                    species += [pseudo[m_p.group(1)].split(".")[0]]
+                    species.append(m_p.group(1))
                     coords += [[float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]]
 
                     if mode[1] == "angstrom":
                         coords_are_cartesian = True
                     elif mode[1] == "crystal":
                         coords_are_cartesian = False
-
         structure = Structure(
             Lattice(lattice),
             species,
