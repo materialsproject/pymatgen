@@ -43,7 +43,7 @@ class InputFile(MSONable):
             kwargs: Keyword arguments passed to get_string()
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with open(filename, "wt") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.get_string())
 
     @classmethod
