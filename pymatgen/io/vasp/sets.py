@@ -170,8 +170,7 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
             potcar=self.potcar,
         )
 
-    @property
-    def _inputs(self):
+    def get_inputs(self):
         """
         Generate VASP input data for writing to a directory using
         InputSet.write_input.
@@ -228,7 +227,7 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
                 "generate_potcar" function in the pymatgen CLI.
         """
         path = output_dir if isinstance(output_dir, Path) else Path(output_dir)
-        d = self._inputs
+        d = self.get_inputs()
 
         if potcar_spec:
             d.update({"POTCAR.spec": "\n".join(self.potcar_symbols)})
