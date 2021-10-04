@@ -29,21 +29,22 @@ class InputFile(MSONable):
     """
 
     @abc.abstractmethod
-    def get_string(self, **kwargs) -> str:
+    def get_string(self) -> str:
         """
         Return a string representation of an entire input file.
         """
 
-    def write_file(self, filename: Union[str, Path], **kwargs) -> None:
+    def write_file(self, filename: Union[str, Path]) -> None:
         """
         Write the input file.
 
         Args:
             filename: The filename to output to, including path.
+            kwargs: Keyword arguments passed to get_string()
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with open(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_string())
 
     @classmethod
     @abc.abstractmethod
@@ -79,13 +80,12 @@ class InputSet(MSONable, Mapping):
     Abstract base class for all InputSet classes. InputSet classes serve
     as containers for all calculation input data.
 
-    All InputSet must implement a _get_inputs and from_directory method.
+    All InputSet must implement a get_inputs and from_directory method.
     Implementing the validate method is optional.
     """
 
-    @property
     @abc.abstractmethod
-    def _inputs(self) -> Dict[str, Union[str, InputFile]]:
+    def get_inputs(self) -> Dict[str, Union[str, InputFile]]:
         """
         Return a dictionary of one or more input files to be written. Keys
         are filenames, values are InputFile objects or strings representing
@@ -94,7 +94,6 @@ class InputSet(MSONable, Mapping):
         This method is called by write_input(), which performs the actual file
         write operations.
         """
-        pass
 
     def write_input(
         self,
@@ -117,7 +116,7 @@ class InputSet(MSONable, Mapping):
         """
         path = directory if isinstance(directory, Path) else Path(directory)
 
-        for fname, contents in self._inputs.items():
+        for fname, contents in self.get_inputs().items():
             file = path / fname
 
             if not path.exists():
@@ -138,7 +137,7 @@ class InputSet(MSONable, Mapping):
         if zip_inputs:
             zipfilename = path / f"{self.__class__.__name__}.zip"
             with ZipFile(zipfilename, "w") as zip:
-                for fname, contents in self._inputs.items():
+                for fname, contents in self.get_inputs().items():
                     file = path / fname
                     try:
                         zip.write(file)
@@ -167,13 +166,13 @@ class InputSet(MSONable, Mapping):
         raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
 
     def __len__(self):
-        return len(self._inputs.keys())
+        return len(self.get_inputs().keys())
 
     def __iter__(self):
-        return iter(self._inputs.items())
+        return iter(self.get_inputs().items())
 
     def __getitem__(self, key):
-        return self._inputs[key]
+        return self.get_inputs()[key]
 
 
 class InputSetGenerator(MSONable):

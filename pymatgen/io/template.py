@@ -48,8 +48,10 @@ class TemplateInputSet(InputSet):
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
 
-    @property
-    def _inputs(self):
+    def get_inputs(self):
+        """
+        Return a mapping of {filename: data}
+        """
         return {self.filename: self.data}
 
     @classmethod

@@ -535,13 +535,13 @@ class Poscar(InputFile):
         """
         return self.get_string()
 
-    def write_file(self, filename: PathLike, **kwargs):
-        """
-        Writes POSCAR to a file. The supported kwargs are the same as those for
-        the Poscar.get_string method and are passed through directly.
-        """
-        with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+    # def write_file(self, filename: PathLike, **kwargs):
+    #     """
+    #     Writes POSCAR to a file. The supported kwargs are the same as those for
+    #     the Poscar.get_string method and are passed through directly.
+    #     """
+    #     with zopen(filename, "wt") as f:
+    #         f.write(self.get_string(**kwargs))
 
     def as_dict(self) -> dict:
         """
@@ -738,6 +738,21 @@ class Incar(dict, InputFile):
 
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
+
+    def write_file(self, filename: Union[str, Path], sort_keys=True, pretty=False) -> None:
+        """
+        Write the input file.
+
+        Args:
+            filename: The filename to output to, including path.
+            sort_keys (bool): Set to True to sort the INCAR parameters
+                alphabetically. Defaults to False.
+            pretty (bool): Set to True for pretty aligned output. Defaults
+                to False.
+        """
+        filename = filename if isinstance(filename, Path) else Path(filename)
+        with open(filename, "wt") as f:
+            f.write(self.get_string(sort_keys=sort_keys, pretty=pretty))
 
     @staticmethod
     def from_string(string: str) -> "Incar":
@@ -1454,6 +1469,12 @@ class Kpoints(InputFile):
             f.write(self.__str__())
 
     def __repr__(self):
+        return self.__str__()
+
+    def get_string(self) -> str:
+        """
+        Return a string representation of the KPoints object.
+        """
         return self.__str__()
 
     def __str__(self):
@@ -2244,6 +2265,12 @@ class Potcar(list, InputFile):
                 p = PotcarSingle.from_symbol_and_functional(el, functional)
                 self.append(p)
 
+    def get_string(self) -> str:
+        """
+        Return a string representation of the Potcar object.
+        """
+        return self.__str__()
+
 
 class VaspInput(InputSet):
     """
@@ -2268,8 +2295,14 @@ class VaspInput(InputSet):
         self.potcar = potcar
         self.optional_files = optional_files
 
-    @property
-    def _inputs(self):
+    def get_inputs(self):
+        """
+        Return a mapping of {filename: object} for the VaspInput, e.g.
+        {"INCAR": <Incar object>,
+         "POSCAR": <Poscar object>,
+         etc.
+         }
+        """
         d = {"INCAR": self.incar, "KPOINTS": self.kpoints, "POSCAR": self.poscar, "POTCAR": self.potcar}
         if self.optional_files is not None:
             d.update(self.optional_files)
@@ -2277,7 +2310,7 @@ class VaspInput(InputSet):
 
     def __str__(self):
         output = []
-        for k, v in self._inputs.items():
+        for k, v in self.get_inputs().items():
             output.append(k)
             output.append(str(v))
             output.append("")
