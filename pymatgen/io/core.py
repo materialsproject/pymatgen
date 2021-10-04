@@ -46,9 +46,9 @@ class InputFile(MSONable):
         with open(filename, "wt") as f:
             f.write(self.__str__())
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def from_string(contents):
+    def from_string(cls, contents: str):
         """
         Create an InputFile object from a string
 
