@@ -132,6 +132,7 @@ class LammpsTemplateSetTest(PymatgenTest):
                 data_filename="data.peptide",
             )
             tmpdir = Path(tmpdir)
+            assert len(lis) == 1
             lis.write_input(tmpdir / "heat")
 
             with open(tmpdir / "heat" / "in.lammps") as f:
@@ -157,6 +158,7 @@ class LammpsTemplateSetTest(PymatgenTest):
                 data=obj,
                 data_filename="data.peptide",
             )
+            assert len(lis) == 2
             lis.write_input(tmpdir / "obj")
 
             obj_read = LammpsData.from_file(str(tmpdir / "obj" / "data.peptide"), atom_style="atomic")
