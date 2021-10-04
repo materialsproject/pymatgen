@@ -159,6 +159,7 @@ class LammpsTemplateSetTest(PymatgenTest):
                 data_filename="data.peptide",
             )
             assert len(lis) == 2
+            assert isinstance(lis["data.peptide"], LammpsData)
             lis.write_input(tmpdir / "obj")
 
             obj_read = LammpsData.from_file(str(tmpdir / "obj" / "data.peptide"), atom_style="atomic")
