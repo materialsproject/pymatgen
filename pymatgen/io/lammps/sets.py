@@ -28,7 +28,7 @@ class LammpsInputSet(InputSet):
     specific instances of LammpsInputSet that are tailored to specific purposes.
     """
 
-    def _generate_input_data(self) -> Dict[str, str]:
+    def get_inputs(self) -> Dict[str, str]:
         """
         Generate a dictionary of one or more input files to be written. Keys
         are filenames, values are the contents of each file.
