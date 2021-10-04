@@ -6,6 +6,7 @@
 import hashlib
 import tempfile
 import unittest
+import os
 
 import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore

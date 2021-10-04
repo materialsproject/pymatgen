@@ -311,6 +311,35 @@ he should use the following procedure::
    plotter = PDPlotter(pd)
    plotter.show()
 
+pymatgen.io - Managing calculation inputs and outputs
+=====================================================
+
+The :mod:`pymatgen.io` module contains classes to facilitate writing input files
+and parsing output files from a variety of computational codes, including VASP,
+Q-Chem, LAMMPS, CP2K, AbInit, and many more.
+
+The core class for managing inputs is the :class:`InputSet`. An :class:`InputSet` object contains
+all the data necessary to write one or more input files for a calculation.
+Specifically, every :class:`InputSet` has a `write_inputs()` method that writes all the
+necessary files to a location you specify. There are also :class:`InputSetGenerator` classes
+that yield :class:`InputSet` with settings tailored to specific calculation types (for example,
+a structure relaxation).
+
+A simple workflow to construct an :class:`InputSet` for a VASP structure relaxation is::
+
+    from pymatgen.io.sets import MPRelaxGen
+
+    input_gen = MPRelaxGen()
+    vasp_input_set = input_gen.get_input_set(structure)
+    vasp_input_set.write_inputs('/path/to/calc/directory')
+
+You can also use `InputSet.from_directory()` to construct a pymatgen :class:`InputSet`
+from a directory containing calculation inputs.
+
+Many codes also contain classes for parsing output files into pymatgen objects.
+These are less standardized across codes than :class:`InputSet`, so please refer to the
+respective module documentation for more details.
+
 pymatgen.borg - High-throughput data assimilation
 =================================================
 
@@ -543,7 +572,7 @@ document schema used in the Materials Project and how best to query for the
 relevant information you need.
 
 Setting the PMG_MAPI_KEY in the config file
----------------------------------------
+-------------------------------------------
 
 MPRester can also read the API key via the pymatgen config file. Simply run::
 

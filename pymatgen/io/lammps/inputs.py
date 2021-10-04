@@ -11,11 +11,15 @@ import os
 import re
 import shutil
 import warnings
+from pathlib import Path
 from string import Template
+from typing import Union, Optional, Dict
 
 from monty.json import MSONable
+from monty.dev import deprecated
 
-from pymatgen.io.lammps.data import LammpsData
+from pymatgen.io.template import TemplateInputSet
+from pymatgen.io.lammps.data import LammpsData, CombinedData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -107,6 +111,57 @@ class LammpsRun(MSONable):
         )
 
 
+class LammpsTemplateSet(TemplateInputSet):
+    """
+    Creates an InputSet object for a LAMMPS run based on a template file.
+    The input script is constructed by substituting variables into placeholders
+    in the template file using python's Template.safe_substitute() function.
+    The data file containing coordinates and topology information can be provided
+    as a LammpsData instance. Alternatively, you can include a read_data command
+    in the template file that points to an existing data file.
+    Other supporting files are not handled at the moment.
+
+    To write the input files to a directory, call LammpsTemplateSet.write_input()
+    See pymatgen.io.template.py for additional documentation of this method.
+    """
+
+    def __init__(
+        self,
+        script_template: Union[str, Path],
+        settings: Optional[Dict] = None,
+        data: Union[LammpsData, CombinedData] = None,
+        script_filename: str = "in.lammps",
+        data_filename: str = "system.data",
+    ):
+        """
+        Args:
+            script_template: String template for input script with
+                placeholders. The format for placeholders has to be
+                '$variable_name', e.g., '$temperature'
+            settings: Contains values to be written to the
+                placeholders, e.g., {'temperature': 1}. Default to None.
+            data: Data file as a LammpsData instance. Default to None, i.e., no
+                data file supplied. Note that a matching 'read_data' command
+                must be provided in the script template in order for the data
+                file to actually be read.
+            script_filename: Filename for the input file.
+            data_filename: Filename for the data file, if provided.
+        """
+        self.system_data = data
+        self.data_filename = data_filename
+        super().__init__(template=script_template, variables=settings, filename=script_filename)
+
+    def get_inputs(self):
+        """
+        Return a mapping of {filename: data}
+        """
+        d = {self.filename: self.data}
+        if self.system_data:
+            d.update({self.data_filename: self.system_data})
+        return d
+
+
+@deprecated(LammpsTemplateSet, "This method will be retired in the future. Consider using LammpsTemplateSet instead.")
 def write_lammps_inputs(
     output_dir,
     script_template,
