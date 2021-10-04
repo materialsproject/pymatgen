@@ -7,7 +7,7 @@ import pytest
 import tempfile
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.core import TemplateInputSet
+from pymatgen.io.template import TemplateInputSet
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 
