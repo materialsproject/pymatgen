@@ -171,7 +171,7 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
             kpoints=self.kpoints,
             poscar=self.poscar,
             potcar=self.potcar,
-            optional_files=optional_files
+            optional_files=optional_files,
         )
 
     def get_inputs(self):
