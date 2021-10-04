@@ -6,13 +6,16 @@ import os
 import re
 import shutil
 import unittest
+import pytest
+import tempfile
 
 import pandas as pd
+from pathlib import Path
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
-from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
+from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs, LammpsTemplateSet
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -104,10 +107,11 @@ class FuncTest(unittest.TestCase):
         self.assertTrue(filecmp.cmp(src, dst, shallow=False))
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
-        write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-        obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"), atom_style="atomic")
-        pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
-        pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
+        with pytest.warns(FutureWarning):
+            write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
+            obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"), atom_style="atomic")
+            pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+            pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
     @classmethod
     def tearDownClass(cls):
@@ -115,6 +119,49 @@ class FuncTest(unittest.TestCase):
         for td in temp_dirs:
             if os.path.exists(td):
                 shutil.rmtree(td)
+
+
+class LammpsTemplateSetTest(PymatgenTest):
+    def test_write_inputs(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # simple script without data file
+            lis = LammpsTemplateSet(
+                script_template=os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt"),
+                settings={"method": "heat"},
+                data=None,
+                data_filename="data.peptide",
+            )
+            tmpdir = Path(tmpdir)
+            lis.write_input(tmpdir / "heat")
+
+            with open(tmpdir / "heat" / "in.lammps") as f:
+                kappa_script = f.read()
+            fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
+            # placeholders supposed to be filled
+            assert fix_hot.group(1) == "heat"
+            fix_cold = re.search(r"fix\s+cold\s+all\s+([^\s]+)\s+", kappa_script)
+            assert fix_cold.group(1) == "heat"
+            lattice = re.search(r"lattice\s+fcc\s+(.*)\n", kappa_script)
+            # parentheses not supposed to be filled
+            assert lattice.group(1) == "${rho}"
+            pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
+            assert pair_style.group(1) == "${rc}"
+
+            # script with data file
+            obj = LammpsData.from_file(
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic"
+            )
+            lis = LammpsTemplateSet(
+                script_template=os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide"),
+                settings=None,
+                data=obj,
+                data_filename="data.peptide",
+            )
+            lis.write_input(tmpdir / "obj")
+
+            obj_read = LammpsData.from_file(str(tmpdir / "obj" / "data.peptide"), atom_style="atomic")
+            pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+            pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
 
 if __name__ == "__main__":
