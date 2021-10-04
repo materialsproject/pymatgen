@@ -60,17 +60,17 @@ class InputFile(MSONable):
         """
 
     @classmethod
-    def from_file(cls, filename: Union[str, Path]):
+    def from_file(cls, path: Union[str, Path]):
         """
         Creates an InputFile object from a file.
 
         Args:
-            filename: Filename to read, including path.
+            path: Filename to read, including path.
 
         Returns:
             InputFile
         """
-        filename = filename if isinstance(filename, Path) else Path(filename)
+        filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
 
