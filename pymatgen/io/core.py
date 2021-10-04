@@ -6,8 +6,7 @@ import abc
 import os
 from pathlib import Path
 from collections.abc import Mapping
-from string import Template
-from typing import Union, Optional, Dict
+from typing import Union, Dict
 from zipfile import ZipFile
 from monty.json import MSONable
 from monty.io import zopen
@@ -25,17 +24,17 @@ class InputFile(MSONable):
     of this class is optional; it is possible create an InputSet that
     does not rely on underlying Inputfile objects.
 
-    All InputFile classes must implement a __str__ method, which
+    All InputFile classes must implement a get_string method, which
     is called by write_file.
     """
 
     @abc.abstractmethod
-    def __str__(self) -> str:
+    def get_string(self, **kwargs) -> str:
         """
-        String representation of an entire input file.
+        Return a string representation of an entire input file.
         """
 
-    def write_file(self, filename: Union[str, Path]) -> None:
+    def write_file(self, filename: Union[str, Path], **kwargs) -> None:
         """
         Write the input file.
 
@@ -44,7 +43,7 @@ class InputFile(MSONable):
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with open(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(self.get_string(**kwargs))
 
     @classmethod
     @abc.abstractmethod
@@ -191,50 +190,3 @@ class InputSetGenerator(MSONable):
         will be a Structure or other form of atomic coordinates.
         """
         pass
-
-
-class TemplateInputSet(InputSet):
-    """
-    Concrete implementation of InputSet that is based on a single template input
-    file with variables.
-
-    This class is provided as a low-barrier way to support new codes and to provide
-    an intuitive way for users to transition from manual scripts to pymatgen I/O
-    classes.
-    """
-
-    def __init__(self, template: Union[str, Path], variables: Optional[Dict] = None, filename: str = "input.txt"):
-        """
-        Args:
-            template: the input file template containing variable strings to be
-                replaced.
-            variables: dict of variables to replace in the template. Keys are the
-                text to replaced with the values, e.g. {"TEMPERATURE": 298} will
-                replace the text $TEMPERATURE in the template. See Python's
-                Template.safe_substitute() method documentation for more details.
-            filename: name of the file to be written
-        """
-        self.template = template
-        self.variables = variables if variables else {}
-        self.filename = filename
-
-        # load the template
-        with zopen(self.template, "r") as f:
-            template_str = f.read()
-
-        # replace all variables
-        self.data = Template(template_str).safe_substitute(**self.variables)
-
-    @property
-    def _inputs(self):
-        return {self.filename: self.data}
-
-    @classmethod
-    def from_directory(cls, directory: Union[str, Path]):
-        """
-        Construct an InputSet from a directory of one or more files.
-
-        Args:
-            directory: Directory to read input files from
-        """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
