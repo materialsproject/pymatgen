@@ -535,14 +535,6 @@ class Poscar(InputFile):
         """
         return self.get_string()
 
-    # def write_file(self, filename: PathLike, **kwargs):
-    #     """
-    #     Writes POSCAR to a file. The supported kwargs are the same as those for
-    #     the Poscar.get_string method and are passed through directly.
-    #     """
-    #     with zopen(filename, "wt") as f:
-    #         f.write(self.get_string(**kwargs))
-
     def as_dict(self) -> dict:
         """
         :return: MSONable dict.
