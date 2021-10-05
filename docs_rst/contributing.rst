@@ -109,8 +109,8 @@ The namespaces provide an important clue what kind of contributions are suitable
 
 To help developers write add-ons, we have written a `pymatgen add-on template
 <http://github.com/materialsproject/pymatgen-addon-template>`_ with detailed instructions. For a real-world
-example using this template, check out Materials Virtual Lab's `pymatgen-diffusion
-<http://github.com/materialsvirtuallab/pymatgen-diffusion`_.
+example using this template, check out Materials Virtual Lab's `pymatgen-analysis-diffusion
+<http://pypi.org/project/pymatgen-analysis-diffusion/>`_.
 
 It should be noted that while the pymatgen maintainers will attempt to help developers as far as possible, **we provide
 no guarantees whatsoever on the quality or reliability of any code that is not part of the main pymatgen distribution**.

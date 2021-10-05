@@ -2446,7 +2446,7 @@ class PDPlotter:
                 }
             )
 
-            if self._dim == 3 or self._dim == 4:
+            if self._dim in (3, 4):
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:

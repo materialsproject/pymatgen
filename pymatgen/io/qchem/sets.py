@@ -201,7 +201,7 @@ class QChemDictSet(QCInput):
                 mysmx["solvent"] = self.smd_solvent
             myrem["solvent_method"] = "smd"
             myrem["ideriv"] = "1"
-            if self.smd_solvent == "custom" or self.smd_solvent == "other":
+            if self.smd_solvent in ("custom", "other"):
                 if self.custom_smd is None:
                     raise ValueError(
                         "A user-defined SMD requires passing custom_smd, a string"
@@ -279,7 +279,7 @@ class QChemDictSet(QCInput):
             input_file (str): Filename
         """
         self.write_file(input_file)
-        if self.smd_solvent == "custom" or self.smd_solvent == "other":
+        if self.smd_solvent in ("custom", "other"):
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
                 f.write(self.custom_smd)
 

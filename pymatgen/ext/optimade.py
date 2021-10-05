@@ -11,6 +11,8 @@ from urllib.parse import urlparse
 
 import requests
 
+# from retrying import retry
+
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
@@ -293,7 +295,7 @@ class OptimadeRester:
 
             fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
 
-            url = join(resource, f"v1/structures?filter={optimade_filter}&fields={fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&{fields}")
 
             try:
 

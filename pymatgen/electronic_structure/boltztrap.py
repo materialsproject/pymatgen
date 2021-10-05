@@ -477,7 +477,7 @@ class BoltztrapRunner(MSONable):
         """
         setgap = 1 if self.scissor > 0.0001 else 0
 
-        if self.run_type == "BOLTZ" or self.run_type == "DOS":
+        if self.run_type in ("BOLTZ", "DOS"):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
