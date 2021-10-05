@@ -268,8 +268,8 @@ class Fragmenter(MSONable):
                                     break
                             if not found:
                                 self.all_unique_frag_dict[frag_key].append(copy.deepcopy(new_fragment))
-        for key in new_frag_key_dict:
-            self.all_unique_frag_dict[key] = copy.deepcopy(new_frag_key_dict[key])
+        for key, value in new_frag_key_dict.items():
+            self.all_unique_frag_dict[key] = copy.deepcopy(value)
         idx = 0
         while len(new_frag_keys[str(idx)]) != 0:
             new_frag_key_dict = {}
@@ -306,8 +306,8 @@ class Fragmenter(MSONable):
                                         break
                                 if not found:
                                     self.all_unique_frag_dict[frag_key].append(copy.deepcopy(new_fragment))
-            for key in new_frag_key_dict:
-                self.all_unique_frag_dict[key] = copy.deepcopy(new_frag_key_dict[key])
+            for key, value in new_frag_key_dict.items():
+                self.all_unique_frag_dict[key] = copy.deepcopy(value)
         self.all_unique_frag_dict.pop(mol_key)
 
 

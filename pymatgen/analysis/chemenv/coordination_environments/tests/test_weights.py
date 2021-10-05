@@ -23,13 +23,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.util.testing import PymatgenTest
 
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )

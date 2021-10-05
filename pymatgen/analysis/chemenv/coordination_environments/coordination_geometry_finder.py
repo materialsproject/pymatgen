@@ -722,22 +722,19 @@ class LocalGeometryFinder:
             self.detailed_voronoi.separations = [None] * len(self.structure)
 
         # Loop on all the sites
-        for isite in range(len(self.structure)):
+        for isite, site in enumerate(self.structure):
             if isite not in sites_indices:
                 logging.debug(
-                    " ... in site #{:d}/{:d} ({}) : "
-                    "skipped".format(isite, len(self.structure), self.structure[isite].species_string)
+                    " ... in site #{:d}/{:d} ({}) : " "skipped".format(isite, len(self.structure), site.species_string)
                 )
                 continue
             if breakit:
                 logging.debug(
                     " ... in site #{:d}/{:d} ({}) : "
-                    "skipped (timelimit)".format(isite, len(self.structure), self.structure[isite].species_string)
+                    "skipped (timelimit)".format(isite, len(self.structure), site.species_string)
                 )
                 continue
-            logging.debug(
-                " ... in site #{:d}/{:d} ({})".format(isite, len(self.structure), self.structure[isite].species_string)
-            )
+            logging.debug(" ... in site #{:d}/{:d} ({})".format(isite, len(self.structure), site.species_string))
             t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = OrderedDict()
@@ -887,44 +884,44 @@ class LocalGeometryFinder:
         else:
             logging.debug("Getting StructureEnvironments with standard algorithm")
             cncgsm = self.get_coordination_symmetry_measures()
-        for cg in cncgsm:
+        for cg, d in cncgsm.items():
             other_csms = {
-                "csm_wocs_ctwocc": cncgsm[cg]["csm_wocs_ctwocc"],
-                "csm_wocs_ctwcc": cncgsm[cg]["csm_wocs_ctwcc"],
-                "csm_wocs_csc": cncgsm[cg]["csm_wocs_csc"],
-                "csm_wcs_ctwocc": cncgsm[cg]["csm_wcs_ctwocc"],
-                "csm_wcs_ctwcc": cncgsm[cg]["csm_wcs_ctwcc"],
-                "csm_wcs_csc": cncgsm[cg]["csm_wcs_csc"],
-                "rotation_matrix_wocs_ctwocc": cncgsm[cg]["rotation_matrix_wocs_ctwocc"],
-                "rotation_matrix_wocs_ctwcc": cncgsm[cg]["rotation_matrix_wocs_ctwcc"],
-                "rotation_matrix_wocs_csc": cncgsm[cg]["rotation_matrix_wocs_csc"],
-                "rotation_matrix_wcs_ctwocc": cncgsm[cg]["rotation_matrix_wcs_ctwocc"],
-                "rotation_matrix_wcs_ctwcc": cncgsm[cg]["rotation_matrix_wcs_ctwcc"],
-                "rotation_matrix_wcs_csc": cncgsm[cg]["rotation_matrix_wcs_csc"],
-                "scaling_factor_wocs_ctwocc": cncgsm[cg]["scaling_factor_wocs_ctwocc"],
-                "scaling_factor_wocs_ctwcc": cncgsm[cg]["scaling_factor_wocs_ctwcc"],
-                "scaling_factor_wocs_csc": cncgsm[cg]["scaling_factor_wocs_csc"],
-                "scaling_factor_wcs_ctwocc": cncgsm[cg]["scaling_factor_wcs_ctwocc"],
-                "scaling_factor_wcs_ctwcc": cncgsm[cg]["scaling_factor_wcs_ctwcc"],
-                "scaling_factor_wcs_csc": cncgsm[cg]["scaling_factor_wcs_csc"],
-                "translation_vector_wocs_ctwocc": cncgsm[cg]["translation_vector_wocs_ctwocc"],
-                "translation_vector_wocs_ctwcc": cncgsm[cg]["translation_vector_wocs_ctwcc"],
-                "translation_vector_wocs_csc": cncgsm[cg]["translation_vector_wocs_csc"],
-                "translation_vector_wcs_ctwocc": cncgsm[cg]["translation_vector_wcs_ctwocc"],
-                "translation_vector_wcs_ctwcc": cncgsm[cg]["translation_vector_wcs_ctwcc"],
-                "translation_vector_wcs_csc": cncgsm[cg]["translation_vector_wcs_csc"],
+                "csm_wocs_ctwocc": d["csm_wocs_ctwocc"],
+                "csm_wocs_ctwcc": d["csm_wocs_ctwcc"],
+                "csm_wocs_csc": d["csm_wocs_csc"],
+                "csm_wcs_ctwocc": d["csm_wcs_ctwocc"],
+                "csm_wcs_ctwcc": d["csm_wcs_ctwcc"],
+                "csm_wcs_csc": d["csm_wcs_csc"],
+                "rotation_matrix_wocs_ctwocc": d["rotation_matrix_wocs_ctwocc"],
+                "rotation_matrix_wocs_ctwcc": d["rotation_matrix_wocs_ctwcc"],
+                "rotation_matrix_wocs_csc": d["rotation_matrix_wocs_csc"],
+                "rotation_matrix_wcs_ctwocc": d["rotation_matrix_wcs_ctwocc"],
+                "rotation_matrix_wcs_ctwcc": d["rotation_matrix_wcs_ctwcc"],
+                "rotation_matrix_wcs_csc": d["rotation_matrix_wcs_csc"],
+                "scaling_factor_wocs_ctwocc": d["scaling_factor_wocs_ctwocc"],
+                "scaling_factor_wocs_ctwcc": d["scaling_factor_wocs_ctwcc"],
+                "scaling_factor_wocs_csc": d["scaling_factor_wocs_csc"],
+                "scaling_factor_wcs_ctwocc": d["scaling_factor_wcs_ctwocc"],
+                "scaling_factor_wcs_ctwcc": d["scaling_factor_wcs_ctwcc"],
+                "scaling_factor_wcs_csc": d["scaling_factor_wcs_csc"],
+                "translation_vector_wocs_ctwocc": d["translation_vector_wocs_ctwocc"],
+                "translation_vector_wocs_ctwcc": d["translation_vector_wocs_ctwcc"],
+                "translation_vector_wocs_csc": d["translation_vector_wocs_csc"],
+                "translation_vector_wcs_ctwocc": d["translation_vector_wcs_ctwocc"],
+                "translation_vector_wcs_ctwcc": d["translation_vector_wcs_ctwcc"],
+                "translation_vector_wcs_csc": d["translation_vector_wcs_csc"],
             }
             ce.add_coord_geom(
                 cg,
-                cncgsm[cg]["csm"],
-                algo=cncgsm[cg]["algo"],
-                permutation=cncgsm[cg]["indices"],
-                local2perfect_map=cncgsm[cg]["local2perfect_map"],
-                perfect2local_map=cncgsm[cg]["perfect2local_map"],
+                d["csm"],
+                algo=d["algo"],
+                permutation=d["indices"],
+                local2perfect_map=d["local2perfect_map"],
+                perfect2local_map=d["perfect2local_map"],
                 detailed_voronoi_index={"cn": cn, "index": inb_set},
                 other_symmetry_measures=other_csms,
-                rotation_matrix=cncgsm[cg]["rotation_matrix"],
-                scaling_factor=cncgsm[cg]["scaling_factor"],
+                rotation_matrix=d["rotation_matrix"],
+                scaling_factor=d["scaling_factor"],
             )
         se.update_coordination_environments(isite=isite, cn=cn, nb_set=nb_set, ce=ce)
         return ce
@@ -1097,7 +1094,7 @@ class LocalGeometryFinder:
         """
         aa = 0.4
         bb = -0.2
-        coords = list()
+        coords = []
         for ii in range(coordination + 1):
             coords.append(
                 aa
@@ -1422,10 +1419,10 @@ class LocalGeometryFinder:
         #                                           np.float_)
         if optimization == 2:
             permutations_symmetry_measures = [None] * len(algo.permutations)
-            permutations = list()
-            algos = list()
-            local2perfect_maps = list()
-            perfect2local_maps = list()
+            permutations = []
+            algos = []
+            local2perfect_maps = []
+            perfect2local_maps = []
             for iperm, perm in enumerate(algo.permutations):
 
                 local2perfect_map = {}
@@ -1453,10 +1450,10 @@ class LocalGeometryFinder:
             )
 
         permutations_symmetry_measures = [None] * len(algo.permutations)
-        permutations = list()
-        algos = list()
-        local2perfect_maps = list()
-        perfect2local_maps = list()
+        permutations = []
+        algos = []
+        local2perfect_maps = []
+        perfect2local_maps = []
         for iperm, perm in enumerate(algo.permutations):
             local2perfect_map = {}
             perfect2local_map = {}
@@ -1496,14 +1493,14 @@ class LocalGeometryFinder:
         :param coordination_geometry: The coordination geometry to be investigated
         :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
         """
-        permutations = list()
-        permutations_symmetry_measures = list()
-        plane_separations = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
+        permutations = []
+        permutations_symmetry_measures = []
+        plane_separations = []
+        algos = []
+        perfect2local_maps = []
+        local2perfect_maps = []
         if testing:
-            separation_permutations = list()
+            separation_permutations = []
         nplanes = 0
         for npoints in range(
             separation_plane_algo.minimum_number_of_points,
@@ -1616,11 +1613,11 @@ class LocalGeometryFinder:
             raise ValueError("Optimization should be 1 or 2")
         cn = len(self.local_geometry.coords)
 
-        permutations = list()
-        permutations_symmetry_measures = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
+        permutations = []
+        permutations_symmetry_measures = []
+        algos = []
+        perfect2local_maps = []
+        local2perfect_maps = []
 
         if separation_plane_algo.separation in nb_set.separations:
             for sep_indices, (local_plane, npsep) in nb_set.separations[separation_plane_algo.separation].items():
@@ -2019,10 +2016,10 @@ class LocalGeometryFinder:
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
         """
         permutations_symmetry_measures = [None] * NRANDOM
-        permutations = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
+        permutations = []
+        algos = []
+        perfect2local_maps = []
+        local2perfect_maps = []
         for iperm in range(NRANDOM):
             perm = np.random.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)

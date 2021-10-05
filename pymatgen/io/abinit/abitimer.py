@@ -177,7 +177,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 line = line[1:].strip()
 
                 if inside == 2:
-                    d = dict()
+                    d = {}
                     for tok in line.split(","):
                         key, val = [s.strip() for s in tok.split("=")]
                         d[key] = float(val)

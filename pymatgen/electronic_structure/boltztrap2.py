@@ -302,10 +302,10 @@ class BandstructureLoader:
 
         self.ebands = np.vstack((lower_band, self.ebands, upper_band))
         if self.proj:
-            for sp in self.proj:
-                proj_lower = self.proj[sp][:, 0:1, :, :]
-                proj_upper = self.proj[sp][:, -1:, :, :]
-                self.proj[sp] = np.concatenate((proj_lower, self.proj[sp], proj_upper), axis=1)
+            for sp, proj in self.proj.items():
+                proj_lower = proj[:, 0:1, :, :]
+                proj_upper = proj[:, -1:, :, :]
+                self.proj[sp] = np.concatenate((proj_lower, proj, proj_upper), axis=1)
 
     def get_volume(self):
         """

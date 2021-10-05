@@ -690,7 +690,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 # this very hacky bit of code only works because we know
                 # that on disordered sites in this class, all species are the same
                 # but have different spins, and this is comma-delimited
-                sp = str(list(site.species.keys())[0]).split(",")[0]
+                sp = str(list(site.species.keys())[0]).split(",", maxsplit=1)[0]
                 if sp in mag_species_order_parameter:
                     mag_species_occurrences[sp] += 1
                 else:
@@ -818,7 +818,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     # this very hacky bit of code only works because we know
                     # that on disordered sites in this class, all species are the same
                     # but have different spins, and this is comma-delimited
-                    sp = str(site.specie).split(",")[0]
+                    sp = str(site.specie).split(",", maxsplit=1)[0]
                     new_properties.update({"spin": sign * self.mag_species_spin.get(sp, 0)})
                     new_specie = Species(
                         site.specie.symbol,

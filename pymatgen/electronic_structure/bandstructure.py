@@ -63,8 +63,8 @@ class Kpoint(MSONable):
         self._label = label
 
         if to_unit_cell:
-            for i in range(len(self._fcoords)):
-                self._fcoords[i] -= math.floor(self._fcoords[i])
+            for i, fc in enumerate(self._fcoords):
+                self._fcoords[i] -= math.floor(fc)
 
         self._ccoords = lattice.get_cartesian_coords(self._fcoords)
 
@@ -136,6 +136,25 @@ class Kpoint(MSONable):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
         }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Create from dict.
+
+        Args:
+            A dict with all data for a kpoint object.
+
+        Returns:
+            A Kpoint object
+        """
+
+        return cls(
+            coords=d["fcoords"],
+            lattice=Lattice.from_dict(d["lattice"]),
+            coords_are_cartesian=False,
+            label=d["label"],
+        )
 
 
 class BandStructure:
@@ -367,8 +386,8 @@ class BandStructure:
 
         list_ind_kpts = []
         if kpointvbm.label is not None:
-            for i in range(len(self.kpoints)):
-                if self.kpoints[i].label == kpointvbm.label:
+            for i, kpt in enumerate(self.kpoints):
+                if kpt.label == kpointvbm.label:
                     list_ind_kpts.append(i)
         else:
             list_ind_kpts.append(index)
@@ -434,8 +453,8 @@ class BandStructure:
 
         list_index_kpoints = []
         if kpointcbm.label is not None:
-            for i in range(len(self.kpoints)):
-                if self.kpoints[i].label == kpointcbm.label:
+            for i, kpt in enumerate(self.kpoints):
+                if kpt.label == kpointcbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
@@ -615,9 +634,9 @@ class BandStructure:
         d["is_spin_polarized"] = self.is_spin_polarized
 
         # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
-        for c in self.labels_dict:
+        for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
-            d["labels_dict"][mongo_key] = self.labels_dict[c].as_dict()["fcoords"]
+            d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
         d["projections"] = {}
         if len(self.projections) != 0:
             d["structure"] = self.structure.as_dict()
@@ -778,15 +797,13 @@ class BandStructureSymmLine(BandStructure, MSONable):
         previous_distance = 0.0
 
         previous_label = self.kpoints[0].label
-        for i in range(len(self.kpoints)):
-            label = self.kpoints[i].label
+        for i, kpt in enumerate(self.kpoints):
+            label = kpt.label
             if label is not None and previous_label is not None:
                 self.distance.append(previous_distance)
             else:
-                self.distance.append(
-                    np.linalg.norm(self.kpoints[i].cart_coords - previous_kpoint.cart_coords) + previous_distance
-                )
-            previous_kpoint = self.kpoints[i]
+                self.distance.append(np.linalg.norm(kpt.cart_coords - previous_kpoint.cart_coords) + previous_distance)
+            previous_kpoint = kpt
             previous_distance = self.distance[i]
             if label:
                 if previous_label:
@@ -832,8 +849,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
             return [index]
 
         list_index_kpoints = []
-        for i in range(len(self.kpoints)):
-            if self.kpoints[i].label == self.kpoints[index].label:
+        for i, kpt in enumerate(self.kpoints):
+            if kpt.label == self.kpoints[index].label:
                 list_index_kpoints.append(i)
 
         return list_index_kpoints
@@ -977,9 +994,9 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
         # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
-        for c in self.labels_dict:
+        for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
-            d["labels_dict"][mongo_key] = self.labels_dict[c].as_dict()["fcoords"]
+            d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
         if len(self.projections) != 0:
             d["structure"] = self.structure.as_dict()
             d["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}

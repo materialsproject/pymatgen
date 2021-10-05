@@ -360,8 +360,8 @@ class Tensor(np.ndarray, MSONable):
         """
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
-        for ind in this_voigt_map:
-            v_matrix[this_voigt_map[ind]] = self[ind]
+        for ind, v in this_voigt_map.items():
+            v_matrix[v] = self[ind]
         if not self.is_voigt_symmetric():
             warnings.warn("Tensor is not symmetric, information may " "be lost in voigt conversion.")
         return v_matrix * self._vscale
@@ -416,8 +416,8 @@ class Tensor(np.ndarray, MSONable):
             raise ValueError("Invalid shape for voigt matrix")
         voigt_input = voigt_input / t._vscale
         this_voigt_map = t.get_voigt_dict(rank)
-        for ind in this_voigt_map:
-            t[ind] = voigt_input[this_voigt_map[ind]]
+        for ind, v in this_voigt_map.items():
+            t[ind] = voigt_input[v]
         return cls(t)
 
     @staticmethod

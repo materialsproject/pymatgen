@@ -43,6 +43,7 @@ class QChemDictSet(QCInput):
         max_scf_cycles: int = 200,
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
         vdw_mode: str = "atomic",
     ):
@@ -92,6 +93,8 @@ class QChemDictSet(QCInput):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            nbo_params (list): A list of strings for the desired NBO params. If an empty list is passed,
+                default NBO analysis will be performed. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -127,6 +130,7 @@ class QChemDictSet(QCInput):
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
+        self.nbo_params = nbo_params
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
 
@@ -141,21 +145,21 @@ class QChemDictSet(QCInput):
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
         if self.opt_variables is None:
-            myopt = dict()
+            myopt = {}
         else:
             myopt = self.opt_variables
 
         if self.scan_variables is None:
-            myscan = dict()
+            myscan = {}
         else:
             myscan = self.scan_variables
 
-        mypcm = dict()
-        mysolvent = dict()
-        mysmx = dict()
-        myvdw = dict()
-        myplots = dict()
-        myrem = dict()
+        mypcm = {}
+        mysolvent = {}
+        mysmx = {}
+        myvdw = {}
+        myplots = {}
+        myrem = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
@@ -198,7 +202,7 @@ class QChemDictSet(QCInput):
                 mysmx["solvent"] = self.smd_solvent
             myrem["solvent_method"] = "smd"
             myrem["ideriv"] = "1"
-            if self.smd_solvent == "custom" or self.smd_solvent == "other":
+            if self.smd_solvent in ("custom", "other"):
                 if self.custom_smd is None:
                     raise ValueError(
                         "A user-defined SMD requires passing custom_smd, a string"
@@ -211,6 +215,9 @@ class QChemDictSet(QCInput):
             myplots = plots_defaults
             myrem["plots"] = "true"
             myrem["make_cube_files"] = "true"
+
+        if self.nbo_params is not None:
+            myrem["nbo"] = "true"
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -244,6 +251,10 @@ class QChemDictSet(QCInput):
                     temp_plots = lower_and_check_unique(sec_dict)
                     for k, v in temp_plots.items():
                         myplots[k] = v
+                if sec == "nbo":
+                    temp_plots = lower_and_check_unique(sec_dict)
+                    for k, v in temp_plots.items():
+                        myplots[k] = v
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -258,8 +269,9 @@ class QChemDictSet(QCInput):
             smx=mysmx,
             scan=myscan,
             van_der_waals=myvdw,
-            plots=myplots,
             vdw_mode=self.vdw_mode,
+            plots=myplots,
+            nbo=self.nbo_params,
         )
 
     def write(self, input_file: str):
@@ -268,7 +280,7 @@ class QChemDictSet(QCInput):
             input_file (str): Filename
         """
         self.write_file(input_file)
-        if self.smd_solvent == "custom" or self.smd_solvent == "other":
+        if self.smd_solvent in ("custom", "other"):
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
                 f.write(self.custom_smd)
 
@@ -289,6 +301,7 @@ class SinglePointSet(QChemDictSet):
         custom_smd: Optional[str] = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
         vdw_mode: str = "atomic",
     ):
@@ -362,6 +375,7 @@ class SinglePointSet(QChemDictSet):
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -383,6 +397,7 @@ class OptSet(QChemDictSet):
         custom_smd: Optional[str] = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         opt_variables: Optional[Dict[str, List]] = None,
         geom_opt_max_cycles: int = 200,
         overwrite_inputs: Optional[Dict] = None,
@@ -462,6 +477,7 @@ class OptSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
+            nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -483,6 +499,7 @@ class TransitionStateSet(QChemDictSet):
         custom_smd: Optional[str] = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         opt_variables: Optional[Dict[str, List]] = None,
         geom_opt_max_cycles: int = 200,
         overwrite_inputs: Optional[Dict] = None,
@@ -559,6 +576,7 @@ class TransitionStateSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
+            nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -580,6 +598,7 @@ class ForceSet(QChemDictSet):
         custom_smd: Optional[str] = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
         vdw_mode: str = "atomic",
     ):
@@ -651,6 +670,7 @@ class ForceSet(QChemDictSet):
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -672,6 +692,7 @@ class FreqSet(QChemDictSet):
         custom_smd: Optional[str] = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
         vdw_mode: str = "atomic",
     ):
@@ -743,6 +764,7 @@ class FreqSet(QChemDictSet):
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -770,6 +792,7 @@ class PESScanSet(QChemDictSet):
         custom_smd: Optional[str] = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
+        nbo_params: Optional[Dict] = None,
         opt_variables: Optional[Dict[str, List]] = None,
         scan_variables: Optional[Dict[str, List]] = None,
         overwrite_inputs: Optional[Dict] = None,
@@ -861,6 +884,7 @@ class PESScanSet(QChemDictSet):
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )

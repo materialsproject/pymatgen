@@ -91,7 +91,7 @@ class LammpsDump(MSONable):
         """
         Returns: MSONable dict
         """
-        d = dict()
+        d = {}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["timestep"] = self.timestep

@@ -396,18 +396,18 @@ class ElementBase(Enum):
     @property
     def oxidation_states(self) -> Tuple:
         """Tuple of all known oxidation states"""
-        return tuple(self._data.get("Oxidation states", list()))
+        return tuple(self._data.get("Oxidation states", []))
 
     @property
     def common_oxidation_states(self) -> Tuple:
         """Tuple of common oxidation states"""
-        return tuple(self._data.get("Common oxidation states", list()))
+        return tuple(self._data.get("Common oxidation states", []))
 
     @property
     def icsd_oxidation_states(self) -> Tuple:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element"""
-        return tuple(self._data.get("ICSD oxidation states", list()))
+        return tuple(self._data.get("ICSD oxidation states", []))
 
     @property
     def metallic_radius(self) -> float:

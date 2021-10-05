@@ -828,6 +828,11 @@ class BandFillingCorrection(DefectCorrection):
                         VBM of bulk calculation (or band structure calculation of bulk);
                         calculated on same level of theory as the defect
                         (ex. GGA defects -> requires GGA vbm)
+
+                    run_metadata["defect_incar"] (dict)
+                        Dictionary of INCAR settings for the defect calculation,
+                        required to check if the calculation included spin-orbit coupling
+                        (to determine the spin factor for occupancies of the electron bands)
         Returns:
             Bandfilling Correction value as a dictionary
 
@@ -837,14 +842,15 @@ class BandFillingCorrection(DefectCorrection):
         potalign = entry.parameters["potalign"]
         vbm = entry.parameters["vbm"]
         cbm = entry.parameters["cbm"]
+        soc_calc = entry.parameters["run_metadata"]["defect_incar"].get("LSORBIT")
 
-        bf_corr = self.perform_bandfill_corr(eigenvalues, kpoint_weights, potalign, vbm, cbm)
+        bf_corr = self.perform_bandfill_corr(eigenvalues, kpoint_weights, potalign, vbm, cbm, soc_calc)
 
         entry.parameters["bandfilling_meta"] = dict(self.metadata)
 
         return {"bandfilling_correction": bf_corr}
 
-    def perform_bandfill_corr(self, eigenvalues, kpoint_weights, potalign, vbm, cbm):
+    def perform_bandfill_corr(self, eigenvalues, kpoint_weights, potalign, vbm, cbm, soc_calc=False):
         """
         This calculates the band filling correction based on excess of electrons/holes in CB/VB...
 
@@ -861,15 +867,15 @@ class BandFillingCorrection(DefectCorrection):
         core_occupation_value = list(eigenvalues.values())[0][0][0][1]  # get occupation of a core eigenvalue
         if len(eigenvalues.keys()) == 1:
             # needed because occupation of non-spin calcs is sometimes still 1... should be 2
-            spinfctr = 2.0 if core_occupation_value == 1.0 else 1.0
+            spinfctr = 2.0 if core_occupation_value == 1.0 and not soc_calc else 1.0
         elif len(eigenvalues.keys()) == 2:
             spinfctr = 1.0
         else:
             raise ValueError("Eigenvalue keys greater than 2")
 
         # for tracking mid gap states...
-        shifted_cbm = potalign + cbm  # shift cbm with potential alignment
-        shifted_vbm = potalign + vbm  # shift vbm with potential alignment
+        shifted_cbm = cbm - potalign  # shift cbm with potential alignment
+        shifted_vbm = vbm - potalign  # shift vbm with potential alignment
 
         for spinset in eigenvalues.values():
             for kptset, weight in zip(spinset, kpoint_weights):

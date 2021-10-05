@@ -744,7 +744,7 @@ class Tags(dict):
                 return m.group(0)
 
             if key in list_type_keys:
-                output = list()
+                output = []
                 toks = re.split(r"\s+", val)
 
                 for tok in toks:

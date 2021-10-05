@@ -544,21 +544,26 @@ class DictSet(VaspInputSet):
             else:
                 incar[k] = v
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
-        if has_u:
-            # modify LMAXMIX if LSDA+U and you have d or f electrons
-            # note that if the user explicitly sets LMAXMIX in settings it will
-            # override this logic.
-            if "LMAXMIX" not in settings.keys():
-                # contains f-electrons
-                if any(el.Z > 56 for el in structure.composition):
-                    incar["LMAXMIX"] = 6
-                # contains d-electrons
-                elif any(el.Z > 20 for el in structure.composition):
-                    incar["LMAXMIX"] = 4
-        else:
+        if not has_u:
             for key in list(incar.keys()):
                 if key.startswith("LDAU"):
                     del incar[key]
+
+        # Modify LMAXMIX if you have d or f electrons present.
+        # Note that if the user explicitly sets LMAXMIX in settings it will
+        # override this logic.
+        # Previously, this was only set if Hubbard U was enabled as per the
+        # VASP manual but following an investigation it was determined that
+        # this would lead to a significant difference between SCF -> NonSCF
+        # even without Hubbard U enabled. Thanks to Andrew Rosen for
+        # investigating and reporting.
+        if "LMAXMIX" not in settings.keys():
+            # contains f-electrons
+            if any(el.Z > 56 for el in structure.composition):
+                incar["LMAXMIX"] = 6
+            # contains d-electrons
+            elif any(el.Z > 20 for el in structure.composition):
+                incar["LMAXMIX"] = 4
 
         if self.constrain_total_magmom:
             nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"]])
@@ -959,11 +964,13 @@ class MPScanRelaxSet(DictSet):
             updates["SIGMA"] = 0.2
             updates["ISMEAR"] = 2
         else:
-            rmin = 25.22 - 1.87 * bandgap  # Eq. 25
+            rmin = 25.22 - 2.87 * bandgap  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            kspacing = min(0.44, kspacing)
-            updates["KSPACING"] = kspacing
+            if 0.22 < kspacing < 0.44:
+                updates["KSPACING"] = kspacing
+            else:
+                updates["KSPACING"] = 0.44
             updates["ISMEAR"] = -5
             updates["SIGMA"] = 0.05
 
@@ -1111,6 +1118,9 @@ class MPStaticSet(MPRelaxSet):
             # to output ionic.
             incar.pop("NSW", None)
             incar.pop("NPAR", None)
+
+            # tighter ediff for DFPT
+            incar["EDIFF"] = 1e-5
 
         if self.lcalcpol:
             incar["LCALCPOL"] = True

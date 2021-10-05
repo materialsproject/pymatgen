@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pymatgen.analysis.chemenv.utils.func_utils module &mdash; pymatgen 2022.0.8 documentation</title>
+  <title>pymatgen.analysis.chemenv.utils.func_utils module &mdash; pymatgen 2022.0.14 documentation</title>
   
 
   
@@ -19,9 +19,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.utils.func_utils.html"/>
+  
+
   
 
   
@@ -63,7 +66,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -73,7 +76,7 @@
             
             
               <div class="version">
-                2022.0.8
+                2022.0.14
               </div>
             
           
@@ -173,6 +176,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -194,7 +199,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.utils.func_utils.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -215,7 +220,7 @@
 <p>This module contains some utility functions and classes that are used in the chemenv package.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">AbstractRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L30-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">AbstractRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L30-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Abstract class for all ratio functions</p>
 <p>Constructor for AbstractRatioFunction</p>
@@ -229,12 +234,12 @@
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.ALLOWED_FUNCTIONS">
-<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L98-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.evaluate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L98-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.evaluate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the ratio function for the given value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -248,7 +253,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.from_dict">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L106-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L106-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct ratio function from dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -262,7 +267,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.setup_parameters">
-<span class="sig-name descname"><span class="pre">setup_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L52-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.setup_parameters" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">setup_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L52-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.setup_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the parameters for this ratio function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -278,7 +283,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CSMFiniteRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L201-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CSMFiniteRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L201-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <p>Concrete implementation of a series of ratio functions applied to the continuous symmetry measure (CSM).</p>
 <p>Uses “finite” ratio functions.</p>
@@ -296,12 +301,12 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS">
-<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'power2_decreasing_exp':</span> <span class="pre">['max_csm',</span> <span class="pre">'alpha'],</span> <span class="pre">'smootherstep':</span> <span class="pre">['lower_csm',</span> <span class="pre">'upper_csm'],</span> <span class="pre">'smoothstep':</span> <span class="pre">['lower_csm',</span> <span class="pre">'upper_csm']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'power2_decreasing_exp':</span> <span class="pre">['max_csm',</span> <span class="pre">'alpha'],</span> <span class="pre">'smootherstep':</span> <span class="pre">['lower_csm',</span> <span class="pre">'upper_csm'],</span> <span class="pre">'smoothstep':</span> <span class="pre">['lower_csm',</span> <span class="pre">'upper_csm']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.fractions">
-<span class="sig-name descname"><span class="pre">fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L256-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.fractions" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L256-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.fractions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the fractions from the CSM ratio function applied to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -315,7 +320,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.mean_estimator">
-<span class="sig-name descname"><span class="pre">mean_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L269-L282"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.mean_estimator" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mean_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L269-L282"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.mean_estimator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the weighted CSM using this CSM ratio function applied to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,7 +334,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.power2_decreasing_exp">
-<span class="sig-name descname"><span class="pre">power2_decreasing_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L217-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.power2_decreasing_exp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">power2_decreasing_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L217-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.power2_decreasing_exp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.</p>
 <p>The CSM values (i.e. “x”), are scaled to the “max_csm” parameter. The “a” constant
 correspond to the “alpha” parameter.</p>
@@ -345,7 +350,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ratios">
-<span class="sig-name descname"><span class="pre">ratios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L256-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ratios" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ratios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L256-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ratios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the fractions from the CSM ratio function applied to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -359,7 +364,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smootherstep">
-<span class="sig-name descname"><span class="pre">smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L228-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smootherstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L228-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smootherstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.</p>
 <p>The CSM values (i.e. “x”), are scaled between the “lower_csm” and “upper_csm” parameters.</p>
 <dl class="field-list simple">
@@ -374,7 +379,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smoothstep">
-<span class="sig-name descname"><span class="pre">smoothstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L242-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smoothstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">smoothstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L242-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smoothstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the smoothstep ratio function: f(x)=3*x^2-2*x^3.</p>
 <p>The CSM values (i.e. “x”), are scaled between the “lower_csm” and “upper_csm” parameters.</p>
 <dl class="field-list simple">
@@ -391,7 +396,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CSMInfiniteRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L287-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CSMInfiniteRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L287-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <p>Concrete implementation of a series of ratio functions applied to the continuous symmetry measure (CSM).</p>
 <p>Uses “infinite” ratio functions.</p>
@@ -409,12 +414,12 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS">
-<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'power2_inverse_decreasing':</span> <span class="pre">['max_csm'],</span> <span class="pre">'power2_inverse_power2_decreasing':</span> <span class="pre">['max_csm']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'power2_inverse_decreasing':</span> <span class="pre">['max_csm'],</span> <span class="pre">'power2_inverse_power2_decreasing':</span> <span class="pre">['max_csm']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.fractions">
-<span class="sig-name descname"><span class="pre">fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L324-L344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.fractions" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L324-L344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.fractions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the fractions from the CSM ratio function applied to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -428,7 +433,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.mean_estimator">
-<span class="sig-name descname"><span class="pre">mean_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L346-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.mean_estimator" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mean_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L346-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.mean_estimator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the weighted CSM using this CSM ratio function applied to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,7 +447,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_decreasing">
-<span class="sig-name descname"><span class="pre">power2_inverse_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L302-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_decreasing" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">power2_inverse_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L302-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the ratio function f(x)=(x-1)^2 / x.</p>
 <p>The CSM values (i.e. “x”), are scaled to the “max_csm” parameter. The “a” constant
 correspond to the “alpha” parameter.</p>
@@ -458,7 +463,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_power2_decreasing">
-<span class="sig-name descname"><span class="pre">power2_inverse_power2_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L313-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_power2_decreasing" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">power2_inverse_power2_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L313-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_power2_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the ratio function f(x)=(x-1)^2 / x^2.</p>
 <p>The CSM values (i.e. “x”), are scaled to the “max_csm” parameter. The “a” constant
 correspond to the “alpha” parameter.</p>
@@ -474,7 +479,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ratios">
-<span class="sig-name descname"><span class="pre">ratios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L324-L344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ratios" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ratios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L324-L344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ratios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the fractions from the CSM ratio function applied to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -490,7 +495,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">DeltaCSMRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L364-L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">DeltaCSMRatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L364-L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <p>Concrete implementation of a series of ratio functions applied to differences of
 continuous symmetry measures (DeltaCSM).</p>
@@ -509,12 +514,12 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS">
-<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'smootherstep':</span> <span class="pre">['delta_csm_min',</span> <span class="pre">'delta_csm_max']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'smootherstep':</span> <span class="pre">['delta_csm_min',</span> <span class="pre">'delta_csm_max']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.smootherstep">
-<span class="sig-name descname"><span class="pre">smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L378-L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.smootherstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L378-L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.smootherstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.</p>
 <p>The DeltaCSM values (i.e. “x”), are scaled between the “delta_csm_min” and “delta_csm_max” parameters.</p>
 <dl class="field-list simple">
@@ -531,7 +536,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">RatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L116-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">RatioFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L116-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <p>Concrete implementation of a series of ratio functions.</p>
 <p>Constructor for AbstractRatioFunction</p>
@@ -545,12 +550,12 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS">
-<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'inverse_smootherstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper'],</span> <span class="pre">'inverse_smoothstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper'],</span> <span class="pre">'power2_decreasing_exp':</span> <span class="pre">['max',</span> <span class="pre">'alpha'],</span> <span class="pre">'power2_inverse_decreasing':</span> <span class="pre">['max'],</span> <span class="pre">'power2_inverse_power2_decreasing':</span> <span class="pre">['max'],</span> <span class="pre">'smootherstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper'],</span> <span class="pre">'smoothstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOWED_FUNCTIONS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">{'inverse_smootherstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper'],</span> <span class="pre">'inverse_smoothstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper'],</span> <span class="pre">'power2_decreasing_exp':</span> <span class="pre">['max',</span> <span class="pre">'alpha'],</span> <span class="pre">'power2_inverse_decreasing':</span> <span class="pre">['max'],</span> <span class="pre">'power2_inverse_power2_decreasing':</span> <span class="pre">['max'],</span> <span class="pre">'smootherstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper'],</span> <span class="pre">'smoothstep':</span> <span class="pre">['lower',</span> <span class="pre">'upper']}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/analysis/chemenv/utils/func_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smootherstep">
-<span class="sig-name descname"><span class="pre">inverse_smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L160-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smootherstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">inverse_smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L160-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smootherstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the “inverse” smootherstep ratio function: f(x)=1-(6*x^5-15*x^4+10*x^3).</p>
 <p>The values (i.e. “x”), are scaled between the “lower” and “upper” parameters.</p>
 <dl class="field-list simple">
@@ -565,7 +570,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smoothstep">
-<span class="sig-name descname"><span class="pre">inverse_smoothstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L170-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smoothstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">inverse_smoothstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L170-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smoothstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the “inverse” smoothstep ratio function: f(x)=1-(3*x^2-2*x^3).</p>
 <p>The values (i.e. “x”), are scaled between the “lower” and “upper” parameters.</p>
 <dl class="field-list simple">
@@ -580,7 +585,7 @@ D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_decreasing_exp">
-<span class="sig-name descname"><span class="pre">power2_decreasing_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L129-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_decreasing_exp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">power2_decreasing_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L129-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_decreasing_exp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.</p>
 <p>The values (i.e. “x”), are scaled to the “max” parameter. The “a” constant
 correspond to the “alpha” parameter.</p>
@@ -596,7 +601,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_decreasing">
-<span class="sig-name descname"><span class="pre">power2_inverse_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L180-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_decreasing" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">power2_inverse_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L180-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the ratio function f(x)=(x-1)^2 / x.</p>
 <p>The values (i.e. “x”), are scaled to the “max” parameter.</p>
 <dl class="field-list simple">
@@ -611,7 +616,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_power2_decreasing">
-<span class="sig-name descname"><span class="pre">power2_inverse_power2_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L190-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_power2_decreasing" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">power2_inverse_power2_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L190-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_power2_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the ratio function f(x)=(x-1)^2 / x^2.</p>
 <p>The values (i.e. “x”), are scaled to the “max” parameter.</p>
 <dl class="field-list simple">
@@ -626,7 +631,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smootherstep">
-<span class="sig-name descname"><span class="pre">smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L140-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smootherstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">smootherstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L140-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smootherstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.</p>
 <p>The values (i.e. “x”), are scaled between the “lower” and “upper” parameters.</p>
 <dl class="field-list simple">
@@ -641,7 +646,7 @@ correspond to the “alpha” parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smoothstep">
-<span class="sig-name descname"><span class="pre">smoothstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L150-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smoothstep" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">smoothstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/../analysis/chemenv/utils/func_utils.py#L150-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smoothstep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the evaluation of the smoothstep ratio function: f(x)=3*x^2-2*x^3.</p>
 <p>The values (i.e. “x”), are scaled between the “lower” and “upper” parameters.</p>
 <dl class="field-list simple">
@@ -663,28 +668,25 @@ correspond to the “alpha” parameter.</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2011, Pymatgen Development Team
+        &#169; Copyright 2011, Pymatgen Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
