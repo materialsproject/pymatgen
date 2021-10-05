@@ -27,7 +27,7 @@ from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify
+from pymatgen.util.string import latexify, htmlify
 
 logger = logging.getLogger(__name__)
 
@@ -546,7 +546,7 @@ class BasePhaseDiagram(MSONable):
         decomp = self.get_decomposition(comp)
         return comp.num_atoms * sum([e.energy_per_atom * n for e, n in decomp.items()])
 
-    def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
+    def get_decomp_and_e_above_hull(self, entry, allow_negative=False, check_stable=True):
         """
         Provides the decomposition and energy above convex hull for an entry.
         Due to caching, can be much faster if entries with the same composition
@@ -556,6 +556,11 @@ class BasePhaseDiagram(MSONable):
             entry (PDEntry): A PDEntry like object
             allow_negative (bool): Whether to allow negative e_above_hulls. Used to
                 calculate equilibrium reaction energies. Defaults to False.
+            check_stable (bool): Whether to first check whether an entry is stable.
+                In normal circumstances, this is the faster option since checking for
+                stable entries is relatively fast. However, if you have a huge proportion
+                of unstable entries, then this check can slow things down. You should then
+                set this to False.
 
         Returns:
             (decomp, energy_above_hull). The decomposition is provided
@@ -565,7 +570,7 @@ class BasePhaseDiagram(MSONable):
         """
         # Avoid computation for stable_entries.
         # NOTE scaled duplicates of stable_entries will not be caught.
-        if entry in list(self.stable_entries):
+        if check_stable and entry in self.stable_entries:
             return {entry: 1}, 0
 
         decomp = self.get_decomposition(entry.composition)
@@ -992,12 +997,12 @@ class BasePhaseDiagram(MSONable):
             if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
-        for e in chempot_ranges.keys():
+        for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[dep_elt] / target_comp[dep_elt]
                 ef = e.energy / multiplicator
                 all_coords = []
-                for s in chempot_ranges[e]:
+                for s in chempots:
                     for v in s._coords:
                         elts = [e for e in self.elements if e != dep_elt]
                         res = {}
@@ -1045,12 +1050,12 @@ class BasePhaseDiagram(MSONable):
         min_open = float("inf")
         max_mus = None
         min_mus = None
-        for e in chempot_ranges.keys():
+        for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[open_elt] / target_comp[open_elt]
                 ef = e.energy / multiplicator
                 all_coords = []
-                for s in chempot_ranges[e]:
+                for s in chempots:
                     for v in s._coords:
                         all_coords.append(v)
                         test_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
@@ -1302,6 +1307,9 @@ class CompoundPhaseDiagram(PhaseDiagram):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
         for entry in entries:
+            if getattr(entry, "attribute", None) is None:
+                entry.attribute = getattr(entry, "entry_id", None)
+
             try:
                 transformed_entry = TransformedPDEntry(entry, sp_mapping)
                 new_entries.append(transformed_entry)
@@ -1688,7 +1696,7 @@ class PDPlotter:
 
         all_entries = pd.all_entries
         all_data = np.array(pd.all_entries_hulldata)
-        unstable_entries = dict()
+        unstable_entries = {}
         stable = pd.stable_entries
         for i, entry in enumerate(all_entries):
             if entry not in stable:
@@ -2056,15 +2064,14 @@ class PDPlotter:
         machines have matplotlib installed, I have done it this way.
         """
         import matplotlib.pyplot as plt
-        import mpl_toolkits.mplot3d.axes3d as p3
         from matplotlib.font_manager import FontProperties
 
         fig = plt.figure()
-        ax = p3.Axes3D(fig)
+        ax = fig.add_subplot(111, projection="3d")
         font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
-        newlabels = list()
+        newlabels = []
         for x, y, z in lines:
             ax.plot(
                 x,
@@ -2372,8 +2379,8 @@ class PDPlotter:
             if hasattr(entry, "original_entry"):
                 comp = entry.original_entry.composition
 
-            formula = list(comp.reduced_formula)
-            text.append(self._htmlize_formula(formula))
+            formula = comp.reduced_formula
+            text.append(htmlify(formula))
 
         visible = True
         if not label_stable or self._dim == 4:
@@ -2423,7 +2430,7 @@ class PDPlotter:
                 clean_formula = str(entry.composition.elements[0])
                 if hasattr(entry, "original_entry"):
                     orig_comp = entry.original_entry.composition
-                    clean_formula = self._htmlize_formula(orig_comp.reduced_formula)
+                    clean_formula = htmlify(orig_comp.reduced_formula)
 
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
@@ -2439,7 +2446,7 @@ class PDPlotter:
                 }
             )
 
-            if self._dim == 3 or self._dim == 4:
+            if self._dim in (3, 4):
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:
@@ -2465,7 +2472,7 @@ class PDPlotter:
         :return: Dictionary with Plotly figure layout settings.
         """
         annotations_list = None
-        layout = dict()
+        layout = {}
 
         if label_stable:
             annotations_list = self._create_plotly_element_annotations()
@@ -2503,9 +2510,10 @@ class PDPlotter:
 
                 if hasattr(entry, "original_entry"):
                     comp = entry.original_entry.composition
+                    entry_id = getattr(entry, "attribute", "no ID")
 
                 formula = comp.reduced_formula
-                clean_formula = self._htmlize_formula(formula)
+                clean_formula = htmlify(formula)
                 label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
 
                 if not stable:
@@ -2555,7 +2563,7 @@ class PDPlotter:
 
         unstable_props = get_marker_props(unstable_coords, unstable_entries, stable=False)
 
-        stable_markers, unstable_markers = dict(), dict()
+        stable_markers, unstable_markers = {}, {}
 
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
@@ -2790,23 +2798,6 @@ class PDPlotter:
             flatshading=True,
             showlegend=True,
         )
-
-    @staticmethod
-    def _htmlize_formula(formula: str):
-        """
-        Adds HTML tags for displaying chemical formula in Plotly figure annotations.
-
-        :param formula: chemical formula
-        :return: clean chemical formula with necessary HTML tags
-        """
-        s = []
-        for char in formula:
-            if char.isdigit():
-                s.append(f"<sub>{char}</sub>")
-            else:
-                s.append(char)
-
-        return "".join(s)
 
 
 def uniquelines(q):

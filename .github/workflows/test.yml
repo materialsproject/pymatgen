@@ -98,9 +98,11 @@ jobs:
         with:
           name: coverage-4
       - name: Run coverage
+        continue-on-error: true
         run: |
           coverage combine coverage*/.coverage*
           coverage report
           coverage xml
       - name: Coveralls Python
+        continue-on-error: true
         uses: AndreMiras/coveralls-python-action@v20201129

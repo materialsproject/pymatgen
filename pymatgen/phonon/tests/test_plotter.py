@@ -99,5 +99,8 @@ class ThermoPlotterTest(unittest.TestCase):
         self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
 
 
+# Gruneisen plotter is already tested in test_gruneisen
+
+
 if __name__ == "__main__":
     unittest.main()

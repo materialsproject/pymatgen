@@ -103,7 +103,7 @@ class InsertionElectrode(AbstractElectrode):
             for i in range(len(_stable_entries) - 1)
         )
         framework = _vpairs[0].framework
-        return cls(
+        return cls(  # pylint: disable=E1123
             voltage_pairs=_vpairs,
             working_ion_entry=_working_ion_entry,
             _stable_entries=_stable_entries,
@@ -451,7 +451,7 @@ class InsertionElectrode(AbstractElectrode):
         from monty.json import MontyDecoder
 
         dec = MontyDecoder()
-        return cls(
+        return InsertionElectrode(  # pylint: disable=E1120
             dec.process_decoded(d["entries"]),
             dec.process_decoded(d["working_ion_entry"]),
         )
@@ -567,7 +567,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         _frac_charge = comp_charge.get_atomic_fraction(working_element)
         _frac_discharge = comp_discharge.get_atomic_fraction(working_element)
 
-        vpair = cls(
+        vpair = InsertionVoltagePair(  # pylint: disable=E1123
             voltage=_voltage,
             mAh=_mAh,
             mass_charge=_mass_charge,

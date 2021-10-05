@@ -20,19 +20,13 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
 
+from pymatgen.core import yaml
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
@@ -941,7 +935,7 @@ class IStructure(SiteCollection, MSONable):
         all_coords = []  # type: List[List[float]]
         all_magmoms = []  # type: List[float]
         all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
-        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):
+        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
             cc, mm = msg.get_orbit(c, m, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
@@ -1570,7 +1564,7 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
         latt = self._lattice
         matrix = latt.matrix
-        neighbors = [list() for _ in range(len(self._sites))]
+        neighbors = [[] for _ in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
@@ -1713,8 +1707,8 @@ class IStructure(SiteCollection, MSONable):
         for i, site in enumerate(self):
             frac_coords = reduced_latt.get_fractional_coords(site.coords)
             site_props = {}
-            for p in props:
-                site_props[p] = props[p][i]
+            for p, v in props.items():
+                site_props[p] = v[i]
             new_sites.append(
                 PeriodicSite(
                     site.species,
@@ -2329,6 +2323,10 @@ class IStructure(SiteCollection, MSONable):
                     yaml.safe_dump(self.as_dict(), f)
                 return None
             return yaml.safe_dump(self.as_dict())
+        elif fmt == "fleur-inpgen" or fnmatch(fname, "*.in*"):
+            from pymatgen.io.fleur import FleurInput
+
+            writer = FleurInput(self, **kwargs)
         else:
             raise ValueError("Invalid format: `%s`" % str(fmt))
 
@@ -2381,6 +2379,14 @@ class IStructure(SiteCollection, MSONable):
             s = XSF.from_string(input_string).structure
         elif fmt == "mcsqs":
             s = Mcsqs.structure_from_string(input_string)
+        elif fmt == "fleur-inpgen":
+            from pymatgen.io.fleur import FleurInput
+
+            s = FleurInput.from_string(input_string, inpgen_input=True).structure
+        elif fmt == "fleur":
+            from pymatgen.io.fleur import FleurInput
+
+            s = FleurInput.from_string(input_string, inpgen_input=False).structure
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
@@ -2480,6 +2486,10 @@ class IStructure(SiteCollection, MSONable):
             )
         elif fnmatch(fname, "CTRL*"):
             return LMTOCtrl.from_file(filename=filename).structure
+        elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
+            from pymatgen.io.fleur import FleurInput
+
+            s = FleurInput.from_file(filename).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -2603,7 +2613,7 @@ class IMolecule(SiteCollection, MSONable):
             wt = site.species.weight
             center += site.coords * wt
             total_weight += wt
-        return center / total_weight
+        return center / total_weight  # type: ignore
 
     @property
     def sites(self) -> Tuple[Site, ...]:
@@ -2970,9 +2980,9 @@ class IMolecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return self.__class__(
+        return self.__class__(  # type: ignore
             self.species_and_occu,
-            new_coords,
+            new_coords,  # type: ignore
             charge=self._charge,
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
@@ -3872,7 +3882,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             species: Species of inserted site
             coords: Coordinates of inserted site
             validate_proximity (bool): Whether to check if inserted site is
-                too close to an existing site. Defaults to True.
+                too close to an existing site. Defaults to False.
             properties (dict): A dict of properties for the Site.
 
         Returns:

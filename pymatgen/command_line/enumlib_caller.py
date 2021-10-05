@@ -194,15 +194,15 @@ class EnumlibAdaptor:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
                     species[DummySpecies("X")] = 1 - sum(species.values())
-                for sp in species.keys():
+                for sp, amt in species.items():
                     if sp not in index_species:
                         index_species.append(sp)
                         sp_label.append(len(index_species) - 1)
-                        index_amounts.append(species[sp] * len(sites))
+                        index_amounts.append(amt * len(sites))
                     else:
                         ind = index_species.index(sp)
                         sp_label.append(ind)
-                        index_amounts[ind] += species[sp] * len(sites)
+                        index_amounts[ind] += amt * len(sites)
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
                     coord_str.append("{} {}".format(coord_format.format(*site.coords), sp_label))

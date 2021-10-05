@@ -14,6 +14,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
@@ -290,6 +291,14 @@ loop_
         parser = CifParser(self.TEST_FILES_DIR / "Fe.cif")
         self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
         self.assertFalse(parser.has_errors)
+
+    def test_get_symmetrized_structure(self):
+        parser = CifParser(self.TEST_FILES_DIR / "Li2O.cif")
+        sym_structure = parser.get_structures(primitive=False, symmetrized=True)[0]
+        structure = parser.get_structures(primitive=False, symmetrized=False)[0]
+        self.assertIsInstance(sym_structure, SymmetrizedStructure)
+        self.assertEqual(structure, sym_structure)
+        self.assertEqual(sym_structure.equivalent_indices, [[0, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10, 11]])
 
     def test_site_symbol_preference(self):
         parser = CifParser(self.TEST_FILES_DIR / "site_type_symbol_test.cif")
@@ -624,7 +633,7 @@ loop_
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         lattice = Lattice(
@@ -683,7 +692,7 @@ loop_
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)
         n = DummySpecies("X", -3)
-        coords = list()
+        coords = []
         coords.append(np.array([0.5, 0.5, 0.5]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0, 0, 0]))

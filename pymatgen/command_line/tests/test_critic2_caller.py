@@ -62,11 +62,8 @@ class Critic2CallerTest(unittest.TestCase):
         # uses promolecular density
         structure = Structure.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/critic2/MoS2.cif",
+                PymatgenTest.TEST_FILES_DIR,
+                "critic2/MoS2.cif",
             )
         )
 
