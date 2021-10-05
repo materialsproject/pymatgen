@@ -47,6 +47,7 @@ class TemplateInputSet(InputSet):
 
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
+        super().__init__()
 
     def get_inputs(self):
         """
