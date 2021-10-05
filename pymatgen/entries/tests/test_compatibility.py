@@ -24,6 +24,8 @@ from collections import defaultdict
 from math import sqrt
 from pathlib import Path
 from monty.json import MontyDecoder
+import pandas as pd
+import numpy as np
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -39,7 +41,7 @@ from pymatgen.entries.compatibility import (
     MaterialsProjectCompatibility,
     MITAqueousCompatibility,
     MITCompatibility,
-    MaterialsProjectScanCompatibility2020,
+    MaterialsProjectDFTMixingScheme,
 )
 from pymatgen.entries.computed_entries import (
     ComputedEntry,
@@ -620,7 +622,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsInstance(temp_compat, MaterialsProjectCompatibility)
 
 
-class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
+class MaterialsProjectDFTMixingSchemeTest(unittest.TestCase):
     def test_no_structure(self):
         # If we try to process a regular ComputedEntry, should get a warning
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
@@ -648,7 +650,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
         ]
 
         with pytest.warns(UserWarning, match="not a ComputedStructureEntry"):
-            MaterialsProjectScanCompatibility2020(gga_compat=None).process_entries(entries)
+            MaterialsProjectDFTMixingScheme(compat_1=None).process_entries(entries)
 
     def test_empty_entries(self):
         # Test behavior when either gga_entries or scan_entries passed to get_adjustments
@@ -695,7 +697,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         compat.process_entries(entries, clean=False)
         for e in entries:
             assert e.correction == -20
@@ -737,7 +739,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
         ]
 
         with pytest.warns(UserWarning, match="missing parameters.run_type"):
-            MaterialsProjectScanCompatibility2020(gga_compat=None).process_entries(entries)
+            MaterialsProjectDFTMixingScheme(compat_1=None).process_entries(entries)
 
     def test_no_single_entry(self):
         # Raise CompatibilityError if process_entries is called on a single entry
@@ -752,7 +754,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             )
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         with pytest.warns(UserWarning, match="cannot process single entries"):
             compat.process_entries(entries)
 
@@ -792,7 +794,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         for e in entries:
             assert (
                 compat.get_adjustments(
@@ -840,7 +842,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                 parameters={"run_type": "GGA"},
             ),
         ]
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
 
         for e in entries:
             assert (
@@ -882,7 +884,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
         ]
         scan_entries = []
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
         with pytest.raises(CompatibilityError, match="Invalid run type LDA"):
@@ -936,7 +938,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         with pytest.warns(UserWarning, match="do not form a complete PhaseDiagram!"):
             compat.process_entries(gga_entries + scan_entries)
 
@@ -991,7 +993,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
         for e in scan_entries + gga_entries:
@@ -1107,7 +1109,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
 
@@ -1225,7 +1227,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                 parameters={"run_type": "R2SCAN"},
             ),
         ]
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
 
@@ -1316,7 +1318,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
         has_scan_ground_states = []
@@ -1430,7 +1432,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
         has_scan_ground_states = []
@@ -1483,7 +1485,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ),
         ]
 
-        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
         gga_gs = EntrySet(gga_entries)
         gga_gs.remove_non_ground_states()
         has_scan_ground_states = []
@@ -1506,6 +1508,273 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                 has_scan_ground_states,
                 has_scan_hull_entries,
             )
+
+    def test_get_adjustments(self):
+        """
+        Unit tests of the get_adjustments function internal to the mixing scheme
+        This function calculates the appropriate energy correction for a single
+        entry, given a DataFrame of information about the overall collection
+        of entries being mixed.
+
+        The first 3 columns are informational only and not used by get_adjustments,
+        so they are populated with dummy values here
+        """
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None)
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        columns = [
+            "composition",
+            "spacegroup",
+            "num_sites",
+            "run_type_1",
+            "run_type_2",
+            "ground_state_energy_1",
+            "ground_state_energy_2",
+            "is_stable_1",
+            "hull_energy_1",
+            "hull_energy_2",
+        ]
+        ## Mixing state 1 - we have all run_type_1 ground states in run_type_2
+        ## The energy hull is built with run_type_2 energies
+        # the R2SCAN hull is exactly 10 eV/atom below the GGA in this example
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", "R2SCAN", -7.89, -17.89, True,   -7.89, -17.89],
+            [Composition('O2'),     12,     8,  "GGA", "R2SCAN", -4.95, -14.95, True,   -4.95, -14.95],
+            [Composition('Ti3O5'),  12,     16, "GGA", "R2SCAN", -9.01, -19.01, True,   -9.01, -19.01],
+            [Composition('Ti3O4'),  139,    7,  "GGA", "R2SCAN", -8.98, -18.98, False,  -9,    -19],
+            [Composition('Ti3O'),   149,    24, "GGA", "R2SCAN", -8.55, -18.55, True,   -8.55, -18.55],
+            [Composition('TiO'),    189,    6,  "GGA", "R2SCAN", -8.99, -18.99, True,   -8.99, -18.99],
+            [Composition('Ti2O3'),  167,    10, "GGA", "R2SCAN", -9.02, -19.02, True,   -9.02, -19.02],
+            [Composition('TiO2'),   141,    6,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry
+        entry = ComputedEntry("TiO2", -8.97 * 3, parameters={"run_type": "GGA"})
+        with pytest.raises(CompatibilityError, match="Discarding GGA entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+
+        # correction for a run_type_2 entry
+        entry = ComputedEntry("TiO2", -15, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        ## Mixing state 2 - We have all run_type_1 stable entries (but not all
+        ## ground states) in run_type_2. The energy hull is built with run_type_2 energies
+        # the R2SCAN hull is exactly 10 eV/atom below the GGA in this example
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", "R2SCAN", -7.89, -17.89, True,   -7.89, -17.89],
+            [Composition('O2'),     12,     8,  "GGA", "R2SCAN", -4.95, -14.95, True,   -4.95, -14.95],
+            [Composition('Ti3O5'),  12,     16, "GGA", "R2SCAN", -9.01, -19.01, True,   -9.01, -19.01],
+            [Composition('Ti3O4'),  139,    7,  "GGA",  None,    -8.98, np.nan, False,  -9,    -19],
+            [Composition('Ti3O'),   149,    24, "GGA", "R2SCAN", -8.55, -18.55, True,   -8.55, -18.55],
+            [Composition('TiO'),    189,    6,  "GGA", "R2SCAN", -8.99, -18.99, True,   -8.99, -18.99],
+            [Composition('Ti2O3'),  167,    10, "GGA", "R2SCAN", -9.02, -19.02, True,   -9.02, -19.02],
+            [Composition('TiO2'),   141,    6,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry
+        entry = ComputedEntry("TiO2", -8.97 * 3, parameters={"run_type": "GGA"})
+        with pytest.raises(CompatibilityError, match="Discarding GGA entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+
+        # correction for a run_type_1 entry where there is no run_type_2 composition
+        entry = ComputedEntry("Ti3O4", -15, parameters={"run_type": "GGA"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj[0].name == "MP GGA(+U)/R2SCAN mixing adjustment"
+        assert np.allclose(adj[0].value, -10 * 7)
+
+        # correction for a run_type_2 entry
+        entry = ComputedEntry("TiO2", -15, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        ## Mixing state 3 - We have run_type_2 for only a few ground states
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", "R2SCAN", -7.89, -17.89, True,   -7.89, -17.89],
+            [Composition('O2'),     12,     8,  "GGA", "R2SCAN", -4.95, -14.95, True,   -4.95, -14.95],
+            [Composition('Ti3O5'),  12,     16, "GGA", "R2SCAN", -9.01, -19.01, True,   -9.01, -19.01],
+            [Composition('Ti3O4'),  139,    7,  "GGA", None,     -8.98, np.nan, False,  -9,    None],
+            [Composition('Ti3O'),   149,    24, "GGA", None,     -8.55, np.nan, True,   -8.55, None],
+            [Composition('TiO'),    189,    6,  "GGA", None,     -8.99, np.nan, True,   -8.99, None],
+            [Composition('Ti2O3'),  167,    10, "GGA", None,     -9.02, np.nan, True,   -9.02, None],
+            [Composition('TiO2'),   141,    6,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry
+        # no correction
+        entry = ComputedEntry("Ti3O", -8.55 * 4, parameters={"run_type": "GGA"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        # correction for a run_type_2 entry that has a run_type_2 ground state
+        # this energy should be corrected
+        entry = ComputedEntry("Ti3O5", -15 * 8, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj[0].name == "MP GGA(+U)/R2SCAN mixing adjustment"
+        # r2SCAN entry is 4.01 eV/atom above hull. Add to GGA hull energy
+        assert np.allclose(adj[0].value, (-9.01 + 4.01 - -15) * 8)
+        
+        # correction for a run_type_2 entry that does not have a run_type_2 ground state
+        # this entry should be discarded
+        entry = ComputedEntry("Ti3O4", -15 * 7, parameters={"run_type": "R2SCAN"})
+        with pytest.raises(CompatibilityError, match="Discarding R2SCAN entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+
+        ## Mixing state 4 - We have run_type_2 for only 2 structures, at a single composition
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", None,     -7.89, np.nan, True,   -7.89, None],
+            [Composition('O2'),     12,     8,  "GGA", None,     -4.95, np.nan, True,   -4.95, None],
+            [Composition('Ti3O5'),  12,     16, "GGA", None,     -9.01, np.nan, True,   -9.01, None],
+            [Composition('Ti3O4'),  139,    7,  "GGA", None,     -8.98, np.nan, False,  -9,    None],
+            [Composition('Ti3O'),   149,    24, "GGA", None,     -8.55, np.nan, True,   -8.55, None],
+            [Composition('TiO'),    189,    6,  "GGA", None,     -8.99, np.nan, True,   -8.99, None],
+            [Composition('Ti2O3'),  167,    10, "GGA", None,     -9.02, np.nan, True,   -9.02, None],
+            [Composition('TiO2'),   141,    6,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+            [Composition('TiO2'),   189,   12,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry at this composition
+        # no correction
+        entry = ComputedEntry("Ti2O4", -8.97 * 6, parameters={"run_type": "GGA"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        # correction for a run_type_2 corresponding to the reference state
+        # should be discarded
+        entry = ComputedEntry("Ti2O4", -18.97 * 6, parameters={"run_type": "R2SCAN"})
+        with pytest.raises(CompatibilityError, match="Discarding R2SCAN entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        
+        # correction for a run_type_2 entry that does not have a run_type_2 ground state
+        # this entry should be corrected to the GGA hull
+        entry = ComputedEntry("Ti4O8", -15.97 * 12, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj[0].name == "MP GGA(+U)/R2SCAN mixing adjustment"
+        # r2SCAN entry is 3 eV/atom above hull. Add to GGA hull energy
+        assert np.allclose(adj[0].value, (-8.97 + 3 - entry.energy_per_atom) * 12)
+
+        ## Mixing state 5 - We have only 1 run_type_2 material and it is a reference state
+        ## This is an edge case that should never happen, because _generate_mixing_scheme_state_data
+        ## Will discard run_type_2 entries if there are fewer than 2 of them, so they'll never be in the DataFrame
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", None, -7.89, np.nan, True,   -7.89, None],
+            [Composition('O2'),     12,     8,  "GGA", None, -4.95, np.nan, True,   -4.95, None],
+            [Composition('Ti3O5'),  12,     16, "GGA", None, -9.01, np.nan, True,   -9.01, None],
+            [Composition('Ti3O4'),  139,    7,  "GGA", None, -8.98, np.nan, False,  -9,    None],
+            [Composition('Ti3O'),   149,    24, "GGA", None, -8.55, np.nan, True,   -8.55, None],
+            [Composition('TiO'),    189,    6,  "GGA", None, -8.99, np.nan, True,   -8.99, None],
+            [Composition('Ti2O3'),  167,    10, "GGA", None, -9.02, np.nan, True,   -9.02, None],
+            [Composition('TiO2'),   141,    6,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry
+        entry = ComputedEntry("TiO2", -8.97 * 3, parameters={"run_type": "GGA"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        # correction for the single run_type_2 entry that is the reference state
+        entry = ComputedEntry("TiO2", -18.97 * 3, parameters={"run_type": "R2SCAN"})
+        with pytest.raises(CompatibilityError, match="Discarding R2SCAN entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        
+        # correction for a run_type_2 entry at the same composition that was not
+        # included in the original list of processed entries (Another edge case that should
+        # never happen)
+        entry = ComputedEntry("TiO2", -17.97 * 3, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj[0].name == "MP GGA(+U)/R2SCAN mixing adjustment"
+        # r2SCAN entry is 1 eV/atom above hull. Add to GGA hull energy
+        assert np.allclose(adj[0].value, (-8.97 + 1 - entry.energy_per_atom) * 3)
+
+        ## Mixing state 6 - We have 0 run_type_2 materials
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", None, -7.89, np.nan, True,   -7.89, None],
+            [Composition('O2'),     12,     8,  "GGA", None, -4.95, np.nan, True,   -4.95, None],
+            [Composition('Ti3O5'),  12,     16, "GGA", None, -9.01, np.nan, True,   -9.01, None],
+            [Composition('Ti3O4'),  139,    7,  "GGA", None, -8.98, np.nan, False,  -9,    None],
+            [Composition('Ti3O'),   149,    24, "GGA", None, -8.55, np.nan, True,   -8.55, None],
+            [Composition('TiO'),    189,    6,  "GGA", None, -8.99, np.nan, True,   -8.99, None],
+            [Composition('Ti2O3'),  167,    10, "GGA", None, -9.02, np.nan, True,   -9.02, None],
+            [Composition('TiO2'),   141,    6,  "GGA", None, -8.97, np.nan, True,   -8.97, None],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry
+        entry = ComputedEntry("TiO2", -8.97 * 3, parameters={"run_type": "GGA"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        # correction for a run_type_2 entry
+        entry = ComputedEntry("TiO2", -15, parameters={"run_type": "R2SCAN"})
+        with pytest.raises(CompatibilityError, match="Discarding R2SCAN entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+
+        ## Mixing state 7 - We have run_type_2_materials for everything, including
+        ## a composition that is not present in run_type_1
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", "R2SCAN", -7.89, -17.89, True,   -7.89, -17.89],
+            [Composition('O2'),     12,     8,  "GGA", "R2SCAN", -4.95, -14.95, True,   -4.95, -14.95],
+            [Composition('Ti3O5'),  12,     16, "GGA", "R2SCAN", -9.01, -19.01, True,   -9.01, -19.01],
+            [Composition('Ti3O4'),  139,    7,  None, "R2SCAN", np.nan, -18.98, False,  -9,    -19],
+            [Composition('Ti3O'),   149,    24, "GGA", "R2SCAN", -8.55, -18.55, True,   -8.55, -18.55],
+            [Composition('TiO'),    189,    6,  "GGA", "R2SCAN", -8.99, -18.99, True,   -8.99, -18.99],
+            [Composition('Ti2O3'),  167,    10, "GGA", "R2SCAN", -9.02, -19.02, True,   -9.02, -19.02],
+            [Composition('TiO2'),   141,    6,  "GGA", "R2SCAN", -8.97, -18.97, True,   -8.97, -18.97],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry
+        entry = ComputedEntry("TiO2", -8.97 * 3, parameters={"run_type": "GGA"})
+        with pytest.raises(CompatibilityError, match="Discarding GGA entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+
+        # correction for a run_type_2 entry with no corresponding run_type_1
+        entry = ComputedEntry("Ti3O4", -8.97 * 3, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        # correction for a run_type_2 entry
+        entry = ComputedEntry("TiO2", -15, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        ## Mixing state 8 - We have run_type_2 for only 2 structures, at a single composition
+        ## that is not on the run_type_1 hull
+        row_list = [
+            [Composition('Ti'),     194,    2,  "GGA", None,     -7.89, np.nan, True,   -7.89, None],
+            [Composition('O2'),     12,     8,  "GGA", None,     -4.95, np.nan, True,   -4.95, None],
+            [Composition('Ti3O5'),  12,     16, "GGA", None,     -9.01, np.nan, True,   -9.01, None],
+            [Composition('Ti3O4'),  139,    7,  "GGA", "R2SCAN", -8.98, -18.98, False,  -9,    None],
+            [Composition('Ti3O4'),  149,    14,  None, "R2SCAN", -8.98, -18.98, False,  -9,    None],
+            [Composition('Ti3O'),   149,    24, "GGA", None,     -8.55, np.nan, True,   -8.55, None],
+            [Composition('TiO'),    189,    6,  "GGA", None,     -8.99, np.nan, True,   -8.99, None],
+            [Composition('Ti2O3'),  167,    10, "GGA", None,     -9.02, np.nan, True,   -9.02, None],
+        ]
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        # correction for a run_type_1 entry at this composition
+        # no correction
+        entry = ComputedEntry("Ti3O4", -8.98 * 7, parameters={"run_type": "GGA"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj == []
+
+        # correction for a run_type_2 corresponding to the reference state
+        # should be discarded
+        entry = ComputedEntry("Ti3O4", -18.98 * 7, parameters={"run_type": "R2SCAN"})
+        with pytest.raises(CompatibilityError, match="Discarding R2SCAN entry"):
+            adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        
+        # correction for a run_type_2 entry that does not have a run_type_2 ground state
+        # this entry should be corrected to the GGA hull
+        entry = ComputedEntry("Ti6O8", -16.98 * 14, parameters={"run_type": "R2SCAN"})
+        adj = compat.get_adjustments(entry, mixing_scheme_state_data=mixing_state)
+        assert adj[0].name == "MP GGA(+U)/R2SCAN mixing adjustment"
+        # r2SCAN entry is 2 eV/atom above hull. Add to GGA hull energy
+        assert np.allclose(adj[0].value, (-9 + 2 - entry.energy_per_atom) * 14)
 
 
 class MaterialsProjectCompatibility2020Test(unittest.TestCase):
