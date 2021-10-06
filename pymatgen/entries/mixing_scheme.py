@@ -25,12 +25,11 @@ from pymatgen.entries.compatibility import Compatibility, CompatibilityError, Ma
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-__author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
-__copyright__ = "Copyright 2012-2020, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "April 2020"
+__author__ = "Ryan Kingsbury"
+__copyright__ = "Copyright 2019-2021, The Materials Project"
+__version__ = "0.1"
+__email__ = "RKingsbury@lbl.gov"
+__date__ = "October 2021"
 
 
 class MaterialsProjectDFTMixingScheme(Compatibility):
@@ -131,6 +130,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
             warnings.warn("{} cannot process single entries. Supply a list of entries.".format(self.__class__.__name__))
+            return []
 
         filtered_entries = []
 
@@ -175,6 +175,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             except CompatibilityError as exc:
                 if verbose:
                     print(exc)
+                ignore_entry = True
                 continue
 
             for ea in adjustments:
@@ -200,7 +201,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         return processed_entry_list
 
-    def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, all_entries):
+    def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """
         helper function to populate a row of the mixing state DataFrame, given
         a list of matched structures
@@ -232,13 +233,15 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # generate info for the DataFrame
         idx_1, idx_2 = None, None
         rt1, rt2 = None, None
-        stable_1 = None
-        ground_state_1, ground_state_2 = False, False
+        stable_1 = False
+        ground_state_1, ground_state_2 = np.nan, np.nan
 
         # get the respective hull energies at this composition, if available
-        hull_energy_1 = np.nan
+        hull_energy_1, hull_energy_2 = np.nan, np.nan
         if pd_type_1:
             hull_energy_1 = pd_type_1.get_hull_energy_per_atom(comp)
+        if pd_type_2:
+            hull_energy_2 = pd_type_2.get_hull_energy_per_atom(comp)
 
         if first_entry.parameters["run_type"] in self.valid_rtypes_1:
             idx_1 = struct_group[0].index
@@ -247,7 +250,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             rt2 = second_entry.parameters["run_type"] if second_entry else None
             # are the entries the lowest energy at this composition?
             ground_state_1 = all_entries[idx_1].energy_per_atom
-            ground_state_2 = all_entries[idx_2].energy_per_atom if len(struct_group) > 1 else None
+            ground_state_2 = all_entries[idx_2].energy_per_atom if len(struct_group) > 1 else np.nan
             # are they stable?
             if pd_type_1:
                 stable_1 = first_entry in pd_type_1.stable_entries
@@ -267,7 +270,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             raise ValueError("Problem - entries in group have strange run_type")
 
         return [
-            comp.reduced_composition,
+            comp.reduced_formula,
             sg,
             n,
             rt1,
@@ -276,7 +279,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             ground_state_2,
             stable_1,
             hull_energy_1,
-            None,
+            hull_energy_2,
         ]
 
     def _generate_mixing_scheme_state_data(self, entries, verbose=False):
@@ -292,14 +295,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             DataFrame: A pandas DataFrame that contains information associating structures from
                 different functionals with specific materials and establishing how many run_type_1
                 ground states have been computed with run_type_2.
+            None: Returns None if the supplied ComputedStructureEntry are insufficient for applying
+                the mixing scheme.
         """
-        # Utility functions
-
-        # else:
-        #     print([s.index for s in struct_group])
-        #     warnings.warn("Not Implemented! More than 2 entries have the same structure.")
-
-        # Actual processing begins here
+        # if verbose:
+        #     warnings.simplefilter("always")
 
         # separate by run_type
         entries_type_1 = [e for e in entries if e.parameters["run_type"] in self.valid_rtypes_1]
@@ -308,47 +308,52 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # Discard entries if there are fewer than 2 for a specific run_type
         # it isn't possible to implement the mixing scheme in that case
         # this code is placed here for performance reasons, to bypass all the Structure Matching
-        if len(entries_type_1) < 2:
+
+        # We can't do any mixing without at least two of one entry type
+        if len(entries_type_1) < 2 and len(entries_type_2) < 2:
+            warnings.warn("Not enough entries to apply the mixing scheme. No energy adjustments will be applied.")
+
+        if len(entries_type_1) >= 2:
+            # preprocess entries with any corrections
+            # make an EntrySet to enable some useful methods like .chemsys and .is_ground_state
+            # Make deep copies of the entries at this point, because later we'll need their original, corrected
+            # energies prior to mixing functionals
+            if self.compat_1:
+                entries_type_1 = self.compat_1.process_entries(entries_type_1)
+                if verbose:
+                    print(
+                        f"Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
+                        f"{self.compat_1.__class__.__name__}"
+                    )
+            entries_type_1 = EntrySet(entries_type_1)
+        else:
             warnings.warn(
                 f"Discarding {self.run_type_1} entries because there are fewer "
                 f"than 2 of them. {self.run_type_2} energies will not be modified."
             )
-            return None
+            entries_type_1 = EntrySet([])
 
-        if len(entries_type_2) < 2:
+        if len(entries_type_2) >= 2:
+            if self.compat_2:
+                entries_type_2 = self.compat_2.process_entries(entries_type_2)
+                if verbose:
+                    print(
+                        f"Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
+                        f"{self.compat_2.__class__.__name__}"
+                    )
+            entries_type_2 = EntrySet(entries_type_2)
+        else:
             warnings.warn(
                 f"Discarding {self.run_type_2} entries because there are fewer "
                 f"than 2 of them. {self.run_type_1} energies will not be modified."
             )
-            return None
+            entries_type_2 = EntrySet([])
 
         if verbose:
             print(
                 f"Processing {len(entries_type_1)} {self.run_type_1} and {len(entries_type_2)} "
                 f"{self.run_type_2} entries"
             )
-
-        # preprocess entries with any corrections
-        # make an EntrySet to enable some useful methods like .chemsys and .is_ground_state
-        # Make deep copies of the entries at this point, because later we'll need their original, corrected
-        # energies prior to mixing functionals
-        if self.compat_1:
-            entries_type_1 = self.compat_1.process_entries(entries_type_1)
-            if verbose:
-                print(
-                    f"Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
-                    f"{self.compat_1.__class__.__name__}"
-                )
-        entries_type_1 = EntrySet(entries_type_1)
-
-        if self.compat_2:
-            entries_type_2 = self.compat_2.process_entries(entries_type_2)
-            if verbose:
-                print(
-                    f"Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
-                    f"{self.compat_2.__class__.__name__}"
-                )
-        entries_type_2 = EntrySet(entries_type_2)
 
         # Discard any entries that are not ground states from run_type_1
         # This ensures that we have at most one entry from run_type_1 at each composition
@@ -374,19 +379,24 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             print("Entries belong to the {} chemical system".format(chemsys))
 
         # Verify that one of the sets of entries forms a complete PhaseDiagram
-        pd_type_1 = None
-        try:
-            pd_type_1 = PhaseDiagram(entries_type_1)
-        except ValueError:
-            warnings.warn(f"{self.run_type_1} entries do not form a complete PhaseDiagram.")
+        pd_type_1, pd_type_2 = None, None
+        if len(entries_type_1) > 0:
+            try:
+                pd_type_1 = PhaseDiagram(entries_type_1)
+            except ValueError:
+                warnings.warn(
+                    f"{self.run_type_1} entries do not form a complete PhaseDiagram."
+                    " No energy adjustments will be applied."
+                )
 
-        try:
-            PhaseDiagram(entries_type_2)
-        except ValueError:
-            warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.")
+        if len(entries_type_2) > 0:
+            try:
+                pd_type_2 = PhaseDiagram(entries_type_2)
+            except ValueError:
+                warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.")
 
         # Objective: loop through all the entries, group them by structure matching (or fuzzy structure matching
-        # where relevant). For each group, put a row in a pandas DataFrame with the entry_id of the run_type_1 entry,
+        # where relevant). For each group, put a row in a pandas DataFrame with the composition of the run_type_1 entry,
         # the run_type_2 entry, whether or not that entry is a ground state (not necessarily on the hull), and its
         # e_above_hull
         all_entries = list(entries_type_1) + list(entries_type_2)
@@ -427,20 +437,24 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2"] and self.fuzzy_diatomic_matching:
                     # group by number of sites
                     for n, sitegroup in groupby(sorted(pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites):
-                        row_list.append(self._populate_df_row(list(sitegroup), comp, sg, n, pd_type_1, all_entries))
+                        row_list.append(
+                            self._populate_df_row(list(sitegroup), comp, sg, n, pd_type_1, pd_type_2, all_entries)
+                        )
                 else:
                     for group in self.structure_matcher.group_structures(list(pregroup)):
                         n = group[0].num_sites
                         # StructureMatcher.group_structures returns a list of lists,
                         # so each group should be a list containing matched structures
-                        row_list.append(self._populate_df_row(group, comp, sg, n, pd_type_1, all_entries))
+                        row_list.append(self._populate_df_row(group, comp, sg, n, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
 
         if verbose:
             # how many stable entries from run_type_1 do we have in run_type_2?
+            hull_entries_2 = 0
             stable_df = mixing_state_data[mixing_state_data["is_stable_1"]]
-            hull_entries_2 = len(stable_df["ground_state_energy_2"].notna())
+            if len(stable_df) > 0:
+                hull_entries_2 = sum(stable_df["ground_state_energy_2"].notna())
             print(
                 f"Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
                 f"{self.run_type_1} hull entries."
@@ -453,12 +467,14 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         assert all(
             rt in self.valid_rtypes_2 for rt in df[df["run_type_2"].notna()]["run_type_2"]
         ), "Problem with the DataFrame!"
-        # Any run_type_1 entry that is stable should have a ground state energy
-        assert all(df[df["is_stable_1"]]["ground_state_energy_1"].notna()), "Problem with the DataFrame!"
-        # If all run_type_1 stable entries are also present in run_type_2, the hull_energy_2 column should be populated
-        if all(df[df["is_stable_1"]]["ground_state_energy_2"].notna()):
-            # assert all(df["hull_energy_2"].notna())
-            pass
+        if len(df[df["is_stable_1"]]) > 0:
+            # Any run_type_1 entry that is stable should have a ground state energy
+            assert all(df[df["is_stable_1"]]["ground_state_energy_1"].notna()), "Problem with the DataFrame!"
+            # If all run_type_1 stable entries are also present in run_type_2, the hull_energy_2
+            # column should be populated
+            if all(df[df["is_stable_1"]]["ground_state_energy_2"].notna()):
+                # assert all(df["hull_energy_2"].notna())
+                pass
 
         return df
 
@@ -487,7 +503,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if mixing_scheme_state_data is None:
             raise CompatibilityError(
-                "You did not provide `mixing_scheme_state_data`. A DataFrame of mixing scheme state data is required."
+                "`mixing_scheme_state_data` DataFrame is None. No energy adjustments will be applied."
             )
 
         # # determine the position of the entry in the original list
@@ -504,78 +520,90 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
                 f"Invalid run type {run_type} for entry {entry.entry_id}. Must be one of "
-                f"{self.valid_rtypes_1 + self.valid_rtypes_2}."
+                f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 
         # The correction value depends on how many of the run_type_1 stable entries are present as run_type_2
-        # calculations construct some views of the data to identify ground and stable states
-        run_1_stable = mixing_scheme_state_data[
-            mixing_scheme_state_data["is_stable_1"] == True  # pylint: disable=C0121 # noqa: E712
-        ]  
+        # calculations
+
+        # if we do not have a complete phase diagram for either run type, there's no way to apply corrections
+        type_1_hull = all(mixing_scheme_state_data["hull_energy_1"].notna())
+        type_2_hull = all(mixing_scheme_state_data["hull_energy_2"].notna())
+
+        if not type_1_hull and not type_2_hull:
+            raise CompatibilityError(
+                "Insufficient combination of entries for mixing scheme. No energy adjustments will be applied."
+            )
+
+        # TODO - run_1_stable might be empty!
+        # run_1_stable = mixing_scheme_state_data[mixing_scheme_state_data["is_stable_1"]]
         run_1_ground_state = mixing_scheme_state_data[mixing_scheme_state_data["ground_state_energy_1"].notna()]
 
         # First case, ALL stable entries are present in both run types
         # in that case, prefer run_type_2 energies
+        # we determine this by testing wheither EITHER all run_type_1 stable entries have run_type_2 ground state
+        # energies OR all run_type_2 hull energies are present. In the latter case, we assume that the run_type_2
+        # phase diagram encompasses the run_type_1 stable entries.
 
         # this means all run_type_1 stable states are present in run_type_2
         # therefore, we don't need to correct run_type_2
         # instead, we discard run_type_1 entries that already exist in run_type_2
         # and correct any other run_type_1 energies to the run_type_2 scale
-        if all(run_1_stable["ground_state_energy_2"].notna()):  # pylint: disable=R1705
+        if all(mixing_scheme_state_data["ground_state_energy_2"].notna()) or all(
+            mixing_scheme_state_data["hull_energy_2"].notna()
+        ):
             if run_type in self.valid_rtypes_2:  # pylint: disable=R1705
                 # For run_type_2 entries, there is no correction
                 return adjustments
 
-            # Discard GGA entries whose structures already exist in SCAN.
-            # TODO - replace the energy check with some kind of hash to identify entries
-            elif run_type in self.valid_rtypes_1 and entry.energy_per_atom in list(
-                run_1_stable["ground_state_energy_1"]
-            ):
-                # discard entry if its energy matches one in the DataFrame,
-                # because it already exists in run_type_2
-                raise CompatibilityError(
-                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"whose structure already exists in {self.run_type_2}"
+            # Discard GGA ground states whose structures already exist in SCAN.
+            else:
+                df_slice = mixing_scheme_state_data[
+                    (mixing_scheme_state_data["composition"] == entry.composition.reduced_formula)
+                ]
+                if len(df_slice) == 0:
+                    raise CompatibilityError(
+                        f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                        f"because it was not included in the mixing state."
+                    )
+
+                if any(df_slice["ground_state_energy_1"] == entry.energy_per_atom) and any(
+                    df_slice["ground_state_energy_2"].notna()
+                ):
+                    # discard entry if its energy matches one in the DataFrame,
+                    # because it already exists in run_type_2
+                    raise CompatibilityError(
+                        f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                        f"whose structure already exists in {self.run_type_2}"
+                    )
+
+                # If a GGA is not present in SCAN, correct its energy to give the same
+                # e_above_hull on the SCAN hull that it would have on the GGA hull
+                hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
+                hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
+
+                if not np.isfinite(hull_energy_2):
+                    raise CompatibilityError(
+                        f"Cannot adjust the energy of {self.run_type_1} entry {entry.entry_id} because the "
+                        f"{self.run_type_2} entries given do not form a complete phase diagram. "
+                        "Discarding this entry."
+                    )
+
+                correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
+
+                adjustments.append(
+                    ConstantEnergyAdjustment(
+                        correction,
+                        0.0,
+                        name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
+                        cls=self.as_dict(),
+                        description=f"Place {self.run_type_1} energy onto the {self.run_type_2} hull",
+                    )
                 )
-
-            # If a GGA is not present in SCAN, correct its energy to give the same
-            # e_above_hull on the SCAN hull that it would have on the GGA hull
-            df_slice = mixing_scheme_state_data[
-                mixing_scheme_state_data["composition"] == entry.composition.reduced_composition
-            ]
-            hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
-            hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
-
-            if not hull_energy_2:
-                raise CompatibilityError(
-                    f"Cannot adjust the energy of {self.run_type_1} entry {entry.entry_id} because the "
-                    f"{self.run_type_2} entries given do not form a complete phase diagram. "
-                    "Discarding this entry."
-                )
-
-            correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
-
-            adjustments.append(
-                ConstantEnergyAdjustment(
-                    correction,
-                    0.0,
-                    name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
-                    cls=self.as_dict(),
-                    description=f"Place {self.run_type_1} energy onto the {self.run_type_2} hull",
-                )
-            )
-            return adjustments
+                return adjustments
 
         # Second case, there are no run_type_2 energies available for any run_type_1
         # ground states. There's no way to use the run_type_2 energies in this case.
-        elif sum(run_1_ground_state["ground_state_energy_2"].notna()) == 0:
-            # Discard SCAN entries if there are no SCAN reference states
-            if run_type in self.valid_rtypes_2:
-                raise CompatibilityError(
-                    f"Discarding {self.run_type_2} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"because there are no {self.run_type_2} reference structures"
-                )
-            return adjustments
 
         # Third case, there are run_type_2 energies available for at least some run_type_1
         # reference states. Here, we can correct run_type_2 energies onto the run_type_1 scale
@@ -586,9 +614,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 return adjustments
 
             elif run_type in self.valid_rtypes_2 and any(
-                mixing_scheme_state_data[
-                    mixing_scheme_state_data["composition"] == entry.composition.reduced_composition
-                ]["ground_state_energy_2"].notna()
+                mixing_scheme_state_data[mixing_scheme_state_data["composition"] == entry.composition.reduced_formula][
+                    "ground_state_energy_1"
+                ].notna()
             ):
                 # We have a run_type_2 reference energy for this composition, so we can correct
 
@@ -602,7 +630,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
                 # e_above_hull on the run_type_2 hull that it would have on the run_type_1 hull
                 df_slice = mixing_scheme_state_data[
-                    mixing_scheme_state_data["composition"] == entry.composition.reduced_composition
+                    mixing_scheme_state_data["composition"] == entry.composition.reduced_formula
                 ]
                 e_above_hull = entry.energy_per_atom - df_slice["ground_state_energy_2"].iloc[0]
                 hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
