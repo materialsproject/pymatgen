@@ -14,6 +14,7 @@ import math
 import os
 import re
 from functools import lru_cache
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objs as go
@@ -27,7 +28,7 @@ from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify, htmlify
+from pymatgen.util.string import htmlify, latexify
 
 logger = logging.getLogger(__name__)
 
@@ -1616,7 +1617,7 @@ class PDPlotter:
         self,
         phasediagram: PhaseDiagram,
         show_unstable: float = 0.2,
-        backend: str = "plotly",
+        backend: Literal["plotly", "matplotlib"] = "plotly",
         **plotkwargs,
     ):
         """
@@ -1625,8 +1626,7 @@ class PDPlotter:
             show_unstable (float): Whether unstable (above the hull) phases will be
                 plotted. If a number > 0 is entered, all phases with
                 e_hull < show_unstable (eV/atom) will be shown.
-            backend (str): Python package used for plotting ("matplotlib" or
-                "plotly"). Defaults to "plotly".
+            backend ("plotly" | "matplotlib"): Python package used for plotting. Defaults to "plotly".
             **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot. Can
                 be used to customize markers etc. If not set, the default is
                 {

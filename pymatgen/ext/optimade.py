@@ -6,7 +6,7 @@ import logging
 import sys
 from collections import namedtuple
 from os.path import join
-from typing import Dict, Union, List, Optional
+from typing import Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 import requests
@@ -17,6 +17,9 @@ from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.sequence import PBar
+
+# from retrying import retry
+
 
 # TODO: importing optimade-python-tool's data structures will make more sense
 Provider = namedtuple("Provider", ["name", "base_url", "description", "homepage", "prefix"])

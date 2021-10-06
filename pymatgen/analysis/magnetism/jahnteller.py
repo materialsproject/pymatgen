@@ -9,7 +9,7 @@ JahnTeller distortion analysis.
 
 import os
 import warnings
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Literal, Optional, Tuple, Union, cast
 
 import numpy as np
 
@@ -152,6 +152,8 @@ class JahnTellerAnalyzer:
                     motif_order_parameter = None
 
                 if motif in ["oct", "tet"]:
+
+                    motif = cast(Literal["oct", "tet"], motif)  # mypy needs help
 
                     # guess spin of metal ion
                     if guesstimate_spin and "magmom" in site.properties:
@@ -435,7 +437,9 @@ class JahnTellerAnalyzer:
         return magnitude
 
     @staticmethod
-    def _estimate_spin_state(species: Union[str, Species], motif: str, known_magmom: float) -> str:
+    def _estimate_spin_state(
+        species: Union[str, Species], motif: Literal["oct", "tet"], known_magmom: float
+    ) -> Literal["undefined", "low", "high", "unknown"]:
         """Simple heuristic to estimate spin state. If magnetic moment
         is sufficiently close to that predicted for a given spin state,
         we assign it that state. If we only have data for one spin
@@ -443,12 +447,12 @@ class JahnTellerAnalyzer:
         complexes are high-spin, since this is typically the case).
 
         Args:
-          species: str or Species
-          motif: "oct" or "tet"
-          known_magmom: magnetic moment in Bohr magnetons
+            species: str or Species
+            motif ("oct" | "tet"): Tetrahedron or octahedron crystal site coordination
+            known_magmom: magnetic moment in Bohr magnetons
 
-        Returns: "undefined" (if only one spin state possible), "low",
-        "high" or "unknown"
+        Returns:
+            "undefined" (if only one spin state possible), "low", "high" or "unknown"
         """
         mu_so_high = JahnTellerAnalyzer.mu_so(species, motif=motif, spin_state="high")
         mu_so_low = JahnTellerAnalyzer.mu_so(species, motif=motif, spin_state="low")
@@ -469,18 +473,20 @@ class JahnTellerAnalyzer:
         return "unknown"
 
     @staticmethod
-    def mu_so(species: Union[str, Species], motif: str, spin_state: str) -> Optional[float]:
+    def mu_so(
+        species: Union[str, Species], motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]
+    ) -> Optional[float]:
         """Calculates the spin-only magnetic moment for a
         given species. Only supports transition metals.
 
         Args:
-          species: Species
-          motif: "oct" or "tet"
-          spin_state: "high" or "low"
+            species: Species
+            motif ("oct" | "tet"): Tetrahedron or octahedron crystal site coordination
+            spin_state ("low" | "high"): Whether the species is in a high or low spin state
 
         Returns:
-          Spin-only magnetic moment in Bohr magnetons or None if
-          species crystal field not defined
+            float: Spin-only magnetic moment in Bohr magnetons or None if
+                species crystal field not defined
         """
         try:
             sp = get_el_sp(species)

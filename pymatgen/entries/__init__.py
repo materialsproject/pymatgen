@@ -10,12 +10,11 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-from numbers import Number
 from abc import ABCMeta, abstractmethod
-from typing import Union, Dict
+from numbers import Number
+from typing import Dict, Literal, Union
 
 import numpy as np
-
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
@@ -93,14 +92,13 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit") -> "Entry":
+    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> "Entry":
         """
         Normalize the entry's composition and energy.
 
         Args:
-            mode: "formula_unit" is the default, which normalizes to
-                composition.reduced_formula. The other option is "atom", which
-                normalizes such that the composition amounts sum to 1.
+            mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
+                "atom" normalizes such that the composition amounts sum to 1.
         """
 
         factor = self._normalization_factor(mode)
