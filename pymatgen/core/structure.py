@@ -18,7 +18,7 @@ import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
-from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Sequence, Set, Tuple, Union
 
 import numpy as np
 from monty.dev import deprecated
@@ -405,7 +405,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_str(cls, input_string: str, fmt: str):
+    def from_str(cls, input_string: str, fmt: Any):
         """
         Reads in SiteCollection from a string.
         """
@@ -2338,13 +2338,21 @@ class IStructure(SiteCollection, MSONable):
         return writer.__str__()
 
     @classmethod
-    def from_str(cls, input_string: str, fmt: str, primitive=False, sort=False, merge_tol=0.0):
+    def from_str(
+        cls,
+        input_string: str,
+        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs"],
+        primitive=False,
+        sort=False,
+        merge_tol=0.0,
+    ):
         """
         Reads a structure from a string.
 
         Args:
             input_string (str): String to parse.
-            fmt (str): A format specification.
+            fmt (str): A file format specification. One of "cif", "poscar", "cssr",
+                "json", "yaml", "xsf", "mcsqs".
             primitive (bool): Whether to find a primitive cell. Defaults to
                 False.
             sort (bool): Whether to sort the sites in accordance to the default
@@ -2356,30 +2364,35 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             IStructure / Structure
         """
-        from pymatgen.io.atat import Mcsqs
-        from pymatgen.io.cif import CifParser
-        from pymatgen.io.cssr import Cssr
-        from pymatgen.io.vasp import Poscar
-        from pymatgen.io.xcrysden import XSF
 
-        fmt = fmt.lower()
-        if fmt == "cif":
+        fmt_low = fmt.lower()
+        if fmt_low == "cif":
+            from pymatgen.io.cif import CifParser
+
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
-        elif fmt == "poscar":
+        elif fmt_low == "poscar":
+            from pymatgen.io.vasp import Poscar
+
             s = Poscar.from_string(input_string, False, read_velocities=False).structure
-        elif fmt == "cssr":
+        elif fmt_low == "cssr":
+            from pymatgen.io.cssr import Cssr
+
             cssr = Cssr.from_string(input_string)
             s = cssr.structure
-        elif fmt == "json":
+        elif fmt_low == "json":
             d = json.loads(input_string)
             s = Structure.from_dict(d)
-        elif fmt == "yaml":
+        elif fmt_low == "yaml":
             d = yaml.safe_load(input_string)
             s = Structure.from_dict(d)
-        elif fmt == "xsf":
+        elif fmt_low == "xsf":
+            from pymatgen.io.xcrysden import XSF
+
             s = XSF.from_string(input_string).structure
-        elif fmt == "mcsqs":
+        elif fmt_low == "mcsqs":
+            from pymatgen.io.atat import Mcsqs
+
             s = Mcsqs.structure_from_string(input_string)
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
@@ -2390,7 +2403,7 @@ class IStructure(SiteCollection, MSONable):
 
             s = FleurInput.from_string(input_string, inpgen_input=False).structure
         else:
-            raise ValueError("Unrecognized format `%s`!" % fmt)
+            raise ValueError(f"Unrecognized format `{fmt}`!")
 
         if sort:
             s = s.get_sorted_structure()
