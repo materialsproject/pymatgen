@@ -28,6 +28,22 @@ __email__ = "z4deng@eng.ucsd.edu"
 __date__ = "Aug 1, 2018"
 
 
+class LammpsInputFile(InputFile):
+    """
+    Class representing a LAMMPS input settings file, e.g. in.lammps
+    """
+
+    pass
+
+
+class CombinedData(InputFile):
+    """
+    Class representing a LAMMPS data file, e.g. system.data
+    """
+
+    pass
+
+
 class LammpsRun(MSONable):
     """
     Examples for various simple LAMMPS runs with given simulation box,
