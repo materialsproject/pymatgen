@@ -88,7 +88,10 @@ class InsertionElectrode(AbstractElectrode):
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
-        # Make phase diagram to determine which entries are stable vs. unstable
+        # Make phase diagram to determine which entries are stable vs. unstable.
+        # For each working ion concentration, we want one stable entry
+        # to use in forming voltage pairs. PhaseDiagram allows for easy comparison
+        # of entry energies.
         pd = PhaseDiagram(pdentries)
 
         def lifrac(e):
