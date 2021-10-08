@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Union, Dict, List
 
 from pymatgen.io.core import InputSet, InputGenerator
+from pymatgen.io.lammps.inputs import LammpsInputFile, CombinedData
 
 __author__ = "Ryan Kingsbury, ..."
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -28,7 +29,16 @@ class LammpsInputSet(InputSet):
     specific instances of LammpsInputSet that are tailored to specific purposes.
     """
 
-    def get_inputs(self) -> Dict[str, str]:
+    def __init__(self, inputfile: LammpsInputFile, data: CombinedData):
+        """
+        Args:
+            inputfile: The input file containing settings
+            data: the data file containing structure and topology information
+        """
+        self.inputfile = inputfile
+        self.datafile = data
+
+    def get_inputs(self) -> Dict[str, Union[str, LammpsInputFile]]:
         """
         Generate a dictionary of one or more input files to be written. Keys
         are filenames, values are the contents of each file.
@@ -36,7 +46,7 @@ class LammpsInputSet(InputSet):
         This method is called by write_input(), which performs the actual file
         write operations.
         """
-        pass
+        return {"in.lammps": self.inputfile, "system.data": self.datafile}
 
     @classmethod
     def from_directory(cls, directory: Union[str, Path]):
@@ -54,7 +64,7 @@ class LammpsAqueousSet(InputGenerator):
     Yields a LammpsInputSet tailored for simulating aqueous electrolytes
     """
 
-    def get_input_set(self, mols: List, numbers: List[int]) -> LammpsInputSet: # type: ignore
+    def get_input_set(self, mols: List, numbers: List[int]) -> LammpsInputSet:  # type: ignore
         """
         Generate a LammpsInputSet tailored for simulating aqueous electrolytes
 

@@ -19,7 +19,8 @@ from monty.json import MSONable
 from monty.dev import deprecated
 
 from pymatgen.io.template import TemplateInputSet
-from pymatgen.io.lammps.data import LammpsData, CombinedData
+from pymatgen.io.core import InputFile
+from pymatgen.io.lammps.data import LammpsData  # , CombinedData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -27,6 +28,22 @@ __version__ = "1.0"
 __maintainer__ = "Zhi Deng"
 __email__ = "z4deng@eng.ucsd.edu"
 __date__ = "Aug 1, 2018"
+
+
+class LammpsInputFile(InputFile):
+    """
+    Class representing a LAMMPS input settings file, e.g. in.lammps
+    """
+
+    pass
+
+
+class CombinedData(InputFile):
+    """
+    Class representing a LAMMPS data file, e.g. system.data
+    """
+
+    pass
 
 
 class LammpsRun(MSONable):
