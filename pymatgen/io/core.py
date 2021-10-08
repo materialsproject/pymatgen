@@ -5,7 +5,7 @@ This module defines the abstract interface for pymatgen InputSet and InputSetGen
 import abc
 import os
 from pathlib import Path
-from collections.abc import Mapping
+from collections.abc import MutableMapping
 from typing import Union, Dict
 from zipfile import ZipFile
 from monty.json import MSONable
@@ -43,7 +43,7 @@ class InputFile(MSONable):
             kwargs: Keyword arguments passed to get_string()
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with open(filename, "wt") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.get_string())
 
     @classmethod
@@ -75,7 +75,7 @@ class InputFile(MSONable):
             return cls.from_string(f.read())
 
 
-class InputSet(MSONable, Mapping):
+class InputSet(MSONable, MutableMapping):
     """
     Abstract base class for all InputSet classes. InputSet classes serve
     as containers for all calculation input data.
@@ -83,6 +83,14 @@ class InputSet(MSONable, Mapping):
     All InputSet must implement a get_inputs and from_directory method.
     Implementing the validate method is optional.
     """
+
+    def __init__(self, **kwargs):
+        """
+        Instantiate an InputSet class. The __init__ method populates the internal
+        mapping attribute (the dict-like data structure) with the output of
+        get_inputs()
+        """
+        self._mapping = self.get_inputs()
 
     @abc.abstractmethod
     def get_inputs(self) -> Dict[str, Union[str, InputFile]]:
@@ -166,13 +174,19 @@ class InputSet(MSONable, Mapping):
         raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
 
     def __len__(self):
-        return len(self.get_inputs().keys())
+        return len(self._mapping.keys())
 
     def __iter__(self):
-        return iter(self.get_inputs().items())
+        return iter(self._mapping.items())
 
     def __getitem__(self, key):
-        return self.get_inputs()[key]
+        return self._mapping[key]
+
+    def __setitem__(self, key, value):
+        self._mapping[key] = value
+
+    def __delitem__(self, key):
+        del self._mapping[key]
 
 
 class InputSetGenerator(MSONable):

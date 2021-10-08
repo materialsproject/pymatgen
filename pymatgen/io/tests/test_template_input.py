@@ -36,6 +36,11 @@ class TestTemplateInputSet:
                 filename="hello_world.in",
             )
 
+            # test len, iter, getitem
+            assert len(tis) == 1
+            assert len([i for i in tis]) == 1
+            assert isinstance(tis["hello_world.in"], str)
+
             with pytest.raises(FileExistsError):
                 tis.write_input(scratch_dir, overwrite=False)
 

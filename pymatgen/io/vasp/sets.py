@@ -157,9 +157,12 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
             "POTCAR": self.potcar,
         }
 
-    def get_vasp_input(self) -> VaspInput:
+    def get_vasp_input(self, optional_files=None) -> VaspInput:
         """
-
+        Args:
+            optional_files: Other input files supplied as a dict of {
+                filename: object}. The object should follow standard pymatgen
+                conventions in implementing a as_dict() and from_dict method.
         Returns:
             VaspInput
         """
@@ -168,6 +171,7 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
             kpoints=self.kpoints,
             poscar=self.poscar,
             potcar=self.potcar,
+            optional_files=optional_files,
         )
 
     def get_inputs(self):

@@ -535,14 +535,6 @@ class Poscar(InputFile):
         """
         return self.get_string()
 
-    # def write_file(self, filename: PathLike, **kwargs):
-    #     """
-    #     Writes POSCAR to a file. The supported kwargs are the same as those for
-    #     the Poscar.get_string method and are passed through directly.
-    #     """
-    #     with zopen(filename, "wt") as f:
-    #         f.write(self.get_string(**kwargs))
-
     def as_dict(self) -> dict:
         """
         :return: MSONable dict.
@@ -2277,7 +2269,7 @@ class VaspInput(InputSet):
     Class to contain a set of vasp input objects corresponding to a run.
     """
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None):
         """
         Args:
             incar: Incar object.
@@ -2288,12 +2280,12 @@ class VaspInput(InputSet):
                 filename: object}. The object should follow standard pymatgen
                 conventions in implementing a as_dict() and from_dict method.
         """
-        super().__init__(**kwargs)
         self.incar = incar
         self.kpoints = kpoints
         self.poscar = poscar
         self.potcar = potcar
         self.optional_files = optional_files
+        super().__init__()
 
     def get_inputs(self):
         """
