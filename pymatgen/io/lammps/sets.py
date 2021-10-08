@@ -8,9 +8,9 @@ Input sets for LAMMPS
 
 import logging
 from pathlib import Path
-from typing import Union, Dict
+from typing import Union, Dict, List
 
-from pymatgen.io.core import InputSet, InputSetGenerator
+from pymatgen.io.core import InputSet, InputGenerator
 
 __author__ = "Ryan Kingsbury, ..."
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -24,7 +24,7 @@ class LammpsInputSet(InputSet):
     Container class for all LAMMPS inputs. This class is intended to provide
     general functionality that can be customized to many purposes.
 
-    InputSetGenerator classes elsewhere in this module are used to create
+    InputGenerator classes elsewhere in this module are used to create
     specific instances of LammpsInputSet that are tailored to specific purposes.
     """
 
@@ -49,16 +49,22 @@ class LammpsInputSet(InputSet):
         raise NotImplementedError(f"from_directory has not been implemented in {cls}")
 
 
-class LammpsAqueousSet(InputSetGenerator):
+class LammpsAqueousSet(InputGenerator):
     """
     Yields a LammpsInputSet tailored for simulating aqueous electrolytes
     """
 
-    def get_input_set(self) -> InputSet:
+    def get_input_set(self, mols: List, numbers: List[int]) -> LammpsInputSet: # type: ignore
         """
         Generate a LammpsInputSet tailored for simulating aqueous electrolytes
 
         Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
+
+        Args:
+            mols: list of Molecule objects
+            numbers: list of int describing the number of each type of  molecule.
+                Numbers must be passed in the order corresponding to the order
+                of Molecule in mol.
         """
         pass
