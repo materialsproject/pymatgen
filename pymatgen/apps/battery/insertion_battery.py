@@ -14,7 +14,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable, Dict, Union
+from typing import Iterable, Dict, Union, Tuple, Any, List
 
 from monty.dev import deprecated
 from scipy.constants import N_A
@@ -41,7 +41,7 @@ class InsertionElectrode(AbstractElectrode):
     @classmethod
     def from_entries(
         cls,
-        entries: Union[ComputedEntry, ComputedStructureEntry],
+        entries: Iterable[Union[ComputedEntry, ComputedStructureEntry]],
         working_ion_entry: Union[ComputedEntry, ComputedStructureEntry, PDEntry],
         strip_structures: bool = False,
     ):
@@ -84,7 +84,7 @@ class InsertionElectrode(AbstractElectrode):
         # Set an artificial high energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 1e9
 
-        pdentries = []
+        pdentries: List[Union[ComputedEntry, ComputedStructureEntry, PDEntry]] = []
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
@@ -104,7 +104,7 @@ class InsertionElectrode(AbstractElectrode):
         _unstable_entries = tuple(sorted([e for e in pd.unstable_entries if e in entries], key=lifrac))
 
         # create voltage pairs
-        _vpairs = tuple(
+        _vpairs: Tuple[Any, ...] = tuple(
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],
