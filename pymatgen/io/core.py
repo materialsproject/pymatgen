@@ -1,5 +1,5 @@
 """
-This module defines the abstract interface for pymatgen InputSet and InputSetGenerator classes.
+This module defines the abstract interface for pymatgen InputSet and InputGenerator classes.
 """
 
 import abc
@@ -189,9 +189,9 @@ class InputSet(MSONable, MutableMapping):
         del self._mapping[key]
 
 
-class InputSetGenerator(MSONable):
+class InputGenerator(MSONable):
     """
-    InputSetGenerator classes serve as generators for Input objects. They contain
+    InputGenerator classes serve as generators for Input objects. They contain
     settings or sets of instructions for how to create Input from a set of
     coordinates or a previous calculation directory.
     """
