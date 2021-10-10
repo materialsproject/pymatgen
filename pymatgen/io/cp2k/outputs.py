@@ -378,10 +378,13 @@ class Cp2kOutput:
                 gs[v["kind_number"]] = True
             else:
                 gs[v["kind_number"]] = False
-            for c in coord_table:
+
+        for c in coord_table:
+            for k, v in self.data['atomic_kind_info'].items():
                 if int(v["kind_number"]) == int(c[1]):
                     v["element"] = c[2]
-                self.data["atomic_kind_list"].append(k)
+                    break
+            self.data["atomic_kind_list"].append(k)
 
         if self.is_molecule:
             self.initial_structure = Molecule(
@@ -1126,6 +1129,17 @@ class Cp2kOutput:
             self.cbm = self.data["cbm"][Spin.up]
             self.efermi = efermi[-1][Spin.up]
 
+        num_occ = len(eigenvalues[-1]['occupied'][Spin.up])
+        num_unocc = len(eigenvalues[-1]['unoccupied'][Spin.up])
+        self.data['tdos'] = Dos(
+            efermi=self.vbm+1e-6,
+            energies=list(eigenvalues[-1]['occupied'][Spin.up]) + list(eigenvalues[-1]['unoccupied'][Spin.down]),
+            densities={
+                Spin.up: [1 for _ in range(num_occ)] + [0 for _ in range(num_unocc)],
+                Spin.down: [1 for _ in range(num_occ)] + [0 for _ in range(num_unocc)]
+            }
+        )
+
     def parse_homo_lumo(self):
         """
         Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed by
@@ -1197,10 +1211,11 @@ class Cp2kOutput:
 
         self.data["pdos"] = jsanitize(pdoss, strict=True)
         self.data["ldos"] = jsanitize(ldoss, strict=True)
-        self.data["tdos"] = jsanitize(tdos, strict=True)
+        self.data["tdos"] = tdos  # jsanitize(tdos, strict=True)
 
-        self.band_gap = tdos.get_gap()
-        self.cbm, self.vbm = tdos.get_cbm_vbm()
+        if self.data.get('tdos'):
+            self.band_gap = tdos.get_gap()
+            self.cbm, self.vbm = tdos.get_cbm_vbm()
 
         # If number of site-projected dos == number of sites, assume they are bijective
         # and create the CompleteDos object
