@@ -7,6 +7,7 @@ This module defines classes for point defect transformations on structures
 """
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -36,7 +37,8 @@ class DefectTransformation(AbstractTransformation):
         :param structure: (bulk structure to be scaled up - typically conventional unit cell)
         :return: defect_structure, with charge applied
         """
-        if structure != self.defect.bulk_structure:
+        sm = StructureMatcher(primitive_cell=False)
+        if not sm.fit(structure, self.defect.bulk_structure):
             raise ValueError("Defect bulk_structure is not the same as input structure.")
 
         def_structure = self.defect.generate_defect_structure(self.scaling_matrix)
