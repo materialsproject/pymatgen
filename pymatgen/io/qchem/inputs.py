@@ -10,9 +10,9 @@ import sys
 from typing import Union, Dict, List, Optional, Tuple
 
 from monty.io import zopen
-from monty.json import MSONable
 
 from pymatgen.core import Molecule
+from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
@@ -30,7 +30,7 @@ __credits__ = "Xiaohui Qu"
 logger = logging.getLogger(__name__)
 
 
-class QCInput(MSONable):
+class QCInput(InputFile):
     """
     An object representing a QChem input file. QCInput attributes represent different sections of a QChem input file.
     To add a new section one needs to modify __init__, __str__, from_sting and add staticmethods
@@ -144,6 +144,12 @@ class QCInput(MSONable):
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
 
+    def get_string(self):
+        """
+        Return a string representation of an entire input file.
+        """
+        return self.__str__()
+
     def __str__(self):
         combined_list = []
         # molecule section
@@ -256,16 +262,6 @@ class QCInput(MSONable):
             nbo=nbo,
         )
 
-    def write_file(self, filename: str):
-        """
-        Write QcInput to file.
-
-        Args:
-            filename (str): Filename
-        """
-        with zopen(filename, "wt") as f:
-            f.write(self.__str__())
-
     @staticmethod
     def write_multi_job_file(job_list: List["QCInput"], filename: str):
         """
@@ -277,19 +273,6 @@ class QCInput(MSONable):
         """
         with zopen(filename, "wt") as f:
             f.write(QCInput.multi_job_string(job_list))
-
-    @staticmethod
-    def from_file(filename: str) -> "QCInput":
-        """
-        Create QcInput from file.
-        Args:
-            filename (str): Filename
-
-        Returns:
-            QcInput
-        """
-        with zopen(filename, "rt") as f:
-            return QCInput.from_string(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> List["QCInput"]:
