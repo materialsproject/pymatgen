@@ -1,5 +1,30 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
 """
-This module defines the abstract interface for pymatgen InputSet and InputGenerator classes.
+This module defines the abstract interface for reading and writing calculation
+inputs in pymatgen. The interface comprises a 3-tiered hierarchy of clases.
+
+1. An InputFile object represents the contents of a single input file, e.g.
+   the INCAR. This class standardizes file read and write operations.
+2. An InputSet is a dict-like container that maps filenames (keys) to file
+   contents (either strings or InputFile objects). This class provides a standard
+   write_input() method.
+3. InputGenerator classes implement a get_input_set method that, when provided
+   with a structure, return an InputSet object with all parameters set correctly.
+   Calculation input files can be written to disk with the write_inputs method.
+
+If you want to implement a new InputGenerator, please take note of the following:
+
+1. You must implement a get_input_set method that returns an InputSet
+2. All customization of calculation parameters should be done in the __init__
+   method of the InputGenerator. The idea is that the generator contains
+   the "recipe" and get_input_set simply applies that recipe to a particular
+   structure.
+3. All InputGenerator must save all supplied args and kwargs as instance variables.
+   E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
+   ensures the as_dict and from_dict work correctly.
 """
 
 import abc
@@ -15,7 +40,7 @@ from monty.io import zopen
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
 __status__ = "Development"
-__date__ = "September 2021"
+__date__ = "October 2021"
 
 
 class InputFile(MSONable):
