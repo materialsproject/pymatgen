@@ -3,30 +3,30 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module defines the InputSetGenerator classes that generate VaspInputSet
+This module defines the InputGenerator classes that generate VaspInputSet
 objects customized for specific types of calculations using parameters developed
 and tested by the core team of pymatgen, including the Materials Project,
 Materials Virtual Lab, and MIT high throughput project.
 
-VASP InputSetGenerator classes are part of a 3-tiered hierarchy of pymatgen
+VASP InputGenerator classes are part of a 3-tiered hierarchy of pymatgen
 clases for storing and writing calculation inputs.
 
 1. An InputFile object represents the contents of a single input file, e.g.
    the INCAR
 2. An InputSet is a dict-like container that maps filenames (keys) to file
    contents (either strings or InputFile objects)
-3. InputSetGenerator classes implement a get_input_set method that, when provided
+3. InputGenerator classes implement a get_input_set method that, when provided
    with a structure, return an InputSet object with all parameters set correctly.
    Calculation input files can be written to disk with the write_inputs method.
 
-If you want to implement a new InputSetGenerator, pleaes take note of the following:
+If you want to implement a new InputGenerator, please take note of the following:
 
 1. You must implement a get_input_set method that returns an InputSet
 2. All customization of calculation parameters should be done in the __init__
-   method of the InputSetGenerator. The idea is that the generator contains
+   method of the InputGenerator. The idea is that the generator contains
    the "recipe" and get_input_set simply applies that recipe to a particular
    structure.
-3. All InputSetGenerator must save all supplied args and kwargs as instance variables.
+3. All InputGenerator must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
 """
@@ -40,12 +40,18 @@ from monty.serialization import loadfn
 from pymatgen.io.core import InputGenerator
 from pymatgen.io.vasp.sets import _load_yaml_config, VaspInputSet, DictSet
 
+__author__ = "Ryan Kingsbury"
+__email__ = "RKingsbury@lbl.gov"
+__status__ = "Development"
+__date__ = "October 2021"
+
+
 MODULE_DIR = Path(__file__).resolve().parent
 
 
 class MITRelaxGen(InputGenerator):
     """
-    Generates a VaspInputSet for PBE structural relaxation with parameters used 
+    Generates a VaspInputSet for PBE structural relaxation with parameters used
     in the MIT High-throughput project.
 
     The parameters are chosen specifically for a high-throughput project,
@@ -80,10 +86,10 @@ class MITRelaxGen(InputGenerator):
 class MPRelaxGen(InputGenerator):
     """
     Generates a VaspInputSet for PBE structural relaxation with parameters used in
-    the public Materials Project database. 
-    
+    the public Materials Project database.
+
     Typically, the pseudopotentials chosen contain more electrons than the MIT
-    parameters, and the k-point grid is ~50% more dense. The LDAUU parameters are 
+    parameters, and the k-point grid is ~50% more dense. The LDAUU parameters are
     also different due to the different psps used, which result in different fitted
     values.
     """
