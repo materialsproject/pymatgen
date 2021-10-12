@@ -222,7 +222,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         if zip_output:
             filename = self.__class__.__name__ + ".zip"
-            with ZipFile(filename, "w") as zip:
+            with ZipFile(os.path.join(output_dir, filename), "w") as zip:
                 for file in [
                     "INCAR",
                     "POSCAR",
