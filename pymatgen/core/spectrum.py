@@ -79,9 +79,9 @@ class Spectrum(MSONable):
         Normalize the spectrum with respect to the sum of intensity
 
         Args:
-            mode ("max" | "sum"): Normalization mode. Supported modes are "max" (set
-                the max y value to value, e.g., in XRD patterns), "sum" (set the
-                sum of y to a value, i.e., like a probability density).
+            mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
+                e.g., in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
+                probability density.
             value (float): Value to normalize to. Defaults to 1.
         """
         if mode.lower() == "sum":

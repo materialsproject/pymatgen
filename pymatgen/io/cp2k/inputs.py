@@ -18,7 +18,7 @@ import os
 import re
 import textwrap
 import warnings
-from typing import Dict, List, Sequence, Tuple, Union
+from typing import Dict, List, Literal, Sequence, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -36,7 +36,7 @@ __date__ = "August 2020"
 class Keyword(MSONable):
 
     """
-    Class representing a keyword argument in CP2K. Within CP2K Secitons, which activate features
+    Class representing a keyword argument in CP2K. Within CP2K Sections, which activate features
     of the CP2K code, the keywords are arguments that control the functionality of that feature.
     For example, the section "FORCE_EVAL" activates the evaluation of forces/energies, but within
     "FORCE_EVAL" the keyword "METHOD" controls whether or not this will be done with, say,
@@ -285,10 +285,10 @@ class Section(MSONable):
 
         for k in self.required_sections:
             if not self.check(k):
-                raise UserWarning("WARNING: REQUIRED SECTION {} HAS NOT BEEN INITIALIZED".format(k))
+                raise UserWarning(f"WARNING: REQUIRED SECTION {k} HAS NOT BEEN INITIALIZED")
         for k in self.required_keywords:
             if k not in self.keywords:
-                raise UserWarning("WARNING: REQUIRED KEYWORD {} HAS NOT BEEN PROVIDED".format(k))
+                raise UserWarning(f"WARNING: REQUIRED KEYWORD {k} HAS NOT BEEN PROVIDED")
 
     def __str__(self):
         return self.get_string()
@@ -421,8 +421,7 @@ class Section(MSONable):
             elif isinstance(v, Section):
                 d1.insert(v)
             else:
-                print(type(v))
-                raise TypeError("Unrecognized type.")
+                raise TypeError(f"Unrecognized type: {type(v)}")
 
     def set(self, d: dict):
         """
@@ -706,7 +705,8 @@ class Global(Section):
 
         Args:
             project_name (str, optional): Defaults to "CP2K".
-            run_type (str, optional): Defaults to "ENERGY_FORCE".
+            run_type (str, optional): See https://manual.cp2k.org/trunk/CP2K_INPUT/GLOBAL.html#list_RUN_TYPE
+                for possible values. Defaults to "ENERGY_FORCE".
         """
 
         self.project_name = project_name
@@ -845,9 +845,9 @@ class QS(Section):
 
     def __init__(
         self,
-        method: str = "GPW",
+        method: Literal["GPW", "GAPW"] = "GPW",
         eps_default: float = 1e-7,
-        extrapolation: str = "PS",
+        extrapolation: Literal["PS", "ASPC"] = "PS",
         subsections: dict = None,
         **kwargs,
     ):
@@ -855,14 +855,14 @@ class QS(Section):
         Initialize the QS Section
 
         Args:
-            method: What DFT methodology to use. Can be GPW (Gaussian Plane Waves) for DFT with pseudopotentials
-                or GAPW (Gaussian Augmented Plane Waves) for all electron calculations
-            eps_default: The default level of convergence accuracy. NOTE: This is a global value for all the numerical
-                value of all EPS_* values in QS module. It is not the same as EPS_SCF, which sets convergence accuracy
-                of the SCF cycle alone.
-            extrapolation: Method use for extrapolation. If using gamma-point-only calculation, then one should use
-                PS for relaxations and ASPC for MD. See the manual for other options.
-            subsections: Subsections to initialize with
+            method ("GPW" | "GAPW"): What DFT methodology to use. GPW (Gaussian Plane Waves) for DFT with
+                pseudopotentials or GAPW (Gaussian Augmented Plane Waves) for all electron calculations.
+            eps_default (float): The default level of convergence accuracy. NOTE: This is a global value for all
+                the numerical value of all EPS_* values in QS module. It is not the same as EPS_SCF, which sets
+                convergence accuracy of the SCF cycle alone.
+            extrapolation ("PS" | "ASPC"): Method use for extrapolation. If using gamma-point-only calculation, then one
+                should use PS for relaxations and ASPC for MD. See the manual for other options.
+            subsections (dict): Subsections to initialize with.
         """
 
         self.method = method
@@ -898,7 +898,9 @@ class Scf(Section):
         self,
         max_scf: int = 50,
         eps_scf: float = 1e-6,
-        scf_guess: str = "RESTART",
+        scf_guess: Literal[
+            "ATOMIC", "CORE", "HISTORY_RESTART", "MOPAC", "NONE", "RANDOM", "RESTART", "SPARSE"
+        ] = "RESTART",
         subsections: dict = None,
         **kwargs,
     ):
@@ -906,10 +908,18 @@ class Scf(Section):
         Initialize the Scf section
 
         Args:
-            max_scf: maximum number of SCF loops before terminating
-            eps_scf: convergence criteria for SCF loop
-            scf_guess: Initial guess for SCF loop (RESTART will switch to ATOMIC when no restart file
-                is present)
+            max_scf (int): Maximum number of SCF loops before terminating. Defaults to 50.
+            eps_scf (float): Convergence criteria for SCF loop. Defaults to 1e-6.
+            scf_guess: Initial guess for SCF loop.
+                "ATOMIC": Generate an atomic density using the atomic code
+                "CORE": Diagonalize the core Hamiltonian for an initial guess.
+                "HISTORY_RESTART": Extrapolated from previous RESTART files.
+                "MOPAC": Use same guess as MOPAC for semi-empirical methods or a simple diagonal density matrix for
+                    other methods.
+                "NONE": Skip initial guess (only for NON-SCC DFTB).
+                "RANDOM": Use random wavefunction coefficients.
+                "RESTART": Use the RESTART file as an initial guess (and ATOMIC if not present).
+                "SPARSE": Generate a sparse wavefunction using the atomic code (for OT based methods).
         """
 
         self.max_scf = max_scf
@@ -1055,13 +1065,25 @@ class Davidson(Section):
     def __init__(
         self,
         new_prec_each: int = 20,
-        preconditioner: str = "FULL_SINGLE_INVERSE",
+        preconditioner: Literal[
+            "FULL_ALL", "FULL_KINETIC", "FULL_SINGLE", "FULL_SINGLE_INVERSE", "FULL_S_INVERSE", "NONE"
+        ] = "FULL_SINGLE_INVERSE",
         **kwargs,
     ):
         """
         Args:
-            new_prec_each (int): How often to recalculate the preconditioner
-            preconditioner (str): Preconditioner to use
+            new_prec_each (int): How often to recalculate the preconditioner.
+            preconditioner (str): Preconditioner to use.
+                "FULL_ALL": Most effective state selective preconditioner based on diagonalization, requires the
+                    ENERGY_GAP parameter to be an underestimate of the HOMO-LUMO gap. This preconditioner is
+                    recommended for almost all systems, except very large systems where make_preconditioner would
+                    dominate the total computational cost.
+                "FULL_KINETIC": Cholesky inversion of S and T, fast construction, robust, use for very large systems.
+                "FULL_SINGLE": Based on H-eS diagonalisation, not as good as FULL_ALL, but somewhat cheaper to apply.
+                "FULL_SINGLE_INVERSE": Based on H-eS cholesky inversion, similar to FULL_SINGLE in preconditioning
+                    efficiency but cheaper to construct, might be somewhat less robust. Recommended for large systems.
+                "FULL_S_INVERSE": Cholesky inversion of S, not as good as FULL_KINETIC, yet equally expensive.
+                "NONE": skip preconditioning
         """
         self.new_prec_each = new_prec_each
         self.preconditioner = preconditioner

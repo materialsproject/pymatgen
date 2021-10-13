@@ -111,16 +111,16 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return self.from_dict(new_entry_dict)
 
-    def _normalization_factor(self, mode: str = "formula_unit") -> float:
+    def _normalization_factor(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> float:
         # NOTE here we use composition rather than _composition in order to ensure
-        # that we have the expected behaviour downstream in cases where composition
+        # that we have the expected behavior downstream in cases where composition
         # is overwritten (GrandPotPDEntry, TransformedPDEntry)
         if mode == "atom":
             factor = self.composition.num_atoms
         elif mode == "formula_unit":
             factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            raise ValueError("`{}` is not an allowed option for normalization".format(mode))
+            raise ValueError(f"{mode=} is not an allowed option for normalization")
 
         return factor
 
