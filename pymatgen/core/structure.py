@@ -15,6 +15,7 @@ import math
 import os
 import random
 import re
+import sys
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
@@ -25,7 +26,6 @@ from typing import (
     Iterable,
     Iterator,
     List,
-    Literal,
     Optional,
     Sequence,
     Set,
@@ -49,6 +49,11 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 class Neighbor(Site):

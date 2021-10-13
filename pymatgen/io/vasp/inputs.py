@@ -15,11 +15,12 @@ import math
 import os
 import re
 import subprocess
+import sys
 import warnings
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Any, Dict, Literal, Sequence, Tuple, Union
+from typing import Any, Dict, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
@@ -38,6 +39,11 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import ArrayLike, PathLike
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"

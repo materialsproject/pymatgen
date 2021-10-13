@@ -7,7 +7,7 @@ Classes for reading/manipulating/writing QChem input files.
 """
 import logging
 import sys
-from typing import Union, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
