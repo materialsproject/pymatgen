@@ -1303,21 +1303,24 @@ class Bandoverlaps:
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
 
-        self._read(contents)
+        spin_numbers = [0, 1] if contents[0].split()[-1] == "0" else [1, 2]
 
-    def _read(self, contents: list):
+        self._read(contents, spin_numbers)
+
+    def _read(self, contents: list, spin_numbers: list):
         """
         will read in all contents of the file
         Args:
          contents: list of strings
+         spin_numbers: list of spin numbers depending on `Lobster` version.
         """
         self.bandoverlapsdict = {}  # type: Dict
         self.max_deviation = []  # type: List
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
-            if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0" in line:
+            if f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[0]}" in line:
                 spin = Spin.up
-            elif "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1" in line:
+            elif f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[1]}" in line:
                 spin = Spin.down
             elif "k-point" in line:
                 kpoint = line.split(" ")

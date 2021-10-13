@@ -7,7 +7,7 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import List, Union, Callable
+from typing import Callable, List, Literal, Union
 
 import numpy as np
 from monty.json import MSONable
@@ -74,13 +74,13 @@ class Spectrum(MSONable):
     def __len__(self):
         return self.ydim[0]
 
-    def normalize(self, mode: str = "max", value: float = 1.0):
+    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
         """
         Normalize the spectrum with respect to the sum of intensity
 
         Args:
-            mode (str): Normalization mode. Supported modes are "max" (set the
-                max y value to value, e.g., in XRD patterns), "sum" (set the
+            mode ("max" | "sum"): Normalization mode. Supported modes are "max" (set
+                the max y value to value, e.g., in XRD patterns), "sum" (set the
                 sum of y to a value, i.e., like a probability density).
             value (float): Value to normalize to. Defaults to 1.
         """

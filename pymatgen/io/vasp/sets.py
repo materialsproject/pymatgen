@@ -222,7 +222,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         if zip_output:
             filename = self.__class__.__name__ + ".zip"
-            with ZipFile(filename, "w") as zip:
+            with ZipFile(os.path.join(output_dir, filename), "w") as zip:
                 for file in [
                     "INCAR",
                     "POSCAR",
@@ -232,9 +232,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     cifname,
                 ]:
                     try:
-                        zip.write(file)
-                        os.remove(file)
+                        zip.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
+                        pass
+                    try:
+                        os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError):
                         pass
 
     def as_dict(self, verbosity=2):
@@ -544,21 +547,26 @@ class DictSet(VaspInputSet):
             else:
                 incar[k] = v
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
-        if has_u:
-            # modify LMAXMIX if LSDA+U and you have d or f electrons
-            # note that if the user explicitly sets LMAXMIX in settings it will
-            # override this logic.
-            if "LMAXMIX" not in settings.keys():
-                # contains f-electrons
-                if any(el.Z > 56 for el in structure.composition):
-                    incar["LMAXMIX"] = 6
-                # contains d-electrons
-                elif any(el.Z > 20 for el in structure.composition):
-                    incar["LMAXMIX"] = 4
-        else:
+        if not has_u:
             for key in list(incar.keys()):
                 if key.startswith("LDAU"):
                     del incar[key]
+
+        # Modify LMAXMIX if you have d or f electrons present.
+        # Note that if the user explicitly sets LMAXMIX in settings it will
+        # override this logic.
+        # Previously, this was only set if Hubbard U was enabled as per the
+        # VASP manual but following an investigation it was determined that
+        # this would lead to a significant difference between SCF -> NonSCF
+        # even without Hubbard U enabled. Thanks to Andrew Rosen for
+        # investigating and reporting.
+        if "LMAXMIX" not in settings.keys():
+            # contains f-electrons
+            if any(el.Z > 56 for el in structure.composition):
+                incar["LMAXMIX"] = 6
+            # contains d-electrons
+            elif any(el.Z > 20 for el in structure.composition):
+                incar["LMAXMIX"] = 4
 
         if self.constrain_total_magmom:
             nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"]])

@@ -15,8 +15,8 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
-from scipy.special import comb, erfc
 from scipy import constants
+from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
 
@@ -471,9 +471,15 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict, fmt: str = None, **kwargs):
-        """
-        Create an EwaldSummation instance from json serialized dictionary.
+    def from_dict(cls, d: Dict, fmt: str = None, **kwargs) -> "EwaldSummation":
+        """Create an EwaldSummation instance from JSON serialized dictionary.
+
+        Args:
+            d (Dict): Dictionary representation
+            fmt (str, optional): Unused. Defaults to None.
+
+        Returns:
+            EwaldSummation: class instance
         """
         summation = cls(
             structure=Structure.from_dict(d["structure"]),
@@ -579,7 +585,7 @@ class EwaldMinimizer:
         This method finds and returns the permutations that produce the lowest
         ewald sum calls recursive function to iterate through permutations
         """
-        if self._algo == EwaldMinimizer.ALGO_FAST or self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+        if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
             return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
         return None
 

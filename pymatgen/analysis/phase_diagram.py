@@ -16,6 +16,7 @@ import re
 import warnings
 from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objs as go
@@ -28,8 +29,8 @@ from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify
 from pymatgen.util.sequence import PBar
+from pymatgen.util.string import htmlify, latexify
 
 logger = logging.getLogger(__name__)
 
@@ -2009,15 +2010,20 @@ class PDPlotter:
     A plotter class for compositional phase diagrams.
     """
 
-    def __init__(self, phasediagram: PhaseDiagram, show_unstable: float = 0.2, backend: str = "plotly", **plotkwargs):
+    def __init__(
+        self,
+        phasediagram: PhaseDiagram,
+        show_unstable: float = 0.2,
+        backend: Literal["plotly", "matplotlib"] = "plotly",
+        **plotkwargs,
+    ):
         """
         Args:
             phasediagram (PhaseDiagram): PhaseDiagram object.
             show_unstable (float): Whether unstable (above the hull) phases will be
                 plotted. If a number > 0 is entered, all phases with
                 e_hull < show_unstable (eV/atom) will be shown.
-            backend (str): Python package used for plotting ("matplotlib" or
-                "plotly"). Defaults to "plotly".
+            backend ("plotly" | "matplotlib"): Python package used for plotting. Defaults to "plotly".
             **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot. Can
                 be used to customize markers etc. If not set, the default is
                 {
@@ -2738,8 +2744,8 @@ class PDPlotter:
             if hasattr(entry, "original_entry"):
                 comp = entry.original_entry.composition
 
-            formula = list(comp.reduced_formula)
-            text.append(self._htmlize_formula(formula))
+            formula = comp.reduced_formula
+            text.append(htmlify(formula))
 
         visible = True
         if not label_stable or self._dim == 4:
@@ -2790,7 +2796,7 @@ class PDPlotter:
                 clean_formula = str(entry.composition.elements[0])
                 if hasattr(entry, "original_entry"):
                     orig_comp = entry.original_entry.composition
-                    clean_formula = self._htmlize_formula(orig_comp.reduced_formula)
+                    clean_formula = htmlify(orig_comp.reduced_formula)
 
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
@@ -2798,7 +2804,7 @@ class PDPlotter:
             annotation = plotly_layouts["default_annotation_layout"].copy()
             annotation.update({"x": x, "y": y, "font": font_dict, "text": clean_formula, "opacity": opacity})
 
-            if self._dim == 3 or self._dim == 4:
+            if self._dim in (3, 4):
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:
@@ -2867,7 +2873,7 @@ class PDPlotter:
                     entry_id = getattr(entry, "attribute", "no ID")
 
                 formula = comp.reduced_formula
-                clean_formula = self._htmlize_formula(formula)
+                clean_formula = htmlify(formula)
                 label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
 
                 if not stable:
@@ -3131,27 +3137,6 @@ class PDPlotter:
             flatshading=True,
             showlegend=True,
         )
-
-    @staticmethod
-    def _htmlize_formula(formula: str):
-        """
-        Adds HTML tags for displaying chemical formula in Plotly figure annotations.
-
-        Args:
-            formula: chemical formula
-
-        Returns:
-            clean chemical formula with necessary HTML tags
-        """
-        s = []
-        for char in formula:
-            if char.isdigit():
-                s.append(f"<sub>{char}</sub>")
-            else:
-                s.append(char)
-
-        return "".join(s)
-
 
 def uniquelines(q):
     """

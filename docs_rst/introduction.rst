@@ -129,6 +129,10 @@ several advantages over other codes out there:
 5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project.
    It is also actively being developed and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
+6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over the
+   world. We also now have an architecture to support add-ons that expand pymatgen's functionality even further. Check
+   out the `contributing page <http://pymatgen.org/contributing>`_ and `add-ons page <http://pymatgen.org/addons>`_ for
+   details and examples.
 
 Please review the `coding guidelines </contributing>`_.
 

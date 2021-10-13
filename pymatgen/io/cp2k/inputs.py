@@ -565,7 +565,7 @@ class Cp2kInput(Section):
     """
     Special instance of 'Section' class that is meant to represent the overall cp2k input.
     Distinguishes itself from Section by overriding get_string() to not print this section's
-    title and by implementing the file i/o
+    title and by implementing the file i/o.
     """
 
     def __init__(self, name: str = "CP2K_INPUT", subsections: dict = None, **kwargs):
@@ -681,8 +681,12 @@ class Cp2kInput(Section):
         output_dir: str = ".",
         make_dir_if_not_present: bool = True,
     ):
-        """
-        Write input to a file.
+        """Write input to a file.
+
+        Args:
+            input_filename (str, optional): Defaults to "cp2k.inp".
+            output_dir (str, optional): Defaults to ".".
+            make_dir_if_not_present (bool, optional): Defaults to True.
         """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
@@ -698,8 +702,11 @@ class Global(Section):
     """
 
     def __init__(self, project_name: str = "CP2K", run_type: str = "ENERGY_FORCE", **kwargs):
-        """
-        Initialize the global section
+        """Initialize the global section
+
+        Args:
+            project_name (str, optional): Defaults to "CP2K".
+            run_type (str, optional): Defaults to "ENERGY_FORCE".
         """
 
         self.project_name = project_name
@@ -733,8 +740,10 @@ class ForceEval(Section):
     """
 
     def __init__(self, subsections: dict = None, **kwargs):
-        """
-        Initialize the ForceEval section
+        """Initialize the ForceEval section
+
+        Args:
+            subsections (dict, optional): Defaults to None.
         """
 
         self.subsections = subsections if subsections else {}
@@ -768,18 +777,21 @@ class Dft(Section):
         basis_set_filenames="BASIS_MOLOPT",
         potential_filename="GTH_POTENTIALS",
         uks: bool = True,
-        wfn_restart_file_name=None,
+        wfn_restart_file_name: str = None,
         subsections: dict = None,
         **kwargs,
     ):
-        """
-        Initialize the DFT section
+        """Initialize the DFT section.
 
         Args:
-            subsections: Any subsections to initialize with
-            basis_set_filename: Name of the file that contains the basis set information
-            potential_filename: Name of the file that contains the pseudopotential information
-            uks: Whether to run unrestricted Kohn Sham (spin polarized)
+            basis_set_filenames (str, optional): Name of the file that contains the basis set
+                information. Defaults to "BASIS_MOLOPT".
+            potential_filename (str, optional): Name of the file that contains the pseudopotential
+                information. Defaults to "GTH_POTENTIALS".
+            uks (bool, optional): Whether to run unrestricted Kohn Sham (spin polarized).
+                Defaults to True.
+            wfn_restart_file_name (str, optional): Defaults to None.
+            subsections (dict, optional): Any subsections to initialize with. Defaults to None.
         """
 
         self.basis_set_filenames = basis_set_filenames
@@ -843,7 +855,7 @@ class QS(Section):
         Initialize the QS Section
 
         Args:
-            method: What dft methodology to use. Can be GPW (Gaussian Plane Waves) for DFT with pseudopotentials
+            method: What DFT methodology to use. Can be GPW (Gaussian Plane Waves) for DFT with pseudopotentials
                 or GAPW (Gaussian Augmented Plane Waves) for all electron calculations
             eps_default: The default level of convergence accuracy. NOTE: This is a global value for all the numerical
                 value of all EPS_* values in QS module. It is not the same as EPS_SCF, which sets convergence accuracy

@@ -620,7 +620,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         sorted alphabetically and joined by dashes, by convention for use
         in database keys.
         """
-        return "-".join(sorted([str(el) for el in self.elements]))
+        return "-".join(sorted([el.symbol for el in self.elements]))
 
     @property
     def valid(self) -> bool:

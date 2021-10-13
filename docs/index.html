@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Introduction &mdash; pymatgen 2022.0.12 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.0.14 documentation</title>
   
 
   
@@ -75,7 +75,7 @@
             
             
               <div class="version">
-                2022.0.12
+                2022.0.14
               </div>
             
           
@@ -262,12 +262,12 @@ demonstrates some of the basic functionality of pymatgen, as well as a
 <a class="reference external" href="http://matgenb.materialsvirtuallab.org">matgenb repository</a> of Jupyter notebooks for common and advanced use cases.
 One of the ways you can contribute is to fork the matgenb repo and add your own examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id1">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
-DiffusionAnalyzer.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+DiffusionAnalyzer.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="why-use-pymatgen">
@@ -291,18 +291,20 @@ languages. Pymatgen also comes with a complete system for handling periodic boun
 <li><p><strong>It will be around.</strong> Pymatgen is not a pet research project. It is used in the well-established Materials Project.
 It is also actively being developed and maintained by the <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a>, the ABINIT group and many
 other research groups.</p></li>
+<li><p><strong>A growing ecosystem of developers and add-ons</strong>. Pymatgen has contributions from materials scientists all over the
+world. We also now have an architecture to support add-ons that expand pymatgen’s functionality even further. Check
+out the <a class="reference external" href="http://pymatgen.org/contributing">contributing page</a> and <a class="reference external" href="http://pymatgen.org/addons">add-ons page</a> for
+details and examples.</p></li>
 </ol>
 <p>Please review the <a class="reference external" href="/contributing">coding guidelines</a>.</p>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2022-0-12">
-<h3>v2022.0.12<a class="headerlink" href="#v2022-0-12" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2022-0-14">
+<h3>v2022.0.14<a class="headerlink" href="#v2022-0-14" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>&#64;chc273 Major bugfix for cython handling of fractional coordinates wrapping.</p></li>
-<li><p>&#64;mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219</p></li>
-<li><p>&#64;FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.</p></li>
-<li><p>&#64;gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups</p></li>
+<li><p>Update OPTIMADE interface to allow querying multiple providers, this changes the
+method signature of OptimadeRester and so is considered a backwards incompatible change (&#64;mkhorton, #2238)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -378,9 +380,9 @@ conda install --yes --channel conda-forge pymatgen
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="id2">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 <p>The figure above provides an overview of the functionality in pymatgen. A typical workflow would involve a user
 converting data (structure, calculations, etc.) from various sources (first principles calculations, crystal and
