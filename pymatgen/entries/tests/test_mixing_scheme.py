@@ -37,6 +37,7 @@ import numpy as np
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 from pymatgen.entries.compatibility import (
     Compatibility,
@@ -104,19 +105,19 @@ Note that in the DataFrame, the first 3 columns are informational only and not
 used by get_adjustments, so they are populated with dummy values here
 """
 columns = [
-            "composition",
-            "spacegroup",
-            "num_sites",
-            "entry_id_1",
-            "entry_id_2",
-            "run_type_1",
-            "run_type_2",
-            "ground_state_energy_1",
-            "ground_state_energy_2",
-            "is_stable_1",
-            "hull_energy_1",
-            "hull_energy_2",
-        ]
+    "composition",
+    "spacegroup",
+    "num_sites",
+    "entry_id_1",
+    "entry_id_2",
+    "run_type_1",
+    "run_type_2",
+    "ground_state_energy_1",
+    "ground_state_energy_2",
+    "is_stable_1",
+    "hull_energy_1",
+    "hull_energy_2",
+]
 
 
 @pytest.fixture
@@ -130,68 +131,77 @@ def ms_complete():
     lattice1 = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
     lattice2 = Lattice.from_parameters(a=1, b=1, c=1, alpha=120, beta=120, gamma=60)
     lattice3 = Lattice.from_parameters(a=1, b=1, c=1, alpha=120, beta=120, gamma=90)
-    lattice_br_gga = Lattice.from_dict({'@module': 'pymatgen.core.lattice',
-    '@class': 'Lattice',
-    'matrix': [[2.129324, -4.226095, 0.0],
-    [2.129324, 4.226095, 0.0],
-    [0.0, 0.0, 8.743796]]})
-    lattice_br_r2scan = Lattice.from_dict({'@module': 'pymatgen.core.lattice',
-    '@class': 'Lattice',
-    'matrix': [[0.0, -4.25520892, -0.0],
-    [-3.56974866, 2.12760446, 0.0],
-    [0.0, 0.0, -8.74536848]]})
-
+    lattice_br_gga = Lattice.from_dict(
+        {
+            "@module": "pymatgen.core.lattice",
+            "@class": "Lattice",
+            "matrix": [[2.129324, -4.226095, 0.0], [2.129324, 4.226095, 0.0], [0.0, 0.0, 8.743796]],
+        }
+    )
+    lattice_br_r2scan = Lattice.from_dict(
+        {
+            "@module": "pymatgen.core.lattice",
+            "@class": "Lattice",
+            "matrix": [[0.0, -4.25520892, -0.0], [-3.56974866, 2.12760446, 0.0], [0.0, 0.0, -8.74536848]],
+        }
+    )
 
     gga_entries = [
         ComputedStructureEntry(
-            Structure(lattice1, ["Sn"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "GGA"},
-            entry_id = "gga-1"
+            Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
         ),
         ComputedStructureEntry(
-            Structure(lattice1, ["Br"], [[0, 0, 0]]),
-            1,
-            parameters={"run_type": "GGA"},
-            entry_id = "gga-2"
+            Structure(lattice1, ["Br"], [[0, 0, 0]]), 1, parameters={"run_type": "GGA"}, entry_id="gga-2"
         ),
         ComputedStructureEntry(
-            Structure(lattice_br_gga, ["Br","Br","Br","Br"], [[0.642473, 0.642473, 0.117751],
-        [0.357527, 0.357527, 0.882249],
-        [0.857527, 0.857527, 0.617751],
-        [0.142473, 0.142473, 0.382249]]),
+            Structure(
+                lattice_br_gga,
+                ["Br", "Br", "Br", "Br"],
+                [
+                    [0.642473, 0.642473, 0.117751],
+                    [0.357527, 0.357527, 0.882249],
+                    [0.857527, 0.857527, 0.617751],
+                    [0.142473, 0.142473, 0.382249],
+                ],
+            ),
             0,
             parameters={"run_type": "GGA"},
-            entry_id = "gga-3"
+            entry_id="gga-3",
         ),
         ComputedStructureEntry(
             Structure(lattice1, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
             -18,
             parameters={"run_type": "GGA"},
-            entry_id = "gga-4"
+            entry_id="gga-4",
         ),
         ComputedStructureEntry(
-            Structure(lattice2, ["Sn", "Sn", "Sn", "Sn", "Br", "Br", "Br", "Br", "Br", "Br", "Br", "Br"], [[0.25    , 0.393393, 0.663233],
-        [0.75    , 0.606607, 0.336767],
-        [0.25    , 0.893393, 0.836767],
-        [0.75    , 0.106607, 0.163233],
-        [0.25    , 0.662728, 0.548755],
-        [0.75    , 0.337272, 0.451245],
-        [0.25    , 0.162728, 0.951245],
-        [0.75    , 0.837272, 0.048755],
-        [0.25    , 0.992552, 0.311846],
-        [0.75    , 0.007448, 0.688154],
-        [0.25    , 0.492552, 0.188154],
-        [0.75    , 0.507448, 0.811846]]),
+            Structure(
+                lattice2,
+                ["Sn", "Sn", "Sn", "Sn", "Br", "Br", "Br", "Br", "Br", "Br", "Br", "Br"],
+                [
+                    [0.25, 0.393393, 0.663233],
+                    [0.75, 0.606607, 0.336767],
+                    [0.25, 0.893393, 0.836767],
+                    [0.75, 0.106607, 0.163233],
+                    [0.25, 0.662728, 0.548755],
+                    [0.75, 0.337272, 0.451245],
+                    [0.25, 0.162728, 0.951245],
+                    [0.75, 0.837272, 0.048755],
+                    [0.25, 0.992552, 0.311846],
+                    [0.75, 0.007448, 0.688154],
+                    [0.25, 0.492552, 0.188154],
+                    [0.75, 0.507448, 0.811846],
+                ],
+            ),
             -60,
             parameters={"run_type": "GGA"},
-            entry_id = "gga-5"
+            entry_id="gga-5",
         ),
         ComputedStructureEntry(
             Structure(lattice3, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
             -12,
             parameters={"run_type": "GGA"},
-            entry_id = "gga-6"
+            entry_id="gga-6",
         ),
         ComputedStructureEntry(
             Structure(
@@ -207,59 +217,65 @@ def ms_complete():
             ),
             -15,
             parameters={"run_type": "GGA"},
-            entry_id = "gga-7"
+            entry_id="gga-7",
         ),
     ]
     scan_entries = [
         ComputedStructureEntry(
-            Structure(lattice1, ["Sn"], [[0, 0, 0]]),
-            -1,
-            parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-1"
+            Structure(lattice1, ["Sn"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-1"
         ),
         ComputedStructureEntry(
-            Structure(lattice1, ["Br"], [[0, 0, 0]]),
-            -1,
-            parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-2"
+            Structure(lattice1, ["Br"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-2"
         ),
         ComputedStructureEntry(
-            Structure(lattice_br_r2scan, ["Br","Br","Br","Br"], [[ 0.85985939,  0.        ,  0.38410868],
-        [ 0.14014061, -0.        ,  0.61589132],
-        [ 0.64014061,  0.        ,  0.88410868],
-        [ 0.35985939, -0.        ,  0.11589132]]),
+            Structure(
+                lattice_br_r2scan,
+                ["Br", "Br", "Br", "Br"],
+                [
+                    [0.85985939, 0.0, 0.38410868],
+                    [0.14014061, -0.0, 0.61589132],
+                    [0.64014061, 0.0, 0.88410868],
+                    [0.35985939, -0.0, 0.11589132],
+                ],
+            ),
             0,
             parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-3"
+            entry_id="r2scan-3",
         ),
         ComputedStructureEntry(
             Structure(lattice1, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
             -21,
             parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-4"
+            entry_id="r2scan-4",
         ),
         ComputedStructureEntry(
-            Structure(lattice2, ["Sn", "Sn", "Sn", "Sn", "Br", "Br", "Br", "Br", "Br", "Br", "Br", "Br"], [[0.25    , 0.393393, 0.663233],
-        [0.75    , 0.606607, 0.336767],
-        [0.25    , 0.893393, 0.836767],
-        [0.75    , 0.106607, 0.163233],
-        [0.25    , 0.662728, 0.548755],
-        [0.75    , 0.337272, 0.451245],
-        [0.25    , 0.162728, 0.951245],
-        [0.75    , 0.837272, 0.048755],
-        [0.25    , 0.992552, 0.311846],
-        [0.75    , 0.007448, 0.688154],
-        [0.25    , 0.492552, 0.188154],
-        [0.75    , 0.507448, 0.811846]]),
+            Structure(
+                lattice2,
+                ["Sn", "Sn", "Sn", "Sn", "Br", "Br", "Br", "Br", "Br", "Br", "Br", "Br"],
+                [
+                    [0.25, 0.393393, 0.663233],
+                    [0.75, 0.606607, 0.336767],
+                    [0.25, 0.893393, 0.836767],
+                    [0.75, 0.106607, 0.163233],
+                    [0.25, 0.662728, 0.548755],
+                    [0.75, 0.337272, 0.451245],
+                    [0.25, 0.162728, 0.951245],
+                    [0.75, 0.837272, 0.048755],
+                    [0.25, 0.992552, 0.311846],
+                    [0.75, 0.007448, 0.688154],
+                    [0.25, 0.492552, 0.188154],
+                    [0.75, 0.507448, 0.811846],
+                ],
+            ),
             -96,
             parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-5"
+            entry_id="r2scan-5",
         ),
         ComputedStructureEntry(
-            Structure(lattice3, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
+            Structure(lattice3.scale(0.25), ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
             -18,
             parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-6"
+            entry_id="r2scan-6",
         ),
         ComputedStructureEntry(
             Structure(
@@ -275,7 +291,7 @@ def ms_complete():
             ),
             -30,
             parameters={"run_type": "R2SCAN"},
-            entry_id = "r2scan-7"
+            entry_id="r2scan-7",
         ),
     ]
     # the fmt command tells the black autoformatter not to mess with this block of code
@@ -686,13 +702,41 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # TODO - write this test
         pass
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_alternate_structure_matcher(self, mixing_scheme_no_compat):
+    def test_alternate_structure_matcher(self, ms_complete):
         """
-        Test alternate structure matcher kwargs
+        Test alternate structure matcher kwargs. By setting scale to False, entries
+        gga-6 and r2scan-6 will no longer match and will be listed as separate rows
+        in the mixing state DataFrame.
         """
-        # TODO - write this test
-        pass
+        sm = StructureMatcher(scale=False)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None, structure_matcher=sm)
+        state_data = compat._generate_mixing_scheme_state_data(ms_complete.all_entries)
+        assert isinstance(
+            state_data, pd.DataFrame
+        ), "_generate_mixing_scheme_state_data failed to generate a DataFrame."
+        assert len(state_data) == 8
+        assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
+        assert sum(state_data["run_type_2"] == "R2SCAN") == len(state_data) - 1
+        assert sum(state_data["is_stable_1"]) == 3
+        assert sum(state_data["ground_state_energy_1"].isna()) == 1
+        assert sum(state_data["ground_state_energy_2"].isna()) == 1
+        assert all(state_data["hull_energy_1"].notna())
+        assert all(state_data["hull_energy_2"].notna())
+
+        for e in ms_complete.scan_entries:
+            assert compat.get_adjustments(e, state_data) == []
+
+        for e in ms_complete.gga_entries:
+            if e.entry_id == "gga-6":
+                assert compat.get_adjustments(e, state_data)[0].value == -6
+                continue
+            with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                compat.get_adjustments(e, state_data)
+
+        # process_entries should discard all GGA entries except gga-6 and return all r2SCAN
+        # entries unmodified. gga-6 should be corrected to the r2SCAN hull
+        entries = compat.process_entries(ms_complete.all_entries)
+        assert len(entries) == 8
 
     @pytest.mark.skip(reason="Not implemented yet")
     def test_chemsys_mismatch(self, mixing_scheme_no_compat):
@@ -905,7 +949,7 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         below the SCAN hull computed by _generate_mixing_scheme_state_data
         """
         pass
-    
+
     @pytest.mark.skip(reason="Needs revision")
     def test_incompatible_run_type(self, mixing_scheme_no_compat, ms_invalid_run_type):
         # If entry.parameters.run_type is not "GGA", "GGA+U", or "R2SCAN", raise
