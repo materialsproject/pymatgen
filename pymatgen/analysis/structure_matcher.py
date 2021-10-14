@@ -554,7 +554,7 @@ class StructureMatcher(MSONable):
         Returns:
         mask, struct1 translation indices, struct2 translation index
         """
-        mask = np.zeros((len(struct2), len(struct1), fu), dtype=np.bool)
+        mask = np.zeros((len(struct2), len(struct1), fu), dtype=bool)
 
         inner = []
         for sp2, i in itertools.groupby(enumerate(struct2.species_and_occu), key=lambda x: x[1]):
@@ -581,7 +581,7 @@ class StructureMatcher(MSONable):
         if s1_supercell:
             # remove the symmetrically equivalent s1 indices
             inds = inds[::fu]
-        return np.array(mask, dtype=np.int_), inds, i
+        return np.array(mask, dtype=int), inds, i
 
     def fit(self, struct1, struct2, symmetric=False):
         """
