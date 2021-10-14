@@ -83,7 +83,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             compat_2: Compatibility class used to pre-process entries of run_type_2.
                 Defaults to None.
             fuzzy_diatomic_matching: Whether to use less strict structure matching logic for
-                diatomic elements O2, N2, F2, H2, and Cl2. Outputs of DFT relaxations using
+                diatomic elements O2, N2, F2, H2, and Cl2 as well as I and Br. Outputs of DFT
+                relaxations using
                 different functionals frequently fail to struture match for these elements
                 even though they come from the same original material. Fuzzy structure matching
                 considers the materials equivalent if the formula, number of sites, and
@@ -246,6 +247,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if first_entry.parameters["run_type"] in self.valid_rtypes_1:
             idx_1 = struct_group[0].index
             idx_2 = struct_group[1].index if len(struct_group) > 1 else None
+            id1 = first_entry.entry_id
+            id2 = second_entry.entry_id if second_entry else None
             rt1 = first_entry.parameters["run_type"]
             rt2 = second_entry.parameters["run_type"] if second_entry else None
             # are the entries the lowest energy at this composition?
@@ -258,6 +261,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         elif first_entry.parameters["run_type"] in self.valid_rtypes_2:
             idx_1 = struct_group[1].index if len(struct_group) > 1 else None
             idx_2 = struct_group[0].index
+            id2 = first_entry.entry_id
+            id1 = second_entry.entry_id if second_entry else None
             rt2 = first_entry.parameters["run_type"]
             rt1 = second_entry.parameters["run_type"] if second_entry else None
             # are the entries the lowest energy at this composition?
@@ -273,6 +278,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             comp.reduced_formula,
             sg,
             n,
+            id1,
+            id2,
             rt1,
             rt2,
             ground_state_1,
@@ -294,7 +301,20 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         Returns:
             DataFrame: A pandas DataFrame that contains information associating structures from
                 different functionals with specific materials and establishing how many run_type_1
-                ground states have been computed with run_type_2.
+                ground states have been computed with run_type_2. The DataFrame contains one row
+                for each distinct material (Structure), with the following columns:
+                    composition: str the reduced_formula
+                    spacegroup: int the spacegroup
+                    num_sites: int the number of sites in the Structure
+                    entry_id_1: the entry_id of the run_type_1 entry
+                    entry_id_2: the entry_id of the run_type_2 entry
+                    run_type_1: Optional[str] the run_type_1 value
+                    run_type_2: Optional[str] the run_type_2 value
+                    ground_state_energy_1: float or nan the ground state energy in run_type_1 in eV/atom
+                    ground_state_energy_2: float or nan the ground state energy in run_type_2 in eV/atom
+                    is_stable_1: bool whether this material is stable on the run_type_1 PhaseDiagram
+                    hull_energy_1: float or nan the energy of the run_type_1 hull at this composition in eV/atom
+                    hull_energy_2: float or nan the energy of the run_type_1 hull at this composition in eV/atom
             None: Returns None if the supplied ComputedStructureEntry are insufficient for applying
                 the mixing scheme.
         """
@@ -359,7 +379,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # This ensures that we have at most one entry from run_type_1 at each composition
         # We must retain all run_type_2 polymorphs in case the one that matches the
         # run_type_1 ground state is not the ground state in run_type_2
-        entries_type_1.remove_non_ground_states()
+        # entries_type_1.remove_non_ground_states()
 
         # make sure both sets of entries belong to the same chemical system
         # assuming there are any gga entries at all
@@ -405,6 +425,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             "composition",
             "spacegroup",
             "num_sites",
+            "entry_id_1",
+            "entry_id_2",
             "run_type_1",
             "run_type_2",
             "ground_state_energy_1",
@@ -431,21 +453,26 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # First group by composition, then by spacegroup number, then by structure matching
         for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
-
+            l_compgroup = list(compgroup)
             # group by spacegroup, then by number of sites (for diatmics) or by structure matching
-            for sg, pregroup in groupby(sorted(compgroup, key=_get_sg), key=_get_sg):
-                if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2"] and self.fuzzy_diatomic_matching:
+            for sg, pregroup in groupby(sorted(l_compgroup, key=_get_sg), key=_get_sg):
+                l_pregroup = list(pregroup)
+                if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br"] and self.fuzzy_diatomic_matching:
                     # group by number of sites
-                    for n, sitegroup in groupby(sorted(pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites):
+                    for n, sitegroup in groupby(
+                        sorted(l_pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites
+                    ):
+                        l_sitegroup = list(sitegroup)
                         row_list.append(
-                            self._populate_df_row(list(sitegroup), comp, sg, n, pd_type_1, pd_type_2, all_entries)
+                            self._populate_df_row(l_sitegroup, comp, sg, n, pd_type_1, pd_type_2, all_entries)
                         )
                 else:
-                    for group in self.structure_matcher.group_structures(list(pregroup)):
+                    for group in self.structure_matcher.group_structures(l_pregroup):
+                        grp = list(group)
                         n = group[0].num_sites
                         # StructureMatcher.group_structures returns a list of lists,
                         # so each group should be a list containing matched structures
-                        row_list.append(self._populate_df_row(group, comp, sg, n, pd_type_1, pd_type_2, all_entries))
+                        row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
 
@@ -558,9 +585,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             # Discard GGA ground states whose structures already exist in SCAN.
             else:
-                df_slice = mixing_scheme_state_data[
-                    (mixing_scheme_state_data["composition"] == entry.composition.reduced_formula)
-                ]
+                df_slice = mixing_scheme_state_data[(mixing_scheme_state_data["entry_id_1"] == entry.entry_id)]
                 if len(df_slice) == 0:
                     raise CompatibilityError(
                         f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
