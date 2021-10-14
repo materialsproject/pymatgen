@@ -344,52 +344,28 @@ def ms_scan_only(ms_complete):
 
 
 @pytest.fixture
-def ms_gga_only():
+def ms_gga_only(ms_complete):
     """
     Mixing state with only GGA entries
     """
-    lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
-    entries = [
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Br"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
-            -18,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(
-                lattice,
-                ["Sn", "Br", "Br", "Br", "Br"],
-                [
-                    [0, 0, 0],
-                    [0.2, 0.2, 0.2],
-                    [0.4, 0.4, 0.4],
-                    [0.7, 0.7, 0.7],
-                    [1, 1, 1],
-                ],
-            ),
-            -25,
-            parameters={"run_type": "GGA"},
-        ),
-    ]
+    gga_entries = ms_complete.gga_entries
+    scan_entries = []
+
+    # fmt: off
     row_list = [
-        ["Sn", 194, 1, "GGA", None, 0, np.nan, True, 0, np.nan],
-        ["Br", 12, 1, "GGA", None, 0, np.nan, True, 0, np.nan],
-        ["SnBr2", 12, 3, "GGA", None, -6, np.nan, True, -6, np.nan],
-        ["SnBr4", 139, 5, "GGA", None, -5, np.nan, True, -5, np.nan],
+        ["Sn",   191,  1, "gga-1", None, "GGA", None,  0, np.nan, True,     0, np.nan],
+        ["Br",   191,  1, "gga-2", None, "GGA", None,  1, np.nan, False,    0, np.nan],
+        ["Br",    64,  4, "gga-3", None, "GGA", None,  0, np.nan, True,     0, np.nan],
+        ["SnBr2", 65,  3, "gga-4", None, "GGA", None, -6, np.nan, True,    -6, np.nan],
+        ["SnBr2",  2, 12, "gga-5", None, "GGA", None, -5, np.nan, False,   -6, np.nan],
+        ["SnBr2", 71,  3, "gga-6", None, "GGA", None, -4, np.nan, False,   -6, np.nan],
+        ["SnBr4",  8,  5, "gga-7", None, "GGA", None, -3, np.nan, False, -3.6, np.nan],
     ]
+    # fmt: on
+
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
-    return MixingState(entries, [], mixing_state)
+    return MixingState(gga_entries, scan_entries, mixing_state)
 
 
 @pytest.fixture
@@ -778,7 +754,6 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         entries = mixing_scheme_no_compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 7
 
-    @pytest.mark.skip(reason="Needs revision")
     def test_state_gga_only(self, mixing_scheme_no_compat, ms_gga_only):
         """
         Mixing state in which we only have GGA entries, forming a complete PhaseDiagram
@@ -793,9 +768,9 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_2"].isna())
         assert len(state_data["is_stable_1"]) == len(ms_gga_only.all_entries)
         assert all(state_data["ground_state_energy_1"].notna())
-        assert all(state_data["ground_state_energy_2"].isna())
+        assert all(np.isnan(state_data["ground_state_energy_2"]))
         assert all(state_data["hull_energy_1"].notna())
-        assert all(state_data["hull_energy_2"].isna())
+        assert all(np.isnan(state_data["hull_energy_2"]))
 
         for e in ms_gga_only.all_entries:
             assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_only.state_data) == []
