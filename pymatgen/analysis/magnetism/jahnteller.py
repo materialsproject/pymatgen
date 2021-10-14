@@ -8,8 +8,9 @@ JahnTeller distortion analysis.
 
 
 import os
+import sys
 import warnings
-from typing import Any, Dict, Literal, Optional, Tuple, Union, cast
+from typing import Any, Dict, Optional, Tuple, Union, cast
 
 import numpy as np
 
@@ -21,6 +22,11 @@ from pymatgen.analysis.local_env import (
 from pymatgen.core.periodic_table import Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
