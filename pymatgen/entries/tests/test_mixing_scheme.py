@@ -24,7 +24,7 @@ corresponding pandas DataFrame that represents the mixing state.
 
 __author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2019-2021, The Materials Project"
-__version__ = "0.1"
+__version__ = "0.9"
 __email__ = "RKingsbury@lbl.gov"
 __date__ = "October 2021"
 
@@ -103,6 +103,10 @@ Define mixing states to test
 
 Note that in the DataFrame, the first 3 columns are informational only and not
 used by get_adjustments, so they are populated with dummy values here
+
+Using pytest fixtures is helpful here since it ensures every test receives fresh,
+unmodified copies of the respective entries. process_entries modifies entry energies
+in place, so tests could cross-contaminate one another if a fixture were not used.
 """
 columns = [
     "composition",
@@ -299,68 +303,44 @@ def ms_complete():
     # fmt: off
     row_list = [
         ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",  0, -1, True,     0, -1],
-        ["Br",    65,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",  1, -1, False,    0, -1],
-        ["Br",    65,  1, "gga-3", "r2scan-3", "GGA", "R2SCAN",  0,  0, True,     0, -1],
-        ["SnBr2", 65, 12, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6, -7, True,    -6, -8],
-        ["SnBr2", 65,  3, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5, -8, False,   -6, -8],
-        ["SnBr2", 65,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4, -6, False,   -6, -8],
+        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",  1, -1, False,    0, -1],
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",  0,  0, True,     0, -1],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6, -7, True,    -6, -8],
+        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5, -8, False,   -6, -8],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4, -6, False,   -6, -8],
         ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3, -6, False, -3.6, -6],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
+    # tests
+
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
 @pytest.fixture
-def ms_scan_only():
+def ms_scan_only(ms_complete):
     """
     Mixing state with only SCAN entries
     """
-    # only SCAN, no GGA
-    lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
-    entries = [
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "R2SCAN"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Br"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "R2SCAN"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
-            -18,
-            parameters={"run_type": "R2SCAN"},
-        ),
-        ComputedStructureEntry(
-            Structure(
-                lattice,
-                ["Sn", "Br", "Br", "Br", "Br"],
-                [
-                    [0, 0, 0],
-                    [0.2, 0.2, 0.2],
-                    [0.4, 0.4, 0.4],
-                    [0.7, 0.7, 0.7],
-                    [1, 1, 1],
-                ],
-            ),
-            -25,
-            parameters={"run_type": "R2SCAN"},
-        ),
-    ]
+    gga_entries = []
+    scan_entries = ms_complete.scan_entries
 
+    # fmt: off
     row_list = [
-        ["Sn", 194, 1, None, "R2SCAN", np.nan, 0, True, np.nan, 0],
-        ["Br", 12, 1, None, "R2SCAN", np.nan, 0, True, np.nan, 0],
-        ["SnBr2", 12, 3, None, "R2SCAN", np.nan, -6, True, np.nan, -6],
-        ["SnBr4", 139, 5, None, "R2SCAN", np.nan, -5, True, np.nan, -5],
+        ["Sn",   191,  1, None, "r2scan-1", None, "R2SCAN", np.nan, -1, False, np.nan, -1],
+        ["Br",   191,  1, None, "r2scan-2", None, "R2SCAN", np.nan, -1, False, np.nan, -1],
+        ["Br",    64,  4, None, "r2scan-3", None, "R2SCAN", np.nan,  0, False, np.nan, -1],
+        ["SnBr2", 65,  3, None, "r2scan-4", None, "R2SCAN", np.nan, -7, False, np.nan, -8],
+        ["SnBr2",  2, 12, None, "r2scan-5", None, "R2SCAN", np.nan, -8, False, np.nan, -8],
+        ["SnBr2", 71,  3, None, "r2scan-6", None, "R2SCAN", np.nan, -6, False, np.nan, -8],
+        ["SnBr4",  8,  5, None, "r2scan-7", None, "R2SCAN", np.nan, -6, False, np.nan, -6],
     ]
+    # fmt: on
+
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
-    return MixingState([], entries, mixing_state)
+    return MixingState(gga_entries, scan_entries, mixing_state)
 
 
 @pytest.fixture
@@ -545,6 +525,19 @@ def ms_incomplete_gga_all_scan():
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
     return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+def test_data_ms_complete(ms_complete):
+    """
+    Verify that the test chemical system
+    ComputedStructureEntry match (or don't match) as intended
+    """
+    sm = StructureMatcher()
+    for g, s in zip(ms_complete.gga_entries, ms_complete.scan_entries):
+        if g.entry_id == "gga-3":
+            assert not sm.fit(g.structure, s.structure)
+        else:
+            assert sm.fit(g.structure, s.structure)
 
 
 class TestMaterialsProjectDFTMixingSchemeArgs:
@@ -810,7 +803,6 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         for e in ms_gga_only.all_entries:
             assert e.correction == 0
 
-    @pytest.mark.skip(reason="Needs revision")
     def test_state_scan_only(self, mixing_scheme_no_compat, ms_scan_only):
         """
         Mixing state in which we only have SCAN entries, forming a complete PhaseDiagram
@@ -824,9 +816,9 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_2"] == "R2SCAN")
         assert all(state_data["run_type_1"].isna())
         assert all(~state_data["is_stable_1"])
-        assert all(state_data["ground_state_energy_1"].isna())
+        assert all(np.isnan(state_data["ground_state_energy_1"]))
         assert all(state_data["ground_state_energy_2"].notna())
-        assert all(state_data["hull_energy_1"].isna())
+        assert all(np.isnan(state_data["hull_energy_1"]))
         assert all(state_data["hull_energy_2"].notna())
 
         for e in ms_scan_only.all_entries:

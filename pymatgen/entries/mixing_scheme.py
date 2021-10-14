@@ -266,7 +266,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             rt2 = first_entry.parameters["run_type"]
             rt1 = second_entry.parameters["run_type"] if second_entry else None
             # are the entries the lowest energy at this composition?
-            ground_state_1 = all_entries[idx_1].energy_per_atom if len(struct_group) > 1 else None
+            ground_state_1 = all_entries[idx_1].energy_per_atom if len(struct_group) > 1 else np.nan
             ground_state_2 = all_entries[idx_2].energy_per_atom
             # are they stable?
             if pd_type_1:
