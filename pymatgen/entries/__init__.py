@@ -10,14 +10,20 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
+import sys
 from abc import ABCMeta, abstractmethod
 from numbers import Number
-from typing import Dict, Literal, Union
+from typing import Dict, Union
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -111,16 +117,16 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return self.from_dict(new_entry_dict)
 
-    def _normalization_factor(self, mode: str = "formula_unit") -> float:
+    def _normalization_factor(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> float:
         # NOTE here we use composition rather than _composition in order to ensure
-        # that we have the expected behaviour downstream in cases where composition
+        # that we have the expected behavior downstream in cases where composition
         # is overwritten (GrandPotPDEntry, TransformedPDEntry)
         if mode == "atom":
             factor = self.composition.num_atoms
         elif mode == "formula_unit":
             factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            raise ValueError("`{}` is not an allowed option for normalization".format(mode))
+            raise ValueError(f"{mode=} is not an allowed option for normalization")
 
         return factor
 

@@ -23,8 +23,9 @@ References:
 
 import json
 import os
+import sys
 import warnings
-from typing import List, Literal, Tuple, Union
+from typing import List, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,6 +39,11 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
