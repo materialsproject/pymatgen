@@ -166,7 +166,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             filtered_entries.append(entry)
 
         processed_entry_list = []
-        mixing_scheme_state_data = self._generate_mixing_scheme_state_data(filtered_entries, verbose)
+        mixing_scheme_state_data = self.get_mixing_state_data(filtered_entries, verbose)
 
         for entry in entries:
             ignore_entry = False
@@ -289,7 +289,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             hull_energy_2,
         ]
 
-    def _generate_mixing_scheme_state_data(self, entries, verbose=False):
+    def get_mixing_state_data(self, entries, verbose=False):
         """
         Generate internal state data to be passed to get_adjustments.
 
@@ -517,7 +517,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             mixing_scheme_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
                 the respective run_types, etc. Can be generated from a list of entries using
-                MaterialsProjectDFTMixingScheme._generate_mixing_scheme_state_data.
+                MaterialsProjectDFTMixingScheme.get_mixing_state_data.
 
         Returns:
             [EnergyAdjustment]: Energy adjustments to be applied to entry.
