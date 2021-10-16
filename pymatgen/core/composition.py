@@ -168,10 +168,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         #  compositions elements
         if len(self) != len(other):
             return False
-        for el, v in self.items():
-            if abs(v - other[el]) > Composition.amount_tolerance:
-                return False
-        return True
+
+        return all(abs(v - other[el]) <= Composition.amount_tolerance for el, v in self.items())
 
     def __ge__(self, other):
         """
