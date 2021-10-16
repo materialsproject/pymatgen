@@ -631,7 +631,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # Second case, there are no run_type_2 energies available for any run_type_1
         # ground states. There's no way to use the run_type_2 energies in this case.
-        elif all(mixing_scheme_state_data["ground_state_energy_2"].isna()):
+        # However, if run_type_2 structures match run_type_1 structures, we can correct
+        # the energy of the run_type_2 entry to match that of the run_type_1 entry,
+        # and discard the run_type_1 entry.
+        elif all(mixing_scheme_state_data[mixing_scheme_state_data["is_stable_1"]]["entry_id_2"].isna()):
             if run_type in self.valid_rtypes_1:
                 # nothing to do for run_type_1, return as is
                 return adjustments
@@ -648,6 +651,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # Third case, there are run_type_2 energies available for at least some run_type_1
         # reference states. Here, we can correct run_type_2 energies onto the run_type_1 scale
+        # at certain compositions
         else:
             # first, determine if this is a ground state
             if run_type in self.valid_rtypes_1:  # pylint: disable=R1705
@@ -669,11 +673,17 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             # ):
             # determine whether this entry is a ground state
             elif run_type in self.valid_rtypes_2:
-                df_slice = mixing_scheme_state_data[mixing_scheme_state_data["entry_id_2"] == entry.entry_id]
-                if df_slice["is_stable_1"].item():
+                df_slice = mixing_scheme_state_data[
+                    mixing_scheme_state_data["composition"] == entry.composition.reduced_formula
+                ]
+                # if there is a run_type_1 ground state present in run_type_2, we can correct
+                # the energy of the run_type_2 energy
+                if any(df_slice["is_stable_1"]):
                     # this entry matches the run_type_1 ground state. Correct its energy to match
                     # the run_type_1 ground state.
-                    e_above_hull = entry.energy_per_atom - df_slice["ground_state_energy_2"].iloc[0]
+                    e_above_hull = (
+                        entry.energy_per_atom - df_slice[df_slice["is_stable_1"]]["ground_state_energy_2"].iloc[0]
+                    )
                     hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
                     # preserve the e_above_hull between the two run types
                     correction = (hull_energy_1 + e_above_hull - entry.energy_per_atom) * entry.composition.num_atoms
@@ -686,6 +696,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                             description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
                         )
                     )
+
                 return adjustments
 
             # if any(
