@@ -5,20 +5,100 @@
 """
 Tests for the Materials Project DFT mixing scheme
 
-In general there are 3 types of tests
+**NOTE FOR FUTURE DEVELOPERS**
 
-1. Functional tests of the behavior of the process_entries method, which is the
-   primary user-facing interface
-2. Unit tests that get_adjustments behaves correctly, when provided with a pre-generated
-   mixing_scheme_state_data DataFrame
-3. Unit tests of get_mixing_state_data, to verify that it generates
+PLEASE DO NOT CHANGE THESE TESTS WITHOUT READING THIS ENTIRE DOCUMENTATION!
+
+The MP DFT mixing scheme is conceptually simple but highly intricate to implement.
+The tests in this file were crafted carefully over a period of many months
+in order to capture as many nuances of the desired behavior as possible, and were
+integral to developing the mixing code itself.
+
+Test Structure
+--------------
+
+The majority of the tests use "mixing states" to check behavior. Mixing states
+are merely combinations of different ComputedStructureEntry with different run_type
+- e.g. all ground states present for both run_types, only one run_type, etc. Mixing
+states are defined using the `MixingState` utility class, which has attributes that
+return 1) the GGA entries, 2) the SCAN entries, and 3) the pandas DataFrame that
+represents the mixing state.
+
+Most mixing states are subsets of the `ms_complete` mixing state. `ms_complete`
+was crafted to capture most of the scenarios that may be encountered when mixing
+ComputedStructureEntry from different functionals. It comprises a complete binary
+phase diagram, with all entries
+present as both GGA and R2SCAN calculations. Note that these entries are inspired
+by, but NOT equivalent to, the real SnBr2 phase diagram. Rather than use real
+energies or structures, arbitrary energies and structures have been used to keep
+this test file cleaner and easier to understand. The Bromide structures are the
+one exception to this. These structures are taken from real calculations and
+will fail to structure match with default arguments (they are included here to
+test "fuzzy matching" behavior). Entry-id's are assigned numerically, with the
+same number corresponding to
+equivalent materials. So "gga-1" should have the same structure as "r2scan-1".
+
+Description of the `ms_complete` mixing state
+---------------------------------------------
+
+Future developers are HIGHLY encouraed to plot the PhaseDiagram
+associated with both the SCAN and the GGA entries in `ms_complete` before attempting
+to modify any of these tests.
+
+**GGA entries**
+
+- gga-1: stable ground state of Sn
+- gga-2: unstable polymorph of Br
+- gga-3: stable polymorph of Br
+- gga-4: stable polymorph of SnBr2
+- gga-5: unstable polymorph of SnBr2, 1 eV/atom above hull
+- gga-6: unstable polymorph of SnBr2, 2 eV/atom above hull
+- gga-7: unstable composition (SnBr4), 0.6 eV/atom above hull
+
+**r2SCAN entries**
+
+- All the same entries exist as in GGA
+- Entries with corresponding numbers have matching structures
+  (i.e. gga-1 and r2scan-1)
+- Unless otherwise listed below, energies are 1 eV/atom lower than those in GGA
+- for Br, the GGA ground state structure gga-3 does not match r2scan-3 unless you
+  use fuzzy matching
+- for SnBr2, a different polymorph is stabilized than in GGA (r2scan-5 whereas
+  r2scan-4 was the GGA ground state)
+- entry r2scan-6 (unstable SnBr2 polymorph) is scaled to 25% the size of gga-6.
+  This will match with default StructureMatcher settings but not with customized
+  settings.
+- SnBr4 (r2scan-7) appears on the hull whereas it is not stable in GGA.
+- A few mixing states (but not `ms_complete`) also include an unstable polymorph
+  of SnBr4, entry r2scan-8, that does not exist in GGA.
+
+Types of Tests
+--------------
+
+In general there are 3 types of tests. Most tests in
+`TestMaterialsProjectDFTMixingSchemeStates` follow this pattern.
+
+1. Unit tests of get_mixing_state_data, to verify that it generates
    the correct DataFrame when provided with a particular list of entries
+2. Unit tests that verify get_adjustments behaves correctly, when provided with
+   a pre-generated mixing_scheme_state_data DataFrame
+3. Functional tests of the behavior of the process_entries method, which is the
+   primary user-facing interface
 
-The tests are structured around different "mixing states" that are intended to capture
-all (or most) likely combinations of run_type_1 and run_type_2 entries. - e.g. all
-ground states present for both run_types, only one run_type, etc. Mixing states
-are defined as class attributes here as both 1) sets of entries and 2) the
-corresponding pandas DataFrame that represents the mixing state. 
+
+Implementation Notes
+--------------------
+
+- Tests are organized into two classes. One class collects tests of the different
+  args / kwargs that can be passed to the mixing scheme. The other class collects
+  tests of different mixing states.
+- Tests are written in pure pytest format, so the class organization is merely
+  a convenience to facilitate code folding, etc.
+- pytest fixtures are used to define the various mixing states. Using pytest
+  fixtures is helpful here since it ensures every test receives fresh, unmodified
+  copies of the respective entries. process_entries modifies entry energies
+  in place, so tests could cross-contaminate one another if a fixture were not used.
+
 """
 
 
@@ -29,12 +109,10 @@ __email__ = "RKingsbury@lbl.gov"
 __date__ = "October 2021"
 
 import pytest
-import warnings
 
 import pandas as pd
 import numpy as np
 
-from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -48,8 +126,6 @@ from pymatgen.entries.computed_entries import (
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
-from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 
 """
@@ -99,15 +175,9 @@ def mixing_scheme_no_compat():
 
 
 """
-Define mixing states to test
-
-Note that in the DataFrame, the first 3 columns are informational only and not
-used by get_adjustments, so they are populated with dummy values here
-
-Using pytest fixtures is helpful here since it ensures every test receives fresh,
-unmodified copies of the respective entries. process_entries modifies entry energies
-in place, so tests could cross-contaminate one another if a fixture were not used.
+Define mixing states to test.
 """
+# columns must correspond to the columns in get_mixing_state_data
 columns = [
     "composition",
     "spacegroup",
@@ -123,32 +193,32 @@ columns = [
     "hull_energy_2",
 ]
 
+# lattices. In general, ground states are all assigned lattice1
+# unstable polymorphs are assigned lattice2 or lattice 3
+lattice1 = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+lattice2 = Lattice.from_parameters(a=1, b=1, c=1, alpha=120, beta=120, gamma=60)
+lattice3 = Lattice.from_parameters(a=1, b=1, c=1, alpha=120, beta=120, gamma=90)
+lattice_br_gga = Lattice.from_dict(
+    {
+        "@module": "pymatgen.core.lattice",
+        "@class": "Lattice",
+        "matrix": [[2.129324, -4.226095, 0.0], [2.129324, 4.226095, 0.0], [0.0, 0.0, 8.743796]],
+    }
+)
+lattice_br_r2scan = Lattice.from_dict(
+    {
+        "@module": "pymatgen.core.lattice",
+        "@class": "Lattice",
+        "matrix": [[0.0, -4.25520892, -0.0], [-3.56974866, 2.12760446, 0.0], [0.0, 0.0, -8.74536848]],
+    }
+)
+
 
 @pytest.fixture
 def ms_complete():
     """
     Mixing state where we have SCAN for all GGA
-    SCAN energies are 1 eV/atom below the GGA ones
     """
-    # lattices. In general, ground states are all assigned lattice1
-    # unstable polymorphs are assigned lattice2 or lattice 3
-    lattice1 = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
-    lattice2 = Lattice.from_parameters(a=1, b=1, c=1, alpha=120, beta=120, gamma=60)
-    lattice3 = Lattice.from_parameters(a=1, b=1, c=1, alpha=120, beta=120, gamma=90)
-    lattice_br_gga = Lattice.from_dict(
-        {
-            "@module": "pymatgen.core.lattice",
-            "@class": "Lattice",
-            "matrix": [[2.129324, -4.226095, 0.0], [2.129324, 4.226095, 0.0], [0.0, 0.0, 8.743796]],
-        }
-    )
-    lattice_br_r2scan = Lattice.from_dict(
-        {
-            "@module": "pymatgen.core.lattice",
-            "@class": "Lattice",
-            "matrix": [[0.0, -4.25520892, -0.0], [-3.56974866, 2.12760446, 0.0], [0.0, 0.0, -8.74536848]],
-        }
-    )
 
     gga_entries = [
         ComputedStructureEntry(
@@ -723,6 +793,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         pass
 
     @pytest.mark.skip(reason="Not implemented yet")
+    def test_same_run_type(self, mixing_scheme_no_compat):
+        """
+        Test behavior when run_type_1 and run_type_2 are the same
+        or overlap
+        """
+        pass
+
+    @pytest.mark.skip(reason="Not implemented yet")
     def test_compat_args(self, mixing_scheme_no_compat):
         """
         Test the behavior of compat1 and compat2 kwargs
@@ -773,7 +851,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         pass
 
 
-class TestTestMaterialsProjectDFTMixingSchemeStates:
+class TestMaterialsProjectDFTMixingSchemeStates:
     """
     Test the behavior of the mixing scheme under different mixing states (i.e., different
     combinations of GGA and SCAN entries)

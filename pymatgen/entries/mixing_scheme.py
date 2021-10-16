@@ -163,6 +163,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 )
                 continue
 
+            # TODO - add a check that all entries have unique entry_id!
+
             filtered_entries.append(entry)
 
         processed_entry_list = []
@@ -651,7 +653,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if run_type in self.valid_rtypes_1:  # pylint: disable=R1705
                 df_slice = mixing_scheme_state_data[mixing_scheme_state_data["entry_id_1"] == entry.entry_id]
                 if df_slice["is_stable_1"].item() and not np.isnan(df_slice["ground_state_energy_2"].item()):
-                    print("heyoooo")
                     # this is the run_type_1 ground state. Discard it
                     raise CompatibilityError(
                         f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
