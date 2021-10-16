@@ -16,7 +16,6 @@ import re
 import warnings
 from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
-from typing import Literal
 import sys
 
 import numpy as np
