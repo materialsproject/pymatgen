@@ -369,6 +369,54 @@ def ms_gga_only(ms_complete):
 
 
 @pytest.fixture
+def ms_gga_1_scan(ms_complete):
+    """
+    Mixing state with all GGA entries and one SCAN, corresponding to the GGA
+    ground state of SnBr2 (r2scan-4)
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = [e for e in ms_complete.scan_entries if e.entry_id == "r2scan-4"]
+
+    # fmt: off
+    row_list = [
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1, np.nan, False,    0, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6,     -7, True,    -6, np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None, -4, np.nan, False,   -6, np.nan],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3, np.nan, False, -3.6, np.nan],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
+def ms_gga_2_scan(ms_complete):
+    """
+    Mixing state with all GGA entries and 2 SCAN, corresponding to the GGA
+    ground state and one unstable polymoprh of SnBr2 (r2scan-4 and r2scan-6)
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = [e for e in ms_complete.scan_entries if e.entry_id in ["r2scan-4", "r2scan-6"]]
+
+    # fmt: off
+    row_list = [
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1, np.nan, False,    0, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6, np.nan, True,    -6, np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-4", "GGA", "R2SCAN", -4, np.nan, False,   -6, np.nan],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3, np.nan, False, -3.6, np.nan],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
 def ms_invalid_run_type():
     """
     Mixing state with all GGA entries except one with an invalid run_type
@@ -558,6 +606,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = []
         mixing_scheme_no_compat.process_entries(entries)
 
+    @pytest.mark.skip(reason="Not implemented yet")
+    def test_no_entry_ids(self):
+        """
+        unique entry_ids are required.
+        """
+        pass
+
     def test_clean(self, mixing_scheme_no_compat):
         # make sure the clean=True arg to process_entries works
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
@@ -567,18 +622,21 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 0,
                 parameters={"run_type": "GGA"},
                 correction=-20,
+                entry_id="entry-1",
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Br"], [[0, 0, 0]]),
                 0,
                 parameters={"run_type": "GGA"},
                 correction=-20,
+                entry_id="entry-2",
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
                 0,
                 parameters={"run_type": "GGA"},
                 correction=-20,
+                entry_id="entry-3",
             ),
             ComputedStructureEntry(
                 Structure(
@@ -595,6 +653,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 0,
                 parameters={"run_type": "R2SCAN"},
                 correction=-20,
+                entry_id="entry-4",
             ),
         ]
 
@@ -680,9 +739,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         sm = StructureMatcher(scale=False)
         compat = MaterialsProjectDFTMixingScheme(compat_1=None, structure_matcher=sm)
         state_data = compat.get_mixing_state_data(ms_complete.all_entries)
-        assert isinstance(
-            state_data, pd.DataFrame
-        ), "get_mixing_state_data failed to generate a DataFrame."
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert len(state_data) == 8
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
         assert sum(state_data["run_type_2"] == "R2SCAN") == len(state_data) - 1
@@ -725,15 +782,11 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
     def test_state_complete_entries(self, mixing_scheme_no_compat, ms_complete):
         """
         Mixing state in which every material is present in both GGA and SCAN
-        """
-        # If there are SCAN entries for all of the GGA entries, SCAN
-        # corrections should be zero and the GGA entries should raise
-        # CompatibilityError
 
-        state_data = mixing_scheme_no_compat._generate_mixing_scheme_state_data(ms_complete.all_entries)
-        assert isinstance(
-            state_data, pd.DataFrame
-        ), "get_mixing_state_data failed to generate a DataFrame."
+        In this state, the mixing scheme should return only the SCAN entries, unmodified
+        """
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete.all_entries)
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert all(state_data["run_type_1"] == "GGA")
         assert all(state_data["run_type_2"] == "R2SCAN")
         assert sum(state_data["is_stable_1"]) == 3
@@ -750,20 +803,20 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
                 mixing_scheme_no_compat.get_adjustments(e, ms_complete.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
-        # with pytest.warns(UserWarning, match="do not form a complete PhaseDiagram"):
         entries = mixing_scheme_no_compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 7
+        for e in entries:
+            assert e.correction == 0
+            assert e.parameters["run_type"] == "R2SCAN"
 
     def test_state_gga_only(self, mixing_scheme_no_compat, ms_gga_only):
         """
         Mixing state in which we only have GGA entries, forming a complete PhaseDiagram
-        """
-        # If all entries are GGA(+U), do nothing
 
-        state_data = mixing_scheme_no_compat._generate_mixing_scheme_state_data(ms_gga_only.all_entries)
-        assert isinstance(
-            state_data, pd.DataFrame
-        ), "get_mixing_state_data failed to generate a DataFrame."
+        In this state, the mixing scheme should not do anything
+        """
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_only.all_entries)
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert all(state_data["run_type_1"] == "GGA")
         assert all(state_data["run_type_2"].isna())
         assert len(state_data["is_stable_1"]) == len(ms_gga_only.all_entries)
@@ -774,9 +827,11 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
 
         for e in ms_gga_only.all_entries:
             assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_only.state_data) == []
-        mixing_scheme_no_compat.process_entries(ms_gga_only.all_entries)
-        for e in ms_gga_only.all_entries:
+        entries = mixing_scheme_no_compat.process_entries(ms_gga_only.all_entries)
+        assert len(entries) == 7
+        for e in entries:
             assert e.correction == 0
+            assert e.parameters["run_type"] == "GGA"
 
     def test_state_scan_only(self, mixing_scheme_no_compat, ms_scan_only):
         """
@@ -785,9 +840,7 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         In this case, the mixing scheme should not do anything
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries, verbose=True)
-        assert isinstance(
-            state_data, pd.DataFrame
-        ), "get_mixing_state_data failed to generate a DataFrame."
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert all(state_data["run_type_2"] == "R2SCAN")
         assert all(state_data["run_type_1"].isna())
         assert all(~state_data["is_stable_1"])
@@ -799,16 +852,50 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         for e in ms_scan_only.all_entries:
             assert mixing_scheme_no_compat.get_adjustments(e, ms_scan_only.state_data) == []
 
-        mixing_scheme_no_compat.process_entries(ms_scan_only.all_entries)
-        for e in ms_scan_only.all_entries:
+        entries = mixing_scheme_no_compat.process_entries(ms_scan_only.all_entries)
+        assert len(entries) == 7
+        for e in entries:
             assert e.correction == 0
+            assert e.parameters["run_type"] == "R2SCAN"
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_gga_1_scan(self, mixing_scheme_no_compat):
+    def test_state_gga_1_scan(self, mixing_scheme_no_compat, ms_gga_1_scan):
         """
         Mixing state in which we have a complete GGA PhaseDiagram and 1 SCAN entry
+        The SCAN entry chosen is the GGA ground state for SnBr2 (r2scan-4)
+
+        In this state, the mixing scheme should adjust the entry of r2scan-4 to
+        match the GGA energy and discard entry gga-4.
         """
-        pass
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_1_scan.all_entries)
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
+        assert all(state_data["run_type_1"] == "GGA")
+        assert sum(state_data["run_type_2"] == "R2SCAN") == 1
+        assert sum(state_data["is_stable_1"]) == 3
+        assert all(state_data["ground_state_energy_1"].notna())
+        assert sum(state_data["ground_state_energy_2"].isna()) == len(state_data) - 1
+        assert all(state_data["hull_energy_1"].notna())
+        assert all(np.isnan(state_data["hull_energy_2"]))
+
+        for e in ms_gga_1_scan.gga_entries:
+            if e.entry_id == "gga-4":
+                with pytest.raises(CompatibilityError, match="it is a GGA\\(\\+U\\) ground state"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_gga_1_scan.state_data)
+            else:
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_1_scan.state_data) == []
+
+        for e in ms_gga_1_scan.scan_entries:
+            # gga-4 energy is -6 eV/atom, r2scan-4 energy is -7 eV/atom. There are 3 atoms.
+            assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_1_scan.state_data)[0].value == 3
+
+        entries = mixing_scheme_no_compat.process_entries(ms_gga_1_scan.all_entries)
+        assert len(entries) == 7
+        for e in entries:
+            if "4" in e.entry_id:
+                assert e.correction == 3
+                assert e.parameters["run_type"] == "R2SCAN"
+            else:
+                assert e.correction == 0
+                assert e.parameters["run_type"] == "GGA"
 
     @pytest.mark.skip(reason="Not implemented yet")
     def test_state_gga_2_scan_same(self, mixing_scheme_no_compat):
@@ -823,6 +910,8 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         """
         Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
         at different compositions
+
+        In this state, we can't do anything with the SCAN energies
         """
         pass
 
@@ -857,9 +946,7 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         """
         # Test behavior when GGA entries don't form a complete phase diagram
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_incomplete_gga_all_scan.all_entries)
-        assert isinstance(
-            state_data, pd.DataFrame
-        ), "get_mixing_state_data failed to generate a DataFrame."
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
         assert sum(state_data["run_type_2"] == "R2SCAN") == 4
         assert all(~state_data["is_stable_1"])
@@ -923,9 +1010,7 @@ class TestTestMaterialsProjectDFTMixingSchemeStates:
         # a CompatibilityError and ignore that entry
 
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_invalid_run_type.all_entries)
-        assert isinstance(
-            state_data, pd.DataFrame
-        ), "get_mixing_state_data failed to generate a DataFrame."
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert all(state_data["run_type_1"] == "GGA")
         assert all(state_data["run_type_2"].isna())
         assert len(state_data["is_stable_1"]) == len(ms_invalid_run_type.all_entries) - 1

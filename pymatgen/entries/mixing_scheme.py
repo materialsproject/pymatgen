@@ -330,44 +330,44 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # this code is placed here for performance reasons, to bypass all the Structure Matching
 
         # We can't do any mixing without at least two of one entry type
-        if len(entries_type_1) < 2 and len(entries_type_2) < 2:
-            warnings.warn("Not enough entries to apply the mixing scheme. No energy adjustments will be applied.")
+        # if len(entries_type_1) < 2 and len(entries_type_2) < 2:
+        #     warnings.warn("Not enough entries to apply the mixing scheme. No energy adjustments will be applied.")
 
-        if len(entries_type_1) >= 2:
-            # preprocess entries with any corrections
-            # make an EntrySet to enable some useful methods like .chemsys and .is_ground_state
-            # Make deep copies of the entries at this point, because later we'll need their original, corrected
-            # energies prior to mixing functionals
-            if self.compat_1:
-                entries_type_1 = self.compat_1.process_entries(entries_type_1)
-                if verbose:
-                    print(
-                        f"Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
-                        f"{self.compat_1.__class__.__name__}"
-                    )
-            entries_type_1 = EntrySet(entries_type_1)
-        else:
-            warnings.warn(
-                f"Discarding {self.run_type_1} entries because there are fewer "
-                f"than 2 of them. {self.run_type_2} energies will not be modified."
-            )
-            entries_type_1 = EntrySet([])
+        # if len(entries_type_1) >= 2:
+        # preprocess entries with any corrections
+        # make an EntrySet to enable some useful methods like .chemsys and .is_ground_state
+        # Make deep copies of the entries at this point, because later we'll need their original, corrected
+        # energies prior to mixing functionals
+        if self.compat_1:
+            entries_type_1 = self.compat_1.process_entries(entries_type_1)
+            if verbose:
+                print(
+                    f"Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
+                    f"{self.compat_1.__class__.__name__}"
+                )
+        entries_type_1 = EntrySet(entries_type_1)
+        # else:
+        #     warnings.warn(
+        #         f"Discarding {self.run_type_1} entries because there are fewer "
+        #         f"than 2 of them. {self.run_type_2} energies will not be modified."
+        #     )
+        #     entries_type_1 = EntrySet([])
 
-        if len(entries_type_2) >= 2:
-            if self.compat_2:
-                entries_type_2 = self.compat_2.process_entries(entries_type_2)
-                if verbose:
-                    print(
-                        f"Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
-                        f"{self.compat_2.__class__.__name__}"
-                    )
-            entries_type_2 = EntrySet(entries_type_2)
-        else:
-            warnings.warn(
-                f"Discarding {self.run_type_2} entries because there are fewer "
-                f"than 2 of them. {self.run_type_1} energies will not be modified."
-            )
-            entries_type_2 = EntrySet([])
+        # if len(entries_type_2) >= 2:
+        if self.compat_2:
+            entries_type_2 = self.compat_2.process_entries(entries_type_2)
+            if verbose:
+                print(
+                    f"Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
+                    f"{self.compat_2.__class__.__name__}"
+                )
+        entries_type_2 = EntrySet(entries_type_2)
+        # else:
+        #     warnings.warn(
+        #         f"Discarding {self.run_type_2} entries because there are fewer "
+        #         f"than 2 of them. {self.run_type_1} energies will not be modified."
+        #     )
+        #     entries_type_2 = EntrySet([])
 
         if verbose:
             print(
@@ -564,7 +564,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # TODO - run_1_stable might be empty!
         # run_1_stable = mixing_scheme_state_data[mixing_scheme_state_data["is_stable_1"]]
-        run_1_ground_state = mixing_scheme_state_data[mixing_scheme_state_data["ground_state_energy_1"].notna()]
+        # run_1_ground_state = mixing_scheme_state_data[mixing_scheme_state_data["ground_state_energy_1"].notna()]
 
         # First case, ALL stable entries are present in both run types
         # in that case, prefer run_type_2 energies
@@ -629,49 +629,99 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # Second case, there are no run_type_2 energies available for any run_type_1
         # ground states. There's no way to use the run_type_2 energies in this case.
+        elif all(mixing_scheme_state_data["ground_state_energy_2"].isna()):
+            if run_type in self.valid_rtypes_1:
+                # nothing to do for run_type_1, return as is
+                return adjustments
+            if run_type in self.valid_rtypes_2:
+                # discard the entry
+                raise CompatibilityError(
+                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                    f"because there are no {self.run_type_2} ground states at this composition."
+                )
+            raise CompatibilityError(
+                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"because it has a bad run_type."
+            )
 
         # Third case, there are run_type_2 energies available for at least some run_type_1
         # reference states. Here, we can correct run_type_2 energies onto the run_type_1 scale
-        # by replacing run_type_1 e_above_hull with a run_type_2 e_above_hull for unstable polymorphs
         else:
+            # first, determine if this is a ground state
             if run_type in self.valid_rtypes_1:  # pylint: disable=R1705
-                # For run_type_1 entries, there is no correction
-                return adjustments
-
-            elif run_type in self.valid_rtypes_2 and any(
-                mixing_scheme_state_data[mixing_scheme_state_data["composition"] == entry.composition.reduced_formula][
-                    "ground_state_energy_1"
-                ].notna()
-            ):
-                # We have a run_type_2 reference energy for this composition, so we can correct
-
-                # TODO - replace the energy check with some kind of hash to identify entries
-                if entry.energy_per_atom in list(run_1_ground_state["ground_state_energy_2"]):
-                    # If this run_type_2 entry IS the reference state, discard it
+                df_slice = mixing_scheme_state_data[mixing_scheme_state_data["entry_id_1"] == entry.entry_id]
+                if df_slice["is_stable_1"].item() and not np.isnan(df_slice["ground_state_energy_2"].item()):
+                    print("heyoooo")
+                    # this is the run_type_1 ground state. Discard it
                     raise CompatibilityError(
                         f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
                         f"because it is a {self.run_type_1} ground state."
                     )
-
-                # e_above_hull on the run_type_2 hull that it would have on the run_type_1 hull
-                df_slice = mixing_scheme_state_data[
-                    mixing_scheme_state_data["composition"] == entry.composition.reduced_formula
-                ]
-                e_above_hull = entry.energy_per_atom - df_slice["ground_state_energy_2"].iloc[0]
-                hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
-                # preserve the e_above_hull between the two run types
-                correction = (hull_energy_1 + e_above_hull - entry.energy_per_atom) * entry.composition.num_atoms
-
-                adjustments.append(
-                    ConstantEnergyAdjustment(
-                        correction,
-                        0.0,
-                        name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
-                        cls=self.as_dict(),
-                        description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
-                    )
-                )
+                # For other run_type_1 entries, there is no correction
                 return adjustments
+
+            # elif run_type in self.valid_rtypes_2 and any(
+            #     mixing_scheme_state_data[mixing_scheme_state_data["composition"] == \
+            # entry.composition.reduced_formula][
+            #         "ground_state_energy_1"
+            #     ].notna()
+            # ):
+            # determine whether this entry is a ground state
+            elif run_type in self.valid_rtypes_2:
+                df_slice = mixing_scheme_state_data[mixing_scheme_state_data["entry_id_2"] == entry.entry_id]
+                if df_slice["is_stable_1"].item():
+                    # this entry matches the run_type_1 ground state. Correct its energy to match
+                    # the run_type_1 ground state.
+                    e_above_hull = entry.energy_per_atom - df_slice["ground_state_energy_2"].iloc[0]
+                    hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
+                    # preserve the e_above_hull between the two run types
+                    correction = (hull_energy_1 + e_above_hull - entry.energy_per_atom) * entry.composition.num_atoms
+                    adjustments.append(
+                        ConstantEnergyAdjustment(
+                            correction,
+                            0.0,
+                            name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
+                            cls=self.as_dict(),
+                            description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
+                        )
+                    )
+                return adjustments
+
+            # if any(
+            #     mixing_scheme_state_data[mixing_scheme_state_data["composition"] == \
+            # entry.composition.reduced_formula][
+            #         "ground_state_energy_1"
+            #     ].notna()
+            # ):
+            #     # We have a run_type_2 reference energy for this composition, so we can correct
+
+            #     # TODO - replace the energy check with some kind of hash to identify entries
+            #     if entry.energy_per_atom in list(run_1_ground_state["ground_state_energy_2"]):
+            #         # If this run_type_2 entry IS the reference state, discard it
+            #         raise CompatibilityError(
+            #             f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+            #             f"because it is a {self.run_type_1} ground state."
+            #         )
+
+            # # e_above_hull on the run_type_2 hull that it would have on the run_type_1 hull
+            # df_slice = mixing_scheme_state_data[
+            #     mixing_scheme_state_data["composition"] == entry.composition.reduced_formula
+            # ]
+            # e_above_hull = entry.energy_per_atom - df_slice["ground_state_energy_2"].iloc[0]
+            # hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
+            # # preserve the e_above_hull between the two run types
+            # correction = (hull_energy_1 + e_above_hull - entry.energy_per_atom) * entry.composition.num_atoms
+
+            # adjustments.append(
+            #     ConstantEnergyAdjustment(
+            #         correction,
+            #         0.0,
+            #         name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
+            #         cls=self.as_dict(),
+            #         description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
+            #     )
+            # )
+            # return adjustments
 
             else:
                 # there is no reference energy available at this composition. Discard.
