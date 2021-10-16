@@ -696,9 +696,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                             description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
                         )
                     )
-
-                return adjustments
-
+                    return adjustments
+                # there is no reference energy available at this composition. Discard.
+                raise CompatibilityError(
+                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                    f"because there is no {self.run_type_2} reference energy available."
+                )
             # if any(
             #     mixing_scheme_state_data[mixing_scheme_state_data["composition"] == \
             # entry.composition.reduced_formula][

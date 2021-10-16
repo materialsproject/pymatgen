@@ -487,12 +487,57 @@ def ms_gga_2_scan_same(ms_complete):
 
 
 @pytest.fixture
+def ms_gga_2_scan_diff_match(ms_complete):
+    """
+    Mixing state with all GGA entries and 2 SCAN entries corresponding to
+    different materials, where both SCAN materials match GGA materials, but
+    only one matches a GGA ground state.
+    r2scan-4 and r2scan-7
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = [e for e in ms_complete.scan_entries if e.entry_id in ["r2scan-4", "r2scan-7"]]
+
+    # fmt: off
+    row_list = [
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1, np.nan, False,    0, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6,     -7, True,    -6, np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None, -4, np.nan, False,   -6, np.nan],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3,     -6, False, -3.6, np.nan],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
+def ms_gga_2_scan_diff_no_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 SCAN, corresponding to the GGA
     ground state and one unstable polymoprh of SnBr2 (r2scan-4 and r2scan-6)
     """
     gga_entries = ms_complete.gga_entries
     scan_entries = [e for e in ms_complete.scan_entries if e.entry_id in ["r2scan-4", "r2scan-6"]]
+    scan_entries.append(
+        ComputedStructureEntry(
+            Structure(
+                lattice3,
+                ["Sn", "Br", "Br", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                    [1, 1, 1],
+                ],
+            ),
+            -25,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-8",
+        ),
+    )
 
     # fmt: off
     row_list = [
@@ -503,6 +548,50 @@ def ms_gga_2_scan_same(ms_complete):
         ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
         ["SnBr2", 71,  3, "gga-6", "r2scan-4", "GGA", "R2SCAN", -4, np.nan, False,   -6, np.nan],
         ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3, np.nan, False, -3.6, np.nan],
+        ["SnBr4",  8,  5,    None, "r2scan-8",  None, "R2SCAN", np.nan, -6, False, -3.6, -6],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
+def ms_all_scan_novel(ms_complete):
+    """
+    Mixing state with all GGA entries and all SCAN, with an additional unstable
+    polymorphs of SnBr4 (r2scan-8) only in SCAN.
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = ms_complete.scan_entries
+    scan_entries.append(
+        ComputedStructureEntry(
+            Structure(
+                lattice3,
+                ["Sn", "Br", "Br", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                    [1, 1, 1],
+                ],
+            ),
+            -25,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-8",
+        ),
+    )
+
+    # fmt: off
+    row_list = [
+        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",      0, -1, True,     0, -1],
+        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",      1, -1, False,    0, -1],
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",      0,  0, True,     0, -1],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6, -7, True,    -6, -8],
+        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN",     -5, -8, False,   -6, -8],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN",     -4, -6, False,   -6, -8],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN",     -3, -6, False, -3.6, -6],
+        ["SnBr4",  8,  5,    None, "r2scan-8",  None, "R2SCAN", np.nan, -6, False, -3.6, -6],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -1049,16 +1138,57 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_gga_2_scan_diff_match(self, mixing_scheme_no_compat):
+    def test_state_gga_2_scan_diff_match(self, mixing_scheme_no_compat, ms_gga_2_scan_diff_match):
         """
         Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
-        at different compositions, where both SCAN materials match GGA materials.
+        at different compositions, where one SCAN material matches a GGA ground
+        state and the other does not.
 
-        In this state, both SCAN energies should be set equal to the GGA energies,
-        and the GGA entries discarded.
+        In this state, both the matching SCAN energy should be set equal to the
+        GGA ground state energy, and the GGA entry discarded. The non-matching
+        SCAN entry should also be discarded.
         """
-        pass
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_diff_match.all_entries)
+        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
+        assert all(state_data["run_type_1"] == "GGA")
+        # assert sum(state_data["run_type_2"] == "R2SCAN") == 2
+        assert sum(state_data["is_stable_1"]) == 3
+        assert all(state_data["ground_state_energy_1"].notna())
+        # assert all(np.isnan(state_data["ground_state_energy_2"]))
+        assert all(state_data["hull_energy_1"].notna())
+        assert all(np.isnan(state_data["hull_energy_2"]))
+
+        for e in ms_gga_2_scan_diff_match.scan_entries:
+            if e.entry_id == "r2scan-7":
+                # gga-4 energy is -18 eV or -6 eV/atom. r2scan-6 is 1 eV/atom above r2scan-4 (ground state),
+                # so r2scan-6 should be adjusted to -5 eV/atom or -15 eV, which is 3 eV higher than its
+                # original energy of -18 eV.
+                with pytest.raises(CompatibilityError, match="no R2SCAN reference energy"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)
+            elif e.entry_id == "r2scan-4":
+                # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)[0].value == 3
+            else:
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data) == []
+
+        for e in ms_gga_2_scan_diff_match.gga_entries:
+            if e.entry_id == "gga-4":
+                with pytest.raises(CompatibilityError, match="it is a GGA\\(\\+U\\) ground state"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)
+            else:
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data) == []
+
+        entries = mixing_scheme_no_compat.process_entries(ms_gga_2_scan_diff_match.all_entries)
+        assert len(entries) == 7
+        for e in entries:
+            if e.entry_id == "r2scan-4":
+                assert e.correction == 3
+                assert e.parameters["run_type"] == "R2SCAN"
+            elif e.entry_id in ["gga-4", "r2scan-7"]:
+                assert False, f"Entry {e.entry_id} should have been discarded"
+            else:
+                assert e.correction == 0, f"{e.entry_id}"
+                assert e.parameters["run_type"] == "GGA"
 
     # TODO - add an unstable polymorph of SnBr4 in SCAN only that doesn't match
     # any GGA material.
