@@ -201,7 +201,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
             for plane in bragg_angles:
                 scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(
-                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]),)
+                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None
+                )
                 scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
