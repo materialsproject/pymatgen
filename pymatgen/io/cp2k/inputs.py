@@ -32,9 +32,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 __author__ = "Nicholas Winner"
-__version__ = "0.3"
+__version__ = "0.4"
 __email__ = "nwinner@berkeley.edu"
-__date__ = "August 2020"
+__date__ = "August 2021"
 
 
 class Keyword(MSONable):
@@ -320,12 +320,11 @@ class Section(MSONable):
         )
 
     def __getitem__(self, d):
-        for k in self.keywords:
-            if str(k).upper() == str(d).upper():
-                return self.keywords[k]
-        for k in self.subsections:
-            if str(k).upper() == str(d).upper():
-                return self.subsections[k]
+        r = self.get_keyword(d)
+        if not r:
+            r = self.get_section(d)
+        if r:
+            return r
         raise KeyError
 
     def __add__(self, other):
@@ -338,31 +337,6 @@ class Section(MSONable):
             self.insert(other)
         else:
             TypeError("Can only add sections or keywords.")
-
-    def add(self, other):
-        """
-        Add another keyword to the current section
-        """
-        assert isinstance(other, (Keyword, KeywordList))
-        self.__add__(other)
-
-    def get(self, d, default=None):
-        """
-        Similar to get for dictionaries. This will attempt to retrieve the
-        section or keyword matching d. Will not raise an error if d does not
-        exist.
-
-        Args:
-             d: the key to retrieve, if present
-             default: what to return if d is not found
-        """
-        for k in self.keywords:
-            if str(k).upper() == str(d).upper():
-                return self.keywords[k]
-        for k in self.subsections:
-            if str(k).upper() == str(d).upper():
-                return self.subsections[k]
-        return default
 
     def __setitem__(self, key, value):
         if isinstance(value, (Section, SectionList)):
@@ -395,6 +369,59 @@ class Section(MSONable):
 
     def __sub__(self, other):
         return self.__delitem__(other)
+
+    def add(self, other):
+        """
+        Add another keyword to the current section
+        """
+        assert isinstance(other, (Keyword, KeywordList))
+        self.__add__(other)
+
+    def get(self, d, default=None):
+        """
+        Similar to get for dictionaries. This will attempt to retrieve the
+        section or keyword matching d. Will not raise an error if d does not
+        exist.
+
+        Args:
+             d: the key to retrieve, if present
+             default: what to return if d is not found
+        """
+        r = self.get_keyword(d)
+        if r:
+            return r
+        else:
+            r = self.get_section(d)
+            if r:
+                return r
+            else:
+                return default
+
+    def get_section(self, d, default=None):
+        """
+        Get function, only for subsections
+
+        Args:
+            d: Name of section to get
+            default: return if d is not found in subsections
+        """
+        for k in self.subsections:
+            if str(k).upper() == str(d).upper():
+                return self.subsections[k]
+        return default
+
+    def get_keyword(self, d, default=None):
+        """
+        Get function, only for subsections
+
+        Args:
+            d: Name of keyword to get
+            default: return if d is not found in keyword list
+        """
+        for k in self.keywords:
+            if str(k).upper() == str(d).upper():
+                return self.keywords[k]
+        return default
 
     def update(self, d: dict):
         """
@@ -509,7 +536,7 @@ class Section(MSONable):
             _path = _path[1:]
         s = self
         for p in _path:
-            s = s[p]
+            s = s.get_section(p)
         return s
 
     def get_string(self):
@@ -847,7 +874,7 @@ class Dft(Section):
         keywords = {
             "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
             "POTENTIAL_FILE_NAME": Keyword("POTENTIAL_FILE_NAME", potential_filename),
-            "UKS": Keyword("UKS", uks),
+            "UKS": Keyword("UKS", uks, description="Whether to run unrestricted Kohn Sham (i.e. spin polarized)"),
         }
 
         if wfn_restart_file_name:
@@ -912,8 +939,8 @@ class QS(Section):
 
         keywords = {
             "METHOD": Keyword("METHOD", method),
-            "EPS_DEFAULT": Keyword("EPS_DEFAULT", eps_default),
-            "EXTRAPOLATION": Keyword("EXTRAPOLATION", extrapolation),
+            "EPS_DEFAULT": Keyword("EPS_DEFAULT", eps_default, description="Base precision level (in Ha)"),
+            "EXTRAPOLATION": Keyword("EXTRAPOLATION", extrapolation, description="WFN extrapolation between steps"),
         }
 
         super().__init__(
@@ -949,10 +976,14 @@ class Scf(Section):
         description = "Parameters needed to perform an SCF run."
 
         keywords = {
-            "MAX_SCF": Keyword("MAX_SCF", max_scf),
-            "EPS_SCF": Keyword("EPS_SCF", eps_scf),
-            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess),  # Uses Restart file if present, and ATOMIC if not present
-            "MAX_ITER_LUMO": Keyword("MAX_ITER_LUMO", kwargs.get("max_iter_lumo", 400)),
+            "MAX_SCF": Keyword("MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"),
+            "EPS_SCF": Keyword("EPS_SCF", eps_scf, description="Convergence threshold for SCF"),
+            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess, description="How to initialize the density matrix"),
+            "MAX_ITER_LUMO": Keyword(
+                "MAX_ITER_LUMO",
+                kwargs.get("max_iter_lumo", 400),
+                description="Number of iterations for solving for the unoccupied levels when running OT"
+            ),
         }
 
         super().__init__(
@@ -1006,7 +1037,7 @@ class Mgrid(Section):
             "REL_CUTOFF": Keyword(
                 "REL_CUTOFF", rel_cutoff, description="Controls which gaussians are mapped to which level of the MG",
             ),
-            "NGRIDS": Keyword("NGRIDS", ngrids),
+            "NGRIDS": Keyword("NGRIDS", ngrids, description="Number of grid levels in the MG"),
             "PROGRESSION_FACTOR": Keyword("PROGRESSION_FACTOR", progression_factor),
         }
 
@@ -1148,7 +1179,7 @@ class OrbitalTransformation(Section):
             + "Default settings already provide an efficient, yet robust method. Most "
             + "systems benefit from using the FULL_ALL preconditioner combined with a small "
             + "value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using "
-            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalisation"
+            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalization "
             + "is performed. If preconditioned correctly, method guaranteed to find minimum. "
             + "Disadvantages: Sensitive to preconditioning. A good preconditioner can be "
             + "expensive. No smearing, or advanced SCF mixing possible: POOR convergence for "
