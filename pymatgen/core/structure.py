@@ -3805,6 +3805,155 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._charge = new_charge
 
+    def get_element_distance(self,
+                             elem_1: Union[str, Element],
+                             elem_2: Optional[Union[str, Element]] = None,
+                             threshold: Union[int, float] = 0.01,
+                             make_supercell_matrix: Optional[Union[int, list, List[list]]] = [2, 2, 2],
+                             jimage: Optional[Union[int, list, List[list]]] = None,
+                             only_unique: bool = False,
+                             return_lst: bool = False) -> Union[float, Sequence]:
+        """
+        Get the minimum element distance(s) for one element or between two elements.
+
+        Algorithm:
+            Using Fe2O3 as an example
+            (assuming Fe occupies site 0 and 1; O occupies site 2, 3, 4)
+
+            Step 1: For each element in the structure, figure out the site(s) it
+                occupies. For example, Fe2O3 would produce {Fe: [0, 1], O: [2, 3, 4]}.
+                When an element in the conventional cell occupies only one site,
+                by default, make a supercell of [2a, 2b, 2c] to avoid getting
+                a distance of 0.
+
+            Step 2: Check if the specified element(s) can be found in the structure.
+                If not, raise a ValueError.
+
+            Step 3: If two different elements are specified, create a cartesian product
+                of the indices. For example, finding the Fe-O element distance in
+                Fe2O3 would produce [(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4)].
+                If only one unique element is specified, create a list of pairwise
+                combinations from the indices of that particular element. For example,
+                finding the O-O element distance would produce [(2, 3), (2, 4), (3, 4)]
+
+            Step 4: For each pair of site indices, calculate the distance between the sites,
+                resulting in a list of distances.
+
+            Step 5: Find the minimum of the distance list and determine a maximum cutoff
+                distance by multiplying the minimum distance with some arbitrary value.
+                The arbitrary value is calculated as (1 + a threshold value). Find all the
+                values in the range of [minimum_distance, minimum_distance * (1 + threshold)]
+                and return the average of this minimum distance list, with the option to return
+                this list itself.
+
+        Args:
+            elem_1 (str, pymatgen.core.periodic_table.Element): The first element.
+            elem_2 (str, pymatgen.core.periodic_table.Element, optional): The second element.
+            threshold (int, float, optional): The value that determines how far away from
+                the minimal distance is used as the cutoff distance. For example, 0.01
+                means the maximum cutoff distance is set to be (minimum_distance  * 1.01).
+            make_supercell_matrix (int, list, nested_list, optional): The scaling_matrix to
+                make a supercell when calculating the distance. This would be helpful
+                when an element in the input structure occupies only one site, and
+                without making a supercell, the distance calculated would be 0.
+                By default, a supercell of [2a, 2b, 2c] is made, which would allow adding
+                additional sites to the structure such that they better reflect global symmetry.
+            jimage (int, list, nested_list, optional): Number of lattice translations in
+                each lattice direction. The default is None to find the nearest image.
+            only_unique (bool, optional): Whether or not to use the unique values when
+                calculating the minimum distance. By default, it is set to be True,
+                which means multiplicity is taken into considerations.
+            return_lst (bool, optional): Whether or not to return the distance as a list in
+                the range of [minimum_distance, minimum_distance * (1 + threshold)].
+                By default, it is set to be False, which would return the average of
+                the minimum distance list.
+
+        Returns:
+            distance as a float when return_lst is set to be False, or as a numpy array
+                when return_lst is set to be True
+        """
+        # convert the input elements into Element objects if they are in the string format
+        if isinstance(elem_1, str):
+            elem_1 = Element(elem_1)
+        if isinstance(elem_2, str):
+            elem_2 = Element(elem_2)
+
+        # create a helper function to find the sites on which the element(s) in the structure occupies
+        def get_element_indices_helper(input_structure, supercell_matrix: Optional[Union[int, list, List[list]]]):
+            # create a copy of the input structure to avoid accidentally changing it inplace
+            output_structure = input_structure.copy()
+            # create a list with all the elements found in the structure
+            elem_lst = output_structure.composition.element_composition.elements
+
+            # initialize a dictionary to store the site indices where each element occupies
+            # for example, Fe2O3 would have {Fe: [0, 1], O: [2, 3, 4]}
+            elem_indices = {element: [] for element in elem_lst}
+            # iterate over all sites
+            for i, site in enumerate(output_structure.sites):
+                # the internal for loop is for cases when
+                # there are multiple elements occupying the same site with fractional occupancy
+                for element in site.species.element_composition.elements:
+                    elem_indices[element].append(i)
+
+            # if supercell_matrix is set and any of the elements occupies only one site,
+            # make a supercell with the scaling matrix set to be the supercell_matrix and repeat the process
+            if supercell_matrix and (np.sum([len(indices) == 1 for indices in elem_indices.values()]) > 0):
+                output_structure.make_supercell(scaling_matrix=supercell_matrix)
+                return get_element_indices_helper(output_structure, supercell_matrix)
+
+            return elem_indices, output_structure
+
+        elem_indices, struct_new = get_element_indices_helper(self, supercell_matrix=make_supercell_matrix)
+
+        # check if the input elements are in the structure
+        for elem in [elem_1, elem_2]:
+            if elem not in elem_indices.keys() and elem is not None:
+                raise ValueError(f"Element {elem.symbol} is not found in the structure!")
+
+        # if the second element is specified and different from the first element
+        if elem_2 and (elem_1 != elem_2):
+            # get all the cartesian pairwise combinations for the indices of elem_1 and elem_2
+            pairwise_indices = itertools.product(elem_indices[elem_1], elem_indices[elem_2])
+        # if only 1 unique element is specified
+        else:
+            # get the pairwise combinations for the indices of elem_1
+            pairwise_indices = itertools.combinations(elem_indices[elem_1], 2)
+
+        # calculate the distance for every pair of indices
+        distance_lst = np.array([struct_new.get_distance(i, j, jimage) for i, j in pairwise_indices])
+
+        # define a helper function to choose the minimum distance
+        def choose_min_helper(dist_lst: np.array, threshold_val: float, unique_only: bool):
+            # if the input array is empty, return 0 in a numpy array
+            if dist_lst.size == 0:
+                return np.array([0])
+
+            # get all the unique distance values
+            unique_lst = np.unique(dist_lst)
+            # determine the maximum cutoff value
+            max_cutoff = np.min(unique_lst) * (1 + threshold_val)
+
+            # if the maximum cutoff is exactly zero, this would mean that two elements occupy the same site
+            if max_cutoff == 0:
+                # drop the all the distances that are 0 and do recursion with the non-zero distances
+                return choose_min_helper(dist_lst[dist_lst != 0], threshold_val, unique_only)
+
+            if unique_only:
+                min_values = unique_lst[unique_lst <= max_cutoff]
+            else:
+                min_values = dist_lst[dist_lst <= max_cutoff]
+
+            return min_values
+
+        # get a list of element distances in the range of [mininum_distance, mininum_distance * (1 + threshold)]
+        min_distance_lst = choose_min_helper(distance_lst, threshold, only_unique)
+
+        # if return_lst is set to be True, return the minimum distance list
+        if return_lst:
+            return min_distance_lst
+        # return the average distance of the minimum distance list
+        return np.mean(min_distance_lst)
+
 
 class Molecule(IMolecule, collections.abc.MutableSequence):
     """
