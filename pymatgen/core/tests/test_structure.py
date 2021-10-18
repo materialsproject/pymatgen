@@ -1270,63 +1270,78 @@ class StructureTest(PymatgenTest):
         self.assertAlmostEqual(self.structure.get_element_distance("Si"), 2.3516, 4, "Distance calculated wrongly")
         self.assertRaises(ValueError, self.structure.get_element_distance, elem_1="O")
 
-        struct_with_frac_occupancy = Structure(self.structure.lattice,
-                                               [{'O': 1.0}, {'Mg': 0.8}],
-                                               [[0, 0, 0], [0.75, 0.5, 0.75]])
-        self.assertAlmostEqual(struct_with_frac_occupancy.get_element_distance("Mg", "O"), 2.3516, 4,
-                               "Distance calculated wrongly")
-        self.assertAlmostEqual(struct_with_frac_occupancy.get_element_distance("O", "Mg"), 2.3516, 4,
-                               "Distance calculated wrongly")
+        struct_with_frac_occupancy = Structure(
+            self.structure.lattice, [{"O": 1.0}, {"Mg": 0.8}], [[0, 0, 0], [0.75, 0.5, 0.75]]
+        )
+        self.assertAlmostEqual(
+            struct_with_frac_occupancy.get_element_distance("Mg", "O"), 2.3516, 4, "Distance calculated wrongly"
+        )
+        self.assertAlmostEqual(
+            struct_with_frac_occupancy.get_element_distance("O", "Mg"), 2.3516, 4, "Distance calculated wrongly"
+        )
         self.assertRaises(ValueError, struct_with_frac_occupancy.get_element_distance, elem_1="Mg", elem_2="S")
         self.assertRaises(ValueError, struct_with_frac_occupancy.get_element_distance, elem_1="S", elem_2="Mg")
         self.assertRaises(ValueError, struct_with_frac_occupancy.get_element_distance, elem_1="Fe", elem_2="S")
 
         struct_primitive = Structure(
-            Lattice([[1.00, 0.00, 0.00],
-                     [0.00, 1.00, 0.00],
-                     [0.00, 0.00, 1.00]]
-                    ), ["Si"], [[0, 0, 0]]
+            Lattice([[1.00, 0.00, 0.00], [0.00, 1.00, 0.00], [0.00, 0.00, 1.00]]), ["Si"], [[0, 0, 0]]
         )
         self.assertEqual(struct_primitive.get_element_distance("Si"), 1.00, "Distance calculated wrongly")
-        self.assertEqual(struct_primitive, Structure(
-            Lattice([[1.00, 0.00, 0.00],
-                     [0.00, 1.00, 0.00],
-                     [0.00, 0.00, 1.00]]
-                    ), ["Si"], [[0, 0, 0]]), "The input structure has been changed inplace")
-        self.assertEqual(struct_primitive.get_element_distance("Si", make_supercell_matrix=None), 0,
-                         "Distance calculated wrongly")
-        self.assertTrue(struct_primitive.get_element_distance("Si", threshold=1) > 1,
-                        "Distance calculated wrongly")
-        self.assertTrue(np.array_equal(struct_primitive.get_element_distance("Si", return_lst=True), 12 * [1]),
-                        "The original list is not returned")
-        self.assertTrue(np.array_equal(struct_primitive.get_element_distance("Si", only_unique=True, return_lst=True),
-                                       [1]), "The unique list is not returned")
+        self.assertEqual(
+            struct_primitive,
+            Structure(Lattice([[1.00, 0.00, 0.00], [0.00, 1.00, 0.00], [0.00, 0.00, 1.00]]), ["Si"], [[0, 0, 0]]),
+            "The input structure has been changed inplace",
+        )
+        self.assertEqual(
+            struct_primitive.get_element_distance("Si", make_supercell_matrix=None), 0, "Distance calculated wrongly"
+        )
+        self.assertTrue(struct_primitive.get_element_distance("Si", threshold=1) > 1, "Distance calculated wrongly")
+        self.assertTrue(
+            np.array_equal(struct_primitive.get_element_distance("Si", return_lst=True), 12 * [1]),
+            "The original list is not returned",
+        )
+        self.assertTrue(
+            np.array_equal(struct_primitive.get_element_distance("Si", only_unique=True, return_lst=True), [1]),
+            "The unique list is not returned",
+        )
 
         struct_primitive_2 = Structure(
-            Lattice([[2.00, 0.00, 0.00],
-                     [0.00, 3.00, 0.00],
-                     [0.00, 0.00, 4.00]]
-                    ), ["Si"], [[0, 0, 0]]
+            Lattice([[2.00, 0.00, 0.00], [0.00, 3.00, 0.00], [0.00, 0.00, 4.00]]), ["Si"], [[0, 0, 0]]
         )
         self.assertEqual(struct_primitive_2.get_element_distance("Si"), 2.00, "Distance calculated wrongly")
 
         struct_primitive_3 = Structure(
-            Lattice([[6, 0, 3],
-                     [4, 1, 3],
-                     [2, 0, 2]]
-                    ), ["Fe", "O"], [[0, 0, 0], [0.5, 0, 0]])
+            Lattice([[6, 0, 3], [4, 1, 3], [2, 0, 2]]), ["Fe", "O"], [[0, 0, 0], [0.5, 0, 0]]
+        )
         self.assertAlmostEqual(struct_primitive_3.get_element_distance("Fe"), 1.4142, 4, "Distance calculated wrongly")
-        self.assertAlmostEqual(struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[2, 1, 1], jimage=0),
-                               struct_primitive_3.lattice.a, 4, "Distance calculated wrongly")
-        self.assertAlmostEqual(struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[1, 2, 1], jimage=0),
-                               struct_primitive_3.lattice.b, 4, "Distance calculated wrongly")
-        self.assertAlmostEqual(struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[1, 1, 2], jimage=0),
-                               struct_primitive_3.lattice.c, 4, "Distance calculated wrongly")
-        self.assertAlmostEqual(struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[2, 2, 2], jimage=0),
-                               2.2361, 4, "Distance calculated wrongly")
+        self.assertAlmostEqual(
+            struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[2, 1, 1], jimage=0),
+            struct_primitive_3.lattice.a,
+            4,
+            "Distance calculated wrongly",
+        )
+        self.assertAlmostEqual(
+            struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[1, 2, 1], jimage=0),
+            struct_primitive_3.lattice.b,
+            4,
+            "Distance calculated wrongly",
+        )
+        self.assertAlmostEqual(
+            struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[1, 1, 2], jimage=0),
+            struct_primitive_3.lattice.c,
+            4,
+            "Distance calculated wrongly",
+        )
+        self.assertAlmostEqual(
+            struct_primitive_3.get_element_distance("Fe", make_supercell_matrix=[2, 2, 2], jimage=0),
+            2.2361,
+            4,
+            "Distance calculated wrongly",
+        )
         self.assertAlmostEqual(struct_primitive_3.get_element_distance("O"), 1.4142, 4, "Distance calculated wrongly")
-        self.assertAlmostEqual(struct_primitive_3.get_element_distance("Fe", "O"), 1.1180, 4,
-                               "Distance calculated wrongly")
+        self.assertAlmostEqual(
+            struct_primitive_3.get_element_distance("Fe", "O"), 1.1180, 4, "Distance calculated wrongly"
+        )
 
 
 class IMoleculeTest(PymatgenTest):
