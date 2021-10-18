@@ -3805,14 +3805,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._charge = new_charge
 
-    def get_element_distance(self,
-                             elem_1: Union[str, Element],
-                             elem_2: Optional[Union[str, Element]] = None,
-                             threshold: Union[int, float] = 0.01,
-                             make_supercell_matrix: Optional[Union[int, list, List[list]]] = [2, 2, 2],
-                             jimage: Optional[Union[int, list, List[list]]] = None,
-                             only_unique: bool = False,
-                             return_lst: bool = False) -> Union[float, Sequence]:
+    def get_element_distance(
+        self,
+        elem_1: Union[str, Element],
+        elem_2: Optional[Union[str, Element]] = None,
+        threshold: Union[int, float] = 0.01,
+        make_supercell_matrix: Optional[Union[int, list, List[list]]] = [2, 2, 2],
+        jimage: Optional[Union[int, list, List[list]]] = None,
+        only_unique: bool = False,
+        return_lst: bool = False,
+    ) -> Union[float, Sequence]:
         """
         Get the minimum element distance(s) for one element or between two elements.
 
