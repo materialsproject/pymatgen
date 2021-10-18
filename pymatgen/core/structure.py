@@ -3824,7 +3824,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
             Step 1: For each element in the structure, figure out the site(s) it
                 occupies. For example, Fe2O3 would produce {Fe: [0, 1], O: [2, 3, 4]}.
-                When an element in the conventional cell occupies only one site,
+                When an element in the input structure occupies only one site,
                 by default, make a supercell of [2a, 2b, 2c] to avoid getting
                 a distance of 0.
 
