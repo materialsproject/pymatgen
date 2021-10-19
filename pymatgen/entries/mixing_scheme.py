@@ -158,14 +158,19 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             if entry.parameters.get("run_type") not in self.valid_rtypes_1 + self.valid_rtypes_2:
                 warnings.warn(
-                    "Invalid run_type {} for entry {}. This entry "
-                    "will be ignored".format(entry.parameters.get("run_type"), entry.entry_id)
+                    f"Invalid run_type {entry.parameters.get('run_type')} for entry {entry.entry_id}. Must be one of "
+                    f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
                 )
                 continue
 
-            # TODO - add a check that all entries have unique entry_id!
-
             filtered_entries.append(entry)
+
+        filtered_entry_ids = {e.entry_id for e in filtered_entries}
+        if len(filtered_entry_ids) != len(filtered_entries):
+            raise ValueError(
+                "The provided ComputedStructureEntry do not all have unique entry_ids."
+                " Unique entry_ids are required for every ComputedStructureEntry."
+            )
 
         processed_entry_list = []
         mixing_scheme_state_data = self.get_mixing_state_data(filtered_entries, verbose)
@@ -548,7 +553,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"Invalid run type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 

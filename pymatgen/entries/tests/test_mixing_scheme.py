@@ -599,60 +599,6 @@ def ms_all_scan_novel(ms_complete):
 
 
 @pytest.fixture
-def ms_invalid_run_type():
-    """
-    Mixing state with all GGA entries except one with an invalid run_type
-    """
-    lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
-    entries = [
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Br"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Br"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "LDA"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
-            -18,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(
-                lattice,
-                ["Sn", "Br", "Br", "Br", "Br"],
-                [
-                    [0, 0, 0],
-                    [0.2, 0.2, 0.2],
-                    [0.4, 0.4, 0.4],
-                    [0.7, 0.7, 0.7],
-                    [1, 1, 1],
-                ],
-            ),
-            -25,
-            parameters={"run_type": "GGA"},
-        ),
-    ]
-    row_list = [
-        ["Sn", 194, 1, "GGA", None, 0, np.nan, True, 0, np.nan],
-        ["Br", 12, 1, "GGA", None, 0, np.nan, True, 0, np.nan],
-        ["SnBr2", 12, 3, "GGA", None, -6, np.nan, True, -6, np.nan],
-        ["SnBr4", 139, 5, "GGA", None, -5, np.nan, True, -5, np.nan],
-    ]
-    mixing_state = pd.DataFrame(row_list, columns=columns)
-
-    return MixingState(entries, [], mixing_state)
-
-
-@pytest.fixture
 def ms_incomplete_gga_all_scan():
     """
     Mixing state with an incomplete GGA phase diagram
@@ -788,12 +734,58 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = []
         mixing_scheme_no_compat.process_entries(entries)
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_no_entry_ids(self):
+    def test_no_entry_ids(self, mixing_scheme_no_compat):
         """
         unique entry_ids are required.
         """
-        pass
+        gga_entries = [
+            ComputedStructureEntry(
+                Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga"
+            ),
+            ComputedStructureEntry(
+                Structure(lattice1, ["Br"], [[0, 0, 0]]), 1, parameters={"run_type": "GGA"}, entry_id="gga"
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice_br_gga,
+                    ["Br", "Br", "Br", "Br"],
+                    [
+                        [0.642473, 0.642473, 0.117751],
+                        [0.357527, 0.357527, 0.882249],
+                        [0.857527, 0.857527, 0.617751],
+                        [0.142473, 0.142473, 0.382249],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+                entry_id="gga-3",
+            ),
+        ]
+        scan_entries = [
+            ComputedStructureEntry(
+                Structure(lattice1, ["Sn"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-1"
+            ),
+            ComputedStructureEntry(
+                Structure(lattice1, ["Br"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-2"
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice_br_r2scan,
+                    ["Br", "Br", "Br", "Br"],
+                    [
+                        [0.85985939, 0.0, 0.38410868],
+                        [0.14014061, -0.0, 0.61589132],
+                        [0.64014061, 0.0, 0.88410868],
+                        [0.35985939, -0.0, 0.11589132],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "R2SCAN"},
+                entry_id="r2scan-3",
+            ),
+        ]
+        with pytest.raises(ValueError, match="Unique entry_ids are required"):
+            mixing_scheme_no_compat.process_entries(gga_entries + scan_entries)
 
     def test_clean(self, mixing_scheme_no_compat):
         # make sure the clean=True arg to process_entries works
@@ -848,19 +840,21 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             assert e.correction == 0
 
     def test_no_run_type(self, mixing_scheme_no_compat):
-        # should raise a ValueError if any of the entries does not have a run_type
+        """
+        If one of the entries doesn't have a run_type attribute, we should get a warning
+        from process_entries and a CompatibilityError from get_adjustments
+        """
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
         entries = [
             ComputedStructureEntry(
-                Structure(lattice, ["Sn"], [[0, 0, 0]]),
-                0,
-                parameters={"run_type": "R2SCAN"},
+                Structure(lattice, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-1"
             ),
             ComputedStructureEntry(Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={}),
             ComputedStructureEntry(
                 Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
                 0,
                 parameters={"run_type": "R2SCAN"},
+                entry_id="r2scan-2",
             ),
             ComputedStructureEntry(
                 Structure(
@@ -876,14 +870,71 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 ),
                 0,
                 parameters={"run_type": "R2SCAN"},
+                entry_id="r2scan-3",
             ),
         ]
 
         with pytest.warns(UserWarning, match="missing parameters.run_type"):
             mixing_scheme_no_compat.process_entries(entries)
 
+    def test_incompatible_run_type(self, mixing_scheme_no_compat):
+        """
+        If entry.parameters.run_type is not "GGA", "GGA+U", or "R2SCAN", we should get a
+        warning from process_entries and a CompatibilityError from get_adjustments
+        """
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-2"
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={"run_type": "LDA"}, entry_id="lda-1"
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
+                0,
+                parameters={"run_type": "GGA"},
+                entry_id="gga-3",
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+                entry_id="gga-4",
+            ),
+        ]
+
+        with pytest.warns(UserWarning, match="Invalid run_type LDA"):
+            assert len(mixing_scheme_no_compat.process_entries(entries)) == 4
+
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(entries)
+        with pytest.raises(CompatibilityError, match="Invalid run_type LDA"):
+            assert (
+                mixing_scheme_no_compat.get_adjustments(
+                    [e for e in entries if e.parameters["run_type"] == "LDA"][0],
+                    state_data,
+                )
+                == []
+            )
+
     def test_no_single_entry(self, mixing_scheme_no_compat):
-        # Raise CompatibilityError if process_entries is called on a single entry
+        """
+        Raise CompatibilityError if process_entries is called on a single Entry
+        without any state_data.
+        """
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
         entries = [
             ComputedStructureEntry(
@@ -895,6 +946,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         with pytest.warns(UserWarning, match="cannot process single entries"):
             mixing_scheme_no_compat.process_entries(entries)
+
+    @pytest.mark.skip(reason="Not implemented yet")
+    def test_no_foreign_entries(self, mixing_scheme_no_compat):
+        """
+        If process_entries is called with a populated state_data kwarg and one or
+        more of the entry_ids is not present in the state_data, raise CompatbilityError
+        """
+        pass
 
     @pytest.mark.skip(reason="Not implemented yet")
     def test_fuzzy_diatomic_matching(self, mixing_scheme_no_compat):
@@ -1298,7 +1357,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         pass
 
     @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_foreign_scan_comp(self, mixing_scheme_no_compat):
+    def test_state_novel_scan_comp(self, mixing_scheme_no_compat):
         """
         Mixing state in which we try to process a SCAN entry at a composition
         that is not in the GGA PhaseDiagram
@@ -1306,7 +1365,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         pass
 
     @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_foreign_gga_comp(self, mixing_scheme_no_compat):
+    def test_state_novel_gga_comp(self, mixing_scheme_no_compat):
         """
         Mixing state in which we try to process a GGA entry at a composition
         that is not in the SCAN PhaseDiagram
@@ -1314,48 +1373,40 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         pass
 
     @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_foreign_gga_below_hull(self, mixing_scheme_no_compat):
+    def test_state_novel_gga_below_hull(self, mixing_scheme_no_compat):
         """
         Mixing state in which we try to process a GGA entry that has an energy
         below the GGA hull computed by get_mixing_state_data
+
+        This is a corner case that should never occur, because if the entry_id
+        of this entry is not already in the state_data, a CompatibilityError
+        should be raised. If the Entry was passed to get_mixing_state_data, then
+        its energy would not be below the hull. Hence, this is testing a case
+        in which either 1) get_mixing_state_data fails to work properly or 2)
+        the energy of the Entry is somehow modified in between calling
+        get_mixing_state_data and get_adjustments. Such a situation could
+        potentially arise in e.g. the build pipeline if one is calling
+        get_adjustments with a separately-calculated state_data DataFrame.
         """
         pass
 
     @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_foreign_scan_below_hull(self, mixing_scheme_no_compat):
+    def test_state_novel_scan_below_hull(self, mixing_scheme_no_compat):
         """
         Mixing state in which we try to process a SCAN entry that has an energy
-        below the SCAN hull computed by get_mixing_state_data
+        below the SCAN hull computed by get_mixing_state_data.
+
+        This is a corner case that should never occur, because if the entry_id
+        of this entry is not already in the state_data, a CompatibilityError
+        should be raised. If the Entry was passed to get_mixing_state_data, then
+        its energy would not be below the hull. Hence, this is testing a case
+        in which either 1) get_mixing_state_data fails to work properly or 2)
+        the energy of the Entry is somehow modified in between calling
+        get_mixing_state_data and get_adjustments. Such a situation could
+        potentially arise in e.g. the build pipeline if one is calling
+        get_adjustments with a separately-calculated state_data DataFrame.
         """
         pass
-
-    @pytest.mark.skip(reason="Needs revision")
-    def test_incompatible_run_type(self, mixing_scheme_no_compat, ms_invalid_run_type):
-        # If entry.parameters.run_type is not "GGA", "GGA+U", or "R2SCAN", raise
-        # a CompatibilityError and ignore that entry
-
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_invalid_run_type.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_1"] == "GGA")
-        assert all(state_data["run_type_2"].isna())
-        assert len(state_data["is_stable_1"]) == len(ms_invalid_run_type.all_entries) - 1
-        assert all(state_data["ground_state_energy_1"].notna())
-        assert all(state_data["ground_state_energy_2"].isna())
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(state_data["hull_energy_2"].isna())
-
-        with pytest.raises(CompatibilityError, match="Invalid run type LDA"):
-            assert (
-                mixing_scheme_no_compat.get_adjustments(
-                    [e for e in ms_invalid_run_type.all_entries if e.parameters["run_type"] == "LDA"][0],
-                    ms_invalid_run_type.state_data,
-                )
-                == []
-            )
-
-        # process_entries should discard the invalid entry
-        entries = mixing_scheme_no_compat.process_entries(ms_invalid_run_type.all_entries)
-        assert len(entries) == len(ms_invalid_run_type.all_entries) - 1
 
     # def test_gga_correction_scan_hull(self, mixing_scheme_no_compat):
     #     # If there are SCAN entries for all of the stable GGA structures, SCAN
