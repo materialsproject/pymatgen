@@ -179,15 +179,15 @@ Define mixing states to test.
 """
 # columns must correspond to the columns in get_mixing_state_data
 columns = [
-    "composition",
+    "formula",
     "spacegroup",
     "num_sites",
     "entry_id_1",
     "entry_id_2",
     "run_type_1",
     "run_type_2",
-    "ground_state_energy_1",
-    "ground_state_energy_2",
+    "energy_1",
+    "energy_2",
     "is_stable_1",
     "hull_energy_1",
     "hull_energy_2",
@@ -950,7 +950,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
     @pytest.mark.skip(reason="Not implemented yet")
     def test_no_foreign_entries(self, mixing_scheme_no_compat):
         """
-        If process_entries is called with a populated state_data kwarg and one or
+        If get_adjustments is called with a populated state_data kwarg and one or
         more of the entry_ids is not present in the state_data, raise CompatbilityError
         """
         pass
@@ -1007,8 +1007,8 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
         assert sum(state_data["run_type_2"] == "R2SCAN") == len(state_data) - 1
         assert sum(state_data["is_stable_1"]) == 3
-        assert sum(state_data["ground_state_energy_1"].isna()) == 1
-        assert sum(state_data["ground_state_energy_2"].isna()) == 1
+        assert sum(state_data["energy_1"].isna()) == 1
+        assert sum(state_data["energy_2"].isna()) == 1
         assert all(state_data["hull_energy_1"].notna())
         assert all(state_data["hull_energy_2"].notna())
 
@@ -1053,8 +1053,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_1"] == "GGA")
         assert all(state_data["run_type_2"] == "R2SCAN")
         assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["ground_state_energy_1"].notna())
-        assert all(state_data["ground_state_energy_2"].notna())
+        assert all(state_data["energy_1"].notna())
+        assert all(state_data["energy_2"].notna())
         assert all(state_data["hull_energy_1"].notna())
         assert all(state_data["hull_energy_2"].notna())
 
@@ -1083,8 +1083,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_1"] == "GGA")
         assert all(state_data["run_type_2"].isna())
         assert len(state_data["is_stable_1"]) == len(ms_gga_only.all_entries)
-        assert all(state_data["ground_state_energy_1"].notna())
-        assert all(np.isnan(state_data["ground_state_energy_2"]))
+        assert all(state_data["energy_1"].notna())
+        assert all(np.isnan(state_data["energy_2"]))
         assert all(state_data["hull_energy_1"].notna())
         assert all(np.isnan(state_data["hull_energy_2"]))
 
@@ -1107,8 +1107,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_2"] == "R2SCAN")
         assert all(state_data["run_type_1"].isna())
         assert all(~state_data["is_stable_1"])
-        assert all(np.isnan(state_data["ground_state_energy_1"]))
-        assert all(state_data["ground_state_energy_2"].notna())
+        assert all(np.isnan(state_data["energy_1"]))
+        assert all(state_data["energy_2"].notna())
         assert all(np.isnan(state_data["hull_energy_1"]))
         assert all(state_data["hull_energy_2"].notna())
 
@@ -1134,8 +1134,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_1"] == "GGA")
         assert sum(state_data["run_type_2"] == "R2SCAN") == 1
         assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["ground_state_energy_1"].notna())
-        assert sum(state_data["ground_state_energy_2"].isna()) == len(state_data) - 1
+        assert all(state_data["energy_1"].notna())
+        assert sum(state_data["energy_2"].isna()) == len(state_data) - 1
         assert all(state_data["hull_energy_1"].notna())
         assert all(np.isnan(state_data["hull_energy_2"]))
 
@@ -1175,8 +1175,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_1"] == "GGA")
         # assert sum(state_data["run_type_2"] == "R2SCAN") == 2
         assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["ground_state_energy_1"].notna())
-        # assert all(np.isnan(state_data["ground_state_energy_2"]))
+        assert all(state_data["energy_1"].notna())
+        # assert all(np.isnan(state_data["energy_2"]))
         assert all(state_data["hull_energy_1"].notna())
         assert all(np.isnan(state_data["hull_energy_2"]))
 
@@ -1226,8 +1226,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert all(state_data["run_type_1"] == "GGA")
         # assert sum(state_data["run_type_2"] == "R2SCAN") == 2
         assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["ground_state_energy_1"].notna())
-        # assert all(np.isnan(state_data["ground_state_energy_2"]))
+        assert all(state_data["energy_1"].notna())
+        # assert all(np.isnan(state_data["energy_2"]))
         assert all(state_data["hull_energy_1"].notna())
         assert all(np.isnan(state_data["hull_energy_2"]))
 
@@ -1277,8 +1277,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert sum(state_data["run_type_1"].isna()) == 1
         assert sum(state_data["run_type_2"] == "R2SCAN") == 2
         assert sum(state_data["is_stable_1"]) == 3
-        assert sum(state_data["ground_state_energy_1"].isna()) == 1
-        assert sum(np.isnan(state_data["ground_state_energy_2"])) == 6
+        assert sum(state_data["energy_1"].isna()) == 1
+        assert sum(np.isnan(state_data["energy_2"])) == 6
         assert all(state_data["hull_energy_1"].notna())
         assert all(np.isnan(state_data["hull_energy_2"]))
 
@@ -1348,8 +1348,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
         assert sum(state_data["run_type_2"] == "R2SCAN") == 4
         assert all(~state_data["is_stable_1"])
-        assert sum(state_data["ground_state_energy_1"].notna()) == len(state_data) - 1
-        assert sum(state_data["ground_state_energy_2"].notna()) == len(state_data)
+        assert sum(state_data["energy_1"].notna()) == len(state_data) - 1
+        assert sum(state_data["energy_2"].notna()) == len(state_data)
         assert all(state_data["hull_energy_1"].isna())
         assert all(state_data["hull_energy_2"].notna())
 
@@ -1398,9 +1398,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         its energy would not be below the hull. Hence, this is testing a case
         in which either 1) get_mixing_state_data fails to work properly or 2)
         the energy of the Entry is somehow modified in between calling
-        get_mixing_state_data and get_adjustments. Such a situation could
+        get_mixing_state_data and process_entries. Such a situation could
         potentially arise in e.g. the build pipeline if one is calling
-        get_adjustments with a separately-calculated state_data DataFrame.
+        process_entries with a separately-calculated state_data DataFrame.
         """
         pass
 
@@ -1416,9 +1416,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         its energy would not be below the hull. Hence, this is testing a case
         in which either 1) get_mixing_state_data fails to work properly or 2)
         the energy of the Entry is somehow modified in between calling
-        get_mixing_state_data and get_adjustments. Such a situation could
+        get_mixing_state_data and process_entries. Such a situation could
         potentially arise in e.g. the build pipeline if one is calling
-        get_adjustments with a separately-calculated state_data DataFrame.
+        process_entries with a separately-calculated state_data DataFrame.
         """
         pass
 
@@ -1920,13 +1920,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
     # """
     # compat = MaterialsProjectDFTMixingScheme(compat_1=None)
     # columns = [
-    #     "composition",
+    #     "formula",
     #     "spacegroup",
     #     "num_sites",
     #     "run_type_1",
     #     "run_type_2",
-    #     "ground_state_energy_1",
-    #     "ground_state_energy_2",
+    #     "energy_1",
+    #     "energy_2",
     #     "is_stable_1",
     #     "hull_energy_1",
     #     "hull_energy_2",
