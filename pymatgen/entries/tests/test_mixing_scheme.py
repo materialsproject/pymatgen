@@ -956,7 +956,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         pass
 
     @pytest.mark.skip(reason="Not implemented yet")
-    def test_fuzzy_diatomic_matching(self, mixing_scheme_no_compat):
+    def test_fuzzy_matching(self, mixing_scheme_no_compat):
         """
         Test fuzzy diatomic matching
         """
@@ -971,7 +971,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         with pytest.raises(ValueError, match="the same run_type GGA"):
             MaterialsProjectDFTMixingScheme(run_type_1="GGA", run_type_2="GGA")
 
-    def test_compat_args(self, ms_complete, ms_gga_only):
+    def test_compat_args(self, ms_complete):
         """
         Test the behavior of compat1 and compat2 kwargs
         The DummyCompatibility class defined in this test file should lower the
@@ -984,6 +984,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         compat.process_entries(ms_complete.all_entries)
         for e in ms_complete.all_entries:
+            print(e.energy_adjustments, e.entry_id)
             assert e.energy_adjustments[0].value == -10
 
         for e in ms_complete.gga_entries:
