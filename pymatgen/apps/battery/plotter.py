@@ -113,7 +113,7 @@ class VoltageProfilePlotter:
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
-            formula.add(electrode._framework_formula)
+            formula.add(electrode.framework_formula)
             plt.plot(x, y, "-", linewidth=2, label=label)
 
         plt.legend()
@@ -151,7 +151,7 @@ class VoltageProfilePlotter:
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
-            formula.add(electrode._framework_formula)
+            formula.add(electrode.framework_formula)
             data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
 
         fig = go.Figure(

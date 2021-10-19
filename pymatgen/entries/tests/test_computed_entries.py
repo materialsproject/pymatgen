@@ -221,11 +221,15 @@ class ComputedEntryTest(unittest.TestCase):
         entry = ComputedEntry("Fe3", 2.3)
         self.assertTrue(entry.is_element)
 
-    def test_eg_entry_id(self):
+    def test_eq_with_entry_id(self):
+        centry = ComputedEntry(self.entry4.composition, self.entry4.energy, entry_id=2)
         pdentry = PDEntry(self.entry4.composition, self.entry4.energy)
 
-        self.assertEqual(self.entry4, self.entry3)
-        self.assertEqual(self.entry4, pdentry)
+        self.assertEqual(self.entry4, self.entry3)  # equal if no entry_id
+        self.assertNotEqual(self.entry4, centry)  # not equal if diff entry_id
+
+        self.assertEqual(self.entry4, pdentry)  # equal despite different class
+        self.assertFalse(hash(self.entry4), hash(pdentry))  # hash different despite equal
 
 
 class ComputedStructureEntryTest(unittest.TestCase):

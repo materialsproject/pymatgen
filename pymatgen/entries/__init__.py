@@ -126,7 +126,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         elif mode == "formula_unit":
             factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            raise ValueError(f"{mode=} is not an allowed option for normalization")
+            raise ValueError(f"{mode} is not an allowed option for normalization")
 
         return factor
 
@@ -157,6 +157,6 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.composition == other.composition
 
     def __hash__(self):
-        # NOTE truncate _energy to 7 dp to ensure same robustness
-        # as np.allclose
-        return hash(f"{self._composition.formula}{self._energy:.7f}")
+        # NOTE truncate _energy to 8 dp to ensure same robustness as np.allclose
+        return hash(f"{self.__class__.__name__}" f"{self._composition.formula}" f"{self._energy:.8f}")
+
