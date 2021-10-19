@@ -138,7 +138,7 @@ class DummyCompatibility(Compatibility):
     Dummy class to test compat1 and compat2 kwargs
     """
 
-    def get_adjustments(self, mixing_scheme_no_compat, entry):
+    def get_adjustments(self, entry):
         return [ConstantEnergyAdjustment(-10, name="Dummy adjustment")]
 
 
@@ -963,21 +963,35 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # TODO - write this test
         pass
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_same_run_type(self, mixing_scheme_no_compat):
+    def test_same_run_type(self):
         """
         Test behavior when run_type_1 and run_type_2 are the same
         or overlap
         """
-        pass
+        with pytest.raises(ValueError, match="the same run_type GGA"):
+            MaterialsProjectDFTMixingScheme(run_type_1="GGA", run_type_2="GGA")
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_compat_args(self, mixing_scheme_no_compat):
+    def test_compat_args(self, ms_complete, ms_gga_only):
         """
         Test the behavior of compat1 and compat2 kwargs
+        The DummyCompatibility class defined in this test file should lower the
+        energies of all entries by 10 eV
         """
-        # TODO - write this test
-        pass
+        compat = MaterialsProjectDFTMixingScheme(compat_1=DummyCompatibility(), compat_2=DummyCompatibility())
+        state_data = compat.get_mixing_state_data(ms_complete.all_entries)
+        assert max(state_data["hull_energy_1"]) <= -9  # highest hull energy is -9 eV/atom with the correction
+        assert all(state_data["hull_energy_2"] == -11)  # all hull energies are -11 eV/atom with the correction
+
+        compat.process_entries(ms_complete.all_entries)
+        for e in ms_complete.all_entries:
+            assert e.energy_adjustments[0].value == -10
+
+        for e in ms_complete.gga_entries:
+            with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                assert compat.get_adjustments(e, state_data) == []
+
+        for e in ms_complete.scan_entries:
+            assert compat.get_adjustments(e, state_data) == []
 
     def test_alternate_structure_matcher(self, ms_complete):
         """

@@ -94,6 +94,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         """
         self.name = "MP SCAN mixing"
         self.structure_matcher = structure_matcher
+        if run_type_1 == run_type_2:
+            raise ValueError(f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
+                              "The mixing scheme is meaningless unless run_type_1 and run_type_2 are different")
         self.run_type_1 = run_type_1
         self.run_type_2 = run_type_2
         if self.run_type_1 == "GGA(+U)":
@@ -175,7 +178,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         processed_entry_list = []
         mixing_scheme_state_data = self.get_mixing_state_data(filtered_entries, verbose)
 
-        for entry in entries:
+        for entry in filtered_entries:
             ignore_entry = False
             # get the energy adjustments
             try:
