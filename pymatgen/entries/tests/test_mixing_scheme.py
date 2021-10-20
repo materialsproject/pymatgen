@@ -948,18 +948,53 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
     @pytest.mark.skip(reason="Not implemented yet")
     def test_no_foreign_entries(self, mixing_scheme_no_compat):
         """
-        If get_adjustments is called with a populated state_data kwarg and one or
-        more of the entry_ids is not present in the state_data, raise CompatbilityError
+        If process_entries or get_adjustments is called with a populated mixing_state_data
+        kwarg and one or more of the entry_ids is not present in the mixing_state_data,
+        raise CompatbilityError
         """
         pass
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_fuzzy_matching(self, mixing_scheme_no_compat):
+    def test_fuzzy_matching(self, ms_complete):
         """
-        Test fuzzy diatomic matching
+        Test fuzzy diatomic matching. If fuzzy matching is disabled, then entry r2scan-3 will not
+        match GGA ground state gga-3, preventing the mixing scheme from using the SCAN energy
+        scale.
         """
-        # TODO - write this test
-        pass
+        # fmt: off
+        row_list = [
+            ["Br",    64,  4, "gga-3",       None, "GGA",     None,      0.,  np.nan,  True,     0., -1.],
+            ["Br",    64,  4,    None, "r2scan-3",  None, "R2SCAN",  np.nan,      0., False,     0., -1.],
+            ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",      1.,     -1., False,     0., -1.],
+            ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",      0.,     -1.,  True,     0., -1.],
+            ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN",     -5.,     -8., False,    -6., -8.],
+            ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6.,     -7.,  True,    -6., -8.],
+            ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN",     -4.,     -6., False,    -6., -8.],
+            ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN",     -3.,     -6., False,   -3.6, -6.],
+        ]
+        # fmt: on
+        mixing_state = pd.DataFrame(row_list, columns=columns)
+
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None, fuzzy_matching=False)
+        state_data = compat.get_mixing_state_data(ms_complete.all_entries)
+        pd.testing.assert_frame_equal(state_data, mixing_state)
+
+        for e in ms_complete.all_entries:
+            if e.entry_id in ["gga-1", "gga-4", "r2scan-7"]:
+                with pytest.raises(CompatibilityError, match="ground state"):
+                    compat.get_adjustments(e, mixing_state)
+            elif e.parameters["run_type"] == "GGA":
+                assert compat.get_adjustments(e, mixing_state) == []
+            else:
+                assert compat.get_adjustments(e, mixing_state) != []
+
+        # process_entries should discard all GGA entries and return all R2SCAN
+        entries = compat.process_entries(ms_complete.all_entries)
+        assert len(entries) == len(ms_complete.all_entries) - 3
+        for e in entries:
+            if e.parameters["run_type"] == "GGA":
+                assert e.correction == 0
+            else:
+                assert "onto the GGA(+U) hull" in e.energy_adjustments[0].description
 
     def test_same_run_type(self):
         """

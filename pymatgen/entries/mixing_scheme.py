@@ -164,6 +164,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 for ea in entry.energy_adjustments:
                     entry.energy_adjustments.remove(ea)
 
+        # TODO - right now there is redundancy in this implementation. If mixing_state_data is not
+        # provided, get_mixing_state_data also calls the line below.
         entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries, verbose=verbose)
 
         if not mixing_state_data:
@@ -182,6 +184,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"{self.run_type_1} hull entries."
             )
 
+        # the code below is identical to code inside process_entries in the base
+        # Compatibility class, except that an extra kwarg is passed to get_adjustments
         for entry in entries_type_1 + entries_type_2:
             ignore_entry = False
             # get the energy adjustments
@@ -332,10 +336,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"because it has a bad run_type."
             )
 
-        # Third case, there are run_type_2 energies available for at least some run_type_1
+        # Second case, there are run_type_2 energies available for at least some run_type_1
         # reference states. Here, we can correct run_type_2 energies onto the run_type_1 scale
         # at certain compositions
-        else:
+        elif any(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].notna()):
             # first, determine if this is a ground state
             if run_type in self.valid_rtypes_1:  # pylint: disable=R1705
                 df_slice = mixing_state_data[mixing_state_data["entry_id_1"] == entry.entry_id]
@@ -343,7 +347,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     # this is the run_type_1 ground state. Discard it
                     raise CompatibilityError(
                         f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                        f"because it is a {self.run_type_1} ground state."
+                        f"because it is a {self.run_type_1} ground state that matches a {self.run_type_2} "
+                        "material."
                     )
                 # For other run_type_1 entries, there is no correction
                 return adjustments
@@ -373,15 +378,41 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # there is no reference energy available at this composition. Discard.
                 raise CompatibilityError(
                     f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"because there is no {self.run_type_2} reference energy available."
+                    f"because there is no {self.run_type_2} entry for the {self.run_type_1} ground "
+                    "state."
                 )
 
             else:
                 # there is no reference energy available at this composition. Discard.
                 raise CompatibilityError(
                     f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"because there is no {self.run_type_2} reference energy available."
+                    f"because there is no {self.run_type_2} entry for the {self.run_type_1} ground "
+                    "state."
                 )
+
+        # Third case, there are no run_type_2 energies available for any run_type_1
+        # ground states. There's no way to use the run_type_2 energies in this case.
+        # However, if run_type_2 structures match run_type_1 structures, we can correct
+        # the energy of the run_type_2 entry to match that of the run_type_1 entry,
+        # and discard the run_type_1 entry.
+        elif all(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].isna()):
+            if run_type in self.valid_rtypes_1:
+                # nothing to do for run_type_1, return as is
+                return adjustments
+            if run_type in self.valid_rtypes_2:
+                # discard the entry
+                raise CompatibilityError(
+                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                    f"because there are no {self.run_type_2} ground states at this composition."
+                )
+            raise CompatibilityError(
+                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"because it has a bad run_type."
+            )
+
+        else:
+            print("this shouldnt happen")
+            return adjustments
 
     def get_mixing_state_data(self, entries, verbose=False):
         """
@@ -608,7 +639,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         idx_1, idx_2 = None, None
         rt1, rt2 = None, None
         stable_1 = False
-        ground_state_1, ground_state_2 = np.nan, np.nan
+        energy_1, energy_2 = np.nan, np.nan
 
         # get the respective hull energies at this composition, if available
         hull_energy_1, hull_energy_2 = np.nan, np.nan
@@ -625,8 +656,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             rt1 = first_entry.parameters["run_type"]
             rt2 = second_entry.parameters["run_type"] if second_entry else None
             # are the entries the lowest energy at this composition?
-            ground_state_1 = all_entries[idx_1].energy_per_atom
-            ground_state_2 = all_entries[idx_2].energy_per_atom if len(struct_group) > 1 else np.nan
+            energy_1 = all_entries[idx_1].energy_per_atom
+            energy_2 = all_entries[idx_2].energy_per_atom if len(struct_group) > 1 else np.nan
             # are they stable?
             if pd_type_1:
                 stable_1 = first_entry in pd_type_1.stable_entries
@@ -639,8 +670,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             rt2 = first_entry.parameters["run_type"]
             rt1 = second_entry.parameters["run_type"] if second_entry else None
             # are the entries the lowest energy at this composition?
-            ground_state_1 = all_entries[idx_1].energy_per_atom if len(struct_group) > 1 else np.nan
-            ground_state_2 = all_entries[idx_2].energy_per_atom
+            energy_1 = all_entries[idx_1].energy_per_atom if len(struct_group) > 1 else np.nan
+            energy_2 = all_entries[idx_2].energy_per_atom
             # are they stable?
             if pd_type_1:
                 stable_1 = second_entry in pd_type_1.stable_entries
@@ -655,8 +686,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             id2,
             rt1,
             rt2,
-            ground_state_1,
-            ground_state_2,
+            energy_1,
+            energy_2,
             stable_1,
             hull_energy_1,
             hull_energy_2,
