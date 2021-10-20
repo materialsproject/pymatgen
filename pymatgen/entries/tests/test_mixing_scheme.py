@@ -677,6 +677,68 @@ def ms_incomplete_gga_all_scan():
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
+@pytest.fixture
+def ms_scan_chemsys_superset(ms_complete):
+    """
+    Mixing state where we have SCAN for all GGA, and there is an additional SCAN
+    entry outside the GGA chemsys
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = ms_complete.scan_entries
+    scan_entries.append(
+        ComputedStructureEntry(
+            Structure(
+                lattice3,
+                ["Sn", "Cl", "Cl", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                    [1, 1, 1],
+                ],
+            ),
+            -25,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-9",
+        ),
+    )
+
+    mixing_state = ms_complete.state_data
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
+def ms_complete_foreign_entry(ms_complete):
+    """
+    Mixing state where we have SCAN for all GGA, and there is an additional SCAN
+    entry that is not reflected in the mixing state data
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = ms_complete.scan_entries
+    scan_entries.append(
+        ComputedStructureEntry(
+            Structure(
+                lattice3,
+                ["Sn", "Br", "Br", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                    [1, 1, 1],
+                ],
+            ),
+            -25,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-9",
+        ),
+    )
+
+    mixing_state = ms_complete.state_data
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
 def test_data_ms_complete(ms_complete):
     """
     Verify that the test chemical system
@@ -945,14 +1007,40 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         with pytest.warns(UserWarning, match="cannot process single entries"):
             mixing_scheme_no_compat.process_entries(entries)
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_no_foreign_entries(self, mixing_scheme_no_compat):
+    def test_no_foreign_entries(self, mixing_scheme_no_compat, ms_complete):
         """
         If process_entries or get_adjustments is called with a populated mixing_state_data
         kwarg and one or more of the entry_ids is not present in the mixing_state_data,
         raise CompatbilityError
         """
-        pass
+        foreign_entry = ComputedStructureEntry(
+            Structure(
+                lattice3,
+                ["Sn", "Br", "Br", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                    [1, 1, 1],
+                ],
+            ),
+            -25,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-8",
+        )
+
+        with pytest.raises(CompatibilityError, match="not included in the mixing state"):
+            mixing_scheme_no_compat.get_adjustments(foreign_entry, ms_complete.state_data)
+
+        # process_entries should discard all GGA entries and return all R2SCAN
+        entries = mixing_scheme_no_compat.process_entries(
+            ms_complete.all_entries + [foreign_entry], mixing_state_data=ms_complete.state_data
+        )
+        assert len(entries) == 7
+        for e in entries:
+            assert e.correction == 0
+            assert e.parameters["run_type"] == "R2SCAN"
 
     def test_fuzzy_matching(self, ms_complete):
         """
@@ -1062,13 +1150,27 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_chemsys_mismatch(self, mixing_scheme_no_compat):
+    def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
         """
         Test what happens if the entries aren't in the same chemsys
         """
-        # TODO - write this test
-        pass
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_chemsys_superset.all_entries)
+        pd.testing.assert_frame_equal(state_data, ms_scan_chemsys_superset.state_data)
+
+        for e in ms_scan_chemsys_superset.scan_entries:
+            if e.entry_id == "r2scan-9":
+                with pytest.raises(CompatibilityError, match="not included in the mixing state"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data)
+            else:
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data) == []
+
+        # process_entries should discard all GGA entries and return all R2SCAN
+        with pytest.warns(UserWarning, match="is larger than GGA\\(\\+U\\) entries chemical system"):
+            entries = mixing_scheme_no_compat.process_entries(ms_scan_chemsys_superset.all_entries)
+            assert len(entries) == 7
+            for e in entries:
+                assert e.correction == 0
+                assert e.parameters["run_type"] == "R2SCAN"
 
 
 class TestMaterialsProjectDFTMixingSchemeStates:

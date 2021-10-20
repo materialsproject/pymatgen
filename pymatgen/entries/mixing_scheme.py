@@ -168,7 +168,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # provided, get_mixing_state_data also calls the line below.
         entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries, verbose=verbose)
 
-        if not mixing_state_data:
+        if mixing_state_data is None:
             if verbose:
                 print("Generating mixing state data from provided entries.")
             mixing_state_data = self.get_mixing_state_data(entries_type_1 + entries_type_2, verbose=False)
@@ -228,7 +228,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         Args:
             entry: A ComputedEntry object. The entry must be a member of the list of entries
-                used to instantiate the class.
+                used to create mixing_state_data.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
                 the respective run_types, etc. Can be generated from a list of entries using
@@ -261,6 +261,14 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             raise CompatibilityError(
                 f"Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
+            )
+
+        if (entry.entry_id not in mixing_state_data["entry_id_1"].values) and (
+            entry.entry_id not in mixing_state_data["entry_id_2"].values
+        ):
+            raise CompatibilityError(
+                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"because it was not included in the mixing state."
             )
         # The correction value depends on how many of the run_type_1 stable entries are present as run_type_2
         # calculations
@@ -576,8 +584,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # preprocess entries with any corrections
         # make an EntrySet to enable some useful methods like .chemsys and .is_ground_state
-        # Make deep copies of the entries at this point, because later we'll need their original, corrected
-        # energies prior to mixing functionals
         if self.compat_1:
             entries_type_1 = self.compat_1.process_entries(entries_type_1)
             if verbose:
@@ -606,6 +612,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     f"{self.run_type_1} entries chemical system {entries_type_1.chemsys}. Entries outside the "
                     f"{self.run_type_1} chemical system will be discarded"
                 )
+                entries_type_2 = entries_type_2.get_subset_in_chemsys(chemsys)
         else:
             # if only run_type_2 entries are present, then they define the chemsys
             chemsys = entries_type_2.chemsys
