@@ -597,81 +597,24 @@ def ms_all_scan_novel(ms_complete):
 
 
 @pytest.fixture
-def ms_incomplete_gga_all_scan():
+def ms_incomplete_gga_all_scan(ms_complete):
     """
     Mixing state with an incomplete GGA phase diagram
     """
-    lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
-    gga_entries = [
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "GGA"},
-        ),
-        # ComputedStructureEntry(
-        #     Structure(lattice, ["Br"], [[0, 0, 0]]),
-        #     0,
-        #     parameters={"run_type": "GGA"},
-        # ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
-            -18,
-            parameters={"run_type": "GGA"},
-        ),
-        ComputedStructureEntry(
-            Structure(
-                lattice,
-                ["Sn", "Br", "Br", "Br", "Br"],
-                [
-                    [0, 0, 0],
-                    [0.2, 0.2, 0.2],
-                    [0.4, 0.4, 0.4],
-                    [0.7, 0.7, 0.7],
-                    [1, 1, 1],
-                ],
-            ),
-            -25,
-            parameters={"run_type": "GGA"},
-        ),
-    ]
-    scan_entries = [
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "R2SCAN"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Br"], [[0, 0, 0]]),
-            0,
-            parameters={"run_type": "R2SCAN"},
-        ),
-        ComputedStructureEntry(
-            Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
-            -18,
-            parameters={"run_type": "R2SCAN"},
-        ),
-        ComputedStructureEntry(
-            Structure(
-                lattice,
-                ["Sn", "Br", "Br", "Br", "Br"],
-                [
-                    [0, 0, 0],
-                    [0.2, 0.2, 0.2],
-                    [0.4, 0.4, 0.4],
-                    [0.7, 0.7, 0.7],
-                    [1, 1, 1],
-                ],
-            ),
-            -25,
-            parameters={"run_type": "R2SCAN"},
-        ),
-    ]
+    gga_entries = [e for e in ms_complete.gga_entries if e.composition.reduced_formula != "Sn"]
+    scan_entries = ms_complete.scan_entries
+
+    # fmt: off
     row_list = [
-        ["Sn", 194, 1, "GGA", None, 0, np.nan, False, np.nan, np.nan],
-        ["Br", 12, 1, None, "R2SCAN", np.nan, 0, False, np.nan, np.nan],
-        ["SnBr2", 12, 3, "GGA", "R2SCAN", -6, -6, False, np.nan, np.nan],
-        ["SnBr4", 139, 5, "GGA", "R2SCAN", -5, -5, False, np.nan, np.nan],
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",      0.,  0., False,  np.nan, -1.],
+        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",      1., -1., False,  np.nan, -1.],
+        ["Sn",   191,  1,    None, "r2scan-1",  None, "R2SCAN",  np.nan, -1., False,  np.nan, -1.],
+        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN",     -5., -8., False,  np.nan, -8.],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6., -7., False,  np.nan, -8.],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN",     -4., -6., False,  np.nan, -8.],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN",     -3., -6., False,  np.nan, -6.],
     ]
+    # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
     return MixingState(gga_entries, scan_entries, mixing_state)
@@ -690,37 +633,6 @@ def ms_scan_chemsys_superset(ms_complete):
             Structure(
                 lattice3,
                 ["Sn", "Cl", "Cl", "Br", "Br"],
-                [
-                    [0, 0, 0],
-                    [0.2, 0.2, 0.2],
-                    [0.4, 0.4, 0.4],
-                    [0.7, 0.7, 0.7],
-                    [1, 1, 1],
-                ],
-            ),
-            -25,
-            parameters={"run_type": "R2SCAN"},
-            entry_id="r2scan-9",
-        ),
-    )
-
-    mixing_state = ms_complete.state_data
-    return MixingState(gga_entries, scan_entries, mixing_state)
-
-
-@pytest.fixture
-def ms_complete_foreign_entry(ms_complete):
-    """
-    Mixing state where we have SCAN for all GGA, and there is an additional SCAN
-    entry that is not reflected in the mixing state data
-    """
-    gga_entries = ms_complete.gga_entries
-    scan_entries = ms_complete.scan_entries
-    scan_entries.append(
-        ComputedStructureEntry(
-            Structure(
-                lattice3,
-                ["Sn", "Br", "Br", "Br", "Br"],
                 [
                     [0, 0, 0],
                     [0.2, 0.2, 0.2],
@@ -1150,28 +1062,6 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
 
-    def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
-        """
-        Test what happens if the entries aren't in the same chemsys
-        """
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_chemsys_superset.all_entries)
-        pd.testing.assert_frame_equal(state_data, ms_scan_chemsys_superset.state_data)
-
-        for e in ms_scan_chemsys_superset.scan_entries:
-            if e.entry_id == "r2scan-9":
-                with pytest.raises(CompatibilityError, match="not included in the mixing state"):
-                    mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data)
-            else:
-                assert mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data) == []
-
-        # process_entries should discard all GGA entries and return all R2SCAN
-        with pytest.warns(UserWarning, match="is larger than GGA\\(\\+U\\) entries chemical system"):
-            entries = mixing_scheme_no_compat.process_entries(ms_scan_chemsys_superset.all_entries)
-            assert len(entries) == 7
-            for e in entries:
-                assert e.correction == 0
-                assert e.parameters["run_type"] == "R2SCAN"
-
 
 class TestMaterialsProjectDFTMixingSchemeStates:
     """
@@ -1416,40 +1306,26 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         """
         pass
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_incomplete_gga_2_scan_same(self, mixing_scheme_no_compat):
-        """
-        Mixing state in which we have an incomplete GGA PhaseDiagram and 2 SCAN
-        entries at a single composition
-        """
-        pass
-
-    @pytest.mark.skip(reason="Needs revision")
     def test_state_incomplete_gga_all_scan(self, mixing_scheme_no_compat, ms_incomplete_gga_all_scan):
         """
         Mixing state in which we have an incomplete GGA PhaseDiagram and all entries
-        present in SCAN
+        present in SCAN.
+
+        This case should fail, because a complete run_type_1 phase diagram is required by the
+        mixing scheme
         """
         # Test behavior when GGA entries don't form a complete phase diagram
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_incomplete_gga_all_scan.all_entries)
-        pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_diff_no_match.state_data)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
-        assert sum(state_data["run_type_2"] == "R2SCAN") == 4
-        assert all(~state_data["is_stable_1"])
-        assert sum(state_data["energy_1"].notna()) == len(state_data) - 1
-        assert sum(state_data["energy_2"].notna()) == len(state_data)
-        assert all(state_data["hull_energy_1"].isna())
-        assert all(state_data["hull_energy_2"].notna())
+        pd.testing.assert_frame_equal(state_data, ms_incomplete_gga_all_scan.state_data)
 
         for e in ms_incomplete_gga_all_scan.all_entries:
-            with pytest.raises(CompatibilityError, match="Insufficient combination of entries"):
+            with pytest.raises(CompatibilityError, match="do not form a complete PhaseDiagram"):
                 mixing_scheme_no_compat.get_adjustments(e, ms_incomplete_gga_all_scan.state_data)
 
-        # process_entries should discard all GGA entries and return all SCAN entries
+        # process_entries should discard all entries and issue a warning
         with pytest.warns(UserWarning, match="do not form a complete PhaseDiagram"):
             entries = mixing_scheme_no_compat.process_entries(ms_incomplete_gga_all_scan.all_entries)
-        assert len(entries) == 4
+        assert len(entries) == 0
 
     @pytest.mark.skip(reason="Not implemented yet")
     def test_state_all_gga_scan_gs(self, mixing_scheme_no_compat):
@@ -1510,6 +1386,29 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         process_entries with a separately-calculated state_data DataFrame.
         """
         pass
+
+    def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
+        """
+        Test what happens if the entries aren't in the same chemsys. run_type_2 entries
+        that are outside the run_type_1 chemsys should be discarded.
+        """
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_chemsys_superset.all_entries)
+        pd.testing.assert_frame_equal(state_data, ms_scan_chemsys_superset.state_data)
+
+        for e in ms_scan_chemsys_superset.scan_entries:
+            if e.entry_id == "r2scan-9":
+                with pytest.raises(CompatibilityError, match="not included in the mixing state"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data)
+            else:
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data) == []
+
+        # process_entries should discard all GGA entries and return all R2SCAN
+        with pytest.warns(UserWarning, match="is larger than GGA\\(\\+U\\) entries chemical system"):
+            entries = mixing_scheme_no_compat.process_entries(ms_scan_chemsys_superset.all_entries)
+            assert len(entries) == 7
+            for e in entries:
+                assert e.correction == 0
+                assert e.parameters["run_type"] == "R2SCAN"
 
     # def test_gga_correction_scan_hull(self, mixing_scheme_no_compat):
     #     # If there are SCAN entries for all of the stable GGA structures, SCAN
