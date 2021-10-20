@@ -23,6 +23,9 @@ class FuncTestCase(PymatgenTest):
         plt = periodic_table_heatmap(random_data, cbar_label="Hello World")
         plt = periodic_table_heatmap(random_data, blank_color="white")
         plt = periodic_table_heatmap(random_data, value_format="%.4f")
+        plt = periodic_table_heatmap(random_data, edge_color="black")
+        plt = periodic_table_heatmap(random_data, value_fontsize=12)
+        plt = periodic_table_heatmap(random_data, symbol_fontsize=18)
 
     def test_van_arkel_triangle(self):
         random_list = [("Fe", "C"), ("Ni", "F")]
