@@ -180,7 +180,10 @@ def periodic_table_heatmap(
     cmap="YlOrRd",
     cmap_range=None,
     blank_color="grey",
+    edge_color="white",
     value_format=None,
+    value_fontsize=10,
+    symbol_fontsize=14,
     max_row=9,
 ):
     """
@@ -199,10 +202,14 @@ def periodic_table_heatmap(
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
+         value_fontsize (float): Font size for values. Default is 10. 
+         symbol_fontsize (float): Font size for element symbols. Default is 14.            
          cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
          blank_color (string): Color assigned for the missing elements in
             elemental_data. Default is "grey".
+         edge_color (string): Color assigned for the edge of elements in the
+            periodic table. Default is "white".
          max_row (integer): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
             the first 9 rows of elements.
@@ -241,7 +248,7 @@ def periodic_table_heatmap(
     heatmap = ax.pcolor(
         data_mask,
         cmap=cmap,
-        edgecolors="w",
+        edgecolors=edge_color,
         linewidths=1,
         vmin=min_val - 0.001,
         vmax=max_val + 0.001,
@@ -270,7 +277,7 @@ def periodic_table_heatmap(
                     symbol,
                     horizontalalignment="center",
                     verticalalignment="center",
-                    fontsize=14,
+                    fontsize=symbol_fontsize,
                 )
                 if el != blank_value and value_format is not None:
                     plt.text(
@@ -279,7 +286,7 @@ def periodic_table_heatmap(
                         value_format % el,
                         horizontalalignment="center",
                         verticalalignment="center",
-                        fontsize=10,
+                        fontsize=value_fontsize,
                     )
 
     plt.tight_layout()
