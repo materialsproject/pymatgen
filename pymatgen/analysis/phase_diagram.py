@@ -379,7 +379,7 @@ class PhaseDiagram(MSONable):
             "@class": self.__class__.__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
-            "computed_data": self.computed_data
+            "computed_data": self.computed_data,
         }
 
     @classmethod
