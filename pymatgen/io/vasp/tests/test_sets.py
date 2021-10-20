@@ -578,7 +578,6 @@ class MPStaticSetTest(PymatgenTest):
         self.assertTrue(os.path.exists("MPStaticSet.zip"))
         with ZipFile("MPStaticSet.zip", "r") as zip:
             contents = zip.namelist()
-            print(contents)
             self.assertTrue(set(contents).issuperset({"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"}))
             spec = zip.open("POTCAR.spec", "r").read().decode()
             self.assertEqual(spec, "Si")
