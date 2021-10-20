@@ -372,18 +372,16 @@ def ms_complete():
     # it's easier to edit when all the commas are lined up.
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",  0, -1, True,     0, -1],
-        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",  1, -1, False,    0, -1],
-        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",  0,  0, True,     0, -1],
-        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6, -7, True,    -6, -8],
-        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5, -8, False,   -6, -8],
-        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4, -6, False,   -6, -8],
-        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3, -6, False, -3.6, -6],
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",  0.,  0., True,     0., -1.],
+        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",  1., -1., False,    0., -1.],
+        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",  0., -1., True,     0., -1.],
+        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5., -8., False,   -6., -8.],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6., -7., True,    -6., -8.],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4., -6., False,   -6., -8.],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3., -6., False,  -3.6, -6.],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
-
-    # tests
 
     return MixingState(gga_entries, scan_entries, mixing_state)
 
@@ -398,13 +396,13 @@ def ms_scan_only(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, None, "r2scan-1", None, "R2SCAN", np.nan, -1, False, np.nan, -1],
-        ["Br",   191,  1, None, "r2scan-2", None, "R2SCAN", np.nan, -1, False, np.nan, -1],
-        ["Br",    64,  4, None, "r2scan-3", None, "R2SCAN", np.nan,  0, False, np.nan, -1],
-        ["SnBr2", 65,  3, None, "r2scan-4", None, "R2SCAN", np.nan, -7, False, np.nan, -8],
-        ["SnBr2",  2, 12, None, "r2scan-5", None, "R2SCAN", np.nan, -8, False, np.nan, -8],
-        ["SnBr2", 71,  3, None, "r2scan-6", None, "R2SCAN", np.nan, -6, False, np.nan, -8],
-        ["SnBr4",  8,  5, None, "r2scan-7", None, "R2SCAN", np.nan, -6, False, np.nan, -6],
+        ["Br",    64,  4, None, "r2scan-3", None, "R2SCAN", np.nan,  0., False, np.nan, -1.],
+        ["Br",   191,  1, None, "r2scan-2", None, "R2SCAN", np.nan, -1., False, np.nan, -1.],
+        ["Sn",   191,  1, None, "r2scan-1", None, "R2SCAN", np.nan, -1., False, np.nan, -1.],
+        ["SnBr2",  2, 12, None, "r2scan-5", None, "R2SCAN", np.nan, -8., False, np.nan, -8.],
+        ["SnBr2", 65,  3, None, "r2scan-4", None, "R2SCAN", np.nan, -7., False, np.nan, -8.],
+        ["SnBr2", 71,  3, None, "r2scan-6", None, "R2SCAN", np.nan, -6., False, np.nan, -8.],
+        ["SnBr4",  8,  5, None, "r2scan-7", None, "R2SCAN", np.nan, -6., False, np.nan, -6.],
     ]
     # fmt: on
 
@@ -423,13 +421,13 @@ def ms_gga_only(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1", None, "GGA", None,  0, np.nan, True,     0, np.nan],
-        ["Br",   191,  1, "gga-2", None, "GGA", None,  1, np.nan, False,    0, np.nan],
-        ["Br",    64,  4, "gga-3", None, "GGA", None,  0, np.nan, True,     0, np.nan],
-        ["SnBr2", 65,  3, "gga-4", None, "GGA", None, -6, np.nan, True,    -6, np.nan],
-        ["SnBr2",  2, 12, "gga-5", None, "GGA", None, -5, np.nan, False,   -6, np.nan],
-        ["SnBr2", 71,  3, "gga-6", None, "GGA", None, -4, np.nan, False,   -6, np.nan],
-        ["SnBr4",  8,  5, "gga-7", None, "GGA", None, -3, np.nan, False, -3.6, np.nan],
+        ["Br",    64,  4, "gga-3", None, "GGA", None,  0., np.nan, True,     0., np.nan],
+        ["Br",   191,  1, "gga-2", None, "GGA", None,  1., np.nan, False,    0., np.nan],
+        ["Sn",   191,  1, "gga-1", None, "GGA", None,  0., np.nan, True,     0., np.nan],
+        ["SnBr2",  2, 12, "gga-5", None, "GGA", None, -5., np.nan, False,   -6., np.nan],
+        ["SnBr2", 65,  3, "gga-4", None, "GGA", None, -6., np.nan, True,    -6., np.nan],
+        ["SnBr2", 71,  3, "gga-6", None, "GGA", None, -4., np.nan, False,   -6., np.nan],
+        ["SnBr4",  8,  5, "gga-7", None, "GGA", None, -3., np.nan, False,  -3.6, np.nan],
     ]
     # fmt: on
 
@@ -449,13 +447,13 @@ def ms_gga_1_scan(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
-        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1, np.nan, False,    0, np.nan],
-        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
-        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6,     -7, True,    -6, np.nan],
-        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
-        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None, -4, np.nan, False,   -6, np.nan],
-        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3, np.nan, False, -3.6, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0., np.nan, True,     0., np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1., np.nan, False,    0., np.nan],
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0., np.nan, True,     0., np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5., np.nan, False,   -6., np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.,     -7, True,    -6., np.nan],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None, -4., np.nan, False,   -6., np.nan],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3., np.nan, False,  -3.6, np.nan],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -473,13 +471,13 @@ def ms_gga_2_scan_same(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
-        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1, np.nan, False,    0, np.nan],
-        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
-        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6,     -7, True,    -6, np.nan],
-        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
-        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4,     -6, False,   -6, np.nan],
-        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3, np.nan, False, -3.6, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0., np.nan, True,     0., np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1., np.nan, False,    0., np.nan],
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0., np.nan, True,     0., np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5., np.nan, False,   -6., np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.,     -7, True,    -6., np.nan],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.,     -6, False,   -6., np.nan],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None, -3., np.nan, False,  -3.6, np.nan],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -499,13 +497,13 @@ def ms_gga_2_scan_diff_match(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
-        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1, np.nan, False,    0, np.nan],
-        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0, np.nan, True,     0, np.nan],
-        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6,     -7, True,    -6, np.nan],
-        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5, np.nan, False,   -6, np.nan],
-        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None, -4, np.nan, False,   -6, np.nan],
-        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3,     -6, False, -3.6, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,  0., np.nan, True,     0., np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,  1., np.nan, False,    0., np.nan],
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,  0., np.nan, True,     0., np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None, -5., np.nan, False,   -6., np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.,     -7, True,    -6., np.nan],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None, -4., np.nan, False,   -6., np.nan],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.,     -6, False,  -3.6, np.nan],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -541,14 +539,14 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,      0, np.nan, True,     0, np.nan],
-        ["Br",   191,  1, "gga-2",       None, "GGA",     None,      1, np.nan, False,    0, np.nan],
-        ["Br",    64,  4, "gga-3",       None, "GGA",     None,      0, np.nan, True,     0, np.nan],
-        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6,     -7, True,    -6, np.nan],
-        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None,     -5, np.nan, False,   -6, np.nan],
-        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None,     -4, np.nan, False,   -6, np.nan],
-        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None,     -3, np.nan, False, -3.6, np.nan],
-        ["SnBr4",  8,  5,    None, "r2scan-8",  None, "R2SCAN", np.nan,     -5, False, -3.6, np.nan],
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,      0., np.nan, True,     0., np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,      1., np.nan, False,    0., np.nan],
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,      0., np.nan, True,     0., np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None,     -5., np.nan, False,   -6., np.nan],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6.,    -7., True,    -6., np.nan],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None,     -4., np.nan, False,   -6., np.nan],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None,     -3., np.nan, False,  -3.6, np.nan],
+        ["SnBr4", 44,  5,    None, "r2scan-8",  None, "R2SCAN",  np.nan,    -5., False,  -3.6, np.nan],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -584,14 +582,14 @@ def ms_all_scan_novel(ms_complete):
 
     # fmt: off
     row_list = [
-        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",      0, -1, True,     0, -1],
-        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",      1, -1, False,    0, -1],
-        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",      0,  0, True,     0, -1],
-        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6, -7, True,    -6, -8],
-        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN",     -5, -8, False,   -6, -8],
-        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN",     -4, -6, False,   -6, -8],
-        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN",     -3, -6, False, -3.6, -6],
-        ["SnBr4",  8,  5,    None, "r2scan-8",  None, "R2SCAN", np.nan, -6, False, -3.6, -6],
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",     0.,  0., True,     0., -1.],
+        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",     1., -1., False,    0., -1.],
+        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",     0., -1., True,     0., -1.],
+        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN",    -5., -8., False,   -6., -8.],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",    -6., -7., True,    -6., -8.],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN",    -4., -6., False,   -6., -8.],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN",    -3., -6., False,  -3.6, -6.],
+        ["SnBr4",  8,  5,    None, "r2scan-8",  None, "R2SCAN", np.nan, -6., False,  -3.6, -6.],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -1003,6 +1001,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         sm = StructureMatcher(scale=False)
         compat = MaterialsProjectDFTMixingScheme(compat_1=None, structure_matcher=sm)
         state_data = compat.get_mixing_state_data(ms_complete.all_entries)
+        # pd.testing.assert_frame_equal(state_data, ms_complete.state_data)
         assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert len(state_data) == 8
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
@@ -1050,14 +1049,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         In this state, the mixing scheme should return only the SCAN entries, unmodified
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_1"] == "GGA")
-        assert all(state_data["run_type_2"] == "R2SCAN")
-        assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["energy_1"].notna())
-        assert all(state_data["energy_2"].notna())
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(state_data["hull_energy_2"].notna())
+        pd.testing.assert_frame_equal(state_data, ms_complete.state_data)
 
         for e in ms_complete.scan_entries:
             assert mixing_scheme_no_compat.get_adjustments(e, ms_complete.state_data) == []
@@ -1080,14 +1072,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         In this state, the mixing scheme should not do anything
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_only.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_1"] == "GGA")
-        assert all(state_data["run_type_2"].isna())
-        assert len(state_data["is_stable_1"]) == len(ms_gga_only.all_entries)
-        assert all(state_data["energy_1"].notna())
-        assert all(np.isnan(state_data["energy_2"]))
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(np.isnan(state_data["hull_energy_2"]))
+        pd.testing.assert_frame_equal(state_data, ms_gga_only.state_data)
 
         for e in ms_gga_only.all_entries:
             assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_only.state_data) == []
@@ -1104,14 +1089,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         In this case, the mixing scheme should not do anything
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries, verbose=True)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_2"] == "R2SCAN")
-        assert all(state_data["run_type_1"].isna())
-        assert all(~state_data["is_stable_1"])
-        assert all(np.isnan(state_data["energy_1"]))
-        assert all(state_data["energy_2"].notna())
-        assert all(np.isnan(state_data["hull_energy_1"]))
-        assert all(state_data["hull_energy_2"].notna())
+        pd.testing.assert_frame_equal(state_data, ms_scan_only.state_data)
 
         for e in ms_scan_only.all_entries:
             assert mixing_scheme_no_compat.get_adjustments(e, ms_scan_only.state_data) == []
@@ -1131,14 +1109,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         match the GGA energy and discard entry gga-4.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_1_scan.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_1"] == "GGA")
-        assert sum(state_data["run_type_2"] == "R2SCAN") == 1
-        assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["energy_1"].notna())
-        assert sum(state_data["energy_2"].isna()) == len(state_data) - 1
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(np.isnan(state_data["hull_energy_2"]))
+        pd.testing.assert_frame_equal(state_data, ms_gga_1_scan.state_data)
 
         for e in ms_gga_1_scan.gga_entries:
             if e.entry_id == "gga-4":
@@ -1172,14 +1143,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         Entry gga-4 should be discarded.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_same.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_1"] == "GGA")
-        # assert sum(state_data["run_type_2"] == "R2SCAN") == 2
-        assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["energy_1"].notna())
-        # assert all(np.isnan(state_data["energy_2"]))
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(np.isnan(state_data["hull_energy_2"]))
+        pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_same.state_data)
 
         for e in ms_gga_2_scan_same.scan_entries:
             if e.entry_id == "r2scan-6":
@@ -1223,20 +1187,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         SCAN entry should also be discarded.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_diff_match.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert all(state_data["run_type_1"] == "GGA")
-        # assert sum(state_data["run_type_2"] == "R2SCAN") == 2
-        assert sum(state_data["is_stable_1"]) == 3
-        assert all(state_data["energy_1"].notna())
-        # assert all(np.isnan(state_data["energy_2"]))
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(np.isnan(state_data["hull_energy_2"]))
+        pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_diff_match.state_data)
 
         for e in ms_gga_2_scan_diff_match.scan_entries:
             if e.entry_id == "r2scan-7":
                 # there is no matching GGA structure for r2scan-7, so there's no way
                 # to adjust its energy onto the GGA hull.
-                with pytest.raises(CompatibilityError, match="no R2SCAN reference energy"):
+                with pytest.raises(CompatibilityError, match="no R2SCAN entry"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)
             elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
@@ -1274,20 +1231,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         novel SCAN material that doesn't match anything should be discarded
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_diff_no_match.all_entries)
-        assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
-        assert sum(state_data["run_type_1"].isna()) == 1
-        assert sum(state_data["run_type_2"] == "R2SCAN") == 2
-        assert sum(state_data["is_stable_1"]) == 3
-        assert sum(state_data["energy_1"].isna()) == 1
-        assert sum(np.isnan(state_data["energy_2"])) == 6
-        assert all(state_data["hull_energy_1"].notna())
-        assert all(np.isnan(state_data["hull_energy_2"]))
+        pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_diff_no_match.state_data)
 
         for e in ms_gga_2_scan_diff_no_match.scan_entries:
             if e.entry_id == "r2scan-8":
                 # there is no matching GGA structure for r2scan-8, so there's no way
                 # to adjust its energy onto the GGA hull.
-                with pytest.raises(CompatibilityError, match="no R2SCAN reference energy"):
+                with pytest.raises(CompatibilityError, match="no R2SCAN entry"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_no_match.state_data)
             elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
@@ -1345,6 +1295,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         """
         # Test behavior when GGA entries don't form a complete phase diagram
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_incomplete_gga_all_scan.all_entries)
+        pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_diff_no_match.state_data)
         assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
         assert sum(state_data["run_type_2"] == "R2SCAN") == 4

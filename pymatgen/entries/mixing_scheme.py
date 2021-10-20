@@ -487,6 +487,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                         row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
+        mixing_state_data.sort_values(
+            ["formula", "spacegroup", "num_sites", "entry_id_1"], inplace=True, ignore_index=True
+        )
+        # mixing_state_data.reset_index()
 
         return mixing_state_data
 
