@@ -462,6 +462,47 @@ def ms_gga_1_scan(ms_complete):
 
 
 @pytest.fixture
+def ms_gga_1_scan_novel(ms_complete):
+    """
+    Mixing state with all GGA entries and 1 SCAN, corresponding to a composition
+    (SnBr) that is not present in the GGA entries.
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = [
+        ComputedStructureEntry(
+            Structure(
+                lattice1,
+                ["Sn", "Sn", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                ],
+            ),
+            -20,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-9",
+        ),
+    ]
+
+    # fmt: off
+    row_list = [
+        ["Br",    64,  4, "gga-3",       None, "GGA",     None,      0., np.nan,  True,    0., np.nan],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,      1., np.nan, False,    0., np.nan],
+        ["Sn",   191,  1, "gga-1",       None, "GGA",     None,      0., np.nan,  True,    0., np.nan],
+        ["SnBr",   8,  4,    None, "r2scan-9",  None, "R2SCAN",  np.nan,    -5., False,  -4.5, np.nan],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None,     -5., np.nan, False,   -6., np.nan],
+        ["SnBr2", 65,  3, "gga-4",       None, "GGA",     None,     -6., np.nan,  True,   -6., np.nan],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None,     -4., np.nan, False,   -6., np.nan],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None,     -3., np.nan, False,  -3.6, np.nan],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
 def ms_gga_2_scan_same(ms_complete):
     """
     Mixing state with all GGA entries and 2 SCAN, corresponding to the GGA
@@ -515,7 +556,8 @@ def ms_gga_2_scan_diff_match(ms_complete):
 def ms_gga_2_scan_diff_no_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 SCAN, corresponding to the GGA
-    ground state and one unstable polymoprh of SnBr2 (r2scan-4 and r2scan-6)
+    ground state of SnBr2 (r2scan-4) and one unstable polymoprh of SnBr4
+    that does not match any GGA material (r2scan-8)
     """
     gga_entries = ms_complete.gga_entries
     scan_entries = [e for e in ms_complete.scan_entries if e.entry_id in ["r2scan-4"]]
@@ -572,6 +614,49 @@ def ms_all_gga_scan_gs(ms_complete):
         ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6.,    -7.,  True,   -6.,   -7.],
         ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None,     -4., np.nan, False,   -6.,   -7.],
         ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None,     -3., np.nan, False,  -3.6,  -4.2],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
+@pytest.fixture
+def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
+    """
+    Mixing state with all GGA entries and SCAN entries corresponding to all GGA
+    ground states, plus one SCAN entry at a novel composition not in the GGA
+    phase diagram
+    """
+    gga_entries = ms_all_gga_scan_gs.gga_entries
+    scan_entries = ms_all_gga_scan_gs.scan_entries
+    scan_entries.append(
+        ComputedStructureEntry(
+            Structure(
+                lattice1,
+                ["Sn", "Sn", "Br", "Br"],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                ],
+            ),
+            -20,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-9",
+        ),
+    )
+
+    # fmt: off
+    row_list = [
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",      0.,     0.,  True,    0.,     0.],
+        ["Br",   191,  1, "gga-2",       None, "GGA",     None,      1., np.nan, False,    0.,     0.],
+        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",      0.,    -1.,  True,    0.,    -1.],
+        ["SnBr",   8,  4,    None, "r2scan-9",  None, "R2SCAN",  np.nan,    -5., False,  -4.5,   -5.5],
+        ["SnBr2",  2, 12, "gga-5",       None, "GGA",     None,     -5., np.nan, False,   -6.,    -7.],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN",     -6.,    -7.,  True,   -6.,    -7.],
+        ["SnBr2", 71,  3, "gga-6",       None, "GGA",     None,     -4., np.nan, False,   -6.,    -7.],
+        ["SnBr4",  8,  5, "gga-7",       None, "GGA",     None,     -3., np.nan, False,  -3.6,   -4.2],
     ]
     # fmt: on
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -1184,6 +1269,27 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
 
+    def test_state_gga_1_scan_plus_novel(self, mixing_scheme_no_compat, ms_gga_1_scan_novel):
+        """
+        Mixing state in which we have a complete GGA PhaseDiagram and 1 SCAN entry
+        at a composition not in the GGA phase diagram.
+
+        In this state, the mixing scheme should discard the R2SCAN entry
+        """
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_1_scan_novel.all_entries)
+        pd.testing.assert_frame_equal(state_data, ms_gga_1_scan_novel.state_data)
+
+        for e in ms_gga_1_scan_novel.gga_entries:
+            if e.entry_id == "gga-4":
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_1_scan_novel.state_data) == []
+
+        for e in ms_gga_1_scan_novel.scan_entries:
+            with pytest.raises(CompatibilityError, match="no R2SCAN ground states at this composition"):
+                mixing_scheme_no_compat.get_adjustments(e, ms_gga_1_scan_novel.state_data)
+
+        entries = mixing_scheme_no_compat.process_entries(ms_gga_1_scan_novel.all_entries)
+        assert len(entries) == 7
+
     def test_state_gga_2_scan_same(self, mixing_scheme_no_compat, ms_gga_2_scan_same):
         """
         Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
@@ -1378,57 +1484,71 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             else:
                 assert e.correction == 0
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_novel_scan_comp(self, mixing_scheme_no_compat):
+    def test_state_novel_scan_comp(self, mixing_scheme_no_compat, ms_all_gga_scan_gs_plus_novel):
         """
-        Mixing state in which we try to process a SCAN entry at a composition
-        that is not in the GGA PhaseDiagram
-        """
-        pass
+        Mixing state in which we have all GGA ground states in SCAN and then we try to
+        process a SCAN entry at a composition that is not in the GGA PhaseDiagram.
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_novel_gga_comp(self, mixing_scheme_no_compat):
+        In this case, the mixing scheme should preserve the energy of the novel R2SCAN
+        entry and discard the 3 GGA ground states
         """
-        Mixing state in which we try to process a GGA entry at a composition
-        that is not in the SCAN PhaseDiagram
-        """
-        pass
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_all_gga_scan_gs_plus_novel.all_entries)
+        pd.testing.assert_frame_equal(state_data, ms_all_gga_scan_gs_plus_novel.state_data)
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_novel_gga_below_hull(self, mixing_scheme_no_compat):
+        for e in ms_all_gga_scan_gs_plus_novel.scan_entries:
+            assert mixing_scheme_no_compat.get_adjustments(e, ms_all_gga_scan_gs_plus_novel.state_data) == []
+
+        for e in ms_all_gga_scan_gs_plus_novel.gga_entries:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_all_gga_scan_gs_plus_novel.state_data)
+            else:
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_all_gga_scan_gs_plus_novel.state_data) != []
+
+        # store the energy above hull of each gga entry
+        pd_gga = PhaseDiagram(ms_all_gga_scan_gs_plus_novel.gga_entries)
+        gga_hull_e = {}
+        for e in ms_all_gga_scan_gs_plus_novel.gga_entries:
+            gga_hull_e[e.entry_id] = pd_gga.get_e_above_hull(e)
+
+        # process_entries should discard 3 GGA ground state entries
+        entries = mixing_scheme_no_compat.process_entries(ms_all_gga_scan_gs_plus_novel.all_entries)
+        assert len(entries) == len(ms_all_gga_scan_gs_plus_novel.all_entries) - 3
+        pd_mixed = PhaseDiagram(entries)
+
+        for e in entries:
+            if e.parameters["run_type"] == "GGA":
+                assert "onto the R2SCAN hull" in e.energy_adjustments[0].description
+                assert np.allclose(pd_mixed.get_e_above_hull(e), gga_hull_e[e.entry_id])
+            else:
+                assert e.correction == 0
+
+    def test_state_energy_modified(self, mixing_scheme_no_compat, ms_complete):
         """
-        Mixing state in which we try to process a GGA entry that has an energy
-        below the GGA hull computed by get_mixing_state_data
+        Mixing state in which we try to process an entry whose energy has been
+        changed and is no longer consistent with the mixing state data.
 
         This is a corner case that should never occur, because if the entry_id
         of this entry is not already in the state_data, a CompatibilityError
         should be raised. If the Entry was passed to get_mixing_state_data, then
-        its energy would not be below the hull. Hence, this is testing a case
+        its energy should already be there. Hence, this is testing a case
         in which either 1) get_mixing_state_data fails to work properly or 2)
         the energy of the Entry is somehow modified in between calling
         get_mixing_state_data and process_entries. Such a situation could
         potentially arise in e.g. the build pipeline if one is calling
         process_entries with a separately-calculated state_data DataFrame.
         """
-        pass
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete.all_entries)
+        # lower the energy of the SnBr2 ground state
+        e = [e for e in ms_complete.gga_entries if e.entry_id == "gga-4"][0]
+        d_compat = DummyCompatibility()
+        d_compat.process_entries(e)
 
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_state_novel_scan_below_hull(self, mixing_scheme_no_compat):
-        """
-        Mixing state in which we try to process a SCAN entry that has an energy
-        below the SCAN hull computed by get_mixing_state_data.
+        with pytest.raises(CompatibilityError, match="energy has been modified"):
+            mixing_scheme_no_compat.get_adjustments(e, state_data)
 
-        This is a corner case that should never occur, because if the entry_id
-        of this entry is not already in the state_data, a CompatibilityError
-        should be raised. If the Entry was passed to get_mixing_state_data, then
-        its energy would not be below the hull. Hence, this is testing a case
-        in which either 1) get_mixing_state_data fails to work properly or 2)
-        the energy of the Entry is somehow modified in between calling
-        get_mixing_state_data and process_entries. Such a situation could
-        potentially arise in e.g. the build pipeline if one is calling
-        process_entries with a separately-calculated state_data DataFrame.
-        """
-        pass
+        # with pytest.warns(UserWarning, match="energy has been modified"):
+        #     mixing_scheme_no_compat.process_entries(ms_complete.all_entries, clean=False, mixing_state_data=state_data)
 
     def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
         """
@@ -1452,8 +1572,3 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             for e in entries:
                 assert e.correction == 0
                 assert e.parameters["run_type"] == "R2SCAN"
-
-
-# if __name__ == "__main__":
-#     # import sys;sys.argv = ['', 'Test.testName']
-#     unittest.main()

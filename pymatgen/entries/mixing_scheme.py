@@ -192,7 +192,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             try:
                 adjustments = self.get_adjustments(entry, mixing_state_data)
             except CompatibilityError as exc:
-                if verbose:
+                if "WARNING!" in str(exc):
+                    warnings.warn(str(exc))
+                elif verbose:
                     print(exc)
                 ignore_entry = True
                 continue
@@ -248,27 +250,39 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         run_type = entry.parameters.get("run_type")
 
         if mixing_state_data is None:
-            raise CompatibilityError("`mixing_state_data` DataFrame is None. No energy adjustments will be applied.")
+            raise CompatibilityError(
+                "WARNING! `mixing_state_data` DataFrame is None. No energy adjustments will be applied."
+            )
 
         if not all(mixing_state_data["hull_energy_1"].notna()):
             if any(mixing_state_data["entry_id_1"].notna()):
                 raise CompatibilityError(
-                    f"{self.run_type_1} entries do not form a complete PhaseDiagram."
+                    f"WARNING! {self.run_type_1} entries do not form a complete PhaseDiagram."
                     " No energy adjustments will be applied."
                 )
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"WARNING! Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 
+        # Verify that the entry is included in the mixing state data
         if (entry.entry_id not in mixing_state_data["entry_id_1"].values) and (
             entry.entry_id not in mixing_state_data["entry_id_2"].values
         ):
             raise CompatibilityError(
-                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
                 f"because it was not included in the mixing state."
+            )
+
+        # Verify that the entry's energy has not been modified since mixing state data was generated
+        if (entry.energy_per_atom not in mixing_state_data["energy_1"].values) and (
+            entry.energy_per_atom not in mixing_state_data["energy_2"].values
+        ):
+            raise CompatibilityError(
+                f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                "because it's energy has been modified since the mixing state data was generated."
             )
         # The correction value depends on how many of the run_type_1 stable entries are present as run_type_2
         # calculations
@@ -303,14 +317,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # e_above_hull on the SCAN hull that it would have on the GGA hull
                 hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
                 hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
-
-                # if not np.isfinite(hull_energy_2):
-                #     raise CompatibilityError(
-                #         f"Cannot adjust the energy of {self.run_type_1} entry {entry.entry_id} because the "
-                #         f"{self.run_type_2} entries given do not form a complete phase diagram. "
-                #         "Discarding this entry."
-                #     )
-
                 correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
 
                 adjustments.append(
@@ -323,26 +329,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     )
                 )
                 return adjustments
-
-        # Second case, there are no run_type_2 energies available for any run_type_1
-        # ground states. There's no way to use the run_type_2 energies in this case.
-        # However, if run_type_2 structures match run_type_1 structures, we can correct
-        # the energy of the run_type_2 entry to match that of the run_type_1 entry,
-        # and discard the run_type_1 entry.
-        elif all(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].isna()):
-            if run_type in self.valid_rtypes_1:
-                # nothing to do for run_type_1, return as is
-                return adjustments
-            if run_type in self.valid_rtypes_2:
-                # discard the entry
-                raise CompatibilityError(
-                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"because there are no {self.run_type_2} ground states at this composition."
-                )
-            raise CompatibilityError(
-                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                f"because it has a bad run_type."
-            )
 
         # Second case, there are run_type_2 energies available for at least some run_type_1
         # reference states. Here, we can correct run_type_2 energies onto the run_type_1 scale
@@ -400,27 +386,23 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # Third case, there are no run_type_2 energies available for any run_type_1
         # ground states. There's no way to use the run_type_2 energies in this case.
-        # However, if run_type_2 structures match run_type_1 structures, we can correct
-        # the energy of the run_type_2 entry to match that of the run_type_1 entry,
-        # and discard the run_type_1 entry.
         elif all(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].isna()):
             if run_type in self.valid_rtypes_1:
                 # nothing to do for run_type_1, return as is
                 return adjustments
-            if run_type in self.valid_rtypes_2:
-                # discard the entry
-                raise CompatibilityError(
-                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"because there are no {self.run_type_2} ground states at this composition."
-                )
+
+            # for run_type_2, discard the entry
             raise CompatibilityError(
                 f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                f"because it has a bad run_type."
+                f"because there are no {self.run_type_2} ground states at this composition."
             )
 
+        # this statement is here to make pylint happy by gauranteeing a return or raise
         else:
-            print("this shouldnt happen")
-            return adjustments
+            raise CompatibilityError(
+                "WARNING! If you see this Exception it means you have encountered"
+                f"an edge case in {self.__class__.__name__}. Inspect your input carefully and post a bug report."
+            )
 
     def get_mixing_state_data(self, entries, verbose=False):
         """
