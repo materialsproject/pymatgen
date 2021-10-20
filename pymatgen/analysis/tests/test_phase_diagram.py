@@ -593,6 +593,7 @@ class PhaseDiagramTest(unittest.TestCase):
         new_dd = new_pd.as_dict()
         self.assertEqual(new_dd, dd)
 
+
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
