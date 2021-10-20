@@ -2094,7 +2094,7 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        return md5(str(self).encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
         """
