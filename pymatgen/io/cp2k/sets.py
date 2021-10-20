@@ -283,10 +283,11 @@ class DftSet(Cp2kInputSet):
             band_gap (float): The band gap can also be specified in order to determine if ot should be turned on.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
                 value, ensuring an overall accuracy of at least this much.
-            eps_scf (float): The convergence criteria for leaving the SCF loop in Hartrees. Default is 1e-7. Should
-                ensure reasonable results for all properties. Smaller than 1e-7 is generally not needed unless
-                you need very high precision. 1e-6 may be used for difficult systems, and should still give
-                reasonable results for most properties.
+            eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-7. Should
+                ensure reasonable results for all properties.
+                    Note: eps_scf is *not* in units of energy, as in most DFT codes. For OT method, it is the largest
+                    gradient of the energy with respect to changing any of the molecular orbital coefficients. For
+                    diagonalization, it is the largest change in the density matrix from the last step.
             max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
                 corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
                 while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the

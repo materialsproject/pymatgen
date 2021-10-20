@@ -28,7 +28,7 @@ from pymatgen.io.xyz import XYZ
 
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
-from pymatgen.core.units import Ha_to_eV as _hartree_to_ev_
+from pymatgen.core.units import Ha_to_eV
 
 __author__ = "Nicholas Winner"
 __version__ = "0.8"
@@ -467,7 +467,7 @@ class Cp2kOutput:
         self.read_pattern(
             {"total_energy": toten_pattern}, terminate_on_match=False, postprocess=float, reverse=False,
         )
-        self.data["total_energy"] = np.multiply(self.data.get("total_energy", []), _hartree_to_ev_)
+        self.data["total_energy"] = np.multiply(self.data.get("total_energy", []), Ha_to_eV)
         self.final_energy = self.data.get("total_energy", [])[-1][-1]
 
     def parse_forces(self):
@@ -766,7 +766,7 @@ class Cp2kOutput:
                 atomic_kind_info[kind]["auxiliary_basis_set"] = None
             try:
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = float(
-                    self.data.get("total_pseudopotential_energy")[i][0] * _hartree_to_ev_
+                    self.data.get("total_pseudopotential_energy")[i][0] * Ha_to_eV
                 )
             except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = None
@@ -1012,7 +1012,7 @@ class Cp2kOutput:
                                 efermi[-1][Spin.up] = float(line.split()[-1])
                                 break
                             eigenvalues[-1]["occupied"][Spin.up].extend(
-                                [_hartree_to_ev_ * float(l) for l in line.split()]
+                                [Ha_to_eV * float(l) for l in line.split()]
                             )
                         next(lines)
                         line = next(lines)
@@ -1024,7 +1024,7 @@ class Cp2kOutput:
                                     efermi[-1][Spin.down] = float(line.split()[-1])
                                     break
                                 eigenvalues[-1]["occupied"][Spin.down].extend(
-                                    [_hartree_to_ev_ * float(l) for l in line.split()]
+                                    [Ha_to_eV * float(l) for l in line.split()]
                                 )
                     if line.__contains__(" unoccupied subspace spin"):
                         next(lines)
@@ -1039,7 +1039,7 @@ class Cp2kOutput:
                                 next(lines)
                                 line = next(lines)
                                 eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                    [_hartree_to_ev_ * float(l) for l in line.split()]
+                                    [Ha_to_eV * float(l) for l in line.split()]
                                 )
                                 next(lines)
                                 line = next(lines)
@@ -1053,7 +1053,7 @@ class Cp2kOutput:
                                     line.__contains__("|"):
                                 break
                             eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                [_hartree_to_ev_ * float(l) for l in line.split()]
+                                [Ha_to_eV * float(l) for l in line.split()]
                             )
                             line = next(lines)
 
@@ -1070,7 +1070,7 @@ class Cp2kOutput:
                                     next(lines)
                                     line = next(lines)
                                     eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [_hartree_to_ev_ * float(l) for l in line.split()]
+                                        [Ha_to_eV * float(l) for l in line.split()]
                                     )
                                     break
 
@@ -1082,7 +1082,7 @@ class Cp2kOutput:
                                     break
                                 try:
                                     eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [_hartree_to_ev_ * float(l) for l in line.split()]
+                                        [Ha_to_eV * float(l) for l in line.split()]
                                     )
                                 except AttributeError:
                                     break
@@ -1349,6 +1349,8 @@ class Cp2kOutput:
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
+                if ml is None:
+                    continue
                 d = ml.groupdict()
                 if len(d) > 0:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
@@ -1395,6 +1397,7 @@ class Cp2kOutput:
         return d
 
 
+# TODO should store as pandas? Maybe it should be stored as a dict so it's python native
 def parse_energy_file(energy_file):
     """
     Parses energy file for calculations with multiple ionic steps.
@@ -1408,9 +1411,9 @@ def parse_energy_file(energy_file):
         "used_time",
     ]
     df = pd.read_table(energy_file, skiprows=1, names=columns, sep=r"\s+")
-    df["kinetic_energy"] = df["kinetic_energy"] * _hartree_to_ev_
-    df["potential_energy"] = df["potential_energy"] * _hartree_to_ev_
-    df["conserved_quantity"] = df["conserved_quantity"] * _hartree_to_ev_
+    df["kinetic_energy"] = df["kinetic_energy"] * Ha_to_eV
+    df["potential_energy"] = df["potential_energy"] * Ha_to_eV
+    df["conserved_quantity"] = df["conserved_quantity"] * Ha_to_eV
     df.astype(float)
     d = {c: df[c].values for c in columns}
     return d
@@ -1490,7 +1493,7 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
         data = np.delete(dat, 0, 1)
         occupations = data[:, 1]
         data = np.delete(data, 1, 1)
-        data[:, 0] *= _hartree_to_ev_
+        data[:, 0] *= Ha_to_eV
         energies = data[:, 0]
         for i, o in enumerate(occupations):
             if o == 0:
