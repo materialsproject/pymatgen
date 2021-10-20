@@ -544,8 +544,7 @@ class BasePhaseDiagram(MSONable):
         c = self.pd_coords(comp)
 
         all_facets = [
-            f for f, s in zip(self.facets, self.simplexes)
-            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
+            f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
         ]
 
         if not len(all_facets):
