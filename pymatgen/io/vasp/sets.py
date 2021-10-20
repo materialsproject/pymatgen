@@ -237,7 +237,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                         pass
                     try:
                         os.remove(os.path.join(output_dir, file))
-                    except (FileNotFoundError, PermissionError):
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
                         pass
 
     def as_dict(self, verbosity=2):

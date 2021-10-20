@@ -12,7 +12,6 @@ and PDEntry inherit from this class.
 
 import sys
 from abc import ABCMeta, abstractmethod
-from numbers import Number
 from typing import Dict, Union
 
 import numpy as np
@@ -159,4 +158,3 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness as np.allclose
         return hash(f"{self.__class__.__name__}" f"{self._composition.formula}" f"{self._energy:.8f}")
-

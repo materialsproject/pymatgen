@@ -541,7 +541,8 @@ class BasePhaseDiagram(MSONable):
         c = self.pd_coords(comp)
 
         all_facets = [
-            f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
+            f for f, s in zip(self.facets, self.simplexes)
+            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
         ]
 
         if not len(all_facets):
@@ -611,7 +612,6 @@ class BasePhaseDiagram(MSONable):
         Returns:
             Energy of lowest energy equilibrium at desired composition per atom
         """
-        # TODO does this need a direct test? indirect via tests on get_hull_energy
         decomp = self.get_decomposition(comp)
         return decomp, sum([e.energy_per_atom * n for e, n in decomp.items()])
 
@@ -634,7 +634,7 @@ class BasePhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition. Not
                 normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
         """
-        _, hull_energy = self.get_decomp_and_hull_energy_per_atom(comp)
+        hull_energy = self.get_hull_energy_per_atom(comp)
         return comp.num_atoms * hull_energy
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False, check_stable=True):
@@ -947,11 +947,13 @@ class BasePhaseDiagram(MSONable):
         c1 = self.pd_coords(comp1)
         c2 = self.pd_coords(comp2)
 
-        # None of the projections work if c1 == c2, so just return *copies*
-        # of the inputs
+        # NOTE none of the projections work if c1 == c2, so just
+        # return *copies* of the inputs
         if np.all(c1 == c2):
             return [comp1.copy(), comp2.copy()]
 
+        # NOTE made into method to facilitate inheritance of this method
+        # in PatchedPhaseDiagram if approximate solution can be found.
         intersections = self._get_simplex_intersections(c1, c2)
 
         # find position along line
@@ -971,14 +973,18 @@ class BasePhaseDiagram(MSONable):
         proj = proj[valid]
 
         ints = c1 + l * proj[:, None]
+
         # reconstruct full-dimensional composition array
         cs = np.concatenate([np.array([1 - np.sum(ints, axis=-1)]).T, ints], axis=-1)
+
         # mixing fraction when compositions are normalized
         x = proj / np.dot(c2 - c1, l)
+
         # mixing fraction when compositions are not normalized
         x_unnormalized = x * n1 / (n2 + x * (n1 - n2))
         num_atoms = n1 + (n2 - n1) * x_unnormalized
         cs *= num_atoms[:, None]
+
         return [Composition((c, v) for c, v in zip(pd_els, m)) for m in cs]
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
@@ -1004,6 +1010,7 @@ class BasePhaseDiagram(MSONable):
 
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with" " elements in the phase diagram.")
+
         gccomp = Composition({el: amt for el, amt in comp.items() if el != element})
         elref = self.el_refs[element]
         elcomp = Composition(element.symbol)
@@ -1102,6 +1109,7 @@ class BasePhaseDiagram(MSONable):
                 target_comp = target_comp + Composition({e: 0.0})
 
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
+
         for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[dep_elt] / target_comp[dep_elt]
@@ -1160,6 +1168,7 @@ class BasePhaseDiagram(MSONable):
         min_open = float("inf")
         max_mus = None
         min_mus = None
+
         for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[open_elt] / target_comp[open_elt]
@@ -1885,7 +1894,7 @@ class ReactionDiagram:
         plotting.
 
         Returns:
-            (CompoundPhaseDiagram)
+            CompoundPhaseDiagram
         """
         # For this plot, since the reactions are reported in formation
         # energies, we need to set the energies of the terminal compositions
@@ -1945,7 +1954,7 @@ def _get_slsqp_decomp(
         machine-learned formation energies, npj Computational Materials 6, 97 (2020)
 
     Args:
-        comp (Composition/PDEntry): A Composition/PDEntry like entry to analyze
+        comp (Composition): A Composition to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
         tols (list): tolerences to try for SLSQP convergence. Issues observed for
             tol > 1e-7 in the fractional composition (default 1e-8)
@@ -2832,6 +2841,9 @@ class PDPlotter:
         Creates layout for plotly phase diagram figure and updates with
         figure annotations.
 
+        Args:
+            label_stable (bool): Whether to label stable compounds
+
         Returns:
             Dictionary with Plotly figure layout settings.
         """
@@ -2858,8 +2870,8 @@ class PDPlotter:
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
         Returns:
-            Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order: (
-            stable markers, unstable markers)
+            Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order:
+            (stable markers, unstable markers)
         """
 
         def get_marker_props(coords, entries, stable=True):

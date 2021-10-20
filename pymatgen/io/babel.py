@@ -78,6 +78,8 @@ class BabelMolAdaptor:
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
             self._obmol = mol
+        elif isinstance(mol, pb.Molecule):
+            self._obmol = mol.OBMol
 
     @property
     def pymatgen_mol(self):

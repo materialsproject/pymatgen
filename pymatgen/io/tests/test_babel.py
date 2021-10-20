@@ -37,9 +37,13 @@ class BabelMolAdaptorTest(unittest.TestCase):
     def test_init(self):
         adaptor = BabelMolAdaptor(self.mol)
         obmol = adaptor.openbabel_mol
+        pybel = adaptor.pybel_mol
         self.assertEqual(obmol.NumAtoms(), 5)
 
         adaptor = BabelMolAdaptor(adaptor.openbabel_mol)
+        self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
+
+        adaptor = BabelMolAdaptor(pybel)
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
 
     def test_from_file(self):
