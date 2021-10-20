@@ -161,17 +161,18 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertRaises(ValueError, PhaseDiagram, entries)
 
     def test_dim1(self):
-        # Ensure that dim 1 PDs can eb generated.
+        # Ensure that dim 1 PDs can be generated.
         for el in ["Li", "Fe", "O2"]:
             entries = [e for e in self.entries if e.composition.reduced_formula == el]
             pd = PhaseDiagram(entries)
             self.assertEqual(len(pd.stable_entries), 1)
 
             for e in entries:
-                decomp, ehull = pd.get_decomp_and_e_above_hull(e)
+                ehull = pd.get_e_above_hull(e)
                 self.assertGreaterEqual(ehull, 0)
+
             plotter = PDPlotter(pd)
-            lines, stable_entries, unstable_entries = plotter.pd_plot_data
+            lines, *_ = plotter.pd_plot_data
             self.assertEqual(lines[0][1], [0, 0])
 
     def test_ordering(self):
@@ -245,15 +246,16 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
     def test_get_e_above_hull(self):
-        for entry in self.pd.stable_entries:
-            self.assertLess(
-                self.pd.get_e_above_hull(entry),
-                1e-11,
-                "Stable entries should have e above hull of zero!",
-            )
-
         for entry in self.pd.all_entries:
-            if entry not in self.pd.stable_entries:
+            for entry in self.pd.stable_entries:
+                decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
+                self.assertLess(
+                    e_hull,
+                    1e-11,
+                    "Stable entries should have e above hull of zero!",
+                )
+                self.assertEqual(decomp[entry], 1, "Decomposition of stable entry should be itself.")
+            else:
                 e_ah = self.pd.get_e_above_hull(entry)
                 self.assertTrue(isinstance(e_ah, Number))
                 self.assertGreaterEqual(e_ah, 0)
