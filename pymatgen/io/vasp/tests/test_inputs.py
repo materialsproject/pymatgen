@@ -941,12 +941,11 @@ class PotcarSingleTest(PymatgenTest):
         with pytest.warns(None) as warning:
             psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
-        assert not warning
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="integrity"):
+        with pytest.warns(UnknownPotcarWarning, match="incomplete"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
