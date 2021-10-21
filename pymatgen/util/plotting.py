@@ -5,10 +5,17 @@
 Utilities for generating nicer plots.
 """
 import math
+import sys
+from matplotlib import colors, cm
 
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitative", "Set1_9")):
@@ -172,6 +179,14 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
     return plt
 
 
+def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:
+    red, green, blue, _ = rgba
+    if (red * 0.299 + green * 0.587 + blue * 0.114) * 255 > 186:
+        return "black"
+
+    return "white"
+
+
 def periodic_table_heatmap(
     elemental_data,
     cbar_label="",
@@ -185,6 +200,7 @@ def periodic_table_heatmap(
     value_fontsize=10,
     symbol_fontsize=14,
     max_row=9,
+    readable_fontcolor=False,
 ):
     """
     A static method that generates a heat map overlayed on a periodic table.
@@ -202,8 +218,8 @@ def periodic_table_heatmap(
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
-         value_fontsize (float): Font size for values. Default is 10. 
-         symbol_fontsize (float): Font size for element symbols. Default is 14.            
+         value_fontsize (float): Font size for values. Default is 10.
+         symbol_fontsize (float): Font size for element symbols. Default is 14.
          cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
          blank_color (string): Color assigned for the missing elements in
@@ -213,6 +229,8 @@ def periodic_table_heatmap(
          max_row (integer): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
             the first 9 rows of elements.
+         readable_fontcolor (bool): Whether to use readable fontcolor depending
+            on background color. Default is False.
     """
 
     # Convert primitive_elemental data in the form of numpy array for plotting.
@@ -266,11 +284,17 @@ def periodic_table_heatmap(
     ax.axis("off")
     ax.invert_yaxis()
 
+    # Set the scalermap for fontcolor
+    norm = colors.Normalize(vmin=min_val, vmax=max_val)
+    scalar_cmap = cm.ScalarMappable(norm=norm, cmap=cmap)
+
     # Label each block with corresponding element and value
     for i, row in enumerate(value_table):
         for j, el in enumerate(row):
             if not np.isnan(el):
                 symbol = Element.from_row_and_group(i + 1, j + 1).symbol
+                rgba = scalar_cmap.to_rgba(el)
+                fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
                 plt.text(
                     j + 0.5,
                     i + 0.25,
@@ -278,6 +302,7 @@ def periodic_table_heatmap(
                     horizontalalignment="center",
                     verticalalignment="center",
                     fontsize=symbol_fontsize,
+                    color=fontcolor,
                 )
                 if el != blank_value and value_format is not None:
                     plt.text(
@@ -287,6 +312,7 @@ def periodic_table_heatmap(
                         horizontalalignment="center",
                         verticalalignment="center",
                         fontsize=value_fontsize,
+                        color=fontcolor,
                     )
 
     plt.tight_layout()
