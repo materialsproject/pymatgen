@@ -761,6 +761,49 @@ def ms_scan_chemsys_superset(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
+@pytest.fixture
+def ms_complete_duplicate_structs(ms_complete):
+    """
+    Mixing state where we have SCAN for all GGA, plus extra entries that duplicate
+    the structures of gga-4 and r2scan-4, and have slightly higher energies
+    """
+    gga_entries = ms_complete.gga_entries
+    scan_entries = ms_complete.scan_entries
+
+    gga_entries.append(
+        ComputedStructureEntry(
+            Structure(lattice1, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
+            -17.9,
+            parameters={"run_type": "GGA"},
+            entry_id="gga-10",
+        ),
+    )
+
+    scan_entries.append(
+        ComputedStructureEntry(
+            Structure(lattice1, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
+            -20.9,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-10",
+        ),
+    )
+
+    # fmt: off
+    row_list = [
+        ["Br",    64,  4, "gga-3", "r2scan-3", "GGA", "R2SCAN",  0.,  0., True,     0., -1.],
+        ["Br",   191,  1, "gga-2", "r2scan-2", "GGA", "R2SCAN",  1., -1., False,    0., -1.],
+        ["Sn",   191,  1, "gga-1", "r2scan-1", "GGA", "R2SCAN",  0., -1., True,     0., -1.],
+        ["SnBr2",  2, 12, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5., -8., False,   -6., -8.],
+        ["SnBr2", 65,  3, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6., -7., True,    -6., -8.],
+        ["SnBr2", 71,  3, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4., -6., False,   -6., -8.],
+        ["SnBr4",  8,  5, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3., -6., False,  -3.6, -6.],
+    ]
+    # fmt: on
+    mixing_state = pd.DataFrame(row_list, columns=columns)
+
+    return MixingState(gga_entries, scan_entries, mixing_state)
+
+
 def test_data_ms_complete(ms_complete):
     """
     Verify that the test chemical system
@@ -1052,7 +1095,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             entry_id="r2scan-8",
         )
 
-        with pytest.raises(CompatibilityError, match="not included in the mixing state"):
+        with pytest.raises(CompatibilityError, match="not found in the mixing state"):
             mixing_scheme_no_compat.get_adjustments(foreign_entry, ms_complete.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -1114,6 +1157,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         with pytest.raises(ValueError, match="the same run_type GGA"):
             MaterialsProjectDFTMixingScheme(run_type_1="GGA", run_type_2="GGA")
 
+    def test_alternate_run_types(self):
+        """
+        Test behavior with alternate run_types
+        """
+        compat = MaterialsProjectDFTMixingScheme(run_type_1="LDA", run_type_2="GGA(+U)")
+        assert compat.valid_rtypes_1 == ["LDA"]
+        assert compat.valid_rtypes_2 == ["GGA", "GGA+U"]
+
     def test_compat_args(self, ms_complete):
         """
         Test the behavior of compat1 and compat2 kwargs
@@ -1137,6 +1188,47 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         for e in ms_complete.scan_entries:
             assert compat.get_adjustments(e, state_data) == []
 
+    def test_no_mixing_data(self, ms_complete):
+        """
+        Test the behavior of get_adjustments when mixing_state_data is None
+        """
+        compat = MaterialsProjectDFTMixingScheme()
+
+        with pytest.raises(CompatibilityError, match="DataFrame is None."):
+            compat.get_adjustments(ms_complete.all_entries[0])
+
+    def test_multiple_matching_structures(self, mixing_scheme_no_compat, ms_complete_duplicate_structs):
+        """
+        Test behavior when the entries contain many structures that match to
+        the same material. For this test, entry gga-4 (SnBr2 ground state) and
+        its matching r2scan-4 are each duplicated into new entries gga-10 and
+        r2scan-10, respectively.
+        """
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete_duplicate_structs.all_entries)
+        pd.testing.assert_frame_equal(state_data, ms_complete_duplicate_structs.state_data)
+
+        for e in ms_complete_duplicate_structs.scan_entries:
+            if e.entry_id == "r2scan-10":
+                with pytest.raises(CompatibilityError, match="not found in the mixing state"):
+                    mixing_scheme_no_compat.get_adjustments(e, state_data)
+                continue
+            assert mixing_scheme_no_compat.get_adjustments(e, state_data) == []
+
+        for e in ms_complete_duplicate_structs.gga_entries:
+            if e.entry_id == "gga-10":
+                with pytest.raises(CompatibilityError, match="not found in the mixing state"):
+                    mixing_scheme_no_compat.get_adjustments(e, state_data)
+                continue
+            with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                mixing_scheme_no_compat.get_adjustments(e, state_data)
+
+        # process_entries should discard all GGA entries and return all R2SCAN
+        entries = mixing_scheme_no_compat.process_entries(ms_complete_duplicate_structs.all_entries)
+        assert len(entries) == 7
+        for e in entries:
+            assert e.correction == 0
+            assert e.parameters["run_type"] == "R2SCAN"
+
     def test_alternate_structure_matcher(self, ms_complete):
         """
         Test alternate structure matcher kwargs. By setting scale to False, entries
@@ -1146,7 +1238,6 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         sm = StructureMatcher(scale=False)
         compat = MaterialsProjectDFTMixingScheme(compat_1=None, structure_matcher=sm)
         state_data = compat.get_mixing_state_data(ms_complete.all_entries)
-        # pd.testing.assert_frame_equal(state_data, ms_complete.state_data)
         assert isinstance(state_data, pd.DataFrame), "get_mixing_state_data failed to generate a DataFrame."
         assert len(state_data) == 8
         assert sum(state_data["run_type_1"] == "GGA") == len(state_data) - 1
@@ -1560,7 +1651,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for e in ms_scan_chemsys_superset.scan_entries:
             if e.entry_id == "r2scan-9":
-                with pytest.raises(CompatibilityError, match="not included in the mixing state"):
+                with pytest.raises(CompatibilityError, match="not found in the mixing state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_scan_chemsys_superset.state_data) == []
