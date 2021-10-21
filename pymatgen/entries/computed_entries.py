@@ -520,9 +520,6 @@ class ComputedEntry(Entry):
         # assumes that data, parameters, corrections are equivalent
         return True
 
-    def __hash__(self):
-        return super.__hash__(self)
-
     @classmethod
     def from_dict(cls, d) -> "ComputedEntry":
         """
@@ -569,6 +566,14 @@ class ComputedEntry(Entry):
             }
         )
         return return_dict
+
+    def __hash__(self) -> int:
+        # NOTE It is assumed that the user will ensure entry_id is a
+        # unique identifier for ComputedEntry type classes.
+        if self.entry_id is not None:
+            return hash(f"{self.__class__.__name__}{self.entry_id}")
+
+        return super().__hash__()
 
 
 class ComputedStructureEntry(ComputedEntry):

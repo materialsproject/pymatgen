@@ -8,9 +8,6 @@ import warnings
 from numbers import Number
 from pathlib import Path
 from collections import OrderedDict
-import json
-
-from monty.json import MontyEncoder, MontyDecoder
 
 import numpy as np
 
@@ -697,12 +694,18 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
 
     def test_get_phase_separation_energy(self):
         for e in self.novel_entries:
-            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
+            self.assertAlmostEqual(
+                self.pd.get_phase_separation_energy(e),
+                self.ppd.get_phase_separation_energy(e),
+                7
+            )
 
     def test_get_equilibrium_reaction_energy(self):
         for e in self.pd.stable_entries:
             self.assertAlmostEqual(
-                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
+                self.pd.get_equilibrium_reaction_energy(e),
+                self.ppd.get_equilibrium_reaction_energy(e),
+                7
             )
 
 
@@ -713,7 +716,7 @@ class ReactionDiagramTest(unittest.TestCase):
         for e in self.entries:
             if e.composition.reduced_formula == "VPO5":
                 entry1 = e
-            if e.composition.reduced_formula == "H4(CO)3":
+            elif e.composition.reduced_formula == "H4(CO)3":
                 entry2 = e
         self.rd = ReactionDiagram(entry1=entry1, entry2=entry2, all_entries=self.entries[2:])
 
