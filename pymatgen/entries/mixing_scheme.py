@@ -310,7 +310,15 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
 
                 if df_slice["entry_id_2"].notna().item():
-                    # discard entry because it already exists in run_type_2
+                    # there is a matching run_type_2 entry, so we will discard this entry
+                    if df_slice["is_stable_1"].item():
+                        # this is a GGA ground state.
+                        raise CompatibilityError(
+                            f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                            f"because it is a {self.run_type_1} ground state that matches a {self.run_type_2} "
+                            "material."
+                        )
+
                     raise CompatibilityError(
                         f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
                         f"whose structure already exists in {self.run_type_2}"
