@@ -21,29 +21,31 @@ The majority of the tests use "mixing states" to check behavior. Mixing states
 are merely combinations of different ComputedStructureEntry with different run_type
 - e.g. all ground states present for both run_types, only one run_type, etc. Mixing
 states are defined using the `MixingState` utility class, which has attributes that
-return 1) the GGA entries, 2) the SCAN entries, and 3) the pandas DataFrame that
-represents the mixing state.
+return 1) the GGA entries, 2) the SCAN entries, 3) all entries, and 4) the pandas
+DataFrame that represents the mixing state. Note that 'GGA' and 'SCAN' are used
+throughout this test file to represent run_type_1 and run_type_2, respectively,
+but the mixing scheme is design to be able to mix any two functionals.
 
 Most mixing states are subsets of the `ms_complete` mixing state. `ms_complete`
 was crafted to capture most of the scenarios that may be encountered when mixing
 ComputedStructureEntry from different functionals. It comprises a complete binary
-phase diagram, with all entries
-present as both GGA and R2SCAN calculations. Note that these entries are inspired
-by, but NOT equivalent to, the real SnBr2 phase diagram. Rather than use real
-energies or structures, arbitrary energies and structures have been used to keep
-this test file cleaner and easier to understand. The Bromide structures are the
-one exception to this. These structures are taken from real calculations and
-will fail to structure match with default arguments (they are included here to
+phase diagram, with all entries present as both GGA and R2SCAN calculations. 
+
+Note that these entries are inspired by, but NOT equivalent to, the real SnBr2 phase 
+diagram. Rather than use real energies or structures, arbitrary energies and structures
+have been used to keep this test file cleaner and easier to understand. The Bromine
+structures are the one exception to this. These structures are taken from real calculations
+and will fail to structure match with default arguments (they are included here to
 test "fuzzy matching" behavior). Entry-id's are assigned numerically, with the
-same number corresponding to
-equivalent materials. So "gga-1" should have the same structure as "r2scan-1".
+same number corresponding to equivalent materials. So "gga-1" should have the
+same structure as "r2scan-1".
 
 Description of the `ms_complete` mixing state
 ---------------------------------------------
 
-Future developers are HIGHLY encouraed to plot the PhaseDiagram
-associated with both the SCAN and the GGA entries in `ms_complete` before attempting
-to modify any of these tests.
+Future developers are HIGHLY encouraed to plot the PhaseDiagram associated with both
+the R2SCAN and the GGA entries in `ms_complete` before attempting to modify any of these
+tests.
 
 **GGA entries**
 
@@ -75,16 +77,14 @@ to modify any of these tests.
 Types of Tests
 --------------
 
-In general there are 3 types of tests. Most tests in
-`TestMaterialsProjectDFTMixingSchemeStates` follow this pattern.
+In general there are 3 types of tests. Most tests follow this pattern.
 
 1. Unit tests of get_mixing_state_data, to verify that it generates
    the correct DataFrame when provided with a particular list of entries
 2. Unit tests that verify get_adjustments behaves correctly, when provided with
-   a pre-generated mixing_scheme_state_data DataFrame
+   a ComputedEntry and a pre-generated mixing_scheme_state_data DataFrame
 3. Functional tests of the behavior of the process_entries method, which is the
    primary user-facing interface
-
 
 Implementation Notes
 --------------------
@@ -98,36 +98,29 @@ Implementation Notes
   fixtures is helpful here since it ensures every test receives fresh, unmodified
   copies of the respective entries. process_entries modifies entry energies
   in place, so tests could cross-contaminate one another if a fixture were not used.
-
 """
-
 
 __author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2019-2021, The Materials Project"
-__version__ = "0.9"
+__version__ = "1.0"
 __email__ = "RKingsbury@lbl.gov"
 __date__ = "October 2021"
 
+import numpy as np
+import pandas as pd
 import pytest
 
-import pandas as pd
-import numpy as np
-
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
-from pymatgen.entries.compatibility import (
-    Compatibility,
-    CompatibilityError,
-)
+from pymatgen.entries.compatibility import Compatibility, CompatibilityError
 from pymatgen.entries.computed_entries import (
     ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
-
+from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 
 """
 Define utility classes to make the tests easier to read
@@ -1203,6 +1196,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         the same material. For this test, entry gga-4 (SnBr2 ground state) and
         its matching r2scan-4 are each duplicated into new entries gga-10 and
         r2scan-10, respectively.
+
+        In this situation, the mixing scheme should only keep the lowest energy entry
+        within each run_type, so gga-10 and r2scan-10 should be discarded, and the
+        results should otherwise be identical to ms_scan_complete.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete_duplicate_structs.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_complete_duplicate_structs.state_data)
@@ -1538,7 +1535,6 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         """
         Mixing state in which we have a complete GGA PhaseDiagram and all GGA
         ground states present as SCAN entries.
-
 
         In this situation, we should build the hull using SCAN energies, discard
         the GGA ground state materials, and correct the remaining GGA energies onto
