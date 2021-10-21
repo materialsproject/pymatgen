@@ -451,13 +451,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             "formula",
             "spacegroup",
             "num_sites",
+            "is_stable_1",
             "entry_id_1",
             "entry_id_2",
             "run_type_1",
             "run_type_2",
             "energy_1",
             "energy_2",
-            "is_stable_1",
             "hull_energy_1",
             "hull_energy_2",
         ]
@@ -502,7 +502,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
         mixing_state_data.sort_values(
-            ["formula", "spacegroup", "num_sites", "entry_id_1"], inplace=True, ignore_index=True
+            ["formula", "energy_1", "spacegroup", "num_sites"], inplace=True, ignore_index=True
         )
 
         return mixing_state_data
@@ -655,13 +655,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             comp.reduced_formula,
             sg,
             n,
+            stable_1,
             id1,
             id2,
             rt1,
             rt2,
             energy_1,
             energy_2,
-            stable_1,
             hull_energy_1,
             hull_energy_2,
         ]
