@@ -523,7 +523,7 @@ def ms_gga_2_scan_same(ms_complete):
 def ms_gga_2_scan_diff_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 SCAN entries corresponding to
-    different materials, where both SCAN materials match GGA materials, but
+    different compositions, where both SCAN materials match GGA materials, but
     only one matches a GGA ground state.
     r2scan-4 and r2scan-7
     """
@@ -1402,7 +1402,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         In this state, the mixing scheme should correct the energy of unstable polymorph
         r2scan-6 to maintain the same e_above_hull (r2scan-6 minus r2scan-4 which is the ground
         state). Entry r2scan-4 (the GGA ground state) should be corrected to the GGA energy.
-        Entry gga-4 should be discarded.
+        Entries gga-4 and gga-6 should be discarded.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_same.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_same.state_data)
@@ -1423,17 +1423,22 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if e.entry_id == "gga-4":
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)
+            elif e.entry_id == "gga-6":
+                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data) == []
 
         entries = mixing_scheme_no_compat.process_entries(ms_gga_2_scan_same.all_entries)
-        assert len(entries) == 8
+        assert len(entries) == 7
         for e in entries:
             if e.entry_id in ["r2scan-4", "r2scan-6"]:
                 assert e.correction == 3
                 assert e.parameters["run_type"] == "R2SCAN"
             elif e.entry_id == "gga-4":
                 assert False, "Entry gga-4 should have been discarded"
+            elif e.entry_id == "gga-6":
+                assert False, "Entry gga-6 should have been discarded"
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
