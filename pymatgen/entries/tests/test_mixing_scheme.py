@@ -1105,6 +1105,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         Test fuzzy diatomic matching. If fuzzy matching is disabled, then entry r2scan-3 will not
         match GGA ground state gga-3, preventing the mixing scheme from using the SCAN energy
         scale.
+
+        In this situation, the mixing scheme should adjust the energies of all R2SCAN entries that
+        match GGA ones to be identical to the GGA's, and discard the corresponding GGA entries. Entry
+        r2scan-3 should be discarded because there is no reference ground state energy for it.
         """
         # fmt: off
         row_list = [
@@ -1125,8 +1129,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         pd.testing.assert_frame_equal(state_data, mixing_state)
 
         for e in ms_complete.all_entries:
-            if e.entry_id in ["gga-1", "gga-4", "r2scan-7"]:
+            if e.entry_id in ["gga-1", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="ground state"):
+                    compat.get_adjustments(e, mixing_state)
+            elif e.entry_id in ["r2scan-3"]:
+                with pytest.raises(CompatibilityError, match="and no R2SCAN ground state"):
+                    compat.get_adjustments(e, mixing_state)
+            elif e.entry_id in ["gga-2", "gga-5", "gga-6", "gga-7"]:
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     compat.get_adjustments(e, mixing_state)
             elif e.parameters["run_type"] == "GGA":
                 assert compat.get_adjustments(e, mixing_state) == []
@@ -1135,10 +1145,12 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = compat.process_entries(ms_complete.all_entries)
-        assert len(entries) == len(ms_complete.all_entries) - 3
+        assert len(entries) == 7
         for e in entries:
             if e.parameters["run_type"] == "GGA":
                 assert e.correction == 0
+            elif e.entry_id in ["r2scan-2", "r2scan-7"]:
+                assert "Replace R2SCAN energy with GGA" in e.energy_adjustments[0].description
             else:
                 assert "onto the GGA(+U) hull" in e.energy_adjustments[0].description
 
@@ -1178,7 +1190,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     compat.get_adjustments(e, state_data)
             else:
-                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     assert compat.get_adjustments(e, state_data) == []
 
         for e in ms_complete.scan_entries:
@@ -1223,7 +1235,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -1264,7 +1276,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     compat.get_adjustments(e, ms_complete.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     compat.get_adjustments(e, ms_complete.state_data)
 
         # process_entries should discard all GGA entries except gga-6 and return all r2SCAN
@@ -1296,7 +1308,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -1424,7 +1436,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)
             elif e.entry_id == "gga-6":
-                with pytest.raises(CompatibilityError, match="already exists in R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data) == []
@@ -1446,22 +1458,19 @@ class TestMaterialsProjectDFTMixingSchemeStates:
     def test_state_gga_2_scan_diff_match(self, mixing_scheme_no_compat, ms_gga_2_scan_diff_match):
         """
         Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
-        at different compositions, where one SCAN material matches a GGA ground
-        state and the other does not.
+        at different compositions, where both SCAN materials match GGA materials but
+        only one matches a GGA ground state.
 
-        In this state, both the matching SCAN energy should be set equal to the
-        GGA ground state energy, and the GGA entry discarded. The non-matching
-        SCAN entry should also be discarded.
+        In this state, the energies of both SCAN entries should be set equal to the
+        corresponding GGA energies, and the GGA entries discarded.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_diff_match.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_diff_match.state_data)
 
         for e in ms_gga_2_scan_diff_match.scan_entries:
             if e.entry_id == "r2scan-7":
-                # there is no matching GGA structure for r2scan-7, so there's no way
-                # to adjust its energy onto the GGA hull.
-                with pytest.raises(CompatibilityError, match="no R2SCAN entry"):
-                    mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)
+                # r2scan-7 energy is -6 eV/atom, needs to go to -3 eV/atom (5 atoms)
+                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)[0].value == 15
             elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)[0].value == 3
@@ -1472,6 +1481,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if e.entry_id == "gga-4":
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)
+            elif e.entry_id == "gga-7":
+                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                    mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_match.state_data) == []
 
@@ -1480,8 +1492,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         for e in entries:
             if e.entry_id == "r2scan-4":
                 assert e.correction == 3
-                assert e.parameters["run_type"] == "R2SCAN"
-            elif e.entry_id in ["gga-4", "r2scan-7"]:
+            elif e.entry_id == "r2scan-7":
+                assert e.correction == 15
+            elif e.entry_id in ["gga-4"]:
                 assert False, f"Entry {e.entry_id} should have been discarded"
             else:
                 assert e.correction == 0, f"{e.entry_id}"
@@ -1504,7 +1517,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if e.entry_id == "r2scan-8":
                 # there is no matching GGA structure for r2scan-8, so there's no way
                 # to adjust its energy onto the GGA hull.
-                with pytest.raises(CompatibilityError, match="no R2SCAN entry"):
+                with pytest.raises(CompatibilityError, match="entry and no R2SCAN ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_diff_no_match.state_data)
             elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
