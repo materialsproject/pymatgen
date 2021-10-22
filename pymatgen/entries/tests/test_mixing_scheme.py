@@ -21,8 +21,8 @@ The majority of the tests use "mixing states" to check behavior. Mixing states
 are merely combinations of different ComputedStructureEntry with different run_type
 - e.g. all ground states present for both run_types, only one run_type, etc. Mixing
 states are defined using the `MixingState` utility class, which has attributes that
-return 1) the GGA entries, 2) the SCAN entries, 3) all entries, and 4) the pandas
-DataFrame that represents the mixing state. Note that 'GGA' and 'SCAN' are used
+return 1) the GGA entries, 2) the R2SCAN entries, 3) all entries, and 4) the pandas
+DataFrame that represents the mixing state. Note that 'GGA' and 'R2SCAN' are used
 throughout this test file to represent run_type_1 and run_type_2, respectively,
 but the mixing scheme is design to be able to mix any two functionals.
 
@@ -57,7 +57,7 @@ tests.
 - gga-6: unstable polymorph of SnBr2, 2 eV/atom above hull
 - gga-7: unstable composition (SnBr4), 0.6 eV/atom above hull
 
-**r2SCAN entries**
+**R2SCAN entries**
 
 - All the same entries exist as in GGA
 - Entries with corresponding numbers have matching structures
@@ -145,7 +145,7 @@ class MixingState:
         """
         Args:
             gga_entries: list of run_type_1 (usually GGA or GGA+U) ComputedEntry
-            scan_entries: list of run_type_2 (usually r2SCAN) ComputedEntry
+            scan_entries: list of run_type_2 (usually R2SCAN) ComputedEntry
             DataFrame: pandas DataFrame representing the mixing state, of the
                 format returned by get_mixing_state_data
         """
@@ -211,7 +211,7 @@ lattice_br_r2scan = Lattice.from_dict(
 @pytest.fixture
 def ms_complete():
     """
-    Mixing state where we have SCAN for all GGA
+    Mixing state where we have R2SCAN for all GGA
     """
 
     gga_entries = [
@@ -383,7 +383,7 @@ def ms_complete():
 @pytest.fixture
 def ms_scan_only(ms_complete):
     """
-    Mixing state with only SCAN entries
+    Mixing state with only R2SCAN entries
     """
     gga_entries = []
     scan_entries = ms_complete.scan_entries
@@ -433,7 +433,7 @@ def ms_gga_only(ms_complete):
 @pytest.fixture
 def ms_gga_1_scan(ms_complete):
     """
-    Mixing state with all GGA entries and one SCAN, corresponding to the GGA
+    Mixing state with all GGA entries and one R2SCAN, corresponding to the GGA
     ground state of SnBr2 (r2scan-4)
     """
     gga_entries = ms_complete.gga_entries
@@ -457,7 +457,7 @@ def ms_gga_1_scan(ms_complete):
 @pytest.fixture
 def ms_gga_1_scan_novel(ms_complete):
     """
-    Mixing state with all GGA entries and 1 SCAN, corresponding to a composition
+    Mixing state with all GGA entries and 1 R2SCAN, corresponding to a composition
     (SnBr) that is not present in the GGA entries.
     """
     gga_entries = ms_complete.gga_entries
@@ -498,7 +498,7 @@ def ms_gga_1_scan_novel(ms_complete):
 @pytest.fixture
 def ms_gga_2_scan_same(ms_complete):
     """
-    Mixing state with all GGA entries and 2 SCAN, corresponding to the GGA
+    Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
     ground state and one unstable polymoprh of SnBr2 (r2scan-4 and r2scan-6)
     """
     gga_entries = ms_complete.gga_entries
@@ -522,8 +522,8 @@ def ms_gga_2_scan_same(ms_complete):
 @pytest.fixture
 def ms_gga_2_scan_diff_match(ms_complete):
     """
-    Mixing state with all GGA entries and 2 SCAN entries corresponding to
-    different compositions, where both SCAN materials match GGA materials, but
+    Mixing state with all GGA entries and 2 R2SCAN entries corresponding to
+    different compositions, where both R2SCAN materials match GGA materials, but
     only one matches a GGA ground state.
     r2scan-4 and r2scan-7
     """
@@ -548,7 +548,7 @@ def ms_gga_2_scan_diff_match(ms_complete):
 @pytest.fixture
 def ms_gga_2_scan_diff_no_match(ms_complete):
     """
-    Mixing state with all GGA entries and 2 SCAN, corresponding to the GGA
+    Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
     ground state of SnBr2 (r2scan-4) and one unstable polymoprh of SnBr4
     that does not match any GGA material (r2scan-8)
     """
@@ -592,7 +592,7 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
 @pytest.fixture
 def ms_all_gga_scan_gs(ms_complete):
     """
-    Mixing state with all GGA entries and SCAN entries corresponding to all GGA
+    Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
     ground states, but no others.
     """
     gga_entries = ms_complete.gga_entries
@@ -616,8 +616,8 @@ def ms_all_gga_scan_gs(ms_complete):
 @pytest.fixture
 def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     """
-    Mixing state with all GGA entries and SCAN entries corresponding to all GGA
-    ground states, plus one SCAN entry at a novel composition not in the GGA
+    Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
+    ground states, plus one R2SCAN entry at a novel composition not in the GGA
     phase diagram
     """
     gga_entries = ms_all_gga_scan_gs.gga_entries
@@ -659,8 +659,8 @@ def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
 @pytest.fixture
 def ms_all_scan_novel(ms_complete):
     """
-    Mixing state with all GGA entries and all SCAN, with an additional unstable
-    polymorphs of SnBr4 (r2scan-8) only in SCAN.
+    Mixing state with all GGA entries and all R2SCAN, with an additional unstable
+    polymorphs of SnBr4 (r2scan-8) only in R2SCAN.
     """
     gga_entries = ms_complete.gga_entries
     scan_entries = ms_complete.scan_entries
@@ -726,7 +726,7 @@ def ms_incomplete_gga_all_scan(ms_complete):
 @pytest.fixture
 def ms_scan_chemsys_superset(ms_complete):
     """
-    Mixing state where we have SCAN for all GGA, and there is an additional SCAN
+    Mixing state where we have R2SCAN for all GGA, and there is an additional R2SCAN
     entry outside the GGA chemsys
     """
     gga_entries = ms_complete.gga_entries
@@ -757,7 +757,7 @@ def ms_scan_chemsys_superset(ms_complete):
 @pytest.fixture
 def ms_complete_duplicate_structs(ms_complete):
     """
-    Mixing state where we have SCAN for all GGA, plus extra entries that duplicate
+    Mixing state where we have R2SCAN for all GGA, plus extra entries that duplicate
     the structures of gga-4 and r2scan-4, and have slightly higher energies
     """
     gga_entries = ms_complete.gga_entries
@@ -1103,7 +1103,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
     def test_fuzzy_matching(self, ms_complete):
         """
         Test fuzzy diatomic matching. If fuzzy matching is disabled, then entry r2scan-3 will not
-        match GGA ground state gga-3, preventing the mixing scheme from using the SCAN energy
+        match GGA ground state gga-3, preventing the mixing scheme from using the R2SCAN energy
         scale.
 
         In this situation, the mixing scheme should adjust the energies of all R2SCAN entries that
@@ -1279,8 +1279,8 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     compat.get_adjustments(e, ms_complete.state_data)
 
-        # process_entries should discard all GGA entries except gga-6 and return all r2SCAN
-        # entries unmodified. gga-6 should be corrected to the r2SCAN hull
+        # process_entries should discard all GGA entries except gga-6 and return all R2SCAN
+        # entries unmodified. gga-6 should be corrected to the R2SCAN hull
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
 
@@ -1288,14 +1288,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 class TestMaterialsProjectDFTMixingSchemeStates:
     """
     Test the behavior of the mixing scheme under different mixing states (i.e., different
-    combinations of GGA and SCAN entries)
+    combinations of GGA and R2SCAN entries)
     """
 
     def test_state_complete_entries(self, mixing_scheme_no_compat, ms_complete):
         """
-        Mixing state in which every material is present in both GGA and SCAN
+        Mixing state in which every material is present in both GGA and R2SCAN
 
-        In this state, the mixing scheme should return only the SCAN entries, unmodified
+        In this state, the mixing scheme should return only the R2SCAN entries, unmodified
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_complete.state_data)
@@ -1337,7 +1337,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_scan_only(self, mixing_scheme_no_compat, ms_scan_only):
         """
-        Mixing state in which we only have SCAN entries, forming a complete PhaseDiagram
+        Mixing state in which we only have R2SCAN entries, forming a complete PhaseDiagram
 
         In this case, the mixing scheme should not do anything
         """
@@ -1355,8 +1355,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_gga_1_scan(self, mixing_scheme_no_compat, ms_gga_1_scan):
         """
-        Mixing state in which we have a complete GGA PhaseDiagram and 1 SCAN entry
-        The SCAN entry chosen is the GGA ground state for SnBr2 (r2scan-4)
+        Mixing state in which we have a complete GGA PhaseDiagram and 1 R2SCAN entry
+        The R2SCAN entry chosen is the GGA ground state for SnBr2 (r2scan-4)
 
         In this state, the mixing scheme should adjust the entry of r2scan-4 to
         match the GGA energy and discard entry gga-4.
@@ -1387,7 +1387,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_gga_1_scan_plus_novel(self, mixing_scheme_no_compat, ms_gga_1_scan_novel):
         """
-        Mixing state in which we have a complete GGA PhaseDiagram and 1 SCAN entry
+        Mixing state in which we have a complete GGA PhaseDiagram and 1 R2SCAN entry
         at a composition not in the GGA phase diagram.
 
         In this state, the mixing scheme should discard the R2SCAN entry
@@ -1408,7 +1408,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_gga_2_scan_same(self, mixing_scheme_no_compat, ms_gga_2_scan_same):
         """
-        Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
+        Mixing state in which we have a complete GGA PhaseDiagram and 2 R2SCAN entries
         at a single composition, one of which is the GGA ground state.
 
         In this state, the mixing scheme should correct the energy of unstable polymorph
@@ -1457,11 +1457,11 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_gga_2_scan_diff_match(self, mixing_scheme_no_compat, ms_gga_2_scan_diff_match):
         """
-        Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
-        at different compositions, where both SCAN materials match GGA materials but
+        Mixing state in which we have a complete GGA PhaseDiagram and 2 R2SCAN entries
+        at different compositions, where both R2SCAN materials match GGA materials but
         only one matches a GGA ground state.
 
-        In this state, the energies of both SCAN entries should be set equal to the
+        In this state, the energies of both R2SCAN entries should be set equal to the
         corresponding GGA energies, and the GGA entries discarded.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_diff_match.all_entries)
@@ -1502,13 +1502,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_gga_2_scan_diff_nomatch(self, mixing_scheme_no_compat, ms_gga_2_scan_diff_no_match):
         """
-        Mixing state in which we have a complete GGA PhaseDiagram and 2 SCAN entries
-        at different compositions, where one of the SCAN materials does not match
+        Mixing state in which we have a complete GGA PhaseDiagram and 2 R2SCAN entries
+        at different compositions, where one of the R2SCAN materials does not match
         any GGA material.
 
-        In this state, the energy of the matching SCAN entry should be adjusted
+        In this state, the energy of the matching R2SCAN entry should be adjusted
         to the GGA value, the corresponding GGA entry should be discarded, and the
-        novel SCAN material that doesn't match anything should be discarded
+        novel R2SCAN material that doesn't match anything should be discarded
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_gga_2_scan_diff_no_match.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_diff_no_match.state_data)
@@ -1547,7 +1547,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
     def test_state_incomplete_gga_all_scan(self, mixing_scheme_no_compat, ms_incomplete_gga_all_scan):
         """
         Mixing state in which we have an incomplete GGA PhaseDiagram and all entries
-        present in SCAN.
+        present in R2SCAN.
 
         This case should fail, because a complete run_type_1 phase diagram is required by the
         mixing scheme
@@ -1568,11 +1568,11 @@ class TestMaterialsProjectDFTMixingSchemeStates:
     def test_state_all_gga_scan_gs(self, mixing_scheme_no_compat, ms_all_gga_scan_gs):
         """
         Mixing state in which we have a complete GGA PhaseDiagram and all GGA
-        ground states present as SCAN entries.
+        ground states present as R2SCAN entries.
 
-        In this situation, we should build the hull using SCAN energies, discard
+        In this situation, we should build the hull using R2SCAN energies, discard
         the GGA ground state materials, and correct the remaining GGA energies onto
-        the SCAN hull such that they maintain their e_above_hull.
+        the R2SCAN hull such that they maintain their e_above_hull.
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_all_gga_scan_gs.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_all_gga_scan_gs.state_data)
@@ -1607,8 +1607,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
     def test_state_novel_scan_comp(self, mixing_scheme_no_compat, ms_all_gga_scan_gs_plus_novel):
         """
-        Mixing state in which we have all GGA ground states in SCAN and then we try to
-        process a SCAN entry at a composition that is not in the GGA PhaseDiagram.
+        Mixing state in which we have all GGA ground states in R2SCAN and then we try to
+        process a R2SCAN entry at a composition that is not in the GGA PhaseDiagram.
 
         In this case, the mixing scheme should preserve the energy of the novel R2SCAN
         entry and discard the 3 GGA ground states

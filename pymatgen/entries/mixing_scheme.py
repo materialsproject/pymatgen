@@ -42,7 +42,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     may lead to unexpected results.
 
     This is the scheme used by the Materials Project to generate Phase Diagrams containing
-    a mixture of GGA(+U) and r2SCAN calculations. However in principle it can be used to
+    a mixture of GGA(+U) and R2SCAN calculations. However in principle it can be used to
     mix energies from any two functionals.
     """
 
@@ -94,7 +94,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 that satisfy these criteria, the one with lowest energy is considered to
                 match.
         """
-        self.name = "MP SCAN mixing"
+        self.name = "MP DFT mixing scheme"
         self.structure_matcher = structure_matcher
         if run_type_1 == run_type_2:
             raise ValueError(
@@ -231,7 +231,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame = None):
         """
         Returns the corrections applied to a particular entry. Note that get_adjustments is not
-        intended to be called directly in the SCAN mixing scheme. Call process_entries instead,
+        intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 
         Args:
@@ -305,7 +305,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # For run_type_2 entries, there is no correction
                 return adjustments
 
-            # Discard GGA ground states whose structures already exist in SCAN.
+            # Discard GGA ground states whose structures already exist in R2SCAN.
             else:
                 df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
 
@@ -324,8 +324,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                         f"because there is a matching {self.run_type_2} material."
                     )
 
-                # If a GGA is not present in SCAN, correct its energy to give the same
-                # e_above_hull on the SCAN hull that it would have on the GGA hull
+                # If a GGA is not present in R2SCAN, correct its energy to give the same
+                # e_above_hull on the R2SCAN hull that it would have on the GGA hull
                 hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
                 hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
                 correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
