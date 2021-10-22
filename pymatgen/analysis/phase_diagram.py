@@ -366,7 +366,7 @@ class PhaseDiagram(MSONable):
         self.all_entries = computed_data["all_entries"]
         self.qhull_data = computed_data["qhull_data"]
         self.dim = computed_data["dim"]
-        self.el_refs = computed_data["el_refs"]
+        self.el_refs = {Element(el): ref for el, ref in computed_data["el_refs"].items()}
         self.qhull_entries = computed_data["qhull_entries"]
         self.stable_entries = set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets)))
 
@@ -461,7 +461,7 @@ class PhaseDiagram(MSONable):
             all_entries=all_entries,
             qhull_data=qhull_data,
             dim=dim,
-            el_refs=el_refs,
+            el_refs={str(el): ref for el, ref in el_refs.items()},
             qhull_entries=qhull_entries,
         )
 
