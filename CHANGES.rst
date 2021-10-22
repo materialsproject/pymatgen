@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2022.0.16
+----------
+
+* Fix to allow PhaseDiagram to be JSON serializable with computed data cached (@mkhorton, #2276)
+* Temporarily revert #2239 pending investigation into slow-down in some nearest neighbor finding routines. This does not affect the behavior of any of these classes.
+
+
 v2022.0.15
 ----------
 
