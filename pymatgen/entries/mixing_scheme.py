@@ -176,7 +176,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             # TODO - there needs to be a check for ComputedStructureEntry here
             # right now this happens in _filter_and_sort_entries
             if verbose:
-                print("Generating mixing state data from provided entries.")
+                print("  Generating mixing state data from provided entries.")
             mixing_state_data = self.get_mixing_state_data(entries_type_1 + entries_type_2, verbose=False)
 
         if verbose:
@@ -186,9 +186,21 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if len(stable_df) > 0:
                 hull_entries_2 = sum(stable_df["energy_2"].notna())
             print(
-                f"Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
+                f"  Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
                 f"{self.run_type_1} hull entries."
             )
+            if hull_entries_2 == len(stable_df):
+                print(f"  {self.run_type_1} energies will be adjusted to the {self.run_type_2} scale")
+            else:
+                print(f"  {self.run_type_2} energies will be adjusted to the {self.run_type_1} scale")
+
+            if hull_entries_2 > 0:
+                print(
+                    f"  The energy above hull for {self.run_type_2} materials at compositions with "
+                    f"{self.run_type_2} hull entries will be preserved. For other compositions, "
+                    f"Energies of {self.run_type_2} materials will be set equal to those of "
+                    f"matching {self.run_type_1} materials"
+                )
 
         # the code below is identical to code inside process_entries in the base
         # Compatibility class, except that an extra kwarg is passed to get_adjustments
@@ -201,7 +213,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 if "WARNING!" in str(exc):
                     warnings.warn(str(exc))
                 elif verbose:
-                    print(f"{'':2}{exc}")
+                    print(f"  {exc}")
                 ignore_entry = True
                 continue
 
@@ -225,6 +237,15 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             if not ignore_entry:
                 processed_entry_list.append(entry)
+
+        if verbose:
+            count_type_1 = len([e for e in processed_entry_list if e.parameters["run_type"] in self.valid_rtypes_1])
+            count_type_2 = len([e for e in processed_entry_list if e.parameters["run_type"] in self.valid_rtypes_2])
+            print(
+                f"\nProcessing complete. Mixed entries contain {count_type_1} {self.run_type_1} and {count_type_2} "
+                f"{self.run_type_2} entries.\n"
+            )
+            self.display_entries(processed_entry_list)
 
         return processed_entry_list
 
@@ -594,7 +615,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if verbose:
             print(
                 f"Processing {len(entries_type_1)} {self.run_type_1} and {len(entries_type_2)} "
-                f"{self.run_type_2} entries"
+                f"{self.run_type_2} entries..."
             )
 
         # preprocess entries with any corrections
@@ -603,7 +624,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             entries_type_1 = self.compat_1.process_entries(entries_type_1)
             if verbose:
                 print(
-                    f"Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
+                    f"  Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
                     f"{self.compat_1.__class__.__name__}"
                 )
         entries_type_1 = EntrySet(entries_type_1)
@@ -612,7 +633,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             entries_type_2 = self.compat_2.process_entries(entries_type_2)
             if verbose:
                 print(
-                    f"Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
+                    f"  Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
                     f"{self.compat_2.__class__.__name__}"
                 )
         entries_type_2 = EntrySet(entries_type_2)
@@ -623,7 +644,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             chemsys = entries_type_1.chemsys
             if not entries_type_2.chemsys <= entries_type_1.chemsys:
                 warnings.warn(
-                    f"{self.run_type_2} entries chemical system {entries_type_2.chemsys} is larger than "
+                    f"  {self.run_type_2} entries chemical system {entries_type_2.chemsys} is larger than "
                     f"{self.run_type_1} entries chemical system {entries_type_1.chemsys}. Entries outside the "
                     f"{self.run_type_1} chemical system will be discarded"
                 )
@@ -633,7 +654,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             chemsys = entries_type_2.chemsys
 
         if verbose:
-            print("Entries belong to the {} chemical system".format(chemsys))
+            print("  Entries belong to the {} chemical system".format(chemsys))
 
         return list(entries_type_1), list(entries_type_2)
 
@@ -699,3 +720,33 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             hull_energy_1,
             hull_energy_2,
         ]
+
+    @staticmethod
+    def display_entries(entries):
+        """
+        Generate a pretty printout of key properties of a list of ComputedEntry
+        """
+        entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
+        try:
+            pd = PhaseDiagram(entries)
+        except ValueError:
+            return None
+
+        print(
+            "{:<12}{:<12}{:<12}{:<10}{:<8} {:<9} {:<9}".format(
+                "entry_id", "formula", "spacegroup", "run_type", "eV/atom", "corr/atom", "e_above_hull"
+            )
+        )
+        for e in entries:
+            print(
+                "{:<12}{:<12}{:<12}{:<10}{:<8.3f} {:<9.3f} {:<9.3f}".format(
+                    e.entry_id,
+                    e.composition.reduced_formula,
+                    e.structure.get_space_group_info()[0],
+                    e.parameters["run_type"],
+                    e.energy_per_atom,
+                    e.correction / e.composition.num_atoms,
+                    pd.get_e_above_hull(e),
+                )
+            )
+        return None
