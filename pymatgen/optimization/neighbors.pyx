@@ -64,7 +64,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     if r < min_r:
         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
             all_coords=all_coords, center_coords=center_coords,
-            r=min_r, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+            r=r, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
         mask = fdistances <= r
         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
             mask]
