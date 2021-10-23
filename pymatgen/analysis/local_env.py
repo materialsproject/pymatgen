@@ -4142,8 +4142,8 @@ def _get_radius(site):
 class CutOffDictNN(NearNeighbors):
     """
     A basic NN class using a dictionary of fixed cut-off distances.
-    Bonds are created only between pairs of elements
-    listed in the cut-off dictionary.
+    Only pairs of elements listed in the cut-off dictionary are considered
+    during construction of the neighbor lists.
 
     Omit passing a dictionary for a Null/Empty NN class.
     """
