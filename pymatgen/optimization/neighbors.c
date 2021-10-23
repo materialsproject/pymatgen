@@ -2914,7 +2914,6 @@ static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k); 
 static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new__memoryviewslice(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_float_1_0;
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_3;
@@ -3491,7 +3490,7 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
  *     if r < min_r:
  *         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(             # <<<<<<<<<<<<<<
  *             all_coords=all_coords, center_coords=center_coords,
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
  */
     __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_find_points_in_spheres); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -3500,7 +3499,7 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
  *     if r < min_r:
  *         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
  *             all_coords=all_coords, center_coords=center_coords,             # <<<<<<<<<<<<<<
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
  *         mask = fdistances <= r
  */
     __pyx_t_3 = __Pyx_PyDict_NewPresized(7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
@@ -3513,15 +3512,18 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
     __Pyx_GOTREF(__pyx_t_4);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_center_coords, __pyx_t_4) < 0) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_r, __pyx_float_1_0) < 0) __PYX_ERR(0, 66, __pyx_L1_error)
 
     /* "optimization/neighbors.pyx":67
  *         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
  *             all_coords=all_coords, center_coords=center_coords,
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)             # <<<<<<<<<<<<<<
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)             # <<<<<<<<<<<<<<
  *         mask = fdistances <= r
  *         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
  */
+    __pyx_t_4 = PyFloat_FromDouble((__pyx_v_min_r + __pyx_v_tol)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_r, __pyx_t_4) < 0) __PYX_ERR(0, 66, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_pbc, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_pbc, __pyx_t_4) < 0) __PYX_ERR(0, 66, __pyx_L1_error)
@@ -3544,7 +3546,7 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
  *     if r < min_r:
  *         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(             # <<<<<<<<<<<<<<
  *             all_coords=all_coords, center_coords=center_coords,
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
  */
     __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
@@ -3620,7 +3622,7 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
 
     /* "optimization/neighbors.pyx":68
  *             all_coords=all_coords, center_coords=center_coords,
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
  *         mask = fdistances <= r             # <<<<<<<<<<<<<<
  *         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
  *             mask]
@@ -3633,7 +3635,7 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
     __pyx_t_6 = 0;
 
     /* "optimization/neighbors.pyx":69
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
  *         mask = fdistances <= r
  *         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[             # <<<<<<<<<<<<<<
  *             mask]
@@ -3658,7 +3660,7 @@ static PyObject *__pyx_pf_12optimization_9neighbors_find_points_in_spheres(CYTHO
     __Pyx_GOTREF(__pyx_t_2);
 
     /* "optimization/neighbors.pyx":69
- *             r=1.0, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+ *             r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
  *         mask = fdistances <= r
  *         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[             # <<<<<<<<<<<<<<
  *             mask]
@@ -25380,7 +25382,6 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
 static CYTHON_SMALL_CODE int __Pyx_InitGlobals(void) {
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_float_1_0 = PyFloat_FromDouble(1.0); if (unlikely(!__pyx_float_1_0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_3 = PyInt_FromLong(3); if (unlikely(!__pyx_int_3)) __PYX_ERR(0, 1, __pyx_L1_error)
