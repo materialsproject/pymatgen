@@ -1521,8 +1521,10 @@ def generate_full_symmops(symmops, tol):
             if not np.any(np.all(np.all(d, axis=2), axis=1)):
                 full.append(op)
             if len(full) > 1000:
-                warnings.warn(f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                              f" and rerun with a different tolerance.")
+                warnings.warn(
+                    f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
+                    f" and rerun with a different tolerance."
+                )
 
     d = np.abs(full - UNIT) < tol
     if not np.any(np.all(np.all(d, axis=2), axis=1)):
