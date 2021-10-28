@@ -329,8 +329,7 @@ class PhaseDiagramTest(unittest.TestCase):
         # polymorph
         self.assertAlmostEqual(
             toy_pd.get_phase_separation_energy(PDEntry("Li2O", -4)),
-            1.0 / 3.0,
-            # -2.0 / 3.0,
+            -2.0 / 3.0,
             7,
         )
 
@@ -695,18 +694,12 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
 
     def test_get_phase_separation_energy(self):
         for e in self.novel_entries:
-            self.assertAlmostEqual(
-                self.pd.get_phase_separation_energy(e),
-                self.ppd.get_phase_separation_energy(e),
-                7
-            )
+            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
 
     def test_get_equilibrium_reaction_energy(self):
         for e in self.pd.stable_entries:
             self.assertAlmostEqual(
-                self.pd.get_equilibrium_reaction_energy(e),
-                self.ppd.get_equilibrium_reaction_energy(e),
-                7
+                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
             )
 
 
