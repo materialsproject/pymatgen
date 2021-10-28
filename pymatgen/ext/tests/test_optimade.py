@@ -19,7 +19,7 @@ class OptimadeTest(PymatgenTest):
             raw_filter_structs = optimade.get_structures_with_filter(_filter)
 
             # skip if query fails to return any results (e.g. server down or inaccessible)
-            if "mp" in structs:
+            if ("mp" in structs) and ("mp" in raw_filter_structs):
 
                 test_struct = next(iter(structs["mp"].values()))
                 self.assertEqual([str(el) for el in test_struct.types_of_species], ["Ga", "N"])

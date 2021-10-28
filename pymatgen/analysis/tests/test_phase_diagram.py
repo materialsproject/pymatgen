@@ -591,6 +591,7 @@ class PhaseDiagramTest(unittest.TestCase):
         new_pd = PhaseDiagram.from_dict(dd)
         new_dd = new_pd.as_dict()
         self.assertEqual(new_dd, dd)
+        self.assertIsInstance(pd.to_json(), str)
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
