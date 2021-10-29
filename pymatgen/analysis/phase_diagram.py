@@ -1565,6 +1565,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def __repr__(self):
         return f"{self.__class__.__name__}\n Covering {len(self.spaces)} Sub-Spaces"
 
+    def as_dict(self):
+        """
+        Returns:
+            MSONable dictionary representation of PatchedPhaseDiagram
+        """
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "all_entries": [e.as_dict() for e in self.all_entries],
+            "elements": [e.as_dict() for e in self.elements],
+        }
+
     @classmethod
     def from_dict(cls, d):
         """
