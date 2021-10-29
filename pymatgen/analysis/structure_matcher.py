@@ -805,7 +805,7 @@ class StructureMatcher(MSONable):
             in different groups without comparison.
         """
         if self._subset:
-            raise ValueError("allow_subset cannot be used with" " group_structures")
+            raise ValueError("allow_subset cannot be used with group_structures")
 
         original_s_list = list(s_list)
         s_list = self._process_species(s_list)
@@ -1064,9 +1064,7 @@ class StructureMatcher(MSONable):
         struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
 
         if not s1_supercell:
-            raise ValueError(
-                "The non-supercell must be put onto the basis" " of the supercell, not the other way around"
-            )
+            raise ValueError("The non-supercell must be put onto the basis of the supercell, not the other way around")
 
         match = self._match(struct, supercell, fu, s1_supercell, use_rms=True, break_on_match=False)
 
@@ -1235,7 +1233,7 @@ class PointDefectComparator(MSONable):
         possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
 
         if not isinstance(d1, possible_defect_types) or not isinstance(d2, possible_defect_types):
-            raise ValueError("Cannot use PointDefectComparator to" " compare non-defect objects...")
+            raise ValueError("Cannot use PointDefectComparator to compare non-defect objects...")
 
         if not isinstance(d1, d2.__class__):
             return False

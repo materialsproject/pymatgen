@@ -1029,7 +1029,7 @@ class PhaseDiagram(MSONable):
         element = get_el_sp(element)
 
         if element not in self.elements:
-            raise ValueError("get_transition_chempots can only be called with" " elements in the phase diagram.")
+            raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
 
         gccomp = Composition({el: amt for el, amt in comp.items() if el != element})
         elref = self.el_refs[element]

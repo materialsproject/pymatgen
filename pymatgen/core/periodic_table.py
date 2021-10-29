@@ -1595,4 +1595,4 @@ def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
             try:
                 return DummySpecies.from_string(obj)
             except Exception:
-                raise ValueError("Can't parse Element or String from type" " %s: %s." % (type(obj), obj))
+                raise ValueError("Can't parse Element or String from type %s: %s." % (type(obj), obj))

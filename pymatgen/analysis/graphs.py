@@ -225,7 +225,7 @@ class StructureGraph(MSONable):
                 from_image = edge[2]
                 to_image = edge[3]
             except TypeError:
-                raise ValueError("Edges must be given as (from_index, to_index," " from_image, to_image) tuples")
+                raise ValueError("Edges must be given as (from_index, to_index, from_image, to_image) tuples")
 
             if props is not None:
                 if "weight" in props.keys():
@@ -242,7 +242,7 @@ class StructureGraph(MSONable):
             nodes = sg.graph.nodes
             if not (from_index in nodes and to_index in nodes):
                 raise ValueError(
-                    "Edges cannot be added if nodes are not" " present in the graph. Please check your" " indices."
+                    "Edges cannot be added if nodes are not present in the graph. Please check your indices."
                 )
 
             sg.add_edge(
@@ -1721,7 +1721,7 @@ class MoleculeGraph(MSONable):
             nodes = mg.graph.nodes
             if not (from_index in nodes and to_index in nodes):
                 raise ValueError(
-                    "Edges cannot be added if nodes are not" " present in the graph. Please check your" " indices."
+                    "Edges cannot be added if nodes are not present in the graph. Please check your indices."
                 )
 
             mg.add_edge(from_index, to_index, weight=weight, edge_properties=props)

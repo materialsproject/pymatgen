@@ -198,7 +198,7 @@ class StructureVis:
         """
         helptxt = [
             "h : Toggle help",
-            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
@@ -1132,7 +1132,7 @@ class MultiStructuresVis(StructureVis):
         """
         helptxt = [
             "h : Toggle help",
-            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",

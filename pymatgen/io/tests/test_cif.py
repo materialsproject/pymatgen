@@ -145,7 +145,7 @@ actually going to end now
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(
             cb["_thing"],
-            " long quotes  ;  still in the quote" "  ; actually going to end now",
+            " long quotes  ;  still in the quote  ; actually going to end now",
         )
 
     def test_long_loop(self):
@@ -522,44 +522,6 @@ loop_
         filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
-        ans = """# generated using pymatgen
-data_FePO4
-_symmetry_space_group_name_H-M   Pnma
-_cell_length_a   10.41176687
-_cell_length_b   6.06717188
-_cell_length_c   4.75948954
-_cell_angle_alpha   90.00000000
-_cell_angle_beta   90.00000000
-_cell_angle_gamma   90.00000000
-_symmetry_Int_Tables_number   62
-_chemical_formula_structural   FePO4
-_chemical_formula_sum   'Fe4 P4 O16'
-_cell_volume   300.65685512
-_cell_formula_units_Z   4
-loop_
- _symmetry_equiv_pos_site_id
- _symmetry_equiv_pos_as_xyz
-  1  'x, y, z'
-  2  '-x, -y, -z'
-  3  '-x+1/2, -y, z+1/2'
-  4  'x+1/2, y, -z+1/2'
-  5  'x+1/2, -y+1/2, -z+1/2'
-  6  '-x+1/2, y+1/2, z+1/2'
-  7  '-x, y+1/2, -z'
-  8  'x, -y+1/2, z'
-loop_
- _atom_site_type_symbol
- _atom_site_label
- _atom_site_symmetry_multiplicity
- _atom_site_fract_x
- _atom_site_fract_y
- _atom_site_fract_z
- _atom_site_occupancy
-  Fe  Fe1  4  0.218728  0.250000  0.525133  1
-  P  P2  4  0.094613  0.750000  0.581757  1
-  O  O3  8  0.165710  0.546072  0.714616  1
-  O  O4  4  0.043372  0.250000  0.292862  1
-  O  O5  4  0.096642  0.750000  0.258680  1"""
 
         cif = CifParser.from_string(str(writer))
         m = StructureMatcher()

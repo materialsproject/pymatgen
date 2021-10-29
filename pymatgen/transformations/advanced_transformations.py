@@ -139,7 +139,7 @@ class SuperTransformation(AbstractTransformation):
             Structures with all transformations applied.
         """
         if not return_ranked_list:
-            raise ValueError("SuperTransformation has no single best structure" " output. Must use return_ranked_list")
+            raise ValueError("SuperTransformation has no single best structure output. Must use return_ranked_list")
         structures = []
         for t in self._transformations:
             if t.is_one_to_many:
@@ -512,7 +512,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             Predicted Structures.
         """
         if not return_ranked_list:
-            raise ValueError("SubstitutionPredictorTransformation doesn't" " support returning 1 structure")
+            raise ValueError("SubstitutionPredictorTransformation doesn't support returning 1 structure")
 
         preds = self._substitutor.composition_prediction(structure.composition, to_this_composition=False)
         preds.sort(key=lambda x: x["probability"], reverse=True)

@@ -524,7 +524,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         # check that the frameworks of the entries are equivalent
         if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
-            raise ValueError("VoltagePair: the specified entries must have the" " same compositional framework")
+            raise ValueError("VoltagePair: the specified entries must have the same compositional framework")
 
         # Initialize normalization factors, charged and discharged entries
 

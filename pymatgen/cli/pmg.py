@@ -275,7 +275,7 @@ def main():
         dest="element",
         type=str,
         nargs=1,
-        help="List of elements to plot as comma-separated" " values e.g., Fe,Mn",
+        help="List of elements to plot as comma-separated values e.g., Fe,Mn",
     )
     parser_plot.add_argument(
         "-o",

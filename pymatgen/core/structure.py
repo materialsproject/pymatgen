@@ -690,7 +690,7 @@ class IStructure(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                "The list of atomic species must be of the" " same length as the list of fractional" " coordinates."
+                "The list of atomic species must be of the same length as the list of fractional coordinates."
             )
 
         if isinstance(lattice, Lattice):
@@ -3438,7 +3438,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     break
 
         if len(all_non_terminal_nn) == 0:
-            raise RuntimeError("Can't find a non-terminal neighbor to attach" " functional group to.")
+            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to.")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
 
@@ -4146,7 +4146,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     break
 
         if len(all_non_terminal_nn) == 0:
-            raise RuntimeError("Can't find a non-terminal neighbor to attach" " functional group to.")
+            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to.")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.nn_distance)
 

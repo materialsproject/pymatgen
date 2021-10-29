@@ -230,7 +230,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn("Possible issue in cif file" " at line: {}".format("".join(s).strip()))
+                warnings.warn("Possible issue in cif file at line: {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
@@ -1291,7 +1291,7 @@ class CifWriter:
         """
 
         if write_magmoms and symprec:
-            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen," "disabling symmetry detection.")
+            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None
 
         format_str = "{:.%df}" % significant_figures
