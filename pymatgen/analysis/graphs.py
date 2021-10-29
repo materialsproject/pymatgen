@@ -2435,7 +2435,7 @@ class MoleculeGraph(MSONable):
             rings = self.find_rings(including=[index])
             if len(rings) != 0:
                 raise RuntimeError(
-                    "Currently functional group replacement" "cannot occur at an atom within a ring" "structure."
+                    "Currently functional group replacement cannot occur at an atom within a ring structure."
                 )
 
             to_remove = set()

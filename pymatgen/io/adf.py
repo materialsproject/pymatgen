@@ -816,7 +816,7 @@ class AdfOutput:
 
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
-        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s" "Hartree")
+        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s Hartree")
         final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
         runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")

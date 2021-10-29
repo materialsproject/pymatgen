@@ -2920,7 +2920,7 @@ def get_structure_from_prev_run(vasprun, outcar=None):
             if len(l_val) == len(structure):
                 site_properties.update({k.lower(): l_val})
             else:
-                raise ValueError("length of list {} not the same as" "structure".format(l_val))
+                raise ValueError("length of list {} not the same as structure".format(l_val))
 
     return structure.copy(site_properties=site_properties)
 

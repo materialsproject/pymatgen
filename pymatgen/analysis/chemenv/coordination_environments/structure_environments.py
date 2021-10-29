@@ -2175,7 +2175,7 @@ class ChemicalEnvironments(MSONable):
             self.coord_geoms = {}
         else:
             raise NotImplementedError(
-                "Constructor for ChemicalEnvironments with the coord_geoms argument is not" "yet implemented"
+                "Constructor for ChemicalEnvironments with the coord_geoms argument is not yet implemented"
             )
 
     def __getitem__(self, mp_symbol):

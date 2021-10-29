@@ -19,8 +19,8 @@ from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -80,7 +80,8 @@ VALID_FEFF_TAGS = (
     "EDGE",
     "COMPTON",
     "DANES",
-    "FPRIME" "MDFF",
+    "FPRIME",
+    "MDFF",
     "HOLE",
     "COREHOLE",
     "S02",

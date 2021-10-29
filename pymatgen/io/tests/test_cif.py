@@ -8,15 +8,15 @@ import warnings
 
 import numpy as np
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import DummySpecies, Element, Species
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import DummySpecies, Element, Species
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import PymatgenTest
 
 try:
@@ -125,7 +125,7 @@ _thing   '_annoying_data'"""
     def test_double_quoted_data(self):
         cif_str = """data_test
 _thing   ' '_annoying_data''
-_other   _more_annoying_data""
+_other   " "_more_annoying_data""
 _more   ' "even more" ' """
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(cb["_thing"], " '_annoying_data'")
@@ -569,46 +569,6 @@ loop_
         # for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
         #     self.assertEqual(l1.strip(), l2.strip())
 
-        ans = """# generated using pymatgen
-data_LiFePO4
-_symmetry_space_group_name_H-M   Pnma
-_cell_length_a   10.41037000
-_cell_length_b   6.06577000
-_cell_length_c   4.74480000
-_cell_angle_alpha   90.00000000
-_cell_angle_beta   90.00000000
-_cell_angle_gamma   90.00000000
-_symmetry_Int_Tables_number   62
-_chemical_formula_structural   LiFePO4
-_chemical_formula_sum   'Li4 Fe4 P4 O16'
-_cell_volume   299.619458734
-_cell_formula_units_Z   4
-loop_
- _symmetry_equiv_pos_site_id
- _symmetry_equiv_pos_as_xyz
-  1  'x, y, z'
-  2  '-x, -y, -z'
-  3  '-x+1/2, -y, z+1/2'
-  4  'x+1/2, y, -z+1/2'
-  5  'x+1/2, -y+1/2, -z+1/2'
-  6  '-x+1/2, y+1/2, z+1/2'
-  7  '-x, y+1/2, -z'
-  8  'x, -y+1/2, z'
-loop_
- _atom_site_type_symbol
- _atom_site_label
- _atom_site_symmetry_multiplicity
- _atom_site_fract_x
- _atom_site_fract_y
- _atom_site_fract_z
- _atom_site_occupancy
-  Li  Li1  4  0.000000  0.000000  0.000000  1.0
-  Fe  Fe2  4  0.218845  0.750000  0.474910  1.0
-  P  P3  4  0.094445  0.250000  0.417920  1.0
-  O  O4  8  0.165815  0.044060  0.286540  1.0
-  O  O5  4  0.043155  0.750000  0.708460  1.0
-  O  O6  4  0.096215  0.250000  0.741480  1.0
-"""
         s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
         writer = CifWriter(s, symprec=0.1)
         s2 = CifParser.from_string(str(writer)).get_structures()[0]

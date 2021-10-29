@@ -296,7 +296,7 @@ class BaderAnalysis:
             associated atom.
         """
         if not self.nelects and nelect is None:
-            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument" "for cube file")
+            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument for cube file")
         return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
 
     def get_charge_decorated_structure(self):

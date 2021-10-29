@@ -207,7 +207,7 @@ class XAS(Spectrum):
             if self.spectrum_type != "XANES" or other.spectrum_type != "XANES":
                 raise ValueError("Only XANES spectrum can be stitched in L23 mode.")
             if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"] or self.edge == other.edge:
-                raise ValueError("Need one L2 and one L3 edge spectrum to stitch" "in L23 mode.")
+                raise ValueError("Need one L2 and one L3 edge spectrum to stitch in L23 mode.")
             l2_xanes = self if self.edge == "L2" else other
             l3_xanes = self if self.edge == "L3" else other
             if l2_xanes.absorbing_element.number > 30:

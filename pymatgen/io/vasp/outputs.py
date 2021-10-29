@@ -480,7 +480,7 @@ class Vasprun(MSONable):
             if self.exception_on_bad_xml:
                 raise ex
             warnings.warn(
-                "XML is malformed. Parsing has stopped but partial data" "is available.",
+                "XML is malformed. Parsing has stopped but partial data is available.",
                 UserWarning,
             )
         self.ionic_steps = ionic_steps

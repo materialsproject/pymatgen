@@ -143,7 +143,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return self._data.get(sp, 0)
         except ValueError as ex:
             raise TypeError(
-                "Invalid key {}, {} for Composition\n" "ValueError exception:\n{}".format(item, type(item), ex)
+                "Invalid key {}, {} for Composition\nValueError exception:\n{}".format(item, type(item), ex)
             )
 
     def __len__(self):
@@ -158,7 +158,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return sp in self._data
         except ValueError as ex:
             raise TypeError(
-                "Invalid key {}, {} for Composition\n" "ValueError exception:\n{}".format(item, type(item), ex)
+                "Invalid key {}, {} for Composition\nValueError exception:\n{}".format(item, type(item), ex)
             )
 
     def __eq__(self, other):
