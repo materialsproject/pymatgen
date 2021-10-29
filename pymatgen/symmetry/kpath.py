@@ -1736,7 +1736,7 @@ class KPathLatimerMunro(KPathBase):
                 new_magmoms.append(magmom * magmom_axis)
 
         if found_scalar and not axis_specified:
-            warn("At least one magmom had a scalar value and magmom_axis was not specified." "Defaulted to z+ spinor.")
+            warn("At least one magmom had a scalar value and magmom_axis was not specified. Defaulted to z+ spinor.")
 
         struct.remove_site_property("magmom")
         struct.add_site_property("magmom", new_magmoms)

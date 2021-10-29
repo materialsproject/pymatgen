@@ -17,8 +17,8 @@ import numpy as np
 from monty.fractions import lcm
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # This module implements representations of grain boundaries, as well as
@@ -1080,7 +1080,7 @@ class GrainBoundaryGenerator:
                 if u + v + w != 0:
                     if u != v or u != w:
                         raise RuntimeError(
-                            "For irrational ratio_alpha, CSL only exist for [1,1,1]" "or [u, v, -(u+v)] and m =0"
+                            "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
                         )
             else:
                 mu, mv = ratio
@@ -1565,7 +1565,7 @@ class GrainBoundaryGenerator:
             if u + v + w != 0:
                 if u != v or u != w:
                     raise RuntimeError(
-                        "For irrational ratio_alpha, CSL only exist for [1,1,1]" "or [u, v, -(u+v)] and m =0"
+                        "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
                     )
         else:
             mu, mv = ratio_alpha

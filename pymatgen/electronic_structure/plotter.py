@@ -345,7 +345,7 @@ class BSPlotter:
                         logger.debug("already print label... skipping label {i}".format(i=ticks["label"][i]))
                     else:
                         logger.debug(
-                            "Adding a line at {d}" " for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
+                            "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
                         )
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
@@ -923,7 +923,7 @@ class BSPlotterProjected(BSPlotter):
         """
         if isinstance(bs, list):
             warnings.warn(
-                "Multiple bands are not handled by BSPlotterProjected." "The first band in the list will be considered"
+                "Multiple bands are not handled by BSPlotterProjected. The first band in the list will be considered"
             )
             bs = bs[0]
 

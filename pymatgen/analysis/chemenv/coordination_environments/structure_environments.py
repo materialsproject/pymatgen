@@ -1514,7 +1514,7 @@ class LightStructureEnvironments(MSONable):
         def __str__(self):
             out = "Neighbors Set for site #{:d} :\n".format(self.isite)
             out += " - Coordination number : {:d}\n".format(len(self))
-            out += " - Neighbors sites indices : {}" "\n".format(
+            out += " - Neighbors sites indices : {}\n".format(
                 ", ".join(["{:d}".format(nb_list_index) for nb_list_index in self.all_nbs_sites_indices])
             )
             return out

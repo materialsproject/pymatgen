@@ -1704,7 +1704,7 @@ class MoleculeGraph(MSONable):
                 from_index = edge[0]
                 to_index = edge[1]
             except TypeError:
-                raise ValueError("Edges must be given as (from_index, to_index)" "tuples")
+                raise ValueError("Edges must be given as (from_index, to_index) tuples")
 
             if props is not None:
                 if "weight" in props.keys():
