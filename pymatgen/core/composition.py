@@ -15,7 +15,7 @@ import warnings
 from collections import Counter, abc, defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Generator, List, Tuple, Union
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -123,7 +123,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         if len(args) == 1 and isinstance(args[0], Composition):
             elmap = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
-            elmap = self._parse_formula(args[0])
+            elmap = Composition(self._parse_formula(args[0]))
         else:
             elmap = dict(*args, **kwargs)  # type: ignore
         elamt = {}
@@ -564,10 +564,10 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         formula = formula.replace("@", "")
 
         def get_sym_dict(form: str, factor: Union[int, float]) -> Dict[str, float]:
-            sym_dict = defaultdict(float)
+            sym_dict: Dict[str, float] = defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
-                amt = 1
+                amt = 1.0
                 if m.group(2).strip() != "":
                     amt = float(m.group(2))
                 sym_dict[el] += amt * factor
@@ -578,7 +578,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
 
         m = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
         if m:
-            factor = 1
+            factor = 1.0
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
@@ -1014,19 +1014,19 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
 
         all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
         # remove duplicates
-        all_matches = list(set(all_matches))
+        uniq_matches = list(set(all_matches))
         # sort matches by rank descending
-        all_matches = sorted(all_matches, key=lambda match: (match[1], match[0]), reverse=True)
-        all_matches = [m[0] for m in all_matches]
-        return all_matches
+        ranked_matches = sorted(uniq_matches, key=lambda match: (match[1], match[0]), reverse=True)
+
+        return [m[0] for m in ranked_matches]
 
     @staticmethod
     def _comps_from_fuzzy_formula(
         fuzzy_formula: str,
         m_dict: Dict[str, float] = None,
-        m_points: Union[int, float] = 0,
+        m_points: int = 0,
         factor: Union[int, float] = 1,
-    ) -> List[Tuple["Composition", int]]:
+    ) -> Generator[Tuple["Composition", int], None, None]:
         """
         A recursive helper method for formula parsing that helps in
         interpreting and ranking indeterminate formulas.
@@ -1175,7 +1175,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> Tuple[str, float]:
             Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
             Recommendations 2005)". This ordering effectively follows
             the groups and rows of the periodic table, except the
-            Lanthanides, Actanides and hydrogen. Note that polyanions
+            Lanthanides, Actinides and hydrogen. Note that polyanions
             will still be determined based on the true electronegativity of
             the elements.
 
