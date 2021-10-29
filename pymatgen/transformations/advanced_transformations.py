@@ -49,7 +49,7 @@ try:
 except ImportError:
     hiphive = None
 
-__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " "Alex Ganose"
+__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
         if removal_fraction < 0:
-            raise ValueError("addition of specie not yet supported by " "ChargeBalanceTransformation")
+            raise ValueError("addition of specie not yet supported by ChargeBalanceTransformation")
         trans = SubstitutionTransformation({self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
@@ -354,7 +354,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.timeout = timeout
 
         if max_cell_size and max_disordered_sites:
-            raise ValueError("Cannot set both max_cell_size and " "max_disordered_sites!")
+            raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -838,7 +838,7 @@ class MagOrderingTransformation(AbstractTransformation):
         """
 
         if not structure.is_ordered:
-            raise ValueError("Create an ordered approximation of " "your  input structure first.")
+            raise ValueError("Create an ordered approximation of your  input structure first.")
 
         # retrieve order parameters
         order_parameters = [MagOrderParameterConstraint.from_dict(op_dict) for op_dict in self.order_parameter]

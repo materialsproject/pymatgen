@@ -799,7 +799,7 @@ class SpacegroupAnalyzer:
                     weights.append(mapping.count(mapping[i]))
                     break
         if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
-            raise ValueError("Unable to find 1:1 corresponding between input " "kpoints and irreducible grid!")
+            raise ValueError("Unable to find 1:1 corresponding between input kpoints and irreducible grid!")
         return [w / sum(weights) for w in weights]
 
     def is_laue(self):

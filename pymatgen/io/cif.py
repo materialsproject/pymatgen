@@ -567,7 +567,7 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional co-ordinates rounded to ideal values to " "avoid issues with finite precision."
+                "Some fractional co-ordinates rounded to ideal values to avoid issues with finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
@@ -748,7 +748,7 @@ class CifParser:
                         continue
 
         if not symops:
-            msg = "No _symmetry_equiv_pos_as_xyz type key found. " "Defaulting to P1."
+            msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg)
             self.warnings.append(msg)
             symops = [SymmOp.from_xyz_string(s) for s in ["x", "y", "z"]]

@@ -14,7 +14,7 @@ import re
 import string
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import List, Tuple, Union, Dict
+from typing import Dict, List, Tuple, Union
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -22,8 +22,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.units import Mass
-from pymatgen.util.string import formula_double_format, Stringify
-
+from pymatgen.util.string import Stringify, formula_double_format
 
 SpeciesLike = Union[str, Element, Species, DummySpecies]
 
@@ -130,7 +129,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         self._natoms = 0
         for k, v in elmap.items():
             if v < -Composition.amount_tolerance and not self.allow_negative:
-                raise ValueError("Amounts in Composition cannot be " "negative!")
+                raise ValueError("Amounts in Composition cannot be negative!")
             if abs(v) >= Composition.amount_tolerance:
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
@@ -845,7 +844,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             comp = self.reduced_composition
 
             if max_sites < -1 and comp.num_atoms > abs(max_sites):
-                raise ValueError("Composition {} cannot accommodate max_sites " "setting!".format(comp))
+                raise ValueError("Composition {} cannot accommodate max_sites setting!".format(comp))
 
         elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self.get_reduced_composition_and_factor()
@@ -853,7 +852,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 reduced_comp *= max(1, int(max_sites / reduced_comp.num_atoms))
                 comp = reduced_comp  # as close to max_sites as possible
             if comp.num_atoms > max_sites:
-                raise ValueError("Composition {} cannot accommodate max_sites " "setting!".format(comp))
+                raise ValueError("Composition {} cannot accommodate max_sites setting!".format(comp))
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
@@ -863,7 +862,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         oxi_states_override = oxi_states_override or {}
         # assert: Composition only has integer amounts
         if not all(amt == int(amt) for amt in comp.values()):
-            raise ValueError("Charge balance analysis requires integer " "values in Composition!")
+            raise ValueError("Charge balance analysis requires integer values in Composition!")
 
         # for each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
@@ -941,7 +940,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
         """
-        Takes in a formula where capitilization might not be correctly entered,
+        Takes in a formula where capitalization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
         Author: Anubhav Jain
 

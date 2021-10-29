@@ -41,7 +41,7 @@ class Xr:
                     Xr object.
         """
         if not structure.is_ordered:
-            raise ValueError("Xr file can only be constructed from ordered " "structure")
+            raise ValueError("Xr file can only be constructed from ordered structure")
         self.structure = structure
 
     def __str__(self):

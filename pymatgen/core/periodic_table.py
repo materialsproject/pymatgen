@@ -1379,7 +1379,7 @@ class DummySpecies(Species):
 
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError("{} contains {}, which is a valid element " "symbol.".format(symbol, symbol[:i]))
+                raise ValueError("{} contains {}, which is a valid element symbol.".format(symbol, symbol[:i]))
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.

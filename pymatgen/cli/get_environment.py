@@ -29,7 +29,7 @@ def main():
     parser.add_argument(
         "-m",
         "--message-level",
-        help="Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL - " "default : WARNING)",
+        help="Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL - default : WARNING)",
         default="WARNING",
     )
     args = parser.parse_args()

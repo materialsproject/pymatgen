@@ -508,19 +508,19 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         # check that the ion is just a single element
         if not working_ion_entry.composition.is_element:
-            raise ValueError("VoltagePair: The working ion specified must be " "an element")
+            raise ValueError("VoltagePair: The working ion specified must be an element")
 
         # check that at least one of the entries contains the working element
         if (
             not comp_charge.get_atomic_fraction(working_element) > 0
             and not comp_discharge.get_atomic_fraction(working_element) > 0
         ):
-            raise ValueError("VoltagePair: The working ion must be present in " "one of the entries")
+            raise ValueError("VoltagePair: The working ion must be present in one of the entries")
 
         # check that the entries do not contain the same amount of the workin
         # element
         if comp_charge.get_atomic_fraction(working_element) == comp_discharge.get_atomic_fraction(working_element):
-            raise ValueError("VoltagePair: The working ion atomic percentage " "cannot be the same in both the entries")
+            raise ValueError("VoltagePair: The working ion atomic percentage cannot be the same in both the entries")
 
         # check that the frameworks of the entries are equivalent
         if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:

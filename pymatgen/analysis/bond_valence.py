@@ -514,4 +514,4 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
             structure[i] = new_sp
         return structure
     except IndexError:
-        raise ValueError("Oxidation state of all sites must be " "specified in the list.")
+        raise ValueError("Oxidation state of all sites must be specified in the list.")

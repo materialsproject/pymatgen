@@ -151,14 +151,14 @@ class CollinearMagneticStructureAnalyzer:
 
         # check for disorder
         if not structure.is_ordered:
-            raise NotImplementedError("Not implemented for disordered structures, " "make ordered approximation first.")
+            raise NotImplementedError("Not implemented for disordered structures, make ordered approximation first.")
 
         if detect_valences:
             trans = AutoOxiStateDecorationTransformation()
             try:
                 structure = trans.apply_transformation(structure)
             except ValueError:
-                warnings.warn("Could not assign valences " "for {}".format(structure.composition.reduced_formula))
+                warnings.warn("Could not assign valences for {}".format(structure.composition.reduced_formula))
 
         # check to see if structure has magnetic moments
         # on site properties or species spin properties,
@@ -336,7 +336,7 @@ class CollinearMagneticStructureAnalyzer:
             except Exception as e:
 
                 # TODO: typically a singular matrix warning, investigate this
-                warnings.warn("Failed to round magmoms intelligently, " "falling back to simple rounding.")
+                warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
                 warnings.warn(str(e))
 
             # and finally round roughly to the number of significant figures in our kde width
@@ -717,7 +717,7 @@ class MagneticStructureEnumerator:
         # to process disordered magnetic structures, first make an
         # ordered approximation
         if not structure.is_ordered:
-            raise ValueError("Please obtain an ordered approximation of the " "input structure ({}).".format(formula))
+            raise ValueError("Please obtain an ordered approximation of the input structure ({}).".format(formula))
 
         # CollinearMagneticStructureAnalyzer is used throughout:
         # it can tell us whether the input is itself collinear (if not,
@@ -801,7 +801,7 @@ class MagneticStructureEnumerator:
 
         if not analyzer.is_magnetic:
             raise ValueError(
-                "Not detected as magnetic, add a new default magmom for the " "element you believe may be magnetic?"
+                "Not detected as magnetic, add a new default magmom for the element you believe may be magnetic?"
             )
 
         # now we can begin to generate our magnetic orderings
@@ -1071,7 +1071,7 @@ class MagneticStructureEnumerator:
             structs_to_keep = sorted(structs_to_keep, key=lambda x: (x[1], -x[0]), reverse=True)
 
             self.logger.info(
-                "Removing {} low symmetry " "ordered structures".format(len(ordered_structures) - len(structs_to_keep))
+                "Removing {} low symmetry ordered structures".format(len(ordered_structures) - len(structs_to_keep))
             )
 
             ordered_structures = [ordered_structures[i] for i, _ in structs_to_keep]
@@ -1095,7 +1095,7 @@ class MagneticStructureEnumerator:
                 self.logger.info("Input structure not present in enumerated structures, adding...")
             else:
                 self.logger.info(
-                    "Input structure was found in enumerated " "structures at index {}".format(matches.index(True))
+                    "Input structure was found in enumerated structures at index {}".format(matches.index(True))
                 )
                 self.input_index = matches.index(True)
                 self.input_origin = ordered_structures_origins[self.input_index]

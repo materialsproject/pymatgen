@@ -111,7 +111,7 @@ class TransformedStructureTest(PymatgenTest):
             self.assertEqual(
                 len(w),
                 1,
-                "Warning not raised on type conversion " "with other_parameters",
+                "Warning not raised on type conversion with other_parameters",
             )
         ts = TransformedStructure.from_snl(snl)
         self.assertEqual(ts.history[-1]["@class"], "SubstitutionTransformation")

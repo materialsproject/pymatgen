@@ -175,7 +175,7 @@ class BaderAnalysis:
                 stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "bader exited with return code %d. " "Please check your bader installation." % rs.returncode
+                    "bader exited with return code %d. Please check your bader installation." % rs.returncode
                 )
 
             try:
@@ -184,7 +184,7 @@ class BaderAnalysis:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, " "calculation of vacuum charge may be incorrect."
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect."
                 )
 
             data = []

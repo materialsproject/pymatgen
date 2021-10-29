@@ -18,7 +18,7 @@ try:
     import networkx as nx
     import networkx.algorithms.isomorphism as iso
 except ImportError:
-    raise ImportError("pymatgen.analysis.functional_groups requires the " "NetworkX graph library to be installed.")
+    raise ImportError("pymatgen.analysis.functional_groups requires the NetworkX graph library to be installed.")
 
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
@@ -62,9 +62,7 @@ class FunctionalGroupExtractor:
                 else:
                     self.molecule = Molecule.from_file(molecule)
             except OSError:
-                raise ValueError(
-                    "Input must be a valid molecule file, a " "Molecule object, or a MoleculeGraph object."
-                )
+                raise ValueError("Input must be a valid molecule file, a Molecule object, or a MoleculeGraph object.")
 
         elif isinstance(molecule, Molecule):
             if optimize:

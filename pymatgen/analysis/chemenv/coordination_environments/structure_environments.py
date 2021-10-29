@@ -1647,7 +1647,7 @@ class LightStructureEnvironments(MSONable):
                         rounddiff = np.round(diff)
                         if not np.allclose(diff, rounddiff):
                             raise ValueError(
-                                "Weird, differences between one site in a periodic image cell is not " "integer ..."
+                                "Weird, differences between one site in a periodic image cell is not integer ..."
                             )
                         nb_image_cell = np.array(rounddiff, np.int_)
                         nb_allnbs_sites_index = len(_all_nbs_sites)
@@ -2135,9 +2135,7 @@ class LightStructureEnvironments(MSONable):
                 diff = site.frac_coords - structure[nb_site["index"]].frac_coords
                 rounddiff = np.round(diff)
                 if not np.allclose(diff, rounddiff):
-                    raise ValueError(
-                        "Weird, differences between one site in a periodic image cell is not " "integer ..."
-                    )
+                    raise ValueError("Weird, differences between one site in a periodic image cell is not integer ...")
                 image_cell = np.array(rounddiff, np.int_)
             all_nbs_sites.append({"site": site, "index": nb_site["index"], "image_cell": image_cell})
         neighbors_sets = [

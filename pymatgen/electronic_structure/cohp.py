@@ -746,7 +746,7 @@ class CompleteCohp(Cohp):
             cohp_file = Cohpcar(filename=filename, are_coops=are_coops, are_cobis=are_cobis)
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
-            raise ValueError("Unknown format %s. Valid formats are LMTO " "and LOBSTER." % fmt)
+            raise ValueError("Unknown format %s. Valid formats are LMTO and LOBSTER." % fmt)
 
         structure = Structure.from_file(structure_file)
         efermi = cohp_file.efermi

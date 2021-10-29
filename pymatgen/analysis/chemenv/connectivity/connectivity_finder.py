@@ -54,7 +54,7 @@ class ConnectivityFinder:
             if len(site_neighbors_sets) > 1:
                 if self.multiple_environments_choice is None:
                     raise ValueError(
-                        "Local environment of site {:d} is a mix and " "nothing is asked about it".format(isite)
+                        "Local environment of site {:d} is a mix and nothing is asked about it".format(isite)
                     )
                 if self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
                     imax = np.argmax(

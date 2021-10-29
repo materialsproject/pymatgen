@@ -980,7 +980,7 @@ class PotcarTest(PymatgenTest):
         # code just grabs the POTCAR from the config file (the config file would
         # grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
-        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in " "for POTCAR")
+        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in for POTCAR")
 
     def test_to_from_dict(self):
         d = self.potcar.as_dict()

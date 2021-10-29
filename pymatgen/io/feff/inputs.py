@@ -180,7 +180,7 @@ class Header(MSONable):
             self.space_group = data["international"]
             self.comment = comment or "None given"
         else:
-            raise ValueError("Structure with partial occupancies cannot be " "converted into atomic coordinates!")
+            raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
     @staticmethod
     def from_cif_file(cif_file, source="", comment=""):
@@ -387,7 +387,7 @@ class Atoms(MSONable):
             self.struct = struct
             self.pot_dict = get_atom_map(struct)
         else:
-            raise ValueError("Structure with partial occupancies cannot be " "converted into atomic coordinates!")
+            raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
         self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
         self.radius = radius
@@ -825,7 +825,7 @@ class Potential(MSONable):
             self.struct = struct
             self.pot_dict = get_atom_map(struct)
         else:
-            raise ValueError("Structure with partial occupancies cannot be " "converted into atomic coordinates!")
+            raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
         self.absorbing_atom, _ = get_absorbing_atom_symbol_index(absorbing_atom, struct)
 

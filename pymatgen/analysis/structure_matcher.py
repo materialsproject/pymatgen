@@ -749,7 +749,7 @@ class StructureMatcher(MSONable):
         mask, s1_t_inds, s2_t_ind = self._get_mask(struct1, struct2, fu, s1_supercell)
 
         if mask.shape[0] > mask.shape[1]:
-            raise ValueError("after supercell creation, struct1 must " "have more sites than struct2")
+            raise ValueError("after supercell creation, struct1 must have more sites than struct2")
 
         # check that a valid mapping exists
         if (not self._subset) and mask.shape[1] != mask.shape[0]:
@@ -1060,7 +1060,7 @@ class StructureMatcher(MSONable):
         is impossible to find
         """
         if self._primitive_cell:
-            raise ValueError("get_supercell_matrix cannot be used with the " "primitive cell option")
+            raise ValueError("get_supercell_matrix cannot be used with the primitive cell option")
         struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
 
         if not s1_supercell:
@@ -1094,14 +1094,14 @@ class StructureMatcher(MSONable):
                 the remaining site indices of struct2.
         """
         if self._primitive_cell:
-            raise ValueError("get_transformation cannot be used with the " "primitive cell option")
+            raise ValueError("get_transformation cannot be used with the primitive cell option")
 
         struct1, struct2 = self._process_species((struct1, struct2))
 
         s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
         ratio = fu if s1_supercell else 1 / fu
         if s1_supercell and fu > 1:
-            raise ValueError("Struct1 must be the supercell, " "not the other way around")
+            raise ValueError("Struct1 must be the supercell, not the other way around")
 
         if len(s1) * ratio >= len(s2):
             # s1 is superset
@@ -1182,7 +1182,7 @@ class StructureMatcher(MSONable):
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
         if self._primitive_cell:
-            raise ValueError("cannot compute mapping with primitive cell " "option")
+            raise ValueError("cannot compute mapping with primitive cell option")
         if len(subset) > len(superset):
             raise ValueError("subset is larger than superset")
 

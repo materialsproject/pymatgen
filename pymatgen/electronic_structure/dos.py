@@ -441,7 +441,7 @@ class FermiDos(Dos, MSONable):
             if hasattr(dos, "structure"):
                 structure = dos.structure
             else:
-                raise ValueError("Structure object is not provided and not " "present in dos")
+                raise ValueError("Structure object is not provided and not present in dos")
 
         self.structure = structure
         self.nelecs = nelecs or self.structure.composition.total_electrons

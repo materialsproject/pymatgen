@@ -73,7 +73,7 @@ class SymmOp(MSONable):
         if rotation_matrix.shape != (3, 3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
         if translation_vec.shape != (3,):
-            raise ValueError("Translation vector must be a rank 1 numpy array " "with 3 elements.")
+            raise ValueError("Translation vector must be a rank 1 numpy array with 3 elements.")
         affine_matrix = np.eye(4)
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec

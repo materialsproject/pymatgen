@@ -727,7 +727,7 @@ class VoronoiNN(NearNeighbors):
                     if e.args and "vertex" in e.args[0]:
                         # pass through the error raised by _extract_cell_info
                         raise e
-                    raise RuntimeError("Error in Voronoi neighbor finding; " "max cutoff exceeded")
+                    raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
@@ -841,9 +841,7 @@ class VoronoiNN(NearNeighbors):
                     if self.allow_pathological:
                         continue
 
-                    raise RuntimeError(
-                        "This structure is pathological," " infinite vertex in the voronoi " "construction"
-                    )
+                    raise RuntimeError("This structure is pathological," " infinite vertex in the voronoi construction")
 
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
@@ -4009,7 +4007,7 @@ class CrystalNN(NearNeighbors):
             cn (integer or float): coordination number.
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn(structure, n, use_weights)
 
@@ -4029,7 +4027,7 @@ class CrystalNN(NearNeighbors):
             cn (dict): dictionary of CN of each element bonded to site
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn_dict(structure, n, use_weights)
 

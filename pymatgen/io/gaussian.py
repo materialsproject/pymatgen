@@ -970,7 +970,7 @@ class GaussianOutput:
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
-                                    warnings.warn("POP=regular case, matrix " "coefficients not complete")
+                                    warnings.warn("POP=regular case, matrix coefficients not complete")
                             f.readline()
 
                         self.eigenvectors = mat_mo
@@ -1089,7 +1089,7 @@ class GaussianOutput:
                             terminated = True
                     elif error_patt.search(line):
                         error_defs = {
-                            "! Non-Optimized Parameters !": "Optimization " "error",
+                            "! Non-Optimized Parameters !": "Optimization error",
                             "Convergence failure": "SCF convergence error",
                         }
                         m = error_patt.search(line)
