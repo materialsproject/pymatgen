@@ -11,6 +11,7 @@ import numbers
 import os
 import re
 import string
+import warnings
 from collections import Counter, abc, defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
@@ -732,6 +733,50 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         """
 
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
+
+    def replace(self, elem_map: Dict[str, Union[str, Dict[str, Union[int, float]]]]) -> "Composition":
+        """
+        Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
+
+        Args:
+            elem_map (dict[str, str | dict[str, int | float]]): dict of elements or species to swap. E.g.
+                {"Li": "Na"} performs a Li for Na substitution. The target can be a {species: factor} dict. For
+                example, in Fe2O3 you could map {"Fe": {"Mg": 0.5, "Cu":0.5}} to obtain MgCuO3.
+
+        Returns:
+            Composition: New object with elements remapped according to elem_map.
+        """
+
+        # drop inapplicable substitutions
+        invalid_elems = [key for key in elem_map if key not in self]
+        if invalid_elems:
+            warnings.warn(
+                "Some elements to be substituted are not present in composition. Please check your input. "
+                f"Problematic element = {invalid_elems}; {self}"
+            )
+        for elem in invalid_elems:
+            elem_map.pop(elem)
+
+        # and normalize values when substituting an element with multiple others
+        # e.g. {"Fe": {"Mg": 1, "Cu": 2}} ->  {"Fe": {"Mg": 1/3, "Cu": 2/3}}
+        for val in elem_map.values():
+            if isinstance(val, dict) and sum(val.values()) != 1:
+                total = sum(val.values())
+                for k in val:
+                    val[k] /= total
+
+        new_comp = self.as_dict()
+
+        for old_elem, new_elem in elem_map.items():
+            amount = new_comp.pop(old_elem)
+
+            if isinstance(new_elem, dict):
+                for el, factor in new_elem.items():
+                    new_comp[el] = factor * amount
+            else:
+                new_comp[new_elem] = amount
+
+        return Composition(new_comp)
 
     def add_charges_from_oxi_state_guesses(
         self,
