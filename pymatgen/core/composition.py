@@ -7,12 +7,12 @@ This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.
 """
 
+import collections
 import numbers
 import os
 import re
 import string
 import warnings
-from collections import Counter, abc, defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from typing import Dict, Generator, List, Tuple, Union
@@ -29,7 +29,7 @@ SpeciesLike = Union[str, Element, Species, DummySpecies]
 
 
 @total_ordering
-class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -123,7 +123,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         if len(args) == 1 and isinstance(args[0], Composition):
             elmap = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
-            elmap = Composition(self._parse_formula(args[0]))
+            elmap = self._parse_formula(args[0])  # type: ignore
         else:
             elmap = dict(*args, **kwargs)  # type: ignore
         elamt = {}
@@ -191,7 +191,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         Adds two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        new_el_map = defaultdict(float)
+        new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
         for k, v in other.items():
             new_el_map[get_el_sp(k)] += v
@@ -207,7 +207,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
             original composition in any of its elements, unless allow_negative
             is True
         """
-        new_el_map = defaultdict(float)
+        new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
         for k, v in other.items():
             new_el_map[get_el_sp(k)] -= v
@@ -564,7 +564,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         formula = formula.replace("@", "")
 
         def get_sym_dict(form: str, factor: Union[int, float]) -> Dict[str, float]:
-            sym_dict: Dict[str, float] = defaultdict(float)
+            sym_dict: Dict[str, float] = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
                 amt = 1.0
@@ -651,7 +651,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
             Dict with element symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d: Dict[str, float] = defaultdict(float)
+        d: Dict[str, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[e.symbol] += a
         return d
@@ -662,7 +662,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
             dict with species symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d: Dict[str, float] = defaultdict(float)
+        d: Dict[str, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[str(e)] += a
         return d
@@ -757,14 +757,6 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         for elem in invalid_elems:
             elem_map.pop(elem)
 
-        # and normalize values when substituting an element with multiple others
-        # e.g. {"Fe": {"Mg": 1, "Cu": 2}} ->  {"Fe": {"Mg": 1/3, "Cu": 2/3}}
-        for val in elem_map.values():
-            if isinstance(val, dict) and sum(val.values()) != 1:
-                total = sum(val.values())
-                for k in val:
-                    val[k] /= total
-
         new_comp = self.as_dict()
 
         for old_elem, new_elem in elem_map.items():
@@ -831,7 +823,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
             species.extend([Species(el, c) for c in charges])
 
         # Return the new object
-        return Composition(Counter(species))
+        return Composition(collections.Counter(species))
 
     def remove_charges(self) -> "Composition":
         """
@@ -841,7 +833,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
             Composition object without charge decoration, for example
             {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
         """
-        d: Dict[Element, float] = defaultdict(float)
+        d: Dict[Element, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[Element(e.symbol)] += a
         return Composition(d)
@@ -912,7 +904,7 @@ class Composition(abc.Hashable, abc.Mapping, MSONable, Stringify):
         el_amt = comp.get_el_amt_dict()
         els = el_amt.keys()
         el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
-        el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score
+        el_sum_scores = collections.defaultdict(set)  # dict of el_idx, sum -> score
         el_best_oxid_combo = {}  # dict of el_idx, sum -> oxid combo with best score
         for idx, el in enumerate(els):
             el_sum_scores[idx] = {}

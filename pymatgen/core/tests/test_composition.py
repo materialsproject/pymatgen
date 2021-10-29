@@ -634,13 +634,18 @@ class CompositionTest(PymatgenTest):
         Fe2O3 = Composition("Fe2O3")
         Cu2O3 = Composition("Cu2O3")
         MgCuO3 = Composition("MgCuO3")
+        Mg2Cu2O3 = Composition("Mg2Cu2O3")
 
         Cu2O3_repl = Fe2O3.replace({"Fe": "Cu"})
         self.assertEqual(Cu2O3_repl, Cu2O3)
 
-        # handles one-to-many substitutions incl. normalization
-        MgCuO3_repl = Fe2O3.replace({"Fe": {"Cu": 1, "Mg": 1}})
+        # handles one-to-many substitutions
+        MgCuO3_repl = Fe2O3.replace({"Fe": {"Cu": 0.5, "Mg": 0.5}})
         self.assertEqual(MgCuO3_repl, MgCuO3)
+
+        # handles unnormalized one-to-many substitutions
+        Mg2Cu2O3_repl = Fe2O3.replace({"Fe": {"Cu": 1, "Mg": 1}})
+        self.assertEqual(Mg2Cu2O3_repl, Mg2Cu2O3)
 
         # leaves the composition unchanged when replacing non-existent species
         self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
