@@ -124,7 +124,7 @@ _thing   '_annoying_data'"""
     def test_double_quoted_data(self):
         cif_str = """data_test
 _thing   ' '_annoying_data''
-_other   " "_more_annoying_data""
+_other   _more_annoying_data""
 _more   ' "even more" ' """
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(cb["_thing"], " '_annoying_data'")
