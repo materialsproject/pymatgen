@@ -52,6 +52,17 @@ class IonTest(unittest.TestCase):
 
         self.assertEqual(Ion.from_formula("Na[+-+]").charge, 1)
 
+    def test_special_formulas(self):
+        special_formulas = [("Cl-", "Cl[-]"),
+                            ("H+", "H[+]"),
+                            ("F-", "F[-]"),
+                            ("H4O4", "H2O2(aq)"),
+                            ("OH-", "OH[-]"),
+        ]
+
+        for tup in special_formulas:
+            self.assertEqual(Ion.from_formula(tup[0]).reduced_formula, tup[1])
+
     def test_formula(self):
         correct_formulas = [
             "Li1 +1",

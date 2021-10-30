@@ -11,7 +11,7 @@ from copy import deepcopy
 
 from monty.json import MSONable
 
-from pymatgen.core.composition import Composition
+from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import formula_double_format, charge_string, Stringify
 
 
@@ -97,6 +97,40 @@ class Ion(Composition, MSONable, Stringify):
         anon_formula = super().anonymized_formula
         chg_str = charge_string(self._charge, brackets=False, explicit_one=True)
         return anon_formula + chg_str
+
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False):
+        """
+        Calculates a reduced formula and factor.
+
+        Args:
+            iupac_ordering (bool, optional): Whether to order the
+                formula by the iupac "electronegativity" series, defined in
+                Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
+                Recommendations 2005)". This ordering effectively follows
+                the groups and rows of the periodic table, except the
+                Lanthanides, Actanides and hydrogen. Note that polyanions
+                will still be determined based on the true electronegativity of
+                the elements.
+
+        Returns:
+            A pretty normalized formula and a multiplicative factor, i.e.,
+            H4O4 returns ('H2O2', 2.0). O-H formulas receive special handling
+            to differentiate between hydrogen peroxide and OH-.
+        """
+        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
+        if not all_int:
+            return self.formula.replace(" ", ""), 1
+        d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
+        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+
+        if formula == "HO":
+            if self.charge != 0:
+                formula = "OH"
+            else:
+                formula = "H2O2"
+                factor /= 2
+
+        return formula, factor
 
     @property
     def reduced_formula(self):
