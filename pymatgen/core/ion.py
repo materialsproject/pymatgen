@@ -18,10 +18,11 @@ from pymatgen.util.string import formula_double_format, Stringify
 
 class Ion(Composition, MSONable, Stringify):
     """
-    Basic ion object. It is just a Composition object with an additional
-    variable to store charge.
-    The net charge can either be represented as Mn++, or Mn+2, or Mn[2+].
-    Note the order of the sign and magnitude in each representation.
+    Ion object. Just a Composition object with an additional variable to store
+    charge.
+    
+    The net charge can either be represented as Mn++, Mn+2, Mn[2+], Mn[++], or
+    Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
     def __init__(self, composition, charge=0.0, properties=None):
@@ -35,25 +36,39 @@ class Ion(Composition, MSONable, Stringify):
     @classmethod
     def from_formula(cls, formula: str) -> "Ion":
         """
-        Creates Ion from formula.
+        Creates Ion from formula. The net charge can either be represented as 
+        Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and 
+        magnitude in each representation.
+
+        Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
         :param formula:
         :return: Ion
         """
         charge = 0.0
         f = formula
-        m = re.search(r"\[([^\[\]]+)\]", f)
-        if m:
-            m_chg = re.search(r"([\.\d]*)([+-])", m.group(1))
-            if m_chg:
-                if m_chg.group(1) != "":
-                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
-                else:
-                    charge += float(m_chg.group(2) + "1")
-            f = f.replace(m.group(), "", 1)
+        # strip (aq), if present
         m = re.search(r"\(aq\)", f)
         if m:
             f = f.replace(m.group(), "", 1)
+        # check for charge in brackets
+        m = re.search(r"\[([^\[\]]+)\]", f)
+        if m:
+            m_chg = re.search(r"([\.\d]*)([+-]*)([\.\d]*)", m.group(1))
+            if m_chg:
+                if m_chg.group(1) != "":
+                    if m_chg.group(3) != "":
+                        raise ValueError("Invalid formula")
+                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
+                elif m_chg.group(3) != "":
+                    charge += float(m_chg.group(3)) * (float(m_chg.group(2) + "1"))
+                else:
+                    for i in re.findall("[+-]", m_chg.group(2)):
+                        charge += float(i + "1")
+
+            f = f.replace(m.group(), "", 1)
+
+        # if no brackets, parse trailing +/-
         for m_chg in re.finditer(r"([+-])([\.\d]*)", f):
             sign = m_chg.group(1)
             sgn = float(str(sign + "1"))

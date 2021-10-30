@@ -33,6 +33,25 @@ class IonTest(unittest.TestCase):
         self.assertEqual("H1 O1 -1", Ion(Composition(f), charge).formula)
         self.assertEqual("S2 O3 -2", Ion(Composition(S=2, O=3), -2).formula)
 
+    def test_charge_from_formula(self):
+        self.assertEqual(Ion.from_formula("Li+").charge, 1)
+        self.assertEqual(Ion.from_formula("Li[+]").charge, 1)
+        self.assertEqual(Ion.from_formula("Ca[2+]").charge, 2)
+        self.assertEqual(Ion.from_formula("Ca[+2]").charge, 2)
+        self.assertEqual(Ion.from_formula("Ca++").charge, 2)
+        self.assertEqual(Ion.from_formula("Ca[++]").charge, 2)
+        self.assertEqual(Ion.from_formula("Ca2+").charge, 1)
+
+        self.assertEqual(Ion.from_formula("Cl-").charge, -1)
+        self.assertEqual(Ion.from_formula("Cl[-]").charge, -1)
+        self.assertEqual(Ion.from_formula("SO4[-2]").charge, -2)
+        self.assertEqual(Ion.from_formula("SO4-2").charge, -2)
+        self.assertEqual(Ion.from_formula("SO42-").charge, -1)
+        self.assertEqual(Ion.from_formula("SO4--").charge, -2)
+        self.assertEqual(Ion.from_formula("SO4[--]").charge, -2)
+
+        self.assertEqual(Ion.from_formula("Na[+-+]").charge, 1)
+
     def test_formula(self):
         correct_formulas = [
             "Li1 +1",
