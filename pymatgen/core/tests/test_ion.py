@@ -62,7 +62,7 @@ class IonTest(unittest.TestCase):
             "Fe1 C6 N6 -4",
             "Fe2 P6 C10 O54 -3",
             "Ca1 +2",
-            "Na1 H1 O1",
+            "Na1 H1 O1 (aq)",
         ]
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
@@ -71,8 +71,8 @@ class IonTest(unittest.TestCase):
     def test_mixed_valence(self):
         comp = Ion(Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8}))
         self.assertEqual(comp.reduced_formula, "Li4Fe3(aq)")
-        self.assertEqual(comp.alphabetical_formula, "Fe6 Li8")
-        self.assertEqual(comp.formula, "Li8 Fe6")
+        self.assertEqual(comp.alphabetical_formula, "Fe6 Li8 (aq)")
+        self.assertEqual(comp.formula, "Li8 Fe6 (aq)")
 
     def test_alphabetical_formula(self):
         correct_formulas = [
@@ -84,7 +84,7 @@ class IonTest(unittest.TestCase):
             "C6 Fe1 N6 -4",
             "C10 Fe2 O54 P6 -3",
             "Ca1 +2",
-            "H1 Na1 O1",
+            "H1 Na1 O1 (aq)",
         ]
         all_formulas = [c.alphabetical_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
@@ -104,7 +104,7 @@ class IonTest(unittest.TestCase):
             "AB6C6-4",
             "AB3C5D27-3",
             "A+2",
-            "ABC",
+            "ABC(aq)",
         ]
         for i in range(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
@@ -113,7 +113,7 @@ class IonTest(unittest.TestCase):
         sym_dict = {"P": 1, "O": 4, "charge": -2}
         self.assertEqual(
             Ion.from_dict(sym_dict).reduced_formula,
-            "PO4[2-]",
+            "PO4[-2]",
             "Creation form sym_amount dictionary failed!",
         )
 

@@ -299,10 +299,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
         """
-        sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys())
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
-        return " ".join(formula)
+        return " ".join(sorted(self.formula.split(" ")))
 
     @property
     def iupac_formula(self) -> str:

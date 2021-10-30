@@ -9,18 +9,17 @@ Module containing class to create an ion
 import re
 from copy import deepcopy
 
-import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
-from pymatgen.util.string import formula_double_format, Stringify
+from pymatgen.util.string import formula_double_format, charge_string, Stringify
 
 
 class Ion(Composition, MSONable, Stringify):
     """
     Ion object. Just a Composition object with an additional variable to store
     charge.
-    
+
     The net charge can either be represented as Mn++, Mn+2, Mn[2+], Mn[++], or
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
@@ -36,8 +35,8 @@ class Ion(Composition, MSONable, Stringify):
     @classmethod
     def from_formula(cls, formula: str) -> "Ion":
         """
-        Creates Ion from formula. The net charge can either be represented as 
-        Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and 
+        Creates Ion from formula. The net charge can either be represented as
+        Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
 
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
@@ -87,12 +86,7 @@ class Ion(Composition, MSONable, Stringify):
         e.g., Li4 Fe4 P4 O16.
         """
         formula = super().formula
-        chg_str = ""
-        if self.charge > 0:
-            chg_str = " +" + formula_double_format(self.charge, False)
-        elif self._charge < 0:
-            chg_str = " " + formula_double_format(self.charge, False)
-        return formula + chg_str
+        return formula + " " + charge_string(self.charge, brackets=False, explicit_one=True)
 
     @property
     def anonymized_formula(self):
@@ -101,47 +95,29 @@ class Ion(Composition, MSONable, Stringify):
         of anonymized composition
         """
         anon_formula = super().anonymized_formula
-        chg = self._charge
-        chg_str = ""
-        if chg > 0:
-            chg_str += "{}{}".format("+", str(int(chg)))
-        elif chg < 0:
-            chg_str += "{}{}".format("-", str(int(np.abs(chg))))
+        chg_str = charge_string(self._charge, brackets=False, explicit_one=True)
         return anon_formula + chg_str
 
     @property
     def reduced_formula(self):
         """
-        Returns a reduced formula string with appended charge.
+        Returns a reduced formula string with appended charge. The
+        charge is placed in brackets with the sign preceding the magnitude, e.g.,
+        'Ca[+2]'.
         """
         reduced_formula = super().reduced_formula
         charge = self._charge / self.get_reduced_composition_and_factor()[1]
-        if charge > 0:
-            if abs(charge) == 1:
-                chg_str = "[+]"
-            else:
-                chg_str = "[" + formula_double_format(charge, False) + "+]"
-        elif charge < 0:
-            if abs(charge) == 1:
-                chg_str = "[-]"
-            else:
-                chg_str = "[{}-]".format(formula_double_format(abs(charge), False))
-        else:
-            chg_str = "(aq)"
+        chg_str = charge_string(charge)
         return reduced_formula + chg_str
 
     @property
     def alphabetical_formula(self):
         """
-        Returns a reduced formula string with appended charge
+        Returns a formula string, with elements sorted by alphabetically and
+        appended charge
         """
-        alph_formula = super().alphabetical_formula
-        chg_str = ""
-        if self.charge > 0:
-            chg_str = " +" + formula_double_format(self.charge, False)
-        elif self.charge < 0:
-            chg_str = " " + formula_double_format(self.charge, False)
-        return alph_formula + chg_str
+        alph_formula = self.composition.alphabetical_formula
+        return alph_formula + " " + charge_string(self.charge, brackets=False, explicit_one=True)
 
     @property
     def charge(self):
