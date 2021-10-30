@@ -207,16 +207,12 @@ class ElementBase(Enum):
     @property
     def X(self) -> float:
         """
-        :return: Electronegativity of element. Note that if an element does not
-            have an electronegativity, a NaN float is returned.
+        Returns:
+            float: Electronegativity of element. If an element does not have an electronegativity,
+                NaN is returned.
         """
         if "X" in self._data:
             return self._data["X"]
-        warnings.warn(
-            "No electronegativity for %s. Setting to NaN. "
-            "This has no physical meaning, and is mainly done to "
-            "avoid errors caused by the code expecting a float." % self.symbol
-        )
         return float("NaN")
 
     @property
