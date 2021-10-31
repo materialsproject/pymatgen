@@ -58,6 +58,7 @@ class IonTest(unittest.TestCase):
                             ("F-", "F[-1]"),
                             ("H4O4", "H2O2(aq)"),
                             ("OH-", "OH[-1]"),
+                            ("Fe(OH)4+", "Fe(OH)4[+1]"),
         ]
 
         for tup in special_formulas:
