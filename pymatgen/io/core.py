@@ -30,8 +30,7 @@ If you want to implement a new InputGenerator, please take note of the following
 import abc
 import os
 from pathlib import Path
-from collections.abc import MutableMapping
-from typing import Union, Dict
+from typing import Union
 from zipfile import ZipFile
 from monty.json import MSONable
 from monty.io import zopen
@@ -100,33 +99,19 @@ class InputFile(MSONable):
             return cls.from_string(f.read())
 
 
-class InputSet(MSONable, MutableMapping):
+class InputSet(MSONable, dict):
     """
-    Abstract base class for all InputSet classes. InputSet classes serve
-    as containers for all calculation input data.
+    Abstract base class for all InputSet classes. InputSet are dict-like
+    containers for all calculation input data.
 
-    All InputSet must implement a get_inputs and from_directory method.
-    Implementing the validate method is optional.
+    Since InputSet inherits dict, it can be instantiated in the same manner,
+    or a custom __init__ can be provided. Either way, `self` should be
+    populated with keys that are filenames to be written, and values that are
+    InputFile objects or strings representing the entire contents of the file.
+
+    All InputSet must implement from_directory. Implementing the validate method
+    is optional.
     """
-
-    def __init__(self, **kwargs):
-        """
-        Instantiate an InputSet class. The __init__ method populates the internal
-        mapping attribute (the dict-like data structure) with the output of
-        get_inputs()
-        """
-        self._mapping = self.get_inputs()
-
-    @abc.abstractmethod
-    def get_inputs(self) -> Dict[str, Union[str, InputFile]]:
-        """
-        Return a dictionary of one or more input files to be written. Keys
-        are filenames, values are InputFile objects or strings representing
-        the entire contents of the file.
-
-        This method is called by write_input(), which performs the actual file
-        write operations.
-        """
 
     def write_input(
         self,
@@ -134,7 +119,6 @@ class InputSet(MSONable, MutableMapping):
         make_dir: bool = True,
         overwrite: bool = True,
         zip_inputs: bool = False,
-        **kwargs,
     ):
         """
         Write Inputs to one or more files
@@ -149,7 +133,7 @@ class InputSet(MSONable, MutableMapping):
         """
         path = directory if isinstance(directory, Path) else Path(directory)
 
-        for fname, contents in self.get_inputs().items():
+        for fname, contents in self.items():
             file = path / fname
 
             if not path.exists():
@@ -170,7 +154,7 @@ class InputSet(MSONable, MutableMapping):
         if zip_inputs:
             zipfilename = path / f"{self.__class__.__name__}.zip"
             with ZipFile(zipfilename, "w") as zip:
-                for fname, contents in self.get_inputs().items():
+                for fname, contents in self.items():
                     file = path / fname
                     try:
                         zip.write(file)
@@ -197,21 +181,6 @@ class InputSet(MSONable, MutableMapping):
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
         raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
-
-    def __len__(self):
-        return len(self._mapping.keys())
-
-    def __iter__(self):
-        return iter(self._mapping.items())
-
-    def __getitem__(self, key):
-        return self._mapping[key]
-
-    def __setitem__(self, key, value):
-        self._mapping[key] = value
-
-    def __delitem__(self, key):
-        del self._mapping[key]
 
 
 class InputGenerator(MSONable):

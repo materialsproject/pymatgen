@@ -2285,24 +2285,15 @@ class VaspInput(InputSet):
         self.poscar = poscar
         self.potcar = potcar
         self.optional_files = optional_files
-        super().__init__()
 
-    def get_inputs(self):
-        """
-        Return a mapping of {filename: object} for the VaspInput, e.g.
-        {"INCAR": <Incar object>,
-         "POSCAR": <Poscar object>,
-         etc.
-         }
-        """
         d = {"INCAR": self.incar, "KPOINTS": self.kpoints, "POSCAR": self.poscar, "POTCAR": self.potcar}
         if self.optional_files is not None:
             d.update(self.optional_files)
-        return d
+        self.update(d)
 
     def __str__(self):
         output = []
-        for k, v in self.get_inputs().items():
+        for k, v in self.items():
             output.append(k)
             output.append(str(v))
             output.append("")
