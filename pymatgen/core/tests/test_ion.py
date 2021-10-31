@@ -53,16 +53,28 @@ class IonTest(unittest.TestCase):
         self.assertEqual(Ion.from_formula("Na[+-+]").charge, 1)
 
     def test_special_formulas(self):
-        special_formulas = [("Cl-", "Cl[-1]"),
-                            ("H+", "H[+1]"),
-                            ("F-", "F[-1]"),
-                            ("H4O4", "H2O2(aq)"),
-                            ("OH-", "OH[-1]"),
-                            ("Fe(OH)4+", "Fe(OH)4[+1]"),
+        special_formulas = [
+            ("Cl-", "Cl[-1]"),
+            ("H+", "H[+1]"),
+            ("F-", "F[-1]"),
+            ("H4O4", "H2O2(aq)"),
+            ("OH-", "OH[-1]"),
+            ("CH3COO-", "CH3COO[-1]"),
+            ("CH3COOH", "CH3COOH(aq)"),
+            ("CH3OH", "CH3OH(aq)"),
+            ("H4CO", "CH3OH(aq)"),
+            ("C2H6O", "C2H5OH(aq)"),
+            ("C3H8O", "C3H7OH(aq)"),
+            ("C4H10O", "C4H9OH(aq)"),
+            ("Fe(OH)4+", "FeO2.2H2O[+1]"),
+            ("Zr(OH)4", "ZrO2.2H2O(aq)"),
         ]
 
         for tup in special_formulas:
             self.assertEqual(Ion.from_formula(tup[0]).reduced_formula, tup[1])
+
+        self.assertEqual(Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=False), ("Fe(OH)4", 1))
+        self.assertEqual(Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=False), ("Zr(OH)4", 1))
 
     def test_formula(self):
         correct_formulas = [
@@ -182,9 +194,9 @@ class IonTest(unittest.TestCase):
             "PO$_{3}$$^{-2}$",
             "Fe(CN)$_{6}$$^{-3}$",
             "Fe(CN)$_{6}$$^{-4}$",
-            'FeP$_{3}$C$_{5}$O$_{27}$$^{-3}$',
-            'Ca$^{+2}$',
-            'NaOH',
+            "FeP$_{3}$C$_{5}$O$_{27}$$^{-3}$",
+            "Ca$^{+2}$",
+            "NaOH",
         ]
         all_latex = [c.to_latex_string() for c in self.comp]
         self.assertEqual(all_latex, correct_latex)

@@ -99,7 +99,7 @@ class Ion(Composition, MSONable, Stringify):
         chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> Tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = True) -> Tuple[str, float]:
         """
         Calculates a reduced formula and factor.
 
@@ -121,6 +121,10 @@ class Ion(Composition, MSONable, Stringify):
                 Lanthanides, Actanides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
+            hydrates: If True (default), attempt to recognize hydrated metal
+                complexes and separate out the H2O in the reduced formula.
+                For example, Zr(OH)4 becomes ZrO2.2H2O. Applies only to
+                Ions containing metals.
 
         Returns:
             A pretty normalized formula and a multiplicative factor, i.e.,
@@ -129,15 +133,49 @@ class Ion(Composition, MSONable, Stringify):
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
+
+        comp = self.composition
+        nH2O = 0
+        if hydrates:
+            # detect hydrated metal complexes
+            nH = comp.get("H", 0)
+            nO = comp.get("O", 0)
+            if nO > 0 and any(e.is_metal for e in comp):
+                nH2O = int(nO) if nH >= 2 * nO else int(nH) // 2
+                comp = self.composition - nH2O * Composition("H2O")
+
+        d = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
         (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
 
         if "HO" in formula:
             formula = formula.replace("HO", "OH")
 
+        if nH2O > 0:
+            formula += f".{nH2O}H2O"
+
+        # special handling of peroxide, acetic acid / acetate, and small alcohols
         if formula == "OH" and self.charge == 0:
             formula = "H2O2"
             factor /= 2
+        # acetic acid
+        elif formula == "H2CO":
+            formula = "CH3COOH"
+            factor /= 2
+        # acetate
+        elif formula == "H3(CO)2":
+            formula = "CH3COO"
+        # methanol
+        elif formula == "H4CO":
+            formula = "CH3OH"
+        # ethanol
+        elif formula == "H6C2O":
+            formula = "C2H5OH"
+        # propanol
+        elif formula == "H8C3O":
+            formula = "C3H7OH"
+        # butanol
+        elif formula == "H10C4O":
+            formula = "C4H9OH"
 
         return formula, factor
 
