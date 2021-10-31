@@ -8,11 +8,12 @@ Module containing class to create an ion
 
 import re
 from copy import deepcopy
+from typing import Dict, Tuple
 
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
-from pymatgen.util.string import formula_double_format, charge_string, Stringify
+from pymatgen.util.string import Stringify, charge_string, formula_double_format
 
 
 class Ion(Composition, MSONable, Stringify):
@@ -80,7 +81,7 @@ class Ion(Composition, MSONable, Stringify):
         return cls(composition, charge)
 
     @property
-    def formula(self):
+    def formula(self) -> str:
         """
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
@@ -89,7 +90,7 @@ class Ion(Composition, MSONable, Stringify):
         return formula + " " + charge_string(self.charge, brackets=False)
 
     @property
-    def anonymized_formula(self):
+    def anonymized_formula(self) -> str:
         """
         An anonymized formula. Appends charge to the end
         of anonymized composition
@@ -98,7 +99,7 @@ class Ion(Composition, MSONable, Stringify):
         chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(self):
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> Tuple[str, float]:
         """
         Calculates a reduced formula and factor.
 
@@ -108,6 +109,19 @@ class Ion(Composition, MSONable, Stringify):
         'Fe(HO)2'), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
         are not used.
 
+        Note that the formula returned by this method does not contain a charge.
+        To include charge, use formula or reduced_formula instead.
+
+        Args:
+            iupac_ordering (bool, optional): Whether to order the
+                formula by the iupac "electronegativity" series, defined in
+                Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
+                Recommendations 2005)". This ordering effectively follows
+                the groups and rows of the periodic table, except the
+                Lanthanides, Actanides and hydrogen. Note that polyanions
+                will still be determined based on the true electronegativity of
+                the elements.
+
         Returns:
             A pretty normalized formula and a multiplicative factor, i.e.,
             H4O4 returns ('H2O2', 2.0).
@@ -116,7 +130,7 @@ class Ion(Composition, MSONable, Stringify):
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d)
+        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
 
         if "HO" in formula:
             formula = formula.replace("HO", "OH")
@@ -128,7 +142,7 @@ class Ion(Composition, MSONable, Stringify):
         return formula, factor
 
     @property
-    def reduced_formula(self):
+    def reduced_formula(self) -> str:
         """
         Returns a reduced formula string with appended charge. The
         charge is placed in brackets with the sign preceding the magnitude, e.g.,
@@ -140,7 +154,7 @@ class Ion(Composition, MSONable, Stringify):
         return reduced_formula + chg_str
 
     @property
-    def alphabetical_formula(self):
+    def alphabetical_formula(self) -> str:
         """
         Returns a formula string, with elements sorted by alphabetically and
         appended charge
@@ -149,13 +163,13 @@ class Ion(Composition, MSONable, Stringify):
         return alph_formula + " " + charge_string(self.charge, brackets=False)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """
         Charge of the ion
         """
         return self._charge
 
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, float]:
         """
         Returns:
             dict with composition, as well as charge
@@ -165,7 +179,7 @@ class Ion(Composition, MSONable, Stringify):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> "Ion":
         """
         Generates an ion object from a dict created by as_dict().
 
@@ -179,7 +193,7 @@ class Ion(Composition, MSONable, Stringify):
         return Ion(composition, charge)
 
     @property
-    def to_reduced_dict(self):
+    def to_reduced_dict(self) -> dict:
         """
         Returns:
             dict with element symbol and reduced amount e.g.,
@@ -190,7 +204,7 @@ class Ion(Composition, MSONable, Stringify):
         return d
 
     @property
-    def composition(self):
+    def composition(self) -> Composition:
         """Composition of ion."""
         return Composition(self._data)
 
