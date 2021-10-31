@@ -79,13 +79,13 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(formula_double_format(2.10000000002), "2.1")
     
     def test_charge_string(self):
-        self.assertEqual(charge_string(1), "[+]")
-        self.assertEqual(charge_string(1, brackets=False), "+")
-        self.assertEqual(charge_string(1, explicit_one=True), "[+1]")
+        self.assertEqual(charge_string(1), "[+1]")
+        self.assertEqual(charge_string(1, brackets=False), "+1")
+        self.assertEqual(charge_string(1, explicit_one=False), "[+]")
 
-        self.assertEqual(charge_string(-1), "[-]")
-        self.assertEqual(charge_string(-1, brackets=False), "-")
-        self.assertEqual(charge_string(-1, explicit_one=True), "[-1]")
+        self.assertEqual(charge_string(-1), "[-1]")
+        self.assertEqual(charge_string(-1, brackets=False), "-1")
+        self.assertEqual(charge_string(-1, explicit_one=False), "[-]")
 
         self.assertEqual(charge_string(2), "[+2]")
         self.assertEqual(charge_string(-4), "[-4]")

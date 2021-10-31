@@ -86,7 +86,7 @@ class Ion(Composition, MSONable, Stringify):
         e.g., Li4 Fe4 P4 O16.
         """
         formula = super().formula
-        return formula + " " + charge_string(self.charge, brackets=False, explicit_one=True)
+        return formula + " " + charge_string(self.charge, brackets=False)
 
     @property
     def anonymized_formula(self):
@@ -95,40 +95,35 @@ class Ion(Composition, MSONable, Stringify):
         of anonymized composition
         """
         anon_formula = super().anonymized_formula
-        chg_str = charge_string(self._charge, brackets=False, explicit_one=True)
+        chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False):
+    def get_reduced_formula_and_factor(self):
         """
-        Calculates a reduced formula and factor.
-
-        Args:
-            iupac_ordering (bool, optional): Whether to order the
-                formula by the iupac "electronegativity" series, defined in
-                Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
-                Recommendations 2005)". This ordering effectively follows
-                the groups and rows of the periodic table, except the
-                Lanthanides, Actanides and hydrogen. Note that polyanions
-                will still be determined based on the true electronegativity of
-                the elements.
+        Calculates a reduced formula and factor. 
+        
+        Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
+        receive special handling to differentiate between hydrogen peroxide and OH-.
+        Formulas containing HO are written with oxygen first (e.g. 'Fe(OH)2' rather than
+        'Fe(HO)2'), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
+        are not used.
 
         Returns:
             A pretty normalized formula and a multiplicative factor, i.e.,
-            H4O4 returns ('H2O2', 2.0). O-H formulas receive special handling
-            to differentiate between hydrogen peroxide and OH-.
+            H4O4 returns ('H2O2', 2.0). 
         """
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        (formula, factor) = reduce_formula(d)
 
-        if formula == "HO":
-            if self.charge != 0:
-                formula = "OH"
-            else:
-                formula = "H2O2"
-                factor /= 2
+        if "HO" in formula:
+            formula = formula.replace("HO", "OH")
+
+        if formula == "OH" and self.charge == 0:
+            formula = "H2O2"
+            factor /= 2
 
         return formula, factor
 
@@ -151,7 +146,7 @@ class Ion(Composition, MSONable, Stringify):
         appended charge
         """
         alph_formula = self.composition.alphabetical_formula
-        return alph_formula + " " + charge_string(self.charge, brackets=False, explicit_one=True)
+        return alph_formula + " " + charge_string(self.charge, brackets=False)
 
     @property
     def charge(self):
