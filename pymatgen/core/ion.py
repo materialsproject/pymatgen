@@ -100,8 +100,8 @@ class Ion(Composition, MSONable, Stringify):
 
     def get_reduced_formula_and_factor(self):
         """
-        Calculates a reduced formula and factor. 
-        
+        Calculates a reduced formula and factor.
+
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
         Formulas containing HO are written with oxygen first (e.g. 'Fe(OH)2' rather than
@@ -110,7 +110,7 @@ class Ion(Composition, MSONable, Stringify):
 
         Returns:
             A pretty normalized formula and a multiplicative factor, i.e.,
-            H4O4 returns ('H2O2', 2.0). 
+            H4O4 returns ('H2O2', 2.0).
         """
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
@@ -238,7 +238,7 @@ class Ion(Composition, MSONable, Stringify):
         """
         :return: Pretty string with proper superscripts.
         """
-        str_ = super().formula
+        str_ = super().reduced_formula
         if self.charge > 0:
             str_ += "^+" + formula_double_format(self.charge, False)
         elif self._charge < 0:

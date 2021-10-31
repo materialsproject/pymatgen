@@ -173,8 +173,20 @@ class IonTest(unittest.TestCase):
     def test_len(self):
         self.assertEqual(len(self.comp[1]), 2, "Lengths are not equal!")
 
-    def test_to_string(self):
-        self.assertEqual(self.comp[1].to_latex_string(), "Mn$_{1}$ O$_{4}$$^{-1}$")
+    def test_to_latex_string(self):
+        correct_latex = [
+            "Li$^{+1}$",
+            "MnO$_{4}$$^{-1}$",
+            "Mn$^{+2}$",
+            "PO$_{3}$$^{-2}$",
+            "Fe(CN)$_{6}$$^{-3}$",
+            "Fe(CN)$_{6}$$^{-4}$",
+            'FeP$_{3}$C$_{5}$O$_{27}$$^{-3}$',
+            'Ca$^{+2}$',
+            'NaOH',
+        ]
+        all_latex = [c.to_latex_string() for c in self.comp]
+        self.assertEqual(all_latex, correct_latex)
 
 
 if __name__ == "__main__":
