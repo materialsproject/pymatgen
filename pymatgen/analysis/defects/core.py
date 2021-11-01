@@ -422,6 +422,22 @@ class Interstitial(Defect):
         return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
+class Adsorbent(Interstitial):
+    """
+    Subclass of Interstitial with a different name. Used for keeping track of adsorbents, which are
+    treated the same algorithmically as interstitials, but are conceptually separate.
+    """
+
+    @property
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        if self.site_name:
+            return "Ads_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
+        return "Ads_{}_mult{}".format(self.site.specie, self.multiplicity)
+
+
 class Polaron(Substitution):
     """
     Subclass for defining polarons. (Small/localized) Polarons are special version of substitution
