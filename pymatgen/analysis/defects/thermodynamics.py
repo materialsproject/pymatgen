@@ -438,9 +438,9 @@ class DefectPhaseDiagram(MSONable):
         distribution and the density of states.
 
         Args:
-            fermi_dos:
-            temperature:
-            fermi_level:
+            fermi_dos (FermiDos) for the bulk structure.
+            temperature (int or float) to consider.
+            fermi_level (int or float) with respect to the VBM
 
         returns:
             (n, p) concentrations per formula unit
