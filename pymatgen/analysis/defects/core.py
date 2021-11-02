@@ -731,13 +731,12 @@ class DefectEntry(MSONable):
             fermi_level:
                 the fermi level in eV (with respect to the VBM)
         Returns:
-            defects concentration in cm^-3
+            defects concentration per formula unit.
         """
         n = self.multiplicity
         conc = n * np.exp(
             -1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature)
         )
-
         return conc
 
     def __repr__(self):
