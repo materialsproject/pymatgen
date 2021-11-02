@@ -6,19 +6,25 @@
 import ast
 import json
 import re
+import sys
 import warnings
 from collections import Counter
 from enum import Enum
 from io import open
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Optional, Union, Dict, Tuple, List
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
-from pymatgen.util.string import formula_double_format, Stringify
+from pymatgen.util.string import Stringify, formula_double_format
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -1216,7 +1222,12 @@ class Species(MSONable, Stringify):
             raise ValueError("No quadrupole moment for isotope {}".format(isotope))
         return quad_mom.get(isotope, 0.0)
 
-    def get_shannon_radius(self, cn: str, spin: str = "", radius_type: str = "ionic") -> float:
+    def get_shannon_radius(
+        self,
+        cn: str,
+        spin: Literal["", "Low Spin", "High Spin"] = "",
+        radius_type: Literal["ionic", "crystal"] = "ionic",
+    ) -> float:
         """
         Get the local environment specific ionic radius for species.
 
@@ -1239,29 +1250,30 @@ class Species(MSONable, Stringify):
             k, data = list(radii.items())[0]  # type: ignore
             if k != spin:
                 warnings.warn(
-                    "Specified spin state of %s not consistent with database "
-                    "spin of %s. Only one spin data available, and "
-                    "that value is returned." % (spin, k)
+                    f"Specified spin state of {spin} not consistent with database "
+                    f"spin of {k}. Only one spin data available, and that value is returned."
                 )
         else:
             data = radii[spin]
         return data["%s_radius" % radius_type]
 
-    def get_crystal_field_spin(self, coordination: str = "oct", spin_config: str = "high") -> float:
+    def get_crystal_field_spin(
+        self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"
+    ) -> float:
         """
         Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
 
         Args:
-            coordination (str): Only oct and tet are supported at the moment.
-            spin_config (str): Supported keywords are "high" or "low".
+            coordination ("oct" | "tet"): Tetrahedron or octahedron crystal site coordination
+            spin_config ("low" | "high"): Whether the species is in a high or low spin state
 
         Returns:
             Crystal field spin in Bohr magneton.
 
         Raises:
             AttributeError if species is not a valid transition metal or has
-            an invalid oxidation state.
+                an invalid oxidation state.
             ValueError if invalid coordination or spin_config.
         """
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):

@@ -271,9 +271,12 @@ class VaspInputSet(InputSet, metaclass=abc.ABCMeta):
                 for fname, contents in d.items():
                     file = path / fname
                     try:
-                        zip.write(file)
-                        os.remove(file)
+                        zip.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
+                        pass
+                    try:
+                        os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
                         pass
 
     def as_dict(self, verbosity=2):

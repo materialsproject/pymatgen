@@ -7,7 +7,8 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import List, Union, Callable
+import sys
+from typing import Callable, List, Union
 
 import numpy as np
 from monty.json import MSONable
@@ -16,6 +17,11 @@ from scipy.ndimage.filters import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.typing import ArrayLike
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
@@ -74,14 +80,14 @@ class Spectrum(MSONable):
     def __len__(self):
         return self.ydim[0]
 
-    def normalize(self, mode: str = "max", value: float = 1.0):
+    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
         """
         Normalize the spectrum with respect to the sum of intensity
 
         Args:
-            mode (str): Normalization mode. Supported modes are "max" (set the
-                max y value to value, e.g., in XRD patterns), "sum" (set the
-                sum of y to a value, i.e., like a probability density).
+            mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
+                e.g., in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
+                probability density.
             value (float): Value to normalize to. Defaults to 1.
         """
         if mode.lower() == "sum":

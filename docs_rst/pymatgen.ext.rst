@@ -1,8 +1,6 @@
 pymatgen.ext namespace
 ======================
 
-.. py:module:: pymatgen.ext
-
 Subpackages
 -----------
 

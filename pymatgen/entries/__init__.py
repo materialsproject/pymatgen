@@ -10,15 +10,19 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-from numbers import Number
+import sys
 from abc import ABCMeta, abstractmethod
-from typing import Union, Dict
+from typing import Dict, Union
 
 import numpy as np
-
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -93,14 +97,13 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit") -> "Entry":
+    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> "Entry":
         """
         Normalize the entry's composition and energy.
 
         Args:
-            mode: "formula_unit" is the default, which normalizes to
-                composition.reduced_formula. The other option is "atom", which
-                normalizes such that the composition amounts sum to 1.
+            mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
+                "atom" normalizes such that the composition amounts sum to 1.
         """
 
         factor = self._normalization_factor(mode)
@@ -113,16 +116,16 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return self.from_dict(new_entry_dict)
 
-    def _normalization_factor(self, mode: str = "formula_unit") -> float:
+    def _normalization_factor(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> float:
         # NOTE here we use composition rather than _composition in order to ensure
-        # that we have the expected behaviour downstream in cases where composition
+        # that we have the expected behavior downstream in cases where composition
         # is overwritten (GrandPotPDEntry, TransformedPDEntry)
         if mode == "atom":
             factor = self.composition.num_atoms
         elif mode == "formula_unit":
             factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            raise ValueError("`{}` is not an allowed option for normalization".format(mode))
+            raise ValueError(f"{mode} is not an allowed option for normalization")
 
         return factor
 
@@ -152,34 +155,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return self.composition == other.composition
 
-    def _is_dict_eq(self, other):
-        """
-        Check if entry dicts are equal using a robust check for
-        numerical values.
-        """
-        self_dict = self.as_dict()
-        other_dict = other.as_dict()
-
-        # NOTE use implicit generator to allow all() to short-circuit
-        return all(_is_robust_eq(other_dict[k], v) for k, v in self_dict.items())
-
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
         return hash(f"{self.__class__.__name__}" f"{self._composition.formula}" f"{self._energy:.8f}")
-
-
-def _is_robust_eq(v_self, v_other):
-    """
-    Use np.allclose for numerical values for robustness
-    otherwise use default __eq__.
-
-    NOTE robustness doesn't reach to nested structures i.e. For a
-    ComputedStructureEntry where parameters stores the Incar this would
-    not be robust to fp changes in that Incar dictionary. For a
-    GrandPotPDEntry it will not be robust to fp changes in the chempots
-    """
-    if isinstance(v_self, Number) and isinstance(v_other, Number):
-        return np.allclose(v_self, v_other, atol=1e-8)
-
-    return v_self == v_other

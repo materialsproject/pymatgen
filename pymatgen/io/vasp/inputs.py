@@ -15,12 +15,13 @@ import math
 import os
 import re
 import subprocess
+import sys
 import warnings
 from pathlib import Path
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Dict, Any, Tuple, Sequence, Union
+from typing import Any, Dict, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
@@ -38,7 +39,12 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.core import InputFile, InputSet
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import PathLike, ArrayLike
+from pymatgen.util.typing import ArrayLike, PathLike
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1035,7 +1041,7 @@ class Kpoints(InputFile):
         is recommended that you use those.
 
         Args:
-            comment (str): String comment for Kpoints
+            comment (str): String comment for Kpoints. Defaults to "Default gamma".
             num_kpts: Following VASP method of defining the KPOINTS file, this
                 parameter is the number of kpoints specified. If set to 0
                 (or negative), VASP automatically generates the KPOINTS.
@@ -1771,11 +1777,9 @@ class PotcarSingle:
 
         if self.identify_potcar(mode="data")[0] == []:
             warnings.warn(
-                "POTCAR data with symbol {} does not match any VASP\
-                          POTCAR known to pymatgen. We advise verifying the\
-                          integrity of your POTCAR files.".format(
-                    self.symbol
-                ),
+                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                "POTCAR known to pymatgen. There is a possibility your "
+                "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
         elif self.identify_potcar(mode="file")[0] == []:
@@ -1939,7 +1943,7 @@ class PotcarSingle:
         """
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
-    def identify_potcar(self, mode: str = "data"):
+    def identify_potcar(self, mode: Literal["data", "file"] = "data"):
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
@@ -1948,9 +1952,8 @@ class PotcarSingle:
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode (str): 'data' or 'file'. 'data' mode checks the hash of the POTCAR
-                        data itself, while 'file' mode checks the hash of the entire
-                        POTCAR file, including metadata.
+            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR data itself,
+                while 'file' mode checks the hash of the entire POTCAR file, including metadata.
 
         Returns:
             symbol (List): List of symbols associated with the PotcarSingle
@@ -2081,7 +2084,7 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        return md5(str(self).encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
         """

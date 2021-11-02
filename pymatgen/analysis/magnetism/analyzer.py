@@ -27,9 +27,10 @@ from pymatgen.transformations.advanced_transformations import (
     MagOrderingTransformation,
     MagOrderParameterConstraint,
 )
-from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+from pymatgen.transformations.standard_transformations import (
+    AutoOxiStateDecorationTransformation,
+)
 from pymatgen.util.typing import VectorLike
-
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -291,7 +292,7 @@ class CollinearMagneticStructureAnalyzer:
         if set_net_positive:
             sign = np.sum(magmoms)
             if sign < 0:
-                magmoms = -np.array(magmoms)
+                magmoms = [-x for x in magmoms]
 
         structure.add_site_property("magmom", magmoms)
 
@@ -342,7 +343,7 @@ class CollinearMagneticStructureAnalyzer:
             num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
             magmoms = np.around(magmoms, decimals=num_decimals)
 
-        return magmoms
+        return np.array(magmoms)
 
     def get_structure_with_spin(self) -> Structure:
         """Returns a Structure with species decorated with spin values instead

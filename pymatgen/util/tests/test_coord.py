@@ -310,6 +310,9 @@ class SimplexTest(PymatgenTest):
         intersections = s.line_intersection(point1, point2)
         self.assertArrayAlmostEqual(intersections, expected)
 
+    def test_to_json(self):
+        self.assertIsInstance(self.simplex.to_json(), str)
+
 
 if __name__ == "__main__":
     import unittest
