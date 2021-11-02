@@ -32,9 +32,9 @@ import os
 from pathlib import Path
 from typing import Union
 from zipfile import ZipFile
-from monty.json import MSONable
+from collections.abc import MutableMapping
 from monty.io import zopen
-
+from monty.json import MSONable
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -99,7 +99,7 @@ class InputFile(MSONable):
             return cls.from_string(f.read())
 
 
-class InputSet(MSONable, dict):
+class InputSet(MSONable, MutableMapping):
     """
     Abstract base class for all InputSet classes. InputSet are dict-like
     containers for all calculation input data.
@@ -112,6 +112,40 @@ class InputSet(MSONable, dict):
     All InputSet must implement from_directory. Implementing the validate method
     is optional.
     """
+
+    def __init__(self, inputs: dict[Union[str, Path], Union[str, InputFile]] = {}, **kwargs):
+        """
+        Instantiate an InputSet.
+
+        Args:
+            inputs: The core mapping of filename: file contents that defines the InputSet data.
+                This should be a dict where keys are filenames and values are InputFile objects
+                or strings representing the entire contents of the file. This mapping will
+                become the .inputs attribute of the InputSet.
+            **kwargs: Any kwargs passed will be set as class attributes e.g.
+                InputSet(inputs={}, foo='bar') will make InputSet.foo == 'bar'.
+        """
+        self.inputs = inputs
+        self.__dict__.update(**kwargs)
+
+    def __getattr__(self, k):
+        # allow accessing keys as attributes
+        return self[k]
+
+    def __len__(self):
+        return len(self.inputs.keys())
+
+    def __iter__(self):
+        return iter(self.inputs.items())
+
+    def __getitem__(self, key):
+        return self.inputs[key]
+
+    def __setitem__(self, key, value):
+        self.inputs[key] = value
+
+    def __delitem__(self, key):
+        del self.inputs[key]
 
     def write_input(
         self,
@@ -133,7 +167,7 @@ class InputSet(MSONable, dict):
         """
         path = directory if isinstance(directory, Path) else Path(directory)
 
-        for fname, contents in self.items():
+        for fname, contents in self.inputs.items():
             file = path / fname
 
             if not path.exists():
@@ -154,7 +188,7 @@ class InputSet(MSONable, dict):
         if zip_inputs:
             zipfilename = path / f"{self.__class__.__name__}.zip"
             with ZipFile(zipfilename, "w") as zip:
-                for fname, contents in self.items():
+                for fname, contents in self.inputs.items():
                     file = path / fname
                     try:
                         zip.write(file)
@@ -163,7 +197,6 @@ class InputSet(MSONable, dict):
                         pass
 
     @classmethod
-    @abc.abstractmethod
     def from_directory(cls, directory: Union[str, Path]):
         """
         Construct an InputSet from a directory of one or more files.
