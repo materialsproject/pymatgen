@@ -1,5 +1,5 @@
 """
-This module defines a simple concrete implementation of the Input class that can be
+This module defines a simple concrete implementation of the InputGenerator class that can be
 used to facilitate writing large numbers of input files based on a template.
 """
 
