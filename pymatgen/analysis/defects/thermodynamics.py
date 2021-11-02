@@ -11,6 +11,7 @@ import warnings
 import copy
 import json
 import os
+import itertools
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
@@ -33,6 +34,7 @@ from pymatgen.core import Element
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import seaborn as sns
 
 boltzmann_eV = _cd("Boltzmann constant in eV/K")
 
@@ -430,6 +432,34 @@ class DefectPhaseDiagram(MSONable):
 
         return recommendations
 
+    def get_doping(self, fermi_dos, temperature, fermi_level):
+        """
+        Get the concentration of electrons in CB and holes in VB using the Fermi Dirac
+        distribution and the density of states.
+
+        Args:
+            fermi_dos (FermiDos) for the bulk structure.
+            temperature (int or float) to consider.
+            fermi_level (int or float) with respect to the VBM
+
+        returns:
+            (n, p) concentrations per formula unit
+        """
+        cb_integral = np.sum(
+            fermi_dos.tdos[fermi_dos.idx_cbm:]
+            * f0(fermi_dos.energies[fermi_dos.idx_cbm:], fermi_level + fermi_dos.get_cbm_vbm()[1], temperature)
+            * fermi_dos.de[fermi_dos.idx_cbm:],
+            axis=0,
+        )
+        vb_integral = np.sum(
+            fermi_dos.tdos[: fermi_dos.idx_vbm + 1]
+            * f0(-fermi_dos.energies[: fermi_dos.idx_vbm + 1], -(fermi_level + fermi_dos.get_cbm_vbm()[1]), temperature)
+            * fermi_dos.de[: fermi_dos.idx_vbm + 1],
+            axis=0,
+        )
+
+        return cb_integral, vb_integral
+
     def solve_for_fermi_energy(self, temperature, chemical_potentials, bulk_dos):
         """
         Solve for the Fermi energy self-consistently as a function of T
@@ -457,7 +487,7 @@ class DefectPhaseDiagram(MSONable):
                     )
                 ]
             )
-            qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
+            qd_tot += self.get_doping(fermi_dos=fdos, fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
@@ -777,6 +807,14 @@ class DefectPredominanceDiagram(MSONable):
 
         return PhaseDiagram(gentries), chempots
 
+    def _get_adjusted_chempots(self, chempots, element, chempot_of_element, bulk_energy):
+        mycopy = chempots.copy()
+        mycopy.update({element: chempot_of_element})
+        mycopy.update(
+            {c: bulk_energy - sum([v for k, v in mycopy.items() if k != c]) for c in mycopy if c != element}
+        )
+        return mycopy
+
     def solve_along_chempot_line(self, temperature: Union[int, float], element: Element, combine_charges: bool = True):
         """
         Solve for the defect concentration with respect to the chemical potential of one element, e.g. oxygen,
@@ -804,19 +842,14 @@ class DefectPredominanceDiagram(MSONable):
 
         bulk_energy = pd.get_hull_energy(self.bulk.composition.reduced_composition)
 
-        def foo(x):
-            mycopy = chempots.copy()
-            mycopy.update({element: x})
-            mycopy.update(
-                {c: bulk_energy - sum([v for k, v in mycopy.items() if k != c]) for c in mycopy if c != element}
-            )
-            return mycopy
-
         _min, _max = sorted(pd.get_transition_chempots(element))
         mus = np.linspace(_min, _max, 50)
 
-        _results = [self.solve(temperature, foo(cp)) for cp in mus]
-        
+        _results = [
+            self.solve(temperature, self._get_adjusted_chempots(chempots, element, cp, bulk_energy))
+            for cp in mus
+        ]
+
         def _name(x):
             return '_'.join([_ for _ in x['name'].split('_') if 'Voronoi' not in _ and "mult" not in _])
 
@@ -843,22 +876,7 @@ class DefectPredominanceDiagram(MSONable):
         if self.defect_phase_diagram.band_gap:
             ef_scf = self.defect_phase_diagram.solve_for_fermi_energy(temperature, chempots, self.bulk_dos)
             fd = FermiDos(self.bulk_dos, bandgap=self.defect_phase_diagram.band_gap)
-
-            cb_integral = np.sum(
-                fd.tdos[fd.idx_cbm:]
-                * f0(fd.energies[fd.idx_cbm:], ef_scf + fd.get_cbm_vbm()[1], temperature)
-                * fd.de[fd.idx_cbm:],
-                axis=0,
-            )
-            vb_integral = np.sum(
-                fd.tdos[: fd.idx_vbm + 1]
-                * f0(-fd.energies[: fd.idx_vbm + 1], -(ef_scf + fd.get_cbm_vbm()[1]), temperature)
-                * fd.de[: fd.idx_vbm + 1],
-                axis=0,
-            )
-
-            p = vb_integral / (fd.volume * fd.A_to_cm ** 3)
-            n = cb_integral / (fd.volume * fd.A_to_cm ** 3)
+            n, p = self.defect_phase_diagram.get_doping(fd, temperature=temperature, fermi_level=ef_scf)
         else:
             ef_scf = 0
 
@@ -872,8 +890,9 @@ class DefectPredominanceDiagram(MSONable):
         temperature: Union[int, float, Iterable],
         element: Element,
         partial_pressure: bool = False,
-        concentration_threshold: Union[int, float] = 0,
+        concentration_threshold: Union[int, float] = 1e-9,
         combine_charges: bool = True,
+        units: str = 'f.u.'
     ):
         """
         Plot the defect predomenance diagram along the chempot line of the specified element.
@@ -887,12 +906,23 @@ class DefectPredominanceDiagram(MSONable):
                 below this value. Keeps the plot looking cleaner by ignoring very unstable defects.
             combine_charges: whether or not to combine defects of different charge (but same type/element)
                 For example, this would combine the 0, +1, +2 oxygen vacancies into a single curve
+            units: Units for the concentration axis (axis will be log scale)
 
         Returns:
             Matplotlib Axes
         """
+
+        if units == 'f.u.':
+            factor = 1
+        elif units == 'cm-3':
+            factor = 1e24 / self.bulk.volume
+        elif units == 'm-3':
+            factor = 1e30 / self.bulk.volume
+        else:
+            raise ValueError("Unrecognized units!")
+
         fig, ax1 = plt.subplots(figsize=(12, 8))
-        colors = [u'b', u'g', u'r', u'c', u'm', u'y', u'k']
+        colors = itertools.cycle(sns.color_palette())
 
         ax1.minorticks_on()
         ax1.set_ylabel("log(C) $\\frac{1}{cm^3}$", size=30)
@@ -903,9 +933,7 @@ class DefectPredominanceDiagram(MSONable):
         ax1.tick_params(which="minor", length=2, width=2, direction="in", top=True, right=True, labelsize=20)
 
         temperature = temperature if isinstance(temperature, Iterable) else [temperature]
-        mx = 0
-        mn = 0
-
+        mx, mn, left, right = 0, 0, 0, 0
         for t, temp in enumerate(temperature):
             mus, results = self.solve_along_chempot_line(
                 temperature=temp, element=element, combine_charges=combine_charges
@@ -915,7 +943,9 @@ class DefectPredominanceDiagram(MSONable):
             for i, r in enumerate(results):
                 if all([_ < concentration_threshold for _ in results[r]]):
                     continue
-                cs = np.log10(np.multiply(1, results[r]))  # use 1e-6 for cm3
+
+                cs = np.log10(np.multiply(factor, results[r]))
+
                 mx, mn = max((mx, max(cs))), min((mn, min(cs)))
                 free_carrier = r == "n" or r == "p"
                 ax1.plot(
@@ -925,15 +955,18 @@ class DefectPredominanceDiagram(MSONable):
                     linewidth=3 if free_carrier else 5,
                     alpha=0.8 - t*.1,
                     label=r if t == 0 else None,
-                    color=colors[i % len(colors)]
+                    color=next(colors)
                 )
 
-            left = max(px2) if partial_pressure else max(mus)
-            ax1.axvspan(left, left + 0.1, alpha=0.2, color="red")
-            ax1.axvspan(min(px2), min(px2) - 0.1, alpha=0.2, color="red") if partial_pressure else ax1.axvspan(
-                min(mus), min(mus) - 0.1, alpha=0.2, color="red"
-            )
+            left = min(px2) if partial_pressure else min(mus)
+            right = max(px2) if partial_pressure else max(mus)
 
-        ax1.set_ylim(bottom=0, top=mx + 5)
+        buffer_width = .1 * abs(right - left)
+
+        ax1.axvspan(left - buffer_width, left, alpha=0.2, color="red")
+        ax1.axvspan(right, right + buffer_width, alpha=0.2, color="red")
+
+        ax1.set_xlim(left=left - buffer_width, right=right + buffer_width)
+        ax1.set_ylim(bottom=concentration_threshold, top=mx)
         plt.legend(loc="best", fontsize=12)
         return ax1

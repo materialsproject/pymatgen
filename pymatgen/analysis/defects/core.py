@@ -422,6 +422,22 @@ class Interstitial(Defect):
         return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
+class Adsorbent(Interstitial):
+    """
+    Subclass of Interstitial with a different name. Used for keeping track of adsorbents, which are
+    treated the same algorithmically as interstitials, but are conceptually separate.
+    """
+
+    @property
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        if self.site_name:
+            return "Ads_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
+        return "Ads_{}_mult{}".format(self.site.specie, self.multiplicity)
+
+
 class Polaron(Substitution):
     """
     Subclass for defining polarons. (Small/localized) Polarons are special version of substitution
@@ -715,13 +731,12 @@ class DefectEntry(MSONable):
             fermi_level:
                 the fermi level in eV (with respect to the VBM)
         Returns:
-            defects concentration in cm^-3
+            defects concentration per formula unit.
         """
-        n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
+        n = self.multiplicity
         conc = n * np.exp(
             -1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature)
         )
-
         return conc
 
     def __repr__(self):
