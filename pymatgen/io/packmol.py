@@ -202,8 +202,8 @@ class PackmolBoxGen(InputGenerator):
 
         mapping.update({str(self.inputfile): file_contents})
 
-        return PackmolSet( 
-            inputs=mapping, #type: ignore
+        return PackmolSet(
+            inputs=mapping,  # type: ignore
             seed=self.seed,
             inputfile=self.inputfile,
             outputfile=self.outputfile,
