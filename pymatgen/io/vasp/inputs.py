@@ -26,6 +26,7 @@ from typing import Any, Dict, Sequence, Tuple, Union
 import numpy as np
 import scipy.constants as const
 from monty.io import zopen
+from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import loadfn
@@ -36,7 +37,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.io.core import InputFile, InputSet
+from pymatgen.io.core import InputFile
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import ArrayLike, PathLike
