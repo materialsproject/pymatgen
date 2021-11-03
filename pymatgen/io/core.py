@@ -130,7 +130,7 @@ class InputSet(MSONable, MutableMapping):
 
     def __getattr__(self, k):
         # allow accessing keys as attributes
-        return self[k]
+        return self.get(k)
 
     def __len__(self):
         return len(self.inputs.keys())
