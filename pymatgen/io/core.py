@@ -30,7 +30,7 @@ If you want to implement a new InputGenerator, please take note of the following
 import abc
 import os
 from pathlib import Path
-from typing import Union
+from typing import Union, Dict
 from zipfile import ZipFile
 from collections.abc import MutableMapping
 from monty.io import zopen
@@ -113,7 +113,7 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: dict[Union[str, Path], Union[str, InputFile]] = {}, **kwargs):
+    def __init__(self, inputs: Dict[Union[str, Path], Union[str, InputFile]] = {}, **kwargs):
         """
         Instantiate an InputSet.
 
