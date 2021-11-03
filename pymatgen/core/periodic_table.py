@@ -211,9 +211,7 @@ class ElementBase(Enum):
             float: Electronegativity of element. If an element does not have an electronegativity,
                 NaN is returned.
         """
-        if "X" in self._data:
-            return self._data["X"]
-        return float("NaN")
+        return self._data.get("X", float("NaN"))
 
     @property
     def atomic_radius(self) -> Optional[FloatWithUnit]:
