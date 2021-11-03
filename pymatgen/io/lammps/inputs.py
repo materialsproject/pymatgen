@@ -18,7 +18,7 @@ from monty.json import MSONable
 from monty.dev import deprecated
 
 from pymatgen.io.template import TemplateInputGen
-from pymatgen.io.lammps.data import LammpsData, CombinedData
+from pymatgen.io.lammps.data import LammpsData  # , CombinedData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
