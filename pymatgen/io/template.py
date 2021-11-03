@@ -1,5 +1,5 @@
 """
-This module defines a simple concrete implementation of the Input class that can be
+This module defines a simple concrete implementation of the InputGenerator class that can be
 used to facilitate writing large numbers of input files based on a template.
 """
 
@@ -7,7 +7,7 @@ from pathlib import Path
 from string import Template
 from typing import Union, Optional, Dict
 from monty.io import zopen
-from pymatgen.io.core import InputSet
+from pymatgen.io.core import InputSet, InputGenerator
 
 
 __author__ = "Ryan Kingsbury"
@@ -16,9 +16,9 @@ __status__ = "Development"
 __date__ = "October 2021"
 
 
-class TemplateInputSet(InputSet):
+class TemplateInputGen(InputGenerator):
     """
-    Concrete implementation of InputSet that is based on a single template input
+    Concrete implementation of InputGenerator that is based on a single template input
     file with variables.
 
     This class is provided as a low-barrier way to support new codes and to provide
@@ -26,7 +26,9 @@ class TemplateInputSet(InputSet):
     classes.
     """
 
-    def __init__(self, template: Union[str, Path], variables: Optional[Dict] = None, filename: str = "input.txt"):
+    def get_input_set(  # type: ignore
+        self, template: Union[str, Path], variables: Optional[Dict] = None, filename: str = "input.txt"
+    ):
         """
         Args:
             template: the input file template containing variable strings to be
@@ -47,20 +49,4 @@ class TemplateInputSet(InputSet):
 
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
-        super().__init__()
-
-    def get_inputs(self):
-        """
-        Return a mapping of {filename: data}
-        """
-        return {self.filename: self.data}
-
-    @classmethod
-    def from_directory(cls, directory: Union[str, Path]):
-        """
-        Construct an InputSet from a directory of one or more files.
-
-        Args:
-            directory: Directory to read input files from
-        """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        return InputSet({self.filename: self.data})

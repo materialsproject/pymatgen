@@ -15,8 +15,8 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
-from scipy.special import comb, erfc
 from scipy import constants
+from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
 
@@ -471,9 +471,15 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict, fmt: str = None, **kwargs):
-        """
-        Create an EwaldSummation instance from json serialized dictionary.
+    def from_dict(cls, d: Dict, fmt: str = None, **kwargs) -> "EwaldSummation":
+        """Create an EwaldSummation instance from JSON serialized dictionary.
+
+        Args:
+            d (Dict): Dictionary representation
+            fmt (str, optional): Unused. Defaults to None.
+
+        Returns:
+            EwaldSummation: class instance
         """
         summation = cls(
             structure=Structure.from_dict(d["structure"]),

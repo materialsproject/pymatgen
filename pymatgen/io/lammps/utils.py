@@ -21,10 +21,12 @@ except ImportError:
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
+from monty.dev import deprecated
 
 from pymatgen.core.structure import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
@@ -173,6 +175,7 @@ class Polymer:
             self.end += len(self.monomer)
 
 
+@deprecated(PackmolBoxGen, "PackmolRunner is being phased out in favor of the packmol I/O class.")
 class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of

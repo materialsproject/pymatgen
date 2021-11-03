@@ -15,16 +15,18 @@ import math
 import os
 import re
 import subprocess
+import sys
 import warnings
 from pathlib import Path
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Dict, Any, Tuple, Sequence, Union
+from typing import Any, Dict, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
 from monty.io import zopen
+from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import loadfn
@@ -35,10 +37,15 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.io.core import InputFile, InputSet
+from pymatgen.io.core import InputFile
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import PathLike, ArrayLike
+from pymatgen.util.typing import ArrayLike, PathLike
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1035,7 +1042,7 @@ class Kpoints(InputFile):
         is recommended that you use those.
 
         Args:
-            comment (str): String comment for Kpoints
+            comment (str): String comment for Kpoints. Defaults to "Default gamma".
             num_kpts: Following VASP method of defining the KPOINTS file, this
                 parameter is the number of kpoints specified. If set to 0
                 (or negative), VASP automatically generates the KPOINTS.
@@ -1771,11 +1778,9 @@ class PotcarSingle:
 
         if self.identify_potcar(mode="data")[0] == []:
             warnings.warn(
-                "POTCAR data with symbol {} does not match any VASP\
-                          POTCAR known to pymatgen. We advise verifying the\
-                          integrity of your POTCAR files.".format(
-                    self.symbol
-                ),
+                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                "POTCAR known to pymatgen. There is a possibility your "
+                "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
         elif self.identify_potcar(mode="file")[0] == []:
@@ -1939,7 +1944,7 @@ class PotcarSingle:
         """
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
-    def identify_potcar(self, mode: str = "data"):
+    def identify_potcar(self, mode: Literal["data", "file"] = "data"):
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
@@ -1948,9 +1953,8 @@ class PotcarSingle:
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode (str): 'data' or 'file'. 'data' mode checks the hash of the POTCAR
-                        data itself, while 'file' mode checks the hash of the entire
-                        POTCAR file, including metadata.
+            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR data itself,
+                while 'file' mode checks the hash of the entire POTCAR file, including metadata.
 
         Returns:
             symbol (List): List of symbols associated with the PotcarSingle
@@ -2081,7 +2085,7 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        return md5(str(self).encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
         """
@@ -2264,12 +2268,12 @@ class Potcar(list, InputFile):
         return self.__str__()
 
 
-class VaspInput(InputSet):
+class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
     """
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None):
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
         """
         Args:
             incar: Incar object.
@@ -2280,33 +2284,59 @@ class VaspInput(InputSet):
                 filename: object}. The object should follow standard pymatgen
                 conventions in implementing a as_dict() and from_dict method.
         """
-        self.incar = incar
-        self.kpoints = kpoints
-        self.poscar = poscar
-        self.potcar = potcar
-        self.optional_files = optional_files
-        super().__init__()
-
-    def get_inputs(self):
-        """
-        Return a mapping of {filename: object} for the VaspInput, e.g.
-        {"INCAR": <Incar object>,
-         "POSCAR": <Poscar object>,
-         etc.
-         }
-        """
-        d = {"INCAR": self.incar, "KPOINTS": self.kpoints, "POSCAR": self.poscar, "POTCAR": self.potcar}
-        if self.optional_files is not None:
-            d.update(self.optional_files)
-        return d
+        super().__init__(**kwargs)
+        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})
+        if optional_files is not None:
+            self.update(optional_files)
 
     def __str__(self):
         output = []
-        for k, v in self.get_inputs().items():
+        for k, v in self.items():
             output.append(k)
             output.append(str(v))
             output.append("")
         return "\n".join(output)
+
+    def as_dict(self):
+        """
+        :return: MSONable dict.
+        """
+        d = {k: v.as_dict() for k, v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: VaspInput
+        """
+        dec = MontyDecoder()
+        sub_d = {"optional_files": {}}
+        for k, v in d.items():
+            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+                sub_d[k.lower()] = dec.process_decoded(v)
+            elif k not in ["@module", "@class"]:
+                sub_d["optional_files"][k] = dec.process_decoded(v)
+        return cls(**sub_d)
+
+    def write_input(self, output_dir=".", make_dir_if_not_present=True):
+        """
+        Write VASP input to a directory.
+
+        Args:
+            output_dir (str): Directory to write to. Defaults to current
+                directory (".").
+            make_dir_if_not_present (bool): Create the directory if not
+                present. Defaults to True.
+        """
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        for k, v in self.items():
+            if v is not None:
+                with zopen(os.path.join(output_dir, k), "wt") as f:
+                    f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
@@ -2357,7 +2387,7 @@ class VaspInput(InputSet):
         :param output_file: File to write output.
         :param err_file: File to write err.
         """
-        self.write_input(directory=run_dir)
+        self.write_input(output_dir=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:

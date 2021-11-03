@@ -18,9 +18,9 @@ from typing import Union, Optional, Dict
 from monty.json import MSONable
 from monty.dev import deprecated
 
-from pymatgen.io.template import TemplateInputSet
 from pymatgen.io.core import InputFile
-from pymatgen.io.lammps.data import LammpsData  # , CombinedData
+from pymatgen.io.template import TemplateInputGen
+from pymatgen.io.lammps.data import LammpsData# , CombinedData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -128,7 +128,7 @@ class LammpsRun(MSONable):
         )
 
 
-class LammpsTemplateSet(TemplateInputSet):
+class LammpsTemplateGen(TemplateInputGen):
     """
     Creates an InputSet object for a LAMMPS run based on a template file.
     The input script is constructed by substituting variables into placeholders
@@ -142,12 +142,12 @@ class LammpsTemplateSet(TemplateInputSet):
     See pymatgen.io.template.py for additional documentation of this method.
     """
 
-    def __init__(
+    def get_input_set(  # type: ignore
         self,
         script_template: Union[str, Path],
         settings: Optional[Dict] = None,
-        data: Union[LammpsData, CombinedData] = None,
         script_filename: str = "in.lammps",
+        data: Union[LammpsData, CombinedData] = None,
         data_filename: str = "system.data",
     ):
         """
@@ -164,21 +164,14 @@ class LammpsTemplateSet(TemplateInputSet):
             script_filename: Filename for the input file.
             data_filename: Filename for the data file, if provided.
         """
-        self.system_data = data
-        self.data_filename = data_filename
-        super().__init__(template=script_template, variables=settings, filename=script_filename)
+        input_set = super().get_input_set(template=script_template, variables=settings, filename=script_filename)
 
-    def get_inputs(self):
-        """
-        Return a mapping of {filename: data}
-        """
-        d = {self.filename: self.data}
-        if self.system_data:
-            d.update({self.data_filename: self.system_data})
-        return d
+        if data:
+            input_set.update({data_filename: data})
+        return input_set
 
 
-@deprecated(LammpsTemplateSet, "This method will be retired in the future. Consider using LammpsTemplateSet instead.")
+@deprecated(LammpsTemplateGen, "This method will be retired in the future. Consider using LammpsTemplateSet instead.")
 def write_lammps_inputs(
     output_dir,
     script_template,

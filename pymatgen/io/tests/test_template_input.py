@@ -7,16 +7,16 @@ import pytest
 import tempfile
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.template import TemplateInputSet
+from pymatgen.io.template import TemplateInputGen
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 
 
-class TestTemplateInputSet:
+class TestTemplateInputGen:
     def test_write_inputs(self):
 
         with tempfile.TemporaryDirectory() as scratch_dir:
-            tis = TemplateInputSet(
+            tis = TemplateInputGen().get_input_set(
                 template=os.path.join(test_dir, "template_input_file.txt"),
                 variables={"TEMPERATURE": 298},
                 filename="hello_world.in",
@@ -30,16 +30,16 @@ class TestTemplateInputSet:
 
             tis.write_input(os.path.join(scratch_dir, "temp"), make_dir=True)
 
-            tis = TemplateInputSet(
+            tis = TemplateInputGen().get_input_set(
                 template=os.path.join(test_dir, "template_input_file.txt"),
                 variables={"TEMPERATURE": 400},
                 filename="hello_world.in",
             )
 
             # test len, iter, getitem
-            assert len(tis) == 1
-            assert len([i for i in tis]) == 1
-            assert isinstance(tis["hello_world.in"], str)
+            assert len(tis.inputs) == 1
+            assert len([i for i in tis.inputs]) == 1
+            assert isinstance(tis.inputs["hello_world.in"], str)
 
             with pytest.raises(FileExistsError):
                 tis.write_input(scratch_dir, overwrite=False)
@@ -51,8 +51,4 @@ class TestTemplateInputSet:
 
             tis.write_input(scratch_dir, zip_inputs=True)
 
-            assert "TemplateInputSet.zip" in [f for f in os.listdir(scratch_dir)]
-
-    def test_from_directory(self):
-        with pytest.raises(NotImplementedError):
-            tis = TemplateInputSet.from_directory(test_dir)
+            assert "InputSet.zip" in [f for f in os.listdir(scratch_dir)]

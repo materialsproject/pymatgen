@@ -23,6 +23,7 @@ References:
 
 import json
 import os
+import sys
 import warnings
 from typing import List, Tuple, Union
 
@@ -31,13 +32,18 @@ import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
 from pandas import DataFrame
-from plotly.graph_objects import Scatter, Figure
+from plotly.graph_objects import Figure, Scatter
 
-from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
+from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify, htmlify
+from pymatgen.util.string import htmlify, latexify
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
@@ -195,14 +201,14 @@ class InterfacialReactivity(MSONable):
 
         return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula))
 
-    def plot(self, backend: str = "plotly") -> Union[Figure, plt.Figure]:
+    def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Union[Figure, plt.Figure]:
         """
         Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2
         tie line.
 
         Args:
-            backend: Plotting library used to create plot. Defaults to "plotly".
-            Can alternatively be set to "matplotlib"
+            backend ("plotly" | "matplotlib"): Plotting library used to create the plot. Defaults to
+                "plotly" but can also be "matplotlib".
 
         Returns:
             Plot of reaction energies as a function of mixing ratio

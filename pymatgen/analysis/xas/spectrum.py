@@ -6,6 +6,7 @@
 This module defines classes to represent all xas and stitching methods
 """
 import math
+import sys
 import warnings
 from typing import List
 
@@ -15,6 +16,11 @@ from scipy.interpolate import interp1d
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -102,7 +108,7 @@ class XAS(Spectrum):
             super().__str__(),
         )
 
-    def stitch(self, other: "XAS", num_samples: int = 500, mode: str = "XAFS") -> "XAS":
+    def stitch(self, other: "XAS", num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> "XAS":
         """
         Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
         spectrum depending on the mode.
@@ -120,8 +126,8 @@ class XAS(Spectrum):
         Args:
             other: Another XAS object.
             num_samples(int): Number of samples for interpolation.
-            mode(str): Either XAFS mode for stitching XANES and EXAFS
-                        or L23 mode for stitching L2 and L3.
+            mode("XAFS" | "L23"): Either XAFS mode for stitching XANES and EXAFS
+                or L23 mode for stitching L2 and L3.
 
         Returns:
             XAS object: The stitched spectrum.
