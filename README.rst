@@ -77,7 +77,7 @@ Why use pymatgen?
 1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers, and is the analysis code powering the
    `Materials Project`_. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be
    found and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every
-   new code passes a comprehensive suite of unittests.
+   new code passes a comprehensive suite of unit tests.
 2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it
    quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously being
