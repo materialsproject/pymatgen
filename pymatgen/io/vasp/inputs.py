@@ -2267,12 +2267,12 @@ class Potcar(list, InputFile):
         return self.__str__()
 
 
-class VaspInput(InputSet):
+class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
     """
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None):
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
         """
         Args:
             incar: Incar object.
@@ -2283,16 +2283,10 @@ class VaspInput(InputSet):
                 filename: object}. The object should follow standard pymatgen
                 conventions in implementing a as_dict() and from_dict method.
         """
-        self.incar = incar
-        self.kpoints = kpoints
-        self.poscar = poscar
-        self.potcar = potcar
-        self.optional_files = optional_files
-
-        d = {"INCAR": self.incar, "KPOINTS": self.kpoints, "POSCAR": self.poscar, "POTCAR": self.potcar}
-        if self.optional_files is not None:
-            d.update(self.optional_files)
-        self.update(d)
+        super().__init__(**kwargs)
+        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})
+        if optional_files is not None:
+            self.update(optional_files)
 
     def __str__(self):
         output = []
@@ -2301,6 +2295,47 @@ class VaspInput(InputSet):
             output.append(str(v))
             output.append("")
         return "\n".join(output)
+
+    def as_dict(self):
+        """
+        :return: MSONable dict.
+        """
+        d = {k: v.as_dict() for k, v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: VaspInput
+        """
+        dec = MontyDecoder()
+        sub_d = {"optional_files": {}}
+        for k, v in d.items():
+            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+                sub_d[k.lower()] = dec.process_decoded(v)
+            elif k not in ["@module", "@class"]:
+                sub_d["optional_files"][k] = dec.process_decoded(v)
+        return cls(**sub_d)
+
+    def write_input(self, output_dir=".", make_dir_if_not_present=True):
+        """
+        Write VASP input to a directory.
+
+        Args:
+            output_dir (str): Directory to write to. Defaults to current
+                directory (".").
+            make_dir_if_not_present (bool): Create the directory if not
+                present. Defaults to True.
+        """
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        for k, v in self.items():
+            if v is not None:
+                with zopen(os.path.join(output_dir, k), "wt") as f:
+                    f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
@@ -2351,7 +2386,7 @@ class VaspInput(InputSet):
         :param output_file: File to write output.
         :param err_file: File to write err.
         """
-        self.write_input(directory=run_dir)
+        self.write_input(output_dir=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
