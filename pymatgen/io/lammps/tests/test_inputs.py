@@ -15,7 +15,7 @@ from pathlib import Path
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
-from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs, LammpsTemplateSet
+from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs, LammpsTemplateGen
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -121,11 +121,11 @@ class FuncTest(unittest.TestCase):
                 shutil.rmtree(td)
 
 
-class LammpsTemplateSetTest(PymatgenTest):
+class LammpsTemplateGenTest(PymatgenTest):
     def test_write_inputs(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             # simple script without data file
-            lis = LammpsTemplateSet(
+            lis = LammpsTemplateGen().get_input_set(
                 script_template=os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt"),
                 settings={"method": "heat"},
                 data=None,
@@ -152,7 +152,7 @@ class LammpsTemplateSetTest(PymatgenTest):
             obj = LammpsData.from_file(
                 os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic"
             )
-            lis = LammpsTemplateSet(
+            lis = LammpsTemplateGen().get_input_set(
                 script_template=os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide"),
                 settings=None,
                 data=obj,
