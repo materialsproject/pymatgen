@@ -9,8 +9,8 @@ be used to compute thermal properties.
 
 See the following papers for more info:
 
-    http://doi.org/10.1016/j.comphy.2003.12.001 (2004)
-    http://doi.org/10.1103/PhysRevB.90.174107 (2014)
+    https://doi.org/10.1016/j.comphy.2003.12.001 (2004)
+    https://doi.org/10.1103/PhysRevB.90.174107 (2014)
 """
 
 import logging
