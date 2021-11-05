@@ -459,9 +459,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for site in self.sites:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping: Dict[SpeciesLike, SpeciesLike]):
+    def replace_species(self, species_mapping: Dict[SpeciesLike, SpeciesLike]) -> None:
         """
-        Swap species.
+        Swap species. Note that this method modifies the structure in place.
 
         Args:
             species_mapping (dict): dict of species to swap. Species can be
@@ -477,9 +477,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         sp_in_structure = set(self.composition.keys())
         if not sp_in_structure.issuperset(sp_to_replace):
             warnings.warn(
-                "Some species to be substituted are not present in "
-                "structure. Pls check your input. Species to be "
-                "substituted = %s; Species in structure = %s" % (sp_to_replace, sp_in_structure)
+                "Some species to be substituted are not present in structure. Pls check your input. Species to be "
+                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
             )
 
         for site in self.sites:
@@ -652,7 +651,7 @@ class IStructure(SiteCollection, MSONable):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict = None,
-    ):
+    ) -> None:
         """
         Create a periodic structure.
 
@@ -726,7 +725,7 @@ class IStructure(SiteCollection, MSONable):
         charge: float = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
-    ):
+    ) -> Union["IStructure", "Structure"]:
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -1024,7 +1023,7 @@ class IStructure(SiteCollection, MSONable):
         a = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
         return a.get_space_group_symbol(), a.get_space_group_number()
 
-    def matches(self, other, anonymous=False, **kwargs):
+    def matches(self, other, anonymous=False, **kwargs) -> bool:
         """
         Check whether this structure is similar to another structure.
         Basically a convenience method to call structure matching.
@@ -1045,7 +1044,7 @@ class IStructure(SiteCollection, MSONable):
             return m.fit(self, other)
         return m.fit_anonymous(self, other)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if other is self:
             return True
         if other is None:
@@ -1059,14 +1058,14 @@ class IStructure(SiteCollection, MSONable):
                 return False
         return True
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # For now, just use the composition hash code.
         return self.composition.__hash__()
 
-    def __mul__(self, scaling_matrix):
+    def __mul__(self, scaling_matrix: Union[int, Sequence[int], Sequence[Sequence[int]]]) -> "Structure":
         """
         Makes a supercell. Allowing to have sites outside the unit cell
 
@@ -1075,11 +1074,11 @@ class IStructure(SiteCollection, MSONable):
                 vectors. Has to be all integers. Several options are possible:
 
                 a. A full 3x3 scaling matrix defining the linear combination
-                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   of the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
                    1]] generates a new structure with lattice vectors a' =
                    2a + b, b' = 3b, c' = c where a, b, and c are the lattice
                    vectors of the original structure.
-                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                b. A sequence of three scaling factors. E.g., [2, 1, 1]
                    specifies that the supercell should have dimensions 2a x b x
                    c.
                 c. A number, which simply scales all lattice vectors by the
@@ -1131,7 +1130,7 @@ class IStructure(SiteCollection, MSONable):
         return np.array([site.frac_coords for site in self._sites])
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """
         Returns the volume of the structure.
         """
