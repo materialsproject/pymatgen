@@ -331,6 +331,8 @@ class DftSet(Cp2kInputSet):
         self.minimizer = minimizer
         self.preconditioner = preconditioner
         self.algorithm = algorithm
+        self.rotation = rotation
+        self.occupation_preconditioner = occupation_preconditioner
         self.linesearch = linesearch
         self.cutoff = cutoff
         self.rel_cutoff = rel_cutoff

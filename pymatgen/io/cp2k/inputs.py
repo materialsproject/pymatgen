@@ -1171,6 +1171,8 @@ class OrbitalTransformation(Section):
         self.minimizer = minimizer
         self.preconditioner = preconditioner
         self.algorithm = algorithm
+        self.rotation = rotation
+        self.occupation_preconditioner = occupation_preconditioner
         self.energy_gap = energy_gap
         self.linesearch = linesearch
         self.subsections = subsections if subsections else {}
