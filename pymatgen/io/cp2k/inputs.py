@@ -1136,6 +1136,8 @@ class OrbitalTransformation(Section):
         minimizer: str = "CG",
         preconditioner: str = "FULL_ALL",
         algorithm: str = "STRICT",
+        rotation: bool = False,
+        occupation_preconditioner: bool = False,
         energy_gap: float = 0.01,
         linesearch: str = "2PNT",
         subsections: dict = None,
@@ -1192,6 +1194,8 @@ class OrbitalTransformation(Section):
             "ENERGY_GAP": Keyword("ENERGY_GAP", energy_gap),
             "ALGORITHM": Keyword("ALGORITHM", algorithm),
             "LINESEARCH": Keyword("LINESEARCH", linesearch),
+            "ROTATION": Keyword("ROTATION", rotation),
+            "OCCUPATION_PRECONDITIONER": Keyword("OCCUPATION_PRECONDITIONER", occupation_preconditioner),
         }
 
         super().__init__(

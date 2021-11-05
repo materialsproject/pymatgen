@@ -261,6 +261,8 @@ class DftSet(Cp2kInputSet):
         preconditioner: str = "FULL_ALL",
         algorithm: str = "STRICT",
         linesearch: str = "2PNT",
+        rotation: bool = False,
+        occupation_preconditioner: bool = False,
         cutoff: int = 0,
         rel_cutoff: int = 50,
         ngrids: int = 5,
@@ -361,6 +363,8 @@ class DftSet(Cp2kInputSet):
                     energy_gap=band_gap,
                     algorithm=algorithm,
                     linesearch=linesearch,
+                    rotation=rotation,
+                    occupation_preconditioner=occupation_preconditioner,
                 )
             )
             scf.insert(
