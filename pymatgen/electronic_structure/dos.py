@@ -774,7 +774,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}
