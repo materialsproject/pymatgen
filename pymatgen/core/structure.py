@@ -3889,7 +3889,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
             # initialize a dictionary to store the site indices where each element occupies
             # for example, Fe2O3 would have {Fe: [0, 1], O: [2, 3, 4]}
-            elem_indices = {element: [] for element in elem_lst}
+            elem_indices: Dict[Element, list] = {element: [] for element in elem_lst}
             # iterate over all sites
             for i, site in enumerate(output_structure.sites):
                 # the internal for loop is for cases when
@@ -3915,7 +3915,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         # if the second element is specified and different from the first element
         if elem_2 and (elem_1 != elem_2):
             # get all the cartesian pairwise combinations for the indices of elem_1 and elem_2
-            pairwise_indices = itertools.product(elem_indices[elem_1], elem_indices[elem_2])
+            pairwise_indices: Union[itertools.product, itertools.combinations] = itertools.product(
+                elem_indices[elem_1], elem_indices[elem_2]
+            )
         # if only 1 unique element is specified
         else:
             # get the pairwise combinations for the indices of elem_1
@@ -3925,7 +3927,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         distance_lst = np.array([struct_new.get_distance(i, j, jimage) for i, j in pairwise_indices])
 
         # define a helper function to choose the minimum distance
-        def choose_min_helper(dist_lst: np.array, threshold_val: float, unique_only: bool):
+        def choose_min_helper(dist_lst: np.ndarray, threshold_val: float, unique_only: bool):
             # if the input array is empty, return 0 in a numpy array
             if dist_lst.size == 0:
                 return np.array([0])
