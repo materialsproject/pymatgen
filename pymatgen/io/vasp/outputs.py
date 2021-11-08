@@ -1684,30 +1684,72 @@ class Outcar:
         "User time (sec)".
 
     .. attribute:: elastic_tensor
+
         Total elastic moduli (Kbar) is given in a 6x6 array matrix.
 
     .. attribute:: drift
+
         Total drift for each step in eV/Atom
 
     .. attribute:: ngf
+
         Dimensions for the Augementation grid
 
     .. attribute: sampling_radii
+
         Size of the sampling radii in VASP for the test charges for
         the electrostatic potential at each atom. Total array size is the number
         of elements present in the calculation
 
     .. attribute: electrostatic_potential
+
         Average electrostatic potential at each atomic position in order
         of the atoms in POSCAR.
 
     ..attribute: final_energy_contribs
+
         Individual contributions to the total final energy as a dictionary.
         Include contirbutions from keys, e.g.:
         {'DENC': -505778.5184347, 'EATOM': 15561.06492564, 'EBANDS': -804.53201231,
         'EENTRO': -0.08932659, 'EXHF': 0.0, 'Ediel_sol': 0.0,
         'PAW double counting': 664.6726974100002, 'PSCENC': 742.48691646,
         'TEWEN': 489742.86847338, 'XCENC': -169.64189814}
+
+    .. attribute:: efermi
+
+        Fermi energy
+
+    .. attribute:: filename
+
+        Filename
+
+     .. attribute:: final_energy
+
+        Final (total) energy
+
+    .. attribute:: has_onsite_density_matrices
+
+        Boolean for if onsite density matrices have been set
+
+    .. attribute:: lcalcpol
+
+        If LCALCPOL has been set
+
+    .. attribute:: lepsilon
+
+        If LEPSILON has been set
+
+    .. attribute:: nelect
+
+        Returns the number of electrons in the calculation
+
+    .. attribute:: spin
+
+        If spin-polarization was enabled via ISPIN
+
+    .. attribute:: total_mag
+
+        Total magnetization (in terms of the number of unpaired electrons)
 
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and

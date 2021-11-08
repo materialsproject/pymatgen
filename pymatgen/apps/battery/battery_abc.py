@@ -45,7 +45,7 @@ class AbstractVoltagePair(MSONable):
         frac_charge: Frac of working ion in charged pair.
         frac_discharge: Frac of working ion in discharged pair.
         working_ion_entry: Working ion as an entry.
-        framework : The compositions of one formula unit of the host material
+        framework_formula : The compositions of one formula unit of the host material
     """
 
     voltage: float
@@ -57,11 +57,11 @@ class AbstractVoltagePair(MSONable):
     frac_charge: float
     frac_discharge: float
     working_ion_entry: ComputedEntry
-    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
         # ensure the the frame work is a reduced composition
-        self._framework_formula = self.framework.reduced_formula
+        self.framework_formula = self.framework.reduced_formula
 
     @property
     def working_ion(self) -> Element:
@@ -75,7 +75,7 @@ class AbstractVoltagePair(MSONable):
         """
         The composition object representing the framework
         """
-        return Composition(self._framework_formula)
+        return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
@@ -134,16 +134,16 @@ class AbstractElectrode(Sequence, MSONable):
         voltage_pairs: Objects that represent each voltage step
         working_ion: Representation of the working ion that only contains element type
         working_ion_entry: Representation of the working_ion that contains the energy
-        framework: The compositions of one formula unit of the host material
+        framework_formula: The compositions of one formula unit of the host material
     """
 
     voltage_pairs: Tuple[AbstractVoltagePair]
     working_ion_entry: ComputedEntry
-    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
         # ensure the the frame work is a reduced composition
-        self._framework_formula = self.framework.reduced_formula
+        self.framework_formula = self.framework.reduced_formula
 
     def __getitem__(self, index):
         return self.voltage_pairs[index]
@@ -169,7 +169,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         The composition object representing the framework
         """
-        return Composition(self._framework_formula)
+        return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
@@ -419,7 +419,7 @@ class AbstractElectrode(Sequence, MSONable):
             "nsteps": self.num_steps,
             "fracA_charge": self.voltage_pairs[0].frac_charge,
             "fracA_discharge": self.voltage_pairs[-1].frac_discharge,
-            "framework_formula": self._framework_formula,
+            "framework_formula": self.framework_formula,
         }
 
         if print_subelectrodes:

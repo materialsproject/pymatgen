@@ -1787,11 +1787,9 @@ class PotcarSingle:
 
         if self.identify_potcar(mode="data")[0] == []:
             warnings.warn(
-                "POTCAR data with symbol {} does not match any VASP\
-                          POTCAR known to pymatgen. We advise verifying the\
-                          integrity of your POTCAR files.".format(
-                    self.symbol
-                ),
+                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                "POTCAR known to pymatgen. There is a possibility your "
+                "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
         elif self.identify_potcar(mode="file")[0] == []:
@@ -2096,7 +2094,7 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        return md5(str(self).encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
         """

@@ -13,6 +13,7 @@ import itertools
 import math
 
 import numpy as np
+from monty.json import MSONable
 
 from . import coord_cython as cuc
 
@@ -352,7 +353,7 @@ def get_angle(v1, v2, units="degrees"):
     raise ValueError("Invalid units {}".format(units))
 
 
-class Simplex:
+class Simplex(MSONable):
     """
     A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
 
