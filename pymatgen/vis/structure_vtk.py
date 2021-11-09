@@ -40,7 +40,7 @@ class StructureVis:
     Provides Structure object visualization using VTK.
     """
 
-    @requires(vtk, "Visualization requires the installation of VTK with " "Python bindings.")
+    @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
         self,
         element_color_mapping=None,
@@ -198,13 +198,13 @@ class StructureVis:
         """
         helptxt = [
             "h : Toggle help",
-            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor " "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-            "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
-            "Left/right: Rotate view along camera direction by " "90 clockwise/anticlockwise",
+            "[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise",
             "s: Save view to image.png",
             "o: Orthogonalize structure",
         ]
@@ -567,7 +567,7 @@ class StructureVis:
         if color == "element":
             if center is None:
                 raise ValueError(
-                    "Color should be chosen according to the central atom, " "and central atom is not provided"
+                    "Color should be chosen according to the central atom, and central atom is not provided"
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
@@ -1132,13 +1132,13 @@ class MultiStructuresVis(StructureVis):
         """
         helptxt = [
             "h : Toggle help",
-            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor " "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-            "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
-            "Left/right: Rotate view along camera direction by " "90 clockwise/anticlockwise",
+            "[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise",
             "s: Save view to image.png",
             "o: Orthogonalize structure",
             "n: Move to next structure",

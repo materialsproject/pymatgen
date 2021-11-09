@@ -93,7 +93,7 @@ def coord_list_mapping(subset, superset, atol=1e-8):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates " "in superset")
+        raise ValueError("Something wrong with the inputs, likely duplicates in superset")
     return inds
 
 

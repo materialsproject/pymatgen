@@ -94,7 +94,7 @@ class ChemicalPotentialDiagram(MSONable):
         ) = self._get_hyperplanes_and_entries()
 
         if self.dim < 2:
-            raise ValueError("ChemicalPotentialDiagram currently requires phase " "diagrams with 2 or more elements!")
+            raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")
 
         if len(self.el_refs) != self.dim:
             missing = set(self.elements).difference(self.el_refs.keys())

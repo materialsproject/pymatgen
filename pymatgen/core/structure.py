@@ -509,7 +509,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     new_sp[Species(sym, oxidation_states[sym])] = occu
                 site.species = Composition(new_sp)
         except KeyError:
-            raise ValueError("Oxidation state of all elements must be " "specified in the dictionary.")
+            raise ValueError("Oxidation state of all elements must be specified in the dictionary.")
 
     def add_oxidation_state_by_site(self, oxidation_states: List[float]):
         """
@@ -520,7 +520,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
         """
         if len(oxidation_states) != len(self.sites):
-            raise ValueError("Oxidation states of all sites must be " "specified.")
+            raise ValueError("Oxidation states of all sites must be specified.")
         for site, ox in zip(self.sites, oxidation_states):
             new_sp = {}
             for el, occu in site.species.items():
@@ -582,7 +582,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 E.g., [+5, -5, 0, 0]
         """
         if len(spins) != len(self.sites):
-            raise ValueError("Spin of all sites must be " "specified in the dictionary.")
+            raise ValueError("Spin of all sites must be specified in the dictionary.")
 
         for site, spin in zip(self.sites, spins):
             new_sp = {}
@@ -690,7 +690,7 @@ class IStructure(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                "The list of atomic species must be of the" " same length as the list of fractional" " coordinates."
+                "The list of atomic species must be of the same length as the list of fractional coordinates."
             )
 
         if isinstance(lattice, Lattice):
@@ -757,7 +757,7 @@ class IStructure(SiteCollection, MSONable):
                 props[k][i] = v
         for k, v in props.items():
             if any((vv is None for vv in v)):
-                warnings.warn("Not all sites have property %s. Missing values " "are set to None." % k)
+                warnings.warn("Not all sites have property %s. Missing values are set to None." % k)
         return cls(
             lattice,
             [site.species for site in sites],
@@ -839,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
 
         if len(species) != len(coords):
             raise ValueError(
-                "Supplied species and coords lengths (%d vs %d) are " "different!" % (len(species), len(coords))
+                "Supplied species and coords lengths (%d vs %d) are different!" % (len(species), len(coords))
             )
 
         frac_coords = (
@@ -939,12 +939,12 @@ class IStructure(SiteCollection, MSONable):
 
         if len(species) != len(coords):
             raise ValueError(
-                "Supplied species and coords lengths (%d vs %d) are " "different!" % (len(species), len(coords))
+                "Supplied species and coords lengths (%d vs %d) are different!" % (len(species), len(coords))
             )
 
         if len(species) != len(magmoms):
             raise ValueError(
-                "Supplied species and magmom lengths (%d vs %d) are " "different!" % (len(species), len(magmoms))
+                "Supplied species and magmom lengths (%d vs %d) are different!" % (len(species), len(magmoms))
             )
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
@@ -3267,9 +3267,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for ii in indices:
             if isinstance(site, PeriodicSite):
                 if site.lattice != self._lattice:
-                    raise ValueError("PeriodicSite added must have same lattice " "as Structure!")
+                    raise ValueError("PeriodicSite added must have same lattice as Structure!")
                 if len(indices) != 1:
-                    raise ValueError("Site assignments makes sense only for " "single int indices!")
+                    raise ValueError("Site assignments makes sense only for single int indices!")
                 self._sites[ii] = site  # type: ignore
             else:
                 if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
@@ -3368,7 +3368,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if validate_proximity:
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
-                    raise ValueError("New site is too close to an existing " "site!")
+                    raise ValueError("New site is too close to an existing site!")
 
         self._sites.insert(i, new_site)
 
@@ -3438,7 +3438,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     break
 
         if len(all_non_terminal_nn) == 0:
-            raise RuntimeError("Can't find a non-terminal neighbor to attach" " functional group to.")
+            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to.")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
 
@@ -3451,7 +3451,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if not isinstance(func_group, Molecule):
             # Check to see whether the functional group is in database.
             if func_group not in FunctionalGroups:
-                raise RuntimeError("Can't find functional group in list. " "Provide explicit coordinate instead")
+                raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
             fgroup = FunctionalGroups[func_group]
         else:
             fgroup = func_group
@@ -3790,7 +3790,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         else:
                             props[key] = None
                             warnings.warn(
-                                "Sites with different site property %s are merged. " "So property is set to none" % key
+                                "Sites with different site property %s are merged. So property is set to none" % key
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
@@ -3983,7 +3983,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         if validate_proximity:
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
-                    raise ValueError("New site is too close to an existing " "site!")
+                    raise ValueError("New site is too close to an existing site!")
         self._sites.insert(i, new_site)
 
     def remove_species(self, species: Sequence[SpeciesLike]):
@@ -4146,7 +4146,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     break
 
         if len(all_non_terminal_nn) == 0:
-            raise RuntimeError("Can't find a non-terminal neighbor to attach" " functional group to.")
+            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to.")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.nn_distance)
 
@@ -4161,7 +4161,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         else:
             # Check to see whether the functional group is in database.
             if func_group not in FunctionalGroups:
-                raise RuntimeError("Can't find functional group in list. " "Provide explicit coordinate instead")
+                raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
             func_grp = FunctionalGroups[func_group]
 
         # If a bond length can be found, modify func_grp so that the X-group

@@ -566,7 +566,7 @@ class EwaldMinimizer:
         self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
-            raise NotImplementedError("Complete algo not yet implemented for " "EwaldMinimizer")
+            raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
         self._output_lists = []
         # Tag that the recurse function looks at at each level. If a method

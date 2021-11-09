@@ -227,7 +227,7 @@ class NearNeighbors:
         Boolean property: can this NearNeighbors class be used with Structure
         objects?
         """
-        raise NotImplementedError("structures_allowed" " is not defined!")
+        raise NotImplementedError("structures_allowed is not defined!")
 
     @property
     def molecules_allowed(self):
@@ -235,7 +235,7 @@ class NearNeighbors:
         Boolean property: can this NearNeighbors class be used with Molecule
         objects?
         """
-        raise NotImplementedError("molecules_allowed" " is not defined!")
+        raise NotImplementedError("molecules_allowed is not defined!")
 
     @property
     def extend_structure_molecules(self):
@@ -727,7 +727,7 @@ class VoronoiNN(NearNeighbors):
                     if e.args and "vertex" in e.args[0]:
                         # pass through the error raised by _extract_cell_info
                         raise e
-                    raise RuntimeError("Error in Voronoi neighbor finding; " "max cutoff exceeded")
+                    raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
@@ -841,9 +841,7 @@ class VoronoiNN(NearNeighbors):
                     if self.allow_pathological:
                         continue
 
-                    raise RuntimeError(
-                        "This structure is pathological," " infinite vertex in the voronoi " "construction"
-                    )
+                    raise RuntimeError("This structure is pathological, infinite vertex in the voronoi construction")
 
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
@@ -2407,7 +2405,7 @@ class LocalStructOrderParams:
         """
 
         if len(thetas) != len(phis):
-            raise ValueError("List of polar and azimuthal angles have to be" " equal!")
+            raise ValueError("List of polar and azimuthal angles have to be equal!")
 
         self._pow_sin_t.clear()
         self._pow_cos_t.clear()
@@ -2781,7 +2779,7 @@ class LocalStructOrderParams:
             str: OP type.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError("Index for getting order parameter type" " out-of-bounds!")
+            raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
     def get_parameters(self, index):
@@ -2801,9 +2799,7 @@ class LocalStructOrderParams:
             [float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError(
-                "Index for getting parameters associated with" " order parameter calculation out-of-bounds!"
-            )
+            raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
     def get_order_parameters(self, structure, n, indices_neighs=None, tol=0.0, target_spec=None):
@@ -4009,7 +4005,7 @@ class CrystalNN(NearNeighbors):
             cn (integer or float): coordination number.
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn(structure, n, use_weights)
 
@@ -4029,7 +4025,7 @@ class CrystalNN(NearNeighbors):
             cn (dict): dictionary of CN of each element bonded to site
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn_dict(structure, n, use_weights)
 

@@ -106,7 +106,7 @@ class IRDielectricTensor(MSONable):
         if isinstance(broad, float):
             broad = [broad] * self.nph_freqs
         if isinstance(broad, list) and len(broad) != self.nph_freqs:
-            raise ValueError("The number of elements in the broad_list " "is not the same as the number of frequencies")
+            raise ValueError("The number of elements in the broad_list is not the same as the number of frequencies")
 
         if emax is None:
             emax = self.max_phfreq + max(broad) * 20

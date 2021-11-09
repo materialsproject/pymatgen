@@ -64,7 +64,7 @@ class ExcitingInput(MSONable):
             self.structure = structure.copy(site_properties=site_properties)
             self.title = structure.formula if title is None else title
         else:
-            raise ValueError("Structure with partial occupancies cannot be " "converted into exciting input!")
+            raise ValueError("Structure with partial occupancies cannot be converted into exciting input!")
 
     # define conversion factor between Bohr radius and Angstrom
     bohr2ang = const.value("Bohr radius") / const.value("Angstrom star")

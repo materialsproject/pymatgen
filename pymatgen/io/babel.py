@@ -52,7 +52,7 @@ class BabelMolAdaptor:
         """
         if isinstance(mol, IMolecule):
             if not mol.is_ordered:
-                raise ValueError("OpenBabel Molecule only supports ordered " "molecules.")
+                raise ValueError("OpenBabel Molecule only supports ordered molecules.")
 
             # For some reason, manually adding atoms does not seem to create
             # the correct OBMol representation to do things like force field

@@ -538,7 +538,7 @@ class PourbaixDiagram(MSONable):
                 if len(ion_elts) == 1:
                     entry.concentration = conc_dict[ion_elts[0].symbol] * entry.normalization_factor
                 elif len(ion_elts) > 1 and not entry.concentration:
-                    raise ValueError("Elemental concentration not compatible " "with multi-element ions")
+                    raise ValueError("Elemental concentration not compatible with multi-element ions")
 
             self._unprocessed_entries = solid_entries + ion_entries
 
@@ -720,7 +720,7 @@ class PourbaixDiagram(MSONable):
         total = sum([comb(len(entries), j + 1) for j in range(N)])
         if total > 1e6:
             warnings.warn(
-                "Your pourbaix diagram includes {} entries and may " "take a long time to generate.".format(total)
+                "Your pourbaix diagram includes {} entries and may take a long time to generate.".format(total)
             )
 
         # Parallel processing of multi-entry generation
@@ -895,7 +895,7 @@ class PourbaixDiagram(MSONable):
             {elt: coeff for elt, coeff in entry.composition.items() if elt not in ELEMENTS_HO}
         ).fractional_composition
         if entry_pbx_comp != pbx_comp:
-            raise ValueError("Composition of stability entry does not match " "Pourbaix Diagram")
+            raise ValueError("Composition of stability entry does not match Pourbaix Diagram")
         entry_normalized_energy = entry.normalized_energy_at_conditions(pH, V)
         hull_energy = self.get_hull_energy(pH, V)
         decomposition_energy = entry_normalized_energy - hull_energy

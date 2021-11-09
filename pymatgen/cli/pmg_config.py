@@ -80,14 +80,14 @@ def setup_potcars(args):
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
                 except Exception as ex:
-                    print("An error has occured. Message is %s. Trying to " "continue... " % str(ex))
+                    print("An error has occurred. Message is %s. Trying to continue... " % str(ex))
 
     print("")
     print(
         "PSP resources directory generated. It is recommended that you "
         "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir)
     )
-    print("Start a new terminal to ensure that your environment variables " "are properly set.")
+    print("Start a new terminal to ensure that your environment variables are properly set.")
 
 
 def build_enum(fortran_command="gfortran"):

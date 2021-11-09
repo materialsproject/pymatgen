@@ -542,9 +542,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                 break_on_hyphens=False,
             )
 
-            description += (
-                "\n{d[og_operators]}\n" "Wyckoff Positions (OG): {d[og_lattice]}\n" "{d[og_wyckoff]}"
-            ).format(d=desc)
+            description += ("\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n" "{d[og_wyckoff]}").format(
+                d=desc
+            )
         elif desc["magtype"] == 4:
             description += "\nAlternative OG setting exists for this space group."
 

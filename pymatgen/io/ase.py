@@ -45,7 +45,7 @@ class AseAtomsAdaptor:
             raise ValueError("ASE Atoms only supports ordered structures")
         if not ase_loaded:
             raise ImportError(
-                "AseAtomsAdaptor requires ase package.\n" "Use `pip install ase` or `conda install ase -c conda-forge`"
+                "AseAtomsAdaptor requires ase package.\nUse `pip install ase` or `conda install ase -c conda-forge`"
             )
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]

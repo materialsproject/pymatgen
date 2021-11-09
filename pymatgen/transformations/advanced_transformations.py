@@ -49,7 +49,7 @@ try:
 except ImportError:
     hiphive = None
 
-__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " "Alex Ganose"
+__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
         if removal_fraction < 0:
-            raise ValueError("addition of specie not yet supported by " "ChargeBalanceTransformation")
+            raise ValueError("addition of specie not yet supported by ChargeBalanceTransformation")
         trans = SubstitutionTransformation({self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
@@ -139,7 +139,7 @@ class SuperTransformation(AbstractTransformation):
             Structures with all transformations applied.
         """
         if not return_ranked_list:
-            raise ValueError("SuperTransformation has no single best structure" " output. Must use return_ranked_list")
+            raise ValueError("SuperTransformation has no single best structure output. Must use return_ranked_list")
         structures = []
         for t in self._transformations:
             if t.is_one_to_many:
@@ -354,7 +354,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.timeout = timeout
 
         if max_cell_size and max_disordered_sites:
-            raise ValueError("Cannot set both max_cell_size and " "max_disordered_sites!")
+            raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -512,7 +512,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             Predicted Structures.
         """
         if not return_ranked_list:
-            raise ValueError("SubstitutionPredictorTransformation doesn't" " support returning 1 structure")
+            raise ValueError("SubstitutionPredictorTransformation doesn't support returning 1 structure")
 
         preds = self._substitutor.composition_prediction(structure.composition, to_this_composition=False)
         preds.sort(key=lambda x: x["probability"], reverse=True)
@@ -838,7 +838,7 @@ class MagOrderingTransformation(AbstractTransformation):
         """
 
         if not structure.is_ordered:
-            raise ValueError("Create an ordered approximation of " "your  input structure first.")
+            raise ValueError("Create an ordered approximation of your  input structure first.")
 
         # retrieve order parameters
         order_parameters = [MagOrderParameterConstraint.from_dict(op_dict) for op_dict in self.order_parameter]
