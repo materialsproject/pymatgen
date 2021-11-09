@@ -141,6 +141,33 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     return str(round(afloat, 8))
 
 
+def charge_string(charge, brackets=True, explicit_one=True):
+    """
+    Returns a string representing the charge of an Ion. By default, the
+    charge is placed in brackets with the sign preceding the magnitude, e.g.,
+    '[+2]'. For uncharged species, the string returned is '(aq)'
+
+    Args:
+        brackets: whether to enclose the charge in brackets, e.g. [+2]. Default: True
+        explicit_one: whether to include the number one for monovalent ions, e.g.
+            +1 rather than +. Default: True
+    """
+    if charge > 0:
+        chg_str = f"+{formula_double_format(charge, False)}"
+    elif charge < 0:
+        chg_str = f"-{formula_double_format(abs(charge), False)}"
+    else:
+        chg_str = "(aq)"
+
+    if chg_str in ["+1", "-1"] and not explicit_one:
+        chg_str = chg_str.replace("1", "")
+
+    if chg_str != "(aq)" and brackets:
+        chg_str = "[" + chg_str + "]"
+
+    return chg_str
+
+
 def latexify(formula):
     """
     Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
