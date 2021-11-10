@@ -614,7 +614,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             # round total occupancy to possible values
             for k, v in total_occupancy.items():
                 if abs(v - round(v)) > 0.25:
-                    raise ValueError("Occupancy fractions not consistent " "with size of unit cell")
+                    raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[k] = int(round(v))
             # start with an ordered structure
             initial_sp = max(total_occupancy.keys(), key=lambda x: abs(x.oxi_state))

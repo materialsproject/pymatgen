@@ -20,6 +20,7 @@ import math
 from collections import defaultdict
 from fractions import Fraction
 from math import cos, sin
+import warnings
 
 import numpy as np
 import spglib
@@ -798,7 +799,7 @@ class SpacegroupAnalyzer:
                     weights.append(mapping.count(mapping[i]))
                     break
         if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
-            raise ValueError("Unable to find 1:1 corresponding between input " "kpoints and irreducible grid!")
+            raise ValueError("Unable to find 1:1 corresponding between input kpoints and irreducible grid!")
         return [w / sum(weights) for w in weights]
 
     def is_laue(self):
@@ -850,7 +851,7 @@ class PointGroupAnalyzer:
 
     inversion_op = SymmOp.inversion()
 
-    def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01, matrix_tol=0.1):
+    def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01, matrix_tolerance=0.1):
         """
         The default settings are usually sufficient.
 
@@ -860,14 +861,14 @@ class PointGroupAnalyzer:
                 symmetrically equivalent. Defaults to 0.3 Angstrom.
             eigen_tolerance (float): Tolerance to compare eigen values of
                 the inertia tensor. Defaults to 0.01.
-            matrix_tol (float): Tolerance used to generate the full set of
+            matrix_tolerance (float): Tolerance used to generate the full set of
                 symmetry operations of the point group.
         """
         self.mol = mol
         self.centered_mol = mol.get_centered_molecule()
         self.tol = tolerance
         self.eig_tol = eigen_tolerance
-        self.mat_tol = matrix_tol
+        self.mat_tol = matrix_tolerance
         self._analyze()
         if self.sch_symbol in ["C1v", "C1h"]:
             self.sch_symbol = "Cs"
@@ -1519,6 +1520,11 @@ def generate_full_symmops(symmops, tol):
             d = np.abs(full - op) < tol
             if not np.any(np.all(np.all(d, axis=2), axis=1)):
                 full.append(op)
+            if len(full) > 1000:
+                warnings.warn(
+                    f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
+                    f" and rerun with a different tolerance."
+                )
 
     d = np.abs(full - UNIT) < tol
     if not np.any(np.all(np.all(d, axis=2), axis=1)):

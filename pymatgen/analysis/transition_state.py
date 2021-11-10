@@ -269,7 +269,7 @@ class NEBAnalysis(MSONable):
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
-                    raise ValueError("OUTCAR cannot be found for terminal " "point %s" % d)
+                    raise ValueError("OUTCAR cannot be found for terminal point %s" % d)
                 structures.append(Poscar.from_file(poscar[0]).structure)
             else:
                 outcars.append(Outcar(outcar[0]))

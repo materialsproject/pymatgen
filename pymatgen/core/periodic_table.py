@@ -6,19 +6,25 @@
 import ast
 import json
 import re
+import sys
 import warnings
 from collections import Counter
 from enum import Enum
 from io import open
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Dict, List, Literal, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -1373,7 +1379,7 @@ class DummySpecies(Species):
 
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError("{} contains {}, which is a valid element " "symbol.".format(symbol, symbol[:i]))
+                raise ValueError("{} contains {}, which is a valid element symbol.".format(symbol, symbol[:i]))
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
@@ -1589,4 +1595,4 @@ def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
             try:
                 return DummySpecies.from_string(obj)
             except Exception:
-                raise ValueError("Can't parse Element or String from type" " %s: %s." % (type(obj), obj))
+                raise ValueError("Can't parse Element or String from type %s: %s." % (type(obj), obj))

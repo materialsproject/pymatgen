@@ -23,8 +23,9 @@ References:
 
 import json
 import os
+import sys
 import warnings
-from typing import List, Literal, Tuple, Union
+from typing import List, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,6 +39,11 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
@@ -564,7 +570,7 @@ class InterfacialReactivity(MSONable):
             phase at given temperature and pressure.
         """
         if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"Element {element} not one of valid options: " "['O', 'N', " "'Cl', 'F', 'H']")
+            warnings.warn(f"Element {element} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
             return 0
 
         std_temp = 298.15
@@ -678,7 +684,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         """
 
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
-            raise ValueError("Please use the InterfacialReactivity class if using a " "regular phase diagram!")
+            raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True

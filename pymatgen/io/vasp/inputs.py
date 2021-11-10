@@ -15,11 +15,12 @@ import math
 import os
 import re
 import subprocess
+import sys
 import warnings
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Any, Dict, Literal, Sequence, Tuple, Union
+from typing import Any, Dict, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
@@ -38,6 +39,11 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import ArrayLike, PathLike
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -139,7 +145,7 @@ class Poscar(MSONable):
             self.comment = structure.formula if comment is None else comment
             self.predictor_corrector_preamble = predictor_corrector_preamble
         else:
-            raise ValueError("Structure with partial occupancies cannot be " "converted into POSCAR!")
+            raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
 
         self.temperature = -1.0
 
@@ -520,7 +526,7 @@ class Poscar(MSONable):
                         lines.append(" ".join([format_str.format(i) for i in z]))
             else:
                 warnings.warn(
-                    "Preamble information missing or corrupt. " "Writing Poscar with no predictor corrector data."
+                    "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data."
                 )
 
         return "\n".join(lines) + "\n"
@@ -1082,9 +1088,7 @@ class Kpoints(MSONable):
         1x1x1 KPOINTS with no shift.
         """
         if num_kpts > 0 and (not labels) and (not kpts_weights):
-            raise ValueError(
-                "For explicit or line-mode kpoints, either the " "labels or kpts_weights must be specified."
-            )
+            raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
 
         self.comment = comment
         self.num_kpts = num_kpts
@@ -1781,11 +1785,9 @@ class PotcarSingle:
 
         if self.identify_potcar(mode="data")[0] == []:
             warnings.warn(
-                "POTCAR data with symbol {} does not match any VASP\
-                          POTCAR known to pymatgen. We advise verifying the\
-                          integrity of your POTCAR files.".format(
-                    self.symbol
-                ),
+                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                "POTCAR known to pymatgen. There is a possibility your "
+                "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
         elif self.identify_potcar(mode="file")[0] == []:
@@ -1808,7 +1810,7 @@ class PotcarSingle:
         :return: Electronic configuration of the PotcarSingle.
         """
         if not self.nelectrons.is_integer():
-            warnings.warn("POTCAR has non-integer charge, " "electron configuration not well-defined.")
+            warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
             return None
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
@@ -1846,7 +1848,7 @@ class PotcarSingle:
             with zopen(filename, "rt") as f:
                 return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. " "We will attempt to read it by ignoring errors.")
+            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
@@ -2090,7 +2092,7 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        return md5(str(self).encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
         """
@@ -2202,7 +2204,7 @@ class Potcar(list, MSONable):
             with zopen(filename, "rt") as f:
                 fdata = f.read()
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. " "We will attempt to read it by ignoring errors.")
+            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:

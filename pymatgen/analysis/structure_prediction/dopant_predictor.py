@@ -39,7 +39,7 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     els_have_oxi_states = [hasattr(s, "oxi_state") for s in structure.species]
 
     if not all(els_have_oxi_states):
-        raise ValueError("All sites in structure must have oxidation states to " "predict dopants.")
+        raise ValueError("All sites in structure must have oxidation states to predict dopants.")
 
     sp = SubstitutionPredictor(threshold=threshold)
 
@@ -104,7 +104,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
             warnings.warn(
-                "Shannon radius not found for {} with coordination " "number {}.\nSkipping...".format(species, cn)
+                "Shannon radius not found for {} with coordination number {}.\nSkipping...".format(species, cn)
             )
             continue
 

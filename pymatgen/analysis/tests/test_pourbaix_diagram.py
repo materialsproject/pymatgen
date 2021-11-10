@@ -46,7 +46,7 @@ class PourbaixEntryTest(unittest.TestCase):
 
     def test_pourbaix_entry(self):
         self.assertEqual(self.PxIon.entry.energy, 25, "Wrong Energy!")
-        self.assertEqual(self.PxIon.entry.name, "MnO4[-]", "Wrong Entry!")
+        self.assertEqual(self.PxIon.entry.name, "MnO4[-1]", "Wrong Entry!")
         self.assertEqual(self.PxSol.entry.energy, 49, "Wrong Energy!")
         self.assertEqual(self.PxSol.entry.name, "Mn2O3", "Wrong Entry!")
         # self.assertEqual(self.PxIon.energy, 25, "Wrong Energy!")
@@ -65,7 +65,7 @@ class PourbaixEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.PxIon.as_dict()
         ion_entry = self.PxIon.from_dict(d)
-        self.assertEqual(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
+        self.assertEqual(ion_entry.entry.name, "MnO4[-1]", "Wrong Entry!")
 
         d = self.PxSol.as_dict()
         sol_entry = self.PxSol.from_dict(d)

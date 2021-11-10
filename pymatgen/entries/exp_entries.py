@@ -50,7 +50,7 @@ class ExpEntry(PDEntry, MSONable):
                 enthalpy = data.value
                 found = True
         if not found:
-            raise ValueError("List of Thermodata does not contain enthalpy " "values.")
+            raise ValueError("List of Thermodata does not contain enthalpy values.")
         self.temperature = temperature
         super().__init__(comp, enthalpy)
 

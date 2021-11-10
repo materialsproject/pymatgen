@@ -72,13 +72,13 @@ class GraphUtilsTest(PymatgenTest):
         self.assertTrue(np.allclose(get_delta(n1, n2, edge_data), [-2, -6, -4]))
         with self.assertRaisesRegex(
             ValueError,
-            "Trying to find a delta between two nodes with an edge " "that seems not to link these nodes.",
+            "Trying to find a delta between two nodes with an edge that seems not to link these nodes.",
         ):
             edge_data = {"start": 6, "end": 3, "delta": [2, 6, 4]}
             get_delta(n1, n2, edge_data)
         with self.assertRaisesRegex(
             ValueError,
-            "Trying to find a delta between two nodes with an edge " "that seems not to link these nodes.",
+            "Trying to find a delta between two nodes with an edge that seems not to link these nodes.",
         ):
             edge_data = {"start": 7, "end": 2, "delta": [2, 6, 4]}
             get_delta(n1, n2, edge_data)
@@ -177,7 +177,7 @@ class GraphUtilsTest(PymatgenTest):
         # Check validation at instance creation time
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : " "Duplicate nodes.",
+            expected_regex="SimpleGraphCycle is not valid : Duplicate nodes.",
         ):
             SimpleGraphCycle([0, 2, 4, 6, 2])
 
@@ -196,7 +196,7 @@ class GraphUtilsTest(PymatgenTest):
         sgc.validate(check_strict_ordering=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : " "The nodes are not sortable.",
+            expected_regex="SimpleGraphCycle is not valid : The nodes are not sortable.",
         ):
             sgc.validate(check_strict_ordering=True)
 
@@ -204,7 +204,7 @@ class GraphUtilsTest(PymatgenTest):
         sgc = SimpleGraphCycle([], validate=False, ordered=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : " "Empty cycle is not valid.",
+            expected_regex="SimpleGraphCycle is not valid : Empty cycle is not valid.",
         ):
             sgc.validate()
 
@@ -212,7 +212,7 @@ class GraphUtilsTest(PymatgenTest):
         sgc = SimpleGraphCycle([1, 2], validate=False, ordered=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : " "Simple graph cycle with 2 nodes is not valid.",
+            expected_regex="SimpleGraphCycle is not valid : Simple graph cycle with 2 nodes is not valid.",
         ):
             sgc.validate()
 
@@ -268,7 +268,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertFalse(sgc.ordered)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="SimpleGraphCycle is not valid : " "The nodes are not sortable.",
+            expected_regex="SimpleGraphCycle is not valid : The nodes are not sortable.",
         ):
             sgc.order(raise_on_fail=True)
 
@@ -317,7 +317,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="Could not order simple graph cycle as the nodes " "are of different classes.",
+            expected_regex="Could not order simple graph cycle as the nodes are of different classes.",
         ):
             sgc.order(raise_on_fail=True)
 
@@ -486,7 +486,7 @@ class GraphUtilsTest(PymatgenTest):
         mgc = MultiGraphCycle([], edge_indices=[], validate=False, ordered=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : " "Empty cycle is not valid.",
+            expected_regex="MultiGraphCycle is not valid : Empty cycle is not valid.",
         ):
             mgc.validate()
 
@@ -499,7 +499,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : " "Duplicate nodes.",
+            expected_regex="MultiGraphCycle is not valid : Duplicate nodes.",
         ):
             mgc.validate()
 
@@ -532,7 +532,7 @@ class GraphUtilsTest(PymatgenTest):
         mgc.validate(check_strict_ordering=False)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : " "The nodes are not sortable.",
+            expected_regex="MultiGraphCycle is not valid : The nodes are not sortable.",
         ):
             mgc.validate(check_strict_ordering=True)
 
@@ -591,7 +591,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertFalse(mgc.ordered)
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="MultiGraphCycle is not valid : " "The nodes are not sortable.",
+            expected_regex="MultiGraphCycle is not valid : The nodes are not sortable.",
         ):
             mgc.order(raise_on_fail=True)
 
@@ -644,7 +644,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertEqual(mgc.edge_indices, (2, 5, 3, 7))
         with self.assertRaisesRegex(
             ValueError,
-            expected_regex="Could not order simple graph cycle as the nodes " "are of different classes.",
+            expected_regex="Could not order simple graph cycle as the nodes are of different classes.",
         ):
             mgc.order(raise_on_fail=True)
 

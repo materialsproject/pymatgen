@@ -269,7 +269,7 @@ class NEBPathfinder:
             tol = la.norm((s - s0) * dr) / n_images / h
 
             if tol > 1e10:
-                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to " "avoid divergence.")
+                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
                 logger.debug("Converged at step {}".format(step))

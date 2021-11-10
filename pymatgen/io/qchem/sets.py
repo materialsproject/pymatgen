@@ -8,13 +8,19 @@ Input sets for Qchem
 
 import logging
 import os
-from typing import Dict, List, Literal, Optional
+import sys
+from typing import Dict, List, Optional
 
 from monty.io import zopen
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2021, The Materials Project"
@@ -862,7 +868,7 @@ class PESScanSet(QChemDictSet):
         self.max_scf_cycles = max_scf_cycles
 
         if scan_variables is None:
-            raise ValueError("Cannot run a pes_scan job without some variable " "to scan over!")
+            raise ValueError("Cannot run a pes_scan job without some variable to scan over!")
 
         super().__init__(
             molecule=molecule,

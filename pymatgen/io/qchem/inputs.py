@@ -7,7 +7,7 @@ Classes for reading/manipulating/writing QChem input files.
 """
 import logging
 import sys
-from typing import Union, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -449,7 +449,7 @@ class QCInput(MSONable):
         scan_list.append("$scan")
         total_vars = sum([len(v) for v in scan.values()])
         if total_vars > 2:
-            raise ValueError("Q-Chem only supports PES_SCAN with two or less " "variables.")
+            raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
                 for var in variables:

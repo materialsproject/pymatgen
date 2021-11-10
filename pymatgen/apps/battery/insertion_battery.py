@@ -35,8 +35,8 @@ class InsertionElectrode(AbstractElectrode):
     insertion battery electrode.
     """
 
-    _stable_entries: Iterable[ComputedEntry]
-    _unstable_entries: Iterable[ComputedEntry]
+    stable_entries: Iterable[ComputedEntry]
+    unstable_entries: Iterable[ComputedEntry]
 
     @classmethod
     def from_entries(
@@ -116,9 +116,9 @@ class InsertionElectrode(AbstractElectrode):
         return cls(  # pylint: disable=E1123
             voltage_pairs=_vpairs,
             working_ion_entry=_working_ion_entry,
-            _stable_entries=_stable_entries,
-            _unstable_entries=_unstable_entries,
-            _framework_formula=framework.reduced_formula,
+            stable_entries=_stable_entries,
+            unstable_entries=_unstable_entries,
+            framework_formula=framework.reduced_formula,
         )
 
     def get_stable_entries(self, charge_to_discharge=True):
@@ -133,7 +133,7 @@ class InsertionElectrode(AbstractElectrode):
             A list of stable entries in the electrode, ordered by amount of the
             working ion.
         """
-        list_copy = list(self._stable_entries)
+        list_copy = list(self.stable_entries)
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_unstable_entries(self, charge_to_discharge=True):
@@ -148,7 +148,7 @@ class InsertionElectrode(AbstractElectrode):
             A list of unstable entries in the electrode, ordered by amount of
             the working ion.
         """
-        list_copy = list(self._unstable_entries)
+        list_copy = list(self.unstable_entries)
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_all_entries(self, charge_to_discharge=True):
@@ -178,14 +178,14 @@ class InsertionElectrode(AbstractElectrode):
         """
         The most charged entry along the topotactic path.
         """
-        return self._stable_entries[0]
+        return self.stable_entries[0]
 
     @property
     def fully_discharged_entry(self):
         """
         The most discharged entry along the topotactic path.
         """
-        return self._stable_entries[-1]
+        return self.stable_entries[-1]
 
     def get_max_instability(self, min_voltage=None, max_voltage=None):
         """
@@ -518,23 +518,23 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         # check that the ion is just a single element
         if not working_ion_entry.composition.is_element:
-            raise ValueError("VoltagePair: The working ion specified must be " "an element")
+            raise ValueError("VoltagePair: The working ion specified must be an element")
 
         # check that at least one of the entries contains the working element
         if (
             not comp_charge.get_atomic_fraction(working_element) > 0
             and not comp_discharge.get_atomic_fraction(working_element) > 0
         ):
-            raise ValueError("VoltagePair: The working ion must be present in " "one of the entries")
+            raise ValueError("VoltagePair: The working ion must be present in one of the entries")
 
         # check that the entries do not contain the same amount of the workin
         # element
         if comp_charge.get_atomic_fraction(working_element) == comp_discharge.get_atomic_fraction(working_element):
-            raise ValueError("VoltagePair: The working ion atomic percentage " "cannot be the same in both the entries")
+            raise ValueError("VoltagePair: The working ion atomic percentage cannot be the same in both the entries")
 
         # check that the frameworks of the entries are equivalent
         if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
-            raise ValueError("VoltagePair: the specified entries must have the" " same compositional framework")
+            raise ValueError("VoltagePair: the specified entries must have the same compositional framework")
 
         # Initialize normalization factors, charged and discharged entries
 
@@ -589,7 +589,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
             working_ion_entry=working_ion_entry,
             entry_charge=entry_charge,
             entry_discharge=entry_discharge,
-            _framework_formula=framework.reduced_formula,
+            framework_formula=framework.reduced_formula,
         )
 
         # Step 4: add (optional) hull and muO2 data

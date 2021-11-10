@@ -13,6 +13,7 @@ import itertools
 import math
 
 import numpy as np
+from monty.json import MSONable
 
 from . import coord_cython as cuc
 
@@ -92,7 +93,7 @@ def coord_list_mapping(subset, superset, atol=1e-8):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates " "in superset")
+        raise ValueError("Something wrong with the inputs, likely duplicates in superset")
     return inds
 
 
@@ -352,7 +353,7 @@ def get_angle(v1, v2, units="degrees"):
     raise ValueError("Invalid units {}".format(units))
 
 
-class Simplex:
+class Simplex(MSONable):
     """
     A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
 
