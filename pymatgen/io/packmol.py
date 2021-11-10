@@ -163,7 +163,7 @@ class PackmolBoxGen(InputGenerator):
         file_contents += "filetype xyz\n\n"
         # NOTE - output filename MUST be enclosed in double quotes in order to work
         # when there are spaces in the filename. Single quotes will not work.
-        file_contents += f'output "{self.outputfile}"\n\n'
+        file_contents += f'output {self.outputfile}\n\n'
 
         if box:
             box_list = " ".join(str(i) for i in box)
@@ -195,7 +195,7 @@ class PackmolBoxGen(InputGenerator):
                 mol = d["coords"]
             fname = f"packmol_{d['name']}.xyz"
             mapping.update({fname: mol.to(fmt="xyz")})
-            file_contents += f'structure "{fname}"\n'
+            file_contents += f'structure {fname}\n'
             file_contents += "  number {}\n".format(str(d["number"]))
             file_contents += "  inside box {}\n".format(box_list)
             file_contents += "end structure\n\n"
