@@ -896,7 +896,7 @@ class Cp2kOutput:
                         while True:
                             if line.__contains__("WARNING : did not converge"):
                                 warnings.warn(
-                                    "Convergence of eigenvalues for " "unoccupied subspace spin 1 did NOT converge"
+                                    "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge"
                                 )
                                 next(lines)
                                 next(lines)
@@ -921,7 +921,7 @@ class Cp2kOutput:
                             while True:
                                 if line.__contains__("WARNING : did not converge"):
                                     warnings.warn(
-                                        "Convergence of eigenvalues for " "unoccupied subspace spin 2 did NOT converge"
+                                        "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge"
                                     )
                                     next(lines)
                                     next(lines)

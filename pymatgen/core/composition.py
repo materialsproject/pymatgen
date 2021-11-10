@@ -130,7 +130,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         self._natoms = 0
         for k, v in elmap.items():
             if v < -Composition.amount_tolerance and not self.allow_negative:
-                raise ValueError("Amounts in Composition cannot be " "negative!")
+                raise ValueError("Amounts in Composition cannot be negative!")
             if abs(v) >= Composition.amount_tolerance:
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
@@ -144,7 +144,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return self._data.get(sp, 0)
         except ValueError as ex:
             raise TypeError(
-                "Invalid key {}, {} for Composition\n" "ValueError exception:\n{}".format(item, type(item), ex)
+                "Invalid key {}, {} for Composition\nValueError exception:\n{}".format(item, type(item), ex)
             )
 
     def __len__(self):
@@ -159,7 +159,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return sp in self._data
         except ValueError as ex:
             raise TypeError(
-                "Invalid key {}, {} for Composition\n" "ValueError exception:\n{}".format(item, type(item), ex)
+                "Invalid key {}, {} for Composition\nValueError exception:\n{}".format(item, type(item), ex)
             )
 
     def __eq__(self, other):
@@ -299,10 +299,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
         """
-        sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys())
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
-        return " ".join(formula)
+        return " ".join(sorted(self.formula.split(" ")))
 
     @property
     def iupac_formula(self) -> str:
@@ -879,7 +876,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             comp = self.reduced_composition
 
             if max_sites < -1 and comp.num_atoms > abs(max_sites):
-                raise ValueError("Composition {} cannot accommodate max_sites " "setting!".format(comp))
+                raise ValueError("Composition {} cannot accommodate max_sites setting!".format(comp))
 
         elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self.get_reduced_composition_and_factor()
@@ -887,7 +884,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 reduced_comp *= max(1, int(max_sites / reduced_comp.num_atoms))
                 comp = reduced_comp  # as close to max_sites as possible
             if comp.num_atoms > max_sites:
-                raise ValueError("Composition {} cannot accommodate max_sites " "setting!".format(comp))
+                raise ValueError("Composition {} cannot accommodate max_sites setting!".format(comp))
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
@@ -897,7 +894,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         oxi_states_override = oxi_states_override or {}
         # assert: Composition only has integer amounts
         if not all(amt == int(amt) for amt in comp.values()):
-            raise ValueError("Charge balance analysis requires integer " "values in Composition!")
+            raise ValueError("Charge balance analysis requires integer values in Composition!")
 
         # for each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
@@ -977,7 +974,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         fuzzy_formula: str, lock_if_strict: bool = True
     ) -> List["Composition"]:
         """
-        Takes in a formula where capitilization might not be correctly entered,
+        Takes in a formula where capitalization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
         Author: Anubhav Jain
 

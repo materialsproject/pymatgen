@@ -536,7 +536,7 @@ class StructureMotifInterstitial:
                 properties=None,
             )
             if not sc_with_inter:
-                raise RuntimeError("could not generate supercell with" " interstitial {}".format(ids + 1))
+                raise RuntimeError("could not generate supercell with interstitial {}".format(ids + 1))
             scs.append(sc_with_inter.copy())
         return scs
 

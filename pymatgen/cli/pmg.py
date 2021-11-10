@@ -99,7 +99,7 @@ def main():
 
     parser_config = subparsers.add_parser(
         "config",
-        help="Tools for configuring pymatgen, e.g., " "potcar setup, modifying .pmgrc.yaml " "configuration file.",
+        help="Tools for configuring pymatgen, e.g., potcar setup, modifying .pmgrc.yaml configuration file.",
     )
     groups = parser_config.add_mutually_exclusive_group(required=True)
     groups.add_argument(
@@ -123,7 +123,7 @@ def main():
         dest="install",
         metavar="package_name",
         choices=["enumlib", "bader"],
-        help="Install various optional command line " "tools needed for full functionality.",
+        help="Install various optional command line tools needed for full functionality.",
     )
 
     groups.add_argument(
@@ -131,7 +131,7 @@ def main():
         "--add",
         dest="var_spec",
         nargs="+",
-        help="Variables to add in the form of space " "separated key value pairs. E.g., " "PMG_VASP_PSP_DIR ~/psps",
+        help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/psps",
     )
     parser_config.set_defaults(func=configure_pmg)
 
@@ -157,7 +157,7 @@ def main():
         dest="ion_list",
         type=str,
         nargs=1,
-        help="Print magmoms. ION LIST can be a range " "(e.g., 1-2) or the string 'All' for all ions.",
+        help="Print magmoms. ION LIST can be a range (e.g., 1-2) or the string 'All' for all ions.",
     )
     parser_analyze.add_argument(
         "-r",
@@ -205,7 +205,7 @@ def main():
     parser_query.add_argument(
         "criteria",
         metavar="criteria",
-        help="Search criteria. Supported formats in formulas, chemical " "systems, Materials Project ids, etc.",
+        help="Search criteria. Supported formats in formulas, chemical systems, Materials Project ids, etc.",
     )
     group = parser_query.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -215,14 +215,14 @@ def main():
         metavar="format",
         choices=["poscar", "cif", "cssr"],
         type=str.lower,
-        help="Get structures from Materials Project and write them to a " "specified format.",
+        help="Get structures from Materials Project and write them to a specified format.",
     )
     group.add_argument(
         "-e",
         "--entries",
         dest="entries",
         metavar="filename",
-        help="Get entries from Materials Project and write them to " "serialization file. JSON and YAML supported.",
+        help="Get entries from Materials Project and write them to serialization file. JSON and YAML supported.",
     )
     group.add_argument(
         "-d",
@@ -237,7 +237,7 @@ def main():
     )
     parser_query.set_defaults(func=do_query)
 
-    parser_plot = subparsers.add_parser("plot", help="Plotting tool for " "DOS, CHGCAR, XRD, etc.")
+    parser_plot = subparsers.add_parser("plot", help="Plotting tool for DOS, CHGCAR, XRD, etc.")
     group = parser_plot.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "-d",
@@ -251,14 +251,14 @@ def main():
         "--chgint",
         dest="chgcar_file",
         metavar="CHGCAR",
-        help="Generate charge integration plots from any " "CHGCAR",
+        help="Generate charge integration plots from any CHGCAR",
     )
     group.add_argument(
         "-x",
         "--xrd",
         dest="xrd_structure_file",
         metavar="structure_file",
-        help="Generate XRD plots from any supported structure " "file, e.g., CIF, POSCAR, vasprun.xml, etc.",
+        help="Generate XRD plots from any supported structure file, e.g., CIF, POSCAR, vasprun.xml, etc.",
     )
 
     parser_plot.add_argument(
@@ -275,7 +275,7 @@ def main():
         dest="element",
         type=str,
         nargs=1,
-        help="List of elements to plot as comma-separated" " values e.g., Fe,Mn",
+        help="List of elements to plot as comma-separated values e.g., Fe,Mn",
     )
     parser_plot.add_argument(
         "-o",
@@ -304,7 +304,7 @@ def main():
         dest="radius",
         type=float,
         default=3,
-        help="Radius of integration for charge " "integration plot.",
+        help="Radius of integration for charge integration plot.",
     )
     parser_plot.add_argument(
         "--out_file",
@@ -378,7 +378,7 @@ def main():
         dest="exclude_bonding",
         type=str,
         nargs=1,
-        help="List of elements to exclude from bonding " "analysis. E.g., Li,Na",
+        help="List of elements to exclude from bonding analysis. E.g., Li,Na",
     )
     parser_view.set_defaults(func=parse_view)
 
@@ -402,7 +402,7 @@ def main():
         type=str,
         choices=sorted(Potcar.FUNCTIONAL_CHOICES),
         default=SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE"),
-        help="Functional to use. Unless otherwise " "stated (e.g., US), " "refers to PAW psuedopotential.",
+        help="Functional to use. Unless otherwise stated (e.g., US), refers to PAW psuedopotential.",
     )
     group = parser_potcar.add_mutually_exclusive_group(required=True)
 
@@ -412,7 +412,7 @@ def main():
         dest="symbols",
         type=str,
         nargs="+",
-        help="List of POTCAR symbols. Use -f to set " "functional. Defaults to PBE.",
+        help="List of POTCAR symbols. Use -f to set functional. Defaults to PBE.",
     )
     group.add_argument(
         "-r",

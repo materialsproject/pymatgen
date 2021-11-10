@@ -31,7 +31,7 @@ class StructureNLCase(unittest.TestCase):
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
         self.matproj = (
-            "@misc{MaterialsProject,\ntitle = {{Materials " "Project}},\nurl = {http://www.materialsproject.org}\n}"
+            "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://www.materialsproject.org}\n}"
         )
         self.pmg = (
             "@article{Ong2013,\n author = {Ong, "
@@ -64,7 +64,7 @@ class StructureNLCase(unittest.TestCase):
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
         self.america = "Captain America <captainamerica@avengers.com>"
         self.thor = [("Thor", "thor@avengers.com")]
-        self.duo = "Iron Man <ironman@avengers.com>, " "Black Widow <blackwidow@avengers.com>"
+        self.duo = "Iron Man <ironman@avengers.com>, Black Widow <blackwidow@avengers.com>"
 
         # set up HistoryNodes
         self.valid_node = HistoryNode("DB 1", "www.db1URLgoeshere.com", {"db1_id": 12424})
@@ -229,7 +229,7 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(
             a,
             b,
-            "to/from dict is broken when object embedding is " "used! Apparently MontyEncoding is broken...",
+            "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken...",
         )
 
         # Test molecule

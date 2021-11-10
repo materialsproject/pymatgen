@@ -384,7 +384,7 @@ task dft energy
         self.assertEqual(nwi.tasks[-1].theory, "dft")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
 
-        str_inp_symm = str_inp.replace("geometry units angstroms", "geometry units angstroms\n symmetry " "c1")
+        str_inp_symm = str_inp.replace("geometry units angstroms", "geometry units angstroms\n symmetry c1")
 
         nwi_symm = NwInput.from_string(str_inp_symm)
         self.assertEqual(nwi_symm.geometry_options, ["units", "angstroms"])

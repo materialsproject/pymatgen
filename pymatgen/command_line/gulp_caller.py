@@ -344,7 +344,7 @@ class GulpIO:
             string containing specie and potential specification for gulp
             input.
         """
-        raise NotImplementedError("gulp_specie_potential not yet implemented." "\nUse library_line instead")
+        raise NotImplementedError("gulp_specie_potential not yet implemented.\nUse library_line instead")
 
     @staticmethod
     def library_line(file_name):

@@ -77,7 +77,7 @@ class SolidAngleError(AbstractChemenvError):
         self.cosinus = cosinus
 
     def __str__(self):
-        return "Value of cosinus ({}) from which an angle should be retrieved" "is not between -1.0 and 1.0".format(
+        return "Value of cosinus ({}) from which an angle should be retrieved is not between -1.0 and 1.0".format(
             self.cosinus
         )
 

@@ -48,7 +48,7 @@ class BornEffectiveCharge:
         self.pointops = pointops
         self.BEC_operations = None
         if np.sum(self.bec) >= tol:
-            warnings.warn("Input born effective charge tensor does " "not satisfy charge neutrality")
+            warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
 
     def get_BEC_operations(self, eigtol=1e-05, opstol=1e-03):
         """
@@ -194,7 +194,7 @@ class InternalStrainTensor:
 
         obj = self.ist
         if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
-            warnings.warn("Input internal strain tensor does " "not satisfy standard symmetries")
+            warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
     def get_IST_operations(self, opstol=1e-03):
         """

@@ -541,7 +541,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
         for k in self:
             if k not in self._DEFAULT:
-                raise ValueError("%s: No default value has been provided for " "key %s" % (self.__class__.__name__, k))
+                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""

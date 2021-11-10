@@ -1149,7 +1149,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                     rounddiff = np.round(diff)
                     if not np.allclose(diff, rounddiff):
                         raise ValueError(
-                            "Weird, differences between one site in a periodic image cell is not " "integer ..."
+                            "Weird, differences between one site in a periodic image cell is not integer ..."
                         )
                     nb_image_cell = np.array(rounddiff, int)
 

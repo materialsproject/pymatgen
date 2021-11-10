@@ -189,7 +189,7 @@ class LammpsDataTest(unittest.TestCase):
         pep_atom = pep_lines[kw_inds["Atoms"] + 2]
         self.assertEqual(
             pep_atom,
-            "1       1   1  0.5100 43.9999300 " "58.5267800 36.7855000  0  0  0",
+            "1       1   1  0.5100 43.9999300 58.5267800 36.7855000  0  0  0",
         )
         # velocity
         pep_velo = pep_lines[kw_inds["Velocities"] + 2]

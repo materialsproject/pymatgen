@@ -246,7 +246,7 @@ class Substitutor(MSONable):
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(p)
-        logging.info("{} charge balanced " "compositions found".format(len(output)))
+        logging.info("{} charge balanced compositions found".format(len(output)))
         return output
 
     def as_dict(self):

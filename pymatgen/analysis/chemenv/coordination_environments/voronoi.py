@@ -167,7 +167,7 @@ class DetailedVoronoiContainer(MSONable):
                     ridge_vertices_indices = voro.ridge_vertices[iridge]
                     if -1 in ridge_vertices_indices:
                         raise RuntimeError(
-                            "This structure is pathological," " infinite vertex in the voronoi " "construction"
+                            "This structure is pathological, infinite vertex in the voronoi construction"
                         )
 
                     ridge_point2 = max(ridge_points)
