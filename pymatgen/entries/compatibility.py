@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -168,7 +167,7 @@ class PotcarCorrection(Correction):
         return ufloat(0.0, 0.0)
 
     def __str__(self):
-        return "{} Potcar Correction".format(self.input_set.__name__)
+        return f"{self.input_set.__name__} Potcar Correction"
 
 
 @cached_class
@@ -206,7 +205,7 @@ class GasCorrection(Correction):
         return correction
 
     def __str__(self):
-        return "{} Gas Correction".format(self.name)
+        return f"{self.name} Gas Correction"
 
 
 @cached_class
@@ -298,7 +297,7 @@ class AnionCorrection(Correction):
         return correction
 
     def __str__(self):
-        return "{} Anion Correction".format(self.name)
+        return f"{self.name} Anion Correction"
 
 
 @cached_class
@@ -384,7 +383,7 @@ class AqueousCorrection(Correction):
         return correction
 
     def __str__(self):
-        return "{} Aqueous Correction".format(self.name)
+        return f"{self.name} Aqueous Correction"
 
 
 @cached_class
@@ -433,7 +432,7 @@ class UCorrection(Correction):
             error_file: Path to the selected compatibilityErrors.yaml config file.
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
+            raise CompatibilityError(f"Invalid compat_type {compat_type}")
 
         c = loadfn(config_file)
 
@@ -468,7 +467,7 @@ class UCorrection(Correction):
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
 
-        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
         ucorr = self.u_corrections.get(most_electroneg, {})
@@ -479,14 +478,14 @@ class UCorrection(Correction):
             sym = el.symbol
             # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError("Invalid U value of %s on %s" % (calc_u.get(sym, 0), sym))
+                raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0)} on {sym}")
             if sym in ucorr:
                 correction += ufloat(ucorr[sym], uerrors[sym]) * comp[el]
 
         return correction
 
     def __str__(self):
-        return "{} {} Correction".format(self.name, self.compat_type)
+        return f"{self.name} {self.compat_type} Correction"
 
 
 class Compatibility(MSONable, metaclass=abc.ABCMeta):
@@ -613,9 +612,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         if len(entry.energy_adjustments) > 0:
             print("The following energy adjustments have been applied to this entry:")
             for e in entry.energy_adjustments:
-                print(
-                    "\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(e.name, e.value, e.value / entry.composition.num_atoms)
-                )
+                print(f"\t\t{e.name}: {e.value:.3f} eV ({e.value / entry.composition.num_atoms:.3f} eV/atom)")
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 
@@ -747,10 +744,10 @@ class CorrectionsList(Compatibility):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print("The uncorrected value of the energy of %s is %f eV" % (entry.composition, d["uncorrected_energy"]))
+        print("The uncorrected value of the energy of {} is {:f} eV".format(entry.composition, d["uncorrected_energy"]))
         print("The following corrections / screening are applied for %s:\n" % d["compatibility"])
         for c in d["corrections"]:
-            print("%s correction: %s\n" % (c["name"], c["description"]))
+            print("{} correction: {}\n".format(c["name"], c["description"]))
             print("For the entry, this correction has the value %f eV." % c["value"])
             if c["uncertainty"] != 0 or c["value"] == 0:
                 print("This correction has an uncertainty value of %f eV." % c["uncertainty"])
@@ -858,7 +855,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
+            raise CompatibilityError(f"Invalid compat_type {compat_type}")
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
@@ -926,7 +923,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         comp = entry.composition
         rform = comp.reduced_formula
         # sorted list of elements, ordered by electronegativity
-        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
 
         # Skip single elements
         if len(comp) == 1:
@@ -1005,7 +1002,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                     self.comp_correction[ox_type],
                     comp["O"],
                     uncertainty_per_atom=self.comp_errors[ox_type],
-                    name="MP2020 anion correction ({})".format(ox_type),
+                    name=f"MP2020 anion correction ({ox_type})",
                     cls=self.as_dict(),
                 )
             )
@@ -1053,7 +1050,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name="MP2020 anion correction ({})".format(anion),
+                            name=f"MP2020 anion correction ({anion})",
                             cls=self.as_dict(),
                         )
                     )
@@ -1070,14 +1067,14 @@ class MaterialsProject2020Compatibility(Compatibility):
             sym = el.symbol
             # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError("Invalid U value of {:.1f} on {}".format(calc_u.get(sym, 0), sym))
+                raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0):.1f} on {sym}")
             if sym in ucorr:
                 adjustments.append(
                     CompositionEnergyAdjustment(
                         ucorr[sym],
                         comp[el],
                         uncertainty_per_atom=uerrors[sym],
-                        name="MP2020 GGA/GGA+U mixing correction ({})".format(sym),
+                        name=f"MP2020 GGA/GGA+U mixing correction ({sym})",
                         cls=self.as_dict(),
                     )
                 )

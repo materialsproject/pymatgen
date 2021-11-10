@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,7 @@
 Classes for reading/manipulating/writing exciting input files.
 """
 
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 import numpy as np
 import scipy.constants as const
@@ -225,7 +224,7 @@ class ExcitingInput(MSONable):
         basis = new_struct.lattice.matrix
         for i in range(3):
             basevect = ET.SubElement(crystal, "basevect")
-            basevect.text = "%16.8f %16.8f %16.8f" % (
+            basevect.text = "{:16.8f} {:16.8f} {:16.8f}".format(
                 basis[i][0],
                 basis[i][1],
                 basis[i][2],
@@ -237,7 +236,7 @@ class ExcitingInput(MSONable):
             sites = new_struct.indices_from_symbol(i.symbol)
 
             for j in sites:
-                coord = "%16.8f %16.8f %16.8f" % (
+                coord = "{:16.8f} {:16.8f} {:16.8f}".format(
                     new_struct[j].frac_coords[0],
                     new_struct[j].frac_coords[1],
                     new_struct[j].frac_coords[2],
@@ -252,7 +251,7 @@ class ExcitingInput(MSONable):
                             + new_struct[j].frac_coords[k] * basis[2][k]
                         ) * ang2bohr
                         coord2.append(inter)
-                    coord = "%16.8f %16.8f %16.8f" % (coord2[0], coord2[1], coord2[2])
+                    coord = f"{coord2[0]:16.8f} {coord2[1]:16.8f} {coord2[2]:16.8f}"
 
                 # write atomic positions
                 index = index + 1
@@ -268,7 +267,7 @@ class ExcitingInput(MSONable):
                 for j in range(len(kpath.kpath["path"][i])):
                     symbol = kpath.kpath["path"][i][j]
                     coords = kpath.kpath["kpoints"][symbol]
-                    coord = "%16.8f %16.8f %16.8f" % (coords[0], coords[1], coords[2])
+                    coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
                     if symbol == "\\Gamma":
                         symbol = "GAMMA"
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)

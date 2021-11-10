@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import gzip
@@ -347,7 +346,7 @@ class LammpsDataTest(unittest.TestCase):
             np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
             sample_topo = random.sample(list(topo_df.itertuples(False, None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
-            topo_type = tuple([atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"]])
+            topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
@@ -758,7 +757,7 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
-        with open(filename, "r") as f:
+        with open(filename) as f:
             d = yaml.load(f)
         # self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
         self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)

@@ -177,7 +177,7 @@ class SlabTest(PymatgenTest):
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
-            total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
             self.assertTrue(slab.is_symmetric())
             self.assertEqual(total_surf_sites / 2, 4)
 
@@ -187,7 +187,7 @@ class SlabTest(PymatgenTest):
             slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
-            total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
             r2 = total_surf_sites / (2 * slab.surface_area)
             self.assertArrayAlmostEqual(r1, r2)
 

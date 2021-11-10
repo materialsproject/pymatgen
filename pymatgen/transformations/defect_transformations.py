@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -45,8 +44,8 @@ class DefectTransformation(AbstractTransformation):
 
     def __str__(self):
         inp_args = [
-            "Supercell scaling matrix = {}".format(self.scaling_matrix),
-            "Defect = {}".format(self.defect),
+            f"Supercell scaling matrix = {self.scaling_matrix}",
+            f"Defect = {self.defect}",
         ]
         return "Defect Transformation : " + ", ".join(inp_args)
 

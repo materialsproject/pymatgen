@@ -185,9 +185,7 @@ class CorrectionCalculator:
 
             compound = self.calc_compounds.get(name, None)
             if not compound:
-                warnings.warn(
-                    "Compound {} is not found in provided computed entries and is excluded from the fit".format(name)
-                )
+                warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
                 continue
 
             # filter out compounds with large uncertainties
@@ -204,9 +202,7 @@ class CorrectionCalculator:
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(
-                        "Compound {} contains the polyanion {} and is excluded from the fit".format(name, anion)
-                    )
+                    warnings.warn(f"Compound {name} contains the polyanion {anion} and is excluded from the fit")
                     break
 
             # filter out compounds that are unstable
@@ -217,9 +213,7 @@ class CorrectionCalculator:
                     raise ValueError("Missing e above hull data")
                 if eah > self.allow_unstable:
                     allow = False
-                    warnings.warn(
-                        "Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(name, eah)
-                    )
+                    warnings.warn(f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})")
 
             if allow:
                 comp = Composition(name)
@@ -275,7 +269,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError("We can't detect this specie: {}".format(specie))
+                            raise ValueError(f"We can't detect this specie: {specie}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)

@@ -154,7 +154,7 @@ class AdfKey(MSONable):
                 if self._sized_op:
                     s += "{:s}={:s} ".format(*map(str, op))
                 else:
-                    s += "{:s} ".format(str(op))
+                    s += f"{str(op):s} "
             return s.strip()
         return ""
 
@@ -184,9 +184,9 @@ class AdfKey(MSONable):
         different string format will be used.
 
         """
-        s = "{:s}".format(self.key)
+        s = f"{self.key:s}"
         if len(self.options) > 0:
-            s += " {:s}".format(self._options_string())
+            s += f" {self._options_string():s}"
         s += "\n"
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
@@ -513,7 +513,7 @@ class AdfTask(MSONable):
 
         """
         if operation not in self.operations.keys():
-            raise AdfInputError("Invalid ADF task {:s}".format(operation))
+            raise AdfInputError(f"Invalid ADF task {operation:s}")
         self.operation = operation
         self.title = title
         self.basis_set = basis_set if basis_set is not None else self.get_default_basis_set()
@@ -606,7 +606,7 @@ class AdfTask(MSONable):
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError("{} is not an AdfKey!".format(str(block_key)))
+                raise ValueError(f"{str(block_key)} is not an AdfKey!")
             s += str(block_key) + "\n"
         return s
 
@@ -773,7 +773,7 @@ class AdfOutput:
         workdir = os.path.dirname(self.filename)
         logfile = os.path.join(workdir, "logfile")
         if not os.path.isfile(logfile):
-            raise IOError("The ADF logfile can not be accessed!")
+            raise OSError("The ADF logfile can not be accessed!")
 
         self.is_failed = False
         self.error = None
@@ -830,7 +830,7 @@ class AdfOutput:
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
         # ADF manual has a detailed explanantion.
-        with open(logfile, "r") as f:
+        with open(logfile) as f:
             for line in reverse_readline(f):
                 if line == "":
                     continue
@@ -841,7 +841,7 @@ class AdfOutput:
                     return
                 break
 
-        with open(logfile, "r") as f:
+        with open(logfile) as f:
             for line in f:
                 m = error_patt.search(line)
                 if m:
@@ -879,7 +879,7 @@ class AdfOutput:
                     if m:
                         cycle = int(m.group(1))
                         if cycle <= 0:
-                            raise AdfOutputError("Wrong cycle {}".format(cycle))
+                            raise AdfOutputError(f"Wrong cycle {cycle}")
                         if cycle > last_cycle:
                             parse_cycle = True
                             last_cycle = cycle
@@ -946,7 +946,7 @@ class AdfOutput:
             parse_coord = False
             natoms = self.final_structure.num_sites
 
-        with open(self.filename, "r") as f:
+        with open(self.filename) as f:
             for line in f:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:

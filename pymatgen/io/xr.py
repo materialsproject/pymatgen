@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -48,17 +47,17 @@ class Xr:
         output = [
             "pymatgen   {:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
             "{:.3f} {:.3f} {:.3f}".format(*self.structure.lattice.angles),
-            "{} 0".format(len(self.structure)),
-            "0 {}".format(self.structure.formula),
+            f"{len(self.structure)} 0",
+            f"0 {self.structure.formula}",
         ]
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
         for i, site in enumerate(self.structure.sites):
-            output.append("{} {} {:.4f} {:.4f} {:.4f}".format(i + 1, site.specie, site.x, site.y, site.z))
+            output.append(f"{i + 1} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
         for i in range(2):
             for j in range(3):
-                output.append("{:.4f} {:.4f} {:.4f}".format(mat[j][0], mat[j][1], mat[j][2]))
+                output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
         return "\n".join(output)
 
     def write_file(self, filename):

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -207,14 +206,14 @@ class AbstractElectrode(Sequence, MSONable):
         """
         Highest voltage along insertion
         """
-        return max([p.voltage for p in self.voltage_pairs])
+        return max(p.voltage for p in self.voltage_pairs)
 
     @property
     def min_voltage(self):
         """
         Lowest voltage along insertion
         """
-        return min([p.voltage for p in self.voltage_pairs])
+        return min(p.voltage for p in self.voltage_pairs)
 
     @property
     def max_voltage_step(self):
@@ -278,8 +277,8 @@ class AbstractElectrode(Sequence, MSONable):
         pairs_in_range = self._select_in_voltage_range(min_voltage, max_voltage)
         if len(pairs_in_range) == 0:
             return 0
-        total_cap_in_range = sum([p.mAh for p in pairs_in_range])
-        total_edens_in_range = sum([p.mAh * p.voltage for p in pairs_in_range])
+        total_cap_in_range = sum(p.mAh for p in pairs_in_range)
+        total_edens_in_range = sum(p.mAh * p.voltage for p in pairs_in_range)
         return total_edens_in_range / total_cap_in_range
 
     def get_capacity_grav(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
@@ -306,7 +305,7 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].mass_discharge
         )
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_mass
+        return sum(pair.mAh for pair in pairs_in_range) / normalization_mass
 
     def get_capacity_vol(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
@@ -332,7 +331,7 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].vol_discharge
         )
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1e24 / N_A
+        return sum(pair.mAh for pair in pairs_in_range) / normalization_vol * 1e24 / N_A
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """

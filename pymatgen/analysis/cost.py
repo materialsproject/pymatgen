@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -15,7 +14,6 @@ import csv
 import itertools
 import os
 from collections import defaultdict
-from io import open
 
 import scipy.constants as const
 from monty.design_patterns import singleton
@@ -61,7 +59,7 @@ class CostEntry(PDEntry):
         self.reference = reference
 
     def __repr__(self):
-        return "CostEntry : {} with cost = {:.4f}".format(self.composition, self.energy)
+        return f"CostEntry : {self.composition} with cost = {self.energy:.4f}"
 
 
 class CostDB(metaclass=abc.ABCMeta):
@@ -99,13 +97,13 @@ class CostDBCSV(CostDB):
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
-        with open(filename, "rt") as f:
+        with open(filename) as f:
             reader = csv.reader(f, quotechar=unicode2str("|"))
             for row in reader:
                 comp = Composition(row[0])
                 cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
                 pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
-                chemsys = "-".join(sorted([el.symbol for el in pde.composition.elements]))
+                chemsys = "-".join(sorted(el.symbol for el in pde.composition.elements))
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
@@ -119,7 +117,7 @@ class CostDBCSV(CostDB):
         Returns:
             array of CostEntries
         """
-        chemsys = "-".join(sorted([el.symbol for el in chemsys]))
+        chemsys = "-".join(sorted(el.symbol for el in chemsys))
         return self._chemsys_entries[chemsys]
 
 

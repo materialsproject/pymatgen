@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -315,7 +314,7 @@ class BVAnalyzer:
                 el_oxi = collections.defaultdict(list)
                 for i, sites in enumerate(equi_sites):
                     el_oxi[sites[0].specie.symbol].append(v_set[i])
-                max_diff = max([max(v) - min(v) for v in el_oxi.values()])
+                max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
                 score = functools.reduce(operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
@@ -387,7 +386,7 @@ class BVAnalyzer:
                     for specie, occu in get_z_ordered_elmap(sites[0].species):
                         el_oxi[specie.symbol].append(v_set[jj])
                         jj += 1
-                max_diff = max([max(v) - min(v) for v in el_oxi.values()])
+                max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 2:
                     return
 
@@ -493,7 +492,7 @@ def get_z_ordered_elmap(comp):
     Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
     Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
     """
-    return sorted([(elsp, comp[elsp]) for elsp in comp.keys()])
+    return sorted((elsp, comp[elsp]) for elsp in comp.keys())
 
 
 def add_oxidation_state_by_site_fraction(structure, oxidation_states):

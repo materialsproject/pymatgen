@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -193,10 +192,10 @@ class DLSVolumePredictor:
             if sp.atomic_radius:
                 sub_sites.extend([site for site in structure if site.specie == sp])
             else:
-                warnings.warn("VolumePredictor: no atomic radius data for {}".format(sp))
+                warnings.warn(f"VolumePredictor: no atomic radius data for {sp}")
 
             if sp.symbol not in bond_params:
-                warnings.warn("VolumePredictor: bond parameters not found, used atomic radii for {}".format(sp))
+                warnings.warn(f"VolumePredictor: bond parameters not found, used atomic radii for {sp}")
             else:
                 r, k = bond_params[sp.symbol]["r"], bond_params[sp.symbol]["k"]
                 bp_dict[sp] = float(r) + float(k) * std_x

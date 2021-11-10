@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -179,7 +178,7 @@ class EwaldSummation(MSONable):
             output = ["Missing sites."]
             for site in sub_structure:
                 if site not in matches:
-                    output.append("unmatched = {}".format(site))
+                    output.append(f"unmatched = {site}")
             raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
@@ -767,7 +766,7 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     try:
-        avg_oxi = sum([sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None])
+        avg_oxi = sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
         return avg_oxi
     except AttributeError:
         pass

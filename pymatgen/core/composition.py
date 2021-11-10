@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -143,9 +142,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(item)
             return self._data.get(sp, 0)
         except ValueError as ex:
-            raise TypeError(
-                "Invalid key {}, {} for Composition\nValueError exception:\n{}".format(item, type(item), ex)
-            )
+            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
 
     def __len__(self):
         return len(self._data)
@@ -158,9 +155,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(item)
             return sp in self._data
         except ValueError as ex:
-            raise TypeError(
-                "Invalid key {}, {} for Composition\nValueError exception:\n{}".format(item, type(item), ex)
-            )
+            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up
@@ -439,11 +434,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         alphabetically.
         """
         c = self.element_composition
-        elements = sorted([el.symbol for el in c.keys()])
+        elements = sorted(el.symbol for el in c.keys())
         if "C" in elements:
             elements = ["C"] + [el for el in elements if el != "C"]
 
-        formula = ["%s%s" % (el, formula_double_format(c[el]) if c[el] != 1 else "") for el in elements]
+        formula = ["{}{}".format(el, formula_double_format(c[el]) if c[el] != 1 else "") for el in elements]
         return " ".join(formula)
 
     @property
@@ -454,9 +449,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return list(self.keys())
 
     def __str__(self):
-        return " ".join(
-            ["{}{}".format(k, formula_double_format(v, ignore_ones=False)) for k, v in self.as_dict().items()]
-        )
+        return " ".join([f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items()])
 
     def to_pretty_string(self) -> str:
         """
@@ -478,7 +471,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Total molecular weight of Composition
         """
-        return Mass(sum([amount * el.atomic_mass for el, amount in self.items()]), "amu")
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """
@@ -543,7 +536,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         if "block" in category:
             return any(category[0] in el.block for el in self.elements)
-        return any(getattr(el, "is_{}".format(category)) for el in self.elements)
+        return any(getattr(el, f"is_{category}") for el in self.elements)
 
     def _parse_formula(self, formula: str) -> Dict[str, float]:
         """
@@ -570,7 +563,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 sym_dict[el] += amt * factor
                 form = form.replace(m.group(), "", 1)
             if form.strip():
-                raise ValueError("{} is an invalid formula!".format(form))
+                raise ValueError(f"{form} is an invalid formula!")
             return sym_dict
 
         m = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
@@ -579,7 +572,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
-            expanded_sym = "".join(["{}{}".format(el, amt) for el, amt in unit_sym_dict.items()])
+            expanded_sym = "".join([f"{el}{amt}" for el, amt in unit_sym_dict.items()])
             expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
@@ -604,7 +597,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 amt_str = str(int(amt))
             else:
                 amt_str = str(amt)
-            anon += "{}{}".format(e, amt_str)
+            anon += f"{e}{amt_str}"
         return anon
 
     @property
@@ -812,7 +805,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Special case: No charged compound is possible
         if not oxidation_states:
-            return Composition(dict((Species(e, 0), f) for e, f in self.items()))
+            return Composition({Species(e, 0): f for e, f in self.items()})
 
         # Generate the species
         species = []
@@ -876,7 +869,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             comp = self.reduced_composition
 
             if max_sites < -1 and comp.num_atoms > abs(max_sites):
-                raise ValueError("Composition {} cannot accommodate max_sites setting!".format(comp))
+                raise ValueError(f"Composition {comp} cannot accommodate max_sites setting!")
 
         elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self.get_reduced_composition_and_factor()
@@ -884,7 +877,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 reduced_comp *= max(1, int(max_sites / reduced_comp.num_atoms))
                 comp = reduced_comp  # as close to max_sites as possible
             if comp.num_atoms > max_sites:
-                raise ValueError("Composition {} cannot accommodate max_sites setting!".format(comp))
+                raise ValueError(f"Composition {comp} cannot accommodate max_sites setting!")
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
@@ -924,7 +917,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                     el_sums[idx].append(oxid_sum)
 
                 # Determine how probable is this combo?
-                score = sum([Composition.oxi_prob.get(Species(el, o), 0) for o in oxid_combo])
+                score = sum(Composition.oxi_prob.get(Species(el, o), 0) for o in oxid_combo)
 
                 # If it is the most probable combo for a certain sum,
                 #   store the combination
@@ -953,19 +946,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 all_scores.append(score)
 
                 # collect the combination of oxidation states for each site
-                all_oxid_combo.append(dict((e, el_best_oxid_combo[idx][v]) for idx, (e, v) in enumerate(zip(els, x))))
+                all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(els, x))})
 
         # sort the solutions by highest to lowest score
         if all_scores:
             all_sols, all_oxid_combo = zip(
-                *[
+                *(
                     (y, x)
                     for (z, y, x) in sorted(
                         zip(all_scores, all_sols, all_oxid_combo),
                         key=lambda pair: pair[0],
                         reverse=True,
                     )
-                ]
+                )
             )
         return all_sols, all_oxid_combo
 
@@ -1177,7 +1170,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> Tuple[str, float]:
 
     factor = 1
     # Enforce integers for doing gcd.
-    if all((int(i) == i for i in sym_amt.values())):
+    if all(int(i) == i for i in sym_amt.values()):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
     polyanion = []
@@ -1187,7 +1180,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> Tuple[str, float]:
         (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
-            polyanion.append("({}){}".format(poly_form, int(poly_factor)))
+            polyanion.append(f"({poly_form}){int(poly_factor)}")
 
     syms = syms[: len(syms) - 2 if polyanion else len(syms)]
 
@@ -1256,7 +1249,7 @@ class ChemicalPotential(dict, MSONable):
         """
         if strict and set(composition.keys()) > set(self.keys()):
             s = set(composition.keys()) - set(self.keys())
-            raise ValueError("Potentials not specified for {}".format(s))
+            raise ValueError(f"Potentials not specified for {s}")
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
     def __repr__(self):

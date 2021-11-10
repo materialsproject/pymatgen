@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -114,7 +113,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         for fname in filenames:
             try:
                 fh = open(fname)  # pylint: disable=R1732
-            except IOError:
+            except OSError:
                 logger.warning("Cannot open file %s" % fname)
                 continue
 
@@ -123,7 +122,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 read_ok.append(fname)
 
             except self.Error as e:
-                logger.warning("exception while parsing file %s:\n%s" % (fname, str(e)))
+                logger.warning(f"exception while parsing file {fname}:\n{str(e)}")
                 continue
 
             finally:
@@ -163,7 +162,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
                 info["fname"] = fname
                 for tok in line.split(","):
-                    key, val = [s.strip() for s in tok.split("=")]
+                    key, val = (s.strip() for s in tok.split("="))
                     info[key] = val
 
             elif line.startswith(self.END_TAG):
@@ -179,7 +178,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 if inside == 2:
                     d = {}
                     for tok in line.split(","):
-                        key, val = [s.strip() for s in tok.split("=")]
+                        key, val = (s.strip() for s in tok.split("="))
                         d[key] = float(val)
                     cpu_time, wall_time = d["cpu_time"], d["wall_time"]
 

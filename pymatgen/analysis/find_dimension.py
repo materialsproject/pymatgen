@@ -1,6 +1,3 @@
-# coding: utf-8
-
-
 """
 This module provides functions for finding the dimensions of connected subunits
 in a crystal structure.

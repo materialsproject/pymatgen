@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -275,7 +274,7 @@ class SupercellTransformation(AbstractTransformation):
         return structure * self.scaling_matrix
 
     def __str__(self):
-        return "Supercell Transformation with scaling matrix " + "{}".format(self.scaling_matrix)
+        return f"Supercell Transformation with scaling matrix {self.scaling_matrix}"
 
     def __repr__(self):
         return self.__str__()
@@ -477,9 +476,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     def __str__(self):
         spec_str = [
-            "Species = {}".format(self.specie_to_remove),
-            "Fraction to remove = {}".format(self.fraction_to_remove),
-            "ALGO = {}".format(self.algo),
+            f"Species = {self.specie_to_remove}",
+            f"Fraction to remove = {self.fraction_to_remove}",
+            f"ALGO = {self.algo}",
         ]
         return "PartialRemoveSpecieTransformation : " + ", ".join(spec_str)
 
@@ -609,7 +608,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         m_list = []
         for g in equivalent_sites:
-            total_occupancy = sum([structure[i].species for i in g], Composition())
+            total_occupancy = sum((structure[i].species for i in g), Composition())
             total_occupancy = dict(total_occupancy.items())
             # round total occupancy to possible values
             for k, v in total_occupancy.items():
@@ -840,7 +839,7 @@ class PerturbStructureTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "PerturbStructureTransformation : " + "Min_distance = {}".format(self.min_distance)
+        return f"PerturbStructureTransformation : Min_distance = {self.min_distance}"
 
     def __repr__(self):
         return self.__str__()
@@ -886,7 +885,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return self._deform.apply_to_structure(structure)
 
     def __str__(self):
-        return "DeformStructureTransformation : " + "Deformation = {}".format(str(self.deformation))
+        return f"DeformStructureTransformation : Deformation = {str(self.deformation)}"
 
     def __repr__(self):
         return self.__str__()
@@ -1011,7 +1010,7 @@ class ChargedCellTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Structure with charge " + "{}".format(self.charge)
+        return f"Structure with charge {self.charge}"
 
     def __repr__(self):
         return self.__str__()
@@ -1087,7 +1086,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         params = list(structure.lattice.abc)
         params.extend(structure.lattice.angles)
-        new_lattice = Lattice.from_parameters(*[p * self.params_percent_change[i] for i, p in enumerate(params)])
+        new_lattice = Lattice.from_parameters(*(p * self.params_percent_change[i] for i, p in enumerate(params)))
         species, frac_coords = [], []
         for site in self.relaxed_structure:
             species.append(s_map[site.specie])

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -328,7 +327,7 @@ class MultiEntry(PourbaixEntry):
             else:
                 start = 0
             return sum(
-                [getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)],
+                (getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)),
                 start,
             )
 
@@ -423,7 +422,7 @@ class IonEntry(PDEntry):
         return d
 
     def __repr__(self):
-        return "IonEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
+        return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
@@ -717,11 +716,9 @@ class PourbaixDiagram(MSONable):
 
         # Generate and filter entries
         processed_entries = []
-        total = sum([comb(len(entries), j + 1) for j in range(N)])
+        total = sum(comb(len(entries), j + 1) for j in range(N))
         if total > 1e6:
-            warnings.warn(
-                "Your pourbaix diagram includes {} entries and may take a long time to generate.".format(total)
-            )
+            warnings.warn(f"Your pourbaix diagram includes {total} entries and may take a long time to generate.")
 
         # Parallel processing of multi-entry generation
         if nproc is not None:
@@ -1132,7 +1129,7 @@ class PourbaixPlotter:
         # Plot stability map
         plt.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = plt.colorbar()
-        cbar.set_label("Stability of {} (eV/atom)".format(generate_entry_label(entry)))
+        cbar.set_label(f"Stability of {generate_entry_label(entry)} (eV/atom)")
 
         # Set ticklabels
         # ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -1052,7 +1051,7 @@ class VaspInputTest(PymatgenTest):
         # To add some test.
         with ScratchDir(".") as d:
             self.vinput.run_vasp(d, vasp_cmd=["cat", "INCAR"])
-            with open(os.path.join(d, "vasp.out"), "r") as f:
+            with open(os.path.join(d, "vasp.out")) as f:
                 output = f.read()
                 self.assertEqual(output.split("\n")[0], "ALGO = Damped")
 

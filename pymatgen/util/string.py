@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -393,7 +392,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
 
     if len(disordered_species) > len(symbols):
         # this probably won't happen too often either
-        raise ValueError("Not enough symbols to describe disordered composition: {}".format(symbols))
+        raise ValueError(f"Not enough symbols to describe disordered composition: {symbols}")
     symbols = list(symbols)[0 : len(disordered_species) - 1]
 
     comp = disordered_struct.composition.get_el_amt_dict().items()
@@ -403,7 +402,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     disordered_comp = []
     variable_map = {}
 
-    total_disordered_occu = sum([occu for sp, occu in comp if str(sp) in disordered_species])
+    total_disordered_occu = sum(occu for sp, occu in comp if str(sp) in disordered_species)
 
     # composition to get common factor
     factor_comp = disordered_struct.composition.as_dict()
@@ -450,6 +449,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
             if fmt != "plain":
                 disordered_formula.append(sub_end)
     disordered_formula.append(" ")
-    disordered_formula += ["{}={} ".format(k, formula_double_format(v)) for k, v in variable_map.items()]
+    disordered_formula += [f"{k}={formula_double_format(v)} " for k, v in variable_map.items()]
 
     return "".join(map(str, disordered_formula))[0:-1]

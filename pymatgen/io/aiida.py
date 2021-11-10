@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) AiiDA Development Team.
 # Distributed under the terms of the MIT License.
 

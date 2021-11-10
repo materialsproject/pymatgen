@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -242,7 +241,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     def __str__(self):
         output = [self.spectrum]
-        output.extend(["%s = %s" % (k, str(v)) for k, v in self.config_dict.items()])
+        output.extend([f"{k} = {str(v)}" for k, v in self.config_dict.items()])
         output.append("")
         return "\n".join(output)
 

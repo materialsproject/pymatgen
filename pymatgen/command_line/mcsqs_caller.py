@@ -91,8 +91,8 @@ def run_mcsqs(
     if isinstance(scaling, (int, float)):
 
         if scaling % 1:
-            raise ValueError("Scaling should be an integer, not {}".format(scaling))
-        mcsqs_find_sqs_cmd = ["mcsqs", "-n {}".format(scaling * num_atoms)]
+            raise ValueError(f"Scaling should be an integer, not {scaling}")
+        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
 
@@ -100,7 +100,7 @@ def run_mcsqs(
         with open("sqscell.out", "w") as f:
             f.write("1\n1 0 0\n0 1 0\n0 0 1\n")
         structure = structure * scaling
-        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", "-n {}".format(num_atoms)]
+        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {num_atoms}"]
 
     structure.to(filename="rndstr.in")
 
@@ -115,18 +115,18 @@ def run_mcsqs(
 
     # Generate SQS structures
     add_ons = [
-        "-T {}".format(temperature),
-        "-wr {}".format(wr),
-        "-wn {}".format(wn),
-        "-wd {}".format(wd),
-        "-tol {}".format(tol),
+        f"-T {temperature}",
+        f"-wr {wr}",
+        f"-wn {wn}",
+        f"-wd {wd}",
+        f"-tol {tol}",
     ]
 
     mcsqs_find_sqs_processes = []
     if instances and instances > 1:
         # if multiple instances, run a range of commands using "-ip"
         for i in range(instances):
-            instance_cmd = ["-ip {}".format(i + 1)]
+            instance_cmd = [f"-ip {i + 1}"]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
             p = Popen(cmd)  # pylint: disable=R1732
             mcsqs_find_sqs_processes.append(p)
@@ -199,7 +199,7 @@ def _parse_sqs_path(path) -> Sqs:
         bestsqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
-    with open(path / "bestcorr.out", "r") as f:
+    with open(path / "bestcorr.out") as f:
         lines = f.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
@@ -213,15 +213,15 @@ def _parse_sqs_path(path) -> Sqs:
     allsqs = []
 
     for i in range(detected_instances):
-        sqs_out = "bestsqs{}.out".format(i + 1)
-        sqs_cif = "bestsqs{}.cif".format(i + 1)
-        corr_out = "bestcorr{}.out".format(i + 1)
-        with Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path) as p:
+        sqs_out = f"bestsqs{i + 1}.out"
+        sqs_cif = f"bestsqs{i + 1}.cif"
+        corr_out = f"bestcorr{i + 1}.out"
+        with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
             p.communicate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             sqs = Structure.from_file(path / sqs_out)
-        with open(path / corr_out, "r") as f:
+        with open(path / corr_out) as f:
             lines = f.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
@@ -253,7 +253,7 @@ def _parse_clusters(filename):
         List of dicts
     """
 
-    with open(filename, "r") as f:
+    with open(filename) as f:
         lines = f.readlines()
 
     clusters = []

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -117,7 +116,7 @@ class Lattice(MSONable):
             m = (self.lengths, self.angles)
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
-        return fmt.format(*[format(c, fmt_spec) for row in m for c in row])
+        return fmt.format(*(format(c, fmt_spec) for row in m for c in row))
 
     def copy(self):
         """Deep copy of self."""
@@ -921,7 +920,7 @@ class Lattice(MSONable):
         for reflection_matrix in reflection_matrices:
             all_reflections.append(np.dot(selling1, reflection_matrix))
 
-        return min([np.linalg.norm(reflection - selling2) for reflection in all_reflections])
+        return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)
 
     def __repr__(self):
         outs = [
@@ -1841,7 +1840,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
     mi = np.asarray(miller_index)
     # deal with the case we have small irregular floats
     # that are all equal or factors of each other
-    mi /= min([m for m in mi if m != 0])
+    mi /= min(m for m in mi if m != 0)
     mi /= np.max(np.abs(mi))
 
     # deal with the case we have nice fractions
@@ -1989,8 +1988,8 @@ def get_points_in_spheres(
             neighbors.append([])
             continue
         nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
-        nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
-        nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
+        nn_images = itertools.chain(*(cube_to_images[k] for k in ks))
+        nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))
         dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
         nns: List[Tuple[np.ndarray, float, int, np.ndarray]] = []
         for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):

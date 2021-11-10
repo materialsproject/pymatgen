@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -813,7 +812,7 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        number_of_self_loops = sum([1 for n, v in self.graph.edges(n) if n == v])
+        number_of_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - number_of_self_loops
 
     def draw_graph_to_file(
@@ -886,7 +885,7 @@ class StructureGraph(MSONable):
         # add display options for nodes
         for n in g.nodes():
             # get label by species name
-            label = "{}({})".format(str(self.structure[n].specie), n) if node_labels else ""
+            label = f"{str(self.structure[n].specie)}({n})" if node_labels else ""
 
             # use standard color scheme for nodes
             c = EL_COLORS[color_scheme].get(str(self.structure[n].specie.symbol), [0, 0, 0])
@@ -897,7 +896,7 @@ class StructureGraph(MSONable):
             fontcolor = "#000000" if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5 else "#ffffff"
 
             # convert color to hex string
-            color = "#{:02x}{:02x}{:02x}".format(c[0], c[1], c[2])
+            color = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
 
             g.add_node(
                 n,
@@ -929,13 +928,13 @@ class StructureGraph(MSONable):
 
             # only add labels for images that are not the origin
             if image_labels:
-                d["headlabel"] = "" if to_image == (0, 0, 0) else "to {}".format((to_image))
+                d["headlabel"] = "" if to_image == (0, 0, 0) else f"to {to_image}"
                 d["arrowhead"] = "normal" if d["headlabel"] else "none"
 
             # optionally color edges using node colors
             color_u = g.nodes[u]["fillcolor"]
             color_v = g.nodes[v]["fillcolor"]
-            d["color_uv"] = "{};0.5:{};0.5".format(color_u, color_v) if edge_colors else "#000000"
+            d["color_uv"] = f"{color_u};0.5:{color_v};0.5" if edge_colors else "#000000"
 
             # optionally add weights to graph
             if weight_labels:
@@ -985,7 +984,7 @@ class StructureGraph(MSONable):
             with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
                 if rs.returncode != 0:
-                    raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
+                    raise RuntimeError(f"{algo} exited with return code {rs.returncode}.")
 
         if not keep_dot:
             os.remove(basename + ".dot")
@@ -1071,7 +1070,7 @@ class StructureGraph(MSONable):
                 centre_sp = "A"
                 labels = [(label[0], mapping[label[1]]) for label in labels]
 
-            labels = ["{}({})".format(label[1], label[0]) for label in labels]
+            labels = [f"{label[1]}({label[0]})" for label in labels]
             motif = "{}-{}".format(centre_sp, ",".join(labels))
             motifs.add(motif)
 
@@ -1294,7 +1293,7 @@ class StructureGraph(MSONable):
                             edges_to_add.append((new_u, new_v, new_d))
                             new_periodic_images.append((new_u, new_v, new_to_jimage))
 
-        logger.debug("Removing {} edges, adding {} new edges.".format(len(edges_to_remove), len(edges_to_add)))
+        logger.debug(f"Removing {len(edges_to_remove)} edges, adding {len(edges_to_add)} new edges.")
 
         # add/delete marked edges
         for edges_to_remove in edges_to_remove:
@@ -1328,8 +1327,8 @@ class StructureGraph(MSONable):
             edge_label = g.graph["edge_weight_name"]
             edge_weight_units = g.graph["edge_weight_units"]
             if edge_weight_units:
-                edge_label += " ({})".format(edge_weight_units)
-            header += "  {}".format(edge_label)
+                edge_label += f" ({edge_weight_units})"
+            header += f"  {edge_label}"
             header_line += "  {}".format("-" * max([18, len(edge_label)]))
         else:
             print_weights = False
@@ -1354,15 +1353,15 @@ class StructureGraph(MSONable):
 
     def __str__(self):
         s = "Structure Graph"
-        s += "\nStructure: \n{}".format(self.structure.__str__())
-        s += "\nGraph: {}\n".format(self.name)
+        s += f"\nStructure: \n{self.structure.__str__()}"
+        s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
     def __repr__(self):
         s = "Structure Graph"
-        s += "\nStructure: \n{}".format(self.structure.__repr__())
-        s += "\nGraph: {}\n".format(self.name)
+        s += f"\nStructure: \n{self.structure.__repr__()}"
+        s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
@@ -1861,9 +1860,7 @@ class MoleculeGraph(MSONable):
         # between two sites
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data and warn_duplicates:
-            warnings.warn(
-                "Trying to add an edge that already exists from site {} to site {}.".format(from_index, to_index)
-            )
+            warnings.warn(f"Trying to add an edge that already exists from site {from_index} to site {to_index}.")
             return
 
         # generic container for additional edge properties,
@@ -2559,7 +2556,7 @@ class MoleculeGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        number_of_self_loops = sum([1 for n, v in self.graph.edges(n) if n == v])
+        number_of_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - number_of_self_loops
 
     def draw_graph_to_file(
@@ -2632,7 +2629,7 @@ class MoleculeGraph(MSONable):
         # add display options for nodes
         for n in g.nodes():
             # get label by species name
-            label = "{}({})".format(str(self.molecule[n].specie), n) if node_labels else ""
+            label = f"{str(self.molecule[n].specie)}({n})" if node_labels else ""
 
             # use standard color scheme for nodes
             c = EL_COLORS[color_scheme].get(str(self.molecule[n].specie.symbol), [0, 0, 0])
@@ -2643,7 +2640,7 @@ class MoleculeGraph(MSONable):
             fontcolor = "#000000" if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5 else "#ffffff"
 
             # convert color to hex string
-            color = "#{:02x}{:02x}{:02x}".format(c[0], c[1], c[2])
+            color = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
 
             g.add_node(
                 n,
@@ -2678,13 +2675,13 @@ class MoleculeGraph(MSONable):
 
             # only add labels for images that are not the origin
             if image_labels:
-                d["headlabel"] = "" if to_image == (0, 0, 0) else "to {}".format((to_image))
+                d["headlabel"] = "" if to_image == (0, 0, 0) else f"to {to_image}"
                 d["arrowhead"] = "normal" if d["headlabel"] else "none"
 
             # optionally color edges using node colors
             color_u = g.node[u]["fillcolor"]
             color_v = g.node[v]["fillcolor"]
-            d["color_uv"] = "{};0.5:{};0.5".format(color_u, color_v) if edge_colors else "#000000"
+            d["color_uv"] = f"{color_u};0.5:{color_v};0.5" if edge_colors else "#000000"
 
             # optionally add weights to graph
             if weight_labels:
@@ -2734,7 +2731,7 @@ class MoleculeGraph(MSONable):
             with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
                 if rs.returncode != 0:
-                    raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
+                    raise RuntimeError(f"{algo} exited with return code {rs.returncode}.")
 
         if not keep_dot:
             os.remove(basename + ".dot")
@@ -2776,8 +2773,8 @@ class MoleculeGraph(MSONable):
             edge_label = g.graph["edge_weight_name"]
             edge_weight_units = g.graph["edge_weight_units"]
             if edge_weight_units:
-                edge_label += " ({})".format(edge_weight_units)
-            header += "  {}".format(edge_label)
+                edge_label += f" ({edge_weight_units})"
+            header += f"  {edge_label}"
             header_line += "  {}".format("-" * max([18, len(edge_label)]))
         else:
             print_weights = False
@@ -2802,15 +2799,15 @@ class MoleculeGraph(MSONable):
 
     def __str__(self):
         s = "Molecule Graph"
-        s += "\nMolecule: \n{}".format(self.molecule.__str__())
-        s += "\nGraph: {}\n".format(self.name)
+        s += f"\nMolecule: \n{self.molecule.__str__()}"
+        s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
     def __repr__(self):
         s = "Molecule Graph"
-        s += "\nMolecule: \n{}".format(self.molecule.__repr__())
-        s += "\nGraph: {}\n".format(self.name)
+        s += f"\nMolecule: \n{self.molecule.__repr__()}"
+        s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 

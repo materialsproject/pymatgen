@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -43,7 +42,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         )
         cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/fermi/"))
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), "rt") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json")) as f:
             d = json.load(f)
             cls.bs = BandStructure.from_dict(d)
             cls.btr = BoltztrapRunner(cls.bs, 1)

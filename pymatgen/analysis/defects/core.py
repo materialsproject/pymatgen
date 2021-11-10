@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -192,7 +191,7 @@ class Vacancy(Defect):
             key=lambda x: x[1],
         )
         if not len(poss_deflist):
-            raise ValueError("Site {} is not in bulk structure! Cannot create Vacancy object.".format(self.site))
+            raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Vacancy object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
         equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
@@ -203,7 +202,7 @@ class Vacancy(Defect):
         """
         Returns a name for this defect
         """
-        return "Vac_{}_mult{}".format(self.site.specie, self.multiplicity)
+        return f"Vac_{self.site.specie}_mult{self.multiplicity}"
 
 
 class Substitution(Defect):
@@ -286,7 +285,7 @@ class Substitution(Defect):
             key=lambda x: x[1],
         )
         if not len(poss_deflist):
-            raise ValueError("Site {} is not in bulk structure! Cannot create Substitution object.".format(self.site))
+            raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Substitution object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
         equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
@@ -303,7 +302,7 @@ class Substitution(Defect):
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
-        return "Sub_{}_on_{}_mult{}".format(self.site.specie, self.bulk_structure[defindex].specie, self.multiplicity)
+        return f"Sub_{self.site.specie}_on_{self.bulk_structure[defindex].specie}_mult{self.multiplicity}"
 
 
 class Interstitial(Defect):
@@ -419,8 +418,8 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         if self.site_name:
-            return "Int_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
-        return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
+            return f"Int_{self.site.specie}_{self.site_name}_mult{self.multiplicity}"
+        return f"Int_{self.site.specie}_mult{self.multiplicity}"
 
 
 def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
@@ -632,10 +631,8 @@ class DefectEntry(MSONable):
         chemical_potentials = chemical_potentials if chemical_potentials else {}
 
         chempot_correction = sum(
-            [
-                chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
-                for el, chem_pot in chemical_potentials.items()
-            ]
+            chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
+            for el, chem_pot in chemical_potentials.items()
         )
 
         formation_energy = self.energy + chempot_correction
@@ -670,13 +667,13 @@ class DefectEntry(MSONable):
         Human readable string representation of this entry
         """
         output = [
-            "DefectEntry {} - {} - charge {}".format(self.entry_id, self.name, self.charge),
-            "Energy = {:.4f}".format(self.energy),
-            "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))),
+            f"DefectEntry {self.entry_id} - {self.name} - charge {self.charge}",
+            f"Energy = {self.energy:.4f}",
+            f"Correction = {np.sum(list(self.corrections.values())):.4f}",
             "Parameters:",
         ]
         for k, v in self.parameters.items():
-            output.append("\t{} = {}".format(k, v))
+            output.append(f"\t{k} = {v}")
         return "\n".join(output)
 
     def __str__(self):

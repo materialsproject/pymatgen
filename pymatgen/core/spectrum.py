@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -224,8 +223,8 @@ class Spectrum(MSONable):
         return "\n".join(
             [
                 self.__class__.__name__,
-                "%s: %s" % (self.XLABEL, self.x),
-                "%s: %s" % (self.YLABEL, self.y),
+                f"{self.XLABEL}: {self.x}",
+                f"{self.YLABEL}: {self.y}",
             ]
         )
 

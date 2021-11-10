@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -269,7 +268,7 @@ class StructureMotifInterstitial:
         self.target_cns = []
         for motif in self._motif_types:
             if motif not in list(motif_cn_op.keys()):
-                raise RuntimeError("unsupported motif type: {}.".format(motif))
+                raise RuntimeError(f"unsupported motif type: {motif}.")
             cn = int(motif_cn_op[motif]["cn"])
             if cn not in self.target_cns:
                 self.target_cns.append(cn)
@@ -303,8 +302,8 @@ class StructureMotifInterstitial:
         ]
         maxdl = max(dls)
         if verbose:
-            print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
-            print("dls: {} {} {}".format(dls[0], dls[1], dls[2]))
+            print(f"Grid size: {nbins[0]} {nbins[1]} {nbins[2]}")
+            print(f"dls: {dls[0]} {dls[1]} {dls[2]}")
         struct_w_inter = struct.copy()
         struct_w_inter.append(inter_elem, [0, 0, 0])
         natoms = len(list(struct_w_inter.sites))
@@ -404,7 +403,7 @@ class StructureMotifInterstitial:
                 if l != -1 and l not in unique_ids:
                     unique_ids.append(l)
             if verbose:
-                print("unique_ids {} {}".format(motif, unique_ids))
+                print(f"unique_ids {motif} {unique_ids}")
             for uid in unique_ids:
                 maxq = 0.0
                 imaxq = -1
@@ -536,7 +535,7 @@ class StructureMotifInterstitial:
                 properties=None,
             )
             if not sc_with_inter:
-                raise RuntimeError("could not generate supercell with interstitial {}".format(ids + 1))
+                raise RuntimeError(f"could not generate supercell with interstitial {ids + 1}")
             scs.append(sc_with_inter.copy())
         return scs
 
@@ -716,7 +715,7 @@ class TopographyAnalyzer:
         Basic check for volume of all voronoi poly sum to unit cell volume
         Note that this does not apply after poly combination.
         """
-        vol = sum((v.volume for v in self.vnodes)) + sum((v.volume for v in self.cation_vnodes))
+        vol = sum(v.volume for v in self.vnodes) + sum(v.volume for v in self.cation_vnodes)
         if abs(vol - self.structure.volume) > 1e-8:
             raise ValueError(
                 "Sum of voronoi volumes is not equal to original volume of "
@@ -1014,7 +1013,7 @@ class ChargeDensityAnalyzer(MSONable):
             df = pd.DataFrame({}, columns=["A", "B", "C", "Chgcar"])
             self._extrema_df = df
             self.extrema_coords = []
-            logger.info("Find {} {}.".format(len(df), extrema_type))
+            logger.info(f"Find {len(df)} {extrema_type}.")
             return
 
         data = {}
@@ -1045,7 +1044,7 @@ class ChargeDensityAnalyzer(MSONable):
         self._extrema_df = df
         self.extrema_type = extrema_type
         self.extrema_coords = extrema_coords
-        logger.info("Find {} {}.".format(len(df), extrema_type))
+        logger.info(f"Find {len(df)} {extrema_type}.")
 
     @requires(
         peak_local_max_found,
@@ -1156,7 +1155,7 @@ class ChargeDensityAnalyzer(MSONable):
         # np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])
         # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
-        logger.debug("{} vertices after combination.".format(len(self.extrema_coords)))
+        logger.debug(f"{len(self.extrema_coords)} vertices after combination.")
         return None
 
     def remove_collisions(self, min_dist=0.5):
@@ -1431,7 +1430,7 @@ def converge(f, step, tol, max_h):
         h += step
 
         if h > max_h:
-            raise Exception("Did not converge before {}".format(h))
+            raise Exception(f"Did not converge before {h}")
     return g
 
 
@@ -1457,13 +1456,13 @@ def tune_for_gamma(lattice, epsilon):
 
     while float(len(real_set)) / len(recip_set) > 1.05 or float(len(recip_set)) / len(real_set) > 1.05:
         gamma *= (float(len(real_set)) / float(len(recip_set))) ** 0.17
-        logger.debug("\tNot converged...Try modifying gamma to {}.".format(gamma))
+        logger.debug(f"\tNot converged...Try modifying gamma to {gamma}.")
         recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
         recip_set = recip_set[0]
         real_set = real_set[0]
-        logger.debug("Now have {} real vecs and {} recip vecs.".format(len(real_set), len(recip_set)))
+        logger.debug(f"Now have {len(real_set)} real vecs and {len(recip_set)} recip vecs.")
 
-    logger.debug("Converged with gamma = {}".format(gamma))
+    logger.debug(f"Converged with gamma = {gamma}")
 
     return gamma
 

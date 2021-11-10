@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -38,12 +37,12 @@ if __name__ == "__main__":
 
     ialgo = 1
     for sepplanealgo in cg._algorithms:
-        print("In ialgo = {:d}/{:d}".format(ialgo, len(cg._algorithms)))
+        print(f"In ialgo = {ialgo:d}/{len(cg._algorithms):d}")
         ialgo += 1
         if sepplanealgo.algorithm_type != "SEPARATION_PLANE":
             raise ValueError("Should all be separation plane")
 
-        permsonfile = "Permutations on file in this algorithm ({:d}) ".format(len(sepplanealgo._permutations))
+        permsonfile = f"Permutations on file in this algorithm ({len(sepplanealgo._permutations):d}) "
         print(permsonfile)
         print(sepplanealgo._permutations)
         permutations = sepplanealgo.safe_separation_permutations(
@@ -52,7 +51,7 @@ if __name__ == "__main__":
 
         sepplanealgo._permutations = permutations
 
-        print("Test permutations ({:d}) :".format(len(permutations)))
+        print(f"Test permutations ({len(permutations):d}) :")
         print(permutations)
 
         lgf = LocalGeometryFinder()
@@ -132,7 +131,7 @@ if __name__ == "__main__":
                 explicit_permutations.append(sep_perms[icsm])
 
         print(permsonfile)
-        print("Permutations found ({:d}) : ".format(len(explicit_permutations)))
+        print(f"Permutations found ({len(explicit_permutations):d}) : ")
         print(explicit_permutations)
         sepplanealgo.explicit_permutations = explicit_permutations
         newalgos.append(sepplanealgo)
@@ -142,6 +141,6 @@ if __name__ == "__main__":
     if test == "y":
         cg._algorithms = newalgos
         cg_dict = cg.as_dict()
-        f = open("../coordination_geometries_files_new/{}.json".format(cg_symbol), "w")
+        f = open(f"../coordination_geometries_files_new/{cg_symbol}.json", "w")
         json.dump(cg_dict, f)
         f.close()

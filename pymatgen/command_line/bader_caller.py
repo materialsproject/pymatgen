@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -212,8 +211,7 @@ class BaderAnalysis:
             if self.parse_atomic_densities:
                 # convert the charge denisty for each atom spit out by Bader into Chgcar objects for easy parsing
                 atom_chgcars = [
-                    Chgcar.from_file("BvAt{}.dat".format(str(i).zfill(4)))
-                    for i in range(1, len(self.chgcar.structure) + 1)
+                    Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
                 ]
 
                 atomic_densities = []
@@ -427,7 +425,7 @@ class BaderAnalysis:
 
         chgcar_filename = _get_filepath("CHGCAR")
         if chgcar_filename is None:
-            raise IOError("Could not find CHGCAR!")
+            raise OSError("Could not find CHGCAR!")
         potcar_filename = _get_filepath("POTCAR")
         aeccar0 = _get_filepath("AECCAR0")
         aeccar2 = _get_filepath("AECCAR2")
@@ -463,7 +461,7 @@ def get_filepath(filename, warning, path, suffix):
         # and this would give 'static' over 'relax2' over 'relax'
         # however, better to use 'suffix' kwarg to avoid this!
         paths.sort(reverse=True)
-        warnings.warn("Multiple files detected, using {}".format(os.path.basename(path)))
+        warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
     path = paths[0]
     return path
 
@@ -498,7 +496,7 @@ def bader_analysis_from_path(path, suffix=""):
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warnings.warn("Multiple files detected, using {}".format(os.path.basename(path)))
+            warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
         path = paths[0]
         return path
 

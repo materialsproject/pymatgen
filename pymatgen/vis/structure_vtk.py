@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -742,9 +741,9 @@ class StructureVis:
                     output = []
                     for site in self.mapper_map[mapper]:
                         row = [
-                            "{} - ".format(site.species_string),
-                            ", ".join(["{:.3f}".format(c) for c in site.frac_coords]),
-                            "[" + ", ".join(["{:.3f}".format(c) for c in site.coords]) + "]",
+                            f"{site.species_string} - ",
+                            ", ".join([f"{c:.3f}" for c in site.frac_coords]),
+                            "[" + ", ".join([f"{c:.3f}" for c in site.coords]) + "]",
                         ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
@@ -784,7 +783,7 @@ class StructureVis:
                     site = self.mapper_map[mapper]
                     output = [
                         site.species_string,
-                        "Frac. coords: " + " ".join(["{:.4f}".format(c) for c in site.frac_coords]),
+                        "Frac. coords: " + " ".join([f"{c:.4f}" for c in site.frac_coords]),
                     ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
@@ -1161,7 +1160,7 @@ class MultiStructuresVis(StructureVis):
         tprops.SetColor(1, 0, 0)
         tprops.BoldOn()
         tprops.SetJustificationToRight()
-        self.warningtxt = "WARNING : {}".format(warning)
+        self.warningtxt = f"WARNING : {warning}"
         self.warningtxt_actor = vtk.vtkActor2D()
         self.warningtxt_actor.VisibilityOn()
         self.warningtxt_actor.SetMapper(self.warningtxt_mapper)
@@ -1189,7 +1188,7 @@ class MultiStructuresVis(StructureVis):
         tprops.SetColor(0, 0, 1)
         tprops.BoldOn()
         tprops.SetVerticalJustificationToTop()
-        self.infotxt = "INFO : {}".format(info)
+        self.infotxt = f"INFO : {info}"
         self.infotxt_actor = vtk.vtkActor2D()
         self.infotxt_actor.VisibilityOn()
         self.infotxt_actor.SetMapper(self.infotxt_mapper)

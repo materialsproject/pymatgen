@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -309,7 +308,7 @@ class ElasticTensor(NthOrderElasticTensor):
         volume = structure.volume
         natoms = structure.composition.num_atoms
         num_density = 1e30 * nsites / volume
-        tot_mass = sum([e.atomic_mass for e in structure.species])
+        tot_mass = sum(e.atomic_mass for e in structure.species)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         return (
             0.38483
@@ -366,7 +365,7 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         nsites = structure.num_sites
         volume = structure.volume
-        tot_mass = sum([e.atomic_mass for e in structure.species])
+        tot_mass = sum(e.atomic_mass for e in structure.species)
         natoms = structure.composition.num_atoms
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
@@ -529,7 +528,7 @@ class ElasticTensor(NthOrderElasticTensor):
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
         if not set(strain_states) <= set(ss_dict.keys()):
-            raise ValueError("Missing independent strain states: {}".format(set(strain_states) - set(ss_dict)))
+            raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
         if len(set(ss_dict.keys()) - set(strain_states)) > 0:
             warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
@@ -607,13 +606,13 @@ class ElasticTensorExpansion(TensorCollection):
         Calculate's a given elastic tensor's contribution to the
         stress using Einstein summation
         """
-        return sum([c.calculate_stress(strain) for c in self])
+        return sum(c.calculate_stress(strain) for c in self)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
         """
         Calculates the elastic energy density due to a strain
         """
-        return sum([c.energy_density(strain, convert_GPa_to_eV) for c in self])
+        return sum(c.energy_density(strain, convert_GPa_to_eV) for c in self)
 
     def get_ggt(self, n, u):
         """
@@ -1056,7 +1055,7 @@ def generate_pseudo(strain_states, order=3):
             exps /= np.math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
-        present_syms = set.union(*[exp.atoms(sp.Symbol) for exp in svec])
+        present_syms = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
         absent_syms += [set(cvec) - present_syms]
         m = np.zeros((6 * nstates, len(cvec)))
         for n, c in enumerate(cvec):

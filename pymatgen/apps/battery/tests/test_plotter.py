@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -21,11 +20,11 @@ class VoltageProfilePlotterTest(unittest.TestCase):
     def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json")) as f:
             entries_LTO = json.load(f, cls=MontyDecoder)
             self.ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "FeF3_batt.json"), "r") as fid:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "FeF3_batt.json")) as fid:
             entries = json.load(fid, cls=MontyDecoder)
             self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 

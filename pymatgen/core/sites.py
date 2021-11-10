@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -163,7 +162,7 @@ class Site(collections.abc.Hashable, MSONable):
         if self.is_ordered:
             return list(self.species.keys())[0].__str__()
         sorted_species = sorted(self.species.keys())
-        return ", ".join(["{}:{:.3f}".format(sp, self.species[sp]) for sp in sorted_species])
+        return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
 
     @property  # type: ignore
     @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
@@ -227,7 +226,7 @@ class Site(collections.abc.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum([el.Z for el in self.species.keys()])
+        return sum(el.Z for el in self.species.keys())
 
     def __contains__(self, el):
         return el in self.species
@@ -252,7 +251,7 @@ class Site(collections.abc.Hashable, MSONable):
         return False
 
     def __str__(self):
-        return "{} {}".format(self.coords, self.species_string)
+        return f"{self.coords} {self.species_string}"
 
     def as_dict(self) -> dict:
         """
@@ -370,7 +369,7 @@ class PeriodicSite(Site, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum([el.Z for el in self.species.keys()])
+        return sum(el.Z for el in self.species.keys())
 
     @property
     def lattice(self) -> Lattice:

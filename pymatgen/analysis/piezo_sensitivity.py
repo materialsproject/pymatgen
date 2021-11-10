@@ -131,7 +131,7 @@ class BornEffectiveCharge:
         for atom, ops in enumerate(self.BEC_operations):
             if ops[0] == ops[1]:
                 temp_tensor = Tensor(np.random.rand(3, 3) - 0.5)
-                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) / len(
+                temp_tensor = sum(temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]) / len(
                     self.pointops[atom]
                 )
                 BEC[atom] = temp_tensor
@@ -152,7 +152,7 @@ class BornEffectiveCharge:
 
             if ops[0] == ops[1]:
                 temp_tensor = Tensor(disp_charge)
-                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) / len(
+                temp_tensor = sum(temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]) / len(
                     self.pointops[atom]
                 )
                 add[ops[0]] = temp_tensor
@@ -260,7 +260,7 @@ class InternalStrainTensor:
                 temp_tensor = Tensor(np.random.rand(3, 3, 3) - 0.5)
                 for dim in range(3):
                     temp_tensor[dim] = (temp_tensor[dim] + temp_tensor[dim].T) / 2
-                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) / len(
+                temp_tensor = sum(temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]) / len(
                     self.pointops[atom]
                 )
             IST[atom] = temp_tensor
@@ -419,7 +419,7 @@ class ForceConstantMatrix:
 
             temp_tensor = Tensor(np.random.rand(3, 3) - 0.5) * max_force
 
-            temp_tensor_sum = sum([temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]]])
+            temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
             if op[0] != op[1]:
                 for pair in range(len(op[4])):
@@ -477,7 +477,7 @@ class ForceConstantMatrix:
                 continue
 
             temp_tensor = Tensor(D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
-            temp_tensor_sum = sum([temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]]])
+            temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
                 temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
 
@@ -615,7 +615,7 @@ class ForceConstantMatrix:
 
                 # Apply the point symmetry operations of the site
                 temp_tensor = Tensor(total)
-                temp_tensor_sum = sum([temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]]])
+                temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
 
                 if len(self.sharedops[op[0]][op[1]]) != 0:
                     temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))

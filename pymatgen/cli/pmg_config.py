@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -26,7 +25,7 @@ def setup_potcars(args):
 
     :param args: args from command.
     """
-    pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
+    pspdir, targetdir = (os.path.abspath(d) for d in args.potcar_dirs)
     try:
         os.makedirs(targetdir)
     except OSError:
@@ -75,7 +74,7 @@ def setup_potcars(args):
                             p.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
-                    dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
+                    dest = os.path.join(basedir, f"POTCAR.{subdir}")
                     shutil.move(os.path.join(basedir, "POTCAR"), dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
@@ -193,7 +192,7 @@ def add_config_var(args):
     d = {}
     if os.path.exists(SETTINGS_FILE):
         shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
-        print("Existing %s backed up to %s" % (SETTINGS_FILE, SETTINGS_FILE + ".bak"))
+        print("Existing {} backed up to {}".format(SETTINGS_FILE, SETTINGS_FILE + ".bak"))
         d = loadfn(SETTINGS_FILE)
     toks = args.var_spec
     if len(toks) % 2 != 0:

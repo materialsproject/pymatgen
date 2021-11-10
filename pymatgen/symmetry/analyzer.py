@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -474,7 +473,7 @@ class SpacegroupAnalyzer:
         latt_type = self.get_lattice_type()
         sorted_lengths = sorted(latt.abc)
         sorted_dic = sorted(
-            [{"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1, 2]],
+            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1, 2]),
             key=lambda k: k["length"],
         )
 
@@ -486,7 +485,7 @@ class SpacegroupAnalyzer:
                 transf[2] = [0, 0, 1]
                 a, b = sorted(latt.abc[:2])
                 sorted_dic = sorted(
-                    [{"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]],
+                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
                 for i in range(2):
@@ -498,7 +497,7 @@ class SpacegroupAnalyzer:
                 transf[2] = [1, 0, 0]
                 a, b = sorted(latt.abc[1:])
                 sorted_dic = sorted(
-                    [{"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [1, 2]],
+                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [1, 2]),
                     key=lambda k: k["length"],
                 )
                 for i in range(2):
@@ -551,7 +550,7 @@ class SpacegroupAnalyzer:
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
-                    [{"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]],
+                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
                 a = sorted_dic[0]["length"]
@@ -666,7 +665,7 @@ class SpacegroupAnalyzer:
             latt = struct.lattice
 
             a, b, c = latt.lengths
-            alpha, beta, gamma = [math.pi * i / 180 for i in latt.angles]
+            alpha, beta, gamma = (math.pi * i / 180 for i in latt.angles)
             new_matrix = None
             test_matrix = [
                 [a, 0, 0],
@@ -987,7 +986,7 @@ class PointGroupAnalyzer:
         Handles cyclic group molecules.
         """
         main_axis, rot = max(self.rot_sym, key=lambda v: v[1])
-        self.sch_symbol = "C{}".format(rot)
+        self.sch_symbol = f"C{rot}"
         mirror_type = self._find_mirror(main_axis)
         if mirror_type == "h":
             self.sch_symbol += "h"
@@ -995,7 +994,7 @@ class PointGroupAnalyzer:
             self.sch_symbol += "v"
         elif mirror_type == "":
             if self.is_valid_op(SymmOp.rotoreflection(main_axis, angle=180 / rot)):
-                self.sch_symbol = "S{}".format(2 * rot)
+                self.sch_symbol = f"S{2 * rot}"
 
     def _proc_dihedral(self):
         """
@@ -1003,7 +1002,7 @@ class PointGroupAnalyzer:
         and a main axis.
         """
         main_axis, rot = max(self.rot_sym, key=lambda v: v[1])
-        self.sch_symbol = "D{}".format(rot)
+        self.sch_symbol = f"D{rot}"
         mirror_type = self._find_mirror(main_axis)
         if mirror_type == "h":
             self.sch_symbol += "h"
@@ -1301,7 +1300,7 @@ class PointGroupAnalyzer:
 
         def all_equivalent_atoms_of_i(i, eq_sets, ops):
             """WORKS INPLACE on operations"""
-            visited = set([i])
+            visited = {i}
             tmp_eq_sets = {j: (eq_sets[j] - visited) for j in eq_sets[i]}
 
             while tmp_eq_sets:
@@ -1586,7 +1585,7 @@ class SpacegroupOperations(list):
         return False
 
     def __str__(self):
-        return "{} ({}) spacegroup".format(self.int_symbol, self.int_number)
+        return f"{self.int_symbol} ({self.int_number}) spacegroup"
 
 
 class PointGroupOperations(list):

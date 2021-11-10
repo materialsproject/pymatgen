@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -486,7 +485,7 @@ class Poscar(MSONable):
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
 
-        format_str = "{{:.{0}f}}".format(significant_figures)
+        format_str = f"{{:.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
         for v in latt.matrix:
             lines.append(" ".join([format_str.format(c) for c in v]))
@@ -504,7 +503,7 @@ class Poscar(MSONable):
             line = " ".join([format_str.format(c) for c in coords])
             if selective_dynamics is not None:
                 sd = ["T" if j else "F" for j in selective_dynamics[i]]
-                line += " %s %s %s" % (sd[0], sd[1], sd[2])
+                line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += " " + site.species_string
             lines.append(line)
 
@@ -724,12 +723,12 @@ class Incar(dict, MSONable):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
-                        value.append("3*{}*{}".format(len(tuple(g)), m))
+                        value.append(f"3*{len(tuple(g))}*{m}")
                 else:
                     # float() to ensure backwards compatibility between
                     # float magmoms and Magmom objects
                     for m, g in itertools.groupby(self[k], lambda x: float(x)):
-                        value.append("{}*{}".format(len(tuple(g)), m))
+                        value.append(f"{len(tuple(g))}*{m}")
 
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
@@ -976,13 +975,13 @@ class Incar(dict, MSONable):
                     if incar_params[k] == "float":
                         if not type(v) not in ["float", "int"]:
                             warnings.warn(
-                                "%s: %s is not real" % (k, v),
+                                f"{k}: {v} is not real",
                                 BadIncarWarning,
                                 stacklevel=2,
                             )
                     elif type(v).__name__ != incar_params[k]:
                         warnings.warn(
-                            "%s: %s is not a %s" % (k, v, incar_params[k]),
+                            f"{k}: {v} is not a {incar_params[k]}",
                             BadIncarWarning,
                             stacklevel=2,
                         )
@@ -992,7 +991,7 @@ class Incar(dict, MSONable):
                 elif type(incar_params[k]).__name__ == "list":
                     if v not in incar_params[k]:
                         warnings.warn(
-                            "%s: Cannot find %s in the list of parameters" % (k, v),
+                            f"{k}: Cannot find {v} in the list of parameters",
                             BadIncarWarning,
                             stacklevel=2,
                         )
@@ -1223,7 +1222,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen with grid density = %.0f / number of atoms" % (kppa,)
+        comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1276,7 +1275,7 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen with grid density = %.0f / number of atoms" % (kppa,)
+        comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
@@ -1565,7 +1564,7 @@ class Kpoints(MSONable):
 
 
 def _parse_string(s):
-    return "{}".format(s.strip())
+    return f"{s.strip()}"
 
 
 def _parse_bool(s):
@@ -1876,7 +1875,7 @@ class PotcarSingle:
                 "are using newer psps from VASP." % (symbol, functional)
             )
         paths_to_try = [
-            os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
+            os.path.join(d, funcdir, f"POTCAR.{symbol}"),
             os.path.join(d, funcdir, symbol, "POTCAR"),
         ]
         for p in paths_to_try:
@@ -1885,9 +1884,9 @@ class PotcarSingle:
             if os.path.exists(p):
                 psingle = PotcarSingle.from_file(p)
                 return psingle
-        raise IOError(
+        raise OSError(
             "You do not have the right POTCAR with functional "
-            + "{} and label {} in your VASP_PSP_DIR".format(functional, symbol)
+            + f"{functional} and label {symbol} in your VASP_PSP_DIR"
         )
 
     @property
@@ -2102,25 +2101,25 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
-            hash_str += "{}".format(k)
+            hash_str += f"{k}"
             if isinstance(v, int):
-                hash_str += "{}".format(v)
+                hash_str += f"{v}"
             elif isinstance(v, float):
-                hash_str += "{:.3f}".format(v)
+                hash_str += f"{v:.3f}"
             elif isinstance(v, bool):
-                hash_str += "{}".format(bool)
+                hash_str += f"{bool}"
             elif isinstance(v, (tuple, list)):
                 for item in v:
                     if isinstance(item, float):
-                        hash_str += "{:.3f}".format(item)
+                        hash_str += f"{item:.3f}"
                     elif isinstance(item, (Orbital, OrbitalDescription)):
                         for item_v in item:
                             if isinstance(item_v, (int, str)):
-                                hash_str += "{}".format(item_v)
+                                hash_str += f"{item_v}"
                             elif isinstance(item_v, float):
-                                hash_str += "{:.3f}".format(item_v)
+                                hash_str += f"{item_v:.3f}"
                             else:
-                                hash_str += "{}".format(item_v) if item_v else ""
+                                hash_str += f"{item_v}" if item_v else ""
             else:
                 hash_str += v.replace(" ", "")
 

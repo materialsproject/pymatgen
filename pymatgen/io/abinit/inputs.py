@@ -30,67 +30,59 @@ logger = logging.getLogger(__file__)
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
 # they will be generated with structure.to_abivars()
-GEOVARS = set(
-    [
-        "acell",
-        "rprim",
-        "rprimd",
-        "angdeg",
-        "xred",
-        "xcart",
-        "xangst",
-        "znucl",
-        "typat",
-        "ntypat",
-        "natom",
-    ]
-)
+GEOVARS = {
+    "acell",
+    "rprim",
+    "rprimd",
+    "angdeg",
+    "xred",
+    "xcart",
+    "xangst",
+    "znucl",
+    "typat",
+    "ntypat",
+    "natom",
+}
 
 # Variables defining tolerances (used in pop_tolerances)
-_TOLVARS = set(
-    [
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-        "tolimg",
-        "tolmxf",
-        "tolrde",
-    ]
-)
+_TOLVARS = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+    "tolimg",
+    "tolmxf",
+    "tolrde",
+}
 
 # Variables defining tolerances for the SCF cycle that are mutally exclusive
-_TOLVARS_SCF = set(
-    [
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-    ]
-)
+_TOLVARS_SCF = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+}
 
 # Variables determining if data files should be read in input
-_IRDVARS = set(
-    [
-        "irdbseig",
-        "irdbsreso",
-        "irdhaydock",
-        "irdddk",
-        "irdden",
-        "ird1den",
-        "irdqps",
-        "irdkss",
-        "irdscr",
-        "irdsuscep",
-        "irdvdw",
-        "irdwfk",
-        "irdwfkfine",
-        "irdwfq",
-        "ird1wf",
-    ]
-)
+_IRDVARS = {
+    "irdbseig",
+    "irdbsreso",
+    "irdhaydock",
+    "irdddk",
+    "irdden",
+    "ird1den",
+    "irdqps",
+    "irdkss",
+    "irdscr",
+    "irdsuscep",
+    "irdvdw",
+    "irdwfk",
+    "irdwfkfine",
+    "irdwfq",
+    "ird1wf",
+}
 
 # Name of the (default) tolerance used by the runlevels.
 _runl2tolname = {
@@ -617,7 +609,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__setitem__(key, value)
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, id(self))
+        return f"<{self.__class__.__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_string()
@@ -695,7 +687,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError("key: %s not in self:\n %s" % (key, list(self.keys())))
+                raise KeyError(f"key: {key} not in self:\n {list(self.keys())}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -817,15 +809,13 @@ class BasicAbinitInput(AbstractInput, MSONable):
         d = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError("type %s: %s does not have `to_abivars` method" % (type(obj), repr(obj)))
+                raise TypeError(f"type {type(obj)}: {repr(obj)} does not have `to_abivars` method")
             d.update(self.set_vars(obj.to_abivars()))
         return d
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
-            logger.info(
-                "Replacing previously set tolerance variable: {0}.".format(self.remove_vars(_TOLVARS_SCF, strict=False))
-            )
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
 
@@ -862,7 +852,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         exclude = set(exclude) if exclude is not None else set()
 
         # Default is no sorting else alphabetical order.
-        keys = sorted([k for k, v in self.items() if k not in exclude and v is not None])
+        keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
         items = [(k, self[k]) for k in keys]

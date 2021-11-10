@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -475,9 +474,7 @@ class MagSymmOp(SymmOp):
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
         if time_reversal not in (-1, 1):
-            raise Exception(
-                "Time reversal operator not well defined: {0}, {1}".format(time_reversal, type(time_reversal))
-            )
+            raise Exception(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
         self.time_reversal = time_reversal
 
     def __eq__(self, other):
@@ -591,7 +588,7 @@ class MagSymmOp(SymmOp):
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices
         """
         xyzt_string = SymmOp.as_xyz_string(self)
-        return xyzt_string + ", {:+}".format(self.time_reversal)
+        return xyzt_string + f", {self.time_reversal:+}"
 
     def as_dict(self) -> dict:
         """

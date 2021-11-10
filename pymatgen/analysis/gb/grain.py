@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -245,12 +244,12 @@ class GrainBoundary(Structure):
         outs = [
             "Gb Summary (%s)" % comp.formula,
             "Reduced Formula: %s" % comp.reduced_formula,
-            "Rotation axis: %s" % (self.rotation_axis,),
-            "Rotation angle: %s" % (self.rotation_angle,),
-            "GB plane: %s" % (self.gb_plane,),
-            "Join plane: %s" % (self.join_plane,),
-            "vacuum thickness: %s" % (self.vacuum_thickness,),
-            "ab_shift: %s" % (self.ab_shift,),
+            f"Rotation axis: {self.rotation_axis}",
+            f"Rotation angle: {self.rotation_angle}",
+            f"GB plane: {self.gb_plane}",
+            f"Join plane: {self.join_plane}",
+            f"vacuum thickness: {self.vacuum_thickness}",
+            f"ab_shift: {self.ab_shift}",
         ]
 
         def to_s(x, rjust=10):
@@ -258,7 +257,7 @@ class GrainBoundary(Structure):
 
         outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
-        outs.append("Sites ({i})".format(i=len(self)))
+        outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
                 " ".join(
@@ -846,8 +845,8 @@ class GrainBoundaryGenerator:
                 frac2 = Fraction(lat[index[1]] ** 2 / lat[min_index] ** 2).limit_denominator(max_denominator)
                 com_lcm = lcm(frac1.denominator, frac2.denominator)
                 ratio[min_index] = com_lcm
-                ratio[index[0]] = frac1.numerator * int(round((com_lcm / frac1.denominator)))
-                ratio[index[1]] = frac2.numerator * int(round((com_lcm / frac2.denominator)))
+                ratio[index[0]] = frac1.numerator * int(round(com_lcm / frac1.denominator))
+                ratio[index[1]] = frac2.numerator * int(round(com_lcm / frac2.denominator))
             else:
                 index.pop(index_none)
                 if lat[index[0]] > lat[index[1]]:
@@ -2353,8 +2352,8 @@ class GrainBoundaryGenerator:
             else:
                 com_lcm = lcm(frac[0].denominator, frac[1].denominator)
                 miller[true_index] = com_lcm
-                miller[index[0]] = frac[0].numerator * int(round((com_lcm / frac[0].denominator)))
-                miller[index[1]] = frac[1].numerator * int(round((com_lcm / frac[1].denominator)))
+                miller[index[0]] = frac[0].numerator * int(round(com_lcm / frac[0].denominator))
+                miller[index[1]] = frac[1].numerator * int(round(com_lcm / frac[1].denominator))
         return miller
 
 

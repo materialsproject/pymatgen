@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -708,7 +707,7 @@ $end"""
 
     def test_read_scan(self):
         str_scan = """Once more, I'm trying to break you!
-        
+
 $scan
    stre 1 2 1.1 1.4 0.03
    bend 3 4 5 60 90 5
@@ -722,7 +721,7 @@ $end"""
         str_scan_1 = """Once more, I"m trying to break you!
 $scan
    boo 1 4 1.2 1.5 0.02
-   tors = 3 6 1.5 1.9 0.01        
+   tors = 3 6 1.5 1.9 0.01
 $end
 """
         scan_test_1 = QCInput.read_scan(str_scan_1)
@@ -730,7 +729,7 @@ $end
         self.assertDictEqual(scan_test_1, scan_actual_1)
 
         str_scan_2 = """Once more, I'm trying to break you!
-        
+
 $scan
    stre 1 2 1.1 1.4 0.03
    bend 3 4 5 60 90 5
@@ -916,8 +915,8 @@ $end
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
-        test_file = open(os.path.join(os.path.dirname(__file__), "test.qin"), "r")
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref.qin"), "r")
+        test_file = open(os.path.join(os.path.dirname(__file__), "test.qin"))
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref.qin"))
 
         for l_test, l_ref in zip(test_file, ref_file):
             # By default, if this statement fails the offending line will be printed
@@ -934,8 +933,8 @@ $end
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
-        test_file = open(os.path.join(os.path.dirname(__file__), "test_vdw.qin"), "r")
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin"), "r")
+        test_file = open(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin"))
 
         for l_test, l_ref in zip(test_file, ref_file):
             # By default, if this statement fails the offending line will be printed
