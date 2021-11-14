@@ -568,6 +568,17 @@ class DictSet(VaspInputSet):
             elif any(el.Z > 20 for el in structure.composition):
                 incar["LMAXMIX"] = 4
 
+        # Warn user about LASPH for meta-GGAs, hybrids, and vdW-DF
+        if not settings.get("LASPH", False) and (
+            settings.get("METAGGA", False)
+            or settings.get("LHFCALC", False)
+            or settings.get("LDAU", False)
+            or settings.get("LUSE_VDW", False)
+        ):
+            warnings.warn(
+                "LASPH = True should be set for +U, meta-GGAs, and vdW-DFT", BadInputSetWarning,
+            )
+
         if self.constrain_total_magmom:
             nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"]])
             incar["NUPDOWN"] = nupdown
