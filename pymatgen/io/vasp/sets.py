@@ -575,15 +575,15 @@ class DictSet(VaspInputSet):
             elif any(el.Z > 20 for el in structure.composition):
                 incar["LMAXMIX"] = 4
 
-        # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
-        if not incar.get("LASPH", False) and (
-            incar.get("METAGGA")
-            or incar.get("LHFCALC", False)
-            or incar.get("LDAU", False)
-            or incar.get("LUSE_VDW", False)
+        # Warn user about LASPH for meta-GGAs, hybrids, and vdW-DF
+        if not settings.get("LASPH", False) and (
+            settings.get("METAGGA", False)
+            or settings.get("LHFCALC", False)
+            or settings.get("LDAU", False)
+            or settings.get("LUSE_VDW", False)
         ):
             warnings.warn(
-                "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
+                "LASPH = True should be set for +U, meta-GGAs, and vdW-DFT",
                 BadInputSetWarning,
             )
 
