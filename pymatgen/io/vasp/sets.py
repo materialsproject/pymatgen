@@ -576,7 +576,8 @@ class DictSet(VaspInputSet):
             or settings.get("LUSE_VDW", False)
         ):
             warnings.warn(
-                "LASPH = True should be set for +U, meta-GGAs, and vdW-DFT", BadInputSetWarning,
+                "LASPH = True should be set for +U, meta-GGAs, and vdW-DFT",
+                BadInputSetWarning,
             )
 
         if self.constrain_total_magmom:
