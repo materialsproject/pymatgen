@@ -719,7 +719,7 @@ class PhaseDiagram(MSONable):
             Energy above convex hull of entry. Stable entries should have
             energy above hull of 0. The energy is given per atom.
         """
-        return self.get_decomp_and_e_above_hull(entry, **kwargs)[1]
+        return self.get_decomp_and_e_above_hull(entry, allow_negative=True, **kwargs)[1]
 
     def get_equilibrium_reaction_energy(self, entry):
         """

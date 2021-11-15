@@ -104,7 +104,7 @@ class InsertionElectrode(AbstractElectrode):
         _unstable_entries = tuple(sorted([e for e in pd.unstable_entries if e in entries], key=lifrac))
 
         # create voltage pairs
-        _vpairs: Tuple[AbstractVoltagePair] = tuple(
+        _vpairs: Tuple[AbstractVoltagePair] = tuple(  # type: ignore
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],
