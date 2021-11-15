@@ -575,6 +575,13 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
 
+        # Check that ALGO is appropriate
+        if incar.get("LHFCALC", False) is True and incar.get("ALGO", "Normal") not in ["Normal", "All", "Damped"]:
+            warnings.warn(
+                "Hybrid functionals only support Algo = All, Damped, or Normal.",
+                BadInputSetWarning,
+            )
+
         # Ensure adequate number of KPOINTS are present for the tetrahedron
         # method (ISMEAR=-5). If KSPACING is in the INCAR file the number
         # of kpoints is not known before calling VASP, but a warning is raised
