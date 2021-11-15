@@ -39,7 +39,7 @@ class Interface(Structure):
     ):
         """
         Makes an interface structure, a structure object with additional information
-        and methods pertaining to interfaces
+        and methods pertaining to interfaces.
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
@@ -74,9 +74,10 @@ class Interface(Structure):
             vacuum_over_film: vacuum space above the film in Angstroms
         """
 
-        assert "interface_label" in site_properties, ValueError(
-            "Must provide labeling of substrate and film sites in site properties"
-        )
+        assert (
+            "interface_label" in site_properties
+        ), "Must provide labeling of substrate and film sites in site properties"
+
         self._in_plane_offset = np.array(in_plane_offset, dtype="float")
         self._gap = gap
         self._vacuum_over_film = vacuum_over_film
@@ -364,8 +365,6 @@ class Interface(Structure):
             vacuum_over_film: vacuum space above the film in Angstroms
             structure_properties: dictionary of misc properties for this structure
             center_slab: center the slab
-
-
         """
         # Ensure c-axis is orthogonal to a/b plane
         if isinstance(substrate_slab, Slab):
