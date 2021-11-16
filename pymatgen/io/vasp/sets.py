@@ -570,7 +570,7 @@ class DictSet(VaspInputSet):
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
         if not settings.get("LASPH", False) and (
-            settings.get("METAGGA", False)
+            settings.get("METAGGA")
             or settings.get("LHFCALC", False)
             or settings.get("LDAU", False)
             or settings.get("LUSE_VDW", False)
