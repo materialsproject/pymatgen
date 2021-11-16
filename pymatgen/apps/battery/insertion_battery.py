@@ -14,7 +14,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable, Dict, Union, Tuple, Any, List
+from typing import Iterable, Dict, Union, Tuple, List
 
 from monty.dev import deprecated
 from scipy.constants import N_A
