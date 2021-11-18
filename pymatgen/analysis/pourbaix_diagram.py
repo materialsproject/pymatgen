@@ -21,7 +21,8 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
+from typing_extensions import Literal
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -41,9 +42,8 @@ from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import Stringify
 from pymatgen.util.sequence import PBar
-
+from pymatgen.util.string import Stringify
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -458,8 +458,6 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 #       heatmap plotter, because the reference states for decomposition
 #       don't include oxygen/hydrogen in the OER/HER regions
 
-# TODO: create a from_phase_diagram class method for non-formation energy
-#       invocation
 # TODO: invocation from a MultiEntry entry list could be a bit more robust
 # TODO: serialization is still a bit rough around the edges
 class PourbaixDiagram(MSONable):
@@ -994,6 +992,131 @@ class PourbaixDiagram(MSONable):
             "filter_solids": self.filter_solids,
         }
         return d
+
+    @classmethod
+    def from_computed_entries(
+        cls,
+        entries: List[ComputedEntry],
+        ion_ref_data: Optional[List[Dict]],
+        compat: str = "MaterialsProject2020Compatibility",
+        aqueous_compat: str = "MaterialsProjectAqueousCompatibility",
+        use_gibbs: Optional[Literal[300]] = None,
+    ):
+        """
+        Instantiate a PourbaixDiagram from a list of ComputedEntry. This method replicates
+        much of the functionality in MPRester.get_pourbaix_entries, so that diagrams
+        can be customized and constructed locally.
+
+        Args:
+            entries: List of ComputedEntry to process. Note that this the entries MUST
+                form a complete Phase Diagram, and that phase diagram MUST include O and H
+                in its chemical system. For example, to build a PourbaixDiagram for Ti,
+                the ComputedEntry passed here should contain materials in the H-O-Ti chemical
+                system.
+            ion_ref_data: List of ion reference data objects that determine how to reference
+                experimental ion free energies to the PhaseDiagram. This should be a list of
+                dicts that contain, at a minimum, 1) the experimental ion free energy, 2) the
+                formula of the reference solid for the ion, and 3) the experimental free energy of the
+                reference solid. All energies should be given in kJ/mol.
+
+                Example:
+
+                {'formula': 'Li[+]',
+                 'data': {{'charge': {'display': '1.0',
+                           'value': 1.0,
+                           'unit': ''},
+                          'ΔGᶠ': {'display': '-293.71 kJ/mol',
+                                  'value': -293.71,
+                                  'unit': 'kJ/mol'},
+                          'MajElements': 'Li',
+                          'RefSolid': 'Li2O',
+                          'ΔGᶠRefSolid': {'display': '-561.2 kJ/mol',
+                                          'value': -561.2,
+                                          'unit': 'kJ/mol'},
+                          }
+                 }
+
+                Ion reference data in this format can be retreived via the Materials Project API
+                MPRester.get_ion_reference_data method, downloaded from MPContribs, or be built manually.
+
+                Note that the PhaseDiagram MUST contain entries for all the reference solids
+                provided in ion_ref_data!
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior
+                to applying aqueous energy adjustments. May be passed as a str (e.g.
+                "MaterialsProject2020Compatibility") or an instance
+                (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies
+                are used as-is. Default: "MaterialsProject2020Compatibility"
+            aqueous_compat: Compatibility scheme used to make solid DFT energies compatible
+                with the experimental chemical potential of water. This step is required
+                for proper construction of Pourbaix diagrams. May be passed as a str (e.g.
+                "MaterialsProjectAqueousCompatibility") or an instance
+                (e.g., MaterialsProjectAqueousCompatibility()).  If None, a ValueError is raised.
+                Default: "MaterialsProjectAqueousCompatibility"
+            use_gibbs: Set to 300 (for 300 Kelvin) to use a machine learning model to
+                estimate solid free energy from DFT energy (see GibbsComputedStructureEntry).
+                This can slightly improve the accuracy of the Pourbaix diagram in some
+                cases. Default: None.
+
+                Note that temperatures other than 300K are not permitted here, because
+                MaterialsProjectAqueousCompatibility corrections, used in Pourbaix diagram
+                construction, are calculated based on 300 K data.
+
+        Raises:
+            ValueError if aqueous_compat is not provided.
+
+        Returns:
+            PourbaixDiagram
+        """
+        raise NotImplementedError("Coming soon!")
+
+    @classmethod
+    def from_phase_diagram(cls, pd: PhaseDiagram, ion_ref_data: Optional[List]):
+        """
+        Instantiate a PourbaixDiagram from a PhaseDiagram.
+
+        Args:
+            pd: Solid phase diagram from which to build a PourbaixDiagram. Note that this
+                Phase Diagram MUST include O and H in its chemical system. For example,
+                to build a PourbaixDiagram for Ti, the phase diagram passed here should contain
+                materials in the H-O-Ti chemical system.
+
+                NOTE: It is assumed that solid energies have already been corrected with
+                MaterialsProjectAqueousCompatibility, prior to building the PhaseDiagram.
+                This step is necessary for proper referencing of DFT energies to the chemical
+                potential of water.
+            ion_ref_data: List of ion reference data objects that determine how to reference
+                experimental ion free energies to the PhaseDiagram. This should be a list of
+                dicts that contain, at a minimum, 1) the experimental ion free energy, 2) the
+                formula of the reference solid for the ion, and 3) the experimental free energy
+                of the reference solid. All energies should be given in kJ/mol.
+
+                Example:
+
+                {'formula': 'Li[+]',
+                 'data': {{'charge': {'display': '1.0',
+                           'value': 1.0,
+                           'unit': ''},
+                          'ΔGᶠ': {'display': '-293.71 kJ/mol',
+                                  'value': -293.71,
+                                  'unit': 'kJ/mol'},
+                          'MajElements': 'Li',
+                          'RefSolid': 'Li2O',
+                          'ΔGᶠRefSolid': {'display': '-561.2 kJ/mol',
+                                          'value': -561.2,
+                                          'unit': 'kJ/mol'},
+                          }
+                 }
+
+                Ion reference data in this format can be retreived via the Materials Project API
+                MPRester.get_ion_reference_data method, downloaded from MPContribs, or be built manually.
+
+                Note that the PhaseDiagram MUST contain entries for all the reference solids
+                provided in ion_ref_data!
+
+        Returns:
+            PourbaixDiagram
+        """
+        raise NotImplementedError("Coming soon!")
 
     @classmethod
     def from_dict(cls, d):
