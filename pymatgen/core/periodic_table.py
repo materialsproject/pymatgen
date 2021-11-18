@@ -220,14 +220,16 @@ class ElementBase(Enum):
     @property
     def atomic_radius(self) -> Optional[FloatWithUnit]:
         """
-        Returns: The atomic radius of the element in Ångstroms.
+        Returns:
+            float | None: The atomic radius of the element in Ångstroms.
         """
         return self._atomic_radius
 
     @property
     def atomic_mass(self) -> Optional[FloatWithUnit]:
         """
-        Returns: The atomic mass of the element in amu.
+        Returns:
+            float | None: The atomic mass of the element in amu.
         """
         return self._atomic_mass
 

@@ -13,7 +13,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable, Dict
+from typing import Dict, Iterable, List, Tuple, Union
 
 from monty.dev import deprecated
 from scipy.constants import N_A
@@ -23,7 +23,7 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltage
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
 
 @dataclass
@@ -38,21 +38,28 @@ class InsertionElectrode(AbstractElectrode):
     unstable_entries: Iterable[ComputedEntry]
 
     @classmethod
-    def from_entries(cls, entries, working_ion_entry, strip_structures=False):
+    def from_entries(
+        cls,
+        entries: Iterable[Union[ComputedEntry, ComputedStructureEntry]],
+        working_ion_entry: Union[ComputedEntry, ComputedStructureEntry, PDEntry],
+        strip_structures: bool = False,
+    ):
         """
         Create a new InsertionElectrode.
 
         Args:
-            entries: A list of ComputedStructureEntries (or subclasses)
-                representing the different topotactic states of the battery,
-                e.g. TiO2 and LiTiO2.
+            entries: A list of ComputedEntries, ComputedStructureEntries, or
+                subclasses representing the different topotactic states
+                of the battery, e.g. TiO2 and LiTiO2.
             working_ion_entry: A single ComputedEntry or PDEntry
                 representing the element that carries charge across the
                 battery, e.g. Li.
             strip_structures: Since the electrode document only uses volume we can make the
                 electrode object significantly leaner by dropping the structure data.
-                If this parameter is set to True, the ComputedStructureEntry will be replaced
-                with ComputedEntry and the volume will be stored in ComputedEntry.data['volume']
+                If this parameter is set to True, the ComputedStructureEntry will be
+                replaced with a ComputedEntry and the volume will be stored in
+                ComputedEntry.data['volume']. If entries provided are ComputedEntries,
+                must set strip_structures=False.
         """
 
         if strip_structures:
@@ -73,14 +80,17 @@ class InsertionElectrode(AbstractElectrode):
         for entry in entries:
             elements.update(entry.composition.elements)
 
-        # Set an artificial energy for each element for convex hull generation
+        # Set an artificial high energy for each element for convex hull generation
         element_energy = max(entry.energy_per_atom for entry in entries) + 10
 
-        pdentries = []
+        pdentries: List[Union[ComputedEntry, ComputedStructureEntry, PDEntry]] = []
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
-        # Make phase diagram to determine which entries are stable vs. unstable
+        # Make phase diagram to determine which entries are stable vs. unstable.
+        # For each working ion concentration, we want one stable entry
+        # to use in forming voltage pairs. PhaseDiagram allows for easy comparison
+        # of entry energies.
         pd = PhaseDiagram(pdentries)
 
         def lifrac(e):
@@ -93,7 +103,7 @@ class InsertionElectrode(AbstractElectrode):
         _unstable_entries = tuple(sorted((e for e in pd.unstable_entries if e in entries), key=lifrac))
 
         # create voltage pairs
-        _vpairs = tuple(
+        _vpairs: Tuple[AbstractVoltagePair] = tuple(  # type: ignore
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],
