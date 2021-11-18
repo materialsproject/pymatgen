@@ -59,6 +59,7 @@ class PackmolSet(InputSet):
                 "Don't forget to add the packmol binary to your path"
             )
         try:
+            wd = os.getcwd()
             os.chdir(path)
             p = subprocess.run(
                 "packmol < '{}'".format(self.inputfile),
@@ -68,6 +69,7 @@ class PackmolSet(InputSet):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+            os.chdir(wd)
             # this workaround is needed because packmol can fail to find
             # a solution but still return a zero exit code
             # see https://github.com/m3g/packmol/issues/28
@@ -211,3 +213,4 @@ class PackmolBoxGen(InputGenerator):
             control_params=self.control_params,
             tolerance=self.tolerance,
         )
+
