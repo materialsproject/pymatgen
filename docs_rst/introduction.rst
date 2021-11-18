@@ -500,7 +500,7 @@ If you use pymatgen in your research, please consider citing the following work:
     Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
-    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    <https://doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances / principles developed by various
 scientists. Please refer to the :doc:`references page </references>` for citation info.

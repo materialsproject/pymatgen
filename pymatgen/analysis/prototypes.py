@@ -12,7 +12,7 @@ If using this particular class, please cite their publication appropriately:
 Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
 The AFLOW library of crystallographic prototypes: part 1.
 Computational Materials Science, 136, S1-S828.
-http://doi.org/10.1016/j.commatsci.2017.01.017
+https://doi.org/10.1016/j.commatsci.2017.01.017
 """
 
 import os
@@ -38,7 +38,7 @@ class AflowPrototypeMatcher:
     Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
     The AFLOW library of crystallographic prototypes: part 1.
     Computational Materials Science, 136, S1-S828.
-    http://doi.org/10.1016/j.commatsci.2017.01.017
+    https://doi.org/10.1016/j.commatsci.2017.01.017
     """
 
     def __init__(self, initial_ltol=0.2, initial_stol=0.3, initial_angle_tol=5):
@@ -92,7 +92,7 @@ class AflowPrototypeMatcher:
         Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
         The AFLOW library of crystallographic prototypes: part 1.
         Computational Materials Science, 136, S1-S828.
-        http://doi.org/10.1016/j.commatsci.2017.01.017
+        https://doi.org/10.1016/j.commatsci.2017.01.017
 
         Args:
             structure: structure to match

@@ -122,9 +122,9 @@ consider citing the following publications::
     Algorithms and tools for high-throughput geometry- based analysis of
     crystalline porous materials, Microporous and Mesoporous Materials,
     149 (2012) 134-141, `doi:10.1016/j.micromeso.2011.08.020
-    <http://dx.doi.org/10.1016/j.micromeso.2011.08.020>`_.
+    <https://doi.org/10.1016/j.micromeso.2011.08.020>`_.
 
     R.L. Martin, B. Smit, and M. Haranczyk, Addressing challenges of
     identifying geometrically diverse sets of crystalline porous materials,
     J. Chem. Information and Modelling, `doi:10.1021/ci200386x
-    <http://dx.doi.org/10.1021/ci200386x>`_.
+    <https://doi.org/10.1021/ci200386x>`_.
