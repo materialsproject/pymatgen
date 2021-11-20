@@ -287,7 +287,7 @@ class DictSet(VaspInputSet):
     3. If the species itself has a particular setting in the config file, that
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
-       there are no settings, VASP's default of 0.6 is used.
+       there are no settings, a default value of 0.6 is used.
     """
 
     def __init__(
