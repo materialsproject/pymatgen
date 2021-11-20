@@ -50,6 +50,7 @@ class PackmolSet(InputSet):
             ValueError if packmol does not succeed in packing the box.
             TimeoutExpiredError if packmold does not finish within the timeout.
         """
+        wd = os.getcwd()
         if not which("packmol"):
             raise RuntimeError(
                 "Running a PackmolSet requires the executable 'packmol' to be in "
@@ -59,7 +60,6 @@ class PackmolSet(InputSet):
                 "Don't forget to add the packmol binary to your path"
             )
         try:
-            wd = os.getcwd()
             os.chdir(path)
             p = subprocess.run(
                 "packmol < '{}'".format(self.inputfile),
@@ -69,7 +69,6 @@ class PackmolSet(InputSet):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            os.chdir(wd)
             # this workaround is needed because packmol can fail to find
             # a solution but still return a zero exit code
             # see https://github.com/m3g/packmol/issues/28
@@ -79,8 +78,10 @@ class PackmolSet(InputSet):
         except subprocess.CalledProcessError as e:
             raise ValueError("Packmol failed with errorcode {} and stderr: {}".format(e.returncode, e.stderr)) from e
         else:
-            with open(self.stdoutfile, "w") as out:
+            with open(Path(path, self.stdoutfile), "w") as out:
                 out.write(p.stdout.decode())
+        finally:
+            os.chdir(wd)
 
     @classmethod
     def from_directory(cls, directory: Union[str, Path]):
