@@ -282,8 +282,8 @@ class DictSet(VaspInputSet):
     structure and the configuration settings. The order in which the magmom is
     determined is as follows:
 
-    1. If the site itself has a magmom setting, that is used.
-    2. If the species on the site has a spin setting, that is used.
+    1. If the site itself has a magmom setting (`site.magmom`), that is used.
+    2. If the species on the site has a spin setting (`site.spin`), that is used.
     3. If the species itself has a particular setting in the config file, that
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
@@ -509,18 +509,26 @@ class DictSet(VaspInputSet):
                     elif hasattr(site.specie, "spin"):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
+                        if type(v) is not dict:
+                            raise ValueError(
+                                "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
+                                "If you want site-specific magnetic moments, set them in the site.magmom properties "
+                                "of the site objects in the structure"
+                            )
                         if site.specie.symbol == "Co":
                             warnings.warn(
-                                "Co without oxidation state is initialized low spin by default. If this is "
-                                "not desired, please set the spin on the magmom on the site directly to "
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen "
+                                "(unless you have provided a MAGMOM dictionary specifying otherwise). If this default "
+                                "behavior is not desired, please set the spin on the magmom on the site directly to "
                                 "ensure correct initialization"
                             )
                         mag.append(v.get(str(site.specie)))
                     else:
                         if site.specie.symbol == "Co":
                             warnings.warn(
-                                "Co without oxidation state is initialized low spin by default. If this is "
-                                "not desired, please set the spin on the magmom on the site directly to "
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen "
+                                "(unless you have provided a MAGMOM dictionary specifying otherwise). If this default "
+                                "behavior is not desired, please set the spin on the magmom on the site directly to "
                                 "ensure correct initialization"
                             )
                         mag.append(v.get(site.specie.symbol, 0.6))
@@ -574,7 +582,7 @@ class DictSet(VaspInputSet):
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM"
                     "values is not an integer. NUPDOWN is meant to set the spin"
-                    "multiplet and should likely be an integer. You are likely"
+                    "multiplet and should typically be an integer. You are likely"
                     "better off changing the values of MAGMOM or simply setting"
                     "NUPDOWN directly in your INCAR settings."
                 )
