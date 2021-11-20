@@ -9,9 +9,8 @@ import json
 from os import makedirs
 from os.path import exists, expanduser
 
-from pymatgen.core import SETTINGS
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
-
+from pymatgen.core import SETTINGS
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -72,7 +71,7 @@ class ChemEnvConfig:
                 print(" - No access to materials project")
             print(" - Package options :")
             for key, val in self.package_options.items():
-                print(f"     {str(key)}   :   {str(val)}")
+                print(f"     {key}   :   {val}")
             print("\nChoose in the following :")
             print(" <1> + <ENTER> : configuration of the package options (strategy, ...)")
             print(" <q> + <ENTER> : quit without saving configuration")
@@ -106,7 +105,7 @@ class ChemEnvConfig:
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup.keys())
         for istrategy, strategy in enumerate(strategies):
-            print(f" <{str(istrategy + 1)}> : {strategy}")
+            print(f" <{istrategy + 1}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {
             "strategy": strategies[int(test) - 1],

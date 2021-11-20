@@ -295,7 +295,7 @@ class BasisSetReader:
         o.append("=========================================")
         o.append("Reading basis set:")
         o.append("")
-        o.append(f" Basis set for {str(self.filename)} atom ")
+        o.append(f" Basis set for {self.filename} atom ")
         o.append(" Maximum angular momentum = {}".format(self.data["lmax"]))
         o.append(" Number of atomics orbitals = {}".format(self.data["n_nlo"]))
         o.append(" Number of nlm orbitals = {}".format(self.data["n_nlmo"]))

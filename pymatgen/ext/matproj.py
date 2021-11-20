@@ -18,15 +18,17 @@ import platform
 import re
 import sys
 import warnings
-from typing import List
 from enum import Enum, unique
 from time import sleep
+from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import __version__ as PMG_VERSION
+from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -35,8 +37,6 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
-from pymatgen.core import __version__ as PMG_VERSION
-
 
 logger = logging.getLogger(__name__)
 
@@ -253,7 +253,7 @@ class MPRester:
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
         except Exception as ex:
-            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
     def get_database_version(self):
@@ -587,8 +587,8 @@ class MPRester:
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
             Compatibility,
-            MaterialsProjectAqueousCompatibility,
             MaterialsProject2020Compatibility,
+            MaterialsProjectAqueousCompatibility,
             MaterialsProjectCompatibility,
         )
 

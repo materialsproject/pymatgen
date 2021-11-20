@@ -885,7 +885,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return self._deform.apply_to_structure(structure)
 
     def __str__(self):
-        return f"DeformStructureTransformation : Deformation = {str(self.deformation)}"
+        return f"DeformStructureTransformation : Deformation = {self.deformation}"
 
     def __repr__(self):
         return self.__str__()

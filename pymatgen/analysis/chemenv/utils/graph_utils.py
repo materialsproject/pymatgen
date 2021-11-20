@@ -454,8 +454,8 @@ class MultiGraphCycle(MSONable):
         out = ["Multigraph cycle with nodes :"]
         cycle = []
         for inode, node1, node2 in zip(itertools.count(), self.nodes[:-1], self.nodes[1:]):
-            cycle.append(f"{str(node1)} -*{self.edge_indices[inode]:d}*- {str(node2)}")
-        cycle.append(f"{str(self.nodes[-1])} -*{self.edge_indices[-1]:d}*- {str(self.nodes[0])}")
+            cycle.append(f"{node1} -*{self.edge_indices[inode]:d}*- {node2}")
+        cycle.append(f"{self.nodes[-1]} -*{self.edge_indices[-1]:d}*- {self.nodes[0]}")
         # out.extend([str(node) for node in self.nodes])
         out.extend(cycle)
         return "\n".join(out)

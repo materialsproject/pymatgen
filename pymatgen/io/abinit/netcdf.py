@@ -102,7 +102,7 @@ class NetcdfReader:
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error(f"In file {self.path}: {str(exc)}")
+            raise self.Error(f"In file {self.path}: {exc}")
 
         self.ngroups = len(list(self.walk_tree()))
 

@@ -20,7 +20,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -40,9 +40,8 @@ from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import Stringify
 from pymatgen.util.sequence import PBar
-
+from pymatgen.util.string import Stringify
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -478,9 +477,9 @@ class PourbaixDiagram(MSONable):
         Args:
             entries ([PourbaixEntry] or [MultiEntry]): Entries list
                 containing Solids and Ions or a list of MultiEntries
-            comp_dict ({str: float}): Dictionary of compositions,
+            comp_dict (dict[str, float]): Dictionary of compositions,
                 defaults to equal parts of each elements
-            conc_dict ({str: float}): Dictionary of ion concentrations,
+            conc_dict (dict[str, float]): Dictionary of ion concentrations,
                 defaults to 1e-6 for each element
             filter_solids (bool): applying this filter to a Pourbaix
                 diagram ensures all included solid phases are filtered by

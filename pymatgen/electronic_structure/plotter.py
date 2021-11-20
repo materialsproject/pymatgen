@@ -1906,12 +1906,12 @@ class BSPlotterProjected(BSPlotter):
                                 print("You want to consider all '%s' atoms." % elt)
                                 break
 
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                         if isinstance(number, int):
                             if number not in indices:
-                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
+                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                         else:
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                     nelems = Counter(dictpa[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError("You put at least two similar site numbers into 'dictpa[%s]'." % elt)
