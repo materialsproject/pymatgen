@@ -574,8 +574,9 @@ class DictSet(VaspInputSet):
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM"
                     "values is not an integer. NUPDOWN is meant to set the spin"
-                    "multiplet and should likely be an integer. Make sure you know"
-                    "what you are doing."
+                    "multiplet and should likely be an integer. You are likely"
+                    "better off changing the values of MAGMOM or simply setting"
+                    "NUPDOWN directly in your INCAR settings."
                 )
             incar["NUPDOWN"] = nupdown
 
