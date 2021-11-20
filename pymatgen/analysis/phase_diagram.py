@@ -2592,7 +2592,7 @@ class PDPlotter:
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
-                label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
+                label = f"{clean_formula} ({entry_id}) <br> {energy} eV/atom"
 
                 if not stable:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)

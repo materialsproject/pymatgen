@@ -154,7 +154,7 @@ class AdfKey(MSONable):
                 if self._sized_op:
                     s += "{:s}={:s} ".format(*map(str, op))
                 else:
-                    s += f"{str(op):s} "
+                    s += f"{op:s} "
             return s.strip()
         return ""
 
@@ -606,7 +606,7 @@ class AdfTask(MSONable):
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError(f"{str(block_key)} is not an AdfKey!")
+                raise ValueError(f"{block_key} is not an AdfKey!")
             s += str(block_key) + "\n"
         return s
 

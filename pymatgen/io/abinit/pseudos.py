@@ -165,7 +165,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         if self.has_hints:
             for accuracy in ("low", "normal", "high"):
                 hint = self.hint_for_accuracy(accuracy=accuracy)
-                app(f"  hint for {accuracy} accuracy: {str(hint)}")
+                app(f"  hint for {accuracy} accuracy: {hint}")
 
         return "\n".join(lines)
 
@@ -412,7 +412,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         try:
             return PspsFile(filepath)
         except Exception as exc:
-            logger.critical(f"Exception while reading PSPS file at {filepath}:\n{str(exc)}")
+            logger.critical(f"Exception while reading PSPS file at {filepath}:\n{exc}")
             return None
 
 
@@ -639,7 +639,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         key_nums = list(key_nums)
 
     if len(lines) != len(key_nums):
-        err_msg = f"lines = {str(lines)}\n key_num =  {str(key_nums)}"
+        err_msg = f"lines = {lines}\n key_num =  {key_nums}"
         raise ValueError(err_msg)
 
     kwargs = Namespace()

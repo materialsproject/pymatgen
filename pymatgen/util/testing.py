@@ -175,14 +175,14 @@ class PymatgenTest(unittest.TestCase):
                 with open(tmpfile, mode) as fh:
                     pmg_pickle_dump(objects, fh, protocol=protocol)
             except Exception as exc:
-                errors.append(f"pickle.dump with protocol {protocol} raised:\n{str(exc)}")
+                errors.append(f"pickle.dump with protocol {protocol} raised:\n{exc}")
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
                     new_objects = pmg_pickle_load(fh)
             except Exception as exc:
-                errors.append(f"pickle.load with protocol {protocol} raised:\n{str(exc)}")
+                errors.append(f"pickle.load with protocol {protocol} raised:\n{exc}")
                 continue
 
             # Test for equality
