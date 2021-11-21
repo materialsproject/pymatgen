@@ -500,6 +500,16 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
+        # Check warning if LASPH is set to False for meta-GGAs/hybrids/+U/vdW
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            MPStaticSet(vis.structure, user_incar_settings={"METAGGA": "M06L", "LASPH": False})
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            MPStaticSet(vis.structure, user_incar_settings={"LHFCALC": True, "LASPH": False})
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            MPStaticSet(vis.structure, user_incar_settings={"LDAU": True, "LASPH": False})
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            MPStaticSet(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
+
         non_prev_vis = MPStaticSet(vis.structure, user_incar_settings={"LORBIT": 12, "LWAVE": True})
         self.assertEqual(non_prev_vis.incar["NSW"], 0)
         # Check that the ENCUT and Kpoints style has NOT been inherited.
