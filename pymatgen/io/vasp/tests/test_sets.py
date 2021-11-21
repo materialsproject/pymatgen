@@ -482,9 +482,12 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
         with pytest.warns(UserWarning, match=r"constrain_total_magmom"):
-            struct[0].magmom = 5.1
-            vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, constrain_total_magmom=True)
-
+            MPRelaxSet(
+                struct,
+                user_incar_settings={"MAGMOM": {"Fe": 5.1}},
+                user_potcar_settings={"Fe": "Fe"},
+                constrain_total_magmom=True,
+            )
 
 class MPStaticSetTest(PymatgenTest):
     def setUp(self):
