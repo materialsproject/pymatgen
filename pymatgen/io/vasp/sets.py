@@ -584,7 +584,8 @@ class DictSet(VaspInputSet):
                     "values is not an integer. NUPDOWN is meant to set the spin "
                     "multiplet and should typically be an integer. You are likely "
                     "better off changing the values of MAGMOM or simply setting "
-                    "NUPDOWN directly in your INCAR settings."
+                    "NUPDOWN directly in your INCAR settings.",
+                    UserWarning
                 )
             incar["NUPDOWN"] = nupdown
 

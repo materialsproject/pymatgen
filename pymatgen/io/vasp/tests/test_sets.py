@@ -481,16 +481,9 @@ class MITMPRelaxSetTest(PymatgenTest):
         # Test the behavior of constraining the net magnetic moment
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
-        with self.assertWarns(Warning):
-            constrain_warning = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, constrain_total_magmom=True)
-        self.assertFalse(constrain_warning)
-
-        struct = self.structure.copy()
-        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
-        struct[0].magmom = 5.1
-        with self.assertWarns(Warning):
-            constrain_warning = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, constrain_total_magmom=True)
-        self.assertTrue(constrain_warning)
+        with pytest.warns(UserWarning, match=r"constrain_total_magmom"):
+            struct[0].magmom = 5.1
+            vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, constrain_total_magmom=True)
 
 
 class MPStaticSetTest(PymatgenTest):
