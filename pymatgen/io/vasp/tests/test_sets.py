@@ -488,7 +488,7 @@ class MITMPRelaxSetTest(PymatgenTest):
                 user_potcar_settings={"Fe": "Fe"},
                 constrain_total_magmom=True,
             )
-        
+
         # Test the behavior of passing in the wrong type of MAGMOM to user_incar_settings
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
