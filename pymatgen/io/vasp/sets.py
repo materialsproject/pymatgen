@@ -585,7 +585,7 @@ class DictSet(VaspInputSet):
                     "multiplet and should typically be an integer. You are likely "
                     "better off changing the values of MAGMOM or simply setting "
                     "NUPDOWN directly in your INCAR settings.",
-                    UserWarning
+                    UserWarning,
                 )
             incar["NUPDOWN"] = nupdown
 
