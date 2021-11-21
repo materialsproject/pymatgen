@@ -478,9 +478,8 @@ class MITMPRelaxSetTest(PymatgenTest):
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
         self.assertEqual(vis.get_vasp_input()["INCAR"]["MAGMOM"], [1.0] * len(struct))
 
-        # Test the behavior of constraining the net magnetic moment
+        # Test the behavior of constraining the net magnetic moment with a non-integer
         struct = self.structure.copy()
-        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
         with pytest.warns(UserWarning, match=r"constrain_total_magmom"):
             MPRelaxSet(
                 struct,
@@ -491,8 +490,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Test the behavior of passing in the wrong type of MAGMOM to user_incar_settings
         struct = self.structure.copy()
-        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"MAGMOM must be supplied"):
             MPRelaxSet(
                 struct,
                 user_incar_settings={"MAGMOM": [5.0, 5.0]},
