@@ -824,17 +824,18 @@ class Vasprun(MSONable):
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
-            efermi: The Fermi energy associated with the bandstructure, in eV. By default (None),
-                uses the value reported by VASP in vasprun.xml. To manually set the Fermi energy,
-                pass a float. Pass 'smart' to use the `calculate_efermi()` method, which calculates
-                the Fermi level based on band occupancies. This algorithm works by checking whether
-                the Fermi level reported by VASP crosses a band. If it does, and if the bandgap is
-                nonzero, the Fermi level is placed in the center of the bandgap. Otherwise, the
-                value is identical to the value reported by VASP.
+            efermi: The Fermi energy associated with the bandstructure, in eV. By
+                default (None), uses the value reported by VASP in vasprun.xml. To
+                manually set the Fermi energy, pass a float. Pass 'smart' to use the
+                `calculate_efermi()` method, which calculates the Fermi level by first
+                checking whether it lies within a small tolerance (by default 0.001 eV)
+                of a band edge) If it does, the Fermi level is placed in the center of
+                the bandgap. Otherwise, the value is identical to the value reported by
+                VASP.
             line_mode: Force the band structure to be considered as
                 a run along symmetry lines. (Default: False)
-            force_hybrid_mode: Makes it possible to read in self-consistent band structure calculations for
-                every type of functional. (Default: False)
+            force_hybrid_mode: Makes it possible to read in self-consistent band
+                structure calculations for every type of functional. (Default: False)
 
         Returns:
             a BandStructure object (or more specifically a
@@ -1000,39 +1001,47 @@ class Vasprun(MSONable):
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def calculate_efermi(self):
+    def calculate_efermi(self, tol=0.001):
         """
-        Calculate the Fermi level based on band occupancies, as an alternative to
-        using the Fermi level reported directly by VASP. For a semiconductor,
-        the Fermi level will be put in the center of the gap. This algorithm works
-        by checking whether the Fermi level reported by VASP crosses a band. If it does,
-        and if the bandgap is nonzero, place the Fermi level in the middle of the
-        bandgap.
-        """
-        # finding the Fermi level is quite painful, as VASP can sometimes put it slightly
-        # inside a band
-        fermi_crosses_band = False
-        for spin_eigenvalues in self.eigenvalues.values():
-            # drop weights and set shape nbands, nkpoints
-            spin_eigenvalues = spin_eigenvalues[:, :, 0].transpose(1, 0)
-            eigs_below = np.any(spin_eigenvalues < self.efermi, axis=1)
-            eigs_above = np.any(spin_eigenvalues > self.efermi, axis=1)
-            if np.any(eigs_above & eigs_below):
-                fermi_crosses_band = True
-        # if the Fermi level crosses a band, the eigenvalue band properties is a more
-        # reliable way to check whether this is a real effect
-        bandgap, cbm, vbm, _ = self.eigenvalue_band_properties
-        if not fermi_crosses_band:
-            # safe to use VASP fermi level
-            efermi = self.efermi
-        elif fermi_crosses_band and bandgap == 0:
-            # it is actually a metal
-            efermi = self.efermi
-        else:
-            # Set Fermi level half way between valence and conduction bands
-            efermi = (cbm + vbm) / 2
+        Calculate the Fermi level using a robust algorithm.
 
-        return efermi
+        Sometimes VASP can put the Fermi level just inside of a band due to issues in
+        the way band occupancies are handled. This algorithm tries to detect and correct
+        for this bug.
+
+        Slightly more details are provided here: https://www.vasp.at/forum/viewtopic.php?f=4&t=17981
+        """
+        # drop weights and set shape nbands, nkpoints
+        all_eigs = np.concatenate([eigs[:, :, 0].transpose(1, 0) for eigs in self.eigenvalues.values()])
+
+        def crosses_band(fermi):
+            eigs_below = np.any(all_eigs < fermi, axis=1)
+            eigs_above = np.any(all_eigs > fermi, axis=1)
+            return np.any(eigs_above & eigs_below)
+
+        def get_vbm_cbm(fermi):
+            return np.max(all_eigs[all_eigs < fermi]), np.min(all_eigs[all_eigs > fermi])
+
+        if not crosses_band(self.efermi):
+            # Fermi doesn't cross a band; safe to use VASP fermi level
+            return self.efermi
+
+        # if the Fermi level crosses a band, check if we are very close to band gap;
+        # if so, then likely this is a VASP tetrahedron bug
+        if not crosses_band(self.efermi + tol):
+            # efermi placed slightly in the valence band
+            # set Fermi level half way between valence and conduction bands
+            vbm, cbm = get_vbm_cbm(self.efermi + tol)
+            return (cbm + vbm) / 2
+
+        if not crosses_band(self.efermi - tol):
+            # efermi placed slightly in the conduction band
+            # set Fermi level half way between valence and conduction bands
+            vbm, cbm = get_vbm_cbm(self.efermi - tol)
+            return (cbm + vbm) / 2
+
+        # it is actually a metal
+        return self.efermi
 
     def get_potcars(self, path):
         """
