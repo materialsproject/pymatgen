@@ -264,7 +264,7 @@ class PWInput:
             if "K_POINTS" in line:
                 return "kpoints", line.split()[1]
             if "OCCUPATIONS" in line:
-                return("occupations")
+                return "occupations"
             if "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
                 return "structure", line.split()[1]
             if line == "/":
