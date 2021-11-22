@@ -570,7 +570,7 @@ class InterfacialReactivity(MSONable):
             phase at given temperature and pressure.
         """
         if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"Element {element} not one of valid options: " "['O', 'N', " "'Cl', 'F', 'H']")
+            warnings.warn(f"Element {element} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
             return 0
 
         std_temp = 298.15
@@ -684,7 +684,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         """
 
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
-            raise ValueError("Please use the InterfacialReactivity class if using a " "regular phase diagram!")
+            raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True

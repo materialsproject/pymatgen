@@ -1380,7 +1380,7 @@ class MPRester:
         Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
         A., & Ong, S. P. (2016). Data Descripter: Surface energies of elemental
         crystals. Scientific Data, 3(160080), 1–13.
-        http://dx.doi.org/10.1038/sdata.2016.80
+        https://doi.org/10.1038/sdata.2016.80
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.

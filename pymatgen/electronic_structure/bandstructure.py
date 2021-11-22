@@ -248,7 +248,7 @@ class BandStructure:
             labels_dict = {}
 
         if len(self.projections) != 0 and self.structure is None:
-            raise Exception("if projections are provided a structure object" " needs also to be given")
+            raise Exception("if projections are provided a structure object needs also to be given")
 
         for k in kpoints:
             # let see if this kpoint has been assigned a label

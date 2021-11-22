@@ -441,7 +441,7 @@ class FermiDos(Dos, MSONable):
             if hasattr(dos, "structure"):
                 structure = dos.structure
             else:
-                raise ValueError("Structure object is not provided and not " "present in dos")
+                raise ValueError("Structure object is not provided and not present in dos")
 
         self.structure = structure
         self.nelecs = nelecs or self.structure.composition.total_electrons
@@ -774,7 +774,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}

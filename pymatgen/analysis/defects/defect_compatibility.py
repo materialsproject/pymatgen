@@ -605,7 +605,7 @@ class DefectCompatibility(MSONable):
             distdata.append([distance_to_defect, distmatrix[ind, ind], int(ind)])
 
         if defindex is None and not isinstance(defect_entry.defect, Vacancy):
-            raise ValueError("fractional coordinate for defect could not be " "identified in initial_defect_structure")
+            raise ValueError("fractional coordinate for defect could not be identified in initial_defect_structure")
 
         distdata.sort()
         tot_relax_outside_rad = 0.0

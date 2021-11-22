@@ -97,7 +97,7 @@ class XAS(Spectrum):
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
         if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Please double check the intensities. " "Most of them are non-positive values. ")
+            raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
 
     def __str__(self):
         return "%s %s Edge %s for %s: %s" % (
@@ -142,9 +142,9 @@ class XAS(Spectrum):
 
         if mode == "XAFS":
             if not self.edge == other.edge:
-                raise ValueError("Only spectrum with the same absorption " "edge can be stitched in XAFS mode.")
+                raise ValueError("Only spectrum with the same absorption edge can be stitched in XAFS mode.")
             if self.spectrum_type == other.spectrum_type:
-                raise ValueError("Need one XANES and one EXAFS spectrum to " "stitch in XAFS mode")
+                raise ValueError("Need one XANES and one EXAFS spectrum to stitch in XAFS mode")
 
             xanes = self if self.spectrum_type == "XANES" else other
             exafs = self if self.spectrum_type == "EXAFS" else other
@@ -205,9 +205,9 @@ class XAS(Spectrum):
 
         if mode == "L23":
             if self.spectrum_type != "XANES" or other.spectrum_type != "XANES":
-                raise ValueError("Only XANES spectrum can be stitched in " "L23 mode.")
+                raise ValueError("Only XANES spectrum can be stitched in L23 mode.")
             if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"] or self.edge == other.edge:
-                raise ValueError("Need one L2 and one L3 edge spectrum to stitch" "in L23 mode.")
+                raise ValueError("Need one L2 and one L3 edge spectrum to stitch in L23 mode.")
             l2_xanes = self if self.edge == "L2" else other
             l3_xanes = self if self.edge == "L3" else other
             if l2_xanes.absorbing_element.number > 30:
@@ -227,7 +227,7 @@ class XAS(Spectrum):
             idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:
                 warnings.warn(
-                    "There might exist a jump at the L2 and " "L3-edge junction.",
+                    "There might exist a jump at the L2 and L3-edge junction.",
                     UserWarning,
                 )
 
@@ -254,10 +254,10 @@ def site_weighted_spectrum(xas_list: List["XAS"], num_samples: int = 500) -> "XA
         raise ValueError("The input structures mismatch")
     if not len({i.absorbing_element for i in xas_list}) == len({i.edge for i in xas_list}) == 1:
         raise ValueError(
-            "Can only perform site-weighting for spectra with " "same absorbing element and same absorbing edge."
+            "Can only perform site-weighting for spectra with same absorbing element and same absorbing edge."
         )
     if len({i.absorbing_index for i in xas_list}) == 1 or None in {i.absorbing_index for i in xas_list}:
-        raise ValueError("Need at least two site-wise spectra to perform " "site-weighting")
+        raise ValueError("Need at least two site-wise spectra to perform site-weighting")
 
     sa = SpacegroupAnalyzer(groups[0][0])
     ss = sa.get_symmetrized_structure()

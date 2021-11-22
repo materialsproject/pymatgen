@@ -440,7 +440,7 @@ class DiffusionAnalyzer(MSONable):
         from pymatgen.util.plotting import pretty_plot
 
         if self.lattices is not None and len(self.lattices) > 1:
-            warnings.warn("Note the method doesn't apply to NPT-AIMD " "simulation analysis!")
+            warnings.warn("Note the method doesn't apply to NPT-AIMD simulation analysis!")
 
         plt = pretty_plot(12, 8, plt=plt)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
@@ -663,7 +663,7 @@ class DiffusionAnalyzer(MSONable):
                 # check that the runs are continuous
                 fdist = pbc_diff(vr.initial_structure.frac_coords, final_structure.frac_coords)
                 if np.any(fdist > 0.001):
-                    raise ValueError("initial and final structures do not " "match.")
+                    raise ValueError("initial and final structures do not match.")
                 final_structure = vr.final_structure
 
                 assert (vr.ionic_step_skip or 1) == step_skip

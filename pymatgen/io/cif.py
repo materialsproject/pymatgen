@@ -230,7 +230,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn("Possible issue in cif file" " at line: {}".format("".join(s).strip()))
+                warnings.warn("Possible issue in cif file at line: {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
@@ -567,7 +567,7 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional co-ordinates rounded to ideal values to " "avoid issues with finite precision."
+                "Some fractional co-ordinates rounded to ideal values to avoid issues with finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
@@ -748,7 +748,7 @@ class CifParser:
                         continue
 
         if not symops:
-            msg = "No _symmetry_equiv_pos_as_xyz type key found. " "Defaulting to P1."
+            msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg)
             self.warnings.append(msg)
             symops = [SymmOp.from_xyz_string(s) for s in ["x", "y", "z"]]
@@ -1291,7 +1291,7 @@ class CifWriter:
         """
 
         if write_magmoms and symprec:
-            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen," "disabling symmetry detection.")
+            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None
 
         format_str = "{:.%df}" % significant_figures

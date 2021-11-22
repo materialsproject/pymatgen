@@ -1155,7 +1155,7 @@ P           mkmem          20
  [4] First-principles computation of material properties : the ABINIT software project. 
  X. Gonze, J.-M. Beuken, R. Caracas, F. Detraux, M. Fuchs, G.-M. Rignanese, L. Sindic,
  M. Verstraete, G. Zerah, F. Jollet, M. Torrent, A. Roy, M. Mikami, Ph. Ghosez, J.-Y. Raty, D.C. Allan.
- Computational Materials Science 25, 478-492 (2002). http://dx.doi.org/10.1016/S0927-0256(02)00325-7
+ Computational Materials Science 25, 478-492 (2002). https://doi.org/10.1016/S0927-0256(02)00325-7
  Comment : the original paper describing the ABINIT project.
 
  [5] Fast radix 2, 3, 4 and 5 kernels for Fast Fourier Transformations

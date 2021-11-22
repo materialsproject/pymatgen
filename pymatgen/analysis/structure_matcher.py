@@ -749,7 +749,7 @@ class StructureMatcher(MSONable):
         mask, s1_t_inds, s2_t_ind = self._get_mask(struct1, struct2, fu, s1_supercell)
 
         if mask.shape[0] > mask.shape[1]:
-            raise ValueError("after supercell creation, struct1 must " "have more sites than struct2")
+            raise ValueError("after supercell creation, struct1 must have more sites than struct2")
 
         # check that a valid mapping exists
         if (not self._subset) and mask.shape[1] != mask.shape[0]:
@@ -805,7 +805,7 @@ class StructureMatcher(MSONable):
             in different groups without comparison.
         """
         if self._subset:
-            raise ValueError("allow_subset cannot be used with" " group_structures")
+            raise ValueError("allow_subset cannot be used with group_structures")
 
         original_s_list = list(s_list)
         s_list = self._process_species(s_list)
@@ -1060,13 +1060,11 @@ class StructureMatcher(MSONable):
         is impossible to find
         """
         if self._primitive_cell:
-            raise ValueError("get_supercell_matrix cannot be used with the " "primitive cell option")
+            raise ValueError("get_supercell_matrix cannot be used with the primitive cell option")
         struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
 
         if not s1_supercell:
-            raise ValueError(
-                "The non-supercell must be put onto the basis" " of the supercell, not the other way around"
-            )
+            raise ValueError("The non-supercell must be put onto the basis of the supercell, not the other way around")
 
         match = self._match(struct, supercell, fu, s1_supercell, use_rms=True, break_on_match=False)
 
@@ -1094,14 +1092,14 @@ class StructureMatcher(MSONable):
                 the remaining site indices of struct2.
         """
         if self._primitive_cell:
-            raise ValueError("get_transformation cannot be used with the " "primitive cell option")
+            raise ValueError("get_transformation cannot be used with the primitive cell option")
 
         struct1, struct2 = self._process_species((struct1, struct2))
 
         s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
         ratio = fu if s1_supercell else 1 / fu
         if s1_supercell and fu > 1:
-            raise ValueError("Struct1 must be the supercell, " "not the other way around")
+            raise ValueError("Struct1 must be the supercell, not the other way around")
 
         if len(s1) * ratio >= len(s2):
             # s1 is superset
@@ -1182,7 +1180,7 @@ class StructureMatcher(MSONable):
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
         if self._primitive_cell:
-            raise ValueError("cannot compute mapping with primitive cell " "option")
+            raise ValueError("cannot compute mapping with primitive cell option")
         if len(subset) > len(superset):
             raise ValueError("subset is larger than superset")
 
@@ -1235,7 +1233,7 @@ class PointDefectComparator(MSONable):
         possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
 
         if not isinstance(d1, possible_defect_types) or not isinstance(d2, possible_defect_types):
-            raise ValueError("Cannot use PointDefectComparator to" " compare non-defect objects...")
+            raise ValueError("Cannot use PointDefectComparator to compare non-defect objects...")
 
         if not isinstance(d1, d2.__class__):
             return False

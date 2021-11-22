@@ -4,7 +4,6 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 Author: Shyue Ping Ong
 """
 
-import datetime
 import glob
 import json
 import os
@@ -15,6 +14,7 @@ import webbrowser
 import requests
 from invoke import task
 from monty.os import cd
+
 from pymatgen.core import __version__ as CURRENT_VER
 
 
@@ -261,9 +261,7 @@ def update_changelog(ctx, version, sim=False):
         if m:
             pr_number = m.group(1)
             contrib, pr_name = m.group(2).split("/", 1)
-            response = requests.get(
-                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}"
-            )
+            response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
             lines.append(f"* PR #{pr_number} from @{contrib} {pr_name}")
             if "body" in response.json():
                 for ll in response.json()["body"].split("\n"):
@@ -288,7 +286,6 @@ def update_changelog(ctx, version, sim=False):
         print(toks[0] + l + "".join(toks[1:]))
     print("The following commit messages were not included...")
     print("\n".join(misc))
-    
 
 
 @task
