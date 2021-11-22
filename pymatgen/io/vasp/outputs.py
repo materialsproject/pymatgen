@@ -981,9 +981,7 @@ class Vasprun(MSONable):
         Slightly more details are provided here: https://www.vasp.at/forum/viewtopic.php?f=4&t=17981
         """
         # drop weights and set shape nbands, nkpoints
-        all_eigs = np.concatenate(
-            [eigs[:, :, 0].transpose(1, 0) for eigs in self.eigenvalues.values()]
-        )
+        all_eigs = np.concatenate([eigs[:, :, 0].transpose(1, 0) for eigs in self.eigenvalues.values()])
 
         def crosses_band(fermi):
             eigs_below = np.any(all_eigs < fermi, axis=1)
