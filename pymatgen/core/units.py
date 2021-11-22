@@ -568,7 +568,7 @@ class ArrayWithUnit(np.ndarray):
     def __add__(self, other):
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
-                raise UnitError("Adding different types of units is" " not allowed")
+                raise UnitError("Adding different types of units is not allowed")
 
             if other.unit != self.unit:
                 other = other.to(self.unit)

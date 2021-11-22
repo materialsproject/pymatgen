@@ -24,7 +24,7 @@ def get_delta(node1, node2, edge_data):
         return np.array(edge_data["delta"], dtype=np.int_)
     if node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
         return -np.array(edge_data["delta"], dtype=np.int_)
-    raise ValueError("Trying to find a delta between two nodes with an edge " "that seems not to link these nodes.")
+    raise ValueError("Trying to find a delta between two nodes with an edge that seems not to link these nodes.")
 
 
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
@@ -229,7 +229,7 @@ class SimpleGraphCycle(MSONable):
         node_classes = set(n.__class__ for n in self.nodes)
         if len(node_classes) > 1:
             if raise_on_fail:
-                raise ValueError("Could not order simple graph cycle as the nodes " "are of different classes.")
+                raise ValueError("Could not order simple graph cycle as the nodes are of different classes.")
             self.ordered = False
             return
 
@@ -420,7 +420,7 @@ class MultiGraphCycle(MSONable):
         node_classes = set(n.__class__ for n in self.nodes)
         if len(node_classes) > 1:
             if raise_on_fail:
-                raise ValueError("Could not order simple graph cycle as the nodes " "are of different classes.")
+                raise ValueError("Could not order simple graph cycle as the nodes are of different classes.")
             self.ordered = False
             return
 

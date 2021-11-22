@@ -493,12 +493,12 @@ class BoltztrapRunner(MSONable):
                         self._nelec,
                     )
                 )
-                fout.write("CALC                    # CALC (calculate expansion " "coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points " "per k-point\n" % self.lpfac)
-                fout.write("%s                     # run mode (only BOLTZ is " "supported)\n" % self.run_type)
-                fout.write(".15                       # (efcut) energy range of " "chemical potential\n")
+                fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write("%s                     # run mode (only BOLTZ is supported)\n" % self.run_type)
+                fout.write(".15                       # (efcut) energy range of chemical potential\n")
                 fout.write("{} {}                  # Tmax, temperature grid\n".format(self.tmax, self.tgrid))
-                fout.write("-1.  # energyrange of bands given DOS output sig_xxx and " "dos_xxx (xxx is band number)\n")
+                fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
                 fout.write(self.dos_type + "\n")  # e.g., HISTO or TETRA
                 fout.write("{} {} {} 0 0 0\n".format(self.tauref, self.tauexp, self.tauen))
                 fout.write("{}\n".format(2 * len(self.doping)))
@@ -511,15 +511,15 @@ class BoltztrapRunner(MSONable):
         elif self.run_type == "FERMI":
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
-                fout.write("1 0 0 0.0         # iskip (not presently used) idebug " "setgap shiftgap \n")
+                fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
                     "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,"
                     "energy span around Fermilevel, "
                     "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
                 )
-                fout.write("CALC                    # CALC (calculate expansion " "coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points " "per k-point\n" % self.lpfac)
-                fout.write("FERMI                     # run mode (only BOLTZ is " "supported)\n")
+                fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
                 fout.write(
                     str(1)
                     + "                        # actual band selected: "
@@ -554,9 +554,9 @@ class BoltztrapRunner(MSONable):
                         self._nelec,
                     )
                 )
-                fout.write("CALC                    # CALC (calculate expansion " "coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points " "per k-point\n" % self.lpfac)
-                fout.write("BANDS                     # run mode (only BOLTZ is " "supported)\n")
+                fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write("BANDS                     # run mode (only BOLTZ is supported)\n")
                 fout.write("P " + str(len(self.kpt_line)) + "\n")
                 for kp in self.kpt_line:
                     fout.writelines([str(k) + " " for k in kp])
@@ -617,7 +617,7 @@ class BoltztrapRunner(MSONable):
         # is built into custodian framework
 
         if convergence and not write_input:
-            raise ValueError("Convergence mode requires write_input to be " "true")
+            raise ValueError("Convergence mode requires write_input to be true")
 
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
@@ -632,7 +632,7 @@ class BoltztrapRunner(MSONable):
 
         if self.run_type in ("FERMI", "DOS") and self.spin is None:
             if self.bs.is_spin_polarized:
-                raise BoltztrapError("Spin parameter must be specified for spin polarized " "band structures!")
+                raise BoltztrapError("Spin parameter must be specified for spin polarized band structures!")
             self.spin = 1
 
         dir_bz_name = "boltztrap"
@@ -662,13 +662,13 @@ class BoltztrapRunner(MSONable):
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
                 if time.time() - self.start_time > self.timeout:
-                    raise BoltztrapError("no doping convergence after timeout " "of {} s".format(self.timeout))
+                    raise BoltztrapError("no doping convergence after timeout of {} s".format(self.timeout))
 
                 logging.info("lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
 
                 while self.lpfac <= max_lpfac and not converged:
                     if time.time() - self.start_time > self.timeout:
-                        raise BoltztrapError("no doping convergence after " "timeout of {} s".format(self.timeout))
+                        raise BoltztrapError("no doping convergence after timeout of {} s".format(self.timeout))
 
                     if write_input:
                         self.write_input(path_dir)
@@ -695,7 +695,7 @@ class BoltztrapRunner(MSONable):
                     with open(os.path.join(path_dir, dir_bz_name + ".outputtrans")) as f:
                         for l in f:
                             if "Option unknown" in l:
-                                raise BoltztrapError("DOS mode needs a custom version of " "BoltzTraP code is needed")
+                                raise BoltztrapError("DOS mode needs a custom version of BoltzTraP code is needed")
                             if "WARNING" in l:
                                 warning = l
                                 break
@@ -709,7 +709,7 @@ class BoltztrapRunner(MSONable):
                         for doping in ["n", "p"]:
                             for c in analyzer.mu_doping[doping]:
                                 if len(analyzer.mu_doping[doping][c]) != len(analyzer.doping[doping]):
-                                    warning = "length of mu_doping array is " "incorrect"
+                                    warning = "length of mu_doping array is incorrect"
                                     break
 
                                 if (
@@ -717,7 +717,7 @@ class BoltztrapRunner(MSONable):
                                     and sorted(analyzer.mu_doping[doping][c], reverse=True)
                                     != analyzer.mu_doping[doping][c]
                                 ):
-                                    warning = "sorting of mu_doping array " "incorrect for p-type"
+                                    warning = "sorting of mu_doping array incorrect for p-type"
                                     break
 
                                 # ensure n-type doping sorted correctly
@@ -725,19 +725,19 @@ class BoltztrapRunner(MSONable):
                                     doping == "n"
                                     and sorted(analyzer.mu_doping[doping][c]) != analyzer.mu_doping[doping][c]
                                 ):
-                                    warning = "sorting of mu_doping array " "incorrect for n-type"
+                                    warning = "sorting of mu_doping array incorrect for n-type"
                                     break
 
                     if warning:
                         self.lpfac += 10
-                        logging.warn("Warning detected: {}! Increase lpfac to " "{}".format(warning, self.lpfac))
+                        logging.warn("Warning detected: {}! Increase lpfac to {}".format(warning, self.lpfac))
 
                     else:
                         converged = True
 
                 if not converged:
                     self.energy_grid /= 10
-                    logging.info("Could not converge with max lpfac; " "Decrease egrid to {}".format(self.energy_grid))
+                    logging.info("Could not converge with max lpfac; Decrease egrid to {}".format(self.energy_grid))
 
             if not converged:
                 raise BoltztrapError(
@@ -981,7 +981,7 @@ class BoltztrapAnalyzer:
 
         except Exception:
             raise BoltztrapError(
-                "Bands are not in output of BoltzTraP.\nBolztrapRunner must " "be run with run_type=BANDS"
+                "Bands are not in output of BoltzTraP.\nBolztrapRunner must be run with run_type=BANDS"
             )
 
     @staticmethod
@@ -1663,7 +1663,7 @@ class BoltztrapAnalyzer:
                                 / 3.0
                             )
                         else:
-                            raise ValueError("Unknown output format: " "{}".format(output))
+                            raise ValueError("Unknown output format: {}".format(output))
         else:
             full_tensor = tensor
             result = {t: [] for t in tensor}

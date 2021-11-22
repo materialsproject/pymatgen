@@ -180,7 +180,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         self.assertEqual(
             nb_set.__str__(),
-            "Neighbors Set for site #6 :\n" " - Coordination number : 4\n" " - Voronoi indices : 1, 4, 5, 6\n",
+            "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n",
         )
 
         self.assertFalse(nb_set.__ne__(nb_set))

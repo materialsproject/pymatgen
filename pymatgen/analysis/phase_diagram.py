@@ -1029,7 +1029,7 @@ class PhaseDiagram(MSONable):
         element = get_el_sp(element)
 
         if element not in self.elements:
-            raise ValueError("get_transition_chempots can only be called with" " elements in the phase diagram.")
+            raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
 
         gccomp = Composition({el: amt for el, amt in comp.items() if el != element})
         elref = self.el_refs[element]
@@ -2118,7 +2118,7 @@ class PDPlotter:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
-                "Energy [meV/at] above hull (in red)\nInverse energy [" "meV/at] above hull (in green)",
+                "Energy [meV/at] above hull (in red)\nInverse energy [ meV/at] above hull (in green)",
                 rotation=-90,
                 ha="left",
                 va="center",

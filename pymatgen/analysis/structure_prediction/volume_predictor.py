@@ -121,7 +121,7 @@ class RLSVolumePredictor:
                 denominator += k.atomic_radius * v ** (1 / 3)
             return ref_structure.volume * (numerator / denominator) ** 3
 
-        raise ValueError("Cannot find volume scaling based on radii choices " "specified!")
+        raise ValueError("Cannot find volume scaling based on radii choices specified!")
 
     def get_predicted_structure(self, structure, ref_structure):
         """
@@ -193,10 +193,10 @@ class DLSVolumePredictor:
             if sp.atomic_radius:
                 sub_sites.extend([site for site in structure if site.specie == sp])
             else:
-                warnings.warn("VolumePredictor: no atomic radius data for " "{}".format(sp))
+                warnings.warn("VolumePredictor: no atomic radius data for {}".format(sp))
 
             if sp.symbol not in bond_params:
-                warnings.warn("VolumePredictor: bond parameters not found, " "used atomic radii for {}".format(sp))
+                warnings.warn("VolumePredictor: bond parameters not found, used atomic radii for {}".format(sp))
             else:
                 r, k = bond_params[sp.symbol]["r"], bond_params[sp.symbol]["k"]
                 bp_dict[sp] = float(r) + float(k) * std_x
@@ -221,7 +221,7 @@ class DLSVolumePredictor:
                     smallest_ratio = nn.nn_distance / expected_dist
 
         if not smallest_ratio:
-            raise ValueError("Could not find any bonds within the given cutoff " "in this structure.")
+            raise ValueError("Could not find any bonds within the given cutoff in this structure.")
 
         volume_factor = (1 / smallest_ratio) ** 3
 

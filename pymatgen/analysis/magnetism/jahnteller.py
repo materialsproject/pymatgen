@@ -207,7 +207,7 @@ class JahnTellerAnalyzer:
                             {
                                 "site_indices": indices,
                                 "strength": "none",
-                                "reason": "Not Jahn-Teller active for this " "electronic configuration.",
+                                "reason": "Not Jahn-Teller active for this electronic configuration.",
                             }
                         )
                 else:
