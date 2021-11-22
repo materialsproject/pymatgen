@@ -48,6 +48,7 @@ jobs:
           # Required for gulp.
           sudo apt-get install csh gfortran
           conda install -c conda-forge openbabel
+          conda install -c conda-forge packmol
       - name: Install dependencies
         shell: bash -l {0}
         run: |

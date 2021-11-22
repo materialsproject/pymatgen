@@ -182,9 +182,8 @@ class TransformedStructure(MSONable):
             vasp_input_set (pymatgen.io.vaspio_set.VaspInputSet): input set
                 to create vasp input files from structures
         """
-        d = vasp_input_set(self.final_structure, **kwargs).get_vasp_input(
-            optional_files={"transformations.json": json.dumps(self.as_dict())}
-        )
+        d = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
+        d["transformations.json"] = json.dumps(self.as_dict())
         return d
 
     def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs):
