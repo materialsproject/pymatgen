@@ -20,8 +20,8 @@ If you want to implement a new InputGenerator, please take note of the following
 1. You must implement a get_input_set method that returns an InputSet
 2. All customization of calculation parameters should be done in the __init__
    method of the InputGenerator. The idea is that the generator contains
-   the "recipe" and get_input_set simply applies that recipe to a particular
-   structure.
+   the "recipe", but nothing that is specific to a particular system. get_input_set
+   takes system-specific information (such as structure) and applies the recipe.
 3. All InputGenerator must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
