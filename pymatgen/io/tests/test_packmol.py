@@ -158,6 +158,38 @@ class TestPackmolSet:
             with pytest.raises(ValueError):
                 pw.run(scratch_dir)
 
+    def test_chdir_behavior(self, water, ethanol):
+        """
+        Make sure the code returns to the starting directory whether
+        or not packmol exits cleanly.
+        """
+        startdir = str(Path.cwd())
+        with tempfile.TemporaryDirectory() as scratch_dir:
+            # this one will not exit cleanly b/c the box is too small
+            pw = PackmolBoxGen().get_input_set(
+                molecules=[
+                    {"name": "water", "number": 1000, "coords": water},
+                    {"name": "ethanol", "number": 2000, "coords": ethanol},
+                ],
+                box=[0, 0, 0, 2, 2, 2],
+            )
+            pw.write_input(scratch_dir)
+            with pytest.raises(ValueError):
+                pw.run(scratch_dir)
+            assert str(Path.cwd()) == startdir
+
+        with tempfile.TemporaryDirectory() as scratch_dir:
+            # this one will exit cleanly
+            pw = PackmolBoxGen().get_input_set(
+                molecules=[
+                    {"name": "water", "number": 1000, "coords": water},
+                    {"name": "ethanol", "number": 2000, "coords": ethanol},
+                ],
+            )
+            pw.write_input(scratch_dir)
+            pw.run(scratch_dir)
+            assert str(Path.cwd()) == startdir
+
     def test_random_seed(self, water, ethanol):
         """
         Confirm that seed = -1 generates random structures
