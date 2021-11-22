@@ -60,12 +60,14 @@ class DefectCompatibilityTest(PymatgenTest):
         potalign = -0.1
         vbm = v.eigenvalue_band_properties[2]
         cbm = v.eigenvalue_band_properties[1]
+        defect_incar = v.incar
         self.bandfill_params = {
             "eigenvalues": eigenvalues,
             "kpoint_weights": kptweights,
             "potalign": potalign,
             "vbm": vbm,
             "cbm": cbm,
+            "run_metadata": {"defect_incar": defect_incar},
         }
 
         self.band_edge_params = {
@@ -108,6 +110,13 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 5.44595036)
 
         # test over delocalized free carriers which forces skipping charge correction
+        params = self.bandfill_params.copy()  # No Freysoldt metadata
+        params.update(
+            {
+                "hybrid_cbm": params["cbm"] + 0.2,
+                "hybrid_vbm": params["vbm"] - 0.4,
+            }
+        )
         # modify the eigenvalue list to have free holes
         hole_eigenvalues = {}
         for spinkey, spinset in params["eigenvalues"].items():
@@ -125,7 +134,7 @@ class DefectCompatibilityTest(PymatgenTest):
         dc = DefectCompatibility(free_chg_cutoff=0.8)
         dentry = dc.process_entry(dentry)
         self.assertAlmostEqual(dentry.corrections["bandedgeshifting_correction"], 1.19999999)
-        self.assertAlmostEqual(dentry.corrections["bandfilling_correction"], -1.62202400)
+        self.assertAlmostEqual(dentry.corrections["bandfilling_correction"], -0.492633372744)
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 0.0)
 
         # turn off band filling and band edge shifting
@@ -401,6 +410,36 @@ class DefectCompatibilityTest(PymatgenTest):
         defect_delocal = dentry.parameters["delocalization_meta"]["defectsite_relax"]
         self.assertFalse(defect_delocal["is_compatible"])
         self.assertAlmostEqual(defect_delocal["metadata"]["relax_amount"], 0.10836054)
+
+    def test_bandfilling_SOC_calc(self):
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml.int_Te_SOC.gz"))
+        struc = v.structures[0]
+        interstitial = Interstitial(struc, struc.sites[-1], charge=-2)
+        eigenvalues = v.eigenvalues.copy()
+        kptweights = v.actual_kpoints_weights
+        potalign = -0.1
+        defect_incar = v.incar
+
+        bandfill_params = {
+            "eigenvalues": eigenvalues,
+            "kpoint_weights": kptweights,
+            "potalign": potalign,
+            "vbm": 1.6465,  # bulk VBM
+            "cbm": 3.1451,  # bulk CBM
+            "run_metadata": {"defect_incar": defect_incar},
+        }
+
+        soc_dentry = DefectEntry(
+            interstitial,
+            0.0,
+            corrections={},
+            parameters=bandfill_params,
+            entry_id=None,
+        )
+        dc = DefectCompatibility()
+        soc_dentry = dc.process_entry(soc_dentry)
+
+        self.assertAlmostEqual(soc_dentry.corrections["bandfilling_correction"], -1.9628402187500003)
 
 
 if __name__ == "__main__":

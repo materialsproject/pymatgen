@@ -110,7 +110,7 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
         if len(h_node) != 3:
             raise ValueError(
-                "Invalid History node, " "should be dict or (name, version, " "description) tuple: {}".format(h_node)
+                "Invalid History node, should be dict or (name, version, description) tuple: {}".format(h_node)
             )
         return HistoryNode(h_node[0], h_node[1], h_node[2])
 
@@ -173,7 +173,7 @@ class Author(namedtuple("Author", ["name", "email"])):
         if isinstance(author, dict):
             return Author.from_dict(author)
         if len(author) != 2:
-            raise ValueError("Invalid author, should be String or (name, " "email) tuple: {}".format(author))
+            raise ValueError("Invalid author, should be String or (name, email) tuple: {}".format(author))
         return Author(author[0], author[1])
 
 
@@ -234,9 +234,9 @@ class StructureNL:
 
         # check that references are valid BibTeX
         if not isinstance(references, str):
-            raise ValueError("Invalid format for SNL reference! Should be " "empty string or BibTeX string.")
+            raise ValueError("Invalid format for SNL reference! Should be empty string or BibTeX string.")
         if references and not is_valid_bibtex(references):
-            raise ValueError("Invalid format for SNL reference! Should be " "BibTeX string.")
+            raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
                 "The BibTeX string must be fewer than {} chars "
@@ -275,12 +275,12 @@ class StructureNL:
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
             raise ValueError(
-                "A maximum of {} History nodes are supported, " "you have {}!".format(MAX_HNODES, len(history))
+                "A maximum of {} History nodes are supported, you have {}!".format(MAX_HNODES, len(history))
             )
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(
-                "One or more history nodes exceeds the maximum " "size limit of {} bytes".format(MAX_HNODE_SIZE)
+                "One or more history nodes exceeds the maximum size limit of {} bytes".format(MAX_HNODE_SIZE)
             )
 
         self.created_at = created_at if created_at else datetime.datetime.utcnow()

@@ -33,18 +33,18 @@ class ConversionElectrode(AbstractElectrode):
         working_ion_entry: A single ComputedEntry or PDEntry
             representing the element that carries charge across the
             battery, e.g. Li.
-        _initial_comp_formula: Starting composition for ConversionElectrode represented
+        initial_comp_formula: Starting composition for ConversionElectrode represented
             as a string/formula.
     """
 
-    _initial_comp_formula: str
+    initial_comp_formula: str
 
     @property
     def initial_comp(self) -> Composition:
         """
         The pymatgen Composition representation of the initial composition
         """
-        return Composition(self._initial_comp_formula)
+        return Composition(self.initial_comp_formula)
 
     @classmethod
     def from_composition_and_pd(cls, comp, pd, working_ion_symbol="Li", allow_unstable=False):
@@ -102,11 +102,11 @@ class ConversionElectrode(AbstractElectrode):
             for i in range(len(profile) - 1)
         ]
 
-        return cls(
+        return ConversionElectrode(  # pylint: disable=E1123
             voltage_pairs=vpairs,
             working_ion_entry=working_ion_entry,
-            _initial_comp_formula=comp.reduced_formula,
-            _framework_formula=framework.reduced_formula,
+            initial_comp_formula=comp.reduced_formula,
+            framework_formula=framework.reduced_formula,
         )
 
     @classmethod
@@ -126,7 +126,7 @@ class ConversionElectrode(AbstractElectrode):
                     for comparing with insertion electrodes
         """
         pd = PhaseDiagram(entries_in_chemsys)
-        return cls.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
+        return ConversionElectrode.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
 
     def get_sub_electrodes(self, adjacent_only=True):
         """
@@ -147,14 +147,14 @@ class ConversionElectrode(AbstractElectrode):
         """
 
         # voltage_pairs = vpairs, working_ion_entry = working_ion_entry,
-        # _initial_comp_formula = comp.reduced_formula, _framework_formula = framework.reduced_formula
+        # _initial_comp_formula = comp.reduced_formula, framework_formula = framework.reduced_formula
         if adjacent_only:
             return [
-                self.__class__(
+                ConversionElectrode(  # pylint: disable=E1123
                     voltage_pairs=self.voltage_pairs[i : i + 1],
                     working_ion_entry=self.working_ion_entry,
-                    _initial_comp_formula=self._initial_comp_formula,
-                    _framework_formula=self._framework_formula,
+                    initial_comp_formula=self.initial_comp_formula,
+                    framework_formula=self.framework_formula,
                 )
                 for i in range(len(self.voltage_pairs))
             ]
@@ -162,11 +162,11 @@ class ConversionElectrode(AbstractElectrode):
         for i in range(len(self.voltage_pairs)):
             for j in range(i, len(self.voltage_pairs)):
                 sub_electrodes.append(
-                    self.__class__(
+                    ConversionElectrode(  # pylint: disable=E1123
                         voltage_pairs=self.voltage_pairs[i : j + 1],
                         working_ion_entry=self.working_ion_entry,
-                        _initial_comp_formula=self._initial_comp_formula,
-                        _framework_formula=self._framework_formula,
+                        initial_comp_formula=self.initial_comp_formula,
+                        framework_formula=self.framework_formula,
                     )
                 )
         return sub_electrodes
@@ -267,10 +267,10 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in range(len(rxn.coeffs)):
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+            for i, v in enumerate(rxn.coeffs):
+                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
@@ -318,10 +318,10 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in range(len(rxn.coeffs)):
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+            for i, v in enumerate(rxn.coeffs):
+                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
@@ -441,7 +441,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = step2["entries"]
         entries_discharge = step1["entries"]
 
-        return cls(
+        return ConversionVoltagePair(  # pylint: disable=E1123
             rxn=rxn,
             voltage=voltage,
             mAh=mAh,
@@ -454,7 +454,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
             entries_charge=entries_charge,
             entries_discharge=entries_discharge,
             working_ion_entry=working_ion_entry,
-            _framework_formula=framework_formula,
+            framework_formula=framework_formula,
         )
 
     def __repr__(self):

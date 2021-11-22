@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.0.15 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.15
               </div>
             
           
@@ -171,30 +171,28 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2022-0-9">
-<h2>v2022.0.9<a class="headerlink" href="#v2022-0-9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2022-0-15">
+<h2>v2022.0.15<a class="headerlink" href="#v2022-0-15" title="Permalink to this headline">¶</a></h2>
+<p>Welcome to new contributors &#64;blokhin, &#64;pzarabadip, &#64;ml-evs, &#64;wuxiaohua1011, &#64;janssenhenning and &#64;penicillin0. A reminder to all new contributors to
+ensure your information is accurate at <a class="reference external" href="https://pymatgen.org/team.html">https://pymatgen.org/team.html</a> so that
+you are acknowledged appropriately by filling out the linked form.</p>
 <ul class="simple">
-<li><p>Significant new functionality for handling interfaces between structures (&#64;shyamd, #2149)</p></li>
-<li><p>Add input/output for CREST (&#64;arepstein, #2020)</p></li>
-<li><p>Add RadialSiteDistortionTransformation (&#64;nwinner, #2108)</p></li>
-<li><p>Add Q-Chem NBO functionality (&#64;samblau, #2174)</p></li>
-<li><p>Change hkl annotation format in diffraction plots (&#64;flaviu-gostin, #2143)</p></li>
-<li><p>Add space group to print output of <cite>SymmetrizedStructure</cite> (&#64;CompRhys, #2139)</p></li>
-<li><p>Better error handling in QCOutput (&#64;rkingsbury, #2147, #2165, #2135)</p></li>
-<li><p>Add progress bar for applying compatibility scheme (&#64;CompRhys, #2136)</p></li>
-<li><p>Allow combining data with multiple molecule IDs in LAMMPS (&#64;htz1992213, #2157)</p></li>
-<li><p>Update EDIFF in DFPT input set to be consistent with atomate (&#64;utf, #2172)</p></li>
-<li><p>Change names of high-symmetry paths (&#64;munrojm, #2144)</p></li>
-<li><p>Change default for filter_solids argument of PourbaixDiagram (&#64;rkingsbury, #2177)</p></li>
-<li><p>Fix to improve precision in <cite>FermiDos</cite>, NOTE: this can result in significant changes in some instances (&#64;nwinner, #2109)</p></li>
-<li><p>Fix for handling of Exceptions (&#64;kmu, #2150)</p></li>
-<li><p>Fix for PourbaixEntry (&#64;JosephMontoya-TRI, #2148)</p></li>
-<li><p>Fix for loading of settings from file when environment variables also set (&#64;ardunn, #2164)</p></li>
-<li><p>Fix equation for calculation of k-spacing in SCAN sets, NOTE: this now results in a lower k-point density (&#64;ab5424, #2163)</p></li>
-<li><p>Fix for parsing of VASP vasprun.xml when ALGO=CHI (&#64;KazMorita, #2171)</p></li>
-<li><p>Documentation update for MP2020 corrections scheme (&#64;rkingsbury, #2141)</p></li>
-<li><p>Documentation update for SCAN sets (&#64;janosh, #2140)</p></li>
-<li><p>Documentation update for using CifWriter (&#64;755452800, #2156)</p></li>
+<li><p>Breaking change in PhaseDiagram serialization which will affect any users of BasePhaseDiagram which has now been removed (&#64;shyuep, 2b9911d)</p></li>
+<li><p>Speed up nearest-neighbor routines &amp; structure graph generation (&#64;ltalirz, #2239)</p></li>
+<li><p>Add two more pre-defined OPTIMADE aliases (&#64;blokhin, #2242)</p></li>
+<li><p>Refactor <cite>interface_reactions</cite> module, adding support for Plotly (&#64;mattmcdermott, #2233)</p></li>
+<li><p>Update NOMAD access in MPRester (&#64;wuxiaohua1011, #1958)</p></li>
+<li><p>General improvements to Phase Diagram code (&#64;CompyRhys, #2263, #2264, #2268)</p></li>
+<li><p>Improve appearance of periodic table heatmap (&#64;penicillin0, #2272)</p></li>
+<li><p>Small improvements to battery classes (&#64;jmmshn, #2262)</p></li>
+<li><p>Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
+<li><p>Fix for bad param in OPTIMADE reponse fields (&#64;ml-evs, #2244)</p></li>
+<li><p>Fix for issue in parsing <cite>bandOverlaps.lobster</cite> file (&#64;pzarabadip, #2237)</p></li>
+<li><p>Fix for Moladaptor (&#64;orioncohen, #2269)</p></li>
+<li><p>Fix for incorrect Potcar hash warnings (&#64;mkhorton, #2273)</p></li>
+<li><p>Type hint and correct documentation of Structure.remove_site_properties (&#64;kmu, #2256)</p></li>
+<li><p>Type hint improvements across pymatgen (&#64;janosh, #2241, #2247, #2261)</p></li>
+<li><p>Add <cite>pymatgen-io-fleur</cite> addon to addons page (&#64;janssenhenning, #2232)</p></li>
 </ul>
 </div>
 </div>

@@ -41,7 +41,7 @@ class Xr:
                     Xr object.
         """
         if not structure.is_ordered:
-            raise ValueError("Xr file can only be constructed from ordered " "structure")
+            raise ValueError("Xr file can only be constructed from ordered structure")
         self.structure = structure
 
     def __str__(self):
@@ -102,7 +102,7 @@ class Xr:
             toks2 = lines[4 + nsites + i + 3].split()
             for j, item in enumerate(toks):
                 if item != toks2[j]:
-                    raise RuntimeError("expected both matrices" " to be the same in xr file")
+                    raise RuntimeError("expected both matrices to be the same in xr file")
             mat[i] = np.array([float(w) for w in toks])
         lat = Lattice(mat)
         if (

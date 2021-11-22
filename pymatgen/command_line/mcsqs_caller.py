@@ -30,7 +30,7 @@ directory: str
 
 @requires(
     which("mcsqs") and which("str2cif"),
-    "run_mcsqs requires first installing AT-AT, " "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
+    "run_mcsqs requires first installing AT-AT, see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
     structure: Structure,

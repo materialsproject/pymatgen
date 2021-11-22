@@ -68,23 +68,26 @@ def setup_potcars(args):
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
                     if ext.upper() in ["Z", "GZ"]:
-                        subprocess.Popen(["gunzip", dest]).communicate()
+                        with subprocess.Popen(["gunzip", dest]) as p:
+                            p.communicate()
                     elif ext.upper() in ["BZ2"]:
-                        subprocess.Popen(["bunzip2", dest]).communicate()
+                        with subprocess.Popen(["bunzip2", dest]) as p:
+                            p.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
                     dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
                     shutil.move(os.path.join(basedir, "POTCAR"), dest)
-                    subprocess.Popen(["gzip", "-f", dest]).communicate()
+                    with subprocess.Popen(["gzip", "-f", dest]) as p:
+                        p.communicate()
                 except Exception as ex:
-                    print("An error has occured. Message is %s. Trying to " "continue... " % str(ex))
+                    print("An error has occurred. Message is %s. Trying to continue... " % str(ex))
 
     print("")
     print(
         "PSP resources directory generated. It is recommended that you "
         "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir)
     )
-    print("Start a new terminal to ensure that your environment variables " "are properly set.")
+    print("Start a new terminal to ensure that your environment variables are properly set.")
 
 
 def build_enum(fortran_command="gfortran"):

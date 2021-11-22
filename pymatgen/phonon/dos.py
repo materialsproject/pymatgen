@@ -302,7 +302,6 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/mol
 
         Args:
-            t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the numer of
                 formula units
         Returns:

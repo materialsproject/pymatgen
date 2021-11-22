@@ -222,7 +222,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         if zip_output:
             filename = self.__class__.__name__ + ".zip"
-            with ZipFile(filename, "w") as zip:
+            with ZipFile(os.path.join(output_dir, filename), "w") as zip:
                 for file in [
                     "INCAR",
                     "POSCAR",
@@ -232,9 +232,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     cifname,
                 ]:
                     try:
-                        zip.write(file)
-                        os.remove(file)
+                        zip.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
+                        pass
+                    try:
+                        os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
                         pass
 
     def as_dict(self, verbosity=2):
@@ -428,7 +431,7 @@ class DictSet(VaspInputSet):
             )
         if potcar_functional:
             warnings.warn(
-                "'potcar_functional' argument is deprecated. Use " "'user_potcar_functional' instead.",
+                "'potcar_functional' argument is deprecated. Use 'user_potcar_functional' instead.",
                 FutureWarning,
             )
             self.potcar_functional = potcar_functional
@@ -544,21 +547,26 @@ class DictSet(VaspInputSet):
             else:
                 incar[k] = v
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
-        if has_u:
-            # modify LMAXMIX if LSDA+U and you have d or f electrons
-            # note that if the user explicitly sets LMAXMIX in settings it will
-            # override this logic.
-            if "LMAXMIX" not in settings.keys():
-                # contains f-electrons
-                if any(el.Z > 56 for el in structure.composition):
-                    incar["LMAXMIX"] = 6
-                # contains d-electrons
-                elif any(el.Z > 20 for el in structure.composition):
-                    incar["LMAXMIX"] = 4
-        else:
+        if not has_u:
             for key in list(incar.keys()):
                 if key.startswith("LDAU"):
                     del incar[key]
+
+        # Modify LMAXMIX if you have d or f electrons present.
+        # Note that if the user explicitly sets LMAXMIX in settings it will
+        # override this logic.
+        # Previously, this was only set if Hubbard U was enabled as per the
+        # VASP manual but following an investigation it was determined that
+        # this would lead to a significant difference between SCF -> NonSCF
+        # even without Hubbard U enabled. Thanks to Andrew Rosen for
+        # investigating and reporting.
+        if "LMAXMIX" not in settings.keys():
+            # contains f-electrons
+            if any(el.Z > 56 for el in structure.composition):
+                incar["LMAXMIX"] = 6
+            # contains d-electrons
+            elif any(el.Z > 20 for el in structure.composition):
+                incar["LMAXMIX"] = 4
 
         if self.constrain_total_magmom:
             nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"]])
@@ -982,7 +990,7 @@ class MPScanRelaxSet(DictSet):
         if self.vdw:
             if self.vdw != "rvv10":
                 warnings.warn(
-                    "Use of van der waals functionals other than rVV10 " "with SCAN is not supported at this time. "
+                    "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. "
                 )
                 # delete any vdw parameters that may have been added to the INCAR
                 vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
@@ -1556,10 +1564,10 @@ class MPNonSCFSet(MPRelaxSet):
         self.small_gap_multiply = small_gap_multiply
 
         if self.mode.lower() not in ["line", "uniform", "boltztrap"]:
-            raise ValueError("Supported modes for NonSCF runs are 'Line', " "'Uniform' and 'Boltztrap!")
+            raise ValueError("Supported modes for NonSCF runs are 'Line', 'Uniform' and 'Boltztrap!")
 
         if (self.mode.lower() != "uniform" or nedos < 2000) and optics:
-            warnings.warn("It is recommended to use Uniform mode with a high " "NEDOS for optics calculations.")
+            warnings.warn("It is recommended to use Uniform mode with a high NEDOS for optics calculations.")
 
     @property
     def incar(self) -> Incar:
@@ -1838,7 +1846,7 @@ class MPSOCSet(MPStaticSet):
                     site_properties={"magmom": [[0, 0, site.magmom] for site in self._structure]}
                 )
         else:
-            raise ValueError("Neither the previous structure has magmom " "property nor magmom provided")
+            raise ValueError("Neither the previous structure has magmom property nor magmom provided")
 
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * self.nbands_factor))
         self.prev_incar.update({"NBANDS": nbands})
@@ -2912,7 +2920,7 @@ def get_structure_from_prev_run(vasprun, outcar=None):
             if len(l_val) == len(structure):
                 site_properties.update({k.lower(): l_val})
             else:
-                raise ValueError("length of list {} not the same as" "structure".format(l_val))
+                raise ValueError("length of list {} not the same as structure".format(l_val))
 
     return structure.copy(site_properties=site_properties)
 

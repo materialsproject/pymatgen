@@ -77,8 +77,8 @@ class PWInput:
                     raise PWInputError("Missing %s in pseudo specification!" % site)
         else:
             for species in self.structure.composition.keys():
-                if species.symbol not in pseudo:
-                    raise PWInputError("Missing %s in pseudo specification!" % species.symbol)
+                if str(species) not in pseudo:
+                    raise PWInputError("Missing %s in pseudo specification!" % species)
         self.pseudo = pseudo
 
         self.sections = sections
@@ -150,7 +150,7 @@ class PWInput:
         out.append("ATOMIC_POSITIONS crystal")
         if self.pseudo is not None:
             for site in self.structure:
-                out.append("  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a, site.b, site.c))
+                out.append("  %s %.6f %.6f %.6f" % (site.specie, site.a, site.b, site.c))
         else:
             for site in self.structure:
                 name = None
@@ -328,7 +328,7 @@ class PWInput:
 
                     for k, v in site_properties.items():
                         if k != "pseudo":
-                            site_properties[k].append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
+                            v.append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
                 if mode[1] == "angstrom":
                     coords_are_cartesian = True
                 elif mode[1] == "crystal":

@@ -62,7 +62,7 @@ class Stress(SquareTensor):
         """
         if not self.is_symmetric():
             raise ValueError(
-                "The stress tensor is not symmetric, Von Mises " "stress is based on a symmetric stress tensor."
+                "The stress tensor is not symmetric, Von Mises stress is based on a symmetric stress tensor."
             )
         return math.sqrt(3 * self.dev_principal_invariants[1])
 

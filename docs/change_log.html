@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.0.15 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.15
               </div>
             
           
@@ -99,6 +99,12 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-15">v2022.0.15</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-14">v2022.0.14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-13">v2022.0.13</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-12">v2022.0.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-11">v2022.0.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-10">v2022.0.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-0-9">v2022.0.9</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-0-8">v2022.0.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-0-7">v2022.0.7</a></li>
@@ -457,6 +463,72 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2022-0-15">
+<h2>v2022.0.15<a class="headerlink" href="#v2022-0-15" title="Permalink to this headline">¶</a></h2>
+<p>Welcome to new contributors &#64;blokhin, &#64;pzarabadip, &#64;ml-evs, &#64;wuxiaohua1011, &#64;janssenhenning and &#64;penicillin0. A reminder to all new contributors to
+ensure your information is accurate at <a class="reference external" href="https://pymatgen.org/team.html">https://pymatgen.org/team.html</a> so that
+you are acknowledged appropriately by filling out the linked form.</p>
+<ul class="simple">
+<li><p>Breaking change in PhaseDiagram serialization which will affect any users of BasePhaseDiagram which has now been removed (&#64;shyuep, 2b9911d)</p></li>
+<li><p>Speed up nearest-neighbor routines &amp; structure graph generation (&#64;ltalirz, #2239)</p></li>
+<li><p>Add two more pre-defined OPTIMADE aliases (&#64;blokhin, #2242)</p></li>
+<li><p>Refactor <cite>interface_reactions</cite> module, adding support for Plotly (&#64;mattmcdermott, #2233)</p></li>
+<li><p>Update NOMAD access in MPRester (&#64;wuxiaohua1011, #1958)</p></li>
+<li><p>General improvements to Phase Diagram code (&#64;CompyRhys, #2263, #2264, #2268)</p></li>
+<li><p>Improve appearance of periodic table heatmap (&#64;penicillin0, #2272)</p></li>
+<li><p>Small improvements to battery classes (&#64;jmmshn, #2262)</p></li>
+<li><p>Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
+<li><p>Fix for bad param in OPTIMADE reponse fields (&#64;ml-evs, #2244)</p></li>
+<li><p>Fix for issue in parsing <cite>bandOverlaps.lobster</cite> file (&#64;pzarabadip, #2237)</p></li>
+<li><p>Fix for Moladaptor (&#64;orioncohen, #2269)</p></li>
+<li><p>Fix for incorrect Potcar hash warnings (&#64;mkhorton, #2273)</p></li>
+<li><p>Type hint and correct documentation of Structure.remove_site_properties (&#64;kmu, #2256)</p></li>
+<li><p>Type hint improvements across pymatgen (&#64;janosh, #2241, #2247, #2261)</p></li>
+<li><p>Add <cite>pymatgen-io-fleur</cite> addon to addons page (&#64;janssenhenning, #2232)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-14">
+<h2>v2022.0.14<a class="headerlink" href="#v2022-0-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Update OPTIMADE interface to allow querying multiple providers, this changes the
+method signature of OptimadeRester and so is considered a backwards incompatible change (&#64;mkhorton, #2238)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-13">
+<h2>v2022.0.13<a class="headerlink" href="#v2022-0-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New feature to plot chemical potential diagrams (&#64;mattmcdermott, #2218), see ArXiv:2104.05986 for example</p></li>
+<li><p>Numerous updates to LOBSTER support for new version and including handling COBICAR, SitePotentials and MadelungEnergies (&#64;JaGeo, #2228)</p></li>
+<li><p>Updates and fixes for LAMMPS CombinedData (&#64;htz1992213, #2191)</p></li>
+<li><p>Bug fix for Bader caller (&#64;nwinner, #2230)</p></li>
+<li><p>Documentation fix for Composition (&#64;CompRhys, #2231)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-12">
+<h2>v2022.0.12<a class="headerlink" href="#v2022-0-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>&#64;chc273 Major bugfix for cython handling of fractional coordinates wrapping.</p></li>
+<li><p>&#64;mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219</p></li>
+<li><p>&#64;FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.</p></li>
+<li><p>&#64;gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-11">
+<h2>v2022.0.11<a class="headerlink" href="#v2022-0-11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New features to handle Grüneisen parameters (&#64;JaGeo, &#64;ab5424, &#64;gpetretto, #2190)</p></li>
+<li><p>New option to return SymmetrizedStructure in CifParser (&#64;mkhorton, 0d9a455)</p></li>
+<li><p>Fix for SubstrateAnalyzer (&#64;shyamd, #2198)</p></li>
+<li><p>Fix for BandFillingCorrection (&#64;kavanase, #2193)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-10">
+<h2>v2022.0.10<a class="headerlink" href="#v2022-0-10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Add spin-dependent eigenvalue band properties (&#64;arosen93, #2187)</p></li>
+<li><p>Bug fix for settings loading (&#64;ardunn, #2186)</p></li>
+</ul>
+</div>
 <div class="section" id="v2022-0-9">
 <h2>v2022.0.9<a class="headerlink" href="#v2022-0-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">

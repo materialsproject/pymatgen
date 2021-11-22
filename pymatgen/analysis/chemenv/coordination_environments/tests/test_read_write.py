@@ -31,26 +31,15 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
 from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )
@@ -191,7 +180,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         self.assertEqual(
             nb_set.__str__(),
-            "Neighbors Set for site #6 :\n" " - Coordination number : 4\n" " - Voronoi indices : 1, 4, 5, 6\n",
+            "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n",
         )
 
         self.assertFalse(nb_set.__ne__(nb_set))

@@ -1514,7 +1514,7 @@ class LightStructureEnvironments(MSONable):
         def __str__(self):
             out = "Neighbors Set for site #{:d} :\n".format(self.isite)
             out += " - Coordination number : {:d}\n".format(len(self))
-            out += " - Neighbors sites indices : {}" "\n".format(
+            out += " - Neighbors sites indices : {}\n".format(
                 ", ".join(["{:d}".format(nb_list_index) for nb_list_index in self.all_nbs_sites_indices])
             )
             return out
@@ -1647,7 +1647,7 @@ class LightStructureEnvironments(MSONable):
                         rounddiff = np.round(diff)
                         if not np.allclose(diff, rounddiff):
                             raise ValueError(
-                                "Weird, differences between one site in a periodic image cell is not " "integer ..."
+                                "Weird, differences between one site in a periodic image cell is not integer ..."
                             )
                         nb_image_cell = np.array(rounddiff, np.int_)
                         nb_allnbs_sites_index = len(_all_nbs_sites)
@@ -2135,9 +2135,7 @@ class LightStructureEnvironments(MSONable):
                 diff = site.frac_coords - structure[nb_site["index"]].frac_coords
                 rounddiff = np.round(diff)
                 if not np.allclose(diff, rounddiff):
-                    raise ValueError(
-                        "Weird, differences between one site in a periodic image cell is not " "integer ..."
-                    )
+                    raise ValueError("Weird, differences between one site in a periodic image cell is not integer ...")
                 image_cell = np.array(rounddiff, np.int_)
             all_nbs_sites.append({"site": site, "index": nb_site["index"], "image_cell": image_cell})
         neighbors_sets = [
@@ -2177,7 +2175,7 @@ class ChemicalEnvironments(MSONable):
             self.coord_geoms = {}
         else:
             raise NotImplementedError(
-                "Constructor for ChemicalEnvironments with the coord_geoms argument is not" "yet implemented"
+                "Constructor for ChemicalEnvironments with the coord_geoms argument is not yet implemented"
             )
 
     def __getitem__(self, mp_symbol):

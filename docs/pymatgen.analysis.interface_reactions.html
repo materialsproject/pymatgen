@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.interface_reactions module &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>pymatgen.analysis.interface_reactions module &mdash; pymatgen 2022.0.15 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.15
               </div>
             
           
@@ -204,30 +204,93 @@
             
   <div class="section" id="module-pymatgen.analysis.interface_reactions">
 <span id="pymatgen-analysis-interface-reactions-module"></span><h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#module-pymatgen.analysis.interface_reactions" title="Permalink to this headline">¶</a></h1>
-<p>This module provides class to generate and analyze interfacial reactions.</p>
+<p>This module provides a class to predict and analyze interfacial reactions between two
+solids, with or without an open element (e.g., flowing O2).</p>
+<p>Please consider citing one or both of the following papers if you use this
+code in your own work.</p>
+<p class="rubric">References</p>
+<p>(1) Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp;amp; Ceder, G. (2015).
+Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
+266–273. <a class="reference external" href="https://doi.org/10.1021/acs.chemmater.5b04082">https://doi.org/10.1021/acs.chemmater.5b04082</a></p>
+<p>(2) Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp;amp; Ceder, G. (2019).
+Understanding interface stability in solid-state batteries.
+Nature Reviews Materials, 5(2), 105–126. <a class="reference external" href="https://doi.org/10.1038/s41578-019-0157-5">https://doi.org/10.1038/s41578-019-0157-5</a></p>
 <dl class="py class">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity">
-<em class="property">class </em><code class="sig-name descname">InterfacialReactivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c1</span></em>, <em class="sig-param"><span class="n">c2</span></em>, <em class="sig-param"><span class="n">pd</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">include_no_mixing_energy</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">pd_non_grand</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_hull_energy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L27-L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>An object encompassing all relevant data for interface reactions.</p>
+<dt id="pymatgen.analysis.interface_reactions.GrandPotentialInterfacialReactivity">
+<em class="property">class </em><code class="sig-name descname">GrandPotentialInterfacialReactivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c1</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a></span></em>, <em class="sig-param"><span class="n">c2</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a></span></em>, <em class="sig-param"><span class="n">grand_pd</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram" title="pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram">pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram</a></span></em>, <em class="sig-param"><span class="n">pd_non_grand</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram">pymatgen.analysis.phase_diagram.PhaseDiagram</a></span></em>, <em class="sig-param"><span class="n">include_no_mixing_energy</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">norm</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_hull_energy</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L644-L762"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.GrandPotentialInterfacialReactivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="pymatgen.analysis.interface_reactions.InterfacialReactivity"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.interface_reactions.InterfacialReactivity</span></code></a></p>
+<p>Extends upon InterfacialReactivity to allow for modelling possible reactions
+at the interface between two solids in the presence of an open element. The
+thermodynamics of the open system are provided by the user via the
+GrandPotentialPhaseDiagram class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c1</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 1.</p></li>
-<li><p><strong>c2</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 2.</p></li>
-<li><p><strong>pd</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object or GrandPotentialPhaseDiagram
-object built from all elements in composition c1 and c2.</p></li>
-<li><p><strong>norm</strong> (<em>bool</em>) – Whether or not the total number of atoms in composition
-of reactant will be normalized to 1.</p></li>
-<li><p><strong>include_no_mixing_energy</strong> (<em>bool</em>) – No_mixing_energy for a reactant is the
+<li><p><strong>c1</strong> – Reactant 1 composition</p></li>
+<li><p><strong>c2</strong> – Reactant 2 composition</p></li>
+<li><p><strong>grand_pd</strong> – Grand potential phase diagram object built from all elements in
+composition c1 and c2.</p></li>
+<li><p><strong>include_no_mixing_energy</strong> – No_mixing_energy for a reactant is the
 opposite number of its energy above grand potential convex hull. In
 cases where reactions involve elements reservoir, this param
 determines whether no_mixing_energy of reactants will be included
 in the final reaction energy calculation. By definition, if pd is
 not a GrandPotentialPhaseDiagram object, this param is False.</p></li>
-<li><p><strong>pd_non_grand</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object but not
+<li><p><strong>pd_non_grand</strong> – PhaseDiagram object but not
 GrandPotentialPhaseDiagram object built from elements in c1 and c2.</p></li>
-<li><p><strong>use_hull_energy</strong> (<em>bool</em>) – Whether or not use the convex hull energy for
+<li><p><strong>norm</strong> – Whether or not the total number of atoms in composition
+of reactant will be normalized to 1.</p></li>
+<li><p><strong>use_hull_energy</strong> – Whether or not use the convex hull energy for
+a given composition for reaction energy calculation. If false,
+the energy of ground state structure will be used instead.
+Note that in case when ground state can not be found for a
+composition, convex hull energy will be used associated with a
+warning message.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.interface_reactions.GrandPotentialInterfacialReactivity.get_no_mixing_energy">
+<code class="sig-name descname">get_no_mixing_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L712-L730"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.GrandPotentialInterfacialReactivity.get_no_mixing_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the opposite number of energy above grand potential
+convex hull for both reactants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity">
+<em class="property">class </em><code class="sig-name descname">InterfacialReactivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c1</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a></span></em>, <em class="sig-param"><span class="n">c2</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a></span></em>, <em class="sig-param"><span class="n">pd</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram">pymatgen.analysis.phase_diagram.PhaseDiagram</a></span></em>, <em class="sig-param"><span class="n">norm</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_hull_energy</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L57-L641"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class for modeling an interface between two solids and its possible reactions.
+The two reactants are provided as Composition objects (c1 and c2), along with the
+relevant compositional PhaseDiagram object. Possible reactions are calculated by
+finding all points along a tie-line between c1 and c2 where there is a “kink” in
+the phase diagram; i.e. a point or facet of the phase diagram.</p>
+<p>Please consider citing one or both of the following papers if you use this code
+in your own work.</p>
+<p class="rubric">References</p>
+<p>Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp;amp; Ceder, G. (2015).
+Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
+266–273. <a class="reference external" href="https://doi.org/10.1021/acs.chemmater.5b04082">https://doi.org/10.1021/acs.chemmater.5b04082</a></p>
+<p>Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp;amp; Ceder, G. (2019).
+Understanding interface stability in solid-state batteries.
+Nature Reviews Materials, 5(2), 105–126.
+<a class="reference external" href="https://doi.org/10.1038/s41578-019-0157-5">https://doi.org/10.1038/s41578-019-0157-5</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c1</strong> – Reactant 1 composition</p></li>
+<li><p><strong>c2</strong> – Reactant 2 composition</p></li>
+<li><p><strong>pd</strong> – Phase diagram object built from all elements in composition c1 and c2.</p></li>
+<li><p><strong>norm</strong> – Whether or not the total number of atoms in composition
+of reactant will be normalized to 1.</p></li>
+<li><p><strong>use_hull_energy</strong> – Whether or not use the convex hull energy for
 a given composition for reaction energy calculation. If false,
 the energy of ground state structure will be used instead.
 Note that in case when ground state can not be found for a
@@ -238,12 +301,12 @@ warning message.</p></li>
 </dl>
 <dl class="py attribute">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL">
-<code class="sig-name descname">EV_TO_KJ_PER_MOL</code><em class="property"> = 96.4853</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interface_reactions.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">EV_TO_KJ_PER_MOL</code><em class="property"> = 96.4853</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/interface_reactions.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction">
-<em class="property">static </em><code class="sig-name descname">get_chempot_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element</span></em>, <em class="sig-param"><span class="n">temp</span></em>, <em class="sig-param"><span class="n">pres</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L489-L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">get_chempot_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">temp</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pres</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L553-L599"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the normalized correction term Δμ for chemical potential of a gas
 phase consisting of element at given temperature and pressure,
 referenced to that in the standard state (T_std = 298.15 K,
@@ -253,9 +316,9 @@ Materials Project website.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>element</strong> (<em>string</em>) – The string representing the element.</p></li>
-<li><p><strong>temp</strong> (<em>float</em>) – The temperature of the gas phase.</p></li>
-<li><p><strong>pres</strong> (<em>float</em>) – The pressure of the gas phase.</p></li>
+<li><p><strong>element</strong> – The string representing the element.</p></li>
+<li><p><strong>temp</strong> – The temperature of the gas phase in Kelvin.</p></li>
+<li><p><strong>pres</strong> – The pressure of the gas phase in Pa.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -267,7 +330,7 @@ phase at given temperature and pressure.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio">
-<code class="sig-name descname">get_critical_original_kink_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L361-L378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_critical_original_kink_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L244-L261"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of molar mixing ratio for each kink between ORIGINAL
 (instead of processed) reactant compositions. This is the
 same list as mixing ratio obtained from get_kinks method
@@ -281,45 +344,36 @@ the original reactant compositions for each kink.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks">
-<code class="sig-name descname">get_kinks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L307-L359"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds all the kinks in mixing ratio where reaction products changes
-along the tie line of composition self.c1 and composition self.c2.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>Zip object of tuples (index, mixing ratio,</dt><dd><p>reaction energy per atom in eV/atom,
-reaction formula,
-reaction energy per mol of reaction
-formula in kJ/mol).</p>
-</dd>
-</dl>
-</p>
-</dd>
-</dl>
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_dataframe">
+<code class="sig-name descname">get_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L226-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a pandas DataFrame representation of the data produced by the
+get_kinks() method.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy">
-<code class="sig-name descname">get_no_mixing_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L469-L487"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates the opposite number of energy above grand potential
-convex hull for both reactants.</p>
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks">
+<code class="sig-name descname">get_kinks</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>float<span class="p">, </span><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.Reaction" title="pymatgen.analysis.reaction_calculator.Reaction">pymatgen.analysis.reaction_calculator.Reaction</a><span class="p">, </span>float<span class="p">]</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L147-L202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the kinks in mixing ratio where reaction products changes
+along the tie-line of composition self.c1 and composition self.c2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>[(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].</p>
+<dd class="field-odd"><p>(index, mixing ratio, reaction energy in eV/atom, Reaction object, reaction
+energy per mol of formula in kJ/mol).</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List object of tuples, each of which contains 5 elements</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products">
-<code class="sig-name descname">get_products</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L258-L265"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of formulas of potential products. E.g., [‘Li’,’O2’,’Mn’].</p>
-</dd></dl>
+<code class="sig-name descname">get_products</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L38-L51"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.labels">
-<code class="sig-name descname">labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L399-L410"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">labels</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/interface_reactions.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary containing kink information:
 {index: ‘x= mixing_ratio energy= reaction_energy reaction_equation’}.
 E.g., {1: ‘x= 0.0 energy = 0.0 Mn -&gt; Mn’,</p>
@@ -331,7 +385,7 @@ E.g., {1: ‘x= 0.0 energy = 0.0 Mn -&gt; Mn’,</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum">
-<code class="sig-name descname">minimum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L459-L467"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">minimum</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/interface_reactions.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the minimum reaction energy E_min and corresponding
 mixing ratio x_min.</p>
 <dl class="field-list simple">
@@ -343,15 +397,24 @@ mixing ratio x_min.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interface_reactions.py#L412-L457"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots reaction energy as a function of mixing ratio x in
-self.c1 - self.c2 tie line using pylab.</p>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">backend</span><span class="p">:</span> <span class="n">Literal<span class="p">[</span>plotly<span class="p">, </span>matplotlib<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'plotly'</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>plotly.graph_objs._figure.Figure<span class="p">, </span>matplotlib.figure.Figure<span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/interface_reactions.py#L204-L224"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2
+tie line.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Pylab object that plots reaction energy as a function of
-mixing ratio x.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>backend</strong> (<em>&quot;plotly&quot; | &quot;matplotlib&quot;</em>) – Plotting library used to create the plot. Defaults to
+“plotly” but can also be “matplotlib”.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Plot of reaction energies as a function of mixing ratio</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.products">
+<em class="property">property </em><code class="sig-name descname">products</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/interface_reactions.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.products" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of formulas of potential products. E.g., [‘Li’,’O2’,’Mn’].</p>
 </dd></dl>
 
 </dd></dl>

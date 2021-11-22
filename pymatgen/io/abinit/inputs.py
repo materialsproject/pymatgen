@@ -34,7 +34,8 @@ GEOVARS = set(
     [
         "acell",
         "rprim",
-        "rprimd" "angdeg",
+        "rprimd",
+        "angdeg",
         "xred",
         "xcart",
         "xangst",

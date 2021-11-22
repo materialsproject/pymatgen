@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.cube module &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>pymatgen.io.cube module &mdash; pymatgen 2022.0.15 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.15
               </div>
             
           
@@ -251,7 +251,7 @@ OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z</p>
 </div></blockquote>
 <dl class="py class">
 <dt id="pymatgen.io.cube.Cube">
-<em class="property">class </em><code class="sig-name descname">Cube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/cube.py#L52-L234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Cube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/cube.py#L52-L234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read Gaussian cube file formats for volumetric data.</p>
 <p>Cube files are, by default, written in atomic units, and this
@@ -264,7 +264,7 @@ class assumes that convention.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.cube.Cube.get_atomic_site_averages">
-<code class="sig-name descname">get_atomic_site_averages</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atomic_site_radii</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/cube.py#L145-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_averages" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_atomic_site_averages</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atomic_site_radii</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/cube.py#L145-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_averages" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the average value around each atomic site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -280,7 +280,7 @@ not provided, then the</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.cube.Cube.get_atomic_site_totals">
-<code class="sig-name descname">get_atomic_site_totals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atomic_site_radii</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/cube.py#L172-L183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_totals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_atomic_site_totals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atomic_site_radii</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/cube.py#L172-L183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_totals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the integrated total in a sphere around each atomic site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -296,7 +296,7 @@ not provided, then the</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.cube.Cube.get_average_along_axis">
-<code class="sig-name descname">get_average_along_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/cube.py#L213-L234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_average_along_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/cube.py#L213-L234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modified from pymatgen.io.vasp.outputs</p>
 <p>Get the averaged total of the volumetric data a certain axis direction.
 For example, useful for visualizing Hartree Potentials.</p>
@@ -312,7 +312,7 @@ For example, useful for visualizing Hartree Potentials.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.cube.Cube.get_axis_grid">
-<code class="sig-name descname">get_axis_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/cube.py#L199-L211"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_axis_grid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_axis_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/cube.py#L199-L211"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_axis_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modified from pymatgen.io.vasp.outputs</p>
 <p>Returns the grid for a particular axis.</p>
 <dl class="field-list simple">
@@ -324,7 +324,7 @@ For example, useful for visualizing Hartree Potentials.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.cube.Cube.mask_sphere">
-<code class="sig-name descname">mask_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">cx</span></em>, <em class="sig-param"><span class="n">cy</span></em>, <em class="sig-param"><span class="n">cz</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/cube.py#L115-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.mask_sphere" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">mask_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">cx</span></em>, <em class="sig-param"><span class="n">cy</span></em>, <em class="sig-param"><span class="n">cz</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/cube.py#L115-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.mask_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a mask for a sphere with radius=radius, centered at cx, cy, cz.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

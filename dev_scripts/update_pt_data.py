@@ -6,12 +6,11 @@ Created on Nov 15, 2011
 """
 
 import json
+import re
 from itertools import product
 
 import ruamel.yaml as yaml
-import re
-
-from monty.serialization import loadfn, dumpfn
+from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core import Element
 from pymatgen.core.periodic_table import get_el_sp
@@ -88,7 +87,7 @@ def parse_ionic_radii():
 
         ionic_radii = {}
         for j in range(3, len(toks)):
-            m = re.match("^\s*([0-9\.]+)", toks[j])
+            m = re.match(r"^\s*([0-9\.]+)", toks[j])
             if m:
                 ionic_radii[int(header[j])] = float(m.group(1))
 
@@ -109,7 +108,7 @@ def parse_radii():
     radiidata = f.read()
     f.close()
     radiidata = radiidata.split("\r")
-    header = radiidata[0].split(",")
+
     for i in range(1, len(radiidata)):
         line = radiidata[i]
         toks = line.strip().split(",")
@@ -164,8 +163,9 @@ def update_ionic_radii():
 def parse_shannon_radii():
     with open("periodic_table.yaml", "r") as f:
         data = yaml.load(f)
-    from openpyxl import load_workbook
     import collections
+
+    from openpyxl import load_workbook
 
     wb = load_workbook("Shannon Radii.xlsx")
     print(wb.get_sheet_names())
@@ -259,8 +259,8 @@ def add_electron_affinities():
     """
     Update the periodic table data file with electron affinities.
     """
-    from bs4 import BeautifulSoup
     import requests
+    from bs4 import BeautifulSoup
 
     req = requests.get("https://en.wikipedia.org/wiki/Electron_affinity_(data_page)")
     soup = BeautifulSoup(req.text, "html.parser")
@@ -287,8 +287,9 @@ def add_ionization_energies():
     """
     Update the periodic table data file with ground level and ionization energies from NIST.
     """
-    from bs4 import BeautifulSoup
     import collections
+
+    from bs4 import BeautifulSoup
 
     with open("NIST Atomic Ionization Energies Output.html") as f:
         soup = BeautifulSoup(f.read(), "html.parser")

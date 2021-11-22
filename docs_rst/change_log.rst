@@ -1,6 +1,66 @@
 Change log
 ==========
 
+v2022.0.15
+----------
+
+Welcome to new contributors @blokhin, @pzarabadip, @ml-evs, @wuxiaohua1011, @janssenhenning and @penicillin0. A reminder to all new contributors to 
+ensure your information is accurate at https://pymatgen.org/team.html so that 
+you are acknowledged appropriately by filling out the linked form.
+
+* Breaking change in PhaseDiagram serialization which will affect any users of BasePhaseDiagram which has now been removed (@shyuep, 2b9911d)
+
+* Speed up nearest-neighbor routines & structure graph generation (@ltalirz, #2239)
+* Add two more pre-defined OPTIMADE aliases (@blokhin, #2242)
+* Refactor `interface_reactions` module, adding support for Plotly (@mattmcdermott, #2233)
+
+* Update NOMAD access in MPRester (@wuxiaohua1011, #1958)
+* General improvements to Phase Diagram code (@CompyRhys, #2263, #2264, #2268)
+* Improve appearance of periodic table heatmap (@penicillin0, #2272)
+* Small improvements to battery classes (@jmmshn, #2262)
+* Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
+* Fix for bad param in OPTIMADE reponse fields (@ml-evs, #2244)
+* Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
+* Fix for Moladaptor (@orioncohen, #2269)
+* Fix for incorrect Potcar hash warnings (@mkhorton, #2273)
+
+* Type hint and correct documentation of Structure.remove_site_properties (@kmu, #2256)
+* Type hint improvements across pymatgen (@janosh, #2241, #2247, #2261)
+* Add `pymatgen-io-fleur` addon to addons page (@janssenhenning, #2232)
+
+
+v2022.0.14
+----------
+* Update OPTIMADE interface to allow querying multiple providers, this changes the 
+  method signature of OptimadeRester and so is considered a backwards incompatible change (@mkhorton, #2238)
+
+v2022.0.13
+----------
+* New feature to plot chemical potential diagrams (@mattmcdermott, #2218), see ArXiv:2104.05986 for example
+* Numerous updates to LOBSTER support for new version and including handling COBICAR, SitePotentials and MadelungEnergies (@JaGeo, #2228)
+* Updates and fixes for LAMMPS CombinedData (@htz1992213, #2191)
+* Bug fix for Bader caller (@nwinner, #2230)
+* Documentation fix for Composition (@CompRhys, #2231)
+
+v2022.0.12
+----------
+* @chc273 Major bugfix for cython handling of fractional coordinates wrapping. 
+* @mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219
+* @FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.
+* @gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups
+
+v2022.0.11
+----------
+* New features to handle Grüneisen parameters (@JaGeo, @ab5424, @gpetretto, #2190)
+* New option to return SymmetrizedStructure in CifParser (@mkhorton, 0d9a455)
+* Fix for SubstrateAnalyzer (@shyamd, #2198)
+* Fix for BandFillingCorrection (@kavanase, #2193)
+
+v2022.0.10
+----------
+* Add spin-dependent eigenvalue band properties (@arosen93, #2187)
+* Bug fix for settings loading (@ardunn, #2186)
+
 v2022.0.9
 ---------
 * Significant new functionality for handling interfaces between structures (@shyamd, #2149)

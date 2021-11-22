@@ -19,18 +19,12 @@ from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
+from pymatgen.core import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
@@ -125,8 +119,7 @@ class ValenceIonicRadiusEvaluator:
                 return after
             return before
 
-        for i in range(len(self._structure.sites)):
-            site = self._structure.sites[i]
+        for i, site in enumerate(self._structure.sites):
             if isinstance(site.specie, Element):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
@@ -234,7 +227,7 @@ class NearNeighbors:
         Boolean property: can this NearNeighbors class be used with Structure
         objects?
         """
-        raise NotImplementedError("structures_allowed" " is not defined!")
+        raise NotImplementedError("structures_allowed is not defined!")
 
     @property
     def molecules_allowed(self):
@@ -242,7 +235,7 @@ class NearNeighbors:
         Boolean property: can this NearNeighbors class be used with Molecule
         objects?
         """
-        raise NotImplementedError("molecules_allowed" " is not defined!")
+        raise NotImplementedError("molecules_allowed is not defined!")
 
     @property
     def extend_structure_molecules(self):
@@ -493,7 +486,7 @@ class NearNeighbors:
         # Each allowed step results in many terminal neighbors
         #  And, different first steps might results in the same neighbor
         #  Now, we condense those neighbors into a single entry per neighbor
-        all_sites = dict()
+        all_sites = {}
         for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
             for term_site in term_sites:
                 key = (term_site["site_index"], tuple(term_site["image"]))
@@ -734,7 +727,7 @@ class VoronoiNN(NearNeighbors):
                     if e.args and "vertex" in e.args[0]:
                         # pass through the error raised by _extract_cell_info
                         raise e
-                    raise RuntimeError("Error in Voronoi neighbor finding; " "max cutoff exceeded")
+                    raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
@@ -848,9 +841,7 @@ class VoronoiNN(NearNeighbors):
                     if self.allow_pathological:
                         continue
 
-                    raise RuntimeError(
-                        "This structure is pathological," " infinite vertex in the voronoi " "construction"
-                    )
+                    raise RuntimeError("This structure is pathological, infinite vertex in the voronoi construction")
 
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
@@ -2414,7 +2405,7 @@ class LocalStructOrderParams:
         """
 
         if len(thetas) != len(phis):
-            raise ValueError("List of polar and azimuthal angles have to be" " equal!")
+            raise ValueError("List of polar and azimuthal angles have to be equal!")
 
         self._pow_sin_t.clear()
         self._pow_cos_t.clear()
@@ -2788,7 +2779,7 @@ class LocalStructOrderParams:
             str: OP type.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError("Index for getting order parameter type" " out-of-bounds!")
+            raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
     def get_parameters(self, index):
@@ -2808,9 +2799,7 @@ class LocalStructOrderParams:
             [float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError(
-                "Index for getting parameters associated with" " order parameter calculation out-of-bounds!"
-            )
+            raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
     def get_order_parameters(self, structure, n, indices_neighs=None, tol=0.0, target_spec=None):
@@ -4016,7 +4005,7 @@ class CrystalNN(NearNeighbors):
             cn (integer or float): coordination number.
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn(structure, n, use_weights)
 
@@ -4036,7 +4025,7 @@ class CrystalNN(NearNeighbors):
             cn (dict): dictionary of CN of each element bonded to site
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn_dict(structure, n, use_weights)
 
@@ -4148,9 +4137,11 @@ def _get_radius(site):
 
 class CutOffDictNN(NearNeighbors):
     """
-    A very basic NN class using a dictionary of fixed
-    cut-off distances. Can also be used with no dictionary
-    defined for a Null/Empty NN class.
+    A basic NN class using a dictionary of fixed cut-off distances.
+    Only pairs of elements listed in the cut-off dictionary are considered
+    during construction of the neighbor lists.
+
+    Omit passing a dictionary for a Null/Empty NN class.
     """
 
     def __init__(self, cut_off_dict=None):
@@ -4159,10 +4150,11 @@ class CutOffDictNN(NearNeighbors):
             cut_off_dict (Dict[str, float]): a dictionary
             of cut-off distances, e.g. {('Fe','O'): 2.0} for
             a maximum Fe-O bond length of 2.0 Angstroms.
-            Note that if your structure is oxidation state
-            decorated, the cut-off distances will have to
-            explicitly include the oxidation state, e.g.
-            {('Fe2+', 'O2-'): 2.0}
+            Bonds will only be created between pairs listed
+            in the cut-off dictionary.
+            If your structure is oxidation state decorated,
+            the cut-off distances will have to explicitly include
+            the oxidation state, e.g. {('Fe2+', 'O2-'): 2.0}
         """
 
         self.cut_off_dict = cut_off_dict or {}
@@ -4380,31 +4372,31 @@ def metal_edge_extender(mol_graph):
             metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [
                 site[2] for site in mol_graph.get_connected_sites(idx)
             ]
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
+    for metal, sites in metal_sites.items():
+        for idx, indices in sites.items():
             for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in metal_sites[metal][idx]:
+                if ii != idx and ii not in indices:
                     if str(site.specie) in coordinators:
                         if site.distance(mol_graph.molecule[idx]) < 2.5:
                             mol_graph.add_edge(idx, ii)
                             num_new_edges += 1
-                            metal_sites[metal][idx].append(ii)
+                            indices.append(ii)
     total_metal_edges = 0
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            total_metal_edges += len(metal_sites[metal][idx])
+    for sites in metal_sites.values():
+        for indices in sites.values():
+            total_metal_edges += len(indices)
     if total_metal_edges == 0:
-        for metal in metal_sites:
-            for idx in metal_sites[metal]:
+        for metal, sites in metal_sites.items():
+            for idx, indices in sites.items():
                 for ii, site in enumerate(mol_graph.molecule):
-                    if ii != idx and ii not in metal_sites[metal][idx]:
+                    if ii != idx and ii not in indices:
                         if str(site.specie) in coordinators:
                             if site.distance(mol_graph.molecule[idx]) < 3.5:
                                 mol_graph.add_edge(idx, ii)
                                 num_new_edges += 1
-                                metal_sites[metal][idx].append(ii)
+                                indices.append(ii)
     total_metal_edges = 0
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            total_metal_edges += len(metal_sites[metal][idx])
+    for sites in metal_sites.values():
+        for indices in sites.values():
+            total_metal_edges += len(indices)
     return mol_graph

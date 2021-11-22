@@ -14,8 +14,8 @@ from typing import Dict
 from warnings import warn
 
 import numpy as np
-import scipy.constants as constants
 from monty.json import MSONable
+from scipy import constants
 from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
@@ -272,8 +272,8 @@ class EwaldSummation(MSONable):
             self._initialized = True
 
         totalenergy = self._recip + self._real
-        for i in range(len(self._point)):
-            totalenergy[i, i] += self._point[i]
+        for i, energy in enumerate(self._point):
+            totalenergy[i, i] += energy
         return totalenergy
 
     @property
@@ -471,9 +471,15 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict, fmt: str = None, **kwargs):
-        """
-        Create an EwaldSummation instance from json serialized dictionary.
+    def from_dict(cls, d: Dict, fmt: str = None, **kwargs) -> "EwaldSummation":
+        """Create an EwaldSummation instance from JSON serialized dictionary.
+
+        Args:
+            d (Dict): Dictionary representation
+            fmt (str, optional): Unused. Defaults to None.
+
+        Returns:
+            EwaldSummation: class instance
         """
         summation = cls(
             structure=Structure.from_dict(d["structure"]),
@@ -560,7 +566,7 @@ class EwaldMinimizer:
         self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
-            raise NotImplementedError("Complete algo not yet implemented for " "EwaldMinimizer")
+            raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
         self._output_lists = []
         # Tag that the recurse function looks at at each level. If a method
@@ -579,7 +585,7 @@ class EwaldMinimizer:
         This method finds and returns the permutations that produce the lowest
         ewald sum calls recursive function to iterate through permutations
         """
-        if self._algo == EwaldMinimizer.ALGO_FAST or self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+        if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
             return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
         return None
 

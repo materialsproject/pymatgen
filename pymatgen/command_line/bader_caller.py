@@ -155,6 +155,8 @@ class BaderAnalysis:
             self.cube = Cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None
+            chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+            self.reference_used = bool(chgref_filename)
 
         tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
         with ScratchDir("."):
@@ -173,7 +175,7 @@ class BaderAnalysis:
                 stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "bader exited with return code %d. " "Please check your bader installation." % rs.returncode
+                    "bader exited with return code %d. Please check your bader installation." % rs.returncode
                 )
 
             try:
@@ -182,7 +184,7 @@ class BaderAnalysis:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, " "calculation of vacuum charge may be incorrect."
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect."
                 )
 
             data = []
@@ -294,7 +296,7 @@ class BaderAnalysis:
             associated atom.
         """
         if not self.nelects and nelect is None:
-            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument" "for cube file")
+            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument for cube file")
         return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
 
     def get_charge_decorated_structure(self):

@@ -25,7 +25,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
-__credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, " "Mark Asta, Anubhav Jain, Terence Lew"
+__credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
 
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
@@ -65,7 +65,7 @@ class Tensor(np.ndarray, MSONable):
         if vscale is not None:
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
-            raise ValueError("Voigt scaling matrix must be the shape of the " "voigt notation matrix or vector.")
+            raise ValueError("Voigt scaling matrix must be the shape of the voigt notation matrix or vector.")
         if not all(i == 3 for i in obj.shape):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, "
@@ -140,7 +140,7 @@ class Tensor(np.ndarray, MSONable):
         Calculates the result of an einstein summation expression
         """
         if not isinstance(other_arrays, list):
-            raise ValueError("other tensors must be list of " "tensors or tensor input")
+            raise ValueError("other tensors must be list of tensors or tensor input")
 
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
@@ -360,10 +360,10 @@ class Tensor(np.ndarray, MSONable):
         """
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
-        for ind in this_voigt_map:
-            v_matrix[this_voigt_map[ind]] = self[ind]
+        for ind, v in this_voigt_map.items():
+            v_matrix[v] = self[ind]
         if not self.is_voigt_symmetric():
-            warnings.warn("Tensor is not symmetric, information may " "be lost in voigt conversion.")
+            warnings.warn("Tensor is not symmetric, information may be lost in voigt conversion.")
         return v_matrix * self._vscale
 
     def is_voigt_symmetric(self, tol=1e-6):
@@ -416,8 +416,8 @@ class Tensor(np.ndarray, MSONable):
             raise ValueError("Invalid shape for voigt matrix")
         voigt_input = voigt_input / t._vscale
         this_voigt_map = t.get_voigt_dict(rank)
-        for ind in this_voigt_map:
-            t[ind] = voigt_input[this_voigt_map[ind]]
+        for ind, v in this_voigt_map.items():
+            t[ind] = voigt_input[v]
         return cls(t)
 
     @staticmethod
@@ -670,7 +670,7 @@ class Tensor(np.ndarray, MSONable):
                 print("Iteration {}: {}".format(i, np.max(diff)))
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
-            warnings.warn("Warning, populated tensor is not converged " "with max diff of {}".format(max_diff))
+            warnings.warn("Warning, populated tensor is not converged with max diff of {}".format(max_diff))
         return self.__class__(test_new)
 
     def as_dict(self, voigt: bool = False) -> dict:
@@ -1052,7 +1052,7 @@ class TensorMapping(collections.abc.MutableMapping):
         self._tensor_list = tensors or []
         self._value_list = values or []
         if not len(self._tensor_list) == len(self._value_list):
-            raise ValueError("TensorMapping must be initialized with tensors" "and values of equivalent length")
+            raise ValueError("TensorMapping must be initialized with tensors and values of equivalent length")
         self.tol = tol
 
     def __getitem__(self, item):

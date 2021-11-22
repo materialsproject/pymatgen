@@ -8,6 +8,9 @@ import warnings
 from numbers import Number
 from pathlib import Path
 from collections import OrderedDict
+import json
+
+from monty.json import MontyEncoder, MontyDecoder
 
 import numpy as np
 
@@ -23,7 +26,6 @@ from pymatgen.analysis.phase_diagram import (
     tet_coord,
     triangular_coord,
     uniquelines,
-    BasePhaseDiagram,
 )
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
@@ -161,17 +163,18 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertRaises(ValueError, PhaseDiagram, entries)
 
     def test_dim1(self):
-        # Ensure that dim 1 PDs can eb generated.
+        # Ensure that dim 1 PDs can be generated.
         for el in ["Li", "Fe", "O2"]:
             entries = [e for e in self.entries if e.composition.reduced_formula == el]
             pd = PhaseDiagram(entries)
             self.assertEqual(len(pd.stable_entries), 1)
 
             for e in entries:
-                decomp, ehull = pd.get_decomp_and_e_above_hull(e)
+                ehull = pd.get_e_above_hull(e)
                 self.assertGreaterEqual(ehull, 0)
+
             plotter = PDPlotter(pd)
-            lines, stable_entries, unstable_entries = plotter.pd_plot_data
+            lines, *_ = plotter.pd_plot_data
             self.assertEqual(lines[0][1], [0, 0])
 
     def test_ordering(self):
@@ -245,15 +248,16 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
     def test_get_e_above_hull(self):
-        for entry in self.pd.stable_entries:
-            self.assertLess(
-                self.pd.get_e_above_hull(entry),
-                1e-11,
-                "Stable entries should have e above hull of zero!",
-            )
-
         for entry in self.pd.all_entries:
-            if entry not in self.pd.stable_entries:
+            for entry in self.pd.stable_entries:
+                decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
+                self.assertLess(
+                    e_hull,
+                    1e-11,
+                    "Stable entries should have e above hull of zero!",
+                )
+                self.assertEqual(decomp[entry], 1, "Decomposition of stable entry should be itself.")
+            else:
                 e_ah = self.pd.get_e_above_hull(entry)
                 self.assertTrue(isinstance(e_ah, Number))
                 self.assertGreaterEqual(e_ah, 0)
@@ -578,13 +582,17 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(cp2["FeO-LiFeO2-Fe"][elem], energy)
 
     def test_to_from_dict(self):
-
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
         pd = PhaseDiagram([entry])
         d = pd.as_dict()
         pd_roundtrip = PhaseDiagram.from_dict(d)
         self.assertEqual(pd.all_entries[0].entry_id, pd_roundtrip.all_entries[0].entry_id)
+        dd = self.pd.as_dict()
+        new_pd = PhaseDiagram.from_dict(dd)
+        new_dd = new_pd.as_dict()
+        self.assertEqual(new_dd, dd)
+        self.assertIsInstance(pd.to_json(), str)
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
@@ -622,25 +630,6 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
-
-
-class BasePhaseDiagramTest(PhaseDiagramTest):
-    def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
-        self.pd = BasePhaseDiagram.from_entries(self.entries)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
-    def test_init(self):
-        pass
-
-    def test_as_dict_from_dict(self):
-        dd = self.pd.as_dict()
-        new_pd = BasePhaseDiagram.from_dict(dd)
-        new_dd = new_pd.as_dict()
-        self.assertEqual(new_dd, dd)
 
 
 class CompoundPhaseDiagramTest(unittest.TestCase):

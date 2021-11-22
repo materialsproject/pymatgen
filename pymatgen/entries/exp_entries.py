@@ -46,11 +46,11 @@ class ExpEntry(PDEntry, MSONable):
         found = False
         enthalpy = float("inf")
         for data in self._thermodata:
-            if data.type == "fH" and data.value < enthalpy and (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
+            if data.type == "fH" and data.value < enthalpy and (data.phaseinfo not in ("gas", "liquid")):
                 enthalpy = data.value
                 found = True
         if not found:
-            raise ValueError("List of Thermodata does not contain enthalpy " "values.")
+            raise ValueError("List of Thermodata does not contain enthalpy values.")
         self.temperature = temperature
         super().__init__(comp, enthalpy)
 

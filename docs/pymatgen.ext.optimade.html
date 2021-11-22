@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.ext.optimade module &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>pymatgen.ext.optimade module &mdash; pymatgen 2022.0.15 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.15
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>Optimade support.</p>
 <dl class="py class">
 <dt id="pymatgen.ext.optimade.OptimadeRester">
-<em class="property">class </em><code class="sig-name descname">OptimadeRester</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">alias_or_structure_resource_url</span><span class="o">=</span><span class="default_value">'mp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../ext/optimade.py#L15-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">OptimadeRester</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">aliases_or_resource_urls</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>str<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L33-L530"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to call OPTIMADE-compliant APIs, see optimade.org</p>
 <p>This class is ready to use but considered in-development and subject to change
@@ -218,7 +218,7 @@ from many different materials science databases.</p>
 does not yet support all features of the OPTIMADE v1 specification but is intended
 as a way to quickly search an endpoint in a way familiar to users of pymatgen without
 needing to know the full OPTIMADE specification.</p>
-<p>For advanced usage, please see the OPTIMADE documentation at optimate.org and
+<p>For advanced usage, please see the OPTIMADE documentation at optimade.org and
 consider calling the APIs directly.</p>
 <p>For convenience, known OPTIMADE endpoints have been given aliases in pymatgen to save
 typing the full URL. The current list of aliases is:</p>
@@ -229,18 +229,34 @@ mcloud.pyrene-mofs, mcloud.li-ion-conductors, mp, odbx, omdb.omdb_production, oq
 at optimade.org, call the refresh_aliases() method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>alias_or_structure_resource_url</strong> – the alias or structure resource URL</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aliases_or_resource_urls</strong> – the alias or structure resource URL or a list of</p></li>
+<li><p><strong>or resource URLs</strong><strong>, </strong><strong>if providing the resource URL directly it should not</strong> (<em>aliases</em>) – </p></li>
+<li><p><strong>an index</strong><strong>, </strong><strong>this interface can only currently access the &quot;v1/structures&quot;</strong> (<em>be</em>) – </p></li>
+<li><p><strong>from the specified resource URL</strong> (<em>information</em>) – </p></li>
+<li><p><strong>timeout</strong> – number of seconds before an attempted request is abandoned, a good</p></li>
+<li><p><strong>is useful when querying many providers</strong><strong>, </strong><strong>some of which may be offline</strong> (<em>timeout</em>) – </p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt id="pymatgen.ext.optimade.OptimadeRester.aliases">
-<code class="sig-name descname">aliases</code><em class="property"> = {'aflow': 'http://aflow.org/API/optimade/', 'cod': 'https://www.crystallography.net/cod/optimade', 'mcloud.2dstructures': 'https://aiida.materialscloud.org/2dstructures/optimade', 'mcloud.2dtopo': 'https://aiida.materialscloud.org/2dtopo/optimade', 'mcloud.curated-cofs': 'https://aiida.materialscloud.org/curated-cofs/optimade', 'mcloud.li-ion-conductors': 'https://aiida.materialscloud.org/li-ion-conductors/optimade', 'mcloud.optimade-sample': 'https://aiida.materialscloud.org/optimade-sample/optimade', 'mcloud.pyrene-mofs': 'https://aiida.materialscloud.org/pyrene-mofs/optimade', 'mcloud.scdm': 'https://aiida.materialscloud.org/autowannier/optimade', 'mcloud.sssp': 'https://aiida.materialscloud.org/sssplibrary/optimade', 'mcloud.stoceriaitf': 'https://aiida.materialscloud.org/stoceriaitf/optimade', 'mcloud.tc-applicability': 'https://aiida.materialscloud.org/tc-applicability/optimade', 'mcloud.threedd': 'https://aiida.materialscloud.org/3dd/optimade', 'mp': 'https://optimade.materialsproject.org', 'odbx': 'https://optimade.odbx.science', 'omdb.omdb_production': 'http://optimade.openmaterialsdb.se', 'oqmd': 'http://oqmd.org/optimade/', 'tcod': 'https://www.crystallography.net/tcod/optimade'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.aliases" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">aliases</code><em class="property"> = {'aflow': 'http://aflow.org/API/optimade/', 'cod': 'https://www.crystallography.net/cod/optimade', 'mcloud.2dstructures': 'https://aiida.materialscloud.org/2dstructures/optimade', 'mcloud.2dtopo': 'https://aiida.materialscloud.org/2dtopo/optimade', 'mcloud.curated-cofs': 'https://aiida.materialscloud.org/curated-cofs/optimade', 'mcloud.li-ion-conductors': 'https://aiida.materialscloud.org/li-ion-conductors/optimade', 'mcloud.optimade-sample': 'https://aiida.materialscloud.org/optimade-sample/optimade', 'mcloud.pyrene-mofs': 'https://aiida.materialscloud.org/pyrene-mofs/optimade', 'mcloud.scdm': 'https://aiida.materialscloud.org/autowannier/optimade', 'mcloud.sssp': 'https://aiida.materialscloud.org/sssplibrary/optimade', 'mcloud.stoceriaitf': 'https://aiida.materialscloud.org/stoceriaitf/optimade', 'mcloud.tc-applicability': 'https://aiida.materialscloud.org/tc-applicability/optimade', 'mcloud.threedd': 'https://aiida.materialscloud.org/3dd/optimade', 'mp': 'https://optimade.materialsproject.org', 'mpds': 'https://api.mpds.io', 'nmd': 'https://nomad-lab.eu/prod/rae/optimade/', 'odbx': 'https://optimade.odbx.science', 'omdb.omdb_production': 'http://optimade.openmaterialsdb.se', 'oqmd': 'http://oqmd.org/optimade/', 'tcod': 'https://www.crystallography.net/tcod/optimade'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.aliases" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.ext.optimade.OptimadeRester.get_structures">
-<code class="sig-name descname">get_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nelements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nsites</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chemical_formula_anonymous</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chemical_formula_hill</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../ext/optimade.py#L119-L151"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.get_structures" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve structures from the OPTIMADE database.</p>
+<dt id="pymatgen.ext.optimade.OptimadeRester.describe">
+<code class="sig-name descname">describe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L140-L146"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.describe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides human-readable information about the resources being searched by the OptimadeRester.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.ext.optimade.OptimadeRester.get_snls">
+<code class="sig-name descname">get_snls</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nelements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nsites</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chemical_formula_anonymous</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chemical_formula_hill</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.util.provenance.html#pymatgen.util.provenance.StructureNL" title="pymatgen.util.provenance.StructureNL">pymatgen.util.provenance.StructureNL</a><span class="p">]</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L226-L262"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.get_snls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve StructureNL from OPTIMADE providers.</p>
+<p>A StructureNL is an object provided by pymatgen which combines Structure with
+associated metadata, such as the URL is was downloaded from and any additional namespaced
+data.</p>
 <p>Not all functionality of OPTIMADE is currently exposed in this convenience method. To
 use a custom filter, call get_structures_with_filter().</p>
 <dl class="field-list simple">
@@ -254,12 +270,44 @@ use a custom filter, call get_structures_with_filter().</p>
 </ul>
 </dd>
 </dl>
+<p>Returns: Dict of (Dict of StructureNLs keyed by that database’s id system) keyed by provider</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.ext.optimade.OptimadeRester.get_snls_with_filter">
+<code class="sig-name descname">get_snls_with_filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimade_filter</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.util.provenance.html#pymatgen.util.provenance.StructureNL" title="pymatgen.util.provenance.StructureNL">pymatgen.util.provenance.StructureNL</a><span class="p">]</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L282-L331"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.get_snls_with_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get structures satisfying a given OPTIMADE filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filter</strong> – An OPTIMADE-compliant filter</p>
+</dd>
+</dl>
 <p>Returns: Dict of Structures keyed by that database’s id system</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pymatgen.ext.optimade.OptimadeRester.get_structures">
+<code class="sig-name descname">get_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nelements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nsites</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chemical_formula_anonymous</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chemical_formula_hill</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">]</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L192-L224"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.get_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve Structures from OPTIMADE providers.</p>
+<p>Not all functionality of OPTIMADE is currently exposed in this convenience method. To
+use a custom filter, call get_structures_with_filter().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – List of elements</p></li>
+<li><p><strong>nelements</strong> – Number of elements, e.g. 4 or [2, 5] for the range &gt;=2 and &lt;=5</p></li>
+<li><p><strong>nsites</strong> – Number of sites, e.g. 4 or [2, 5] for the range &gt;=2 and &lt;=5</p></li>
+<li><p><strong>chemical_formula_anonymous</strong> – Anonymous chemical formula</p></li>
+<li><p><strong>chemical_formula_hill</strong> – Chemical formula following Hill convention</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Dict of (Dict Structures keyed by that database’s id system) keyed by provider</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.ext.optimade.OptimadeRester.get_structures_with_filter">
-<code class="sig-name descname">get_structures_with_filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimade_filter</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../ext/optimade.py#L153-L178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.get_structures_with_filter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structures_with_filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimade_filter</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">]</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L264-L280"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.get_structures_with_filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get structures satisfying a given OPTIMADE filter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -271,9 +319,46 @@ use a custom filter, call get_structures_with_filter().</p>
 
 <dl class="py method">
 <dt id="pymatgen.ext.optimade.OptimadeRester.refresh_aliases">
-<code class="sig-name descname">refresh_aliases</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">providers_url</span><span class="o">=</span><span class="default_value">'https://providers.optimade.org/providers.json'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../ext/optimade.py#L227-L271"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.refresh_aliases" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">refresh_aliases</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">providers_url</span><span class="o">=</span><span class="default_value">'https://providers.optimade.org/providers.json'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../ext/optimade.py#L503-L517"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.OptimadeRester.refresh_aliases" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates available OPTIMADE structure resources based on the current list of OPTIMADE
 providers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.ext.optimade.Provider">
+<em class="property">class </em><code class="sig-name descname">Provider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">base_url</span></em>, <em class="sig-param"><span class="n">description</span></em>, <em class="sig-param"><span class="n">homepage</span></em>, <em class="sig-param"><span class="n">prefix</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.Provider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Provider(name, base_url, description, homepage, prefix)</p>
+<dl class="py attribute">
+<dt id="pymatgen.ext.optimade.Provider.base_url">
+<code class="sig-name descname">base_url</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.Provider.base_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.ext.optimade.Provider.description">
+<code class="sig-name descname">description</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.Provider.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.ext.optimade.Provider.homepage">
+<code class="sig-name descname">homepage</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.Provider.homepage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.ext.optimade.Provider.name">
+<code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.Provider.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.ext.optimade.Provider.prefix">
+<code class="sig-name descname">prefix</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/ext/optimade.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.optimade.Provider.prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
 </dd></dl>
 
 </dd></dl>

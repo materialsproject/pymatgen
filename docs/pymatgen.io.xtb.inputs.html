@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.xtb.inputs module &mdash; pymatgen 2022.0.9 documentation</title>
+  <title>pymatgen.io.xtb.inputs module &mdash; pymatgen 2022.0.15 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.9
+                2022.0.15
               </div>
             
           
@@ -209,7 +209,7 @@
 <p>Classes for writing XTB input files</p>
 <dl class="py class">
 <dt id="pymatgen.io.xtb.inputs.CRESTInput">
-<em class="property">class </em><code class="sig-name descname">CRESTInput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">working_dir</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'.'</span></em>, <em class="sig-param"><span class="n">coords_filename</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'crest_in.xyz'</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">, </span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/xtb/inputs.py#L24-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xtb.inputs.CRESTInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CRESTInput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">working_dir</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'.'</span></em>, <em class="sig-param"><span class="n">coords_filename</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'crest_in.xyz'</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">, </span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/xtb/inputs.py#L24-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xtb.inputs.CRESTInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing  CREST input files.
 Because CREST is controlled through command line flags and external
@@ -229,7 +229,7 @@ float]</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.xtb.inputs.CRESTInput.constrains_template">
-<em class="property">static </em><code class="sig-name descname">constrains_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">reference_fnm</span></em>, <em class="sig-param"><span class="n">constraints</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/xtb/inputs.py#L72-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xtb.inputs.CRESTInput.constrains_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">constrains_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">reference_fnm</span></em>, <em class="sig-param"><span class="n">constraints</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/xtb/inputs.py#L72-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xtb.inputs.CRESTInput.constrains_template" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -251,7 +251,7 @@ float]</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.xtb.inputs.CRESTInput.write_input_files">
-<code class="sig-name descname">write_input_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../io/xtb/inputs.py#L57-L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xtb.inputs.CRESTInput.write_input_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_input_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/xtb/inputs.py#L57-L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xtb.inputs.CRESTInput.write_input_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write input files to working directory</p>
 </dd></dl>
 

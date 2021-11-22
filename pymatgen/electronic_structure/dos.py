@@ -441,7 +441,7 @@ class FermiDos(Dos, MSONable):
             if hasattr(dos, "structure"):
                 structure = dos.structure
             else:
-                raise ValueError("Structure object is not provided and not " "present in dos")
+                raise ValueError("Structure object is not provided and not present in dos")
 
         self.structure = structure
         self.nelecs = nelecs or self.structure.composition.total_electrons
@@ -592,7 +592,7 @@ class FermiDos(Dos, MSONable):
         for _ in range(precision):
             frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, temperature) for f in frange])
-            relative_error = np.abs(calc_doping / concentration - 1.0)
+            relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
 
@@ -697,7 +697,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
-        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = dict()
+        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = {}
         for orb, pdos in self.pdos[site].items():
             orbital_type = _get_orb_type(orb)
             if orbital_type in spd_dos:
@@ -774,7 +774,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}

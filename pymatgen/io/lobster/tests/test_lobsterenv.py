@@ -129,6 +129,70 @@ class TestLobsterNeighbors(unittest.TestCase):
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=1,
         )
+        self.chemenvlobster6_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=6,
+            adapt_extremum_to_add_cond=True,
+        )
+        self.chemenvlobster5_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=5,
+            adapt_extremum_to_add_cond=True,
+        )
+        self.chemenvlobster4_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=4,
+            adapt_extremum_to_add_cond=True,
+        )
+        self.chemenvlobster3_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=3,
+            adapt_extremum_to_add_cond=True,
+        )
+        self.chemenvlobster2_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=2,
+            adapt_extremum_to_add_cond=True,
+        )
+        self.chemenvlobster1_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=1,
+            adapt_extremum_to_add_cond=True,
+        )
+
+        self.chemenvlobster0_charges_additional_condition = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=0,
+            adapt_extremum_to_add_cond=True,
+        )
 
     def test_use_of_coop(self):
         with self.assertRaises(ValueError):
@@ -152,11 +216,6 @@ class TestLobsterNeighbors(unittest.TestCase):
                 additional_condition=10,
             )
 
-    def test_no_bva_possible(self):
-        pass
-        # TODO: write something where not BondValenceAnalysis can be done (provide a certain structure where it cannot
-        # be done)
-
     def test_set_limits(self):
         test = LobsterNeighbors(
             are_coops=False,
@@ -167,6 +226,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=1,
             limits=[-100000, 0],
         )
+        self.assertListEqual(test.limits, [-100000, 0])
 
     def test_molecules_allowed(self):
         self.chemenvlobster1.molecules_allowed
@@ -292,6 +352,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             ),
             0,
         )
+
         self.assertEqual(
             len(
                 self.chemenvlobster6.get_nn(

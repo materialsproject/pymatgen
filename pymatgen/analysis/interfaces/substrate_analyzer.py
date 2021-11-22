@@ -64,16 +64,24 @@ class SubstrateMatch(ZSLMatch):
         else:
             elastic_energy = 0
 
-        match_dict = match.as_dict()
-
-        cls(
+        return cls(
             film_miller=film_miller,
             substrate_miller=substrate_miller,
             strain=strain,
             von_mises_strain=von_mises_strain,
             elastic_energy=elastic_energy,
             ground_state_energy=ground_state_energy,
-            **{k: match_dict[k] for k in match_dict.keys() if not k.startswith("@")},
+            **{
+                k: getattr(match, k)
+                for k in [
+                    "film_sl_vectors",
+                    "substrate_sl_vectors",
+                    "film_vectors",
+                    "substrate_vectors",
+                    "film_transformation",
+                    "substrate_transformation",
+                ]
+            },
         )
 
     @property
@@ -183,6 +191,7 @@ class SubstrateAnalyzer(ZSLGenerator):
             substrate_miller,
         ] in surface_vector_sets:
             for match in self(film_vectors, substrate_vectors, lowest):
+
                 sub_match = SubstrateMatch.from_zsl(
                     match=match,
                     film=film,

@@ -212,7 +212,7 @@ class SubstitutionPredictor:
         """
         for sp in species:
             if get_el_sp(sp) not in self.p.species:
-                raise ValueError("the species {} is not allowed for the" "probability model you are using".format(sp))
+                raise ValueError("the species {} is not allowed for the probability model you are using".format(sp))
         max_probabilities = []
         for s1 in species:
             if to_this_composition:

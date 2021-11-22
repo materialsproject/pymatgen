@@ -129,6 +129,10 @@ several advantages over other codes out there:
 5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project.
    It is also actively being developed and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
+6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over the
+   world. We also now have an architecture to support add-ons that expand pymatgen's functionality even further. Check
+   out the `contributing page <http://pymatgen.org/contributing>`_ and `add-ons page <http://pymatgen.org/addons>`_ for
+   details and examples.
 
 Please review the `coding guidelines </contributing>`_.
 
@@ -496,7 +500,7 @@ If you use pymatgen in your research, please consider citing the following work:
     Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
-    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    <https://doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances / principles developed by various
 scientists. Please refer to the :doc:`references page </references>` for citation info.

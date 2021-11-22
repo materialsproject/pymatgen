@@ -13,9 +13,10 @@ diagram analysis.
 import abc
 import json
 import os
+import sys
 import warnings
 from itertools import combinations
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -25,6 +26,11 @@ from uncertainties import ufloat
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
@@ -434,14 +440,13 @@ class ComputedEntry(Entry):
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
-    def normalize(self, mode: str = "formula_unit") -> "ComputedEntry":
+    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> "ComputedEntry":
         """
         Normalize the entry's composition and energy.
 
         Args:
-            mode: "formula_unit" is the default, which normalizes to
-                composition.reduced_formula. The other option is "atom", which
-                normalizes such that the composition amounts sum to 1.
+            mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
+                "atom" normalizes such that the composition amounts sum to 1.
         """
 
         factor = self._normalization_factor(mode)
@@ -678,14 +683,13 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id=d.get("entry_id", None),
         )
 
-    def normalize(self, mode: str = "formula_unit") -> "ComputedStructureEntry":
+    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> "ComputedStructureEntry":
         """
         Normalize the entry's composition and energy. The structure remains
         unchanged.
         Args:
-            mode: "formula_unit" is the default, which normalizes to
-                composition.reduced_formula. The other option is "atom",
-                which normalizes such that the composition amounts sum to 1.
+            mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
+                "atom" normalizes such that the composition amounts sum to 1.
         """
         # TODO: this should raise TypeError since normalization does not make sense
         # raise TypeError("You cannot normalize a structure.")
@@ -701,7 +705,7 @@ class ComputedStructureEntry(ComputedEntry):
         d = super().normalize(mode).as_dict()
         d["structure"] = self.structure.as_dict()
         entry = self.from_dict(d)
-        entry._composition /= factor  # type: ignore
+        entry._composition /= factor  # pylint: disable=E1101
         return entry
 
 
@@ -716,7 +720,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         structure: Structure,
         formation_enthalpy_per_atom: float,
         temp: float = 300,
-        gibbs_model: str = "SISSO",
+        gibbs_model: Literal["SISSO"] = "SISSO",
         composition: Composition = None,
         correction: float = 0.0,
         energy_adjustments: list = None,
@@ -733,9 +737,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             temp (float): Temperature in Kelvin. If temperature is not selected from
                 one of [300, 400, 500, ... 2000 K], then free energies will
                 be interpolated. Defaults to 300 K.
-            gibbs_model (str): Model for Gibbs Free energy. Currently the default (and
-                only supported) option is "SISSO", the descriptor created by Bartel et
-                al. (2018) -- see reference in documentation.
+            gibbs_model ('SISSO'): Model for Gibbs Free energy. "SISSO", the descriptor
+                created by Bartel et al. (2018) -- see reference in documentation, is
+                currently the only supported) option.
             correction (float): A correction to be applied to the energy. Defaults to 0
             parameters (dict): An optional dict of parameters associated with
                 the entry. Defaults to None.

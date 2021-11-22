@@ -5,7 +5,7 @@ Forked and adjusted from :
 https://github.com/usnistgov/jarvis
 
 References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
-            2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
+            2) https://doi.org/10.1103/PhysRevLett.108.068701
 """
 
 import os
@@ -13,7 +13,7 @@ from math import pi
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.constants as constants
+from scipy import constants
 from scipy.constants import physical_constants, speed_of_light
 from scipy.integrate import simps
 from scipy.interpolate import interp1d

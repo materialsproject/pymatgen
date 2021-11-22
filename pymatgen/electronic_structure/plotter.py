@@ -342,10 +342,10 @@ class BSPlotter:
                 # don't print the same label twice
                 if i != 0:
                     if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug("already print label... " "skipping label {i}".format(i=ticks["label"][i]))
+                        logger.debug("already print label... skipping label {i}".format(i=ticks["label"][i]))
                     else:
                         logger.debug(
-                            "Adding a line at {d}" " for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
+                            "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
                         )
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
@@ -545,7 +545,7 @@ class BSPlotter:
                 f"The number of points (m) has to be higher then "
                 f"the order (k) of the splines. In this branch {len(dist)} "
                 f"points are found, while k is set to {smooth_k}. "
-                f"Smooth_k will be reduced to {smooth_k-1} for this branch."
+                f"Smooth_k will be reduced to {smooth_k - 1} for this branch."
             )
 
             # skip single point branches
@@ -852,7 +852,7 @@ class BSPlotter:
             a matplotlib object with both band structures
 
         """
-        warnings.warn("Deprecated method. " "Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
+        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
         # TODO: add exception if the band structures are not compatible
         import matplotlib.lines as mlines
@@ -923,7 +923,7 @@ class BSPlotterProjected(BSPlotter):
         """
         if isinstance(bs, list):
             warnings.warn(
-                "Multiple bands are not handled by BSPlotterProjected." "The first band in the list will be considered"
+                "Multiple bands are not handled by BSPlotterProjected. The first band in the list will be considered"
             )
             bs = bs[0]
 
@@ -1253,7 +1253,7 @@ class BSPlotterProjected(BSPlotter):
             for index in selected_branches:
                 if not isinstance(index, int):
                     raise ValueError(
-                        "You do not give a correct type of index of symmetry lines. It should be " "'int' type"
+                        "You do not give a correct type of index of symmetry lines. It should be 'int' type"
                     )
                 if index > num_branches or index < 1:
                     raise ValueError(
@@ -1774,7 +1774,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError("You put in at least two similar orbitals in dictio[%s]." % elt)
                 else:
                     raise TypeError(
-                        "The invalid type of value was put into 'dictio[%s]'. It should be list " "type." % elt
+                        "The invalid type of value was put into 'dictio[%s]'. It should be list type." % elt
                     )
             else:
                 raise KeyError("The invalid element was put into 'dictio' as a key: %s" % elt)
@@ -1805,7 +1805,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError("You put in at least two similar orbitals in sum_morbs[%s]." % elt)
                     else:
                         raise TypeError(
-                            "The invalid type of value was put into 'sum_morbs[%s]'. It should be list " "type." % elt
+                            "The invalid type of value was put into 'sum_morbs[%s]'. It should be list type." % elt
                         )
                     if elt not in dictio.keys():
                         raise ValueError(
@@ -1862,7 +1862,7 @@ class BSPlotterProjected(BSPlotter):
                         orb = sum_morbs[elt][0]
                         if orb == "s":
                             raise ValueError(
-                                "We do not sum projection over only 's' orbital of the same " "type of element."
+                                "We do not sum projection over only 's' orbital of the same type of element."
                             )
                         if orb in individual_orbs.keys():
                             sum_morbs[elt].pop(0)
@@ -1924,7 +1924,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError("You put at least two similar site numbers into 'dictpa[%s]'." % elt)
                 else:
                     raise TypeError(
-                        "The invalid type of value was put into 'dictpa[%s]'. It should be list " "type." % elt
+                        "The invalid type of value was put into 'dictpa[%s]'. It should be list type." % elt
                     )
             else:
                 raise KeyError("The invalid element was put into 'dictpa' as a key: %s" % elt)
@@ -1977,7 +1977,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError("You put at least two similar site numbers into 'sum_atoms[%s]'." % elt)
                     else:
                         raise TypeError(
-                            "The invalid type of value was put into 'sum_atoms[%s]'. It should be list " "type." % elt
+                            "The invalid type of value was put into 'sum_atoms[%s]'. It should be list type." % elt
                         )
                     if elt not in dictpa.keys():
                         raise ValueError(
@@ -2055,14 +2055,14 @@ class BSPlotterProjected(BSPlotter):
                     divide[orb[0]] = []
                     divide[orb[0]].append(orb)
             label = ""
-            for elem in divide:
+            for elem, v in divide.items():
                 if elem == "s":
                     label += "s" + ","
                 else:
-                    if len(divide[elem]) == len(individual_orbs[elem]):
+                    if len(v) == len(individual_orbs[elem]):
                         label += elem + ","
                     else:
-                        l = [o[1:] for o in divide[elem]]
+                        l = [o[1:] for o in v]
                         label += elem + str(l).replace("['", "").replace("']", "").replace("', '", "-") + ","
             return label[:-1]
 
@@ -2224,7 +2224,7 @@ class BSPlotterProjected(BSPlotter):
                 # don't print the same label twice
                 if i != 0:
                     if n_ticks["label"][i] == n_ticks["label"][i - 1]:
-                        logger.debug("already print label... " "skipping label {i}".format(i=n_ticks["label"][i]))
+                        logger.debug("already print label... skipping label {i}".format(i=n_ticks["label"][i]))
                     else:
                         logger.debug(
                             "Adding a line at {d}"
@@ -2679,12 +2679,12 @@ class BSDOSPlotter:
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
-        inset_ax.set_xlim([-0.35, 1.00])
-        inset_ax.set_ylim([-0.35, 1.00])
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)  # pylint: disable=E1101
+        inset_ax.set_xlim([-0.35, 1.00])  # pylint: disable=E1101
+        inset_ax.set_ylim([-0.35, 1.00])  # pylint: disable=E1101
 
         # add the labels
-        inset_ax.text(
+        inset_ax.text(  # pylint: disable=E1101
             0.70,
             -0.2,
             g_label,
@@ -2693,7 +2693,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="left",
         )
-        inset_ax.text(
+        inset_ax.text(  # pylint: disable=E1101
             0.325,
             0.70,
             r_label,
@@ -2702,7 +2702,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="center",
         )
-        inset_ax.text(
+        inset_ax.text(  # pylint: disable=E1101
             -0.05,
             -0.2,
             b_label,
@@ -2712,8 +2712,8 @@ class BSDOSPlotter:
             horizontalalignment="right",
         )
 
-        inset_ax.get_xaxis().set_visible(False)
-        inset_ax.get_yaxis().set_visible(False)
+        inset_ax.get_xaxis().set_visible(False)  # pylint: disable=E1101
+        inset_ax.get_yaxis().set_visible(False)  # pylint: disable=E1101
 
     @staticmethod
     def _rb_line(ax, r_label, b_label, loc):
@@ -2734,6 +2734,7 @@ class BSDOSPlotter:
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
+        # pylint: disable=E1101
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(
@@ -3674,16 +3675,19 @@ class CohpPlotter:
     DosPlotter object.
     """
 
-    def __init__(self, zero_at_efermi=True, are_coops=False):
+    def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False):
         """
         Args:
             zero_at_efermi: Whether to shift all populations to have zero
                 energy at the Fermi level. Defaults to True.
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
+            are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
+                Defaults to False for COHPs
         """
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         self._cohps = OrderedDict()
 
     def add_cohp(self, label, cohp):
@@ -3767,11 +3771,13 @@ class CohpPlotter:
         """
         if self.are_coops:
             cohp_label = "COOP"
+        elif self.are_cobis:
+            cohp_label = "COBI"
         else:
             cohp_label = "COHP"
 
         if plot_negative is None:
-            plot_negative = not self.are_coops
+            plot_negative = (not self.are_coops) and (not self.are_cobis)
 
         if integrated:
             cohp_label = "I" + cohp_label + " (eV)"
