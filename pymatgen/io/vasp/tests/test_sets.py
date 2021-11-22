@@ -1183,7 +1183,7 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(len(vis.kpoints.kpts), 180)
 
         with pytest.warns(BadInputSetWarning, match=r"Hybrid functionals"):
-            MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, user_incar_settings={"ALGO": "Fast"})
+            vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, user_incar_settings={"ALGO": "Fast"})
 
     def test_override_from_prev_calc(self):
         prev_run = self.TEST_FILES_DIR / "static_silicon"
