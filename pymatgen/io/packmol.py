@@ -28,7 +28,7 @@ from monty.os.path import which
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputGenerator, InputSet
 
-__author__ = "Tingzheng Hou, Ryan Kingsbury"
+__author__ = "Tingzheng Hou, Ryan Kingsbury, Orion Cohen"
 __version__ = "1.0"
 __maintainer__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
