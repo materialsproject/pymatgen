@@ -540,6 +540,11 @@ class VasprunTest(PymatgenTest):
         self.assertNotAlmostEqual(vrun.get_band_structure(efermi=None).get_band_gap()["energy"], eigen_gap, places=3)
         self.assertNotEqual(bs_gap, 0)
 
+        # branch 4 - E_fermi incorrectly placed inside a band
+        vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.bad_fermi.gz")
+        smart_fermi = vrun.calculate_efermi()
+        self.assertAlmostEqual(smart_fermi, 6.0165)
+
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
         # with warnings.catch_warnings(record=True) as w:
