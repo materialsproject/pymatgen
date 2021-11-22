@@ -329,7 +329,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         mpr = MPRelaxSet(struct, use_structure_charge=False)
         self.assertFalse(
             "NELECT" in mpr.incar.keys(),
-            "NELECT should not be set when " "use_structure_charge is False",
+            "NELECT should not be set when use_structure_charge is False",
         )
 
         struct = Structure(latt, ["Co", "O"], coords)

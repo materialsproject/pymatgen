@@ -170,7 +170,7 @@ class CostAnalyzer:
             pd = PhaseDiagram(entries_list)
             return pd.get_decomposition(composition)
         except IndexError:
-            raise ValueError("Error during PD building; most likely, " "cost data does not exist!")
+            raise ValueError("Error during PD building; most likely, cost data does not exist!")
 
     def get_cost_per_mol(self, comp):
         """

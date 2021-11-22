@@ -73,6 +73,11 @@ class PackmolSet(InputSet):
             # a solution but still return a zero exit code
             # see https://github.com/m3g/packmol/issues/28
             if "ERROR" in p.stdout.decode():
+                if "Could not open file." in p.stdout.decode():
+                    raise ValueError(
+                        "Your packmol might be too old to handle paths with spaces."
+                        "Please try again with a newer version or use paths without spaces."
+                    )
                 msg = p.stdout.decode().split("ERROR")[-1]
                 raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
         except subprocess.CalledProcessError as e:
@@ -164,9 +169,13 @@ class PackmolBoxGen(InputGenerator):
         file_contents += "tolerance {}\n\n".format(self.tolerance)
 
         file_contents += "filetype xyz\n\n"
-        # NOTE - output filename MUST be enclosed in double quotes in order to work
-        # when there are spaces in the filename. Single quotes will not work.
-        file_contents += f'output {self.outputfile}\n\n'
+        if " " in str(self.outputfile):
+            # NOTE - double quotes are deliberately used inside the f-string here, do not change
+            # fmt: off
+            file_contents += f'output "{self.outputfile}"\n\n'
+            # fmt: on
+        else:
+            file_contents += f"output {self.outputfile}\n\n"
 
         if box:
             box_list = " ".join(str(i) for i in box)
@@ -198,7 +207,13 @@ class PackmolBoxGen(InputGenerator):
                 mol = d["coords"]
             fname = f"packmol_{d['name']}.xyz"
             mapping.update({fname: mol.to(fmt="xyz")})
-            file_contents += f'structure {fname}\n'
+            if " " in str(fname):
+                # NOTE - double quotes are deliberately used inside the f-string here, do not change
+                # fmt: off
+                file_contents += f'structure "{fname}"\n'
+                # fmt: on
+            else:
+                file_contents += f"structure {fname}\n"
             file_contents += "  number {}\n".format(str(d["number"]))
             file_contents += "  inside box {}\n".format(box_list)
             file_contents += "end structure\n\n"
@@ -214,4 +229,3 @@ class PackmolBoxGen(InputGenerator):
             control_params=self.control_params,
             tolerance=self.tolerance,
         )
-

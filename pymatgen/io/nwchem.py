@@ -60,7 +60,7 @@ class NwTask(MSONable):
         "mcscf": "Multiconfiguration SCF",
         "selci": "Selected CI with perturbation correction",
         "md": "Classical molecular dynamics simulation",
-        "pspw": "Pseudopotential plane-wave DFT for molecules and " "insulating solids using NWPW",
+        "pspw": "Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW",
         "band": "Pseudopotential plane-wave DFT for solids using NWPW",
         "tce": "Tensor Contraction Engine",
         "tddft": "Time Dependent DFT",
@@ -68,16 +68,16 @@ class NwTask(MSONable):
 
     operations = {
         "energy": "Evaluate the single point energy.",
-        "gradient": "Evaluate the derivative of the energy with " "respect to nuclear coordinates.",
-        "optimize": "Minimize the energy by varying the molecular " "structure.",
-        "saddle": "Conduct a search for a transition state (or " "saddle point).",
+        "gradient": "Evaluate the derivative of the energy with respect to nuclear coordinates.",
+        "optimize": "Minimize the energy by varying the molecular structure.",
+        "saddle": "Conduct a search for a transition state (or saddle point).",
         "hessian": "Compute second derivatives.",
-        "frequencies": "Compute second derivatives and print out an " "analysis of molecular vibrations.",
+        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
         "freq": "Same as frequencies.",
-        "vscf": "Compute anharmonic contributions to the " "vibrational modes.",
-        "property": "Calculate the properties for the wave " "function.",
+        "vscf": "Compute anharmonic contributions to the vibrational modes.",
+        "property": "Calculate the properties for the wave function.",
         "dynamics": "Perform classical molecular dynamics.",
-        "thermodynamics": "Perform multi-configuration " "thermodynamic integration using " "classical MD.",
+        "thermodynamics": "Perform multi-configuration thermodynamic integration using classical MD.",
         "": "dummy",
     }
 

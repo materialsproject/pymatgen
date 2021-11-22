@@ -33,7 +33,7 @@ from pymatgen.core.units import Unit
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Maarten de Jong, Ian Winter, Shyam Dwaraknath, " "Mark Asta, Anubhav Jain"
+__credits__ = "Maarten de Jong, Ian Winter, Shyam Dwaraknath, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
@@ -61,7 +61,7 @@ class NthOrderElasticTensor(Tensor):
         if obj.rank % 2 != 0:
             raise ValueError("ElasticTensor must have even rank")
         if not obj.is_voigt_symmetric(tol):
-            warnings.warn("Input elastic tensor does not satisfy " "standard voigt symmetries")
+            warnings.warn("Input elastic tensor does not satisfy standard voigt symmetries")
         return obj.view(cls)
 
     @property
@@ -129,7 +129,7 @@ def raise_error_if_unphysical(f):
 
         """
         if self.k_vrh < 0 or self.g_vrh < 0:
-            raise ValueError("Bulk or shear modulus is negative, property " "cannot be determined")
+            raise ValueError("Bulk or shear modulus is negative, property cannot be determined")
         return f(self, *args, **kwargs)
 
     return wrapper
@@ -270,7 +270,7 @@ class ElasticTensor(NthOrderElasticTensor):
         weight = float(structure.composition.weight)
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         if self.g_vrh < 0:
-            raise ValueError("k_vrh or g_vrh is negative, " "sound velocity is undefined")
+            raise ValueError("k_vrh or g_vrh is negative, sound velocity is undefined")
         return (1e9 * self.g_vrh / mass_density) ** 0.5
 
     @raise_error_if_unphysical
@@ -291,7 +291,7 @@ class ElasticTensor(NthOrderElasticTensor):
         weight = float(structure.composition.weight)
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         if self.g_vrh < 0:
-            raise ValueError("k_vrh or g_vrh is negative, " "sound velocity is undefined")
+            raise ValueError("k_vrh or g_vrh is negative, sound velocity is undefined")
         return (1e9 * (self.k_vrh + 4.0 / 3.0 * self.g_vrh) / mass_density) ** 0.5
 
     @raise_error_if_unphysical
@@ -529,9 +529,9 @@ class ElasticTensor(NthOrderElasticTensor):
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
         if not set(strain_states) <= set(ss_dict.keys()):
-            raise ValueError("Missing independent strain states: " "{}".format(set(strain_states) - set(ss_dict)))
+            raise ValueError("Missing independent strain states: {}".format(set(strain_states) - set(ss_dict)))
         if len(set(ss_dict.keys()) - set(strain_states)) > 0:
-            warnings.warn("Extra strain states in strain-stress pairs " "are neglected in independent strain fitting")
+            warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
         for i in range(6):
             istrains = ss_dict[strain_states[i]]["strains"]
@@ -651,7 +651,7 @@ class ElasticTensorExpansion(TensorCollection):
                 to quadpy.sphere.Lebedev(19) as read from file
         """
         if temperature and not structure:
-            raise ValueError("If using temperature input, you must also " "include structure")
+            raise ValueError("If using temperature input, you must also include structure")
 
         quad = quad if quad else DEFAULT_QUAD
         points = quad["points"]
@@ -767,7 +767,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         # TODO: this might have a general form
         if not self.order <= 4:
-            raise ValueError("Compliance tensor expansion only " "supported for fourth-order and lower")
+            raise ValueError("Compliance tensor expansion only supported for fourth-order and lower")
         ce_exp = [ElasticTensor(self[0]).compliance_tensor]
         einstring = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
         ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1], ce_exp[-1], ce_exp[-1]))

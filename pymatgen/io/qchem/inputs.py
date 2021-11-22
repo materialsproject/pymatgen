@@ -432,7 +432,7 @@ class QCInput(InputFile):
         scan_list.append("$scan")
         total_vars = sum([len(v) for v in scan.values()])
         if total_vars > 2:
-            raise ValueError("Q-Chem only supports PES_SCAN with two or less " "variables.")
+            raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
                 for var in variables:

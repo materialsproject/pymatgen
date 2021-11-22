@@ -41,7 +41,7 @@ warnings.warn(
 
 @requires(
     aiida_loaded,
-    "To use the AiidaStructureAdaptor, you need to have " "aiida installed.",
+    "To use the AiidaStructureAdaptor, you need to have aiida installed.",
 )
 class AiidaStructureAdaptor:
     """

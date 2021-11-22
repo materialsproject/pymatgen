@@ -725,7 +725,7 @@ class LocalGeometryFinder:
         for isite, site in enumerate(self.structure):
             if isite not in sites_indices:
                 logging.debug(
-                    " ... in site #{:d}/{:d} ({}) : " "skipped".format(isite, len(self.structure), site.species_string)
+                    " ... in site #{:d}/{:d} ({}) : skipped".format(isite, len(self.structure), site.species_string)
                 )
                 continue
             if breakit:

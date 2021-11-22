@@ -1,4 +1,6 @@
 import os
+import pprint
+
 
 # thanks https://stackoverflow.com/a/36693250
 def package_files(directory, extensions):
@@ -15,6 +17,5 @@ def package_files(directory, extensions):
 
 
 json_yaml_csv_files = package_files("pymatgen", ["yaml", "json", "csv", "yaml.gz", "json.gz", "csv.gz"])
-import pprint
 
 pprint.pprint(json_yaml_csv_files)

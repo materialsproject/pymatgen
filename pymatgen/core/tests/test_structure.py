@@ -821,7 +821,7 @@ class StructureTest(PymatgenTest):
         s_elem = Structure(lattice, [co_elem, o_elem], coords)
         s_specie = Structure(lattice, [co_specie, o_specie], coords)
         s_specie.remove_oxidation_states()
-        self.assertEqual(s_elem, s_specie, "Oxidation state remover " "failed")
+        self.assertEqual(s_elem, s_specie, "Oxidation state remover failed")
 
     def test_add_oxidation_states_by_guess(self):
         s = PymatgenTest.get_structure("Li2O")

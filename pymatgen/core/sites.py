@@ -187,7 +187,7 @@ class Site(collections.abc.Hashable, MSONable):
             AttributeError if Site is not ordered.
         """
         if not self.is_ordered:
-            raise AttributeError("specie property only works for ordered " "sites!")
+            raise AttributeError("specie property only works for ordered sites!")
         return list(self.species.keys())[0]
 
     @property
@@ -597,7 +597,7 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " "{:.4f}]".format(
+        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, {:.4f}]".format(
             self.species_string, self.coords[0], self.coords[1], self.coords[2], *self._frac_coords
         )
 

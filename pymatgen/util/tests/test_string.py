@@ -9,6 +9,7 @@ from pymatgen.core import Structure
 from pymatgen.util.string import (
     disordered_formula,
     formula_double_format,
+    charge_string,
     htmlify,
     latexify,
     latexify_spacegroup,
@@ -76,6 +77,21 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(formula_double_format(2.00), "2")
         self.assertEqual(formula_double_format(2.10), "2.1")
         self.assertEqual(formula_double_format(2.10000000002), "2.1")
+
+    def test_charge_string(self):
+        self.assertEqual(charge_string(1), "[+1]")
+        self.assertEqual(charge_string(1, brackets=False), "+1")
+        self.assertEqual(charge_string(1, explicit_one=False), "[+]")
+
+        self.assertEqual(charge_string(-1), "[-1]")
+        self.assertEqual(charge_string(-1, brackets=False), "-1")
+        self.assertEqual(charge_string(-1, explicit_one=False), "[-]")
+
+        self.assertEqual(charge_string(2), "[+2]")
+        self.assertEqual(charge_string(-4), "[-4]")
+        self.assertEqual(charge_string(3.5, brackets=False), "+3.5")
+
+        self.assertEqual(charge_string(0), "(aq)")
 
     def test_transformation_to_string(self):
         m = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]

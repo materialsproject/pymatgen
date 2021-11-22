@@ -24,7 +24,7 @@ class CrystalAIRester:
     For the details of MEGNet and benchmarks, please refer to the following work:
     Chen, C.; Ye, W.; Zuo, Y.; Zheng, C.; Ong, S. P. <i>Graph Networks as a Universal Machine Learning Framework
         for Molecules and Crystals.</i> Chemistry of Materials 2019, acs.chemmater.9b01294.
-     DOI: <a href="http://dx.doi.org/10.1021/acs.chemmater.9b01294">10.1021/acs.chemmater.9b01294</a>.</p>
+     DOI: <a href="https://doi.org/10.1021/acs.chemmater.9b01294">10.1021/acs.chemmater.9b01294</a>.</p>
     """
 
     def __init__(self):
