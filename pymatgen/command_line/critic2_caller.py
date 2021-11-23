@@ -706,9 +706,7 @@ class Critic2Analysis(MSONable):
         def get_volume_and_charge(nonequiv_idx):
             attractor = yt["integration"]["attractors"][nonequiv_idx - 1]
             if attractor["id"] != nonequiv_idx:
-                raise ValueError(
-                    f"List of attractors may be un-ordered (wanted id={nonequiv_idx}): {attractor}"
-                )
+                raise ValueError(f"List of attractors may be un-ordered (wanted id={nonequiv_idx}): {attractor}")
             return (
                 attractor["integrals"][volume_idx],
                 attractor["integrals"][charge_idx],

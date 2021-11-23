@@ -419,10 +419,8 @@ class ComputedEntry(Entry):
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
-            
-                ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0)
-                for ea in self.energy_adjustments
-            
+            ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0)
+            for ea in self.energy_adjustments
         )
 
         if unc.nominal_value != 0 and unc.std_dev == 0:
@@ -693,9 +691,9 @@ class ComputedStructureEntry(ComputedEntry):
         # TODO: this should raise TypeError since normalization does not make sense
         # raise TypeError("You cannot normalize a structure.")
         warnings.warn(
-                f"Normalization of a `{self.__class__.__name__}` makes "
-                "`self.composition` and `self.structure.composition` inconsistent"
-                " - please use self.composition for all further calculations."
+            f"Normalization of a `{self.__class__.__name__}` makes "
+            "`self.composition` and `self.structure.composition` inconsistent"
+            " - please use self.composition for all further calculations."
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)

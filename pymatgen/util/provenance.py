@@ -108,9 +108,7 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
             return HistoryNode.from_dict(h_node)
 
         if len(h_node) != 3:
-            raise ValueError(
-                f"Invalid History node, should be dict or (name, version, description) tuple: {h_node}"
-            )
+            raise ValueError(f"Invalid History node, should be dict or (name, version, description) tuple: {h_node}")
         return HistoryNode(h_node[0], h_node[1], h_node[2])
 
 
@@ -273,14 +271,10 @@ class StructureNL:
         # check for valid history nodes
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
-            raise ValueError(
-                f"A maximum of {MAX_HNODES} History nodes are supported, you have {len(history)}!"
-            )
+            raise ValueError(f"A maximum of {MAX_HNODES} History nodes are supported, you have {len(history)}!")
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
-            raise ValueError(
-                f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes"
-            )
+            raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
         self.created_at = created_at if created_at else datetime.datetime.utcnow()
 

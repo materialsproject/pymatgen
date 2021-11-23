@@ -2724,9 +2724,7 @@ class Outcar:
             elif match.group(1).lower() == "z":
                 index = 2
             else:
-                raise Exception(
-                    f"Couldn't parse row index from symbol for internal strain tensor: {match.group(1)}"
-                )
+                raise Exception(f"Couldn't parse row index from symbol for internal strain tensor: {match.group(1)}")
             results.internal_strain_tensor[results.internal_strain_ion][index] = np.array(
                 [float(match.group(i)) for i in range(2, 8)]
             )
@@ -4326,9 +4324,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     # TODO: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
         # get all branch dir names
-        branch_dir_names = [
-            os.path.abspath(d) for d in glob.glob(f"{dir_name}/branch_*") if os.path.isdir(d)
-        ]
+        branch_dir_names = [os.path.abspath(d) for d in glob.glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
         # sort by the directory name (e.g, branch_10)
         sorted_branch_dir_names = sorted(branch_dir_names, key=lambda x: int(x.split("_")[-1]))

@@ -1093,9 +1093,7 @@ class MagneticStructureEnumerator:
                 ordered_structures_origins.append("input")
                 self.logger.info("Input structure not present in enumerated structures, adding...")
             else:
-                self.logger.info(
-                    f"Input structure was found in enumerated structures at index {matches.index(True)}"
-                )
+                self.logger.info(f"Input structure was found in enumerated structures at index {matches.index(True)}")
                 self.input_index = matches.index(True)
                 self.input_origin = ordered_structures_origins[self.input_index]
 

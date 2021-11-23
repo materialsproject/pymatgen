@@ -474,9 +474,7 @@ class MagSymmOp(SymmOp):
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
         if time_reversal not in (-1, 1):
-            raise Exception(
-                f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}"
-            )
+            raise Exception(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
         self.time_reversal = time_reversal
 
     def __eq__(self, other):

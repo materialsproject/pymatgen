@@ -1094,10 +1094,8 @@ class BSPlotterProjected(BSPlotter):
                         )
                         for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             markerscale = sum(
-                                
-                                    proj[b][str(Spin.down)][i][j][str(el)][o]
-                                    for o in proj[b][str(Spin.down)][i][j][str(el)]
-                                
+                                proj[b][str(Spin.down)][i][j][str(el)][o]
+                                for o in proj[b][str(Spin.down)][i][j][str(el)]
                             )
                             plt.plot(
                                 data["distances"][b][j],
@@ -1833,9 +1831,7 @@ class BSPlotterProjected(BSPlotter):
                         if len(sum_morbs[elt]) > 1:
                             for orb in sum_morbs[elt]:
                                 if dictio[elt][0] not in orb:
-                                    raise ValueError(
-                                        f"The invalid orbital '{orb}' was put into 'sum_morbs[{elt}]'."
-                                    )
+                                    raise ValueError(f"The invalid orbital '{orb}' was put into 'sum_morbs[{elt}]'.")
                         else:
                             if orb == "s" or len(orb) > 1:
                                 raise ValueError(f"The invalid orbital '{orb}' was put into sum_orbs['{elt}'].")
@@ -1880,9 +1876,7 @@ class BSPlotterProjected(BSPlotter):
 
                     for orb in sum_morbs[elt]:
                         if orb not in dictio[elt]:
-                            raise ValueError(
-                                f"The orbitals of sum_morbs[{elt}] conflict with those of dictio[{elt}]."
-                            )
+                            raise ValueError(f"The orbitals of sum_morbs[{elt}] conflict with those of dictio[{elt}].")
 
         return dictio, sum_morbs
 

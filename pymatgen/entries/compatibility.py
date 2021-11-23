@@ -612,9 +612,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         if len(entry.energy_adjustments) > 0:
             print("The following energy adjustments have been applied to this entry:")
             for e in entry.energy_adjustments:
-                print(
-                    f"\t\t{e.name}: {e.value:.3f} eV ({e.value / entry.composition.num_atoms:.3f} eV/atom)"
-                )
+                print(f"\t\t{e.name}: {e.value:.3f} eV ({e.value / entry.composition.num_atoms:.3f} eV/atom)")
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 

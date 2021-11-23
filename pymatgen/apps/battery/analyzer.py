@@ -62,11 +62,9 @@ class BatteryAnalyzer:
 
         # how much 'spare charge' is left in the redox metals for oxidation?
         oxid_pot = sum(
-            
-                (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
-                for spec in self.comp
-                if is_redox_active_intercalation(Element(spec.symbol))
-            
+            (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
+            for spec in self.comp
+            if is_redox_active_intercalation(Element(spec.symbol))
         )
 
         oxid_limit = oxid_pot / self.cation_charge
@@ -90,15 +88,10 @@ class BatteryAnalyzer:
         # how much 'spare charge' is left in the redox metals for reduction?
         lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
         oxid_pot = sum(
-            
-                (
-                    spec.oxi_state
-                    - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])
-                )
-                * self.comp[spec]
-                for spec in self.comp
-                if is_redox_active_intercalation(Element(spec.symbol))
-            
+            (spec.oxi_state - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol]))
+            * self.comp[spec]
+            for spec in self.comp
+            if is_redox_active_intercalation(Element(spec.symbol))
         )
 
         return oxid_pot / self.cation_charge

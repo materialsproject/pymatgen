@@ -1341,8 +1341,6 @@ class GeneticOrderMatcher(KabschMatcher):
 
             partial_matches = matches
 
-            logger.info(
-                f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}"
-            )
+            logger.info(f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}")
 
         return matches

@@ -718,9 +718,7 @@ class PourbaixDiagram(MSONable):
         processed_entries = []
         total = sum(comb(len(entries), j + 1) for j in range(N))
         if total > 1e6:
-            warnings.warn(
-                f"Your pourbaix diagram includes {total} entries and may take a long time to generate."
-            )
+            warnings.warn(f"Your pourbaix diagram includes {total} entries and may take a long time to generate.")
 
         # Parallel processing of multi-entry generation
         if nproc is not None:

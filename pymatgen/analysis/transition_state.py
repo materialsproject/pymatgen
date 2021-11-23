@@ -332,12 +332,12 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
         neb1_start_e, neb1_end_e = neb1_energies[0], neb1_energies[-1]
         neb2_start_e, neb2_end_e = neb2_energies[0], neb2_energies[-1]
         min_e_diff = min(
-                [
-                    abs(neb1_start_e - neb2_start_e),
-                    abs(neb1_start_e - neb2_end_e),
-                    abs(neb1_end_e - neb2_start_e),
-                    abs(neb1_end_e - neb2_end_e),
-                ]
+            [
+                abs(neb1_start_e - neb2_start_e),
+                abs(neb1_start_e - neb2_end_e),
+                abs(neb1_end_e - neb2_start_e),
+                abs(neb1_end_e - neb2_end_e),
+            ]
         )
 
         if arranged_neb_analyses:

@@ -161,9 +161,7 @@ class DOS(Spectrum):
         if Spin.down in self.densities:
             stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}"
-                )
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):
@@ -369,9 +367,7 @@ class Dos(MSONable):
         if Spin.down in self.densities:
             stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}"
-                )
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):

@@ -405,9 +405,7 @@ class GaussianInput:
                 bondlength = self._mol.get_distance(i, nn[0])
                 angle = self._mol.get_angle(i, nn[0], nn[1])
                 dih = self._mol.get_dihedral(i, nn[0], nn[1], nn[2])
-                output.append(
-                    f"{self._mol[i].specie} {nn[0] + 1} B{i} {nn[1] + 1} A{i} {nn[2] + 1} D{i}"
-                )
+                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i} {nn[1] + 1} A{i} {nn[2] + 1} D{i}")
                 outputvar.append(f"B{i}={bondlength:.6f}")
                 outputvar.append(f"A{i}={angle:.6f}")
                 outputvar.append(f"D{i}={dih:.6f}")

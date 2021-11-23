@@ -649,10 +649,8 @@ class DictSet(VaspInputSet):
         """
         nelectrons_by_element = {p.element: p.nelectrons for p in self.potcar}
         nelect = sum(
-            
-                num_atoms * nelectrons_by_element[str(el)]
-                for el, num_atoms in self.structure.composition.element_composition.items()
-            
+            num_atoms * nelectrons_by_element[str(el)]
+            for el, num_atoms in self.structure.composition.element_composition.items()
         )
 
         if self.use_structure_charge:

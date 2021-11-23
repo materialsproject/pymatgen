@@ -142,9 +142,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(item)
             return self._data.get(sp, 0)
         except ValueError as ex:
-            raise TypeError(
-                f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}"
-            )
+            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
 
     def __len__(self):
         return len(self._data)
@@ -157,9 +155,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(item)
             return sp in self._data
         except ValueError as ex:
-            raise TypeError(
-                f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}"
-            )
+            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up
@@ -453,9 +449,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return list(self.keys())
 
     def __str__(self):
-        return " ".join(
-            [f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items()]
-        )
+        return " ".join([f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items()])
 
     def to_pretty_string(self) -> str:
         """

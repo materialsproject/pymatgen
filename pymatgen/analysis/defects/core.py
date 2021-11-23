@@ -631,10 +631,8 @@ class DefectEntry(MSONable):
         chemical_potentials = chemical_potentials if chemical_potentials else {}
 
         chempot_correction = sum(
-            
-                chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
-                for el, chem_pot in chemical_potentials.items()
-            
+            chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
+            for el, chem_pot in chemical_potentials.items()
         )
 
         formation_energy = self.energy + chempot_correction

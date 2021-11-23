@@ -405,11 +405,9 @@ class ConversionVoltagePair(AbstractVoltagePair):
             sum(prev_rxn.all_comp[i].weight * abs(prev_rxn.coeffs[i]) for i in range(len(prev_rxn.all_comp))) / 2
         )
         vol_charge = sum(
-            
-                abs(prev_rxn.get_coeff(e.composition)) * e.structure.volume
-                for e in step1["entries"]
-                if e.composition.reduced_formula != working_ion
-            
+            abs(prev_rxn.get_coeff(e.composition)) * e.structure.volume
+            for e in step1["entries"]
+            if e.composition.reduced_formula != working_ion
         )
         mass_discharge = (
             sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
@@ -417,11 +415,9 @@ class ConversionVoltagePair(AbstractVoltagePair):
         mass_charge = prev_mass_dischg
         mass_discharge = mass_discharge
         vol_discharge = sum(
-            
-                abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
-                for e in step2["entries"]
-                if e.composition.reduced_formula != working_ion
-            
+            abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
+            for e in step2["entries"]
+            if e.composition.reduced_formula != working_ion
         )
 
         totalcomp = Composition({})

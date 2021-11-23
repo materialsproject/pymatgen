@@ -193,7 +193,7 @@ class QCInput(MSONable):
         Returns:
             (str) String representation of multi job input file.
         """
-        multi_job_string = ''
+        multi_job_string = ""
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
                 multi_job_string += job_i.__str__() + "\n@@@\n\n"
@@ -325,9 +325,7 @@ class QCInput(MSONable):
             else:
                 raise ValueError('The only acceptable text value for molecule is "read"')
         else:
-            mol_list.append(
-                f" {int(molecule.charge)} {molecule.spin_multiplicity}"
-            )
+            mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
                 mol_list.append(
                     " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(

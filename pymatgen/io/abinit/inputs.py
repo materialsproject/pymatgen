@@ -31,57 +31,57 @@ logger = logging.getLogger(__file__)
 # This variables should not be passed to set_vars since
 # they will be generated with structure.to_abivars()
 GEOVARS = {
-        "acell",
-        "rprim",
-        "rprimd",
-        "angdeg",
-        "xred",
-        "xcart",
-        "xangst",
-        "znucl",
-        "typat",
-        "ntypat",
-        "natom",
+    "acell",
+    "rprim",
+    "rprimd",
+    "angdeg",
+    "xred",
+    "xcart",
+    "xangst",
+    "znucl",
+    "typat",
+    "ntypat",
+    "natom",
 }
 
 # Variables defining tolerances (used in pop_tolerances)
 _TOLVARS = {
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-        "tolimg",
-        "tolmxf",
-        "tolrde",
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+    "tolimg",
+    "tolmxf",
+    "tolrde",
 }
 
 # Variables defining tolerances for the SCF cycle that are mutally exclusive
 _TOLVARS_SCF = {
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
 }
 
 # Variables determining if data files should be read in input
 _IRDVARS = {
-        "irdbseig",
-        "irdbsreso",
-        "irdhaydock",
-        "irdddk",
-        "irdden",
-        "ird1den",
-        "irdqps",
-        "irdkss",
-        "irdscr",
-        "irdsuscep",
-        "irdvdw",
-        "irdwfk",
-        "irdwfkfine",
-        "irdwfq",
-        "ird1wf",
+    "irdbseig",
+    "irdbsreso",
+    "irdhaydock",
+    "irdddk",
+    "irdden",
+    "ird1den",
+    "irdqps",
+    "irdkss",
+    "irdscr",
+    "irdsuscep",
+    "irdvdw",
+    "irdwfk",
+    "irdwfkfine",
+    "irdwfq",
+    "ird1wf",
 }
 
 # Name of the (default) tolerance used by the runlevels.
@@ -815,9 +815,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
-            logger.info(
-                f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}."
-            )
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
 
