@@ -1182,6 +1182,10 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(vis.incar["ISYM"], 3)
         self.assertEqual(len(vis.kpoints.kpts), 180)
 
+        with pytest.warns(BadInputSetWarning, match=r"Hybrid functionals"):
+            vis = MPHSEBSSet(PymatgenTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
+            vis.incar.items()
+
     def test_override_from_prev_calc(self):
         prev_run = self.TEST_FILES_DIR / "static_silicon"
         vis = MPHSEBSSet(_dummy_structure, mode="uniform")
