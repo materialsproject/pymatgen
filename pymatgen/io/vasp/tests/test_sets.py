@@ -491,7 +491,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Test the behavior of passing in the wrong type of MAGMOM to user_incar_settings
         struct = self.structure.copy()
-        with pytest.raises(ValueError, match=r"MAGMOM must be supplied"):
+        with pytest.raises(TypeError, match=r"MAGMOM must be supplied"):
             vis = MPRelaxSet(
                 struct,
                 user_incar_settings={"MAGMOM": [5.0, 5.0]},

@@ -510,7 +510,7 @@ class DictSet(VaspInputSet):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if not isinstance(v, dict):
-                            raise ValueError(
+                            raise TypeError(
                                 "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
                                 "If you want site-specific magnetic moments, set them in the site.magmom properties "
                                 "of the site objects in the structure"
@@ -525,7 +525,7 @@ class DictSet(VaspInputSet):
                         mag.append(v.get(str(site.specie)))
                     else:
                         if not isinstance(v, dict):
-                            raise ValueError(
+                            raise TypeError(
                                 "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
                                 "If you want site-specific magnetic moments, set them in the site.magmom properties "
                                 "of the site objects in the structure"
