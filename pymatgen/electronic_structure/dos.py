@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -163,12 +162,12 @@ class DOS(Spectrum):
             stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
             for i, energy in enumerate(self.energies):
                 stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
+                    f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}"
                 )
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
 
 
@@ -371,12 +370,12 @@ class Dos(MSONable):
             stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
             for i, energy in enumerate(self.energies):
                 stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
+                    f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}"
                 )
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
 
     @classmethod
@@ -597,7 +596,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError("Could not find fermi within {}% of concentration={}".format(rtol * 100, concentration))
+            raise ValueError(f"Could not find fermi within {rtol * 100}% of concentration={concentration}")
         return fermi
 
     @classmethod

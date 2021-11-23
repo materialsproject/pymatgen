@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -34,9 +33,9 @@ def do_query(args):
             s = d["structure"]
             formula = re.sub(r"\s+", "", s.formula)
             if args.structure == "poscar":
-                fname = "POSCAR.%s_%s" % (d["task_id"], formula)
+                fname = "POSCAR.{}_{}".format(d["task_id"], formula)
             else:
-                fname = "%s-%s.%s" % (d["task_id"], formula, args.structure)
+                fname = "{}-{}.{}".format(d["task_id"], formula, args.structure)
             s.to(filename=fname)
             count += 1
         print("%d structures written!" % count)

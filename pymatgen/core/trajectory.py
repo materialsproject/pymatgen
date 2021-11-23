@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -494,7 +493,7 @@ class Trajectory(MSONable):
             system = f"{self[0].composition.reduced_formula}"
 
         lines = []
-        format_str = "{{:.{0}f}}".format(significant_figures)
+        format_str = f"{{:.{significant_figures}f}}"
         syms = [site.specie.symbol for site in self[0]]
         site_symbols = [a[0] for a in itertools.groupby(syms)]
         syms = [site.specie.symbol for site in self[0]]

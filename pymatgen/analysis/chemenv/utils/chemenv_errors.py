@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -62,7 +61,7 @@ class EquivalentSiteSearchError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return "Equivalent site could not be found for the following site : {}".format(str(self.site))
+        return f"Equivalent site could not be found for the following site : {str(self.site)}"
 
 
 class SolidAngleError(AbstractChemenvError):

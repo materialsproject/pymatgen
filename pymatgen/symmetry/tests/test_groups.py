@@ -197,7 +197,7 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_string(self):
         sg = SpaceGroup("R-3c")
-        self.assertEqual(sg.to_latex_string(), "R$\overline{3}$cH")
+        self.assertEqual(sg.to_latex_string(), r"R$\overline{3}$cH")
         sg = SpaceGroup("P6/mmm")
         self.assertEqual(sg.to_latex_string(), "P6/mmm")
         sg = SpaceGroup("P4_1")

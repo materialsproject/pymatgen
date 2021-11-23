@@ -86,13 +86,13 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
     all_species = [Species(el, oxi) for el in Element for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
-    cn_and_species = set(
+    cn_and_species = {
         (
             bonded_structure.get_coordination_of_site(i),
             bonded_structure.structure[i].specie,
         )
         for i in range(bonded_structure.structure.num_sites)
-    )
+    }
 
     cn_to_radii_map = {}
     possible_dopants = []
@@ -104,7 +104,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
             warnings.warn(
-                "Shannon radius not found for {} with coordination number {}.\nSkipping...".format(species, cn)
+                f"Shannon radius not found for {species} with coordination number {cn}.\nSkipping..."
             )
             continue
 

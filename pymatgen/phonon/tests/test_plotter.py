@@ -1,7 +1,6 @@
 import json
 import os
 import unittest
-from io import open
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -11,7 +10,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class PhononDosPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_nostack = PhononDosPlotter(sigma=0.2, stack=False)
@@ -42,7 +41,7 @@ class PhononDosPlotterTest(unittest.TestCase):
 
 class PhononBSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json")) as f:
             d = json.loads(f.read())
             self.bs = PhononBandStructureSymmLine.from_dict(d)
             self.plotter = PhononBSPlotter(self.bs)
@@ -55,7 +54,7 @@ class PhononBSPlotterTest(unittest.TestCase):
         )
         self.assertEqual(len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches")
         self.assertEqual(
-            sum([len(e) for e in self.plotter.bs_plot_data()["distances"]]),
+            sum(len(e) for e in self.plotter.bs_plot_data()["distances"]),
             204,
             "wrong number of distances",
         )
@@ -83,7 +82,7 @@ class PhononBSPlotterTest(unittest.TestCase):
 
 class ThermoPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 

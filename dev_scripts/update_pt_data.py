@@ -17,21 +17,21 @@ from pymatgen.core.periodic_table import get_el_sp
 
 
 def test_yaml():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
         print(data)
 
 
 def test_json():
-    with open("periodic_table.json", "r") as f:
+    with open("periodic_table.json") as f:
         data = json.load(f)
         print(data)
 
 
 def parse_oxi_state():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("oxidation_states.txt", "r")
+    f = open("oxidation_states.txt")
     oxidata = f.read()
     f.close()
     oxidata = re.sub("[\n\r]", "", oxidata)
@@ -69,9 +69,9 @@ def parse_oxi_state():
 
 
 def parse_ionic_radii():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("ionic_radii.csv", "r")
+    f = open("ionic_radii.csv")
     radiidata = f.read()
     f.close()
     radiidata = radiidata.split("\r")
@@ -102,9 +102,9 @@ def parse_ionic_radii():
 
 
 def parse_radii():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("radii.csv", "r")
+    f = open("radii.csv")
     radiidata = f.read()
     f.close()
     radiidata = radiidata.split("\r")
@@ -141,7 +141,7 @@ def parse_radii():
 
 
 def update_ionic_radii():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
 
     for el, d in data.items():
@@ -161,7 +161,7 @@ def update_ionic_radii():
 
 
 def parse_shannon_radii():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     import collections
 
@@ -206,7 +206,7 @@ def parse_shannon_radii():
 
 
 def gen_periodic_table():
-    with open("periodic_table.yaml", "r") as f:
+    with open("periodic_table.yaml") as f:
         data = yaml.load(f)
 
     with open("periodic_table.json", "w") as f:
@@ -239,7 +239,7 @@ def gen_iupac_ordering():
         ([17], range(6, 1, -1)),
     ]  # At -> F
 
-    order = sum([list(product(x, y)) for x, y in order], [])
+    order = sum((list(product(x, y)) for x, y in order), [])
     iupac_ordering_dict = dict(zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order))))
 
     # first clean periodic table of any IUPAC ordering
@@ -250,7 +250,7 @@ def gen_iupac_ordering():
     for el in periodic_table:
         if "IUPAC ordering" in periodic_table[el]:
             # sanity check that we don't cover the same element twice
-            raise KeyError("IUPAC ordering already exists for {}".format(el))
+            raise KeyError(f"IUPAC ordering already exists for {el}")
 
         periodic_table[el]["IUPAC ordering"] = iupac_ordering_dict[get_el_sp(el)]
 

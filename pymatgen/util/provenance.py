@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -110,7 +109,7 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
         if len(h_node) != 3:
             raise ValueError(
-                "Invalid History node, should be dict or (name, version, description) tuple: {}".format(h_node)
+                f"Invalid History node, should be dict or (name, version, description) tuple: {h_node}"
             )
         return HistoryNode(h_node[0], h_node[1], h_node[2])
 
@@ -132,7 +131,7 @@ class Author(namedtuple("Author", ["name", "email"])):
         """
         String representation of an Author
         """
-        return "{} <{}>".format(self.name, self.email)
+        return f"{self.name} <{self.email}>"
 
     def as_dict(self):
         """
@@ -168,12 +167,12 @@ class Author(namedtuple("Author", ["name", "email"])):
             # >, whitespace
             m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
             if not m or m.start() != 0 or m.end() != len(author):
-                raise ValueError("Invalid author format! {}".format(author))
+                raise ValueError(f"Invalid author format! {author}")
             return Author(m.groups()[0], m.groups()[1])
         if isinstance(author, dict):
             return Author.from_dict(author)
         if len(author) != 2:
-            raise ValueError("Invalid author, should be String or (name, email) tuple: {}".format(author))
+            raise ValueError(f"Invalid author, should be String or (name, email) tuple: {author}")
         return Author(author[0], author[1])
 
 
@@ -275,12 +274,12 @@ class StructureNL:
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
             raise ValueError(
-                "A maximum of {} History nodes are supported, you have {}!".format(MAX_HNODES, len(history))
+                f"A maximum of {MAX_HNODES} History nodes are supported, you have {len(history)}!"
             )
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(
-                "One or more history nodes exceeds the maximum size limit of {} bytes".format(MAX_HNODE_SIZE)
+                f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes"
             )
 
         self.created_at = created_at if created_at else datetime.datetime.utcnow()
@@ -389,7 +388,7 @@ class StructureNL:
     def __str__(self):
         return "\n".join(
             [
-                "{}\n{}".format(k, getattr(self, k))
+                f"{k}\n{getattr(self, k)}"
                 for k in (
                     "structure",
                     "authors",

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -57,11 +56,11 @@ def _read_nlines(filename, nlines):
     If nlines is < 0, the entire file is read.
     """
     if nlines < 0:
-        with open(filename, "r") as fh:
+        with open(filename) as fh:
             return fh.readlines()
 
     lines = []
-    with open(filename, "r") as fh:
+    with open(filename) as fh:
         for lineno, line in enumerate(fh):
             if lineno == nlines:
                 break
@@ -136,13 +135,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def __repr__(self):
         try:
-            return "<%s at %s>" % (
+            return "<{} at {}>".format(
                 self.__class__.__name__,
                 os.path.relpath(self.filepath),
             )
         except Exception:
             # relpath can fail if the code is executed in demon mode.
-            return "<%s at %s>" % (self.__class__.__name__, self.filepath)
+            return f"<{self.__class__.__name__} at {self.filepath}>"
 
     def __str__(self):
         return self.to_string()
@@ -152,7 +151,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # pylint: disable=E1101
         lines = []
         app = lines.append
-        app("<%s: %s>" % (self.__class__.__name__, self.basename))
+        app(f"<{self.__class__.__name__}: {self.basename}>")
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
         app("  maximum angular momentum: %s" % l2str(self.l_max))
@@ -166,7 +165,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         if self.has_hints:
             for accuracy in ("low", "normal", "high"):
                 hint = self.hint_for_accuracy(accuracy=accuracy)
-                app("  hint for %s accuracy: %s" % (accuracy, str(hint)))
+                app(f"  hint for {accuracy} accuracy: {str(hint)}")
 
         return "\n".join(lines)
 
@@ -246,7 +245,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # pylint: disable=E1101
         import hashlib
 
-        with open(self.path, "rt") as fh:
+        with open(self.path) as fh:
             text = fh.read()
             m = hashlib.md5(text.encode("utf-8"))
             return m.hexdigest()
@@ -413,7 +412,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         try:
             return PspsFile(filepath)
         except Exception as exc:
-            logger.critical("Exception while reading PSPS file at %s:\n%s" % (filepath, str(exc)))
+            logger.critical(f"Exception while reading PSPS file at {filepath}:\n{str(exc)}")
             return None
 
 
@@ -603,7 +602,7 @@ class Hint:
 
     def __str__(self):
         if self.pawecutdg is not None:
-            return "ecut: %s, pawecutdg: %s" % (self.ecut, self.pawecutdg)
+            return f"ecut: {self.ecut}, pawecutdg: {self.pawecutdg}"
         return "ecut: %s" % (self.ecut)
 
     @pmg_serialize
@@ -640,7 +639,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         key_nums = list(key_nums)
 
     if len(lines) != len(key_nums):
-        err_msg = "lines = %s\n key_num =  %s" % (str(lines), str(key_nums))
+        err_msg = f"lines = {str(lines)}\n key_num =  {str(key_nums)}"
         raise ValueError(err_msg)
 
     kwargs = Namespace()
@@ -659,11 +658,11 @@ def _dict_from_lines(lines, key_nums, sep=None):
         if sep is not None:
             check = keys[0][0]
             if check != sep:
-                raise ValueError("Expecting separator %s, got %s" % (sep, check))
+                raise ValueError(f"Expecting separator {sep}, got {check}")
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values: %s" % (
+            msg = "line: {}\n len(keys) != len(value)\nkeys: {}\n values: {}".format(
                 line,
                 keys,
                 values,
@@ -703,7 +702,7 @@ def _int_from_str(string):
         return int_num
     # Needed to handle pseudos with fractional charge
     int_num = np.rint(float_num)
-    logger.warning("Converting float %s to int %s" % (float_num, int_num))
+    logger.warning(f"Converting float {float_num} to int {int_num}")
     return int_num
 
 
@@ -751,7 +750,7 @@ class NcAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError("Conversion Error for key %s, value %s" % (key, value))
+                    raise RuntimeError(f"Conversion Error for key {key}, value {value}")
 
             self[key] = value
 
@@ -950,7 +949,7 @@ class PawAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError("Conversion Error for key %s, with value %s" % (key, value))
+                    raise RuntimeError(f"Conversion Error for key {key}, with value {value}")
 
             self[key] = value
 
@@ -1011,7 +1010,7 @@ class PawAbinitHeader(AbinitHeader):
         """
         supported_formats = ["paw3", "paw4", "paw5"]
         if ppdesc.format not in supported_formats:
-            raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
+            raise NotImplementedError(f"format {ppdesc.format} not in {supported_formats}")
 
         lines = _read_nlines(filename, -1)
 
@@ -1150,7 +1149,7 @@ class PseudoParser:
                     tokens = line.split()
                     pspcod, pspxc = map(int, tokens[:2])
                 except Exception:
-                    msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (
+                    msg = "{}: Cannot parse pspcod, pspxc in line\n {}".format(
                         filename,
                         line,
                     )
@@ -1163,7 +1162,7 @@ class PseudoParser:
                 #    return None
 
                 if pspcod not in self._PSPCODES:
-                    raise self.Error("%s: Don't know how to handle pspcod %s\n" % (filename, pspcod))
+                    raise self.Error(f"{filename}: Don't know how to handle pspcod {pspcod}\n")
 
                 ppdesc = self._PSPCODES[pspcod]
 
@@ -1658,7 +1657,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
                 try:
                     pseudos.append(Pseudo.from_file(p))
                 except Exception as exc:
-                    logger.critical("Error in %s:\n%s" % (p, exc))
+                    logger.critical(f"Error in {p}:\n{exc}")
 
         return cls(pseudos).sort_by_z()
 
@@ -1711,11 +1710,10 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     def __iter__(self):
         """Process the elements in Z order."""
         for z in self.zlist:
-            for pseudo in self._pseudos_with_z[z]:
-                yield pseudo
+            yield from self._pseudos_with_z[z]
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, id(self))
+        return f"<{self.__class__.__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_table()

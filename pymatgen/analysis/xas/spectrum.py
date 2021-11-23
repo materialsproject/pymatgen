@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -100,7 +99,7 @@ class XAS(Spectrum):
             raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
 
     def __str__(self):
-        return "%s %s Edge %s for %s: %s" % (
+        return "{} {} Edge {} for {}: {}".format(
             self.absorbing_element,
             self.edge,
             self.spectrum_type,
@@ -211,7 +210,7 @@ class XAS(Spectrum):
             l2_xanes = self if self.edge == "L2" else other
             l3_xanes = self if self.edge == "L3" else other
             if l2_xanes.absorbing_element.number > 30:
-                raise ValueError("Does not support L2,3-edge XANES for {} element".format(l2_xanes.absorbing_element))
+                raise ValueError(f"Does not support L2,3-edge XANES for {l2_xanes.absorbing_element} element")
 
             l2_f = interp1d(
                 l2_xanes.x,

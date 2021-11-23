@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -153,7 +152,7 @@ class GrandPotPDEntry(PDEntry):
         Returns:
             The chemical energy term mu*N in the grand potential
         """
-        return sum([self._composition[el] * pot for el, pot in self.chempots.items()])
+        return sum(self._composition[el] * pot for el, pot in self.chempots.items())
 
     @property
     def energy(self):
@@ -164,7 +163,7 @@ class GrandPotPDEntry(PDEntry):
         return self._energy - self.chemical_energy
 
     def __repr__(self):
-        chempot_str = " ".join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()])
+        chempot_str = " ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
         return "GrandPotPDEntry with original composition " + "{}, energy = {:.4f}, {}".format(
             self.original_entry.composition, self.original_entry.energy, chempot_str
         )
@@ -251,9 +250,9 @@ class TransformedPDEntry(PDEntry):
 
     def __repr__(self):
         output = [
-            "TransformedPDEntry {}".format(self.composition),
-            " with original composition {}".format(self.original_entry.composition),
-            ", E = {:.4f}".format(self.original_entry.energy),
+            f"TransformedPDEntry {self.composition}",
+            f" with original composition {self.original_entry.composition}",
+            f", E = {self.original_entry.energy:.4f}",
         ]
         return "".join(output)
 
@@ -368,7 +367,7 @@ class PhaseDiagram(MSONable):
         self.dim = computed_data["dim"]
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = computed_data["qhull_entries"]
-        self.stable_entries = set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets)))
+        self.stable_entries = {self.qhull_entries[i] for i in set(itertools.chain(*self.facets))}
 
     def as_dict(self):
         """
@@ -513,7 +512,7 @@ class PhaseDiagram(MSONable):
         Returns:
             Reference energy of the terminal species at a given composition.
         """
-        return sum([comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements]) / comp.num_atoms
+        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements) / comp.num_atoms
 
     def get_form_energy(self, entry):
         """
@@ -527,7 +526,7 @@ class PhaseDiagram(MSONable):
             Formation energy from the elemental references.
         """
         c = entry.composition
-        return entry.energy - sum([c[el] * self.el_refs[el].energy_per_atom for el in c.elements])
+        return entry.energy - sum(c[el] * self.el_refs[el].energy_per_atom for el in c.elements)
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -546,7 +545,7 @@ class PhaseDiagram(MSONable):
         symbols = [el.symbol for el in self.elements]
         output = [
             "{} phase diagram".format("-".join(symbols)),
-            "{} stable phases: ".format(len(self.stable_entries)),
+            f"{len(self.stable_entries)} stable phases: ",
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
         return "\n".join(output)
@@ -566,7 +565,7 @@ class PhaseDiagram(MSONable):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
                 return f, s
 
-        raise RuntimeError("No facet found for comp = {}".format(comp))
+        raise RuntimeError(f"No facet found for comp = {comp}")
 
     def _get_all_facets_and_simplexes(self, comp):
         """
@@ -583,7 +582,7 @@ class PhaseDiagram(MSONable):
         ]
 
         if not len(all_facets):
-            raise RuntimeError("No facets found for comp = {}".format(comp))
+            raise RuntimeError(f"No facets found for comp = {comp}")
 
         return all_facets
 
@@ -650,7 +649,7 @@ class PhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition per atom
         """
         decomp = self.get_decomposition(comp)
-        return decomp, sum([e.energy_per_atom * n for e, n in decomp.items()])
+        return decomp, sum(e.energy_per_atom * n for e, n in decomp.items())
 
     def get_hull_energy_per_atom(self, comp):
         """
@@ -706,7 +705,7 @@ class PhaseDiagram(MSONable):
         if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
             return decomp, e_above_hull
 
-        raise ValueError("No valid decomp found for {}! (e {})".format(entry, e_above_hull))
+        raise ValueError(f"No valid decomp found for {entry}! (e {e_above_hull})")
 
     def get_e_above_hull(self, entry, **kwargs):
         """
@@ -1266,11 +1265,11 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
 
     def __repr__(self):
         chemsys = "-".join([el.symbol for el in self.elements])
-        chempots = ", ".join(["u{}={}".format(el, v) for el, v in self.chempots.items()])
+        chempots = ", ".join([f"u{el}={v}" for el, v in self.chempots.items()])
 
         output = [
-            "{} grand potential phase diagram with {}".format(chemsys, chempots),
-            "{} stable phases: ".format(len(self.stable_entries)),
+            f"{chemsys} grand potential phase diagram with {chempots}",
+            f"{len(self.stable_entries)} stable phases: ",
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
         return "\n".join(output)
@@ -1489,7 +1488,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "%s %s + %s %s -> " % (
+                        rxn_str = "{} {} + {} {} -> ".format(
                             fmt(c1),
                             r1.reduced_formula,
                             fmt(c2),
@@ -1503,7 +1502,7 @@ class ReactionDiagram:
                         for c, e in zip(coeffs[:-1], face_entries):
                             if c > tol:
                                 r = e.composition.reduced_composition
-                                products.append("%s %s" % (fmt(c / r.num_atoms * factor), r.reduced_formula))
+                                products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
                                 product_entries.append((c, e))
                                 energy += c * e.energy_per_atom
 
@@ -1673,7 +1672,7 @@ def _get_slsqp_decomp(
                 if amt > PhaseDiagram.numerical_tol
             }
 
-    raise ValueError("No valid decomp found for {}!".format(comp))
+    raise ValueError(f"No valid decomp found for {comp}!")
 
 
 class PDPlotter:
@@ -1713,7 +1712,7 @@ class PDPlotter:
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
         self.backend = backend
-        self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries])
+        self._min_energy = min(self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries)
         colors = Set1_3.mpl_colors
         self.plotkwargs = plotkwargs or {
             "markerfacecolor": colors[2],
@@ -2021,7 +2020,7 @@ class PDPlotter:
             center = (0.5, math.sqrt(3) / 6)
         else:
             all_coords = labels.keys()
-            miny = min([c[1] for c in all_coords])
+            miny = min(c[1] for c in all_coords)
             ybuffer = max(abs(miny) * 0.1, 0.1)
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
@@ -2162,7 +2161,7 @@ class PDPlotter:
                     ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
                     ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)
-                    newlabels.append("{} : {}".format(count, latexify(label)))
+                    newlabels.append(f"{count} : {latexify(label)}")
                     count += 1
         plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
@@ -2232,7 +2231,7 @@ class PDPlotter:
             center_y = 0
             coords = []
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
-            is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
+            is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-")
@@ -2266,8 +2265,8 @@ class PDPlotter:
         el0 = elements[0]
         el1 = elements[1]
         for entry, coords in missing_lines.items():
-            center_x = sum([c[0] for c in coords])
-            center_y = sum([c[1] for c in coords])
+            center_x = sum(c[0] for c in coords)
+            center_y = sum(c[1] for c in coords)
             comp = entry.composition
             is_x = comp.get_atomic_fraction(el0) < 0.01
             is_y = comp.get_atomic_fraction(el1) < 0.01

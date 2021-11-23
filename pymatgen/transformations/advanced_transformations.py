@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -89,7 +88,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         return trans.apply_transformation(structure)
 
     def __str__(self):
-        return "Charge Balance Transformation : " + "Species to remove = {}".format(str(self.charge_balance_sp))
+        return "Charge Balance Transformation : " + f"Species to remove = {str(self.charge_balance_sp)}"
 
     def __repr__(self):
         return self.__str__()
@@ -243,7 +242,7 @@ class MultipleSubstitutionTransformation:
                 sign = "+"
             else:
                 sign = "-"
-            dummy_sp = "X{}{}".format(str(charge), sign)
+            dummy_sp = f"X{str(charge)}{sign}"
             mapping[self.sp_to_replace] = {
                 self.sp_to_replace: 1 - self.r_fraction,
                 dummy_sp: self.r_fraction,
@@ -262,13 +261,13 @@ class MultipleSubstitutionTransformation:
                     sign = "+"
                 else:
                     sign = "-"
-                st = SubstitutionTransformation({"X{}+".format(str(charge)): "{}{}{}".format(el, charge, sign)})
+                st = SubstitutionTransformation({f"X{str(charge)}+": f"{el}{charge}{sign}"})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
         return outputs
 
     def __str__(self):
-        return "Multiple Substitution Transformation : Substitution on " + "{}".format(self.sp_to_replace)
+        return "Multiple Substitution Transformation : Substitution on " + f"{self.sp_to_replace}"
 
     def __repr__(self):
         return self.__str__()
@@ -400,9 +399,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
             structures = [structure.copy()]
 
         if self.max_disordered_sites:
-            ndisordered = sum([1 for site in structure if not site.is_ordered])
+            ndisordered = sum(1 for site in structure if not site.is_ordered)
             if ndisordered > self.max_disordered_sites:
-                raise ValueError("Too many disordered sites! ({} > {})".format(ndisordered, self.max_disordered_sites))
+                raise ValueError(f"Too many disordered sites! ({ndisordered} > {self.max_disordered_sites})")
             max_cell_sizes = range(
                 self.min_cell_size,
                 int(math.floor(self.max_disordered_sites / ndisordered)) + 1,
@@ -427,7 +426,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 if structures:
                     break
             except EnumError:
-                warnings.warn("Unable to enumerate for max_cell_size = {}".format(max_cell_size))
+                warnings.warn(f"Unable to enumerate for max_cell_size = {max_cell_size}")
 
         if structures is None:
             raise ValueError("Unable to enumerate")
@@ -754,7 +753,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 # site should either not satisfy any constraints, or satisfy
                 # one constraint
                 raise ValueError(
-                    "Order parameter constraints conflict for site: {}, {}".format(str(site.specie), site.properties)
+                    f"Order parameter constraints conflict for site: {str(site.specie)}, {site.properties}"
                 )
             if any(satisfies_constraints):
                 dummy_specie_idx = satisfies_constraints.index(True)
@@ -773,7 +772,7 @@ class MagOrderingTransformation(AbstractTransformation):
             raise Exception("Something went wrong with enumeration.")
 
         sites_to_remove = []
-        logger.debug("Dummy species structure:\n{}".format(str(structure)))
+        logger.debug(f"Dummy species structure:\n{str(structure)}")
         for idx, site in enumerate(structure):
             if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
@@ -785,7 +784,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     include_index=True,
                 )
                 if len(neighbors) != 1:
-                    raise Exception("This shouldn't happen, found neighbors: {}".format(neighbors))
+                    raise Exception(f"This shouldn't happen, found neighbors: {neighbors}")
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
                 new_specie = Species(
@@ -799,7 +798,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     properties=structure[orig_site_idx].properties,
                 )
         structure.remove_sites(sites_to_remove)
-        logger.debug("Structure with dummy species removed:\n{}".format(str(structure)))
+        logger.debug(f"Structure with dummy species removed:\n{str(structure)}")
         return structure
 
     def _add_spin_magnitudes(self, structure):
@@ -826,7 +825,7 @@ class MagOrderingTransformation(AbstractTransformation):
                         new_properties,
                     )
                     structure.replace(idx, new_specie, properties=site.properties)
-        logger.debug("Structure with spin magnitudes:\n{}".format(str(structure)))
+        logger.debug(f"Structure with spin magnitudes:\n{str(structure)}")
         return structure
 
     def apply_transformation(self, structure, return_ranked_list=False):
@@ -900,7 +899,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return SpacegroupAnalyzer(x, 0.1).get_space_group_number()
 
         out = []
-        for _, g in groupby(sorted([d["structure"] for d in alls], key=key), key):
+        for _, g in groupby(sorted((d["structure"] for d in alls), key=key), key):
             g = list(g)
             grouped = m.group_structures(g)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
@@ -1067,11 +1066,11 @@ class DopingTransformation(AbstractTransformation):
             nsp = supercell.composition[sp]
             if sp.oxi_state == ox:
                 supercell.replace_species({sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}})
-                logger.info("Doping %s for %s at level %.3f" % (sp, self.dopant, 1 / nsp))
+                logger.info(f"Doping {sp} for {self.dopant} at level {1 / nsp:.3f}")
             elif self.codopant:
                 codopant = _find_codopant(sp, 2 * sp.oxi_state - ox)
                 supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})
-                logger.info("Doping %s for %s + %s at level %.3f" % (sp, self.dopant, codopant, 1 / nsp))
+                logger.info(f"Doping {sp} for {self.dopant} + {codopant} at level {1 / nsp:.3f}")
             elif abs(sp.oxi_state) < abs(ox):
                 # Strategy: replace the target species with a
                 # combination of dopant and vacancy.
@@ -1079,7 +1078,7 @@ class DopingTransformation(AbstractTransformation):
                 # vacancy compensation species as it is likely to be lower in
                 # energy
                 sp_to_remove = min(
-                    [s for s in comp if s.oxi_state * ox > 0],
+                    (s for s in comp if s.oxi_state * ox > 0),
                     key=lambda ss: abs(ss.oxi_state),
                 )
 
@@ -1361,7 +1360,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
             d = {}  # to be passed to Structure.replace_species()
             for sp_list in partition:
                 if len(sp_list) > 1:
-                    total_occ = sum([composition[sp] for sp in sp_list])
+                    total_occ = sum(composition[sp] for sp in sp_list)
                     merged_comp = {sp: composition[sp] / total_occ for sp in sp_list}
                     for sp in sp_list:
                         d[sp] = merged_comp
@@ -2219,7 +2218,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         return transformed_structure
 
     def __str__(self):
-        return "{} : rattle_std = {}".format(__name__, self.rattle_std)
+        return f"{__name__} : rattle_std = {self.rattle_std}"
 
     def __repr__(self):
         return self.__str__()

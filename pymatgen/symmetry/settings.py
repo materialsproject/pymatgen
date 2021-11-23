@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -218,4 +217,4 @@ class JonesFaithfulTransformation:
         return str(JonesFaithfulTransformation.transformation_string)
 
     def __repr__(self):
-        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(self.P, self.p)
+        return f"JonesFaithfulTransformation with P:\n{self.P}\nand p:\n{self.p}"

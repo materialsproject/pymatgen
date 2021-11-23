@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -127,7 +126,7 @@ class PWInput:
                         sub.append("  %s(%d) = %s" % (k2, n, to_str(v1[k2][n - 1])))
                         n += 1
                 else:
-                    sub.append("  %s = %s" % (k2, to_str(v1[k2])))
+                    sub.append(f"  {k2} = {to_str(v1[k2])}")
             if k1 == "system":
                 if "ibrav" not in self.sections[k1]:
                     sub.append("  ibrav = 0")
@@ -145,19 +144,19 @@ class PWInput:
                 p = v
             else:
                 p = v["pseudo"]
-            out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, p))
+            out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
         out.append("ATOMIC_POSITIONS crystal")
         if self.pseudo is not None:
             for site in self.structure:
-                out.append("  %s %.6f %.6f %.6f" % (site.specie, site.a, site.b, site.c))
+                out.append(f"  {site.specie} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
         else:
             for site in self.structure:
                 name = None
                 for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
                     if v == site.properties:
                         name = k
-                out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
+                out.append(f"  {name} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
 
         out.append("K_POINTS %s" % self.kpoints_mode)
         kpt_str = ["%s" % i for i in self.kpoints_grid]
@@ -165,7 +164,7 @@ class PWInput:
         out.append("  %s" % " ".join(kpt_str))
         out.append("CELL_PARAMETERS angstrom")
         for vec in self.structure.lattice.matrix:
-            out.append("  %f %f %f" % (vec[0], vec[1], vec[2]))
+            out.append(f"  {vec[0]:f} {vec[1]:f} {vec[2]:f}")
         return "\n".join(out)
 
     def as_dict(self):

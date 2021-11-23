@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -122,7 +121,7 @@ class Kpoint(MSONable):
         """
         Returns a string with fractional, cartesian coordinates and label
         """
-        return "{} {} {}".format(self.frac_coords, self.cart_coords, self.label)
+        return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
     def as_dict(self):
         """
@@ -506,7 +505,7 @@ class BandStructure:
             [
                 str(c.label)
                 if c.label is not None
-                else str("(") + ",".join(["{0:.3f}".format(c.frac_coords[i]) for i in range(3)]) + str(")")
+                else "(" + ",".join([f"{c.frac_coords[i]:.3f}" for i in range(3)]) + ")"
                 for c in [vbm["kpoint"], cbm["kpoint"]]
             ]
         )
@@ -1154,12 +1153,12 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
         the type of the list_bs objects)
     """
     if efermi is None:
-        efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
+        efermi = sum(b.efermi for b in list_bs) / len(list_bs)
 
     kpoints = []
     labels_dict = {}
     rec_lattice = list_bs[0].lattice_rec
-    nb_bands = min([list_bs[i].nb_bands for i in range(len(list_bs))])
+    nb_bands = min(list_bs[i].nb_bands for i in range(len(list_bs)))
 
     kpoints = np.concatenate([[k.frac_coords for k in bs.kpoints] for bs in list_bs])
     dicts = [bs.labels_dict for bs in list_bs]

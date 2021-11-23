@@ -84,7 +84,7 @@ class Keyword(MSONable):
         return (
             self.name.__str__()
             + " "
-            + ("[{}] ".format(self.units) if self.units else "")
+            + (f"[{self.units}] " if self.units else "")
             + " ".join(map(str, self.values))
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )

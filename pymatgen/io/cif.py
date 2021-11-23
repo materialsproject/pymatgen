@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -95,7 +94,7 @@ class CifBlock:
         """
         Returns the cif string for the data block
         """
-        s = ["data_{}".format(self.header)]
+        s = [f"data_{self.header}"]
         keys = self.data.keys()
         written = []
         for k in keys:
@@ -111,7 +110,7 @@ class CifBlock:
                 # k didn't belong to a loop
                 v = self._format_field(self.data[k])
                 if len(k) + len(v) + 3 < self.maxlen:
-                    s.append("{}   {}".format(k, v))
+                    s.append(f"{k}   {v}")
                 else:
                     s.extend([k, v])
         return "\n".join(s)
@@ -905,8 +904,8 @@ class CifParser:
             if m:
                 parsed_sym = m.group()
 
-        if parsed_sym is not None and (m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)):
-            msg = "{} parsed as {}".format(sym, parsed_sym)
+        if parsed_sym is not None and (m_sp or not re.match(fr"{parsed_sym}\d*", sym)):
+            msg = f"{sym} parsed as {parsed_sym}"
             warnings.warn(msg)
             self.warnings.append(msg)
 
@@ -1228,7 +1227,7 @@ class CifParser:
 
             # convert to bibtex page range format, use empty string if not specified
             if ("page_first" in bibtex_entry) or ("page_last" in bibtex_entry):
-                bibtex_entry["pages"] = "{0}--{1}".format(
+                bibtex_entry["pages"] = "{}--{}".format(
                     bibtex_entry.get("page_first", ""),
                     bibtex_entry.get("page_last", ""),
                 )
@@ -1236,7 +1235,7 @@ class CifParser:
                 bibtex_entry.pop("page_last", None)
 
             # cite keys are given as cif-reference-idx in order they are found
-            entries["cifref{}".format(idx)] = Entry("article", list(bibtex_entry.items()))
+            entries[f"cifref{idx}"] = Entry("article", list(bibtex_entry.items()))
 
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
@@ -1369,13 +1368,13 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append("{}{}".format(sp.symbol, count))
+                    atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(occu.__str__())
 
                     magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
                     if write_magmoms and abs(magmom) > 0:
                         moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
-                        atom_site_moment_label.append("{}{}".format(sp.symbol, count))
+                        atom_site_moment_label.append(f"{sp.symbol}{count}")
                         atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
                         atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
                         atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
@@ -1406,7 +1405,7 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append("{}{}".format(sp.symbol, count))
+                    atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(occu.__str__())
                     count += 1
 

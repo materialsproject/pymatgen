@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -128,14 +127,14 @@ class LammpsBox(MSONable):
         assert bounds_arr.shape == (
             3,
             2,
-        ), "Expecting a (3, 2) array for bounds, got {}".format(bounds_arr.shape)
+        ), f"Expecting a (3, 2) array for bounds, got {bounds_arr.shape}"
         self.bounds = bounds_arr.tolist()
         matrix = np.diag(bounds_arr[:, 1] - bounds_arr[:, 0])
 
         self.tilt = None
         if tilt is not None:
             tilt_arr = np.array(tilt)
-            assert tilt_arr.shape == (3,), "Expecting a (3,) array for box_tilt, got {}".format(tilt_arr.shape)
+            assert tilt_arr.shape == (3,), f"Expecting a (3,) array for box_tilt, got {tilt_arr.shape}"
             self.tilt = tilt_arr.tolist()
             matrix[1, 0] = tilt_arr[0]
             matrix[2, 0] = tilt_arr[1]
@@ -1144,7 +1143,7 @@ class ForceField(MSONable):
             for k in class2_data.keys():
                 class2_data[k].append(d[k])
         distinct_types = [set(itertools.chain(*[find_eq_types(t, kw) for t in dt])) for dt in distinct_types]
-        type_counts = sum([len(dt) for dt in distinct_types])
+        type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
         assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
@@ -1192,7 +1191,7 @@ class ForceField(MSONable):
             filename (str): Filename.
 
         """
-        with open(filename, "r") as f:
+        with open(filename) as f:
             d = yaml.load(f)
         return cls.from_dict(d)
 

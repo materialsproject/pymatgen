@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -603,8 +602,8 @@ Direct
                 self.assertEqual(len(nn_traditional[i]), len(nn_cell_lists[i]))
                 self.assertTrue(
                     np.linalg.norm(
-                        np.array(sorted([j[1] for j in nn_traditional[i]]))
-                        - np.array(sorted([j[1] for j in nn_cell_lists[i]]))
+                        np.array(sorted(j[1] for j in nn_traditional[i]))
+                        - np.array(sorted(j[1] for j in nn_cell_lists[i]))
                     )
                     < 1e-3
                 )

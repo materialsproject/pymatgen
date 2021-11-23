@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -18,10 +17,10 @@ class FuncTest(unittest.TestCase):
     def test_group_entries_by_structure(self):
         entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"))
         groups = group_entries_by_structure(entries)
-        self.assertEqual(sorted([len(g) for g in groups]), [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4])
+        self.assertEqual(sorted(len(g) for g in groups), [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4])
         self.assertLess(len(groups), len(entries))
         # Make sure no entries are left behind
-        self.assertEqual(sum([len(g) for g in groups]), len(entries))
+        self.assertEqual(sum(len(g) for g in groups), len(entries))
 
 
 class EntrySetTest(unittest.TestCase):
@@ -35,7 +34,7 @@ class EntrySetTest(unittest.TestCase):
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
-            self.assertTrue(set([Element.Li, Element.O]).issuperset(e.composition.keys()))
+            self.assertTrue({Element.Li, Element.O}.issuperset(e.composition.keys()))
         self.assertRaises(ValueError, self.entry_set.get_subset_in_chemsys, ["Fe", "F"])
 
     def test_remove_non_ground_states(self):

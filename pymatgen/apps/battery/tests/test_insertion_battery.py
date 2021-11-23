@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -19,16 +18,16 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json")) as f:
             self.entries_LTO = json.load(f, cls=MontyDecoder)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "MgVO_batt.json"), "r") as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "MgVO_batt.json")) as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mg_batt.json"), "r") as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mg_batt.json")) as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaMoO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaMoO2_batt.json")) as f:
             self.entries_CMO = json.load(f, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)

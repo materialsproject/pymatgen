@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -357,7 +356,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Checks if structure is ordered, meaning no partial occupancies in any
         of the sites.
         """
-        return all((site.is_ordered for site in self))
+        return all(site.is_ordered for site in self)
 
     def get_angle(self, i: int, j: int, k: int) -> float:
         """
@@ -755,7 +754,7 @@ class IStructure(SiteCollection, MSONable):
                     props[k] = [None] * len(sites)
                 props[k][i] = v
         for k, v in props.items():
-            if any((vv is None for vv in v)):
+            if any(vv is None for vv in v):
                 warnings.warn("Not all sites have property %s. Missing values are set to None." % k)
         return cls(
             lattice,
@@ -1674,7 +1673,7 @@ class IStructure(SiteCollection, MSONable):
         elif reduction_algo == "LLL":
             reduced_latt = self._lattice.get_lll_reduced_lattice()
         else:
-            raise ValueError("Invalid reduction algo : {}".format(reduction_algo))
+            raise ValueError(f"Invalid reduction algo : {reduction_algo}")
 
         if reduced_latt != self.lattice:
             return self.__class__(  # type: ignore
@@ -2092,17 +2091,17 @@ class IStructure(SiteCollection, MSONable):
         outs = ["Structure Summary", repr(self.lattice)]
         if self._charge:
             if self._charge >= 0:
-                outs.append("Overall Charge: +{}".format(self._charge))
+                outs.append(f"Overall Charge: +{self._charge}")
             else:
-                outs.append("Overall Charge: -{}".format(self._charge))
+                outs.append(f"Overall Charge: -{self._charge}")
         for s in self:
             outs.append(repr(s))
         return "\n".join(outs)
 
     def __str__(self):
         outs = [
-            "Full Formula ({s})".format(s=self.composition.formula),
-            "Reduced Formula: {}".format(self.composition.reduced_formula),
+            f"Full Formula ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
         ]
 
         def to_s(x):
@@ -2112,10 +2111,10 @@ class IStructure(SiteCollection, MSONable):
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
         if self._charge:
             if self._charge >= 0:
-                outs.append("Overall Charge: +{}".format(self._charge))
+                outs.append(f"Overall Charge: +{self._charge}")
             else:
-                outs.append("Overall Charge: -{}".format(self._charge))
-        outs.append("Sites ({i})".format(i=len(self)))
+                outs.append(f"Overall Charge: -{self._charge}")
+        outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
         keys = sorted(props.keys())
@@ -2773,7 +2772,7 @@ class IMolecule(SiteCollection, MSONable):
         outs = [
             "Full Formula (%s)" % self.composition.formula,
             "Reduced Formula: " + self.composition.reduced_formula,
-            "Charge = %s, Spin Mult = %s" % (self._charge, self._spin_multiplicity),
+            f"Charge = {self._charge}, Spin Mult = {self._spin_multiplicity}",
             "Sites (%d)" % len(self),
         ]
         for i, site in enumerate(self):
@@ -3045,7 +3044,7 @@ class IMolecule(SiteCollection, MSONable):
         fname = os.path.basename(filename or "")
         if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
             writer = XYZ(self)
-        elif any(fmt == r or fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["gjf", "g03", "g09", "com", "inp"]):
+        elif any(fmt == r or fnmatch(fname.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             if filename:
@@ -3129,9 +3128,9 @@ class IMolecule(SiteCollection, MSONable):
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
-        if any(fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["gjf", "g03", "g09", "com", "inp"]):
+        if any(fnmatch(fname.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
             return cls.from_str(contents, fmt="g09")
-        if any(fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["out", "lis", "log"]):
+        if any(fnmatch(fname.lower(), f"*.{r}*") for r in ["out", "lis", "log"]):
             return GaussianOutput(filename).final_structure
         if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")
@@ -4210,5 +4209,5 @@ class StructureError(Exception):
     pass
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), "rt") as f:
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:
     FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(f).items()}

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
 
@@ -297,7 +295,7 @@ class BasisSetReader:
         o.append("=========================================")
         o.append("Reading basis set:")
         o.append("")
-        o.append(" Basis set for {} atom ".format(str(self.filename)))
+        o.append(f" Basis set for {str(self.filename)} atom ")
         o.append(" Maximum angular momentum = {}".format(self.data["lmax"]))
         o.append(" Number of atomics orbitals = {}".format(self.data["n_nlo"]))
         o.append(" Number of nlm orbitals = {}".format(self.data["n_nlmo"]))
@@ -436,7 +434,7 @@ class FiestaInput(MSONable):
                 int(self._mol.composition.num_atoms), len(self._mol.symbol_set)
             )
         )
-        o.append(" Number of valence bands = {}".format(int(self._mol.nelectrons / 2)))
+        o.append(f" Number of valence bands = {int(self._mol.nelectrons / 2)}")
         o.append(
             " Sigma grid specs: n_grid = {} ;  dE_grid = {} (eV)".format(
                 self.correlation_grid["n_grid"], self.correlation_grid["dE_grid"]
@@ -482,7 +480,7 @@ class FiestaInput(MSONable):
             symbols.append(syb)
 
         for site in self._mol:
-            o.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
+            o.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
 
         o.append("=========================================")
 
@@ -503,7 +501,7 @@ class FiestaInput(MSONable):
 
         geometry = []
         for site in self._mol:
-            geometry.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
+            geometry.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
 
         t = Template(
             """# number of atoms and species

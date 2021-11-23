@@ -186,7 +186,7 @@ class CorrectionCalculator:
             compound = self.calc_compounds.get(name, None)
             if not compound:
                 warnings.warn(
-                    "Compound {} is not found in provided computed entries and is excluded from the fit".format(name)
+                    f"Compound {name} is not found in provided computed entries and is excluded from the fit"
                 )
                 continue
 
@@ -205,7 +205,7 @@ class CorrectionCalculator:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
                     warnings.warn(
-                        "Compound {} contains the polyanion {} and is excluded from the fit".format(name, anion)
+                        f"Compound {name} contains the polyanion {anion} and is excluded from the fit"
                     )
                     break
 
@@ -218,7 +218,7 @@ class CorrectionCalculator:
                 if eah > self.allow_unstable:
                     allow = False
                     warnings.warn(
-                        "Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(name, eah)
+                        f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})"
                     )
 
             if allow:
@@ -275,7 +275,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError("We can't detect this specie: {}".format(specie))
+                            raise ValueError(f"We can't detect this specie: {specie}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)

@@ -272,11 +272,11 @@ class NEBPathfinder:
                 raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
-                logger.debug("Converged at step {}".format(step))
+                logger.debug(f"Converged at step {step}")
                 break
 
             if step % 100 == 0:
-                logger.debug("Step {} - ds = {}".format(step, tol))
+                logger.debug(f"Step {step} - ds = {tol}")
         return s
 
     @staticmethod

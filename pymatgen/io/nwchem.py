@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -123,13 +122,13 @@ class NwTask(MSONable):
         """
         # Basic checks.
         if theory.lower() not in NwTask.theories.keys():
-            raise NwInputError("Invalid theory {}".format(theory))
+            raise NwInputError(f"Invalid theory {theory}")
 
         if operation.lower() not in NwTask.operations.keys():
-            raise NwInputError("Invalid operation {}".format(operation))
+            raise NwInputError(f"Invalid operation {operation}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        self.title = title if title is not None else "{} {}".format(theory, operation)
+        self.title = title if title is not None else f"{theory} {operation}"
         self.theory = theory
 
         self.basis_set = basis_set or {}
@@ -147,17 +146,17 @@ class NwTask(MSONable):
     def __str__(self):
         bset_spec = []
         for el, bset in sorted(self.basis_set.items(), key=lambda x: x[0]):
-            bset_spec.append(' {} library "{}"'.format(el, bset))
+            bset_spec.append(f' {el} library "{bset}"')
         theory_spec = []
         if self.theory_directives:
-            theory_spec.append("{}".format(self.theory))
+            theory_spec.append(f"{self.theory}")
             for k in sorted(self.theory_directives.keys()):
-                theory_spec.append(" {} {}".format(k, self.theory_directives[k]))
+                theory_spec.append(f" {k} {self.theory_directives[k]}")
             theory_spec.append("end")
         for k in sorted(self.alternate_directives.keys()):
             theory_spec.append(k)
             for k2 in sorted(self.alternate_directives[k].keys()):
-                theory_spec.append(" {} {}".format(k2, self.alternate_directives[k][k2]))
+                theory_spec.append(f" {k2} {self.alternate_directives[k][k2]}")
             theory_spec.append("end")
 
         t = Template(
@@ -181,7 +180,7 @@ $theory_spec
         )
 
         if self.operation is not None:
-            output += "task %s %s" % (self.theory, self.operation)
+            output += f"task {self.theory} {self.operation}"
         return output
 
     def as_dict(self):
@@ -381,12 +380,12 @@ class NwInput(MSONable):
         if self.memory_options:
             o.append("memory " + self.memory_options)
         for d in self.directives:
-            o.append("{} {}".format(d[0], d[1]))
+            o.append(f"{d[0]} {d[1]}")
         o.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
             o.append(" symmetry " + " ".join(self.symmetry_options))
         for site in self._mol:
-            o.append(" {} {} {} {}".format(site.specie.symbol, site.x, site.y, site.z))
+            o.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
         o.append("end\n")
         for t in self.tasks:
             o.append(str(t))

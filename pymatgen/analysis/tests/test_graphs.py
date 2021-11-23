@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -86,7 +85,7 @@ class StructureGraphTest(PymatgenTest):
             PymatgenTest.TEST_FILES_DIR,
             "critic2/MoS2_critic2_stdout.txt",
         )
-        with open(stdout_file, "r") as f:
+        with open(stdout_file) as f:
             reference_stdout = f.read()
         self.structure = Structure.from_file(
             os.path.join(

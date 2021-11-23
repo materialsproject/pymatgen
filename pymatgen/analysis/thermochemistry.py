@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -122,7 +121,7 @@ class ThermoData:
             "ref",
             "uncertainty",
         ]
-        output = ["{} : {}".format(k, getattr(self, k)) for k in props]
+        output = [f"{k} : {getattr(self, k)}" for k in props]
         return "\n".join(output)
 
     def __str__(self):

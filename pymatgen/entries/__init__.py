@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -92,7 +91,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
-        return "{} : {} with energy = {:.4f}".format(self.__class__.__name__, self.composition, self.energy)
+        return f"{self.__class__.__name__} : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()

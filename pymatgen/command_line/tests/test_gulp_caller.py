@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -251,7 +250,7 @@ class GulpIOTest(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout")) as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)

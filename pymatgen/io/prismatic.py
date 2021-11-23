@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -29,7 +28,7 @@ class Prismatic:
         """
 
         l = self.structure.lattice
-        lines = [self.comment, "{} {} {}".format(l.a, l.b, l.c)]
+        lines = [self.comment, f"{l.a} {l.b} {l.c}"]
         for site in self.structure:
             for sp, occu in site.species.items():
                 lines.append(

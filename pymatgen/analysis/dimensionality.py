@@ -67,7 +67,7 @@ def get_dimensionality_larsen(bonded_structure):
     Returns:
         (int): The dimensionality of the structure.
     """
-    return max([c["dimensionality"] for c in get_structure_components(bonded_structure)])
+    return max(c["dimensionality"] for c in get_structure_components(bonded_structure))
 
 
 def get_structure_components(

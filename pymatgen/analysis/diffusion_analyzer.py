@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -471,7 +470,7 @@ class DiffusionAnalyzer(MSONable):
         plt.plot(plot_dt, rms[:, 0], label="RMS")
         plt.plot(plot_dt, rms[:, 1], label="max")
         plt.legend(loc="best")
-        plt.xlabel("Timestep ({})".format(unit))
+        plt.xlabel(f"Timestep ({unit})")
         plt.ylabel("normalized distance")
         plt.tight_layout()
         return plt
@@ -520,7 +519,7 @@ class DiffusionAnalyzer(MSONable):
             plt.plot(plot_dt, self.msd_components[:, 2], "b")
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
 
-        plt.xlabel("Timestep ({})".format(unit))
+        plt.xlabel(f"Timestep ({unit})")
         if mode == "mscd":
             plt.ylabel("MSCD ($\\AA^2$)")
         else:
@@ -928,7 +927,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
     plt.text(
         0.6,
         0.85,
-        "E$_a$ = {:.0f} meV".format(Ea * 1000),
+        f"E$_a$ = {Ea * 1000:.0f} meV",
         fontsize=30,
         transform=plt.axes().transAxes,
     )

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -273,7 +272,7 @@ class BabelMolAdaptor:
             ff = ob.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
-            print("{} atoms will be freezed".format(len(freeze_atoms)))
+            print(f"{len(freeze_atoms)} atoms will be freezed")
             constraints = ob.OBFFConstraints()
 
             for atom in ob.OBMolAtomIter(self._obmol):

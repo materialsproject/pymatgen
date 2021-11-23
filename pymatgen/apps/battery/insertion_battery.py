@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -82,7 +81,7 @@ class InsertionElectrode(AbstractElectrode):
             elements.update(entry.composition.elements)
 
         # Set an artificial high energy for each element for convex hull generation
-        element_energy = max([entry.energy_per_atom for entry in entries]) + 10
+        element_energy = max(entry.energy_per_atom for entry in entries) + 10
 
         pdentries: List[Union[ComputedEntry, ComputedStructureEntry, PDEntry]] = []
         pdentries.extend(entries)
@@ -98,10 +97,10 @@ class InsertionElectrode(AbstractElectrode):
             return e.composition.get_atomic_fraction(_working_ion)
 
         # stable entries ordered by amount of Li asc
-        _stable_entries = tuple(sorted([e for e in pd.stable_entries if e in entries], key=lifrac))
+        _stable_entries = tuple(sorted((e for e in pd.stable_entries if e in entries), key=lifrac))
 
         # unstable entries ordered by amount of Li asc
-        _unstable_entries = tuple(sorted([e for e in pd.unstable_entries if e in entries], key=lifrac))
+        _unstable_entries = tuple(sorted((e for e in pd.unstable_entries if e in entries), key=lifrac))
 
         # create voltage pairs
         _vpairs: Tuple[AbstractVoltagePair] = tuple(  # type: ignore
@@ -443,10 +442,10 @@ class InsertionElectrode(AbstractElectrode):
         output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
         dischg_form = self.fully_discharged_entry.composition.reduced_formula
-        output.append("InsertionElectrode with endpoints at {} and {}".format(chg_form, dischg_form))
-        output.append("Avg. volt. = {} V".format(self.get_average_voltage()))
-        output.append("Grav. cap. = {} mAh/g".format(self.get_capacity_grav()))
-        output.append("Vol. cap. = {}".format(self.get_capacity_vol()))
+        output.append(f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}")
+        output.append(f"Avg. volt. = {self.get_average_voltage()} V")
+        output.append(f"Grav. cap. = {self.get_capacity_grav()} mAh/g")
+        output.append(f"Vol. cap. = {self.get_capacity_vol()}")
         return "\n".join(output)
 
     @classmethod
@@ -603,11 +602,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            "Insertion voltage pair with working ion {}".format(self.working_ion_entry.composition.reduced_formula),
-            "V = {}, mAh = {}".format(self.voltage, self.mAh),
-            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
-            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge),
-            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge),
+            f"Insertion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"V = {self.voltage}, mAh = {self.mAh}",
+            f"mass_charge = {self.mass_charge}, mass_discharge = {self.mass_discharge}",
+            f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",
+            f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
         ]
         return "\n".join(output)
 

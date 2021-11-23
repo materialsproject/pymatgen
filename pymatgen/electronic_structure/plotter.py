@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -324,12 +323,12 @@ class BSPlotter:
             if i == 0:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
-                logger.debug("Adding label {l} at {d}".format(l=t[0], d=t[1]))
+                logger.debug(f"Adding label {t[0]} at {t[1]}")
             else:
                 if t[1] == temp_ticks[i - 1][1]:
-                    logger.debug("Skipping label {i}".format(i=t[1]))
+                    logger.debug(f"Skipping label {t[1]}")
                 else:
-                    logger.debug("Adding label {l} at {d}".format(l=t[0], d=t[1]))
+                    logger.debug(f"Adding label {t[0]} at {t[1]}")
                     uniq_d.append(t[0])
                     uniq_l.append(t[1])
 
@@ -986,7 +985,7 @@ class BSPlotterProjected(BSPlotter):
         """
         band_linewidth = 1.0
         fig_cols = len(dictio) * 100
-        fig_rows = max([len(v) for v in dictio.values()]) * 10
+        fig_rows = max(len(v) for v in dictio.values()) * 10
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
         plt = pretty_plot(12, 8)
@@ -1095,10 +1094,10 @@ class BSPlotterProjected(BSPlotter):
                         )
                         for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             markerscale = sum(
-                                [
+                                
                                     proj[b][str(Spin.down)][i][j][str(el)][o]
                                     for o in proj[b][str(Spin.down)][i][j][str(el)]
-                                ]
+                                
                             )
                             plt.plot(
                                 data["distances"][b][j],
@@ -1113,7 +1112,7 @@ class BSPlotterProjected(BSPlotter):
                             )
                     for j in range(len(data["energy"][str(Spin.up)][b][i])):
                         markerscale = sum(
-                            [proj[b][str(Spin.up)][i][j][str(el)][o] for o in proj[b][str(Spin.up)][i][j][str(el)]]
+                            proj[b][str(Spin.up)][i][j][str(el)][o] for o in proj[b][str(Spin.up)][i][j][str(el)]
                         )
                         plt.plot(
                             data["distances"][b][j],
@@ -1184,13 +1183,13 @@ class BSPlotterProjected(BSPlotter):
                         sum_e = 0.0
                         for el in elt_ordered:
                             sum_e = sum_e + sum(
-                                [proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]]
+                                proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]
                             )
                         if sum_e == 0.0:
                             color = [0.0] * len(elt_ordered)
                         else:
                             color = [
-                                sum([proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]]) / sum_e
+                                sum(proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]) / sum_e
                                 for el in elt_ordered
                             ]
                         if len(color) == 2:
@@ -1835,11 +1834,11 @@ class BSPlotterProjected(BSPlotter):
                             for orb in sum_morbs[elt]:
                                 if dictio[elt][0] not in orb:
                                     raise ValueError(
-                                        "The invalid orbital '%s' was put into 'sum_morbs[%s]'." % (orb, elt)
+                                        f"The invalid orbital '{orb}' was put into 'sum_morbs[{elt}]'."
                                     )
                         else:
                             if orb == "s" or len(orb) > 1:
-                                raise ValueError("The invalid orbital '%s' was put into sum_orbs['%s']." % (orb, elt))
+                                raise ValueError(f"The invalid orbital '{orb}' was put into sum_orbs['{elt}'].")
                             sum_morbs[elt] = individual_orbs[dictio[elt][0]]
                             dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
@@ -1882,7 +1881,7 @@ class BSPlotterProjected(BSPlotter):
                     for orb in sum_morbs[elt]:
                         if orb not in dictio[elt]:
                             raise ValueError(
-                                "The orbitals of sum_morbs[%s] conflict with those of dictio[%s]." % (elt, elt)
+                                f"The orbitals of sum_morbs[{elt}] conflict with those of dictio[{elt}]."
                             )
 
         return dictio, sum_morbs
@@ -1913,12 +1912,12 @@ class BSPlotterProjected(BSPlotter):
                                 print("You want to consider all '%s' atoms." % elt)
                                 break
 
-                            raise ValueError("You put wrong site numbers in 'dictpa[%s]': %s." % (elt, str(number)))
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
                         if isinstance(number, int):
                             if number not in indices:
-                                raise ValueError("You put wrong site numbers in 'dictpa[%s]': %s." % (elt, str(number)))
+                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
                         else:
-                            raise ValueError("You put wrong site numbers in 'dictpa[%s]': %s." % (elt, str(number)))
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
                     nelems = Counter(dictpa[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError("You put at least two similar site numbers into 'dictpa[%s]'." % elt)
@@ -2206,12 +2205,12 @@ class BSPlotterProjected(BSPlotter):
             if i == 0:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
-                logger.debug("Adding label {l} at {d}".format(l=t[0], d=t[1]))
+                logger.debug(f"Adding label {t[0]} at {t[1]}")
             else:
                 if t[1] == temp_ticks[i - 1][1]:
-                    logger.debug("Skipping label {i}".format(i=t[1]))
+                    logger.debug(f"Skipping label {t[1]}")
                 else:
-                    logger.debug("Adding label {l} at {d}".format(l=t[0], d=t[1]))
+                    logger.debug(f"Adding label {t[0]} at {t[1]}")
                     uniq_d.append(t[0])
                     uniq_l.append(t[1])
 
@@ -4094,7 +4093,7 @@ def plot_fermi_surface(
         pts = np.array(polydata.points)  # - 1
         polydata.points = np.dot(pts, cell / np.array(data.shape)[:, np.newaxis])
 
-        cx, cy, cz = [np.mean(np.array(polydata.points)[:, i]) for i in range(3)]
+        cx, cy, cz = (np.mean(np.array(polydata.points)[:, i]) for i in range(3))
 
         polydata.points = (np.array(polydata.points) - [cx, cy, cz]) * 2
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -344,7 +343,7 @@ class InterfacialReactivity(MSONable):
         Returns:
             Total number of atoms for non_reservoir elements.
         """
-        return sum([rxn.get_el_amount(e) for e in self.pd.elements])
+        return sum(rxn.get_el_amount(e) for e in self.pd.elements)
 
     def _get_plotly_figure(self) -> Figure:
         """Returns a Plotly figure of reaction kinks diagram"""
@@ -621,7 +620,7 @@ class InterfacialReactivity(MSONable):
         Returns:
             Tuple (x_min, E_min).
         """
-        return min([(x, energy) for _, x, energy, _, _ in self.get_kinks()], key=lambda i: i[1])
+        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda i: i[1])
 
     @property
     def products(self):
@@ -752,11 +751,11 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         else:
             grand_potential = self._get_entry_energy(self.pd_non_grand, composition)
 
-        grand_potential -= sum([composition[e] * mu for e, mu in self.pd.chempots.items()])
+        grand_potential -= sum(composition[e] * mu for e, mu in self.pd.chempots.items())
 
         if self.norm:
             # Normalizes energy to the composition excluding element(s)
             # from reservoir.
-            grand_potential /= sum([composition[el] for el in composition if el not in self.pd.chempots])
+            grand_potential /= sum(composition[el] for el in composition if el not in self.pd.chempots)
 
         return grand_potential

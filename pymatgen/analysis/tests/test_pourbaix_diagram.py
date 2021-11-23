@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -124,20 +123,20 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     def test_pourbaix_diagram(self):
         self.assertEqual(
-            set([e.name for e in self.pbx.stable_entries]),
+            {e.name for e in self.pbx.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
             "List of stable entries does not match",
         )
 
         self.assertEqual(
-            set([e.name for e in self.pbx_nofilter.stable_entries]),
+            {e.name for e in self.pbx_nofilter.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)", "ZnO2(s)", "ZnH(s)"},
             "List of stable entries for unfiltered pbx does not match",
         )
 
         pbx_lowconc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
         self.assertEqual(
-            set([e.name for e in pbx_lowconc.stable_entries]),
+            {e.name for e in pbx_lowconc.stable_entries},
             {"Zn(HO)2(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
         )
 
@@ -254,7 +253,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         d = self.pbx.as_dict()
         new = PourbaixDiagram.from_dict(d)
         self.assertEqual(
-            set([e.name for e in new.stable_entries]),
+            {e.name for e in new.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
             "List of stable entries does not match",
         )
@@ -265,7 +264,7 @@ class PourbaixDiagramTest(unittest.TestCase):
             d = self.pbx_nofilter.as_dict(include_unprocessed_entries=True)
         new = PourbaixDiagram.from_dict(d)
         self.assertEqual(
-            set([e.name for e in new.stable_entries]),
+            {e.name for e in new.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)", "ZnO2(s)", "ZnH(s)"},
             "List of stable entries for unfiltered pbx does not match",
         )

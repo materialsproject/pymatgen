@@ -47,7 +47,7 @@ def make_doc(ctx):
                 newoutput = []
                 suboutput = []
                 subpackage = False
-                with open(f, "r") as fid:
+                with open(f) as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
@@ -95,7 +95,7 @@ def make_dash(ctx):
     ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/")
     plist = "pymatgen.docset/Contents/Info.plist"
     xml = []
-    with open(plist, "rt") as f:
+    with open(plist) as f:
         for l in f:
             xml.append(l.strip())
             if l.strip() == "<dict>":
@@ -123,7 +123,7 @@ def contribute_dash(ctx, version):
     make_dash(ctx)
     ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        with open("docset.json", "rt") as f:
+        with open("docset.json") as f:
             data = json.load(f)
             data["version"] = version
         with open("docset.json", "wt") as f:
@@ -176,14 +176,14 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/core/__init__.py", "rt") as f:
+    with open("pymatgen/core/__init__.py") as f:
         contents = f.read()
         contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % version, contents)
 
     with open("pymatgen/core/__init__.py", "wt") as f:
         f.write(contents)
 
-    with open("setup.py", "rt") as f:
+    with open("setup.py") as f:
         contents = f.read()
         contents = re.sub(r"version=([^,]+),", 'version="%s",' % version, contents)
 
