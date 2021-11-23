@@ -524,6 +524,12 @@ class DictSet(VaspInputSet):
                             )
                         mag.append(v.get(str(site.specie)))
                     else:
+                        if not isinstance(v, dict):
+                            raise ValueError(
+                                "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
+                                "If you want site-specific magnetic moments, set them in the site.magmom properties "
+                                "of the site objects in the structure"
+                            )
                         if site.specie.symbol == "Co":
                             warnings.warn(
                                 "Co without an oxidation state is initialized as low spin by default in Pymatgen "
