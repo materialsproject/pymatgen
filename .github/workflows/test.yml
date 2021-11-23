@@ -42,7 +42,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install OpenBabel and Libs
+      - name: Install OpenBabel, Packmol, and Libs
         shell: bash -l {0}
         run: |
           # Required for gulp.

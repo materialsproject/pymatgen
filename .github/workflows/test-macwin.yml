@@ -45,12 +45,16 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.8
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install -e .
+          conda install -c conda-forge packmol
       - name: pytest ${{ matrix.pkg }}
         run: |
           pytest ${{ matrix.pkg }}
