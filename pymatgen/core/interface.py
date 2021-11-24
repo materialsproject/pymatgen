@@ -5,7 +5,7 @@ This module provides classes to store, generate, and manipulate material interfa
 """
 
 from itertools import chain, combinations, product
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -36,7 +36,7 @@ class Interface(Structure):
         in_plane_offset: Tuple[float, float] = (0, 0),
         gap: float = 0,
         vacuum_over_film: float = 0.0,
-        interface_properties: Dict = {},
+        interface_properties: Optional[Dict] = None,
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -81,7 +81,7 @@ class Interface(Structure):
         self._in_plane_offset = np.array(in_plane_offset, dtype="float")
         self._gap = gap
         self._vacuum_over_film = vacuum_over_film
-        self.interface_properties = interface_properties
+        self.interface_properties = interface_properties or {}
 
         super().__init__(
             lattice,
@@ -345,7 +345,7 @@ class Interface(Structure):
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
         vacuum_over_film: float = 0.0,
-        interface_properties: Dict = {},
+        interface_properties: Optional[Dict] = None,
         center_slab: bool = True,
     ) -> "Interface":
         """
@@ -368,6 +368,8 @@ class Interface(Structure):
 
 
         """
+        interface_properties = interface_properties or {}
+        
         # Ensure c-axis is orthogonal to a/b plane
         if isinstance(substrate_slab, Slab):
             substrate_slab = substrate_slab.get_orthogonal_c_slab()
