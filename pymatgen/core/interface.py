@@ -342,7 +342,7 @@ class Interface(Structure):
         cls,
         substrate_slab: Slab,
         film_slab: Slab,
-        in_plane_offset: tuple[float, float] = (0, 0),
+        in_plane_offset: Tuple[float, float] = (0, 0),
         gap: float = 1.6,
         vacuum_over_film: float = 0.0,
         interface_properties: Optional[Dict] = None,
