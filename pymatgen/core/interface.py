@@ -3,7 +3,6 @@
 """
 This module provides classes to store, generate, and manipulate material interfaces.
 """
-from __future__ import annotations
 
 from itertools import chain, combinations, product
 from typing import Dict, List, Tuple
@@ -149,7 +148,7 @@ class Interface(Structure):
         self.__update_c(self.lattice.c + delta)
 
     @property
-    def substrate_indicies(self) -> list[int]:
+    def substrate_indicies(self) -> List[int]:
         """
         Site indicies for the substrate atoms
         """
@@ -157,7 +156,7 @@ class Interface(Structure):
         return sub_indicies
 
     @property
-    def substrate_sites(self) -> list[Site]:
+    def substrate_sites(self) -> List[Site]:
         """
         The site objects in the substrate
         """
@@ -172,7 +171,7 @@ class Interface(Structure):
         return Structure.from_sites(self.substrate_sites)
 
     @property
-    def film_indices(self) -> list[int]:
+    def film_indices(self) -> List[int]:
         """
         Site indices of the film sites
         """
@@ -180,7 +179,7 @@ class Interface(Structure):
         return f_indicies
 
     @property
-    def film_sites(self) -> list[Site]:
+    def film_sites(self) -> List[Site]:
         """
         Return the film sites of the interface.
         """
@@ -222,7 +221,7 @@ class Interface(Structure):
         struct_copy.sort(key=key, reverse=reverse)
         return struct_copy
 
-    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
+    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> List[Tuple[float, float]]:
         """
         Computes possible in-plane shifts based on an adsorbate site  algorithm
 
@@ -479,7 +478,7 @@ def label_termination(slab: Structure) -> str:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, List[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(slab[i])
 
@@ -521,7 +520,7 @@ def count_layers(struc: Structure, el=None) -> int:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, List[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(struc[i])
 
