@@ -33,7 +33,7 @@ class Interface(Structure):
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=False,
-        in_plane_offset: tuple[float, float] = (0, 0),
+        in_plane_offset: Tuple[float, float] = (0, 0),
         gap: float = 0,
         vacuum_over_film: float = 0.0,
         interface_properties: Dict = {},
