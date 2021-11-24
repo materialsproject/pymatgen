@@ -36,7 +36,7 @@ class Interface(Structure):
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 0,
         vacuum_over_film: float = 0.0,
-        interface_properties: dict = {},
+        interface_properties: Dict = {},
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -193,7 +193,7 @@ class Interface(Structure):
         """
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> Interface:  # type:ignore
+    def copy(self) -> "Interface":  # type:ignore
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
@@ -345,9 +345,9 @@ class Interface(Structure):
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
         vacuum_over_film: float = 0.0,
-        interface_properties: dict = {},
+        interface_properties: Dict = {},
         center_slab: bool = True,
-    ) -> Interface:
+    ) -> "Interface":
         """
         Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
@@ -478,7 +478,7 @@ def label_termination(slab: Structure) -> str:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(slab[i])
 
@@ -520,7 +520,7 @@ def count_layers(struc: Structure, el=None) -> int:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(struc[i])
 
