@@ -369,7 +369,7 @@ class Interface(Structure):
 
         """
         interface_properties = interface_properties or {}
-        
+
         # Ensure c-axis is orthogonal to a/b plane
         if isinstance(substrate_slab, Slab):
             substrate_slab = substrate_slab.get_orthogonal_c_slab()
