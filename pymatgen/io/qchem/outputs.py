@@ -880,8 +880,23 @@ class QCOutput(MSONable):
 
     def _read_frequency_data(self):
         """
-        Parses frequencies, enthalpy, entropy, and mode vectors.
+        Parses cpscf_nseg, frequencies, enthalpy, entropy, and mode vectors.
         """
+        if read_pattern(self.text, {"key": r"Calculating MO derivatives via CPSCF"}, terminate_on_match=True).get(
+            "key"
+        ) == [[]]:
+            temp_cpscf_nseg = read_pattern(
+                self.text,
+                {"key": r"CPSCF will be done in([\d\s]+)segments to save memory"},
+                terminate_on_match=True,
+            ).get("key")
+            if temp_cpscf_nseg is None:
+                self.data["cpscf_nseg"] = 1
+            else:
+                self.data["cpscf_nseg"] = int(temp_cpscf_nseg[0][0])
+        else:
+            self.data["cpscf_nseg"] = 0
+
         raman = False
         if read_pattern(self.text, {"key": r"doraman\s*(?:=)*\s*true"}, terminate_on_match=True).get("key") == [[]]:
             raman = True
