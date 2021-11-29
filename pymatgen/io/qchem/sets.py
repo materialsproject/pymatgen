@@ -220,6 +220,7 @@ class QChemDictSet(QCInput):
             myrem["plots"] = "true"
             myrem["make_cube_files"] = "true"
 
+        mynbo = self.nbo_params
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
             if "version" in self.nbo_params:
@@ -231,8 +232,6 @@ class QChemDictSet(QCInput):
             for key in self.nbo_params:
                 if key != "version":
                     mynbo[key] = self.nbo_params[key]
-        else:
-            mynbo = None
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
