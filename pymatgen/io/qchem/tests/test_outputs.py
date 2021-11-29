@@ -293,5 +293,6 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13], "Mg")
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13], 3)
 
+
 if __name__ == "__main__":
     unittest.main()
