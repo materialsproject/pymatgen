@@ -65,6 +65,9 @@ class OptimadeRester:
         "tcod": "https://www.crystallography.net/tcod/optimade",
     }
 
+    # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
+    mandatory_response_fields: Set[str] = {"lattice_vectors", "cartesian_site_positions", "species", "species_at_sites"}
+
     def __init__(self, aliases_or_resource_urls: Optional[Union[str, List[str]]] = None, timeout: int = 5):
         """
         OPTIMADE is an effort to provide a standardized interface to retrieve information
@@ -236,6 +239,7 @@ class OptimadeRester:
         nsites: int = None,
         chemical_formula_anonymous: str = None,
         chemical_formula_hill: str = None,
+        additional_response_fields: Union[str, List[str], Set[str]] = None,
     ) -> Dict[str, Dict[str, StructureNL]]:
         """
         Retrieve StructureNL from OPTIMADE providers.
@@ -253,6 +257,8 @@ class OptimadeRester:
             nsites: Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
             chemical_formula_anonymous: Anonymous chemical formula
             chemical_formula_hill: Chemical formula following Hill convention
+            additional_response_fields: Any additional fields desired from the OPTIMADE API,
+            these will be stored under the `'_optimade'` key in each `StructureNL.data` dictionary.
 
         Returns: Dict of (Dict of StructureNLs keyed by that database's id system) keyed by provider
         """
@@ -265,7 +271,9 @@ class OptimadeRester:
             chemical_formula_hill=chemical_formula_hill,
         )
 
-        return self.get_snls_with_filter(optimade_filter)
+        return self.get_snls_with_filter(
+            optimade_filter, additional_response_fields=additional_response_fields
+        )
 
     def get_structures_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, Structure]]:
         """
@@ -285,7 +293,11 @@ class OptimadeRester:
 
         return all_structures
 
-    def get_snls_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, StructureNL]]:
+    def get_snls_with_filter(
+        self, 
+        optimade_filter: str, 
+        additional_response_fields: Union[str, List[str], Set[str]] = None,
+    ) -> Dict[str, Dict[str, StructureNL]]:
         """
         Get structures satisfying a given OPTIMADE filter.
 
@@ -297,11 +309,11 @@ class OptimadeRester:
 
         all_snls = {}
 
+        fields = self._handle_response_fields(additional_response_fields)
+
         for identifier, resource in self.resources.items():
 
-            fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
-
-            url = join(resource, f"v1/structures?filter={optimade_filter}&{fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={fields}")
 
             try:
 
@@ -369,7 +381,12 @@ class OptimadeRester:
                     coords=data["attributes"]["cartesian_site_positions"],
                     coords_are_cartesian=True,
                 )
-                namespaced_data = {k: v for k, v in data.items() if k.startswith("_")}
+                # Grab any custom fields or non-mandatory fields if they were requested
+                namespaced_data = {
+                    k: v for k, v in data["attributes"].items() 
+                    if k.startswith("_") 
+                    or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                }
 
                 # TODO: follow `references` to add reference information here
                 snl = StructureNL(
@@ -392,7 +409,12 @@ class OptimadeRester:
                         coords=data["attributes"]["cartesian_site_positions"],
                         coords_are_cartesian=True,
                     )
-                    namespaced_data = {k: v for k, v in data["attributes"].items() if k.startswith("_")}
+                    # Grab any custom fields or non-mandatory fields if they were requested
+                    namespaced_data = {
+                        k: v for k, v in data["attributes"].items() 
+                        if k.startswith("_") 
+                        or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                    }
 
                     # TODO: follow `references` to add reference information here
                     snl = StructureNL(
@@ -505,6 +527,23 @@ class OptimadeRester:
             return ps
 
         return _parse_provider_link(provider, provider_link_json)
+
+    def _handle_response_fields(self, additional_response_fields: Union[str, List[str], Set[str]] = None) -> str:
+        """
+        Used internally to handle the mandatory and additional response fields.
+
+        Args:
+            additional_response_fields: A set of additional fields to request.
+
+        Returns:
+            A string of comma-separated OPTIMADE response fields.
+        """
+        if isinstance(additional_response_fields, str):
+            additional_response_fields = [additional_response_fields]
+        if not additional_response_fields:
+            additional_response_fields = set()
+        return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
+        
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """
