@@ -6,7 +6,7 @@ import logging
 import sys
 from collections import namedtuple
 from os.path import join
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Set
 from urllib.parse import urlparse
 
 import requests
@@ -17,8 +17,6 @@ from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.sequence import PBar
-
-# from retrying import retry
 
 
 # TODO: importing optimade-python-tool's data structures will make more sense
@@ -32,15 +30,19 @@ _logger.setLevel(logging.WARNING)
 
 class OptimadeRester:
     """
-    Class to call OPTIMADE-compliant APIs, see optimade.org
+    Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
-    This class is ready to use but considered in-development and subject to change
-    until the OPTIMADE paper is published.
+    This class is ready to use but considered in-development and subject to change.
+
+    [1] Andersen, C.W., *et al*. 
+        OPTIMADE, an API for exchanging materials data. 
+        Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
+
     """
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases = {
+    aliases: Dict[str, str] = {
         "aflow": "http://aflow.org/API/optimade/",
         "cod": "https://www.crystallography.net/cod/optimade",
         "mcloud.2dstructures": "https://aiida.materialscloud.org/2dstructures/optimade",
@@ -63,7 +65,7 @@ class OptimadeRester:
         "tcod": "https://www.crystallography.net/tcod/optimade",
     }
 
-    def __init__(self, aliases_or_resource_urls: Optional[Union[str, List[str]]] = None, timeout=5):
+    def __init__(self, aliases_or_resource_urls: Optional[Union[str, List[str]]] = None, timeout: int = 5):
         """
         OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
@@ -155,7 +157,11 @@ class OptimadeRester:
 
     @staticmethod
     def _build_filter(
-        elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None
+        elements: Union[str, List[str]] = None, 
+        nelements: int = None, 
+        nsites: int = None, 
+        chemical_formula_anonymous: str = None,
+        chemical_formula_hill: str = None, 
     ):
         """
         Convenience method to build an OPTIMADE filter.
@@ -191,11 +197,11 @@ class OptimadeRester:
 
     def get_structures(
         self,
-        elements=None,
-        nelements=None,
-        nsites=None,
-        chemical_formula_anonymous=None,
-        chemical_formula_hill=None,
+        elements: Union[List[str], str] = None,
+        nelements: int = None,
+        nsites: int = None,
+        chemical_formula_anonymous: str = None,
+        chemical_formula_hill: str = None,
     ) -> Dict[str, Dict[str, Structure]]:
         """
         Retrieve Structures from OPTIMADE providers.
@@ -225,11 +231,11 @@ class OptimadeRester:
 
     def get_snls(
         self,
-        elements=None,
-        nelements=None,
-        nsites=None,
-        chemical_formula_anonymous=None,
-        chemical_formula_hill=None,
+        elements: Union[List[str], str] = None,
+        nelements: int = None,
+        nsites: int = None,
+        chemical_formula_anonymous: str = None,
+        chemical_formula_hill: str = None,
     ) -> Dict[str, Dict[str, StructureNL]]:
         """
         Retrieve StructureNL from OPTIMADE providers.
