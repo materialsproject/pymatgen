@@ -589,7 +589,7 @@ class DictSet(VaspInputSet):
 
         if self.constrain_total_magmom:
             nupdown = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
-            if nupdown != round(nupdown):
+            if abs(nupdown - round(nupdown)) > 1e-5:
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM "
                     "values is not an integer. NUPDOWN is meant to set the spin "
