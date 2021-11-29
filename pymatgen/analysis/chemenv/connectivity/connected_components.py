@@ -352,7 +352,7 @@ class ConnectedComponent(MSONable):
             elif coordination == "env:number":
                 cseq[0] = {source_node.coordination_environment: 1}
             else:
-                raise ValueError('Coordination type "{}" is not valid for coordination_sequence.'.format(coordination))
+                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
         while path_len < path_size:
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
@@ -375,7 +375,7 @@ class ConnectedComponent(MSONable):
                 myenvs = [myend.coordination_environment for myend, _ in current_ends]
                 cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
             else:
-                raise ValueError('Coordination type "{}" is not valid for coordination_sequence.'.format(coordination))
+                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
         return cseq
 
     def __len__(self):
@@ -395,7 +395,7 @@ class ConnectedComponent(MSONable):
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError('Algorithm "{}" is not allowed to compute periodicity'.format(algorithm))
+            raise ValueError(f'Algorithm "{algorithm}" is not allowed to compute periodicity')
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
@@ -700,7 +700,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        return "{:d}D".format(len(self._periodicity_vectors))
+        return f"{len(self._periodicity_vectors):d}D"
 
     def elastic_centered_graph(self, start_node=None):
         """
@@ -731,14 +731,12 @@ class ConnectedComponent(MSONable):
         tree_level = 0
         while True:
             tree_level += 1
-            logging.debug("In tree level {:d} ({:d} nodes)".format(tree_level, len(current_nodes)))
+            logging.debug(f"In tree level {tree_level:d} ({len(current_nodes):d} nodes)")
             new_current_nodes = []
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
-                logging.debug(
-                    "  In node #{:d}/{:d} in level {:d} ({})".format(inode, len(current_nodes), tree_level, str(node))
-                )
+                logging.debug(f"  In node #{inode:d}/{len(current_nodes):d} in level {tree_level:d} ({str(node)})")
                 node_neighbors = list(tree.neighbors(n=node))
                 node_edges = centered_connected_subgraph.edges(nbunch=[node], data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
@@ -838,7 +836,7 @@ class ConnectedComponent(MSONable):
         if isinstance(key, str):
             try:
                 int(key)
-                raise RuntimeError("Cannot pass an edge key which is a str " "representation of an int.")
+                raise RuntimeError("Cannot pass an edge key which is a str representation of an int.")
             except ValueError:
                 return key
         raise ValueError("Edge key should be either a str or an int.")
@@ -853,9 +851,7 @@ class ConnectedComponent(MSONable):
             except ValueError:
                 return key
         else:
-            raise ValueError(
-                "Edge key in a dict of dicts representation of a graph" "should be either a str or an int."
-            )
+            raise ValueError("Edge key in a dict of dicts representation of a graph should be either a str or an int.")
 
     @staticmethod
     def _retuplify_edgedata(edata):
@@ -888,7 +884,7 @@ class ConnectedComponent(MSONable):
         Returns:
             dict: Bson-serializable dict representation of the ConnectedComponent object.
         """
-        nodes = {"{:d}".format(node.isite): (node, data) for node, data in self._connected_subgraph.nodes(data=True)}
+        nodes = {f"{node.isite:d}": (node, data) for node, data in self._connected_subgraph.nodes(data=True)}
         node2stringindex = {node: strindex for strindex, (node, data) in nodes.items()}
         dict_of_dicts = nx.to_dict_of_dicts(self._connected_subgraph)
         new_dict_of_dicts = {}
@@ -961,15 +957,13 @@ class ConnectedComponent(MSONable):
             out.extend([str(en) for en in sorted(self.graph.nodes())])
             return "\n".join(out)
         for en in sorted(self.graph.nodes()):
-            out.append("{}, connected to :".format(str(en)))
+            out.append(f"{str(en)}, connected to :")
             en_neighbs = nx.neighbors(self.graph, en)
             for en_neighb in sorted(en_neighbs):
-                out.append("  - {} with delta image cells".format(en_neighb))
+                out.append(f"  - {en_neighb} with delta image cells")
                 all_deltas = sorted(
-                    [
-                        get_delta(node1=en, node2=en_neighb, edge_data=edge_data).tolist()
-                        for iedge, edge_data in self.graph[en][en_neighb].items()
-                    ]
+                    get_delta(node1=en, node2=en_neighb, edge_data=edge_data).tolist()
+                    for iedge, edge_data in self.graph[en][en_neighb].items()
                 )
-                out.extend(["     ({:d} {:d} {:d})".format(delta[0], delta[1], delta[2]) for delta in all_deltas])
+                out.extend([f"     ({delta[0]:d} {delta[1]:d} {delta[2]:d})" for delta in all_deltas])
         return "\n".join(out)

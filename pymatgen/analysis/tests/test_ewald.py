@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -129,9 +128,9 @@ class EwaldMinimizerTest(unittest.TestCase):
 
         # Comparison to LAMMPS result
         ham = EwaldSummation(s, compute_forces=True)
-        self.assertAlmostEquals(-1226.3335, ham.total_energy, 3)
-        self.assertAlmostEquals(-45.8338, ham.get_site_energy(0), 3)
-        self.assertAlmostEquals(-27.2978, ham.get_site_energy(8), 3)
+        self.assertAlmostEqual(-1226.3335, ham.total_energy, 3)
+        self.assertAlmostEqual(-45.8338, ham.get_site_energy(0), 3)
+        self.assertAlmostEqual(-27.2978, ham.get_site_energy(8), 3)
 
 
 if __name__ == "__main__":

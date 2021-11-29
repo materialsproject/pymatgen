@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,8 +8,8 @@ be used to compute thermal properties.
 
 See the following papers for more info:
 
-    http://doi.org/10.1016/j.comphy.2003.12.001 (2004)
-    http://doi.org/10.1103/PhysRevB.90.174107 (2014)
+    https://doi.org/10.1016/j.comphy.2003.12.001 (2004)
+    https://doi.org/10.1103/PhysRevB.90.174107 (2014)
 """
 
 import logging
@@ -89,7 +88,7 @@ class QuasiharmonicDebyeApprox:
                 "The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and "
                 "cannot be used together."
             )
-        self.mass = sum([e.atomic_mass for e in self.structure.species])
+        self.mass = sum(e.atomic_mass for e in self.structure.species)
         self.natoms = self.structure.composition.num_atoms
         self.avg_mass = physical_constants["atomic mass constant"][0] * self.mass / self.natoms  # kg
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]
@@ -128,7 +127,7 @@ class QuasiharmonicDebyeApprox:
             except Exception:
                 if len(temperatures) <= 1:
                     raise
-                logger.info("EOS fitting failed, so skipping this data point, {}".format(t))
+                logger.info(f"EOS fitting failed, so skipping this data point, {t}")
             self.gibbs_free_energy.append(G_opt)
             self.temperatures.append(t)
             self.optimum_volumes.append(V_opt)

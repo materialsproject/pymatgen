@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -99,7 +98,7 @@ class COD:
         Returns:
             A Structure.
         """
-        r = requests.get("http://%s/cod/%s.cif" % (self.url, cod_id))
+        r = requests.get(f"http://{self.url}/cod/{cod_id}.cif")
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")

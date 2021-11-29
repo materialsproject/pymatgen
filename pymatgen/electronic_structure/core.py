@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -481,5 +480,5 @@ class Magmom(MSONable):
 
     def __repr__(self):
         if np.allclose(self.saxis, (0, 0, 1)):
-            return "Magnetic moment {0}".format(self.moment)
-        return "Magnetic moment {0} (spin axis = {1})".format(self.moment, self.saxis)
+            return f"Magnetic moment {self.moment}"
+        return f"Magnetic moment {self.moment} (spin axis = {self.saxis})"

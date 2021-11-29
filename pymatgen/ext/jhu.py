@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -61,7 +60,7 @@ def get_kpoints(
     config.pop("structure", "incar")
 
     # Generate PRECALC string
-    precalc = "".join(["{}={}\n".format(k, v) for k, v in config.items()])
+    precalc = "".join([f"{k}={v}\n" for k, v in config.items()])
     precalc = precalc.replace("_", "").upper()
     precalc = precalc.replace("REMOVESYMMETRY", "REMOVE_SYMMETRY")
     precalc = precalc.replace("TIMEREVERSAL", "TIME_REVERSAL")

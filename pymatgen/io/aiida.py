@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) AiiDA Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -41,7 +40,7 @@ warnings.warn(
 
 @requires(
     aiida_loaded,
-    "To use the AiidaStructureAdaptor, you need to have " "aiida installed.",
+    "To use the AiidaStructureAdaptor, you need to have aiida installed.",
 )
 class AiidaStructureAdaptor:
     """

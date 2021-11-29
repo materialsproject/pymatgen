@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -309,6 +308,9 @@ class SimplexTest(PymatgenTest):
         expected = np.array([[1.08, 0.04], [0.12, 1.96]])
         intersections = s.line_intersection(point1, point2)
         self.assertArrayAlmostEqual(intersections, expected)
+
+    def test_to_json(self):
+        self.assertIsInstance(self.simplex.to_json(), str)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -163,7 +162,7 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm = MoleculeMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
-        self.assertEqual("{0:7.3}".format(mm.get_rmsd(mol1, mol2)), "0.00488")
+        self.assertEqual(f"{mm.get_rmsd(mol1, mol2):7.3}", "0.00488")
 
     def test_group_molecules(self):
         mm = MoleculeMatcher(tolerance=0.001)

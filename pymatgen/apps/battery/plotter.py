@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -52,7 +51,7 @@ class VoltageProfilePlotter:
                 system, i.e. 'Electrode 1', 'Electrode 2', ...
         """
         if not label:
-            label = "Electrode {}".format(len(self._electrodes) + 1)
+            label = f"Electrode {len(self._electrodes) + 1}"
         self._electrodes[label] = electrode
 
     def get_plot_data(self, electrode, term_zero=True):
@@ -113,7 +112,7 @@ class VoltageProfilePlotter:
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
-            formula.add(electrode._framework_formula)
+            formula.add(electrode.framework_formula)
             plt.plot(x, y, "-", linewidth=2, label=label)
 
         plt.legend()
@@ -151,7 +150,7 @@ class VoltageProfilePlotter:
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
-            formula.add(electrode._framework_formula)
+            formula.add(electrode.framework_formula)
             data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
 
         fig = go.Figure(

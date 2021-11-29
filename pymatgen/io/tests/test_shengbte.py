@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -76,9 +75,9 @@ class TestShengBTE(PymatgenTest):
             os.remove(os.path.join(test_dir, "test_control"))
         io.to_file(filename=os.path.join(test_dir, "test_control"))
 
-        with open(os.path.join(test_dir, "test_control"), "r") as file:
+        with open(os.path.join(test_dir, "test_control")) as file:
             test_string = file.read()
-        with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), "r") as reference_file:
+        with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
             reference_string = reference_file.read()
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, "test_control"))
@@ -89,9 +88,9 @@ class TestShengBTE(PymatgenTest):
         if os.path.exists(os.path.join(test_dir, "test_control")):
             os.remove(os.path.join(test_dir, "test_control"))
         io.to_file(filename=os.path.join(test_dir, "test_control"))
-        with open(os.path.join(test_dir, "test_control"), "r") as file:
+        with open(os.path.join(test_dir, "test_control")) as file:
             test_string = file.read()
-        with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), "r") as reference_file:
+        with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
             reference_string = reference_file.read()
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, "test_control"))

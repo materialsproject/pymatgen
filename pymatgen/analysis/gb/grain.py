@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -17,8 +16,8 @@ import numpy as np
 from monty.fractions import lcm
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # This module implements representations of grain boundaries, as well as
@@ -245,12 +244,12 @@ class GrainBoundary(Structure):
         outs = [
             "Gb Summary (%s)" % comp.formula,
             "Reduced Formula: %s" % comp.reduced_formula,
-            "Rotation axis: %s" % (self.rotation_axis,),
-            "Rotation angle: %s" % (self.rotation_angle,),
-            "GB plane: %s" % (self.gb_plane,),
-            "Join plane: %s" % (self.join_plane,),
-            "vacuum thickness: %s" % (self.vacuum_thickness,),
-            "ab_shift: %s" % (self.ab_shift,),
+            f"Rotation axis: {self.rotation_axis}",
+            f"Rotation angle: {self.rotation_angle}",
+            f"GB plane: {self.gb_plane}",
+            f"Join plane: {self.join_plane}",
+            f"vacuum thickness: {self.vacuum_thickness}",
+            f"ab_shift: {self.ab_shift}",
         ]
 
         def to_s(x, rjust=10):
@@ -258,7 +257,7 @@ class GrainBoundary(Structure):
 
         outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
-        outs.append("Sites ({i})".format(i=len(self)))
+        outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
                 " ".join(
@@ -490,9 +489,7 @@ class GrainBoundaryGenerator:
         elif lat_type == "o":
             logger.info("Make sure this is for orthorhombic system")
             if ratio is None:
-                raise RuntimeError(
-                    "CSL does not exist if all axial ratios are irrational " "for an orthorhombic system"
-                )
+                raise RuntimeError("CSL does not exist if all axial ratios are irrational for an orthorhombic system")
             if len(ratio) != 3:
                 raise RuntimeError("Orthorhombic system needs correct c2:b2:a2 ratio")
         elif lat_type == "h":
@@ -506,7 +503,7 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 logger.info("Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio")
             elif len(ratio) != 2:
-                raise RuntimeError("Rhombohedral system needs correct " "(1+2*cos(alpha)/cos(alpha) ratio")
+                raise RuntimeError("Rhombohedral system needs correct (1+2*cos(alpha)/cos(alpha) ratio")
         else:
             raise RuntimeError(
                 "Lattice type not implemented. This code works for cubic, "
@@ -848,8 +845,8 @@ class GrainBoundaryGenerator:
                 frac2 = Fraction(lat[index[1]] ** 2 / lat[min_index] ** 2).limit_denominator(max_denominator)
                 com_lcm = lcm(frac1.denominator, frac2.denominator)
                 ratio[min_index] = com_lcm
-                ratio[index[0]] = frac1.numerator * int(round((com_lcm / frac1.denominator)))
-                ratio[index[1]] = frac2.numerator * int(round((com_lcm / frac2.denominator)))
+                ratio[index[0]] = frac1.numerator * int(round(com_lcm / frac1.denominator))
+                ratio[index[1]] = frac2.numerator * int(round(com_lcm / frac2.denominator))
             else:
                 index.pop(index_none)
                 if lat[index[0]] > lat[index[1]]:
@@ -1024,7 +1021,7 @@ class GrainBoundaryGenerator:
                 mu, mv = [1, 1]
                 if w != 0:
                     if u != 0 or (v != 0):
-                        raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] " "or [u,v,0] and m = 0")
+                        raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
             else:
                 mu, mv = ratio
             if gcd(mu, mv) != 1:
@@ -1082,7 +1079,7 @@ class GrainBoundaryGenerator:
                 if u + v + w != 0:
                     if u != v or u != w:
                         raise RuntimeError(
-                            "For irrational ratio_alpha, CSL only exist for [1,1,1]" "or [u, v, -(u+v)] and m =0"
+                            "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
                         )
             else:
                 mu, mv = ratio
@@ -1158,9 +1155,7 @@ class GrainBoundaryGenerator:
                     mu, mv = [1, 1]
                     if w != 0:
                         if u != 0 or (v != 0):
-                            raise RuntimeError(
-                                "For irrational c2/a2, CSL only exist for [0,0,1] " "or [u,v,0] and m = 0"
-                            )
+                            raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
                 else:
                     mu, mv = ratio
                 lam = mv
@@ -1177,27 +1172,21 @@ class GrainBoundaryGenerator:
                         mu = 1
                         if w != 0:
                             if u != 0 or (v != 0):
-                                raise RuntimeError(
-                                    "For irrational c2, CSL only exist for [0,0,1] " "or [u,v,0] and m = 0"
-                                )
+                                raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
                     elif lam is None:
                         mu = non1
                         mv = non2
                         lam = 1
                         if v != 0:
                             if u != 0 or (w != 0):
-                                raise RuntimeError(
-                                    "For irrational b2, CSL only exist for [0,1,0] " "or [u,0,w] and m = 0"
-                                )
+                                raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] or [u,0,w] and m = 0")
                     elif mv is None:
                         mu = non1
                         lam = non2
                         mv = 1
                         if u != 0:
                             if w != 0 or (v != 0):
-                                raise RuntimeError(
-                                    "For irrational a2, CSL only exist for [1,0,0] " "or [0,v,w] and m = 0"
-                                )
+                                raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
                 else:
                     mu, lam, mv = ratio
                     if u == 0 and v == 0:
@@ -1252,9 +1241,7 @@ class GrainBoundaryGenerator:
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
         if sigma > 1000:
-            raise RuntimeError(
-                "Sigma >1000 too large. Are you sure what you are doing, " "Please check the GB if exist"
-            )
+            raise RuntimeError("Sigma >1000 too large. Are you sure what you are doing, Please check the GB if exist")
         # transform surface, r_axis, r_matrix in terms of primitive lattice
         surface = np.matmul(surface, np.transpose(trans_cry))
         fractions = [Fraction(x).limit_denominator() for x in surface]
@@ -1455,7 +1442,7 @@ class GrainBoundaryGenerator:
             mu, mv = [1, 1]
             if w != 0:
                 if u != 0 or (v != 0):
-                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] " "or [u,v,0] and m = 0")
+                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
         else:
             mu, mv = c2_a2_ratio
             if gcd(mu, mv) != 1:
@@ -1577,7 +1564,7 @@ class GrainBoundaryGenerator:
             if u + v + w != 0:
                 if u != v or u != w:
                     raise RuntimeError(
-                        "For irrational ratio_alpha, CSL only exist for [1,1,1]" "or [u, v, -(u+v)] and m =0"
+                        "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
                     )
         else:
             mu, mv = ratio_alpha
@@ -1707,7 +1694,7 @@ class GrainBoundaryGenerator:
             mu, mv = [1, 1]
             if w != 0:
                 if u != 0 or (v != 0):
-                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] " "or [u,v,0] and m = 0")
+                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
         else:
             mu, mv = c2_a2_ratio
             if gcd(mu, mv) != 1:
@@ -1832,21 +1819,21 @@ class GrainBoundaryGenerator:
                 mu = 1
                 if w != 0:
                     if u != 0 or (v != 0):
-                        raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] " "or [u,v,0] and m = 0")
+                        raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
             elif lam is None:
                 mu = non1
                 mv = non2
                 lam = 1
                 if v != 0:
                     if u != 0 or (w != 0):
-                        raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] " "or [u,0,w] and m = 0")
+                        raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] or [u,0,w] and m = 0")
             elif mv is None:
                 mu = non1
                 lam = non2
                 mv = 1
                 if u != 0:
                     if w != 0 or (v != 0):
-                        raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] " "or [0,v,w] and m = 0")
+                        raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
         else:
             mu, lam, mv = c2_b2_a2_ratio
             if reduce(gcd, c2_b2_a2_ratio) != 1:
@@ -2057,7 +2044,7 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 logger.info("Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio")
             elif len(ratio) != 2:
-                raise RuntimeError("Rhombohedral system needs correct " "(1+2*cos(alpha)/cos(alpha) ratio")
+                raise RuntimeError("Rhombohedral system needs correct (1+2*cos(alpha)/cos(alpha) ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
         else:
             raise RuntimeError("Lattice type not implemented")
@@ -2365,8 +2352,8 @@ class GrainBoundaryGenerator:
             else:
                 com_lcm = lcm(frac[0].denominator, frac[1].denominator)
                 miller[true_index] = com_lcm
-                miller[index[0]] = frac[0].numerator * int(round((com_lcm / frac[0].denominator)))
-                miller[index[1]] = frac[1].numerator * int(round((com_lcm / frac[1].denominator)))
+                miller[index[0]] = frac[0].numerator * int(round(com_lcm / frac[0].denominator))
+                miller[index[1]] = frac[1].numerator * int(round(com_lcm / frac[1].denominator))
         return miller
 
 

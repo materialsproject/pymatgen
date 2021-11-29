@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -63,11 +62,9 @@ class BatteryAnalyzer:
 
         # how much 'spare charge' is left in the redox metals for oxidation?
         oxid_pot = sum(
-            [
-                (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
-                for spec in self.comp
-                if is_redox_active_intercalation(Element(spec.symbol))
-            ]
+            (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
+            for spec in self.comp
+            if is_redox_active_intercalation(Element(spec.symbol))
         )
 
         oxid_limit = oxid_pot / self.cation_charge
@@ -91,15 +88,10 @@ class BatteryAnalyzer:
         # how much 'spare charge' is left in the redox metals for reduction?
         lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
         oxid_pot = sum(
-            [
-                (
-                    spec.oxi_state
-                    - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])
-                )
-                * self.comp[spec]
-                for spec in self.comp
-                if is_redox_active_intercalation(Element(spec.symbol))
-            ]
+            (spec.oxi_state - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol]))
+            * self.comp[spec]
+            for spec in self.comp
+            if is_redox_active_intercalation(Element(spec.symbol))
         )
 
         return oxid_pot / self.cation_charge
@@ -193,7 +185,7 @@ class BatteryAnalyzer:
 
         # If Mn is the oxid_el, we have a mixture of Mn2+, Mn3+, determine the minimum oxidation state for Mn
         # this is the state we want to oxidize!
-        oxid_old = min([spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol])
+        oxid_old = min(spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol)
         oxid_new = math.floor(oxid_old + 1)
         # if this is not a valid solution, break out of here and don't add anything to the list
         if oxid_new > oxid_el.max_oxidation_state:
@@ -209,7 +201,7 @@ class BatteryAnalyzer:
 
         # determine the amount of cation A in the structure needed for charge balance and add it to the list
         oxi_noA = sum(
-            [spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol]
+            spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol
         )
         a = max(0, -oxi_noA / self.cation_charge)
         numa = numa.union({a})

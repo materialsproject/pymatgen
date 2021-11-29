@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -37,9 +36,13 @@ class BabelMolAdaptorTest(unittest.TestCase):
     def test_init(self):
         adaptor = BabelMolAdaptor(self.mol)
         obmol = adaptor.openbabel_mol
+        pybel = adaptor.pybel_mol
         self.assertEqual(obmol.NumAtoms(), 5)
 
         adaptor = BabelMolAdaptor(adaptor.openbabel_mol)
+        self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
+
+        adaptor = BabelMolAdaptor(pybel)
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
 
     def test_from_file(self):
@@ -129,7 +132,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         adaptor = BabelMolAdaptor(mol)
         adaptor.make3d()
         conformers = adaptor.confab_conformers()
-        self.assertEquals(adaptor.openbabel_mol.NumRotors(), 1)
+        self.assertEqual(adaptor.openbabel_mol.NumRotors(), 1)
         self.assertGreaterEqual(len(conformers), 1)
         if len(conformers) > 1:
             self.assertNotAlmostEqual(MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0)

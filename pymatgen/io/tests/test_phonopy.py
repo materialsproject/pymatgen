@@ -82,8 +82,8 @@ class StructureConversionTest(PymatgenTest):
         s_pmg2 = get_pmg_structure(s_ph)
 
         coords_ph = s_ph.get_scaled_positions()
-        symbols_pmg = set([e.symbol for e in s_pmg.composition.keys()])
-        symbols_pmg2 = set([e.symbol for e in s_pmg2.composition.keys()])
+        symbols_pmg = {e.symbol for e in s_pmg.composition.keys()}
+        symbols_pmg2 = {e.symbol for e in s_pmg2.composition.keys()}
 
         self.assertAlmostEqual(s_ph.get_cell()[1, 1], s_pmg.lattice._matrix[1, 1], 7)
         self.assertAlmostEqual(s_pmg.lattice._matrix[1, 1], s_pmg2.lattice._matrix[1, 1], 7)

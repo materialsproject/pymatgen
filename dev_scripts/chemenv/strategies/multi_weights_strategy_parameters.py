@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -36,7 +35,7 @@ import json
 allcg = AllCoordinationGeometries()
 
 
-class CoordinationEnvironmentMorphing(object):
+class CoordinationEnvironmentMorphing:
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
@@ -106,14 +105,14 @@ class CoordinationEnvironmentMorphing(object):
             morphing_factors,
             fractions_initial_environment,
             "b-",
-            label="{}".format(self.initial_environment_symbol),
+            label=f"{self.initial_environment_symbol}",
             linewidth=1.5,
         )
         subplot.plot(
             morphing_factors,
             fractions_final_environment,
             "g--",
-            label="{}".format(self.expected_final_environment_symbol),
+            label=f"{self.expected_final_environment_symbol}",
             linewidth=1.5,
         )
 
@@ -155,13 +154,13 @@ class CoordinationEnvironmentMorphing(object):
         se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences, only_symbols=only_symbols)
         csm_info = se.get_csms(isite=0, mp_symbol=self.initial_environment_symbol)
         if len(csm_info) == 0:
-            raise ValueError("No csm found for {}".format(self.initial_environment_symbol))
+            raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
         csm_initial_min_dist = csm_info[0]["other_symmetry_measures"][symmetry_measure_type]
 
         csm_info = se.get_csms(isite=0, mp_symbol=self.expected_final_environment_symbol)
         if len(csm_info) == 0:
-            raise ValueError("No csm found for {}".format(self.initial_environment_symbol))
+            raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
 
         csm_final = csm_info[0]["other_symmetry_measures"][symmetry_measure_type]
@@ -173,13 +172,13 @@ class CoordinationEnvironmentMorphing(object):
         se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences, only_symbols=only_symbols)
         csm_info = se.get_csms(isite=0, mp_symbol=self.initial_environment_symbol)
         if len(csm_info) == 0:
-            raise ValueError("No csm found for {}".format(self.initial_environment_symbol))
+            raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
         csm_initial_max_dist = csm_info[0]["other_symmetry_measures"][symmetry_measure_type]
 
         csm_info = se.get_csms(isite=0, mp_symbol=self.expected_final_environment_symbol)
         if len(csm_info) == 0:
-            raise ValueError("No csm found for {}".format(self.initial_environment_symbol))
+            raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
 
         csm_final = csm_info[0]["other_symmetry_measures"][symmetry_measure_type]
@@ -248,7 +247,7 @@ if __name__ == "__main__":
         "+-------------------------------------------------------------+\n"
     )
 
-    with open("ce_pairs.json", "r") as f:
+    with open("ce_pairs.json") as f:
         ce_pairs = json.load(f)
     self_weight_max_csms = {}
     self_weight_max_csms_per_cn = {}
@@ -259,7 +258,7 @@ if __name__ == "__main__":
     for ii in range(1, 14):
         self_weight_max_csms_per_cn[str(ii)] = list()
         for jj in range(ii + 1, 14):
-            cn_pair = "{:d}_{:d}".format(ii, jj)
+            cn_pair = f"{ii:d}_{jj:d}"
             self_weight_max_csms[cn_pair] = list()
             delta_csm_mins[cn_pair] = list()
             all_cn_pairs.append(cn_pair)
@@ -274,7 +273,7 @@ if __name__ == "__main__":
             initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=nb_indices
         )
         params = morph.estimate_parameters(dist_factor_min=mindist, dist_factor_max=maxdist)
-        print("For pair {} to {}, parameters are : ".format(ce1, ce2))
+        print(f"For pair {ce1} to {ce2}, parameters are : ")
         print(params)
         self_weight_max_csms[cn_pair].append(params["self_weight_max_csm"])
         delta_csm_mins[cn_pair].append(params["delta_csm_min"])
