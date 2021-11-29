@@ -270,7 +270,7 @@ class QChemDictSet(QCInput):
                         raise RuntimeError("Can't overwrite nbo params when NBO is not being run! Exiting...")
                     temp_nbo = lower_and_check_unique(sec_dict)
                     for k, v in temp_nbo.items():
-                        mynbo[k] = v
+                        mynbo[k] = v  # type: ignore
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
