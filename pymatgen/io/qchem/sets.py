@@ -222,6 +222,12 @@ class QChemDictSet(QCInput):
 
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
+            if self.nbo_params["version"] = 7:
+                myrem["run_nbo6"] = "true"
+            mynbo = {}
+            for key in self.nbo_params:
+                if key != "version":
+                    mynbo[key] = self.nbo_params[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -256,9 +262,9 @@ class QChemDictSet(QCInput):
                     for k, v in temp_plots.items():
                         myplots[k] = v
                 if sec == "nbo":
-                    temp_plots = lower_and_check_unique(sec_dict)
-                    for k, v in temp_plots.items():
-                        myplots[k] = v
+                    temp_nbo = lower_and_check_unique(sec_dict)
+                    for k, v in temp_nbo.items():
+                        mynbo[k] = v
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -275,7 +281,7 @@ class QChemDictSet(QCInput):
             van_der_waals=myvdw,
             vdw_mode=self.vdw_mode,
             plots=myplots,
-            nbo=self.nbo_params,
+            nbo=mynbo,
         )
 
     def write(self, input_file: str):
