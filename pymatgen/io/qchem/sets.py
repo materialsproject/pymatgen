@@ -222,12 +222,17 @@ class QChemDictSet(QCInput):
 
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
-            if self.nbo_params["version"] == 7:
-                myrem["run_nbo6"] = "true"
+            if "version" in self.nbo_params:
+                if self.nbo_params["version"] == 7:
+                    myrem["run_nbo6"] = "true"
+                else:
+                    raise RuntimeError("nbo params version should only be set to 7! Exiting...")
             mynbo = {}
             for key in self.nbo_params:
                 if key != "version":
                     mynbo[key] = self.nbo_params[key]
+        else:
+            mynbo = None
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
