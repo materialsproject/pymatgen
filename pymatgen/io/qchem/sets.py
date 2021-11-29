@@ -266,6 +266,8 @@ class QChemDictSet(QCInput):
                     for k, v in temp_plots.items():
                         myplots[k] = v
                 if sec == "nbo":
+                    if mynbo == None:
+                        raise RuntimeError("Can't overwrite nbo params when NBO is not being run! Exiting...")
                     temp_nbo = lower_and_check_unique(sec_dict)
                     for k, v in temp_nbo.items():
                         mynbo[k] = v
