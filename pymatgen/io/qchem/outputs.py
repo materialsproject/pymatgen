@@ -291,10 +291,10 @@ class QCOutput(MSONable):
             self._read_scan_data()
 
         # Check if an NBO calculation was performed. If so, parse the relevant output
-        self.data["nbo"] = read_pattern(
-            self.text, {"key": r"Job title: Starting NBO analysis"}, terminate_on_match=True
+        self.data["nbo_data"] = read_pattern(
+            self.text, {"key": r"N A T U R A L   A T O M I C   O R B I T A L"}, terminate_on_match=True
         ).get("key")
-        if self.data.get("nbo", []):
+        if self.data.get("nbo_data", []):
             self._read_nbo_data()
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
@@ -1788,28 +1788,45 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                     continue
                 if "None" in line:
                     continue
-                if "RY" in line:
-                    continue
 
                 # Extract the values
                 entry = {}  # type: Dict[str, Union[str, int, float]]
-                entry["donor bond index"] = int(line[0:4].strip())
-                entry["donor type"] = str(line[5:9].strip())
-                entry["donor orbital index"] = int(line[10:12].strip())
-                entry["donor atom 1 symbol"] = str(line[13:15].strip())
-                entry["donor atom 1 number"] = int(line[15:17].strip())
-                entry["donor atom 2 symbol"] = str(line[18:20].strip())
-                entry["donor atom 2 number"] = z_int(line[20:22].strip())
-                entry["acceptor bond index"] = int(line[25:31].strip())
-                entry["acceptor type"] = str(line[32:36].strip())
-                entry["acceptor orbital index"] = int(line[37:39].strip())
-                entry["acceptor atom 1 symbol"] = str(line[40:42].strip())
-                entry["acceptor atom 1 number"] = int(line[42:44].strip())
-                entry["acceptor atom 2 symbol"] = str(line[45:47].strip())
-                entry["acceptor atom 2 number"] = z_int(line[47:49].strip())
-                entry["perturbation energy"] = float(line[50:62].strip())
-                entry["energy difference"] = float(line[62:70].strip())
-                entry["fock matrix element"] = float(line[70:79].strip())
+                if line[4] == ".":
+                    entry["donor bond index"] = int(line[0:4].strip())
+                    entry["donor type"] = str(line[5:9].strip())
+                    entry["donor orbital index"] = int(line[10:12].strip())
+                    entry["donor atom 1 symbol"] = str(line[13:15].strip())
+                    entry["donor atom 1 number"] = int(line[15:17].strip())
+                    entry["donor atom 2 symbol"] = str(line[18:20].strip())
+                    entry["donor atom 2 number"] = z_int(line[20:22].strip())
+                    entry["acceptor bond index"] = int(line[25:31].strip())
+                    entry["acceptor type"] = str(line[32:36].strip())
+                    entry["acceptor orbital index"] = int(line[37:39].strip())
+                    entry["acceptor atom 1 symbol"] = str(line[40:42].strip())
+                    entry["acceptor atom 1 number"] = int(line[42:44].strip())
+                    entry["acceptor atom 2 symbol"] = str(line[45:47].strip())
+                    entry["acceptor atom 2 number"] = z_int(line[47:49].strip())
+                    entry["perturbation energy"] = float(line[50:62].strip())
+                    entry["energy difference"] = float(line[62:70].strip())
+                    entry["fock matrix element"] = float(line[70:79].strip())
+                elif line[5] == ".":
+                    entry["donor bond index"] = int(line[0:5].strip())
+                    entry["donor type"] = str(line[6:10].strip())
+                    entry["donor orbital index"] = int(line[11:13].strip())
+                    entry["donor atom 1 symbol"] = str(line[14:16].strip())
+                    entry["donor atom 1 number"] = int(line[16:19].strip())
+                    entry["donor atom 2 symbol"] = str(line[20:22].strip())
+                    entry["donor atom 2 number"] = z_int(line[22:25].strip())
+                    entry["acceptor bond index"] = int(line[25:33].strip())
+                    entry["acceptor type"] = str(line[34:38].strip())
+                    entry["acceptor orbital index"] = int(line[39:41].strip())
+                    entry["acceptor atom 1 symbol"] = str(line[42:44].strip())
+                    entry["acceptor atom 1 number"] = int(line[44:47].strip())
+                    entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
+                    entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
+                    entry["perturbation energy"] = float(line[53:63].strip())
+                    entry["energy difference"] = float(line[63:71].strip())
+                    entry["fock matrix element"] = float(line[71:79].strip())
                 e2_data.append(entry)
 
             # Store values in a dataframe

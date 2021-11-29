@@ -213,7 +213,7 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
-    def test_all(self):
+    def _test_all(self):
         self.maxDiff = None
         single_outs = {}
         for file in single_job_out_names:
@@ -270,8 +270,28 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(len(data["nbo_data"]["perturbation_energy"]), 2)
         self.assertEqual(data["nbo_data"]["natural_populations"][0]["Density"][5], -0.08624)
         self.assertEqual(data["nbo_data"]["hybridization_character"][-1]["atom 2 pol coeff"][35], "-0.7059")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][104], 0.071)
+        next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"].keys())[-2]
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last], 0.071)
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0], "RY*")
 
+    def test_NBO7_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9], 15.73)
+        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"].keys()), 84)
+        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"].keys()), 29)
+
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_2.qout")).data
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13], 32.93)
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13], "LV")
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12], "RY")
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12], "Mg")
+
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_3.qout")).data
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13], 34.54)
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13], "BD*")
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13], "B")
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13], "Mg")
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13], 3)
 
 if __name__ == "__main__":
     unittest.main()
