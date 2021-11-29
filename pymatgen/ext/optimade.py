@@ -34,8 +34,8 @@ class OptimadeRester:
 
     This class is ready to use but considered in-development and subject to change.
 
-    [1] Andersen, C.W., *et al*. 
-        OPTIMADE, an API for exchanging materials data. 
+    [1] Andersen, C.W., *et al*.
+        OPTIMADE, an API for exchanging materials data.
         Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
 
     """
@@ -160,11 +160,11 @@ class OptimadeRester:
 
     @staticmethod
     def _build_filter(
-        elements: Union[str, List[str]] = None, 
-        nelements: int = None, 
-        nsites: int = None, 
+        elements: Union[str, List[str]] = None,
+        nelements: int = None,
+        nsites: int = None,
         chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None, 
+        chemical_formula_hill: str = None,
     ):
         """
         Convenience method to build an OPTIMADE filter.
@@ -271,9 +271,7 @@ class OptimadeRester:
             chemical_formula_hill=chemical_formula_hill,
         )
 
-        return self.get_snls_with_filter(
-            optimade_filter, additional_response_fields=additional_response_fields
-        )
+        return self.get_snls_with_filter(optimade_filter, additional_response_fields=additional_response_fields)
 
     def get_structures_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, Structure]]:
         """
@@ -294,8 +292,8 @@ class OptimadeRester:
         return all_structures
 
     def get_snls_with_filter(
-        self, 
-        optimade_filter: str, 
+        self,
+        optimade_filter: str,
         additional_response_fields: Union[str, List[str], Set[str]] = None,
     ) -> Dict[str, Dict[str, StructureNL]]:
         """
@@ -383,9 +381,9 @@ class OptimadeRester:
                 )
                 # Grab any custom fields or non-mandatory fields if they were requested
                 namespaced_data = {
-                    k: v for k, v in data["attributes"].items() 
-                    if k.startswith("_") 
-                    or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                    k: v
+                    for k, v in data["attributes"].items()
+                    if k.startswith("_") or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
                 }
 
                 # TODO: follow `references` to add reference information here
@@ -411,9 +409,9 @@ class OptimadeRester:
                     )
                     # Grab any custom fields or non-mandatory fields if they were requested
                     namespaced_data = {
-                        k: v for k, v in data["attributes"].items() 
-                        if k.startswith("_") 
-                        or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                        k: v
+                        for k, v in data["attributes"].items()
+                        if k.startswith("_") or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
                     }
 
                     # TODO: follow `references` to add reference information here
@@ -543,7 +541,6 @@ class OptimadeRester:
         if not additional_response_fields:
             additional_response_fields = set()
         return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
-        
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

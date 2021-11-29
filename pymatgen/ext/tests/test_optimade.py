@@ -52,7 +52,6 @@ class OptimadeTest(PymatgenTest):
                 assert "nsites" in sp.data["_optimade"]
                 assert "nelements" in sp.data["_optimade"]
 
-
     # Tests fail in CI for unknown reason, use for development only.
     # def test_get_structures_mcloud_2dstructures(self):
     #
