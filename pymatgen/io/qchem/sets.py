@@ -222,7 +222,7 @@ class QChemDictSet(QCInput):
 
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
-            if self.nbo_params["version"] = 7:
+            if self.nbo_params["version"] == 7:
                 myrem["run_nbo6"] = "true"
             mynbo = {}
             for key in self.nbo_params:
