@@ -538,7 +538,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             # group by spacegroup, then by number of sites (for diatmics) or by structure matching
             for sg, pregroup in groupby(sorted(l_compgroup, key=_get_sg), key=_get_sg):
                 l_pregroup = list(pregroup)
-                if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br"] and self.fuzzy_matching:
+                if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br", "H2O"] and self.fuzzy_matching:
                     # group by number of sites
                     for n, sitegroup in groupby(
                         sorted(l_pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites
