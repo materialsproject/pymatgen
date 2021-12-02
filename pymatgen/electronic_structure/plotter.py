@@ -786,7 +786,7 @@ class BSPlotter:
             # and add the second lbl to ticks list
             # otherwise add to ticks list both new labels.
             # Similar for distances.
-            if (not ticks) and labels[0] != ticks[-1]:
+            if ticks and labels[0] != ticks[-1]:
                 ticks[-1] += "$\\mid$" + labels[0]
                 ticks.append(labels[1])
                 distance.append(bs.distance[e])
