@@ -3126,3 +3126,164 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     if not inplace:
         return new_struct
     return None
+
+
+class MPAbsorptionSet(DictSet):
+    """
+    MP input set for generating frequency dependent dielectrics.
+    Two modes are supported: "IPA" or "RPA".
+    A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="RPA"(optional)
+    For all steps other than the first one (static), the
+    recommendation is to use from_prev_calculation on the preceding run in
+    the series. It is important to ensure Gamma centred kpoints for the RPA step.
+    Note that this set is similar to the MVLGWSet, with the difference being the
+    pseudopotentials in the config file.
+    """
+
+    CONFIG = _load_yaml_config("MPAbsorptionSet")
+
+    SUPPORTED_MODES = ("IPA", "RPA")
+
+    def __init__(
+            self,
+            structure,
+            mode="IPA",
+            copy_wavecar=True,
+            nbands=None,
+            nbands_factor=2,
+            reciprocal_density=200,
+            nkred=None,
+            nedos=None,
+            prev_incar=None,
+            **kwargs
+    ):
+        """
+        Args:
+            structure (Structure): Input structure.
+            prev_incar (Incar/string): Incar file from previous run.
+            mode (str): Supported modes are "STATIC" (default), "IPA", "RPA"
+            nbands (int): For subsequent calculations, it is generally
+                irecommended to perform NBANDS convergence starting from the
+                NBANDS of the previous run for DIAG, and to use the exact same
+                NBANDS for RPA. This parameter is used by
+                from_previous_calculation to set nband.
+            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and associated
+                files when starting from a previous calculation.
+            nbands_factor (int): Multiplicative factor for NBANDS when starting
+                from a previous calculation. Only applies if mode=="IPA".
+                Need to be tested for convergence.
+            ncores (int): Numbers of cores used for the calculation. VASP will alter
+                NBANDS if it was not dividable by ncores. Only applies if
+                mode=="DIAG".
+            **kwargs: All kwargs supported by DictSet. Typically,
+                user_incar_settings is a commonly used option.
+        """
+        super().__init__(structure, MPAbsorptionSet.CONFIG, **kwargs)
+        self.prev_incar = prev_incar
+        self.nbands = nbands
+        self.reciprocal_density = reciprocal_density
+        self.mode = mode.upper()
+        if self.mode not in MPAbsorptionSet.SUPPORTED_MODES:
+            raise ValueError("%s not one of the support modes : %s" % (self.mode, MPAbsorptionSet.SUPPORTED_MODES))
+        self.copy_wavecar = copy_wavecar
+        self.nbands_factor = nbands_factor
+        self.nedos = nedos
+        self.nkred = nkred
+        self.kwargs = kwargs
+
+    @property
+    def kpoints(self):
+        """
+        Generate gamma center k-points mesh grid for optical calculation. It is not mandatory for 'ALGO = Exact',
+        but is requested by 'ALGO = CHI' calculation.
+        """
+        return Kpoints.automatic_density_by_vol(self.structure, self.reciprocal_density, force_gamma=True)
+
+    @property
+    def incar(self):
+        """
+        :return: Incar
+        """
+        parent_incar = super().incar
+
+        if self.mode == "IPA":
+            # use the incar from previous static calculation
+            if self.prev_incar is not None:
+                incar = Incar(self.prev_incar)
+                # Default parameters for diagonalization calculation.
+                incar.update({"ALGO": "Exact", "LOPTICS": True, "CSHIFT": 0.1, "LWAVE": "True"})
+                incar.update({"NEDOS": self.nedos}) if self.nedos is not None else incar.update({"NEDOS": 2001})
+            else:
+                incar = Incar(parent_incar)
+
+        elif self.mode == "RPA":
+            # Default parameters for the response function calculation. NELM has to be set to 1, otherwise
+            # the calculation is forced into a GW loop but without calculating self energy.
+            incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+            incar.update({"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000, "ENCUTGW": 250})
+
+            if self.nkred is not None:
+                incar["NKREDX"] = self.nkred[0]
+                incar["NKREDY"] = self.nkred[1]
+                incar["NKREDZ"] = self.nkred[2]
+
+            incar.pop("EDIFF", None)
+            incar.pop("LOPTICS", None)
+            incar.pop("LWAVE", False)
+
+        else:
+            raise Exception("mode has to be from 'IPA' or 'RPA'")
+
+        if self.nbands:
+            incar["NBANDS"] = self.nbands
+
+        # Respect user set INCAR.
+        incar.update(self.kwargs.get("user_incar_settings", {}))
+
+        return incar
+
+    def override_from_prev_calc(self, prev_calc_dir='.', **kwargs):
+        """
+        Update the input set to include settings from a previous calculation.
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+        self.prev_incar = vasprun.incar
+        self._structure = vasprun.final_structure
+
+        # The number of bands is multiplied by the factor and at the same time devisible by the number of cores.
+        prev_nbands = int(vasprun.parameters["NBANDS"])
+
+        if self.mode.upper() == "IPA":
+            self.nbands = int(np.ceil(prev_nbands * self.nbands_factor))
+
+        # Since in the optical calculation, only the q->0 transition is of interests, we can reduce the number of q by
+        # the factor of the number of kpoints in each corresonding x, y, z directions. This will reduce the
+        # computational work by factor of 1/nkredx*nkredy*nkredz. An isotropic NKRED can be used for cubic
+        # lattice, but using NKREDX, NKREDY, NKREDZ is more sensible for other lattice.
+        if self.mode.upper() == "RPA":
+            # self.nbands = int(np.ceil(self.nbands * self.nbands_factor / self.ncores) * self.ncores)
+            self.nkred = vasprun.kpoints.kpts[0]
+
+        return self
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, mode, **kwargs):
+        """
+        Generate a set of Vasp input files for absorption calculation
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml of previous vasp run.
+            mode (str): Supported modes are "STATIC", "IPA", "RPA" (default)
+            **kwargs: All kwargs supported by MPAbsorptionsSet, other than structure,
+                prev_incar and mode, which are determined from the
+                prev_calc_dir.
+        """
+        input_set = cls(_dummy_structure, mode, **kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
+
+
