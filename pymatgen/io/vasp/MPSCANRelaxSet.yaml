@@ -1,6 +1,6 @@
 # Default VASP settings for calculations in the Materials Project
-# using the Strongly Constrained and Appropriately Normed (SCAN)
-# functional.
+# using the Regularized-Restored Strongly Constrained and Appropriately
+# Normed functional (r2SCAN).
 PARENT: VASPIncarBase
 INCAR:
   ALGO: ALL
