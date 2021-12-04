@@ -33,11 +33,11 @@ def _load_cross_sections(fname):
 
     d = collections.defaultdict(dict)
     for row in data.itertuples():
-        sym = row["element"]
+        sym = row.element
         el = Element(sym)
         if el.Z > 92:
             continue
-        orb = row["orbital"]
+        orb = row.orbital
         shell = int(orb[0])
         orbtype = orb[1]
         nelect = None
@@ -46,7 +46,7 @@ def _load_cross_sections(fname):
                 nelect = l[2]
                 break
         if nelect is not None:
-            d[sym][orbtype] = row["weight"] / nelect
+            d[sym][orbtype] = row.weight / nelect
     return d
 
 
