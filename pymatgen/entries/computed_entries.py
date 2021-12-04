@@ -309,7 +309,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 class ComputedEntry(Entry):
     """
     Lightweight Entry object for computed data. Contains facilities
-    for applying corrections to the .energy attribute and for storing
+    for applying corrections to the energy attribute and for storing
     calculation parameters.
     """
 

@@ -16,13 +16,12 @@ Note that the atomic_subshell_photoionization_cross_sections.csv has been repars
 This version contains all detailed information for all orbitals.
 """
 
+import collections
 import warnings
 from pathlib import Path
-import collections
 
 import numpy as np
 import pandas as pd
-
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.spectrum import Spectrum
@@ -33,7 +32,7 @@ def _load_cross_sections(fname):
     data = pd.read_csv(fname)
 
     d = collections.defaultdict(dict)
-    for index, row in data.iterrows():
+    for row in data.itertuples():
         sym = row["element"]
         el = Element(sym)
         if el.Z > 92:

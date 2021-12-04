@@ -30,10 +30,10 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core import yaml
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.io_utils import clean_lines
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
@@ -571,7 +571,7 @@ class LammpsData(MSONable):
             for el, vc in masses["element"].value_counts().iteritems():
                 masses.loc[masses["element"] == el, "label"] = ["%s%d" % (el, c) for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
-        mass_info = [tuple([r["label"], r["mass"]]) for _, r in masses.iterrows()]
+        mass_info = [tuple([row["label"], row["mass"]]) for row in masses.itertuples()]
 
         nonbond_coeffs, topo_coeffs = None, None
         if self.force_field:
