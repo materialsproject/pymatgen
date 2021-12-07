@@ -1,7 +1,7 @@
 # Default VASP settings for frequency dependent dielectrics calculated by independent particle approximation
 # in the Materials Project.
 # Convergence against NBANDS and KPOINTS should be tested.
-# Optional modes are: independent particle approx. (IPA) or Random-phase approximation (RPA)
+# Optional modes are: independent particle approximation (IPA) or Random-phase approximation (RPA)
 
 PARENT: VASPIncarBase
 INCAR:

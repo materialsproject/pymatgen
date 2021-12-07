@@ -3151,9 +3151,9 @@ class MPAbsorptionSet(DictSet):
             copy_wavecar=True,
             nbands=None,
             nbands_factor=2,
-            reciprocal_density=200,
+            reciprocal_density=400,
             nkred=None,
-            nedos=None,
+            nedos=2001,
             prev_incar=None,
             **kwargs
     ):
@@ -3161,23 +3161,23 @@ class MPAbsorptionSet(DictSet):
         Args:
             structure (Structure): Input structure.
             prev_incar (Incar/string): Incar file from previous run.
-            mode (str): Supported modes are "STATIC" (default), "IPA", "RPA"
+            mode (str): Supported modes are "IPA", "RPA"
             nbands (int): For subsequent calculations, it is generally
-                irecommended to perform NBANDS convergence starting from the
+                recommended to perform NBANDS convergence starting from the
                 NBANDS of the previous run for DIAG, and to use the exact same
                 NBANDS for RPA. This parameter is used by
                 from_previous_calculation to set nband.
-            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and associated
-                files when starting from a previous calculation.
             nbands_factor (int): Multiplicative factor for NBANDS when starting
                 from a previous calculation. Only applies if mode=="IPA".
                 Need to be tested for convergence.
-            ncores (int): Numbers of cores used for the calculation. VASP will alter
-                NBANDS if it was not dividable by ncores. Only applies if
-                mode=="DIAG".
-            **kwargs: All kwargs supported by DictSet. Typically,
-                user_incar_settings is a commonly used option.
+            reciprocal_density: the k-points density
+            nkred: the reduced number of kpoints to calculate, equal to the k-mesh. Only applies in "RPA" mode
+                  because of the q->0 limit.
+            nedos: the density of DOS, default: 2001.
+            **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """
+
+        # Initialize the input set from MPAbsorptionSet.CONFIG (IPA absorption)
         super().__init__(structure, MPAbsorptionSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
         self.nbands = nbands
