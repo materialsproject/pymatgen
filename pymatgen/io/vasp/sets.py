@@ -3217,10 +3217,10 @@ class MPAbsorptionSet(DictSet):
                 incar = Incar(parent_incar)
 
         elif self.mode == "RPA":
-            # Default parameters for the response function calculation. NELM has to be set to 1, otherwise
-            # the calculation is forced into a GW loop but without calculating self energy.
+            # Default parameters for the response function calculation. NELM has to be set to 1.
+            # NOMEGA is set to 1000 in order to get smooth spectrum
             incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
-            incar.update({"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000, "ENCUTGW": 250})
+            incar.update({"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000})
 
             if self.nkred is not None:
                 incar["NKREDX"] = self.nkred[0]
