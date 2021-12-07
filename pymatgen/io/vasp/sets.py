@@ -3278,7 +3278,7 @@ class MPAbsorptionSet(DictSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.
-            mode (str): Supported modes are "STATIC", "IPA", "RPA" (default)
+            mode (str): Supported modes are "IPA", "RPA" (default)
             **kwargs: All kwargs supported by MPAbsorptionsSet, other than structure,
                 prev_incar and mode, which are determined from the
                 prev_calc_dir.
