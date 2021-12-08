@@ -811,7 +811,7 @@ class ElementBase(Enum):
         """
         Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
         (IUPAC Recommendations 2005)". This ordering effectively follows the
-        groups and rows of the periodic table, except the Lanthanides, Actanides
+        groups and rows of the periodic table, except the Lanthanides, Actinides
         and hydrogen.
         """
         return self._data["IUPAC ordering"]
