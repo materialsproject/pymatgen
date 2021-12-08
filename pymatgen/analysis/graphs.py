@@ -427,7 +427,7 @@ class StructureGraph(MSONable):
                     if warn_duplicates:
                         warnings.warn(
                             "Trying to add an edge that already exists from "
-                            "site {} to site {} in {}.".format(from_index, to_index, to_jimage)
+                            f"site {from_index} to site {to_index} in {to_jimage}."
                         )
                     return
 

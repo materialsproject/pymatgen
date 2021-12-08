@@ -104,8 +104,8 @@ class ChemEnvConfig:
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup.keys())
-        for istrategy, strategy in enumerate(strategies):
-            print(f" <{istrategy + 1}> : {strategy}")
+        for idx, strategy in enumerate(strategies, 1):
+            print(f" <{idx}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {
             "strategy": strategies[int(test) - 1],
@@ -115,12 +115,9 @@ class ChemEnvConfig:
         if len(strategy_class.STRATEGY_OPTIONS) > 0:
             for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
                 while True:
-                    print(
-                        '  => Enter value for option "{}" '
-                        "(<ENTER> for default = {})\n".format(option, str(option_dict["default"]))
-                    )
+                    print(f"  => Enter value for option '{option}' (<ENTER> for default = {option_dict['default']})\n")
                     print("     Valid options are :\n")
-                    print("       {}".format(option_dict["type"].allowed_values))
+                    print(f"       {option_dict['type'].allowed_values}")
                     test = input("     Your choice : ")
                     if test == "":
                         self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](

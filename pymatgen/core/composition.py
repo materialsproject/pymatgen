@@ -951,14 +951,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # sort the solutions by highest to lowest score
         if all_scores:
             all_sols, all_oxid_combo = zip(
-                *[
+                *(
                     (y, x)
                     for (z, y, x) in sorted(
                         zip(all_scores, all_sols, all_oxid_combo),
                         key=lambda pair: pair[0],
                         reverse=True,
                     )
-                ]
+                )
             )
         return all_sols, all_oxid_combo
 

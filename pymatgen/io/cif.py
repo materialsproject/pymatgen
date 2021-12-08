@@ -119,7 +119,7 @@ class CifBlock:
         s = "loop_"
         for l in loop:
             s += "\n " + l
-        for fields in zip(*[self.data[k] for k in loop]):
+        for fields in zip(*(self.data[k] for k in loop)):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":

@@ -862,7 +862,7 @@ class SlabGenerator:
         c_index, dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
-            lcm_miller = lcm(*[miller_index[i] for i, d in non_orth_ind])
+            lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
             for (i, di), (j, dj) in itertools.combinations(non_orth_ind, 2):
                 l = [0, 0, 0]
                 l[i] = -int(round(lcm_miller / miller_index[i]))

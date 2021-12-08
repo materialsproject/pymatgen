@@ -80,7 +80,7 @@ class Cohp(MSONable):
         formatdata = " ".join(["{:.5f}" for __ in header])
         stringarray = [formatheader.format(*header)]
         for i, __ in enumerate(self.energies):
-            stringarray.append(formatdata.format(*[d[i] for d in data]))
+            stringarray.append(formatdata.format(*(d[i] for d in data)))
         return "\n".join(stringarray)
 
     def as_dict(self):

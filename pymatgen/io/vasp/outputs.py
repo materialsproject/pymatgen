@@ -3753,7 +3753,7 @@ class VolumetricData(MSONable):
         a = self.dim
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
+            for x, y, z in itertools.product(*(list(range(i)) for i in a)):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {

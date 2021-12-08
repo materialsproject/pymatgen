@@ -784,7 +784,7 @@ class LammpsData(MSONable):
             atom_style (str): Output atom_style. Default to "full".
 
         """
-        atom_types = set.union(*[t.species for t in topologies])
+        atom_types = set.union(*(t.species for t in topologies))
         assert atom_types.issubset(ff.maps["Atoms"].keys()), "Unknown atom type found in topologies"
 
         items = dict(box=box, atom_style=atom_style, masses=ff.masses, force_field=ff.force_field)
@@ -1142,7 +1142,7 @@ class ForceField(MSONable):
             distinct_types.append(d["types"])
             for k in class2_data.keys():
                 class2_data[k].append(d[k])
-        distinct_types = [set(itertools.chain(*[find_eq_types(t, kw) for t in dt])) for dt in distinct_types]
+        distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
         assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
