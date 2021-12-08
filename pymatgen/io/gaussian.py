@@ -431,7 +431,7 @@ class GaussianInput:
         """
         Return GaussianInput string
 
-        Option: whe cart_coords sets to True return the cartesian coordinates
+        Option: when cart_coords is set to True return the cartesian coordinates
                 instead of the z-matrix
 
         """

@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 """
 This module provides objects for extracting timing data from the ABINIT output files
-It also provides tools to analye and to visualize the parallel efficiency.
+It also provides tools to analyze and to visualize the parallel efficiency.
 """
 
 import collections

@@ -1200,7 +1200,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         passed to process_entries. process_entries will fail if one or the other is not provided.
 
         Args:
-            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+            solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProject2020Compatibility
@@ -1223,7 +1223,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         elif issubclass(type(solid_compat), Compatibility):
             self.solid_compat = solid_compat
         else:
-            raise ValueError("Expected a Compatability class, instance of a Compatability or None")
+            raise ValueError("Expected a Compatibility class, instance of a Compatibility or None")
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy

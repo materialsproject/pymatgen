@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-Classes for reading/manipulating/writing VASP ouput files.
+Classes for reading/manipulating/writing VASP output files.
 """
 
 import datetime
@@ -3996,7 +3996,7 @@ class Procar:
 
     .. attribute:: weights
 
-        The weights associated with each k-point as an nd.array of lenght
+        The weights associated with each k-point as an nd.array of length
         nkpoints.
 
     ..attribute:: phase_factors
@@ -4691,7 +4691,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
 # I use numpy.fromfile instead of scipy.io.FortranFile here because the records
 # are of fixed length, so the record length is only written once. In fortran,
 # this amounts to using open(..., form='unformatted', recl=recl_len). In
-# constrast when you write UNK files, the record length is written at the
+# contrast when you write UNK files, the record length is written at the
 # beginning of each record. This allows you to use scipy.io.FortranFile. In
 # fortran, this amounts to using open(..., form='unformatted') [i.e. no recl=].
 class Wavecar:

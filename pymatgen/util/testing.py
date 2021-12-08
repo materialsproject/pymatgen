@@ -38,7 +38,7 @@ class PymatgenTest(unittest.TestCase):
         import warnings
 
         warnings.warn(
-            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
+            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicitly. "
             "Now using a fallback location based on relative path from this module."
         )
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"

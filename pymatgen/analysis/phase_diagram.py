@@ -605,12 +605,12 @@ class PhaseDiagram(MSONable):
 
     def _get_simplex_intersections(self, c1, c2):
         """
-        Returns co-ordinates of the itersection of the tie line between two compositions
+        Returns coordinates of the itersection of the tie line between two compositions
         and the simplexes of the PhaseDiagram.
 
         Args:
-            c1: Reduced dimension co-ordinates of first composition
-            c2: Reduced dimension co-ordinates of second composition
+            c1: Reduced dimension coordinates of first composition
+            c2: Reduced dimension coordinates of second composition
 
         Returns:
             Array of the intersections between the tie line and the simplexes of
@@ -776,7 +776,7 @@ class PhaseDiagram(MSONable):
 
         For stable entries setting `stable_only` to `True` returns the same energy
         as `get_equilibrium_reaction_energy`. This function is based on a constrained
-        optimisation rather than recalculation of the convex hull making it
+        optimization rather than recalculation of the convex hull making it
         algorithmically cheaper. However, if `tol` is too loose there is potential
         for this algorithm to converge to a different solution.
 
@@ -786,13 +786,13 @@ class PhaseDiagram(MSONable):
                 before calculating a second convex hull to reducing the complexity
                 of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
-            tol (list): Tolerences for convergence of the SLSQP optimization
-                when finding the equilibrium reaction. Tighter tolerences tested first.
+            tol (list): Tolerances for convergence of the SLSQP optimization
+                when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
 
         Returns:
-            (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
+            (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The phase separation energy is given per atom.
         """
@@ -867,7 +867,7 @@ class PhaseDiagram(MSONable):
             **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
                 space_limit (int): The maximum number of competing entries to consider.
                 stable_only (bool): Only use stable materials as competing entries
-                tol (float): The tolerence for convergence of the SLSQP optimization
+                tol (float): The tolerance for convergence of the SLSQP optimization
                     when finding the equilibrium reaction.
                 maxiter (int): The maximum number of iterations of the SLSQP optimizer
                     when finding the equilibrium reaction.
@@ -1612,7 +1612,7 @@ def _get_slsqp_decomp(
     Args:
         comp (Composition): A Composition to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
-        tols (list): tolerences to try for SLSQP convergence. Issues observed for
+        tols (list): tolerances to try for SLSQP convergence. Issues observed for
             tol > 1e-7 in the fractional composition (default 1e-8)
         maxiter (int): maximum number of SLSQP iterations
 
@@ -1649,7 +1649,7 @@ def _get_slsqp_decomp(
     bounds = [(0, max_bound)] * len(competing_entries)
     x0 = [1 / len(competing_entries)] * len(competing_entries)
 
-    # NOTE the tolerence needs to be tight to stop the optimization
+    # NOTE the tolerance needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
     # tol > 1e-7 in the fractional composition (default 1e-8).
     for tol in sorted(tols):

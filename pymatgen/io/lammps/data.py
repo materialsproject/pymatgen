@@ -524,7 +524,7 @@ class LammpsData(MSONable):
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
                 Masses section. Default to None, where the labels are
-                automaticaly added based on either element guess or
+                automatically added based on either element guess or
                 dummy specie assignment.
             guess_element (bool): Whether to guess the element based on
                 its atomic mass. Default to True, otherwise dummy
@@ -1214,7 +1214,7 @@ class ForceField(MSONable):
 class CombinedData(LammpsData):
     """
     Object for a collective set of data for a series of LAMMPS data file.
-    velocities not yet implementd.
+    velocities not yet implemented.
     """
 
     def __init__(
@@ -1341,7 +1341,7 @@ class CombinedData(LammpsData):
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
                 Masses section. Default to None, where the labels are
-                automaticaly added based on either element guess or
+                automatically added based on either element guess or
                 dummy specie assignment.
             guess_element (bool): Whether to guess the element based on
                 its atomic mass. Default to True, otherwise dummy

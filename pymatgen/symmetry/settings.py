@@ -189,7 +189,7 @@ class JonesFaithfulTransformation:
 
     def transform_coords(self, coords: Union[List[List[float]], np.ndarray]) -> List[List[float]]:
         """
-        Takes a list of co-ordinates and transforms them.
+        Takes a list of coordinates and transforms them.
         :param coords: List of coords
         :return:
         """

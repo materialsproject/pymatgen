@@ -41,7 +41,7 @@ class Nwchem2Fiesta(MSONable):
         filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)
         logfile: logfile of NWCHEM2FIESTA
 
-        the run method launchs NWCHEM2FIESTA
+        the run method launches NWCHEM2FIESTA
 
         """
 
@@ -411,7 +411,7 @@ class FiestaInput(MSONable):
 
     def dump_TDDFT_data_in_GW_run(self, TDDFT_dump=True):
         """
-        :param TDDFT_dump: boolen
+        :param TDDFT_dump: boolean
         :return: set the do_tddft variable to one in cell.in
         """
         if TDDFT_dump:

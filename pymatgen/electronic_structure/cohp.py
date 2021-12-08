@@ -14,6 +14,7 @@ import warnings
 import numpy as np
 from monty.json import MSONable
 from scipy.interpolate import InterpolatedUnivariateSpline
+
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -263,7 +264,7 @@ class CompleteCohp(Cohp):
     ):
         """
         Args:
-            structure: Structure assosciated with this COHP.
+            structure: Structure associated with this COHP.
             avg_cohp: The average cohp as a COHP object.
             cohps: A dict of COHP objects for individual bonds of the form
                 {label: COHP}
@@ -273,9 +274,9 @@ class CompleteCohp(Cohp):
                 the bond length, and the number of bonds. If nothing is
                 supplied, it will default to an empty dict.
             are_coops: indicates whether the Cohp objects are COOPs.
-                Defauls to False for COHPs.
+                Defaults to False for COHPs.
             are_cobis: indicates whether the Cohp objects are COBIs.
-                Defauls to False for COHPs.
+                Defaults to False for COHPs.
             orb_res_cohp: Orbital-resolved COHPs.
         """
         if are_coops and are_cobis:

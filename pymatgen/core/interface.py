@@ -5,7 +5,7 @@ This module provides classes to store, generate, and manipulate material interfa
 """
 
 from itertools import chain, combinations, product
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -149,12 +149,12 @@ class Interface(Structure):
         self.__update_c(self.lattice.c + delta)
 
     @property
-    def substrate_indicies(self) -> List[int]:
+    def substrate_indices(self) -> List[int]:
         """
-        Site indicies for the substrate atoms
+        Site indices for the substrate atoms
         """
-        sub_indicies = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
-        return sub_indicies
+        sub_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
+        return sub_indices
 
     @property
     def substrate_sites(self) -> List[Site]:
@@ -176,8 +176,8 @@ class Interface(Structure):
         """
         Site indices of the film sites
         """
-        f_indicies = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
-        return f_indicies
+        f_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
+        return f_indices
 
     @property
     def film_sites(self) -> List[Site]:
@@ -290,7 +290,7 @@ class Interface(Structure):
     def __update_c(self, new_c: float) -> None:
         """
         Modifies the c-direction of the lattice without changing the site cartesian coordinates
-        Be carefull you can mess up the interface by setting a c-length that can't accomodate all the sites
+        Be carefull you can mess up the interface by setting a c-length that can't accommodate all the sites
         """
         if new_c <= 0:
             raise ValueError("New c-length must be greater than 0")

@@ -724,7 +724,7 @@ class Slab(Structure):
 class SlabGenerator:
     """
     This class generates different slabs using shift values determined by where
-    a unique termination can be found along with other criterias such as where a
+    a unique termination can be found along with other criteria such as where a
     termination doesn't break a polyhedral bond. The shift value then indicates
     where the slab layer will begin and terminate in the slab-vacuum system.
 
@@ -1115,7 +1115,7 @@ class SlabGenerator:
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
-            tol (float): General tolerance paramter for getting primitive
+            tol (float): General tolerance parameter for getting primitive
                 cells and matching structures
             ftol (float): Threshold parameter in fcluster in order to check
                 if two atoms are lying on the same plane. Default thresh set
@@ -1415,7 +1415,7 @@ class ReconstructionGenerator:
                         Indicates what kind of structure is this reconstruction.
                     "miller_index" ([h,k,l]): Miller index of your reconstruction
                     "Woods_notation" (str): For a reconstruction, the a and b
-                        lattice may change to accomodate the symmetry of the
+                        lattice may change to accommodate the symmetry of the
                         reconstruction. This notation indicates the change in
                         the vectors relative to the primitive (p) or
                         conventional (c) slab cell. E.g. p(2x1):

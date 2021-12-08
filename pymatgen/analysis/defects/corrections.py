@@ -106,7 +106,7 @@ class FreysoldtCorrection(DefectCorrection):
                     initial_defect_structure (Structure) structure corresponding to
                         initial defect supercell structure (uses Lattice for charge correction)
 
-                    defect_frac_sc_coords (3 x 1 array) Fractional co-ordinates of
+                    defect_frac_sc_coords (3 x 1 array) Fractional coordinates of
                         defect location in supercell structure
         Returns:
             FreysoldtCorrection values as a dictionary

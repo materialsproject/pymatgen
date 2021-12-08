@@ -325,7 +325,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     Args:
         ncdata: filename or NetcdfReader instance.
         site_properties: Dictionary with site properties.
-        cls: The Structure class to instanciate.
+        cls: The Structure class to instantiate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 

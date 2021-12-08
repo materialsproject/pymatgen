@@ -1270,7 +1270,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1328,7 +1328,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1408,7 +1408,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1496,7 +1496,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1901,7 +1901,7 @@ class IStructure(SiteCollection, MSONable):
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
-                differntiating sites.
+                differentiating sites.
             constrain_latt (list/dict): List of lattice parameters we want to
                 preserve, e.g. ["alpha", "c"] or dict with the lattice
                 parameter names as keys and values we want the parameters to
@@ -1985,7 +1985,7 @@ class IStructure(SiteCollection, MSONable):
                             ]
                         )
 
-        # we cant let sites match to their neighbors in the supercell
+        # we can't let sites match to their neighbors in the supercell
         grouped_non_nbrs = []
         for gfcoords in grouped_fcoords:
             fdist = gfcoords[None, :, :] - gfcoords[:, None, :]

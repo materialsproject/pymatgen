@@ -589,7 +589,7 @@ class MPRester:
             chemsys (str or [str]): Chemical system string comprising element
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
-            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+            solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProject2020Compatibility
@@ -615,7 +615,7 @@ class MPRester:
         else:
             raise ValueError(
                 "Solid compatibility can only be 'MaterialsProjectCompatibility', "
-                "'MaterialsProject2020Compatibility', or an instance of a Compatability class"
+                "'MaterialsProject2020Compatibility', or an instance of a Compatibility class"
             )
 
         pbx_entries = []

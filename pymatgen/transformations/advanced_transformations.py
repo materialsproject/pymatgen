@@ -318,7 +318,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 structure. The refined structure have cell parameters and
                 atomic positions shifted to the expected symmetry positions,
                 which makes it much less sensitive precision issues in enumlib.
-                If you are already starting from an experimental cif, refinment
+                If you are already starting from an experimental cif, refinement
                 should have already been done and it is not necessary. Defaults
                 to False.
             enum_precision_parameter (float): Finite precision parameter for
