@@ -1654,6 +1654,54 @@ class LobsterSetTest(PymatgenTest):
         self.assertTrue(kpoints1.comment.split(" ")[6], 6138)
         self.assertEqual(lobsterset_new.potcar_functional, "PBE_54")
 
+class MPAbsorptionSetTest(PymatgenTest):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.structure = PymatgenTest.get_structure("Si")
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+        shutil.rmtree(self.tmp)
+
+    def test_ipa(self):
+        prev_run = self.TEST_FILES_DIR / "static"
+        absorptionipa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="IPA")
+        absorptionipa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertEqual(absorptionipa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionipa.incar["ALGO"], "Exact")
+        self.assertTrue(absorptionipa.incar["LOPTICS"])
+
+        # test override_from_prev_calc
+        absorptionipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
+        absorptionipa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorptionipa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertEqual(absorptionipa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionipa.incar["ALGO"], "Exact")
+        self.assertTrue(absorptionipa.incar["LOPTICS"])
+
+    def test_rpa(self):
+        prev_run = self.TEST_FILES_DIR / "ipa"
+        absorptionrpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
+        absorptionrpa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+        self.assertEqual(absorptionrpa.incar["NOMEGA"], 1000)
+        self.assertEqual(absorptionrpa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionrpa.incar["ALGO"], "CHI")
+
+        # test override_from_prev_calc
+        prev_run = self.TEST_FILES_DIR / "ipa"
+        absorptionrpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
+        absorptionrpa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorptionrpa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+        self.assertEqual(absorptionrpa.incar["NOMEGA"], 1000)
+        self.assertEqual(absorptionrpa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionrpa.incar["ALGO"], "CHI")
 
 _dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],

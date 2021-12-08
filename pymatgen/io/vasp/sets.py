@@ -3128,7 +3128,7 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     return None
 
 
-class MPAbsorptionSet(DictSet):
+class MPAbsorptionSet(MPRelaxSet):
     """
     MP input set for generating frequency dependent dielectrics.
     Two modes are supported: "IPA" or "RPA".
@@ -3139,7 +3139,7 @@ class MPAbsorptionSet(DictSet):
 
     """
 
-    CONFIG = _load_yaml_config("MPAbsorptionSet")
+    #CONFIG = _load_yaml_config("MPAbsorptionSet")
 
     SUPPORTED_MODES = ("IPA", "RPA")
 
@@ -3176,8 +3176,9 @@ class MPAbsorptionSet(DictSet):
             **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """
 
-        # Initialize the input set from MPAbsorptionSet.CONFIG (IPA absorption)
-        super().__init__(structure, MPAbsorptionSet.CONFIG, **kwargs)
+        # Initialize the input set (default: IPA absorption)
+        super().__init__(structure, **kwargs)
+
         self.prev_incar = prev_incar
         self.nbands = nbands
         self.reciprocal_density = reciprocal_density
@@ -3204,6 +3205,21 @@ class MPAbsorptionSet(DictSet):
         :return: Incar
         """
         parent_incar = super().incar
+        absorption_incar = {"ALGO": "Exact",
+                            "EDIFF": 1.0e-8,
+                            "IBRION": -1,
+                            "ICHARG": 1,
+                            "ISMEAR": 0,
+                            "SIGMA": 0.01,
+                            "LWAVE": True,
+                            "LREAL": False,  # for small cell it's more efficient to use reciprocal
+                            "NELM": 100,
+                            "NSW": 0,
+                            "LOPTICS": True,
+                            "CSHIFT": 0.1,
+                            "NEDOS": 2001
+                            }
+        self._config_dict["INCAR"].update(absorption_incar)
 
         if self.mode == "IPA":
             # use the incar from previous static calculation
