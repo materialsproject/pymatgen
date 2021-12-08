@@ -1641,7 +1641,7 @@ class BSPlotterProjected(BSPlotter):
                         if number_figs == 1:
                             plt.subplot(1, 1, 1)
                         else:
-                            row = number_figs / 2
+                            row = int(number_figs / 2)
                             if number_figs % 2 == 0:
                                 plt.subplot(row, 2, count)
                             else:
