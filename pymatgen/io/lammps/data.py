@@ -571,7 +571,7 @@ class LammpsData(MSONable):
             for el, vc in masses["element"].value_counts().iteritems():
                 masses.loc[masses["element"] == el, "label"] = ["%s%d" % (el, c) for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
-        mass_info = [tuple([row["label"], row["mass"]]) for row in masses.itertuples()]
+        mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
         nonbond_coeffs, topo_coeffs = None, None
         if self.force_field:
