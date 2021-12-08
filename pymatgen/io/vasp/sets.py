@@ -3132,12 +3132,11 @@ class MPAbsorptionSet(DictSet):
     """
     MP input set for generating frequency dependent dielectrics.
     Two modes are supported: "IPA" or "RPA".
-    A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="RPA"(optional)
+    A typical sequence is mode="STATIC" -> mode="IPA" -> mode="RPA"(optional)
     For all steps other than the first one (static), the
     recommendation is to use from_prev_calculation on the preceding run in
     the series. It is important to ensure Gamma centred kpoints for the RPA step.
-    Note that this set is similar to the MVLGWSet, with the difference being the
-    pseudopotentials in the config file.
+
     """
 
     CONFIG = _load_yaml_config("MPAbsorptionSet")
@@ -3255,7 +3254,7 @@ class MPAbsorptionSet(DictSet):
         self.prev_incar = vasprun.incar
         self._structure = vasprun.final_structure
 
-        # The number of bands is multiplied by the factor and at the same time devisible by the number of cores.
+        # The number of bands is multiplied by the factor
         prev_nbands = int(vasprun.parameters["NBANDS"])
 
         if self.mode.upper() == "IPA":
@@ -3279,9 +3278,7 @@ class MPAbsorptionSet(DictSet):
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.
             mode (str): Supported modes are "IPA", "RPA" (default)
-            **kwargs: All kwargs supported by MPAbsorptionsSet, other than structure,
-                prev_incar and mode, which are determined from the
-                prev_calc_dir.
+            **kwargs: All kwargs supported by MPAbsorptionsSet, other than structure
         """
         input_set = cls(_dummy_structure, mode, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
