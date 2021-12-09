@@ -1665,7 +1665,7 @@ class MPAbsorptionSetTest(PymatgenTest):
         shutil.rmtree(self.tmp)
 
     def test_ipa(self):
-        prev_run = self.TEST_FILES_DIR / "static"
+        prev_run = self.TEST_FILES_DIR / "absorption/static"
         absorptionipa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="IPA")
         absorptionipa.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
@@ -1683,7 +1683,7 @@ class MPAbsorptionSetTest(PymatgenTest):
         self.assertTrue(absorptionipa.incar["LOPTICS"])
 
     def test_rpa(self):
-        prev_run = self.TEST_FILES_DIR / "ipa"
+        prev_run = self.TEST_FILES_DIR / "absorption/ipa"
         absorptionrpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
         absorptionrpa.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
@@ -1693,7 +1693,7 @@ class MPAbsorptionSetTest(PymatgenTest):
         self.assertEqual(absorptionrpa.incar["ALGO"], "CHI")
 
         # test override_from_prev_calc
-        prev_run = self.TEST_FILES_DIR / "ipa"
+        prev_run = self.TEST_FILES_DIR / "absorption/ipa"
         absorptionrpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
         absorptionrpa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorptionrpa.write_input(self.tmp)
