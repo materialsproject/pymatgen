@@ -1657,7 +1657,9 @@ class LobsterSetTest(PymatgenTest):
 class MPAbsorptionSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        self.structure = PymatgenTest.get_structure("Si")
+        file_path = self.TEST_FILES_DIR / "static/POSCAR"
+        poscar = Poscar.from_file(file_path)
+        self.structure = poscar.structure
         warnings.simplefilter("ignore")
 
     def tearDown(self):
