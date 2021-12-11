@@ -22,7 +22,7 @@ jobs:
           - pkg: pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
             pkg_id: 4
 
-    runs-on: macos-latest
+    runs-on: macos-10.15
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
