@@ -1220,8 +1220,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Note that this class requires as inputs the ground-state DFT energies of O2 and H2O, plus the value of any
         energy adjustments applied to an H2O molecule. If these parameters are not provided in __init__, they can
-        be automatically populated by including ComputedEntry for the ground state of O2 and H2O in a list of entries
-        passed to process_entries. process_entries will fail if one or the other is not provided.
+        be automatically populated by including ComputedEntry for the ground state of O2 and H2O in a list of
+        entries passed to process_entries. process_entries will fail if one or the other is not provided.
 
         Args:
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
@@ -1251,6 +1251,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
+        self.h2_energy = None
         self.h2o_adjustments = h2o_adjustments
 
         if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
@@ -1305,7 +1306,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
         # for this calculation ONLY, we need the (corrected) DFT energy of water
-        self.h2_energy = round(
+        self.fit_h2_energy = round(
             0.5
             * (
                 3 * (self.h2o_energy - self.cpd_entropies["H2O"]) - (self.o2_energy - self.cpd_entropies["O2"]) - MU_H2O
@@ -1315,18 +1316,21 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
         self.fit_h2o_energy = round(
-            (2 * self.h2_energy + (self.o2_energy - self.cpd_entropies["O2"]) + MU_H2O) / 3,
+            (2 * self.fit_h2_energy + (self.o2_energy - self.cpd_entropies["O2"]) + MU_H2O) / 3,
             6,
         )
 
         comp = entry.composition
         rform = comp.reduced_formula
 
-        # pin the energy of all H2 entries to h2_energy
+        # use fit_h2_energy to adjust the energy of all H2 polymorphs such that
+        # the lowest energy polymorph has the correct experimental value
+        # if h2o and o2 energies have been set explicitly via kwargs, then
+        # all H2 polymorphs will get the same energy.
         if rform == "H2":
             adjustments.append(
                 ConstantEnergyAdjustment(
-                    self.h2_energy * comp.num_atoms - entry.energy,
+                    (self.fit_h2_energy - self.h2_energy) * comp.num_atoms,
                     uncertainty=np.nan,
                     name="MP Aqueous H2 / H2O referencing",
                     cls=self.as_dict(),
@@ -1336,11 +1340,12 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 )
             )
 
-        # pin the energy of all H2O entries to fit_h2o_energy
+        # use fit_h2o_energy to adjust the energy of all H2O polymorphs such that
+        # the lowest energy polymorph has the correct experimental value
         elif rform == "H2O":
             adjustments.append(
                 ConstantEnergyAdjustment(
-                    self.fit_h2o_energy * comp.num_atoms - entry.energy,
+                    (self.fit_h2o_energy - self.h2o_energy + self.cpd_entropies["H2O"]) * comp.num_atoms,
                     uncertainty=np.nan,
                     name="MP Aqueous H2 / H2O referencing",
                     cls=self.as_dict(),
@@ -1352,7 +1357,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # add minus T delta S to the DFT energy (enthalpy) of compounds that are
         # molecular-like at room temperature
-        elif rform in self.cpd_entropies and rform != "H2O":
+        if rform in self.cpd_entropies:
             adjustments.append(
                 TemperatureEnergyAdjustment(
                     -1 * self.cpd_entropies[rform] / 298,
@@ -1432,17 +1437,34 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         if self.solid_compat:
             entries = self.solid_compat.process_entries(entries, clean=True)
 
-        # extract the DFT energies of oxygen and water from the list of entries, if present
-        if not self.o2_energy:
-            o2_entries = [e for e in entries if e.composition.reduced_formula == "O2"]
-            if o2_entries:
-                self.o2_energy = min(e.energy_per_atom for e in o2_entries)
+        # when processing single entries, all H2 polymorphs will get assigned the
+        # same energy
+        if len(entries) == 1 and entries[0].composition.reduced_formula == 'H2':
+            warnings.warn('Processing single H2 entries will result in the all polymorphs '
+                          'being assigned the same energy. This should not cause problems '
+                          'with Pourbaix diagram construction, but may be confusing. '
+                          'Pass all entries to process_entries() at once in if you want to '
+                          'preserve H2 polymorph energy differnces.')
 
-        if not self.h2o_energy and not self.h2o_adjustments:
-            h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
-            if h2o_entries:
-                h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
-                self.h2o_energy = h2o_entries[0].energy_per_atom
-                self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
+        # extract the DFT energies of oxygen and water from the list of entries, if present
+        # do not do this when processing a single entry, as it might lead to unintended
+        # results
+        if len(entries) > 1:
+            if not self.o2_energy:
+                o2_entries = [e for e in entries if e.composition.reduced_formula == "O2"]
+                if o2_entries:
+                    self.o2_energy = min(e.energy_per_atom for e in o2_entries)
+
+            if not self.h2o_energy and not self.h2o_adjustments:
+                h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
+                if h2o_entries:
+                    h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
+                    self.h2o_energy = h2o_entries[0].energy_per_atom
+                    self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
+
+        h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
+        if h2_entries:
+            h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
+            self.h2_energy = h2_entries[0].energy_per_atom
 
         return super().process_entries(entries, clean=clean, verbose=verbose)

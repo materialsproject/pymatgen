@@ -2026,30 +2026,63 @@ class TestMaterialsProjectAqueousCompatibility:
             total energy corrections applied to H2O (eV/H2O) -0.70229 eV/H2O or -0.234 eV/atom
     """
 
-    def test_h_h2o_energy_with_args(self):
+    def test_h_h2o_energy_with_args_single(self):
 
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
-            h2o_energy=-5.195,
+            h2o_energy=-5,
             h2o_adjustments=-0.234,
             solid_compat=None,
         )
 
-        h2o_entry_1 = ComputedEntry(Composition("H2O"), -16)
-        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -10)
-        h2_entry_1 = ComputedEntry(Composition("H2"), -16)
-        h2_entry_2 = ComputedEntry(Composition("H8"), -100)
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), -15)  # -5 eV/atom
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -6)  # -1 eV/atom
+        h2_entry_1 = ComputedEntry(Composition("H8"), -100)  # -12.5 eV/atom
+        h2_entry_2 = ComputedEntry(Composition("H2"), -16)  # -8 eV/atom
 
-        for entry in [h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2]:
+        for entry in [h2o_entry_1, h2o_entry_2]:
             compat.process_entries(entry)
+        
+        for entry in [h2_entry_1, h2_entry_2]:
+            with pytest.warns(UserWarning, match="Processing single H2 entries"):
+                compat.process_entries(entry)
 
-        assert h2o_entry_1.energy_per_atom == pytest.approx(h2o_entry_2.energy_per_atom)
-        assert h2_entry_1.energy_per_atom == pytest.approx(h2_entry_2.energy_per_atom)
+        # the corrections should set the energy of any H2 polymorph the same, because
+        # we have only processed one entry at at time. Energy differences of H2O
+        # polymorphs should be preserved.
+        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
+        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom)
 
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
 
-        h2o_form_e = 3 * h2o_entry_2.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
+        h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
+        assert h2o_form_e == pytest.approx(MU_H2O)
+
+    def test_h_h2o_energy_with_args_multi(self):
+
+        compat = MaterialsProjectAqueousCompatibility(
+            o2_energy=-4.9276,
+            h2o_energy=-5,
+            h2o_adjustments=-0.234,
+            solid_compat=None,
+        )
+
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), -15)  # -5 eV/atom
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -6)  # -1 eV/atom
+        h2_entry_1 = ComputedEntry(Composition("H8"), -100)  # -12.5 eV/atom
+        h2_entry_2 = ComputedEntry(Composition("H2"), -16)  # -8 eV/atom
+
+        compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2])
+
+        # Energy differences of H2O and H2 polymorphs should be preserved.
+        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
+        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom + 4.5)
+
+        o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
+        o2_entry_1 = compat.process_entries(o2_entry_1)[0]
+
+        h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_1.energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_h_h2o_energy_no_args(self):
@@ -2057,28 +2090,28 @@ class TestMaterialsProjectAqueousCompatibility:
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility(solid_compat=None)
 
-        h2o_entry_1 = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)
-        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -10)
-        h2_entry_1 = ComputedEntry(Composition("H2"), -16)
-        h2_entry_2 = ComputedEntry(Composition("H8"), -100)
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)  # -5.195 eV/atom
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -6)  # -1 eV/atom
+        h2_entry_1 = ComputedEntry(Composition("H8"), -100)  # -12.5 eV/atom``
+        h2_entry_2 = ComputedEntry(Composition("H2"), -16)  # -8 eV/atom
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
 
         with pytest.raises(CompatibilityError, match="Either specify the energies as arguments to "):
             compat.get_adjustments(h2_entry_1)
 
-        entries = compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
+        compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
 
         assert compat.o2_energy == -4.9276
         assert compat.h2o_energy == -5.195
         assert compat.h2o_adjustments == -0.234
 
-        h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
-        h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
+        # the corrections should preserve the difference in energy among H2O and H2 polymorphs
+        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4.195)
+        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom + 4.5)
 
-        assert h2o_entries[0].energy_per_atom == pytest.approx(h2o_entries[1].energy_per_atom)
-        assert h2_entries[0].energy_per_atom == pytest.approx(h2_entries[1].energy_per_atom)
-
-        h2o_form_e = 3 * h2o_entries[1].energy_per_atom - 2 * h2_entries[0].energy_per_atom - o2_entry_1.energy_per_atom
+        # the water formation energy, calculated from the lowest energy polymorphs,
+        # should equal the experimental value
+        h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_1.energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_compound_entropy(self):
