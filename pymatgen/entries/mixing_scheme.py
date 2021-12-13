@@ -130,13 +130,16 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         Args:
             entries: ComputedEntry or [ComputedEntry]. Pass all entries as a single list, even if they are
-                computed with different functionals or require different preprocessing. Note that under
-                typical use, when mixing_state_data=None, the entries MUST be ComputedStructureEntry
+                computed with different functionals or require different preprocessing. This list will
+                automatically be filtered based on run_type_1 and run_type_2, and processed according to
+                compat_1 and compat_2.             
+                
+                Note that under typical use, when mixing_state_data=None, the entries MUST be
+                ComputedStructureEntry. They will be matched using structure_matcher.
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose: bool, whether to display progress bar for processing multiple entries.
-                Default is True.
+            verbose: bool, whether to print verbose error messages about the mixing scheme. Default is True.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
                 the respective run_types, etc. If None (default), it will be generated from the
@@ -166,15 +169,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 for ea in entry.energy_adjustments:
                     entry.energy_adjustments.remove(ea)
 
-        # TODO - right now there is redundancy in this implementation. If mixing_state_data is not
-        # provided, get_mixing_state_data also calls the line below.
-        # Right now, the line below requires ComputedStructureEntry, but this should only be required
-        # when mixing_state_data is None
         entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries, verbose=verbose)
 
         if mixing_state_data is None:
-            # TODO - there needs to be a check for ComputedStructureEntry here
-            # right now this happens in _filter_and_sort_entries
             if verbose:
                 print("  Generating mixing state data from provided entries.")
             mixing_state_data = self.get_mixing_state_data(entries_type_1 + entries_type_2, verbose=False)
@@ -458,9 +455,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         Generate internal state data to be passed to get_adjustments.
 
         Args:
-            entries: The list of ComputedStructureEntry to process. This list will automatically
-                be filtered based on run_type_1 and run_type_2, processed accroding to compat_1
-                and compat_2, and structure matched using structure_matcher.
+            entries: The list of ComputedStructureEntry to process. It is assumed that the entries have
+                already been filtered using _filter_and_sort_entries() to remove any irrelevant run types,
+                apply compat_1 and compat_2, and confirm that all have unique entry_id.        
 
         Returns:
             DataFrame: A pandas DataFrame that contains information associating structures from
@@ -482,7 +479,22 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             None: Returns None if the supplied ComputedStructureEntry are insufficient for applying
                 the mixing scheme.
         """
-        entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries, verbose=verbose)
+        filtered_entries = []
+
+        for entry in entries:
+            if not isinstance(entry, ComputedStructureEntry):
+                warnings.warn(
+                    "Entry {} is not a ComputedStructureEntry and will be"
+                    "ignored. The DFT mixing scheme requires structures for"
+                    " all entries".format(entry.entry_id)
+                )
+                continue
+            
+            filtered_entries.append(entry)
+
+        # separate by run_type
+        entries_type_1 = [e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_1]
+        entries_type_2 = [e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_2]
 
         # construct PhaseDiagram for each run_type, if possible
         pd_type_1, pd_type_2 = None, None
@@ -570,13 +582,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
-            if not isinstance(entry, ComputedStructureEntry):
-                warnings.warn(
-                    "Entry {} is not a ComputedStructureEntry and will be"
-                    "ignored. The DFT mixing scheme requires structures for"
-                    " all entries".format(entry.entry_id)
-                )
-                continue
 
             if not entry.parameters.get("run_type"):
                 warnings.warn(

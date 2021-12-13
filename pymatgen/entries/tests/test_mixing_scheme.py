@@ -821,10 +821,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # If we try to process a regular ComputedEntry, should get a warning
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
         entries = [
-            ComputedEntry("Sn", 0, parameters={"run_type": "GGA"}),
-            ComputedEntry("Br", 0, parameters={"run_type": "GGA"}),
-            ComputedEntry("SnBr2", -10, parameters={"run_type": "R2SCAN"}),
-            ComputedEntry("SnBr2", -100, parameters={"run_type": "GGA"}),
+            ComputedEntry("Sn", 0, parameters={"run_type": "GGA"}, entry_id=1),
+            ComputedEntry("Br", 0, parameters={"run_type": "GGA"}, entry_id=2),
+            ComputedEntry("SnBr2", -10, parameters={"run_type": "R2SCAN"}, entry_id=3),
+            ComputedEntry("SnBr2", -100, parameters={"run_type": "GGA"}, entry_id=4),
             ComputedStructureEntry(
                 Structure(
                     lattice,
@@ -840,6 +840,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 0,
                 parameters={"run_type": "GGA"},
                 correction=-20,
+                entry_id=5
             ),
         ]
 
@@ -1177,7 +1178,8 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         energies of all entries by 10 eV/atom
         """
         compat = MaterialsProjectDFTMixingScheme(compat_1=DummyCompatibility(), compat_2=DummyCompatibility())
-        state_data = compat.get_mixing_state_data(ms_complete.all_entries)
+        rt1_entries, rt2_entries = compat._filter_and_sort_entries(ms_complete.all_entries)
+        state_data = compat.get_mixing_state_data(rt1_entries+rt2_entries)
         assert max(state_data["hull_energy_1"]) <= -10  # highest hull energy is -10 eV/atom with the correction
         assert all(state_data["hull_energy_2"] <= -11)  # highest hull energy is -11 eV/atom with the correction
 
@@ -1676,7 +1678,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         Test what happens if the entries aren't in the same chemsys. run_type_2 entries
         that are outside the run_type_1 chemsys should be discarded.
         """
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_chemsys_superset.all_entries)
+        rt1_entries, rt2_entries = mixing_scheme_no_compat._filter_and_sort_entries(ms_scan_chemsys_superset.all_entries)
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(rt1_entries+rt2_entries)
         pd.testing.assert_frame_equal(state_data, ms_scan_chemsys_superset.state_data)
 
         for e in ms_scan_chemsys_superset.scan_entries:
