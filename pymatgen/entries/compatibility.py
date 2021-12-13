@@ -1439,12 +1439,14 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # when processing single entries, all H2 polymorphs will get assigned the
         # same energy
-        if len(entries) == 1 and entries[0].composition.reduced_formula == 'H2':
-            warnings.warn('Processing single H2 entries will result in the all polymorphs '
-                          'being assigned the same energy. This should not cause problems '
-                          'with Pourbaix diagram construction, but may be confusing. '
-                          'Pass all entries to process_entries() at once in if you want to '
-                          'preserve H2 polymorph energy differnces.')
+        if len(entries) == 1 and entries[0].composition.reduced_formula == "H2":
+            warnings.warn(
+                "Processing single H2 entries will result in the all polymorphs "
+                "being assigned the same energy. This should not cause problems "
+                "with Pourbaix diagram construction, but may be confusing. "
+                "Pass all entries to process_entries() at once in if you want to "
+                "preserve H2 polymorph energy differnces."
+            )
 
         # extract the DFT energies of oxygen and water from the list of entries, if present
         # do not do this when processing a single entry, as it might lead to unintended
