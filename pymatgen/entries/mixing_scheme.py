@@ -132,8 +132,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             entries: ComputedEntry or [ComputedEntry]. Pass all entries as a single list, even if they are
                 computed with different functionals or require different preprocessing. This list will
                 automatically be filtered based on run_type_1 and run_type_2, and processed according to
-                compat_1 and compat_2.             
-                
+                compat_1 and compat_2.
+
                 Note that under typical use, when mixing_state_data=None, the entries MUST be
                 ComputedStructureEntry. They will be matched using structure_matcher.
             clean: bool, whether to remove any previously-applied energy adjustments.
@@ -457,7 +457,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         Args:
             entries: The list of ComputedStructureEntry to process. It is assumed that the entries have
                 already been filtered using _filter_and_sort_entries() to remove any irrelevant run types,
-                apply compat_1 and compat_2, and confirm that all have unique entry_id.        
+                apply compat_1 and compat_2, and confirm that all have unique entry_id.
 
         Returns:
             DataFrame: A pandas DataFrame that contains information associating structures from
@@ -489,7 +489,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     " all entries".format(entry.entry_id)
                 )
                 continue
-            
+
             filtered_entries.append(entry)
 
         # separate by run_type
