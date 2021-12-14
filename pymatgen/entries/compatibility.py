@@ -1193,8 +1193,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
            the experimental reaction energy of -2.458 eV/H2O is reproduced.
         2. Add entropy to the DFT energy of any compounds that are liquid or
            gaseous at room temperature
-        3. Adjust the energy of H2O for consistency with the adjusted H2 energy.
-        4. Adjust the DFT energies of solid hydrate compounds (compounds that
+        3. Adjust the DFT energies of solid hydrate compounds (compounds that
            contain water, e.g. FeO.nH2O) such that the energies of the embedded
            H2O molecules are equal to the experimental free energy
 
@@ -1314,12 +1313,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             6,
         )
 
-        # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
-        self.fit_h2o_energy = round(
-            (2 * self.fit_h2_energy + (self.o2_energy - self.cpd_entropies["O2"]) + MU_H2O) / 3,
-            6,
-        )
-
         comp = entry.composition
         rform = comp.reduced_formula
 
@@ -1334,24 +1327,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     uncertainty=np.nan,
                     name="MP Aqueous H2 / H2O referencing",
                     cls=self.as_dict(),
-                    description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                    description="Adjusts the H2 energy to reproduce the experimental "
                     "Gibbs formation free energy of H2O, based on the DFT energy "
-                    "of Oxygen",
-                )
-            )
-
-        # use fit_h2o_energy to adjust the energy of all H2O polymorphs such that
-        # the lowest energy polymorph has the correct experimental value
-        elif rform == "H2O":
-            adjustments.append(
-                ConstantEnergyAdjustment(
-                    (self.fit_h2o_energy - self.h2o_energy + self.cpd_entropies["H2O"]) * comp.num_atoms,
-                    uncertainty=np.nan,
-                    name="MP Aqueous H2 / H2O referencing",
-                    cls=self.as_dict(),
-                    description="Adjusts the H2 and H2O energy to reproduce the experimental "
-                    "Gibbs formation free energy of H2O, based on the DFT energy "
-                    "of Oxygen",
+                    "of Oxygen and H2O",
                 )
             )
 
