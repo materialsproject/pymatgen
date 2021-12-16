@@ -773,7 +773,7 @@ class OutcarTest(PymatgenTest):
                     "Maximum memory used (kb)": 0.0,
                     "Average memory used (kb)": 0.0,
                     "User time (sec)": 544.204,
-                    "cores": "8",
+                    "cores": 8,
                 },
             )
             self.assertAlmostEqual(outcar.efermi, 2.0112)
@@ -1040,7 +1040,7 @@ class OutcarTest(PymatgenTest):
                 "Maximum memory used (kb)": 62900.0,
                 "Average memory used (kb)": 0.0,
                 "User time (sec)": 49.602,
-                "cores": "32",
+                "cores": 32,
             },
         )
         self.assertAlmostEqual(outcar.efermi, 8.0942)
@@ -1434,6 +1434,10 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
         outcar = Outcar(filepath)
         self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
+
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.1.mpi"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats["cores"], 64)
 
 
 class BSVasprunTest(PymatgenTest):
