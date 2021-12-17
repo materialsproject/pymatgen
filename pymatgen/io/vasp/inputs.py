@@ -1310,7 +1310,7 @@ class Kpoints(MSONable):
         Algorithm:
             For a given dimension, the # of k-points is chosen as
             length_density = # of kpoints * lattice constant, e.g. [50.0, 50.0, 1.0] would
-            have a 50:50:1 ratio of k-points along each lattice direction.
+            have k-points of 50/a x 50/b x 1/c].
 
         Args:
             structure (Structure): Input structure
@@ -1321,7 +1321,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = f"Length-based k-point density of {length_densities}/A"
+        comment = f"k-point density of {length_densities}/[a, b, c]"
         lattice = structure.lattice
         abc = lattice.abc
         num_div = [
