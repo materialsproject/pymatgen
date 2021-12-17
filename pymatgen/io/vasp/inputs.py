@@ -1310,7 +1310,7 @@ class Kpoints(MSONable):
         Algorithm:
             For a given dimension, the # of k-points is chosen as
             length_density = # of kpoints * lattice constant, e.g. [50.0, 50.0, 1.0] would
-            have k-points of 50/a x 50/b x 1/c].
+            have k-points of 50/a x 50/b x 1/c.
 
         Args:
             structure (Structure): Input structure
