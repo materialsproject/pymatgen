@@ -520,20 +520,6 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
-        # Check warning if LASPH is set to False for meta-GGAs/hybrids/+U/vdW
-        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = MPStaticSet(vis.structure, user_incar_settings={"METAGGA": "M06L", "LASPH": False})
-            vis.incar.items()
-        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = MPStaticSet(vis.structure, user_incar_settings={"LHFCALC": True, "LASPH": False})
-            vis.incar.items()
-        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = MPStaticSet(vis.structure, user_incar_settings={"LDAU": True, "LASPH": False})
-            vis.incar.items()
-        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = MPStaticSet(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
-            vis.incar.items()
-
         non_prev_vis = MPStaticSet(vis.structure, user_incar_settings={"LORBIT": 12, "LWAVE": True})
         self.assertEqual(non_prev_vis.incar["NSW"], 0)
         # Check that the ENCUT and Kpoints style has NOT been inherited.
@@ -559,6 +545,25 @@ class MPStaticSetTest(PymatgenTest):
         # Check LCALCPOL flag
         lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run, lcalcpol=True)
         self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+        # Check warning if LASPH is set to False for meta-GGAs/hybrids/+U/vdW
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            vis = MPStaticSet(vis.structure, user_incar_settings={"METAGGA": "M06L", "LASPH": False})
+            vis.incar.items()
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            vis = MPStaticSet(vis.structure, user_incar_settings={"LHFCALC": True, "LASPH": False})
+            vis.incar.items()
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            vis = MPStaticSet(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
+            vis.incar.items()
+        with pytest.warns(BadInputSetWarning, match=r"LASPH"):
+            dummy_struc = Structure(
+                lattice=[[0, 2, 2], [2, 0, 2], [2, 2, 0]],
+                species=["Fe", "O"],
+                coords=[[0, 0, 0], [0.5, 0.5, 0.5]],
+            )
+            vis = MPStaticSet(dummy_struc, user_incar_settings={"LDAU": True, "LASPH": False})
+            vis.incar.items()
 
     def test_user_incar_kspacing(self):
         # Make sure user KSPACING settings properly overrides KPOINTS.
