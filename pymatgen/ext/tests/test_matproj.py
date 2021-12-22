@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import random
@@ -146,13 +145,13 @@ class MPResterTest(PymatgenTest):
         syms2 = "Li-Fe-O"
         entries = self.rester.get_entries_in_chemsys(syms)
         entries2 = self.rester.get_entries_in_chemsys(syms2)
-        elements = set([Element(sym) for sym in syms])
+        elements = {Element(sym) for sym in syms}
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
 
-        e1 = set([i.entry_id for i in entries])
-        e2 = set([i.entry_id for i in entries2])
+        e1 = {i.entry_id for i in entries}
+        e2 = {i.entry_id for i in entries2}
         self.assertTrue(e1 == e2)
 
     def test_get_structure_by_material_id(self):
@@ -326,7 +325,7 @@ class MPResterTest(PymatgenTest):
                         entry.composition,
                         entry.uncorrected_energy + 0.01,
                         parameters=entry.parameters,
-                        entry_id="mod_{}".format(entry.entry_id),
+                        entry_id=f"mod_{entry.entry_id}",
                     )
                 )
         rest_ehulls = self.rester.get_stability(modified_entries)
@@ -477,7 +476,7 @@ class MPResterTest(PymatgenTest):
 
         self.assertIsInstance(db_version, str)
 
-        with open(SETTINGS_FILE, "rt") as f:
+        with open(SETTINGS_FILE) as f:
             d = yaml.safe_load(f)
 
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)

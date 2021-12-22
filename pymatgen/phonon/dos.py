@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -110,7 +109,7 @@ class PhononDos(MSONable):
         """
         stringarray = ["#{:30s} {:30s}".format("Frequency", "Density")]
         for i, frequency in enumerate(self.frequencies):
-            stringarray.append("{:.5f} {:.5f}".format(frequency, self.densities[i]))
+            stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
         return "\n".join(stringarray)
 
     @classmethod

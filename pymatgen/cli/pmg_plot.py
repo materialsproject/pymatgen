@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -71,7 +70,7 @@ def get_chgint_plot(args):
     plt = pretty_plot(12, 8)
     for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
-        plt.plot(d[:, 0], d[:, 1], label="Atom {} - {}".format(i, s[i].species_string))
+        plt.plot(d[:, 0], d[:, 1], label=f"Atom {i} - {s[i].species_string}")
     plt.legend(loc="upper left")
     plt.xlabel("Radius (A)")
     plt.ylabel("Integrated charge (e)")

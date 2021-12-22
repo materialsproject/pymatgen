@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -102,9 +101,9 @@ def compare_structures(args):
 
     m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
     for i, grp in enumerate(m.group_structures(structures)):
-        print("Group {}: ".format(i))
+        print(f"Group {i}: ")
         for s in grp:
-            print("- {} ({})".format(filenames[structures.index(s)], s.formula))
+            print(f"- {filenames[structures.index(s)]} ({s.formula})")
         print()
 
 

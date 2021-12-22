@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -311,7 +310,7 @@ class VoronoiConnectivity:
                 connectivity[atomj, atomi, imagei] = val
 
             if -10.101 in vts[v]:
-                warn("Found connectivity with infinite vertex. " "Cutoff is too low, and results may be " "incorrect")
+                warn("Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect")
         return connectivity
 
     @property

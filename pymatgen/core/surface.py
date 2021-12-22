@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -401,7 +400,7 @@ class Slab(Structure):
         mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
         normal = self.normal
         for site in self:
-            charge = sum([getattr(sp, "oxi_state", 0) * amt for sp, amt in site.species.items()])
+            charge = sum(getattr(sp, "oxi_state", 0) * amt for sp, amt in site.species.items())
             dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
         return dipole
 
@@ -473,8 +472,8 @@ class Slab(Structure):
         outs = [
             "Slab Summary (%s)" % comp.formula,
             "Reduced Formula: %s" % comp.reduced_formula,
-            "Miller index: %s" % (self.miller_index,),
-            "Shift: %.4f, Scale Factor: %s" % (self.shift, self.scale_factor.__str__()),
+            f"Miller index: {self.miller_index}",
+            f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor.__str__()}",
         ]
 
         def to_s(x):
@@ -482,7 +481,7 @@ class Slab(Structure):
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
-        outs.append("Sites ({i})".format(i=len(self)))
+        outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
                 " ".join(
@@ -1971,7 +1970,7 @@ def center_slab(slab):
     """
 
     # get a reasonable r cutoff to sample neighbors
-    bdists = sorted([nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0])
+    bdists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
     r = bdists[0] * 3
 
     all_indices = [i for i, site in enumerate(slab)]

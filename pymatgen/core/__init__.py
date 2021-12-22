@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -30,7 +29,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.0.14"
+__version__ = "2022.0.17"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -47,10 +46,10 @@ def _load_pmg_settings():
 
     # Override anything in env vars with that in yml file
     try:
-        with open(SETTINGS_FILE, "rt") as f:
+        with open(SETTINGS_FILE) as f:
             d_yml = yaml.safe_load(f)
         d.update(d_yml)
-    except IOError:
+    except OSError:
         # If there are any errors, default to using environment variables
         # if present.
         pass

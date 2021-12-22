@@ -1,47 +1,42 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2022.0.14 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
+  <title>Introduction &mdash; pymatgen 2022.0.15 documentation</title>
   
 
+  
+  
   
   
     <link rel="canonical" href="https://pymatgen.orgindex.html"/>
   
 
   
-
-  
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
@@ -75,7 +70,7 @@
             
             
               <div class="version">
-                2022.0.14
+                2022.0.15
               </div>
             
           
@@ -92,7 +87,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -115,7 +109,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -150,20 +143,18 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="#">Docs</a> &raquo;</li>
         
       <li>Introduction</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/index.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -300,11 +291,28 @@ details and examples.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2022-0-14">
-<h3>v2022.0.14<a class="headerlink" href="#v2022-0-14" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2022-0-15">
+<h3>v2022.0.15<a class="headerlink" href="#v2022-0-15" title="Permalink to this headline">¶</a></h3>
+<p>Welcome to new contributors &#64;blokhin, &#64;pzarabadip, &#64;ml-evs, &#64;wuxiaohua1011, &#64;janssenhenning and &#64;penicillin0. A reminder to all new contributors to
+ensure your information is accurate at <a class="reference external" href="https://pymatgen.org/team.html">https://pymatgen.org/team.html</a> so that
+you are acknowledged appropriately by filling out the linked form.</p>
 <ul class="simple">
-<li><p>Update OPTIMADE interface to allow querying multiple providers, this changes the
-method signature of OptimadeRester and so is considered a backwards incompatible change (&#64;mkhorton, #2238)</p></li>
+<li><p>Breaking change in PhaseDiagram serialization which will affect any users of BasePhaseDiagram which has now been removed (&#64;shyuep, 2b9911d)</p></li>
+<li><p>Speed up nearest-neighbor routines &amp; structure graph generation (&#64;ltalirz, #2239)</p></li>
+<li><p>Add two more pre-defined OPTIMADE aliases (&#64;blokhin, #2242)</p></li>
+<li><p>Refactor <cite>interface_reactions</cite> module, adding support for Plotly (&#64;mattmcdermott, #2233)</p></li>
+<li><p>Update NOMAD access in MPRester (&#64;wuxiaohua1011, #1958)</p></li>
+<li><p>General improvements to Phase Diagram code (&#64;CompyRhys, #2263, #2264, #2268)</p></li>
+<li><p>Improve appearance of periodic table heatmap (&#64;penicillin0, #2272)</p></li>
+<li><p>Small improvements to battery classes (&#64;jmmshn, #2262)</p></li>
+<li><p>Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
+<li><p>Fix for bad param in OPTIMADE reponse fields (&#64;ml-evs, #2244)</p></li>
+<li><p>Fix for issue in parsing <cite>bandOverlaps.lobster</cite> file (&#64;pzarabadip, #2237)</p></li>
+<li><p>Fix for Moladaptor (&#64;orioncohen, #2269)</p></li>
+<li><p>Fix for incorrect Potcar hash warnings (&#64;mkhorton, #2273)</p></li>
+<li><p>Type hint and correct documentation of Structure.remove_site_properties (&#64;kmu, #2256)</p></li>
+<li><p>Type hint improvements across pymatgen (&#64;janosh, #2241, #2247, #2261)</p></li>
+<li><p>Add <cite>pymatgen-io-fleur</cite> addon to addons page (&#64;janssenhenning, #2232)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -619,7 +627,7 @@ Github workflow (see <a class="reference external" href="/contributing">contribu
 Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
 Persson, Gerbrand Ceder. <em>Python Materials Genomics (pymatgen) : A Robust,
 Open-Source Python Library for Materials Analysis.</em> Computational
-Materials Science, 2013, 68, 314–319. <a class="reference external" href="http://dx.doi.org/10.1016/j.commatsci.2012.10.028">doi:10.1016/j.commatsci.2012.10.028</a></p>
+Materials Science, 2013, 68, 314–319. <a class="reference external" href="https://doi.org/10.1016/j.commatsci.2012.10.028">doi:10.1016/j.commatsci.2012.10.028</a></p>
 </div></blockquote>
 <p>In addition, some of pymatgen’s functionality is based on scientific advances / principles developed by various
 scientists. Please refer to the <a class="reference internal" href="references.html"><span class="doc">references page</span></a> for citation info.</p>
@@ -689,25 +697,20 @@ to indicate the copyright and license terms:</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 
@@ -715,6 +718,7 @@ to indicate the copyright and license terms:</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

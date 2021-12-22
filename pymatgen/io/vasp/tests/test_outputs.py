@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,7 +7,7 @@ import json
 import os
 import unittest
 import warnings
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -161,7 +160,7 @@ class VasprunTest(PymatgenTest):
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
-        totalscsteps = sum([len(i["electronic_steps"]) for i in vasprun.ionic_steps])
+        totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
 
@@ -540,6 +539,11 @@ class VasprunTest(PymatgenTest):
         self.assertNotAlmostEqual(vrun.get_band_structure(efermi=None).get_band_gap()["energy"], eigen_gap, places=3)
         self.assertNotEqual(bs_gap, 0)
 
+        # branch 4 - E_fermi incorrectly placed inside a band
+        vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.bad_fermi.gz")
+        smart_fermi = vrun.calculate_efermi()
+        self.assertAlmostEqual(smart_fermi, 6.0165)
+
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
         # with warnings.catch_warnings(record=True) as w:
@@ -769,7 +773,7 @@ class OutcarTest(PymatgenTest):
                     "Maximum memory used (kb)": 0.0,
                     "Average memory used (kb)": 0.0,
                     "User time (sec)": 544.204,
-                    "cores": "8",
+                    "cores": 8,
                 },
             )
             self.assertAlmostEqual(outcar.efermi, 2.0112)
@@ -1036,7 +1040,7 @@ class OutcarTest(PymatgenTest):
                 "Maximum memory used (kb)": 62900.0,
                 "Average memory used (kb)": 0.0,
                 "User time (sec)": 49.602,
-                "cores": "32",
+                "cores": 32,
             },
         )
         self.assertAlmostEqual(outcar.efermi, 8.0942)
@@ -1430,6 +1434,10 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
         outcar = Outcar(filepath)
         self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
+
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.1.mpi"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats["cores"], 64)
 
 
 class BSVasprunTest(PymatgenTest):
@@ -2067,7 +2075,7 @@ class WavederTest(PymatgenTest):
     def test_consistency(self):
         wder = Waveder(self.TEST_FILES_DIR / "WAVEDER.Si")
         wderf = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
-        with open(self.TEST_FILES_DIR / "WAVEDERF.Si", "r") as f:
+        with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
             first_line = [int(a) for a in f.readline().split()]
         self.assertEqual(wder.nkpoints, first_line[1])
         self.assertEqual(wder.nbands, first_line[2])

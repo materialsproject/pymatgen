@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -25,7 +24,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
-__credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, " "Mark Asta, Anubhav Jain, Terence Lew"
+__credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
 
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
@@ -58,14 +57,14 @@ class Tensor(np.ndarray, MSONable):
         obj.rank = len(obj.shape)
 
         if check_rank and check_rank != obj.rank:
-            raise ValueError("{} input must be rank {}".format(obj.__class__.__name__, check_rank))
+            raise ValueError(f"{obj.__class__.__name__} input must be rank {check_rank}")
 
         vshape = tuple([3] * (obj.rank % 2) + [6] * (obj.rank // 2))
         obj._vscale = np.ones(vshape)
         if vscale is not None:
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
-            raise ValueError("Voigt scaling matrix must be the shape of the " "voigt notation matrix or vector.")
+            raise ValueError("Voigt scaling matrix must be the shape of the voigt notation matrix or vector.")
         if not all(i == 3 for i in obj.shape):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, "
@@ -100,7 +99,7 @@ class Tensor(np.ndarray, MSONable):
         return hash(self.tostring())
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, self.__str__())
+        return f"{self.__class__.__name__}({self.__str__()})"
 
     def zeroed(self, tol=1e-3):
         """
@@ -140,7 +139,7 @@ class Tensor(np.ndarray, MSONable):
         Calculates the result of an einstein summation expression
         """
         if not isinstance(other_arrays, list):
-            raise ValueError("other tensors must be list of " "tensors or tensor input")
+            raise ValueError("other tensors must be list of tensors or tensor input")
 
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
@@ -188,7 +187,7 @@ class Tensor(np.ndarray, MSONable):
         """
         quad = quad or DEFAULT_QUAD
         weights, points = quad["weights"], quad["points"]
-        return sum([w * self.project(n) for w, n in zip(weights, points)])
+        return sum(w * self.project(n) for w, n in zip(weights, points))
 
     def get_grouped_indices(self, voigt=False, **kwargs):
         """
@@ -299,7 +298,7 @@ class Tensor(np.ndarray, MSONable):
         possible permutations of indices
         """
         perms = list(itertools.permutations(range(self.rank)))
-        return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
+        return sum(np.transpose(self, ind) for ind in perms) / len(perms)
 
     @property
     def voigt_symmetrized(self):
@@ -312,7 +311,7 @@ class Tensor(np.ndarray, MSONable):
 
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
-        new_v = sum([np.transpose(v, ind) for ind in perms]) / len(perms)
+        new_v = sum(np.transpose(v, ind) for ind in perms) / len(perms)
         return self.__class__.from_voigt(new_v)
 
     def is_symmetric(self, tol=1e-5):
@@ -338,7 +337,7 @@ class Tensor(np.ndarray, MSONable):
         """
         sga = SpacegroupAnalyzer(structure, symprec)
         symm_ops = sga.get_symmetry_operations(cartesian=True)
-        return sum([self.transform(symm_op) for symm_op in symm_ops]) / len(symm_ops)
+        return sum(self.transform(symm_op) for symm_op in symm_ops) / len(symm_ops)
 
     def is_fit_to_structure(self, structure, tol=1e-2):
         """
@@ -363,7 +362,7 @@ class Tensor(np.ndarray, MSONable):
         for ind, v in this_voigt_map.items():
             v_matrix[v] = self[ind]
         if not self.is_voigt_symmetric():
-            warnings.warn("Tensor is not symmetric, information may " "be lost in voigt conversion.")
+            warnings.warn("Tensor is not symmetric, information may be lost in voigt conversion.")
         return v_matrix * self._vscale
 
     def is_voigt_symmetric(self, tol=1e-6):
@@ -635,7 +634,7 @@ class Tensor(np.ndarray, MSONable):
                 old[new_mask] = new[new_mask]
 
             if verbose:
-                print("Preconditioning for {} symmops".format(len(sops)))
+                print(f"Preconditioning for {len(sops)} symmops")
             for sop in sops:
                 rot = guess.transform(sop)
                 # Store non-zero entries of new that weren't previously
@@ -667,10 +666,10 @@ class Tensor(np.ndarray, MSONable):
             test_new[mask] = self[mask]
             test_old = test_new
             if verbose:
-                print("Iteration {}: {}".format(i, np.max(diff)))
+                print(f"Iteration {i}: {np.max(diff)}")
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
-            warnings.warn("Warning, populated tensor is not converged " "with max diff of {}".format(max_diff))
+            warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}")
         return self.__class__(test_new)
 
     def as_dict(self, voigt: bool = False) -> dict:
@@ -1052,13 +1051,13 @@ class TensorMapping(collections.abc.MutableMapping):
         self._tensor_list = tensors or []
         self._value_list = values or []
         if not len(self._tensor_list) == len(self._value_list):
-            raise ValueError("TensorMapping must be initialized with tensors" "and values of equivalent length")
+            raise ValueError("TensorMapping must be initialized with tensors and values of equivalent length")
         self.tol = tol
 
     def __getitem__(self, item):
         index = self._get_item_index(item)
         if index is None:
-            raise KeyError("{} not found in mapping.".format(item))
+            raise KeyError(f"{item} not found in mapping.")
         return self._value_list[index]
 
     def __setitem__(self, key, value):
@@ -1078,8 +1077,7 @@ class TensorMapping(collections.abc.MutableMapping):
         return len(self._tensor_list)
 
     def __iter__(self):
-        for item in self._tensor_list:
-            yield item
+        yield from self._tensor_list
 
     def values(self):
         """

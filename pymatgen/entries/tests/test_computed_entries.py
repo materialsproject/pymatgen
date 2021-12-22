@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -404,9 +403,9 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json")) as f:
             data = json.load(f)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json")) as f:
             self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]

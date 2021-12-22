@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -79,9 +78,9 @@ class Critic2AnalysisTest(unittest.TestCase):
     def setUp(self):
         stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
         stdout_file_new_format = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout_new_format.txt")
-        with open(stdout_file, "r") as f:
+        with open(stdout_file) as f:
             reference_stdout = f.read()
-        with open(stdout_file_new_format, "r") as f:
+        with open(stdout_file_new_format) as f:
             reference_stdout_new_format = f.read()
 
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif"))

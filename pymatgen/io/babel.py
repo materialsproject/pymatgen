@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -52,7 +51,7 @@ class BabelMolAdaptor:
         """
         if isinstance(mol, IMolecule):
             if not mol.is_ordered:
-                raise ValueError("OpenBabel Molecule only supports ordered " "molecules.")
+                raise ValueError("OpenBabel Molecule only supports ordered molecules.")
 
             # For some reason, manually adding atoms does not seem to create
             # the correct OBMol representation to do things like force field
@@ -78,6 +77,8 @@ class BabelMolAdaptor:
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
             self._obmol = mol
+        elif isinstance(mol, pb.Molecule):
+            self._obmol = mol.OBMol
 
     @property
     def pymatgen_mol(self):
@@ -271,7 +272,7 @@ class BabelMolAdaptor:
             ff = ob.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
-            print("{} atoms will be freezed".format(len(freeze_atoms)))
+            print(f"{len(freeze_atoms)} atoms will be freezed")
             constraints = ob.OBFFConstraints()
 
             for atom in ob.OBMolAtomIter(self._obmol):

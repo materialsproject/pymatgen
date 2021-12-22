@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -269,7 +268,7 @@ class NEBAnalysis(MSONable):
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
-                    raise ValueError("OUTCAR cannot be found for terminal " "point %s" % d)
+                    raise ValueError("OUTCAR cannot be found for terminal point %s" % d)
                 structures.append(Poscar.from_file(poscar[0]).structure)
             else:
                 outcars.append(Outcar(outcar[0]))
@@ -333,14 +332,12 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
         neb1_start_e, neb1_end_e = neb1_energies[0], neb1_energies[-1]
         neb2_start_e, neb2_end_e = neb2_energies[0], neb2_energies[-1]
         min_e_diff = min(
-            (
-                [
-                    abs(neb1_start_e - neb2_start_e),
-                    abs(neb1_start_e - neb2_end_e),
-                    abs(neb1_end_e - neb2_start_e),
-                    abs(neb1_end_e - neb2_end_e),
-                ]
-            )
+            [
+                abs(neb1_start_e - neb2_start_e),
+                abs(neb1_start_e - neb2_end_e),
+                abs(neb1_end_e - neb2_start_e),
+                abs(neb1_end_e - neb2_end_e),
+            ]
         )
 
         if arranged_neb_analyses:
@@ -355,7 +352,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
 
         elif abs(neb1_start_e - neb2_start_e) == min_e_diff:
             neb1_energies = list(reversed(neb1_energies[1:])) + neb2_energies
-            neb1_structures = list(reversed((neb1_structures[1:]))) + neb2.structures
+            neb1_structures = list(reversed(neb1_structures[1:])) + neb2.structures
             neb1_forces = list(reversed(list(neb1_forces)[1:])) + list(neb2.forces)
             neb1_r = list(reversed([i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)[1:]])) + [
                 i + neb1_r[-1] for i in list(neb2.r)
@@ -375,7 +372,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
 
         else:
             neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]
-            neb1_structures = neb1_structures + list(reversed((neb2.structures)))[1:]
+            neb1_structures = neb1_structures + list(reversed(neb2.structures))[1:]
             neb1_forces = list(neb1_forces) + list(reversed(list(neb2.forces)))[1:]
             neb1_r = list(neb1_r) + list(
                 reversed([i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1] for i in list(neb2.r)[:-1]])

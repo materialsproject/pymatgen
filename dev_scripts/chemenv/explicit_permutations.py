@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -25,7 +24,7 @@ import json
 import os
 
 
-class Algo(object):
+class Algo:
     pass
 
 
@@ -95,6 +94,6 @@ if __name__ == "__main__":
         newgeom_dir = "new_geometry_files"
         if not os.path.exists(newgeom_dir):
             os.makedirs(newgeom_dir)
-        f = open("{}/{}.json".format(newgeom_dir, cg_symbol), "w")
+        f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
         json.dump(cg.as_dict(), f)
         f.close()

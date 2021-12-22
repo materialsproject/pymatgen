@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -88,10 +87,10 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         return "\n".join(
             [
                 "ContainsSpecieFilter with parameters:",
-                "species = {}".format(self._species),
-                "strict_compare = {}".format(self._strict),
-                "AND = {}".format(self._AND),
-                "exclude = {}".format(self._exclude),
+                f"species = {self._species}",
+                f"strict_compare = {self._strict}",
+                f"AND = {self._AND}",
+                f"exclude = {self._exclude}",
             ]
         )
 
@@ -155,7 +154,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
             species = site.species.keys()
             sp_to_test = set(species).intersection(all_species)
             if sp_to_test:
-                max_r = max([self.specie_and_min_dist[sp] for sp in sp_to_test])
+                max_r = max(self.specie_and_min_dist[sp] for sp in sp_to_test)
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
                     for nnsite, dist, *_ in nn:

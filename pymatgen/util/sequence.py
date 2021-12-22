@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -51,7 +50,7 @@ class PBarSafe:
         """
         Print progress.
         """
-        print("{} of {} done {:.1%}".format(self.done, self.total, self.done / self.total))
+        print(f"{self.done} of {self.total} done {self.done / self.total:.1%}")
 
 
 try:

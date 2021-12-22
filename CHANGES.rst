@@ -1,6 +1,67 @@
 Change log
 ==========
 
+v2022.0.17
+----------
+
+Welcome to new contributor @e-kwsm!
+
+* More robust smart fermi method by @utf in https://github.com/materialsproject/pymatgen/pull/2303
+* Replace-species by @janosh in https://github.com/materialsproject/pymatgen/pull/2291
+* Add warning if improper ALGO is used for hybrid calculations by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2298
+* Wrap supercell to unit cell when performing change of setting by @jmmshn in https://github.com/materialsproject/pymatgen/pull/2300
+* Clearer handling of the MAGMOM flag in pymatgen.io.vasp.sets by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2301
+* Add warning if LASPH != True for meta-GGA/hybrid/vdW/+U by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2297
+* Add ability to request additional OPTIMADE fields by @ml-evs in https://github.com/materialsproject/pymatgen/pull/2315
+* Add missing elements to MPScanRelaxSet PBE .54 potentials by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2316
+
+* Fix write Trajectory XDATACAR with variable lattice by @gpetretto in https://github.com/materialsproject/pymatgen/pull/2310
+* Fix small cutoff neighbor by @chc273 in https://github.com/materialsproject/pymatgen/pull/2277
+* Add Composition.replace() by @janosh in https://github.com/materialsproject/pymatgen/pull/2284
+* Ion bugfixes and enhancements by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/2287
+* Fix oddly split strings and a few typos by @janosh in https://github.com/materialsproject/pymatgen/pull/2285
+* InsertionElectrode bug fix and documentation update by @acrutt in https://github.com/materialsproject/pymatgen/pull/2257
+* Remove accidentally tracked files and unset executable flag by @e-kwsm in https://github.com/materialsproject/pymatgen/pull/2296
+
+* Update DOI URLs by @e-kwsm in https://github.com/materialsproject/pymatgen/pull/2295
+* Documentation update: Fix missing Outcar attributes and update elemental_dos_dos string by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2293
+* Documentation update for CutOffDictNN by @ltalirz in https://github.com/materialsproject/pymatgen/pull/2278
+
+v2022.0.16
+----------
+
+* Fix to allow PhaseDiagram to be JSON serializable with computed data cached (@mkhorton, #2276)
+* Temporarily revert #2239 pending investigation into slow-down in some nearest neighbor finding routines. This does not affect the behavior of any of these classes.
+
+
+v2022.0.15
+----------
+
+Welcome to new contributors @blokhin, @pzarabadip, @ml-evs, @wuxiaohua1011, @janssenhenning and @penicillin0. A reminder to all new contributors to 
+ensure your information is accurate at https://pymatgen.org/team.html so that 
+you are acknowledged appropriately by filling out the linked form.
+
+* Breaking change in PhaseDiagram serialization which will affect any users of BasePhaseDiagram which has now been removed (@shyuep, 2b9911d)
+
+* Speed up nearest-neighbor routines & structure graph generation (@ltalirz, #2239)
+* Add two more pre-defined OPTIMADE aliases (@blokhin, #2242)
+* Refactor `interface_reactions` module, adding support for Plotly (@mattmcdermott, #2233)
+
+* Update NOMAD access in MPRester (@wuxiaohua1011, #1958)
+* General improvements to Phase Diagram code (@CompyRhys, #2263, #2264, #2268)
+* Improve appearance of periodic table heatmap (@penicillin0, #2272)
+* Small improvements to battery classes (@jmmshn, #2262)
+* Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
+* Fix for bad param in OPTIMADE reponse fields (@ml-evs, #2244)
+* Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
+* Fix for Moladaptor (@orioncohen, #2269)
+* Fix for incorrect Potcar hash warnings (@mkhorton, #2273)
+
+* Type hint and correct documentation of Structure.remove_site_properties (@kmu, #2256)
+* Type hint improvements across pymatgen (@janosh, #2241, #2247, #2261)
+* Add `pymatgen-io-fleur` addon to addons page (@janssenhenning, #2232)
+
+
 v2022.0.14
 ----------
 * Update OPTIMADE interface to allow querying multiple providers, this changes the 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -152,7 +151,7 @@ if __name__ == "__main__":
 
         cg = allcg[cg_symbol]
 
-        print('Getting explicit permutations for geometry "{}" (symbol : "{}")\n'.format(cg.name, cg_symbol))
+        print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
 
         # Setup of the local geometry finder
         lgf = LocalGeometryFinder()
@@ -201,7 +200,7 @@ if __name__ == "__main__":
                 ordered_plane=algo.ordered_plane, ordered_point_groups=algo.ordered_point_groups
             )
             algo._permutations = permutations
-            print("Safe permutations found ({:d})".format(len(permutations)))
+            print(f"Safe permutations found ({len(permutations):d})")
 
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
@@ -267,7 +266,7 @@ if __name__ == "__main__":
             algo.explicit_permutations = [list(perm) for perm in list(explicit_permutations_per_plane[0])]
             algo.explicit_permutations.sort()
             algo.explicit_permutations = np.array(algo.explicit_permutations)
-            print("Explicit permutations found ({:d})".format(len(algo.explicit_permutations)))
+            print(f"Explicit permutations found ({len(algo.explicit_permutations):d})")
             print(algo.explicit_permutations)
             print("")
             # Setup the permutations for the next optimization
@@ -286,7 +285,7 @@ if __name__ == "__main__":
             elif test == "q":
                 exit()
         # 2. Optimization of the permutations
-        print('Getting explicit optimized permutations for geometry "{}" (symbol : "{}")\n'.format(cg.name, cg_symbol))
+        print(f'Getting explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
         perms_used_algos = [dict() for algo in cg.algorithms]
 
         # Loop on algorithms
@@ -406,7 +405,7 @@ if __name__ == "__main__":
                         perms_used[some_perm] = 1
                 tcurrent = time.process_time()
                 timeleft = (npermutations - iperm) * (tcurrent - t0) / iperm
-                timeleft = "{:.1f}".format(timeleft)
+                timeleft = f"{timeleft:.1f}"
                 iperm += 1
             print(
                 "Optimized permutations {:d}/{:d}"
@@ -440,7 +439,7 @@ if __name__ == "__main__":
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
             print("")
-            test = input('Set optimized permutations for algorithm {:d} ? ("y" to confirm)'.format(ialgo))
+            test = input(f'Set optimized permutations for algorithm {ialgo:d} ? ("y" to confirm)')
             if test == "y":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 
@@ -452,6 +451,6 @@ if __name__ == "__main__":
             newgeom_dir = "new_geometry_files"
             if not os.path.exists(newgeom_dir):
                 os.makedirs(newgeom_dir)
-            f = open("{}/{}.json".format(newgeom_dir, cg_symbol), "w")
+            f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
             json.dump(cg.as_dict(), f)
             f.close()

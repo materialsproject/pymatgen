@@ -30,11 +30,11 @@ If you use this module, please cite the following:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
 Comput. Phys. Commun. 185, 1007-1018 (2014)
-(http://dx.doi.org/10.1016/j.cpc.2013.10.026)
+(https://doi.org/10.1016/j.cpc.2013.10.026)
 
 A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
 V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
-(http://dx.doi.org/10.1016/j.cpc.2008.07.018)
+(https://doi.org/10.1016/j.cpc.2008.07.018)
 """
 
 import logging
@@ -95,7 +95,7 @@ class Critic2Caller:
             warnings.warn(stderr)
 
         if rs.returncode != 0:
-            raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
+            raise RuntimeError(f"critic2 exited with return code {rs.returncode}: {stdout}")
 
         self._stdout = stdout
         self._stderr = stderr
@@ -192,7 +192,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join(["{} {}".format(symbol, int(zval)) for symbol, zval in zpsp.items()])
+                zpsp_str = " zpsp " + " ".join([f"{symbol} {int(zval)}" for symbol, zval in zpsp.items()])
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -200,9 +200,9 @@ class Critic2Caller:
         for k, v in settings.items():
             if isinstance(v, list):
                 for item in v:
-                    auto += "{} {} ".format(k, item)
+                    auto += f"{k} {item} "
             else:
-                auto += "{} {} ".format(k, v)
+                auto += f"{k} {v} "
         input_script += [auto]
 
         if write_cml:
@@ -374,7 +374,7 @@ class CriticalPoint(MSONable):
         return CriticalPointType(self._type)
 
     def __str__(self):
-        return "Critical Point: {} ({})".format(self.type.name, self.frac_coords)
+        return f"Critical Point: {self.type.name} ({self.frac_coords})"
 
     @property
     def laplacian(self):
@@ -487,7 +487,7 @@ class Critic2Analysis(MSONable):
             for idx, node in self.nodes.items():
                 cp = self.critical_points[node["unique_idx"]]
                 if cp.type.value in include_critical_points:
-                    specie = DummySpecies("X{}cp".format(cp.type.value[0]), oxidation_state=None)
+                    specie = DummySpecies(f"X{cp.type.value[0]}cp", oxidation_state=None)
                     structure.append(
                         specie,
                         node["frac_coords"],
@@ -706,9 +706,7 @@ class Critic2Analysis(MSONable):
         def get_volume_and_charge(nonequiv_idx):
             attractor = yt["integration"]["attractors"][nonequiv_idx - 1]
             if attractor["id"] != nonequiv_idx:
-                raise ValueError(
-                    "List of attractors may be un-ordered (wanted id={}): {}".format(nonequiv_idx, attractor)
-                )
+                raise ValueError(f"List of attractors may be un-ordered (wanted id={nonequiv_idx}): {attractor}")
             return (
                 attractor["integrals"][volume_idx],
                 attractor["integrals"][charge_idx],
@@ -744,7 +742,7 @@ class Critic2Analysis(MSONable):
 
         if zpsp:
             if len(charge_transfer) != len(charges):
-                warnings.warn("Something went wrong calculating charge transfer: {}".format(charge_transfer))
+                warnings.warn(f"Something went wrong calculating charge transfer: {charge_transfer}")
             else:
                 structure.add_site_property("bader_charge_transfer", charge_transfer)
 

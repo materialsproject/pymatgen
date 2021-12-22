@@ -77,7 +77,7 @@ Why use pymatgen?
 1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers, and is the analysis code powering the
    `Materials Project`_. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be
    found and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every
-   new code passes a comprehensive suite of unittests.
+   new code passes a comprehensive suite of unit tests.
 2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it
    quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously being
@@ -134,7 +134,7 @@ work:
     Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
-    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    <https://doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.

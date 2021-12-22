@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 #
@@ -103,7 +102,7 @@ class NetcdfReader:
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error("In file %s: %s" % (self.path, str(exc)))
+            raise self.Error(f"In file {self.path}: {str(exc)}")
 
         self.ngroups = len(list(self.walk_tree()))
 
@@ -126,7 +125,7 @@ class NetcdfReader:
         try:
             self.rootgrp.close()
         except Exception as exc:
-            logger.warning("Exception %s while trying to close %s" % (exc, self.path))
+            logger.warning(f"Exception {exc} while trying to close {self.path}")
 
     def walk_tree(self, top=None):
         """
@@ -139,8 +138,7 @@ class NetcdfReader:
         values = top.groups.values()
         yield values
         for value in top.groups.values():
-            for children in self.walk_tree(value):
-                yield children
+            yield from self.walk_tree(value)
 
     def print_tree(self):
         """Print all the groups in the file."""
@@ -222,7 +220,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" % (self.path, dimnames, kwargs)
+                f"In file {self.path}:\nError while reading dimensions: `{dimnames}` with kwargs: `{kwargs}`"
             )
 
     def _read_variables(self, *varnames, **kwargs):
@@ -235,7 +233,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading variables: `%s` with kwargs `%s`." % (self.path, varnames, kwargs)
+                f"In file {self.path}:\nError while reading variables: `{varnames}` with kwargs `{kwargs}`."
             )
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
@@ -305,7 +303,7 @@ class ETSF_Reader(NetcdfReader):
             elif ncname in self.rootgrp.dimensions:
                 d[hvar.name] = self.read_dimvalue(ncname)
             else:
-                raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
+                raise ValueError(f"Cannot find `{ncname}` in `{self.path}`")
             # Convert scalars to (well) scalars.
             if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
                 d[hvar.name] = np.asarray(d[hvar.name]).item()

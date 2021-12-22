@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -15,8 +14,8 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
-from scipy.special import comb, erfc
 from scipy import constants
+from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
 
@@ -179,7 +178,7 @@ class EwaldSummation(MSONable):
             output = ["Missing sites."]
             for site in sub_structure:
                 if site not in matches:
-                    output.append("unmatched = {}".format(site))
+                    output.append(f"unmatched = {site}")
             raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
@@ -471,9 +470,15 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict, fmt: str = None, **kwargs):
-        """
-        Create an EwaldSummation instance from json serialized dictionary.
+    def from_dict(cls, d: Dict, fmt: str = None, **kwargs) -> "EwaldSummation":
+        """Create an EwaldSummation instance from JSON serialized dictionary.
+
+        Args:
+            d (Dict): Dictionary representation
+            fmt (str, optional): Unused. Defaults to None.
+
+        Returns:
+            EwaldSummation: class instance
         """
         summation = cls(
             structure=Structure.from_dict(d["structure"]),
@@ -560,7 +565,7 @@ class EwaldMinimizer:
         self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
-            raise NotImplementedError("Complete algo not yet implemented for " "EwaldMinimizer")
+            raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
         self._output_lists = []
         # Tag that the recurse function looks at at each level. If a method
@@ -761,7 +766,7 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     try:
-        avg_oxi = sum([sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None])
+        avg_oxi = sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
         return avg_oxi
     except AttributeError:
         pass

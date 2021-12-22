@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -45,7 +44,7 @@ class AbstractVoltagePair(MSONable):
         frac_charge: Frac of working ion in charged pair.
         frac_discharge: Frac of working ion in discharged pair.
         working_ion_entry: Working ion as an entry.
-        framework : The compositions of one formula unit of the host material
+        framework_formula : The compositions of one formula unit of the host material
     """
 
     voltage: float
@@ -57,11 +56,11 @@ class AbstractVoltagePair(MSONable):
     frac_charge: float
     frac_discharge: float
     working_ion_entry: ComputedEntry
-    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
         # ensure the the frame work is a reduced composition
-        self._framework_formula = self.framework.reduced_formula
+        self.framework_formula = self.framework.reduced_formula
 
     @property
     def working_ion(self) -> Element:
@@ -75,7 +74,7 @@ class AbstractVoltagePair(MSONable):
         """
         The composition object representing the framework
         """
-        return Composition(self._framework_formula)
+        return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
@@ -134,16 +133,16 @@ class AbstractElectrode(Sequence, MSONable):
         voltage_pairs: Objects that represent each voltage step
         working_ion: Representation of the working ion that only contains element type
         working_ion_entry: Representation of the working_ion that contains the energy
-        framework: The compositions of one formula unit of the host material
+        framework_formula: The compositions of one formula unit of the host material
     """
 
     voltage_pairs: Tuple[AbstractVoltagePair]
     working_ion_entry: ComputedEntry
-    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
         # ensure the the frame work is a reduced composition
-        self._framework_formula = self.framework.reduced_formula
+        self.framework_formula = self.framework.reduced_formula
 
     def __getitem__(self, index):
         return self.voltage_pairs[index]
@@ -169,7 +168,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         The composition object representing the framework
         """
-        return Composition(self._framework_formula)
+        return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
@@ -207,14 +206,14 @@ class AbstractElectrode(Sequence, MSONable):
         """
         Highest voltage along insertion
         """
-        return max([p.voltage for p in self.voltage_pairs])
+        return max(p.voltage for p in self.voltage_pairs)
 
     @property
     def min_voltage(self):
         """
         Lowest voltage along insertion
         """
-        return min([p.voltage for p in self.voltage_pairs])
+        return min(p.voltage for p in self.voltage_pairs)
 
     @property
     def max_voltage_step(self):
@@ -278,8 +277,8 @@ class AbstractElectrode(Sequence, MSONable):
         pairs_in_range = self._select_in_voltage_range(min_voltage, max_voltage)
         if len(pairs_in_range) == 0:
             return 0
-        total_cap_in_range = sum([p.mAh for p in pairs_in_range])
-        total_edens_in_range = sum([p.mAh * p.voltage for p in pairs_in_range])
+        total_cap_in_range = sum(p.mAh for p in pairs_in_range)
+        total_edens_in_range = sum(p.mAh * p.voltage for p in pairs_in_range)
         return total_edens_in_range / total_cap_in_range
 
     def get_capacity_grav(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
@@ -306,7 +305,7 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].mass_discharge
         )
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_mass
+        return sum(pair.mAh for pair in pairs_in_range) / normalization_mass
 
     def get_capacity_vol(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
@@ -332,7 +331,7 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].vol_discharge
         )
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1e24 / N_A
+        return sum(pair.mAh for pair in pairs_in_range) / normalization_vol * 1e24 / N_A
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
@@ -419,7 +418,7 @@ class AbstractElectrode(Sequence, MSONable):
             "nsteps": self.num_steps,
             "fracA_charge": self.voltage_pairs[0].frac_charge,
             "fracA_discharge": self.voltage_pairs[-1].frac_discharge,
-            "framework_formula": self._framework_formula,
+            "framework_formula": self.framework_formula,
         }
 
         if print_subelectrodes:
