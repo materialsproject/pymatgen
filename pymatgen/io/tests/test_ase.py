@@ -34,7 +34,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         structure.add_site_property("magmom", mags)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         self.assertTrue(atoms.has("initial_magmoms"))
-        self.assertEqual(atoms.get_initial_magnetic_moments().tolist(), mags.tolist())
+        self.assertEqual(atoms.get_initial_magnetic_moments().tolist(), mags)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_atoms_from_structure_dyn(self):
@@ -63,7 +63,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         molecule.add_site_property("magmom", mags)
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         self.assertTrue(atoms.has("initial_magmoms"))
-        self.assertEqual(atoms.get_initial_magnetic_moments().tolist(), mags.tolist())
+        self.assertEqual(atoms.get_initial_magnetic_moments().tolist(), mags)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_atoms_from_molecule_dyn(self):
@@ -91,7 +91,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         mags = [1.0] * len(atoms)
         atoms.set_initial_magnetic_moments(mags)
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
-        self.assertEqual(structure.site_properties["magmom"], mags.tolist())
+        self.assertEqual(structure.site_properties["magmom"], mags)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_dyn(self):
