@@ -145,7 +145,7 @@ class AseAtomsAdaptor:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
                 warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.")
-            sel_dyn = np.array([[False] * 3 if atom.index in constraint_indices else False for atom in atoms])
+            sel_dyn = [[False] * 3 if atom.index in constraint_indices else False for atom in atoms]
         else:
             sel_dyn = None
 
