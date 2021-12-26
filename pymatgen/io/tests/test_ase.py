@@ -18,6 +18,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
     def test_get_atoms_from_structure(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
+        structure.info = {"name": "test"}
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         ase_composition = Composition(atoms.get_chemical_formula())
         self.assertEqual(ase_composition, structure.composition)
@@ -25,6 +26,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertTrue(atoms.get_pbc() is not None and atoms.get_pbc().all())
         self.assertEqual(atoms.get_chemical_symbols(), [s.species_string for s in structure])
         self.assertFalse(atoms.has("initial_magmoms"))
+        self.assertEqual(atoms.info, {"name": "test"})
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_atoms_from_structure_mags(self):
@@ -79,9 +81,11 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         from ase.io import read
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        atoms.info = {"name": "test"}
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(struct.formula, "Fe4 P4 O16")
         self.assertEqual([s.species_string for s in struct], atoms.get_chemical_symbols())
+        self.assertEqual(struct.info, {"name": "test"})
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_mag(self):

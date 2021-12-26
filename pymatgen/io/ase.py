@@ -95,6 +95,11 @@ class AseAtomsAdaptor:
         # Set the selective dynamics with the FixAtoms class.
         if fix_atoms is not None:
             atoms.set_constraint(FixAtoms(mask=fix_atoms))
+
+        # Transfer any info tags if present
+        if hasattr(structure, "info"):
+            atoms.info = structure.info
+
         return atoms
 
     @staticmethod
@@ -161,6 +166,11 @@ class AseAtomsAdaptor:
             structure.add_site_property("magmom", magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
+
+        # Transfer any info tags if present
+        if atoms.info:
+            structure.info = atoms.info
+
         return structure
 
     @staticmethod
