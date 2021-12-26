@@ -291,7 +291,7 @@ direct
         self.assertRaises(ValueError, setattr, poscar, "velocities", [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
         ans = """
-        LiFePO4
+        Fe4P4O16
 1.0
 10.411767 0.000000 0.000000
 0.000000 6.067172 0.000000

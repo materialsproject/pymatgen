@@ -6,13 +6,15 @@ Atoms object and pymatgen Structure objects.
 """
 
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
+import warnings
+import numpy as np
 from pymatgen.core.structure import Molecule, Structure
 
 try:
@@ -21,6 +23,9 @@ try:
     ase_loaded = True
 except ImportError:
     ase_loaded = False
+
+if ase_loaded:
+    from ase.constraints import FixAtoms
 
 
 class AseAtomsAdaptor:
@@ -44,8 +49,9 @@ class AseAtomsAdaptor:
             raise ValueError("ASE Atoms only supports ordered structures")
         if not ase_loaded:
             raise ImportError(
-                "AseAtomsAdaptor requires ase package.\nUse `pip install ase` or `conda install ase -c conda-forge`"
+                "AseAtomsAdaptor requires the ASE package.\nUse `pip install ase` or `conda install ase -c conda-forge`"
             )
+
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
@@ -54,7 +60,47 @@ class AseAtomsAdaptor:
         else:
             cell = None
             pbc = None
-        return Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
+
+        atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
+
+        # Read in site magmoms if present
+        if "magmom" in structure.site_properties:
+            magmoms = structure.site_properties["magmom"]
+        else:
+            magmoms = None
+
+        # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
+        # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
+        # dynamics property. As a consequence, if only a subset of dimensions are fixed, this won't get passed to ASE.
+        if "selective_dynamics" in structure.site_properties:
+            fix_atoms = []
+            for site in structure:
+                site_prop = site.properties["selective_dynamics"]
+                if site_prop not in [[True, True, True], [False, False, False]]:
+                    raise ValueError(
+                        "ASE FixAtoms constraint does not support selective dynamics in only some dimensions."
+                        "Remove the selective dynamics and try again if you do not need them."
+                    )
+                is_fixed = bool(~np.all(site.properties["selective_dynamics"]))
+                fix_atoms.append(is_fixed)
+
+        else:
+            fix_atoms = None
+
+        # Set the site magmoms as the initial magnetic moments in ASE since we can't alter the
+        # output magnetic moments (which are read in from an OUTCAR).
+        if magmoms is not None:
+            atoms.set_initial_magnetic_moments(magmoms)
+
+        # Set the selective dynamics with the FixAtoms class.
+        if fix_atoms is not None:
+            atoms.set_constraint(FixAtoms(mask=fix_atoms))
+
+        # Transfer any info tags if present
+        if hasattr(structure, "info"):
+            atoms.info = structure.info
+
+        return atoms
 
     @staticmethod
     def get_structure(atoms, cls=None):
@@ -68,12 +114,64 @@ class AseAtomsAdaptor:
         Returns:
             Equivalent pymatgen.core.structure.Structure
         """
+
+        cls = Structure if cls is None else cls
+
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
 
-        cls = Structure if cls is None else cls
-        return cls(lattice, symbols, positions, coords_are_cartesian=True)
+        # Get the site magmoms from the ASE Atoms objects.
+        # We start with trying to get the output magmoms.
+        # If those don't exist, see if the initial magmoms were set.
+        if (
+            hasattr(atoms, "calc")
+            and getattr(atoms.calc, "results", None)
+            and atoms.calc.results.get("magmoms", None) is not None
+        ):
+            magmoms = atoms.calc.results["magmoms"]
+        else:
+            has_initial_mags = atoms.has("initial_magmoms")
+            if has_initial_mags:
+                magmoms = atoms.get_initial_magnetic_moments()
+            else:
+                magmoms = None
+
+        # If the ASE Atoms object has constraints, make sure that they are of the
+        # kind FixAtoms, which are the only ones that can be supported in Pymatgen.
+        # By default, FixAtoms fixes all three (x, y, z) dimensions.
+        if atoms.constraints:
+            unsupported_constraint_type = False
+            constraint_indices = []
+            for constraint in atoms.constraints:
+                if isinstance(constraint, FixAtoms):
+                    constraint_indices.extend(constraint.get_indices().tolist())
+                else:
+                    unsupported_constraint_type = True
+            if unsupported_constraint_type:
+                warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.")
+            sel_dyn = [[False] * 3 if atom.index in constraint_indices else False for atom in atoms]
+        else:
+            sel_dyn = None
+
+        # Return a Molecule object if that was specifically requested;
+        # otherwise return a Structure object as expected
+        if cls == Molecule:
+            structure = cls(symbols, positions)
+        else:
+            structure = cls(lattice, symbols, positions, coords_are_cartesian=True)
+
+        # Add the magmoms and selective dynamics to the structure site properties.
+        if magmoms is not None:
+            structure.add_site_property("magmom", magmoms)
+        if sel_dyn is not None and ~np.all(sel_dyn):
+            structure.add_site_property("selective_dynamics", sel_dyn)
+
+        # Transfer any info tags if present
+        if atoms.info:
+            structure.info = atoms.info
+
+        return structure
 
     @staticmethod
     def get_molecule(atoms, cls=None):
@@ -87,8 +185,8 @@ class AseAtomsAdaptor:
         Returns:
             Equivalent pymatgen.core.structure.Molecule
         """
-        symbols = atoms.get_chemical_symbols()
-        positions = atoms.get_positions()
 
         cls = Molecule if cls is None else cls
-        return cls(symbols, positions)
+        molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls)
+
+        return molecule
