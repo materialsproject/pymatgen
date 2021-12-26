@@ -125,7 +125,7 @@ class AseAtomsAdaptor:
         # We start with trying to get the output magmoms.
         # If those don't exist, see if the initial magmoms were set.
         if (
-            getattr(atoms, "calc", None)
+            hasattr(atoms, "calc")
             and getattr(atoms.calc, "results", None)
             and atoms.calc.results.get("magmoms", None) is not None
         ):
