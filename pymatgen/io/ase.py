@@ -129,7 +129,7 @@ class AseAtomsAdaptor:
             and getattr(atoms.calc, "results", None)
             and atoms.calc.results.get("magmoms", None) is not None
         ):
-            magmoms = atoms.get_magnetic_moments()
+            magmoms = atoms.calc.results["magmoms"]
         else:
             has_initial_mags = atoms.has("initial_magmoms")
             if has_initial_mags:
