@@ -174,7 +174,7 @@ class AseAtomsAdaptor:
             structure.add_site_property("initial_magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
-        if atoms.tags is not None:
+        if atoms.has("tags"):
             structure.add_site_property("tags", atoms.get_tags().tolist())
 
         return structure
