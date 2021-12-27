@@ -64,15 +64,22 @@ class AseAtomsAdaptor:
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
-        # Read in site magmoms if present
+        # Set the site magmoms in the ASE Atoms object
+        # Note: ASE is unique in that it distinguishes between initial and converged
+        # magnetic moment site properties, whereas pymatgen does not. Therefore, we
+        # have to distinguish between "magmom" and an "initial_magmom" site property.
         if "magmom" in structure.site_properties:
             magmoms = structure.site_properties["magmom"]
-        else:
-            magmoms = None
+            calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms})
+            atoms.calc = calc
         if "initial_magmom" in structure.site_properties:
             initial_magmoms = structure.site_properties["initial_magmom"]
-        else:
-            initial_magmoms = None
+            atoms.set_initial_magnetic_moments(initial_magmoms)
+
+        # Add tags if present
+        if "tags" in structure.site_properties:
+            tags = structure.site_properties["tags"]
+            atoms.set_tags(tags)
 
         # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
         # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
@@ -91,16 +98,6 @@ class AseAtomsAdaptor:
 
         else:
             fix_atoms = None
-
-        # Set the site magmoms in the ASE Atoms object
-        # Note: ASE is unique in that it distinguishes between initial and converged
-        # magnetic moment site properties, whereas pymatgen does not. Therefore, we
-        # have to distinguish between "magmom" and an "initial_magmom" site property.
-        if initial_magmoms is not None:
-            atoms.set_initial_magnetic_moments(initial_magmoms)
-        if magmoms is not None:
-            calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms})
-            atoms.calc = calc
 
         # Set the selective dynamics with the FixAtoms class.
         if fix_atoms is not None:
@@ -177,6 +174,8 @@ class AseAtomsAdaptor:
             structure.add_site_property("initial_magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
+        if atoms.tags is not None:
+            structure.add_site_property("tags", atoms.get_tags().tolist())
 
         return structure
 
