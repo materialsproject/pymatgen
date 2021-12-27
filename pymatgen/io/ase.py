@@ -53,6 +53,7 @@ class AseAtomsAdaptor:
                 "AseAtomsAdaptor requires the ASE package.\nUse `pip install ase` or `conda install ase -c conda-forge`"
             )
 
+        # Construct the base ASE Atoms object
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
@@ -76,7 +77,7 @@ class AseAtomsAdaptor:
             initial_magmoms = structure.site_properties["initial_magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
 
-        # Add tags if present
+        # Add tags if present (this is an ASE Atoms site property)
         if "tags" in structure.site_properties:
             tags = structure.site_properties["tags"]
             atoms.set_tags(tags)
@@ -125,17 +126,12 @@ class AseAtomsAdaptor:
         lattice = atoms.get_cell()
 
         # Get the site magmoms from the ASE Atoms objects.
-        if (
-            getattr(atoms, "calc", None)
-            and getattr(atoms.calc, "results", None)
-            and atoms.calc.results.get("magmoms", None) is not None
-        ):
-            magmoms = atoms.calc.results["magmoms"]
+        if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
+            magmoms = atoms.calc.results.get("magmoms", None)
         else:
             magmoms = None
 
-        has_initial_mags = atoms.has("initial_magmoms")
-        if has_initial_mags:
+        if atoms.has("initial_magmoms"):
             initial_magmoms = atoms.get_initial_magnetic_moments()
         else:
             initial_magmoms = None
