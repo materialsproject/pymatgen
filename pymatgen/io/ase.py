@@ -66,7 +66,7 @@ class AseAtomsAdaptor:
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
         # Set the site magmoms in the ASE Atoms object
-        # Note: ASE is unique in that it distinguishes between initial and converged
+        # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between "magmom" and an "initial_magmom" site property.
         if "magmom" in structure.site_properties:
@@ -161,7 +161,7 @@ class AseAtomsAdaptor:
             structure = cls(lattice, symbols, positions, coords_are_cartesian=True)
 
         # Set the site magmoms in the Pymatgen structure object
-        # Note: ASE is unique in that it distinguishes between initial and converged
+        # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between "magmom" and an "initial_magmom" site property.
         if magmoms is not None:
