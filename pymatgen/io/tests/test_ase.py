@@ -43,7 +43,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         initial_mags = [2.0] * len(structure)
         structure.add_site_property("initial_magmom", initial_mags)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
-        self.assertTrue(atoms.get_magnetic_moments().tolist(), mags)
         self.assertTrue(atoms.get_initial_magnetic_moments().tolist(), initial_mags)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
