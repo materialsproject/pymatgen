@@ -26,6 +26,7 @@ except ImportError:
 
 if ase_loaded:
     from ase.constraints import FixAtoms
+    from ase.calculators.singlepoint import SinglePointDFTCalculator
 
 
 class AseAtomsAdaptor:
@@ -68,6 +69,10 @@ class AseAtomsAdaptor:
             magmoms = structure.site_properties["magmom"]
         else:
             magmoms = None
+        if "initial_magmom" in structure.site_properties:
+            initial_magmoms = structure.site_properties["initial_magmom"]
+        else:
+            initial_magmoms = None
 
         # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
         # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
@@ -87,18 +92,19 @@ class AseAtomsAdaptor:
         else:
             fix_atoms = None
 
-        # Set the site magmoms as the initial magnetic moments in ASE since we can't alter the
-        # output magnetic moments (which are read in from an OUTCAR).
+        # Set the site magmoms in the ASE Atoms object
+        # Note: ASE is unique in that it distinguishes between initial and converged
+        # magnetic moment site properties, whereas pymatgen does not. Therefore, we
+        # have to distinguish between "magmom" and an "initial_magmom" site property.
+        if initial_magmoms is not None:
+            atoms.set_initial_magnetic_moments(initial_magmoms)
         if magmoms is not None:
-            atoms.set_initial_magnetic_moments(magmoms)
+            calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms})
+            atoms.calc = calc
 
         # Set the selective dynamics with the FixAtoms class.
         if fix_atoms is not None:
             atoms.set_constraint(FixAtoms(mask=fix_atoms))
-
-        # Transfer any info tags if present
-        if hasattr(structure, "info"):
-            atoms.info = structure.info
 
         return atoms
 
@@ -122,20 +128,20 @@ class AseAtomsAdaptor:
         lattice = atoms.get_cell()
 
         # Get the site magmoms from the ASE Atoms objects.
-        # We start with trying to get the output magmoms.
-        # If those don't exist, see if the initial magmoms were set.
         if (
-            hasattr(atoms, "calc")
+            getattr(atoms, "calc", None)
             and getattr(atoms.calc, "results", None)
             and atoms.calc.results.get("magmoms", None) is not None
         ):
             magmoms = atoms.calc.results["magmoms"]
         else:
-            has_initial_mags = atoms.has("initial_magmoms")
-            if has_initial_mags:
-                magmoms = atoms.get_initial_magnetic_moments()
-            else:
-                magmoms = None
+            magmoms = None
+
+        has_initial_mags = atoms.has("initial_magmoms")
+        if has_initial_mags:
+            initial_magmoms = atoms.get_initial_magnetic_moments()
+        else:
+            initial_magmoms = None
 
         # If the ASE Atoms object has constraints, make sure that they are of the
         # kind FixAtoms, which are the only ones that can be supported in Pymatgen.
@@ -150,7 +156,7 @@ class AseAtomsAdaptor:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
                 warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.")
-            sel_dyn = [[False] * 3 if atom.index in constraint_indices else False for atom in atoms]
+            sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
         else:
             sel_dyn = None
 
@@ -161,15 +167,16 @@ class AseAtomsAdaptor:
         else:
             structure = cls(lattice, symbols, positions, coords_are_cartesian=True)
 
-        # Add the magmoms and selective dynamics to the structure site properties.
+        # Set the site magmoms in the Pymatgen structure object
+        # Note: ASE is unique in that it distinguishes between initial and converged
+        # magnetic moment site properties, whereas pymatgen does not. Therefore, we
+        # have to distinguish between "magmom" and an "initial_magmom" site property.
         if magmoms is not None:
             structure.add_site_property("magmom", magmoms)
+        if initial_magmoms is not None:
+            structure.add_site_property("initial_magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
-
-        # Transfer any info tags if present
-        if atoms.info:
-            structure.info = atoms.info
 
         return structure
 
