@@ -78,14 +78,17 @@ class BatteryAnalyzerTest(PymatgenTest):
 
         # give the lifepo4 volume, should get lifepo4 capacity
         self.assertAlmostEqual(
-            self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume), lifepo4_cap, 3,
+            self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume),
+            lifepo4_cap,
+            3,
         )
 
     def test_ion_removal(self):
         self.assertEqual(self.lifemnpo4.get_removals_int_oxid(), {1.0, 2.0, 3.0, 4.0})
 
         self.assertEqual(
-            self.li8nicofe208.get_removals_int_oxid(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0},
+            self.li8nicofe208.get_removals_int_oxid(),
+            {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0},
         )
 
         self.assertEqual(self.li3v2p3o12.get_removals_int_oxid(), {4.0, 6.0})
