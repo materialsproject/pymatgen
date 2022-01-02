@@ -38,25 +38,21 @@ class BatteryAnalyzer:
             struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
                 structures should be OK
             working_ion: a String symbol or Element for the working ion.
-            oxy_override: a dict of String element symbol, Integer oxidation state pairs. 
+            oxy_override: a dict of String element symbol, Integer oxidation state pairs.
                 by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.
-            
         """
         for site in struc_oxid:
             if not hasattr(site.specie, "oxi_state"):
                 raise ValueError("BatteryAnalyzer requires oxidation states assigned to structure!")
-
         self.struc_oxid = struc_oxid
         self.oxi_override = oxi_override
         self.comp = self.struc_oxid.composition  # shortcut for later
 
         if not isinstance(working_ion, Element):
             self.working_ion = Element(working_ion)
-
         if self.working_ion.symbol in oxi_override:
             self.working_ion_charge = oxi_override[self.working_ion.symbol]
-        elif self.working_ion.symbol in ['H', 'C', 'N', 'O', 'F', 'S', 'Cl', 
-                                         'Se', 'Br', 'Te', 'I']:
+        elif self.working_ion.symbol in ["H", "C", "N", "O", "F", "S", "Cl", "Se", "Br", "Te", "I"]:
             self.working_ion_charge = self.working_ion.min_oxidation_state
         else:
             self.working_ion_charge = self.working_ion.max_oxidation_state
@@ -74,19 +70,20 @@ class BatteryAnalyzer:
         if self.working_ion_charge < 0:
             lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
             pot_sum = sum(
-                (min(os for os in Element(spec.symbol).oxidation_states 
-                if os >= lowest_oxid[spec.symbol]) - spec.oxi_state)
+                (
+                    min(os for os in Element(spec.symbol).oxidation_states if os >= lowest_oxid[spec.symbol])
+                    - spec.oxi_state
+                )
                 * self.comp[spec]
                 for spec in self.comp
                 if is_redox_active_intercalation(Element(spec.symbol))
-                )  # lowest oxidation state minus current state gives negative sum
-        else:   
+            )  # lowest oxidation state minus current state gives negative sum
+        else:
             pot_sum = sum(
                 (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
                 for spec in self.comp
                 if is_redox_active_intercalation(Element(spec.symbol))
-                )  # highest oxidation state minus current state gives positive sum
-
+            )  # highest oxidation state minus current state gives positive sum
         redox_limit = pot_sum / self.working_ion_charge
 
         # the number of A that exist in the structure for removal
@@ -104,25 +101,25 @@ class BatteryAnalyzer:
         Returns:
             integer amount of ion. Depends on cell size (this is an 'extrinsic' function!)
         """
-
         # how much 'spare charge' is left in the redox metals for oxidation or reduction?
-        
+
         if self.working_ion_charge < 0:
             pot_sum = sum(
                 (spec.oxi_state - Element(spec.symbol).max_oxidation_state) * self.comp[spec]
                 for spec in self.comp
                 if is_redox_active_intercalation(Element(spec.symbol))
-                )  # current state minus highest state gives negative sum
+            )  # current state minus highest state gives negative sum
         else:
             lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
             pot_sum = sum(
-                (spec.oxi_state - min(os for os in Element(spec.symbol).oxidation_states 
-                if os >= lowest_oxid[spec.symbol]))
+                (
+                    spec.oxi_state
+                    - min(os for os in Element(spec.symbol).oxidation_states if os >= lowest_oxid[spec.symbol])
+                )
                 * self.comp[spec]
                 for spec in self.comp
                 if is_redox_active_intercalation(Element(spec.symbol))
-                ) #current state minus lowest state gives positive sum
-
+            )  # current state minus lowest state gives positive sum
         return pot_sum / self.working_ion_charge
 
     def _get_max_cap_ah(self, remove, insert):
@@ -135,7 +132,6 @@ class BatteryAnalyzer:
             num_working_ions += self.max_ion_removal
         if insert:
             num_working_ions += self.max_ion_insertion
-
         return num_working_ions * abs(self.working_ion_charge) * ELECTRON_TO_AMPERE_HOURS
 
     def get_max_capgrav(self, remove=True, insert=True):
@@ -194,7 +190,6 @@ class BatteryAnalyzer:
         numa = set()
         for oxid_el in oxid_els:
             numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
-
         # convert from num A in structure to num A removed
         num_working_ion = self.comp[Species(self.working_ion.symbol, self.working_ion_charge)]
         return {num_working_ion - a for a in numa}
@@ -219,8 +214,9 @@ class BatteryAnalyzer:
             oxid_new = math.ceil(oxid_old - 1)
             lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})
             # if this is not a valid solution, break out of here and don't add anything to the list
-            if oxid_new < min(os for os in Element(redox_el.symbol).oxidation_states 
-                              if os >= lowest_oxid[redox_el.symbol]):
+            if oxid_new < min(
+                os for os in Element(redox_el.symbol).oxidation_states if os >= lowest_oxid[redox_el.symbol]
+            ):
                 return numa
         else:
             oxid_old = min(spec.oxi_state for spec in spec_amts_oxi if spec.symbol == redox_el.symbol)
@@ -228,7 +224,6 @@ class BatteryAnalyzer:
             # if this is not a valid solution, break out of here and don't add anything to the list
             if oxid_new > redox_el.max_oxidation_state:
                 return numa
-
         # update the spec_amts_oxi map to reflect that the redox took place
         spec_old = Species(redox_el.symbol, oxid_old)
         spec_new = Species(redox_el.symbol, oxid_new)
@@ -239,8 +234,7 @@ class BatteryAnalyzer:
 
         # determine the amount of ion A in the structure needed for charge balance and add it to the list
         oxi_noA = sum(
-            spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi 
-            if spec.symbol not in self.working_ion.symbol
+            spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.working_ion.symbol
         )
         a = max(0, -oxi_noA / self.working_ion_charge)
         numa = numa.union({a})
