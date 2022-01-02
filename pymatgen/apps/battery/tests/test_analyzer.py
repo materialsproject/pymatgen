@@ -1,7 +1,6 @@
 import os
 import unittest
 
-import pymatgen
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
@@ -51,7 +50,7 @@ class BatteryAnalyzerTest(PymatgenTest):
 
         self.assertAlmostEqual(self.fepo4.get_max_capgrav(), lifepo4_cap, 3)
         self.assertEqual(self.fepo4.get_max_capgrav(insert=False), 0)
-        
+
         self.assertAlmostEqual(self.la2coo4f.get_max_capgrav(), la2coo4f_cap, 3)
         self.assertAlmostEqual(self.la2coo4.get_max_capgrav(), la2coo4f_cap, 3)
         self.assertEqual(self.la2coo4.get_max_capgrav(insert=False), 0)
@@ -79,21 +78,18 @@ class BatteryAnalyzerTest(PymatgenTest):
 
         # give the lifepo4 volume, should get lifepo4 capacity
         self.assertAlmostEqual(
-            self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume),
-            lifepo4_cap,
-            3,
+            self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume), lifepo4_cap, 3,
         )
 
     def test_ion_removal(self):
         self.assertEqual(self.lifemnpo4.get_removals_int_oxid(), {1.0, 2.0, 3.0, 4.0})
 
         self.assertEqual(
-            self.li8nicofe208.get_removals_int_oxid(),
-            {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0},
+            self.li8nicofe208.get_removals_int_oxid(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0},
         )
 
         self.assertEqual(self.li3v2p3o12.get_removals_int_oxid(), {4.0, 6.0})
-        
+
         self.assertEqual(self.mgnif6.get_removals_int_oxid(), {1.0, 2.0})
 
 
