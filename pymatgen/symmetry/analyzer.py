@@ -112,7 +112,9 @@ class SpacegroupAnalyzer:
             SpacgroupOperations object.
         """
         return SpacegroupOperations(
-            self.get_space_group_symbol(), self.get_space_group_number(), self.get_symmetry_operations(),
+            self.get_space_group_symbol(),
+            self.get_space_group_number(),
+            self.get_symmetry_operations(),
         )
 
     def get_hall(self):
@@ -281,7 +283,9 @@ class SpacegroupAnalyzer:
         """
         ds = self.get_symmetry_dataset()
         sg = SpacegroupOperations(
-            self.get_space_group_symbol(), self.get_space_group_number(), self.get_symmetry_operations(),
+            self.get_space_group_symbol(),
+            self.get_space_group_number(),
+            self.get_symmetry_operations(),
         )
         return SymmetrizedStructure(self._structure, sg, ds["equivalent_atoms"], ds["wyckoffs"])
 
@@ -299,7 +303,7 @@ class SpacegroupAnalyzer:
         species = [self._unique_species[i - 1] for i in numbers]
         site_properties = {}
         for k, v in self._siteprops.items():
-            site_properties[k] = [v[i-1] for i in numbers]
+            site_properties[k] = [v[i - 1] for i in numbers]
         s = Structure(lattice, species, scaled_positions, site_properties=site_properties)
         return s.get_sorted_structure()
 
@@ -313,10 +317,14 @@ class SpacegroupAnalyzer:
             returned.
         """
         lattice, scaled_positions, numbers = spglib.find_primitive(self._cell, symprec=self._symprec)
-
         species = [self._unique_species[i - 1] for i in numbers]
+        site_properties = {}
+        for k, v in self._siteprops.items():
+            site_properties[k] = [v[i - 1] for i in numbers]
 
-        return Structure(lattice, species, scaled_positions, to_unit_cell=True).get_reduced_structure()
+        return Structure(
+            lattice, species, scaled_positions, to_unit_cell=True, site_properties=site_properties
+        ).get_reduced_structure()
 
     def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
         """
@@ -409,7 +417,12 @@ class SpacegroupAnalyzer:
         latt = Lattice(np.dot(transf, conv.lattice.matrix))
         for s in conv:
             new_s = PeriodicSite(
-                s.specie, s.coords, latt, to_unit_cell=True, coords_are_cartesian=True, properties=s.properties,
+                s.specie,
+                s.coords,
+                latt,
+                to_unit_cell=True,
+                coords_are_cartesian=True,
+                properties=s.properties,
             )
             if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
@@ -423,12 +436,22 @@ class SpacegroupAnalyzer:
             new_matrix = [
                 [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
                 [a * cos(alpha / 2), a * sin(alpha / 2), 0],
-                [a * cos(alpha) / cos(alpha / 2), 0, a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2))),],
+                [
+                    a * cos(alpha) / cos(alpha / 2),
+                    0,
+                    a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2))),
+                ],
             ]
             new_sites = []
             latt = Lattice(new_matrix)
             for s in prim:
-                new_s = PeriodicSite(s.specie, s.frac_coords, latt, to_unit_cell=True, properties=s.properties,)
+                new_s = PeriodicSite(
+                    s.specie,
+                    s.frac_coords,
+                    latt,
+                    to_unit_cell=True,
+                    properties=s.properties,
+                )
                 if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
             return Structure.from_sites(new_sites)
@@ -729,7 +752,11 @@ class SpacegroupAnalyzer:
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(
-            latt, struct.species_and_occu, new_coords, site_properties=struct.site_properties, to_unit_cell=True,
+            latt,
+            struct.species_and_occu,
+            new_coords,
+            site_properties=struct.site_properties,
+            to_unit_cell=True,
         )
         return new_struct.get_sorted_structure()
 

@@ -186,11 +186,25 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         s = SpacegroupAnalyzer(structure)
         primitive_structure = s.find_primitive()
         self.assertEqual(primitive_structure.formula, "Li2 O1")
+        self.assertTrue(primitive_structure.site_properties.get("magmom", None) is None)
         # This isn't what is expected. All the angles should be 60
         self.assertAlmostEqual(primitive_structure.lattice.alpha, 60)
         self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 60)
         self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume / 4.0)
+
+        structure = parser.get_structures(False)[0]
+        structure.add_site_property("magmom", [0.0] * len(structure))
+        s = SpacegroupAnalyzer(structure)
+        primitive_structure = s.find_primitive()
+        self.assertTrue(np.all(primitive_structure.site_properties["magmom"] == 0.0))
+
+        structure = parser.get_structures(False)[0]
+        structure.add_site_property("magmom", [1.0, 1.0, 3.0])
+        s = SpacegroupAnalyzer(structure)
+        primitive_structure = s.find_primitive()
+        self.assertEqual(refined_struct[0].properties["magmom"] == 1.0)
+        self.assertEqual(refined_struct[-1].properties["magmom"] == 3.0)
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
