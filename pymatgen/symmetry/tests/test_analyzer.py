@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 import numpy as np
 
-from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
@@ -135,9 +134,23 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         for a in refined.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
+
         s = self.get_structure("Li2O")
         sg = SpacegroupAnalyzer(s, 0.01)
-        self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
+        refined_struct = sg.get_refined_structure()
+        self.assertEqual(refined_struct.num_sites, 4 * s.num_sites)
+        self.assertTrue(refined_struct.site_properties.get("magmom", None) is None)
+
+        s = self.get_structure("Li2O")
+        s.add_site_property("magmom", [0.0] * len(s))
+        refined_struct = sg.get_refined_structure(s, 0.01)
+        self.assertTrue(np.all(refined_struct.site_properties["magmom"] == 0.0))
+
+        s = self.get_structure("Li2O")
+        s.add_site_property("magmom", [1.0, 1.0, 3.0])
+        refined_struct = sg.get_refined_structure(s, 0.01)
+        self.assertEqual(refined_struct[0].properties["magmom"] == 1.0)
+        self.assertEqual(refined_struct[-1].properties["magmom"] == 3.0)
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()

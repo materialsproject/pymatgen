@@ -69,17 +69,19 @@ class SpacegroupAnalyzer:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(g)))
 
-        for site in structure:
-            if hasattr(site, "magmom"):
-                magmoms.append(site.magmom)
-            elif site.is_ordered and hasattr(site.specie, "spin"):
-                magmoms.append(site.specie.spin)
-            else:
-                magmoms.append(0)
+        if "magmom" in structure.site_properties:
+            for site in structure:
+                if hasattr(site, "magmom"):
+                    magmoms.append(site.magmom)
+                elif site.is_ordered and hasattr(site.specie, "spin"):
+                    magmoms.append(site.specie.spin)
+            if len(magmoms) != len(structure):
+                raise ValueError("Number of site with magmoms does not match number of sites")
+        else:
+            magmoms = None
 
         self._unique_species = unique_species
         self._numbers = zs
-        # For now, we are setting magmom to zero.
         self._cell = latt, positions, zs, magmoms
 
         self._space_group_data = spglib.get_symmetry_dataset(
@@ -300,9 +302,14 @@ class SpacegroupAnalyzer:
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         lattice, scaled_positions, numbers = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
+        magmoms = self._cell[3]
+        if magmoms:
+            site_properties = {"magmom": [self._cell[3][i - 1] for i in numbers]}
+        else:
+            site_properties = None
 
         species = [self._unique_species[i - 1] for i in numbers]
-        s = Structure(lattice, species, scaled_positions)
+        s = Structure(lattice, species, scaled_positions, site_properties=site_properties)
         return s.get_sorted_structure()
 
     def find_primitive(self):
