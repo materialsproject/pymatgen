@@ -76,7 +76,7 @@ class SpacegroupAnalyzer:
             elif site.is_ordered and hasattr(site.specie, "spin"):
                 magmoms.append(site.specie.spin)
             else:
-                magmoms.append(0.0)  # needed for spglib
+                magmoms.append(0)  # needed for spglib
 
         self._unique_species = unique_species
         self._numbers = zs
