@@ -55,6 +55,7 @@ class SpacegroupAnalyzer:
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
+        self._siteprops = structure.site_properties
         latt = structure.lattice.matrix
         positions = structure.frac_coords
         unique_species = []
@@ -69,16 +70,13 @@ class SpacegroupAnalyzer:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(g)))
 
-        if "magmom" in structure.site_properties:
-            for site in structure:
-                if hasattr(site, "magmom"):
-                    magmoms.append(site.magmom)
-                elif site.is_ordered and hasattr(site.specie, "spin"):
-                    magmoms.append(site.specie.spin)
-            if len(magmoms) != len(structure):
-                raise ValueError("Number of site with magmoms does not match number of sites")
-        else:
-            magmoms = None
+        for site in structure:
+            if hasattr(site, "magmom"):
+                magmoms.append(site.magmom)
+            elif site.is_ordered and hasattr(site.specie, "spin"):
+                magmoms.append(site.specie.spin)
+            else:
+                magmoms.append(0.0)  # needed for spglib
 
         self._unique_species = unique_species
         self._numbers = zs
@@ -114,9 +112,7 @@ class SpacegroupAnalyzer:
             SpacgroupOperations object.
         """
         return SpacegroupOperations(
-            self.get_space_group_symbol(),
-            self.get_space_group_number(),
-            self.get_symmetry_operations(),
+            self.get_space_group_symbol(), self.get_space_group_number(), self.get_symmetry_operations(),
         )
 
     def get_hall(self):
@@ -285,9 +281,7 @@ class SpacegroupAnalyzer:
         """
         ds = self.get_symmetry_dataset()
         sg = SpacegroupOperations(
-            self.get_space_group_symbol(),
-            self.get_space_group_number(),
-            self.get_symmetry_operations(),
+            self.get_space_group_symbol(), self.get_space_group_number(), self.get_symmetry_operations(),
         )
         return SymmetrizedStructure(self._structure, sg, ds["equivalent_atoms"], ds["wyckoffs"])
 
@@ -302,13 +296,10 @@ class SpacegroupAnalyzer:
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         lattice, scaled_positions, numbers = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
-        magmoms = self._cell[3]
-        if magmoms:
-            site_properties = {"magmom": [self._cell[3][i - 1] for i in numbers]}
-        else:
-            site_properties = None
-
         species = [self._unique_species[i - 1] for i in numbers]
+        site_properties = {}
+        for k, v in self._siteprops.items():
+            site_properties[k] = [v[i-1] for i in numbers]
         s = Structure(lattice, species, scaled_positions, site_properties=site_properties)
         return s.get_sorted_structure()
 
@@ -418,12 +409,7 @@ class SpacegroupAnalyzer:
         latt = Lattice(np.dot(transf, conv.lattice.matrix))
         for s in conv:
             new_s = PeriodicSite(
-                s.specie,
-                s.coords,
-                latt,
-                to_unit_cell=True,
-                coords_are_cartesian=True,
-                properties=s.properties,
+                s.specie, s.coords, latt, to_unit_cell=True, coords_are_cartesian=True, properties=s.properties,
             )
             if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
@@ -437,22 +423,12 @@ class SpacegroupAnalyzer:
             new_matrix = [
                 [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
                 [a * cos(alpha / 2), a * sin(alpha / 2), 0],
-                [
-                    a * cos(alpha) / cos(alpha / 2),
-                    0,
-                    a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2))),
-                ],
+                [a * cos(alpha) / cos(alpha / 2), 0, a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2))),],
             ]
             new_sites = []
             latt = Lattice(new_matrix)
             for s in prim:
-                new_s = PeriodicSite(
-                    s.specie,
-                    s.frac_coords,
-                    latt,
-                    to_unit_cell=True,
-                    properties=s.properties,
-                )
+                new_s = PeriodicSite(s.specie, s.frac_coords, latt, to_unit_cell=True, properties=s.properties,)
                 if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
             return Structure.from_sites(new_sites)
@@ -753,11 +729,7 @@ class SpacegroupAnalyzer:
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(
-            latt,
-            struct.species_and_occu,
-            new_coords,
-            site_properties=struct.site_properties,
-            to_unit_cell=True,
+            latt, struct.species_and_occu, new_coords, site_properties=struct.site_properties, to_unit_cell=True,
         )
         return new_struct.get_sorted_structure()
 
