@@ -783,6 +783,9 @@ Cartesian
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         self.assertEqual(kpoints.kpts, [[6, 10, 13]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], True)
+        self.assertEqual(kpoints.kpts, [[5, 9, 1]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure
         s.make_supercell(3)
