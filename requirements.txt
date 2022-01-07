@@ -1,4 +1,4 @@
-numpy==1.21.4
+numpy==1.21.2
 sympy==1.8
 requests==2.26.0
 monty==2021.12.1
