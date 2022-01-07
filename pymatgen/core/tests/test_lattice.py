@@ -364,7 +364,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertArrayAlmostEqual(lattice.norm(frac_basis), lattice.abc, 5)
             for (i, vec) in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                self.assertArrayEqual(length[0], lattice.abc[i])
+                self.assertArrayAlmostEqual(length[0], lattice.abc[i], 5)
                 # We always get a ndarray.
                 self.assertTrue(hasattr(length, "shape"))
 
