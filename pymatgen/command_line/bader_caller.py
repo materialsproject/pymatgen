@@ -473,7 +473,7 @@ def bader_analysis_from_path(path, suffix=""):
 
     This method will:
 
-    1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+    1. Look for files CHGCAR, AECCAR0, AECCAR2, POTCAR or their gzipped
     counterparts.
     2. If AECCAR* files are present, constructs a temporary reference
     file as AECCAR0 + AECCAR2
