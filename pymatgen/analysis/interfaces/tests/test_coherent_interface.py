@@ -46,7 +46,7 @@ class InterfaceBuilderTest(PymatgenTest):
         )
 
         self.assertEqual(len(builder.terminations), 2)
-        self.assertEqual(len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))), 30)
+        self.assertEqual(len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))), 6)
 
 
 if __name__ == "__main__":

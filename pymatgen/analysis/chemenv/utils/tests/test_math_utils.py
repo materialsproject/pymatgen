@@ -125,7 +125,7 @@ class MathUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(
             cosinus_step(vals, edges=[7.0, 11.0]).tolist(),
             [0.0, 0.0, 0.0, 0.14644660940672616, 0.5, 0.8535533905932737, 1.0, 1.0],
-            5
+            5,
         )
 
     def test_powern_parts_step(self):
