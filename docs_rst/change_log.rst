@@ -1,6 +1,45 @@
 Change log
 ==========
 
+v2022.1.7
+----------
+* ASE io improvements (e.g., magnetic moments and selective dynamics transfer). @arosen93
+* New automatic k-point generation scheme, `automatic_density_by_lengths`, which allows the user to specify a density of k-points in each dimension (rather than just for the entire volume). @arosen93 
+* Build improvements to dynamically generate C code by running Cython on pyx files rather than having hard-generated .c files.
+
+v2022.0.17
+----------
+
+Welcome to new contributor @e-kwsm!
+
+* More robust smart fermi method by @utf in https://github.com/materialsproject/pymatgen/pull/2303
+* Replace-species by @janosh in https://github.com/materialsproject/pymatgen/pull/2291
+* Add warning if improper ALGO is used for hybrid calculations by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2298
+* Wrap supercell to unit cell when performing change of setting by @jmmshn in https://github.com/materialsproject/pymatgen/pull/2300
+* Clearer handling of the MAGMOM flag in pymatgen.io.vasp.sets by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2301
+* Add warning if LASPH != True for meta-GGA/hybrid/vdW/+U by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2297
+* Add ability to request additional OPTIMADE fields by @ml-evs in https://github.com/materialsproject/pymatgen/pull/2315
+* Add missing elements to MPScanRelaxSet PBE .54 potentials by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2316
+
+* Fix write Trajectory XDATACAR with variable lattice by @gpetretto in https://github.com/materialsproject/pymatgen/pull/2310
+* Fix small cutoff neighbor by @chc273 in https://github.com/materialsproject/pymatgen/pull/2277
+* Add Composition.replace() by @janosh in https://github.com/materialsproject/pymatgen/pull/2284
+* Ion bugfixes and enhancements by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/2287
+* Fix oddly split strings and a few typos by @janosh in https://github.com/materialsproject/pymatgen/pull/2285
+* InsertionElectrode bug fix and documentation update by @acrutt in https://github.com/materialsproject/pymatgen/pull/2257
+* Remove accidentally tracked files and unset executable flag by @e-kwsm in https://github.com/materialsproject/pymatgen/pull/2296
+
+* Update DOI URLs by @e-kwsm in https://github.com/materialsproject/pymatgen/pull/2295
+* Documentation update: Fix missing Outcar attributes and update elemental_dos_dos string by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2293
+* Documentation update for CutOffDictNN by @ltalirz in https://github.com/materialsproject/pymatgen/pull/2278
+
+v2022.0.16
+----------
+
+* Fix to allow PhaseDiagram to be JSON serializable with computed data cached (@mkhorton, #2276)
+* Temporarily revert #2239 pending investigation into slow-down in some nearest neighbor finding routines. This does not affect the behavior of any of these classes.
+
+
 v2022.0.15
 ----------
 
