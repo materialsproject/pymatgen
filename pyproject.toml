@@ -2,7 +2,8 @@
 requires = [
      # pin NumPy version used in the build
      "numpy>=1.20.3",
-     "setuptools>=43.0.0"
+     "setuptools>=43.0.0",
+     "Cython>=0.29.23"
 ]
 build-backend = "setuptools.build_meta"
 
