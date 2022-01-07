@@ -96,7 +96,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.1.7",
+    version="2022.01.07",
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.7",
     install_requires=[
