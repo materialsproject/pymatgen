@@ -1038,7 +1038,7 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: Kpoints_supported_modes = supported_modes.Gamma,
         kpts: Sequence[Union[float, int, Sequence]] = ((1, 1, 1),),
-        kpts_shift: Tuple[int, int, int] = (0, 0, 0),
+        kpts_shift: Tuple[float, float, float] = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
@@ -1159,7 +1159,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts=(1, 1, 1), shift=(0, 0, 0)):
+    def gamma_automatic(kpts: Sequence[int] = (1, 1, 1), shift: Sequence[float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1181,7 +1181,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts=(2, 2, 2), shift=(0, 0, 0)):
+    def monkhorst_automatic(kpts: Sequence[int] = (2, 2, 2), shift: Sequence[float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
