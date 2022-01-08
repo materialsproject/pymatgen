@@ -14,8 +14,13 @@ from io import StringIO
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
-from pybtex import errors
-from pybtex.database.input import bibtex
+
+try:
+    from pybtex import errors
+    from pybtex.database.input import bibtex
+except ImportError:
+    pybtex = None
+    bibtex = None
 
 from pymatgen.core.structure import Molecule, Structure
 
