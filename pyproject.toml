@@ -26,6 +26,7 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | test_files
   )/
 )
 '''
