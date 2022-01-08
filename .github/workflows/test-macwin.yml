@@ -1,6 +1,6 @@
 name: Testing Mac Windows
 
-on: [ pull_request ]
+on: [ push, pull_request ]
 
 jobs:
   test:
@@ -9,7 +9,7 @@ jobs:
       max-parallel: 20
       matrix:
         os: [ macos-latest, windows-latest ]
-        python-version: [ 3.9, 3.10 ]
+        python-version: [ '3.9', '3.10' ]
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         pkg:
           - pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
