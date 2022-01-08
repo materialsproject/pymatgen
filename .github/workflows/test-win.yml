@@ -1,4 +1,4 @@
-name: Testing Mac Windows
+name: Testing Windows
 
 on: [ push, pull_request ]
 
