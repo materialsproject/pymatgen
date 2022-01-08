@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ macos-latest, windows-latest ]
+        os: [ macos-latest ]
         python-version: [ '3.9', '3.10' ]
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         pkg:
@@ -49,7 +49,7 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install -r requirements-dev.txt
           pip install -e .
       - name: pytest ${{ matrix.pkg }}
         run: |
