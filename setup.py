@@ -98,7 +98,7 @@ setup(
     ),
     version="2022.01.07",
     cmdclass={"build_ext": build_ext},
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=[
         "numpy>=1.20.1",
         "requests",
