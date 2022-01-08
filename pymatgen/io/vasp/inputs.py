@@ -1159,7 +1159,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts: Sequence[int] = (1, 1, 1), shift: Sequence[float] = (0, 0, 0)):
+    def gamma_automatic(kpts: Tuple[int, int, int] = (1, 1, 1), shift: Tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1181,7 +1181,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts: Sequence[int] = (2, 2, 2), shift: Sequence[float] = (0, 0, 0)):
+    def monkhorst_automatic(kpts: Tuple[int, int, int] = (2, 2, 2), shift: Tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1203,7 +1203,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def automatic_density(structure, kppa, force_gamma=False):
+    def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -1215,7 +1215,7 @@ class Kpoints(MSONable):
 
         Args:
             structure (Structure): Input structure
-            kppa (int): Grid density
+            kppa (float): Grid density
             force_gamma (bool): Force a gamma centered mesh (default is to
                 use gamma only for hexagonal cells or odd meshes)
 
@@ -1240,10 +1240,10 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_gamma_density(structure, kppa):
+    def automatic_gamma_density(structure: Structure, kppa: float):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
@@ -1278,10 +1278,10 @@ class Kpoints(MSONable):
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
         num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_density_by_vol(structure, kppvol, force_gamma=False):
+    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
@@ -1302,7 +1302,9 @@ class Kpoints(MSONable):
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
     @staticmethod
-    def automatic_density_by_lengths(structure, length_densities, force_gamma=False):
+    def automatic_density_by_lengths(
+        structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+    ):
         """
         Returns an automatic Kpoint object based on a structure and a k-point
         density normalized by lattice constants.
@@ -1337,7 +1339,7 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Monkhorst
         style = Kpoints.supported_modes.Gamma
 
-        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
     @staticmethod
     def automatic_linemode(divisions, ibz):
