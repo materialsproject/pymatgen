@@ -17,7 +17,7 @@ jobs:
             pkg_id: 1
           - pkg: pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
             pkg_id: 2
-          - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/ext pymatgen/command_line
+          - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line # pymatgen/ext
             pkg_id: 3
           - pkg: pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
             pkg_id: 4
