@@ -3,7 +3,7 @@ sympy==1.9
 requests==2.26.0
 monty==2021.12.1
 ruamel.yaml==0.17.17
-scipy==1.7.1
+scipy==1.7.3
 tabulate==0.8.9
 matplotlib==3.5.0
 palettable==3.3.0
