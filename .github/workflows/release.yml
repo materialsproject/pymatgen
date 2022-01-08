@@ -32,17 +32,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
-#      - uses: actions/cache@v2
-#        if: startsWith(runner.os, 'macOS')
-#        with:
-#          path: ~/Library/Caches/pip
-#          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-#          restore-keys: |
-#            ${{ runner.os }}-pip-
+          python-version: 3.9
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
@@ -59,7 +59,7 @@ jobs:
       max-parallel: 2
       matrix:
         os: [ macos-latest, windows-latest ]
-        python-version: [ 3.7, 3.8 ]
+        python-version: [ 3.8, 3.9 ]
     runs-on: ${{ matrix.os }}
 
     steps:
