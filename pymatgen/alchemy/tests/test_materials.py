@@ -6,6 +6,11 @@ import os
 import unittest
 import warnings
 
+try:
+    import pybtex
+except ImportError:
+    pybtex = None
+
 from pymatgen.core import SETTINGS
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
@@ -102,6 +107,7 @@ class TransformedStructureTest(PymatgenTest):
         self.assertIn("author", d["other_parameters"])
         self.assertEqual(Structure.from_dict(d).formula, "Na4 Fe4 P4 O16")
 
+    @unittest.skipIf(pybtex is None, "SNL requires pybtex")
     def test_snl(self):
         self.trans.set_parameter("author", "will")
         with warnings.catch_warnings(record=True) as w:
