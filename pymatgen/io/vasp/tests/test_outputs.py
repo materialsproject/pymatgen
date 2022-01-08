@@ -1571,7 +1571,7 @@ class ChgcarTest(PymatgenTest):
                 self.assertIn(z, [Element.Ni.Z, Element.O.Z])
 
             for sp in f["species"]:
-                self.assertIn(sp, ["Ni", "O"])
+                self.assertIn(sp, [b"Ni", b"O"])
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
         self.assertArrayAlmostEqual(chgcar2.data["total"], chgcar.data["total"])
