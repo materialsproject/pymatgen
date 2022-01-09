@@ -96,7 +96,8 @@ setup(
         "plotly>=4.5.0",
         "uncertainties>=3.1.4",
         "Cython>=0.29.23",
-        "pybtex"
+        "pybtex",
+        "tqdm"
     ],
     extras_require={
         "ase": ["ase>=3.3"],
