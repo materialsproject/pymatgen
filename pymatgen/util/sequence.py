@@ -22,47 +22,11 @@ def get_chunks(sequence, size=1):
     return [sequence[i * size : (i + 1) * size] for i in range(chunks)]
 
 
-class PBarSafe:
-    """
-    Progress bar.
-    """
-
-    def __init__(self, total, **kwargs):
-        """
-        Args:
-            total (): Total value.
-        """
-        self.total = total
-        self.done = 0
-        self.report()
-
-    def update(self, amount):
-        """
-        Update progress bar by amount.
-
-        Args:
-            amount (float):
-        """
-        self.done += amount
-        self.report()
-
-    def report(self):
-        """
-        Print progress.
-        """
-        print(f"{self.done} of {self.total} done")
-
-
 try:
     # noinspection PyUnresolvedReferences
     if get_ipython().__class__.__name__ == "ZMQInteractiveShell":  # type: ignore
-        from tqdm import tqdm_notebook as PBar
+        from tqdm import tqdm_notebook as PBar  # noqa: F401
     else:  # likely 'TerminalInteractiveShell'
-        from tqdm import tqdm as PBar
-except NameError:
-    try:
-        from tqdm import tqdm as PBar
-    except ImportError:
-        PBar = PBarSafe
-except ImportError:
-    PBar = PBarSafe
+        from tqdm import tqdm as PBar  # noqa: F401
+except (NameError, ImportError):
+    from tqdm import tqdm as PBar  # noqa: F401
