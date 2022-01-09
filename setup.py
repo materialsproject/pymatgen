@@ -5,28 +5,10 @@
 
 import sys
 import platform
+import numpy
 
 from setuptools import setup, find_namespace_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
-
-
-class build_ext(_build_ext):
-    """Extension builder that checks for numpy before install."""
-
-    def finalize_options(self):
-        """Override finalize_options."""
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        import builtins
-
-        if hasattr(builtins, "__NUMPY_SETUP__"):
-            # pylint: disable=E1101
-            del builtins.__NUMPY_SETUP__
-        import importlib
-        import numpy
-
-        importlib.reload(numpy)
-        self.include_dirs.append(numpy.get_include())
 
 
 extra_link_args = []
@@ -97,7 +79,6 @@ setup(
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
     version="2022.01.08",
-    cmdclass={"build_ext": build_ext},
     python_requires=">=3.8",
     install_requires=[
         "numpy>=1.20.1",
@@ -213,4 +194,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
+    include_dirs=numpy.get_include(),
 )
