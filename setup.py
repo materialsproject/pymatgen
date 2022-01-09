@@ -67,8 +67,6 @@ but pymatgen offer several advantages:
    the well-established Materials Project. It is also actively being developed
    and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org),
    the ABINIT group and many other research groups.
-
-With effect from version 2021.1.1, pymatgen only supports Python >3.7.
 """
 
 setup(
