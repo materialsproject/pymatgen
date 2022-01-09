@@ -50,7 +50,7 @@ class PBarSafe:
         """
         Print progress.
         """
-        print(f"{self.done} of {self.total} done {self.done / self.total:.1%}")
+        print(f"{self.done} of {self.total} done")
 
 
 try:
