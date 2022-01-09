@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.01.08 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.01.09 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.01.08
+                2022.01.09
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-1-8">v2022.1.8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2022-1-9">v2022.1.9</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -227,15 +227,11 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h2>
-<section id="v2022-1-8">
-<h3>v2022.1.8<a class="headerlink" href="#v2022-1-8" title="Permalink to this headline"></a></h3>
+<section id="v2022-1-9">
+<h3>v2022.1.9<a class="headerlink" href="#v2022-1-9" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>First proper new release of 2022 formalizes the switch back to date-based versioning introduced as a temporary measure last year.</p></li>
-<li><p>Numpy version pinned to 1.22.0. This is necessary to avoid binary incompatibility.</p></li>
-<li><p>With the numpy version, py37 support is dropped.</p></li>
-<li><p>ASE io improvements (e.g., magnetic moments and selective dynamics transfer). &#64;arosen93</p></li>
-<li><p>New automatic k-point generation scheme, <cite>automatic_density_by_lengths</cite>, which allows the user to specify a density of k-points in each dimension (rather than just for the entire volume). &#64;arosen93</p></li>
-<li><p>Build improvements to dynamically generate C code by running Cython on pyx files rather than having hard-generated .c files.</p></li>
+<li><p>Formal support for Python 3.10.</p></li>
+<li><p>Misc refactoring and bug fixes. No new functionality.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>

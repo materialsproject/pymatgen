@@ -75,7 +75,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.01.08",
+    version="2022.01.09",
     python_requires=">=3.8",
     install_requires=[
         "numpy>=1.20.1",

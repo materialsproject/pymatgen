@@ -1,8 +1,14 @@
 Change log
 ==========
 
+v2022.1.9
+---------
+* Formal support for Python 3.10.
+* Misc refactoring and bug fixes. No new functionality.
+
+
 v2022.1.8
------------
+---------
 * First proper new release of 2022 formalizes the switch back to date-based versioning introduced as a temporary measure last year.
 * Numpy version pinned to 1.22.0. This is necessary to avoid binary incompatibility.
 * With the numpy version, py37 support is dropped.
