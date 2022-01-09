@@ -96,9 +96,9 @@ setup(
         "plotly>=4.5.0",
         "uncertainties>=3.1.4",
         "Cython>=0.29.23",
+        "pybtex"
     ],
     extras_require={
-        "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
