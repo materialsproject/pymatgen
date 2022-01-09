@@ -8,7 +8,6 @@ import platform
 import numpy
 
 from setuptools import setup, find_namespace_packages, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
 
 
 extra_link_args = []
