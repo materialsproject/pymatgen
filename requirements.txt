@@ -14,4 +14,5 @@ plotly==5.4.0
 beautifulsoup4==4.10.0
 uncertainties==3.1.6
 Cython==0.29.26
+pybtex==0.24.0
 typing_extensions==4.0.1; python_version < '3.8'

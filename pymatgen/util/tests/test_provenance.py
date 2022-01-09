@@ -6,11 +6,6 @@ import unittest
 
 import numpy as np
 
-try:
-    import pybtex
-except ImportError:
-    pybtex = None
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 
@@ -27,7 +22,6 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 
-@unittest.skipIf(pybtex is None, "Pybtex not installed")
 class StructureNLCase(unittest.TestCase):
     def setUp(self):
         # set up a Structure
