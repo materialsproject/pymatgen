@@ -103,9 +103,6 @@ setup(
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        ':python_version < "3.8"': [
-            "typing-extensions>=3.7.4.3",
-        ],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
