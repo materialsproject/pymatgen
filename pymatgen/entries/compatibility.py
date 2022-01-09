@@ -16,6 +16,7 @@ from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
 from uncertainties import ufloat
+from tqdm import tqdm
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core.periodic_table import Element
@@ -27,7 +28,7 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-from pymatgen.util.sequence import PBar
+
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
@@ -555,7 +556,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         processed_entry_list = []
 
-        for entry in PBar(entries, disable=(not verbose)):
+        for entry in tqdm(entries, disable=(not verbose)):
             ignore_entry = False
             # if clean is True, remove all previous adjustments from the entry
             if clean:
