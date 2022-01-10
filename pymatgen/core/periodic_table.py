@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,22 +5,27 @@
 import ast
 import json
 import re
+import sys
 import warnings
 from collections import Counter
 from enum import Enum
-from io import open
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Optional, Union, Dict, Tuple, List
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
-from pymatgen.util.string import formula_double_format, Stringify
+from pymatgen.util.string import Stringify, formula_double_format
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 # Loads element data from json file
-with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
+with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -216,14 +220,16 @@ class ElementBase(Enum):
     @property
     def atomic_radius(self) -> Optional[FloatWithUnit]:
         """
-        Returns: The atomic radius of the element in Ångstroms.
+        Returns:
+            float | None: The atomic radius of the element in Ångstroms.
         """
         return self._atomic_radius
 
     @property
     def atomic_mass(self) -> Optional[FloatWithUnit]:
         """
-        Returns: The atomic mass of the element in amu.
+        Returns:
+            float | None: The atomic mass of the element in amu.
         """
         return self._atomic_mass
 
@@ -489,8 +495,8 @@ class ElementBase(Enum):
         e_config_combs = list(combinations(range(n), v_e))
 
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
-        TL = [sum([ml_ms[comb[e]][0] for e in range(v_e)]) for comb in e_config_combs]
-        TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)]) for comb in e_config_combs]
+        TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
+        TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
         comb_counter = Counter(zip(TL, TS))
 
         term_symbols = []
@@ -852,7 +858,7 @@ class ElementBase(Enum):
                 except ValueError:
                     el = None  # type: ignore
                 if el and ((not filter_function) or filter_function(el)):
-                    rowstr.append("{:3s}".format(el.symbol))
+                    rowstr.append(f"{el.symbol:3s}")
                 else:
                     rowstr.append("   ")
             print(" ".join(rowstr))
@@ -1030,7 +1036,7 @@ class Species(MSONable, Stringify):
         self._properties = properties if properties else {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
-                raise ValueError("{} is not a supported property".format(k))
+                raise ValueError(f"{k} is not a supported property")
 
     def __getattr__(self, a):
         # overriding getattr doesn't play nice with pickle, so we
@@ -1108,7 +1114,7 @@ class Species(MSONable, Stringify):
             if oxstr in d.get("Ionic radii ls", {}):
                 warnings.warn("No default ionic radius for %s. Using ls data." % self)
                 return d["Ionic radii ls"][oxstr]
-        warnings.warn("No ionic radius for {}!".format(self))
+        warnings.warn(f"No ionic radius for {self}!")
         return None
 
     @property
@@ -1177,7 +1183,7 @@ class Species(MSONable, Stringify):
             else:
                 output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
-            output += ",%s=%s" % (p, v)
+            output += f",{p}={v}"
         return output
 
     def to_pretty_string(self) -> str:
@@ -1213,10 +1219,15 @@ class Species(MSONable, Stringify):
             return quad_mom.get(isotopes[0], 0.0)
 
         if isotope not in quad_mom:
-            raise ValueError("No quadrupole moment for isotope {}".format(isotope))
+            raise ValueError(f"No quadrupole moment for isotope {isotope}")
         return quad_mom.get(isotope, 0.0)
 
-    def get_shannon_radius(self, cn: str, spin: str = "", radius_type: str = "ionic") -> float:
+    def get_shannon_radius(
+        self,
+        cn: str,
+        spin: Literal["", "Low Spin", "High Spin"] = "",
+        radius_type: Literal["ionic", "crystal"] = "ionic",
+    ) -> float:
         """
         Get the local environment specific ionic radius for species.
 
@@ -1239,39 +1250,40 @@ class Species(MSONable, Stringify):
             k, data = list(radii.items())[0]  # type: ignore
             if k != spin:
                 warnings.warn(
-                    "Specified spin state of %s not consistent with database "
-                    "spin of %s. Only one spin data available, and "
-                    "that value is returned." % (spin, k)
+                    f"Specified spin state of {spin} not consistent with database "
+                    f"spin of {k}. Only one spin data available, and that value is returned."
                 )
         else:
             data = radii[spin]
         return data["%s_radius" % radius_type]
 
-    def get_crystal_field_spin(self, coordination: str = "oct", spin_config: str = "high") -> float:
+    def get_crystal_field_spin(
+        self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"
+    ) -> float:
         """
         Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
 
         Args:
-            coordination (str): Only oct and tet are supported at the moment.
-            spin_config (str): Supported keywords are "high" or "low".
+            coordination ("oct" | "tet"): Tetrahedron or octahedron crystal site coordination
+            spin_config ("low" | "high"): Whether the species is in a high or low spin state
 
         Returns:
             Crystal field spin in Bohr magneton.
 
         Raises:
             AttributeError if species is not a valid transition metal or has
-            an invalid oxidation state.
+                an invalid oxidation state.
             ValueError if invalid coordination or spin_config.
         """
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):
             raise ValueError("Invalid coordination or spin config.")
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
-            raise AttributeError("Invalid element {} for crystal field calculation.".format(self.symbol))
+            raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation.")
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if nelectrons < 0 or nelectrons > 10:
-            raise AttributeError("Invalid oxidation state {} for element {}".format(self.oxi_state, self.symbol))
+            raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
         if spin_config == "high":
             if nelectrons <= 5:
                 return nelectrons
@@ -1367,7 +1379,7 @@ class DummySpecies(Species):
 
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError("{} contains {}, which is a valid element " "symbol.".format(symbol, symbol[:i]))
+                raise ValueError(f"{symbol} contains {symbol[:i]}, which is a valid element symbol.")
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
@@ -1376,7 +1388,7 @@ class DummySpecies(Species):
         self._properties = properties if properties else {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
-                raise ValueError("{} is not a supported property".format(k))
+                raise ValueError(f"{k} is not a supported property")
 
     def __getattr__(self, a):
         # overriding getattr doens't play nice with pickle, so we
@@ -1517,7 +1529,7 @@ class DummySpecies(Species):
             else:
                 output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
-            output += ",%s=%s" % (p, v)
+            output += f",{p}={v}"
         return output
 
 
@@ -1583,4 +1595,4 @@ def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
             try:
                 return DummySpecies.from_string(obj)
             except Exception:
-                raise ValueError("Can't parse Element or String from type" " %s: %s." % (type(obj), obj))
+                raise ValueError(f"Can't parse Element or String from type {type(obj)}: {obj}.")

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -395,9 +394,7 @@ class AdsorbateSiteFinder:
             # Translate the molecule so that the center of mass of the atoms
             # that have the most negative z coordinate is at (0, 0, 0)
             front_atoms = molecule.copy()
-            front_atoms._sites = [
-                s for s in molecule.sites if s.coords[2] == min([s.coords[2] for s in molecule.sites])
-            ]
+            front_atoms._sites = [s for s in molecule.sites if s.coords[2] == min(s.coords[2] for s in molecule.sites)]
             x, y, z = front_atoms.center_of_mass
             molecule.translate_sites(vector=[-x, -y, -z])
         if reorient:

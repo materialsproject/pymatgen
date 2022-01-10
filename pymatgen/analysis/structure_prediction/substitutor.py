@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -167,7 +166,7 @@ class Substitutor(MSONable):
         """
         checks if the structure object is charge balanced
         """
-        return sum([s.specie.oxi_state for s in struct.sites]) == 0.0
+        return sum(s.specie.oxi_state for s in struct.sites) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
@@ -228,7 +227,7 @@ class Substitutor(MSONable):
                     _recurse(output_prob + [prob], output_species + [sp])
 
         _recurse([], [])
-        logging.info("{} substitutions found".format(len(output)))
+        logging.info(f"{len(output)} substitutions found")
         return output
 
     def pred_from_comp(self, composition):
@@ -246,7 +245,7 @@ class Substitutor(MSONable):
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(p)
-        logging.info("{} charge balanced " "compositions found".format(len(output)))
+        logging.info(f"{len(output)} charge balanced compositions found")
         return output
 
     def as_dict(self):

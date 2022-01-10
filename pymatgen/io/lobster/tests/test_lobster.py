@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -638,7 +637,7 @@ class DoscarTest(unittest.TestCase):
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        with open(os.path.join(test_dir_doscar, "structure_KF.json"), "r") as f:
+        with open(os.path.join(test_dir_doscar, "structure_KF.json")) as f:
             data = json.load(f)
 
         self.structure = Structure.from_dict(data)

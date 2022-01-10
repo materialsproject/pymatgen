@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -361,11 +360,11 @@ class LatticeTestCase(PymatgenTest):
 
         for family_name, lattice in self.families.items():
             # print(family_name)
-            self.assertArrayEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
-            self.assertArrayEqual(lattice.norm(frac_basis), lattice.abc)
+            self.assertArrayAlmostEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
+            self.assertArrayAlmostEqual(lattice.norm(frac_basis), lattice.abc, 5)
             for (i, vec) in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                self.assertArrayEqual(length[0], lattice.abc[i])
+                self.assertArrayAlmostEqual(length[0], lattice.abc[i], 5)
                 # We always get a ndarray.
                 self.assertTrue(hasattr(length, "shape"))
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -13,7 +12,6 @@ right away.
 import json
 import tempfile
 import unittest
-from io import open
 from pathlib import Path
 
 import numpy.testing as nptu
@@ -129,7 +127,7 @@ class PymatgenTest(unittest.TestCase):
         failed = []
         for l1, l2 in zip(lines1, lines2):
             if l1.strip() != l2.strip():
-                failed.append("%s != %s" % (l1, l2))
+                failed.append(f"{l1} != {l2}")
         return len(failed) == 0
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
@@ -177,14 +175,14 @@ class PymatgenTest(unittest.TestCase):
                 with open(tmpfile, mode) as fh:
                     pmg_pickle_dump(objects, fh, protocol=protocol)
             except Exception as exc:
-                errors.append("pickle.dump with protocol %s raised:\n%s" % (protocol, str(exc)))
+                errors.append(f"pickle.dump with protocol {protocol} raised:\n{str(exc)}")
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
                     new_objects = pmg_pickle_load(fh)
             except Exception as exc:
-                errors.append("pickle.load with protocol %s raised:\n%s" % (protocol, str(exc)))
+                errors.append(f"pickle.load with protocol {protocol} raised:\n{str(exc)}")
                 continue
 
             # Test for equality

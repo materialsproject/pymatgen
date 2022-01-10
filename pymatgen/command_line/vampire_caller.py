@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -147,7 +146,7 @@ class VampireCaller:
                 logging.warning(vanhelsing)
 
         if process.returncode != 0:
-            raise RuntimeError("Vampire exited with return code {}.".format(process.returncode))
+            raise RuntimeError(f"Vampire exited with return code {process.returncode}.")
 
         self._stdout = stdout
         self._stderr = stderr
@@ -327,15 +326,15 @@ class VampireCaller:
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
 
         ucf = ["# Unit cell size:"]
-        ucf += ["%.10f %.10f %.10f" % (ucx, ucy, ucz)]
+        ucf += [f"{ucx:.10f} {ucy:.10f} {ucz:.10f}"]
 
         ucf += ["# Unit cell lattice vectors:"]
         a1 = list(structure.lattice.matrix[0])
-        ucf += ["%.10f %.10f %.10f" % (a1[0], a1[1], a1[2])]
+        ucf += [f"{a1[0]:.10f} {a1[1]:.10f} {a1[2]:.10f}"]
         a2 = list(structure.lattice.matrix[1])
-        ucf += ["%.10f %.10f %.10f" % (a2[0], a2[1], a2[2])]
+        ucf += [f"{a2[0]:.10f} {a2[1]:.10f} {a2[2]:.10f}"]
         a3 = list(structure.lattice.matrix[2])
-        ucf += ["%.10f %.10f %.10f" % (a3[0], a3[1], a3[2])]
+        ucf += [f"{a3[0]:.10f} {a3[1]:.10f} {a3[2]:.10f}"]
 
         nmats = max(self.mat_id_dict.values())
 

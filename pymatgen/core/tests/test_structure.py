@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -603,8 +602,8 @@ Direct
                 self.assertEqual(len(nn_traditional[i]), len(nn_cell_lists[i]))
                 self.assertTrue(
                     np.linalg.norm(
-                        np.array(sorted([j[1] for j in nn_traditional[i]]))
-                        - np.array(sorted([j[1] for j in nn_cell_lists[i]]))
+                        np.array(sorted(j[1] for j in nn_traditional[i]))
+                        - np.array(sorted(j[1] for j in nn_cell_lists[i]))
                     )
                     < 1e-3
                 )
@@ -821,7 +820,7 @@ class StructureTest(PymatgenTest):
         s_elem = Structure(lattice, [co_elem, o_elem], coords)
         s_specie = Structure(lattice, [co_specie, o_specie], coords)
         s_specie.remove_oxidation_states()
-        self.assertEqual(s_elem, s_specie, "Oxidation state remover " "failed")
+        self.assertEqual(s_elem, s_specie, "Oxidation state remover failed")
 
     def test_add_oxidation_states_by_guess(self):
         s = PymatgenTest.get_structure("Li2O")

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -174,7 +173,7 @@ class FreysoldtCorrection(DefectCorrection):
         Return:
             Electrostatic Point Charge contribution to Freysoldt Correction (float)
         """
-        logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
+        logger.info("Running Freysoldt 2011 PC calculation (should be equivalent to sxdefectalign)")
         logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
 
         [a1, a2, a3] = ang_to_bohr * np.array(lattice.get_cartesian_coords(1))
@@ -606,12 +605,12 @@ class KumagaiCorrection(DefectCorrection):
                 "dist_to_defect": dist_to_defect,
             }
 
-            logger.debug("For atom {}\n\tbulk/defect DFT potential difference = " "{}".format(defect_struct_index, Vqb))
-            logger.debug("\tanisotropic model charge: {}".format(Vpc))
-            logger.debug("\t\treciprocal part: {}".format(recip_sum * kumagai_to_V * q))
-            logger.debug("\t\treal part: {}".format(real_sum * kumagai_to_V * q))
-            logger.debug("\t\tself interaction part: {}".format(potential_shift * kumagai_to_V * q))
-            logger.debug("\trelative_vector to defect: {}".format(vec_defect_to_site))
+            logger.debug(f"For atom {defect_struct_index}\n\tbulk/defect DFT potential difference = {Vqb}")
+            logger.debug(f"\tanisotropic model charge: {Vpc}")
+            logger.debug(f"\t\treciprocal part: {recip_sum * kumagai_to_V * q}")
+            logger.debug(f"\t\treal part: {real_sum * kumagai_to_V * q}")
+            logger.debug(f"\t\tself interaction part: {potential_shift * kumagai_to_V * q}")
+            logger.debug(f"\trelative_vector to defect: {vec_defect_to_site}")
 
             if dist_to_defect > sampling_radius:
                 logger.debug(
@@ -629,7 +628,7 @@ class KumagaiCorrection(DefectCorrection):
         if len(for_correction):
             pot_alignment = np.mean(for_correction)
         else:
-            logger.info("No atoms sampled for_correction radius!" " Assigning potential alignment value of 0.")
+            logger.info("No atoms sampled for_correction radius! Assigning potential alignment value of 0.")
             pot_alignment = 0.0
 
         self.metadata["potalign"] = pot_alignment

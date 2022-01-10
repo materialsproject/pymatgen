@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -97,9 +96,9 @@ class SymmetrizedStructure(Structure):
     def __str__(self):
         outs = [
             "SymmetrizedStructure",
-            "Full Formula ({s})".format(s=self.composition.formula),
-            "Reduced Formula: {}".format(self.composition.reduced_formula),
-            "Spacegroup: {} ({})".format(self.spacegroup.int_symbol, self.spacegroup.int_number),
+            f"Full Formula ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
         ]
 
         def to_s(x):
@@ -109,10 +108,10 @@ class SymmetrizedStructure(Structure):
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
         if self._charge:
             if self._charge >= 0:
-                outs.append("Overall Charge: +{}".format(self._charge))
+                outs.append(f"Overall Charge: +{self._charge}")
             else:
-                outs.append("Overall Charge: -{}".format(self._charge))
-        outs.append("Sites ({i})".format(i=len(self)))
+                outs.append(f"Overall Charge: -{self._charge}")
+        outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
         keys = sorted(props.keys())

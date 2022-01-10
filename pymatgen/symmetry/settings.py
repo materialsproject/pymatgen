@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -89,7 +88,14 @@ class JonesFaithfulTransformation:
         transformation_string: str = "a,b,c;0,0,0",
     ) -> Tuple[Union[List[List[float]], np.ndarray], List[float]]:
         """
-        :return: transformation matrix & vector
+        Args:
+            transformation_string (str, optional): Defaults to "a,b,c;0,0,0".
+
+        Raises:
+            ValueError: When transformation string fails to parse.
+
+        Returns:
+            Tuple[Union[List[List[float]], np.ndarray], List[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])
@@ -211,4 +217,4 @@ class JonesFaithfulTransformation:
         return str(JonesFaithfulTransformation.transformation_string)
 
     def __repr__(self):
-        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(self.P, self.p)
+        return f"JonesFaithfulTransformation with P:\n{self.P}\nand p:\n{self.p}"

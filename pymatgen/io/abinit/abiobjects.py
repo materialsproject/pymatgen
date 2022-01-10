@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 #
@@ -157,7 +156,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         typat = [typat]
 
     if len(typat) != len(coords):
-        raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
+        raise ValueError(f"len(typat) != len(coords):\ntypat: {typat}\ncoords: {coords}")
 
     # Note conversion to int and Fortran --> C indexing
     typat = np.array(typat, dtype=np.int_)
@@ -541,7 +540,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
         for k in self:
             if k not in self._DEFAULT:
-                raise ValueError("%s: No default value has been provided for " "key %s" % (self.__class__.__name__, k))
+                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -980,7 +979,7 @@ class KSampling(AbivarAble, MSONable):
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + f"{kppa} / atom"
 
         return cls(
             mode="monkhorst",
@@ -1071,12 +1070,12 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         for k in self.abivars:
             if k not in self._default_vars:
-                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
+                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
 
         for k in self.abivars:
             if k is MANDATORY:
                 raise ValueError(
-                    "%s: No default value has been provided for the mandatory key %s" % (self.__class__.__name__, k)
+                    f"{self.__class__.__name__}: No default value has been provided for the mandatory key {k}"
                 )
 
     @classmethod
@@ -1233,7 +1232,7 @@ class PPModel(AbivarAble, MSONable):
     __nonzero__ = __bool__
 
     def __repr__(self):
-        return "<%s at %s, mode = %s>" % (
+        return "<{} at {}, mode = {}>".format(
             self.__class__.__name__,
             id(self),
             str(self.mode),
@@ -1660,7 +1659,7 @@ class ExcHamiltonian(AbivarAble):
         if any(bs_loband < 0):
             raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
         if any(bs_loband >= nband):
-            raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
+            raise ValueError(f"bs_loband ({bs_loband}) >= nband ({nband})")
 
     @property
     def inclvkb(self):

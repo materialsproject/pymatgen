@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -143,7 +142,7 @@ def round_to_sigfigs(num, sigfigs):
         raise TypeError("Number of significant figures must be integer.")
 
     if sigfigs < 1:
-        raise ValueError("Number of significant figures " "must be larger than zero.")
+        raise ValueError("Number of significant figures must be larger than zero.")
 
     if num == 0:
         return num
