@@ -672,16 +672,6 @@ class PhaseDiagram(MSONable):
         """
         return comp.num_atoms * self.get_hull_energy_per_atom(comp)
 
-    def get_hull_energy_per_atom(self, comp):
-        """
-        Args:
-            comp (Composition): Input composition
-
-        Returns:
-            Energy of lowest energy equilibrium at desired composition, normalized by atoms, i.e. E(Li4O2) == E(Li2O)
-        """
-        return self.get_hull_energy(comp) / comp.num_atoms
-
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False, check_stable=True):
         """
         Provides the decomposition and energy above convex hull for an entry.
