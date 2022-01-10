@@ -2041,7 +2041,7 @@ class TestMaterialsProjectAqueousCompatibility:
 
         for entry in [h2o_entry_1, h2o_entry_2]:
             compat.process_entries(entry)
-        
+
         for entry in [h2_entry_1, h2_entry_2]:
             with pytest.warns(UserWarning, match="Processing single H2 entries"):
                 compat.process_entries(entry)
