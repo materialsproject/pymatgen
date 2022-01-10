@@ -304,6 +304,10 @@ def release(ctx, version=datetime.datetime.now().strftime("%Y.%m.%d"), nodoc=Fal
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
     release_github(ctx, version)
+    ctx.run("rm -f dist/*.*", warn=True)
+    ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
 
 
