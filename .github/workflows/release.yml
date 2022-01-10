@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
       - uses: actions/cache@v2
         if: startsWith(runner.os, 'macOS')
         with:
@@ -59,7 +59,7 @@ jobs:
       max-parallel: 2
       matrix:
         os: [ macos-latest, windows-latest ]
-        python-version: [ 3.7, 3.8 ]
+        python-version: [ '3.8', '3.9', '3.10' ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -86,6 +86,8 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
           pip install setuptools wheel twine
+          rm -rf test_files
           python setup.py sdist bdist_wheel
           twine upload dist/*.whl
           twine upload --skip-existing dist/*.tar.gz
+        continue-on-error: true
