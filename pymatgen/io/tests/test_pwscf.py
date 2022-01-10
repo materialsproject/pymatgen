@@ -157,7 +157,7 @@ CELL_PARAMETERS angstrom
 """
         self.assertEqual(pw.__str__().strip(), ans.strip())
     
-    def test_read_str():
+    def test_read_str(self):
         string = """
 &CONTROL
   calculation = 'scf'
