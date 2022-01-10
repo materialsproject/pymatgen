@@ -659,6 +659,7 @@ class ElementBase(Enum):
             return 1
         if z == 2:
             return 18
+
         if 3 <= z <= 18:
             if (z - 2) % 8 == 0:
                 return 18
@@ -670,6 +671,9 @@ class ElementBase(Enum):
             if (z - 18) % 18 == 0:
                 return 18
             return (z - 18) % 18
+
+        if (57 <= z <= 71) or (89 <= z <= 103):
+            return 3
 
         if (z - 54) % 32 == 0:
             return 18

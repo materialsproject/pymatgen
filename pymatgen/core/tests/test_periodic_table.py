@@ -95,6 +95,21 @@ class ElementTestCase(PymatgenTest):
 
         self.assertEqual(Element.Ac.electronic_structure, "[Rn].6d1.7s2")
 
+    def test_group(self):
+        testsets = {
+            "H": 1,
+            "He": 18,
+            "O": 16,
+            "Fe": 8,
+            "Li": 1,
+            "La": 3,
+            "U": 3,
+            "Lr": 3,
+            "Og": 18,
+        }
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).group, v)
+
     def test_valence(self):
         testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
         for k, v in testsets.items():
