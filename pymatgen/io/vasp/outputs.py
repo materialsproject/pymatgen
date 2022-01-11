@@ -1689,7 +1689,7 @@ class Outcar:
         Various useful run stats as a dict including "System time (sec)",
         "Total CPU time used (sec)", "Elapsed time (sec)",
         "Maximum memory used (kb)", "Average memory used (kb)",
-        "User time (sec)".
+        "User time (sec)", "cores"
 
     .. attribute:: elastic_tensor
 
@@ -1901,11 +1901,14 @@ class Outcar:
             mag = mag_x
 
         # data from beginning of OUTCAR
-        run_stats["cores"] = 0
+        run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
                 if "running" in line:
-                    run_stats["cores"] = line.split()[2]
+                    if line.split()[1] == "on":
+                        run_stats["cores"] = int(line.split()[2])
+                    else:
+                        run_stats["cores"] = int(line.split()[1])
                     break
 
         self.run_stats = run_stats

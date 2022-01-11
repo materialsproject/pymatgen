@@ -279,10 +279,10 @@ class BSPlotter:
                 )
 
         # check the kpath
-        if len(bs_list) == 1 and self._bs == []:
+        if len(bs_list) == 1 and not self._bs:
             return True
 
-        if self._bs == []:
+        if not self._bs:
             kpath_ref = [br["name"] for br in bs_list[0].branches]
         else:
             kpath_ref = [br["name"] for br in self._bs[0].branches]
@@ -786,7 +786,7 @@ class BSPlotter:
             # and add the second lbl to ticks list
             # otherwise add to ticks list both new labels.
             # Similar for distances.
-            if ticks != [] and labels[0] != ticks[-1]:
+            if ticks and labels[0] != ticks[-1]:
                 ticks[-1] += "$\\mid$" + labels[0]
                 ticks.append(labels[1])
                 distance.append(bs.distance[e])
@@ -1641,7 +1641,7 @@ class BSPlotterProjected(BSPlotter):
                         if number_figs == 1:
                             plt.subplot(1, 1, 1)
                         else:
-                            row = number_figs / 2
+                            row = int(number_figs / 2)
                             if number_figs % 2 == 0:
                                 plt.subplot(row, 2, count)
                             else:

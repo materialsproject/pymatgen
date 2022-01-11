@@ -3,7 +3,7 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 
 Author: Shyue Ping Ong
 """
-
+import datetime
 import glob
 import json
 import os
@@ -247,7 +247,7 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version, sim=False):
+def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%m.%d"), sim=False):
     """
     Create a preliminary change log using the git logs.
 
@@ -289,7 +289,7 @@ def update_changelog(ctx, version, sim=False):
 
 
 @task
-def release(ctx, version, nodoc=False):
+def release(ctx, version=datetime.datetime.now().strftime("%Y.%m.%d"), nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
@@ -304,6 +304,10 @@ def release(ctx, version, nodoc=False):
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
     release_github(ctx, version)
+    ctx.run("rm -f dist/*.*", warn=True)
+    ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
 
 

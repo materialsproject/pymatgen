@@ -281,8 +281,10 @@ class DictSet(VaspInputSet):
     structure and the configuration settings. The order in which the magmom is
     determined is as follows:
 
-    1. If the site itself has a magmom setting (`site.magmom`), that is used.
-    2. If the species on the site has a spin setting (`site.spin`), that is used.
+    1. If the site itself has a magmom setting (i.e. site.properties["magmom"] = float),
+        that is used. This can be set with structure.add_site_property().
+    2. If the species of the site has a spin setting, that is used. This can be set
+        with structure.add_spin_by_element().
     3. If the species itself has a particular setting in the config file, that
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
@@ -374,7 +376,7 @@ class DictSet(VaspInputSet):
             international_monoclinic (bool): Whether to use international convention
                 (vs Curtarolo) for monoclinic. Defaults True.
             validate_magmom (bool): Ensure that the missing magmom values are filled
-                in with the vasp default value of 1.0
+                in with the VASP default value of 1.0
         """
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
@@ -503,38 +505,30 @@ class DictSet(VaspInputSet):
             if k == "MAGMOM":
                 mag = []
                 for site in structure:
+                    if v and not isinstance(v, dict):
+                        raise TypeError(
+                            "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
+                            "If you want site-specific magnetic moments, set them in the site magmom properties "
+                            "of the site objects in the structure."
+                        )
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, "spin"):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
-                        if not isinstance(v, dict):
-                            raise TypeError(
-                                "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                                "If you want site-specific magnetic moments, set them in the site.magmom properties "
-                                "of the site objects in the structure"
-                            )
-                        if site.specie.symbol == "Co":
+                        if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
                             warnings.warn(
-                                "Co without an oxidation state is initialized as low spin by default in Pymatgen "
-                                "(unless you have provided a MAGMOM dictionary specifying otherwise). If this default "
-                                "behavior is not desired, please set the spin on the magmom on the site directly to "
-                                "ensure correct initialization"
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
                             )
                         mag.append(v.get(str(site.specie)))
                     else:
-                        if not isinstance(v, dict):
-                            raise TypeError(
-                                "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                                "If you want site-specific magnetic moments, set them in the site.magmom properties "
-                                "of the site objects in the structure"
-                            )
                         if site.specie.symbol == "Co":
                             warnings.warn(
-                                "Co without an oxidation state is initialized as low spin by default in Pymatgen "
-                                "(unless you have provided a MAGMOM dictionary specifying otherwise). If this default "
-                                "behavior is not desired, please set the spin on the magmom on the site directly to "
-                                "ensure correct initialization"
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
                             )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
@@ -582,11 +576,11 @@ class DictSet(VaspInputSet):
                 incar["LMAXMIX"] = 4
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
-        if not settings.get("LASPH", False) and (
-            settings.get("METAGGA")
-            or settings.get("LHFCALC", False)
-            or settings.get("LDAU", False)
-            or settings.get("LUSE_VDW", False)
+        if not incar.get("LASPH", False) and (
+            incar.get("METAGGA")
+            or incar.get("LHFCALC", False)
+            or incar.get("LDAU", False)
+            or incar.get("LUSE_VDW", False)
         ):
             warnings.warn(
                 "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
@@ -595,7 +589,7 @@ class DictSet(VaspInputSet):
 
         if self.constrain_total_magmom:
             nupdown = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
-            if nupdown != round(nupdown):
+            if abs(nupdown - round(nupdown)) > 1e-5:
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM "
                     "values is not an integer. NUPDOWN is meant to set the spin "
@@ -1206,9 +1200,9 @@ class MPStaticSet(MPRelaxSet):
             if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
                 if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                     k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-                    kpoints = Kpoints.monkhorst_automatic(k_div)
+                    kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
                 else:
-                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir="."):
@@ -3076,7 +3070,7 @@ _dummy_structure = Structure(
 
 def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     """
-    Make sure that the structure is valid magmoms based on the kind of caculation
+    Make sure that the structure has valid magmoms based on the kind of caculation
     Fill in missing Magmom values
 
     Args:
@@ -3099,10 +3093,12 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
         for isite in structure.sites:
             if "magmom" not in isite.properties or isite.properties["magmom"] is None:
                 pass
-            elif isinstance(isite.properties["magmom"], float):
+            elif isinstance(isite.properties["magmom"], (float, int)):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
+                if isinstance(isite.properties["magmom"], int):
+                    isite.properties["magmom"] = float(isite.properties["magmom"])
             elif len(isite.properties["magmom"]) == 3:
                 if mode == "s":
                     raise TypeError("Magmom type conflict")

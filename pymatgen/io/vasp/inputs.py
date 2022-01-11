@@ -1038,7 +1038,7 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: Kpoints_supported_modes = supported_modes.Gamma,
         kpts: Sequence[Union[float, int, Sequence]] = ((1, 1, 1),),
-        kpts_shift: Tuple[int, int, int] = (0, 0, 0),
+        kpts_shift: Tuple[float, float, float] = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
@@ -1159,7 +1159,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts=(1, 1, 1), shift=(0, 0, 0)):
+    def gamma_automatic(kpts: Tuple[int, int, int] = (1, 1, 1), shift: Tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1181,7 +1181,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts=(2, 2, 2), shift=(0, 0, 0)):
+    def monkhorst_automatic(kpts: Tuple[int, int, int] = (2, 2, 2), shift: Tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1203,7 +1203,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def automatic_density(structure, kppa, force_gamma=False):
+    def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -1215,7 +1215,7 @@ class Kpoints(MSONable):
 
         Args:
             structure (Structure): Input structure
-            kppa (int): Grid density
+            kppa (float): Grid density
             force_gamma (bool): Force a gamma centered mesh (default is to
                 use gamma only for hexagonal cells or odd meshes)
 
@@ -1240,10 +1240,10 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_gamma_density(structure, kppa):
+    def automatic_gamma_density(structure: Structure, kppa: float):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
@@ -1278,10 +1278,10 @@ class Kpoints(MSONable):
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
         num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_density_by_vol(structure, kppvol, force_gamma=False):
+    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
@@ -1300,6 +1300,46 @@ class Kpoints(MSONable):
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = kppvol * vol * structure.num_sites
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
+
+    @staticmethod
+    def automatic_density_by_lengths(
+        structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+    ):
+        """
+        Returns an automatic Kpoint object based on a structure and a k-point
+        density normalized by lattice constants.
+
+        Algorithm:
+            For a given dimension, the # of k-points is chosen as
+            length_density = # of kpoints * lattice constant, e.g. [50.0, 50.0, 1.0] would
+            have k-points of 50/a x 50/b x 1/c.
+
+        Args:
+            structure (Structure): Input structure
+            length_densities (list[floats]): Defines the density of k-points in each
+            dimension, e.g. [50.0, 50.0, 1.0].
+            force_gamma (bool): Force a gamma centered mesh
+
+        Returns:
+            Kpoints
+        """
+        comment = f"k-point density of {length_densities}/[a, b, c]"
+        lattice = structure.lattice
+        abc = lattice.abc
+        num_div = [
+            np.ceil(length_densities[0] / abc[0]),
+            np.ceil(length_densities[1] / abc[1]),
+            np.ceil(length_densities[2] / abc[2]),
+        ]
+        is_hexagonal = lattice.is_hexagonal()
+        has_odd = any(i % 2 == 1 for i in num_div)
+        if has_odd or is_hexagonal or force_gamma:
+            style = Kpoints.supported_modes.Gamma
+        else:
+            style = Kpoints.supported_modes.Monkhorst
+        style = Kpoints.supported_modes.Gamma
+
+        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
     @staticmethod
     def automatic_linemode(divisions, ibz):
@@ -1782,14 +1822,14 @@ class PotcarSingle:
         self.hash = self.get_potcar_hash()
         self.file_hash = self.get_potcar_file_hash()
 
-        if self.identify_potcar(mode="data")[0] == []:
+        if not self.identify_potcar(mode="data")[0]:
             warnings.warn(
                 f"POTCAR data with symbol { self.symbol} does not match any VASP "
                 "POTCAR known to pymatgen. There is a possibility your "
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
-        elif self.identify_potcar(mode="file")[0] == []:
+        elif not self.identify_potcar(mode="file")[0]:
             warnings.warn(
                 "POTCAR with symbol {} has metadata that does not match\
                           any VASP POTCAR known to pymatgen. The data in this\

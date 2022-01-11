@@ -15,6 +15,12 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.core.structure import Structure
@@ -773,7 +779,7 @@ class OutcarTest(PymatgenTest):
                     "Maximum memory used (kb)": 0.0,
                     "Average memory used (kb)": 0.0,
                     "User time (sec)": 544.204,
-                    "cores": "8",
+                    "cores": 8,
                 },
             )
             self.assertAlmostEqual(outcar.efermi, 2.0112)
@@ -1040,7 +1046,7 @@ class OutcarTest(PymatgenTest):
                 "Maximum memory used (kb)": 62900.0,
                 "Average memory used (kb)": 0.0,
                 "User time (sec)": 49.602,
-                "cores": "32",
+                "cores": 32,
             },
         )
         self.assertAlmostEqual(outcar.efermi, 8.0942)
@@ -1435,6 +1441,10 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
 
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.1.mpi"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats["cores"], 64)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1553,6 +1563,7 @@ class ChgcarTest(PymatgenTest):
         self.assertTrue(chg_from_file.is_soc)
         os.remove("CHGCAR_pmg_soc")
 
+    @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
@@ -1567,7 +1578,7 @@ class ChgcarTest(PymatgenTest):
                 self.assertIn(z, [Element.Ni.Z, Element.O.Z])
 
             for sp in f["species"]:
-                self.assertIn(sp, ["Ni", "O"])
+                self.assertIn(sp, [b"Ni", b"O"])
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
         self.assertArrayAlmostEqual(chgcar2.data["total"], chgcar.data["total"])

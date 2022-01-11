@@ -6,19 +6,17 @@ import logging
 import sys
 from collections import namedtuple
 from os.path import join
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Set
 from urllib.parse import urlparse
 
 import requests
+from tqdm import tqdm
 
 # from retrying import retry
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.sequence import PBar
-
-# from retrying import retry
 
 
 # TODO: importing optimade-python-tool's data structures will make more sense
@@ -32,15 +30,19 @@ _logger.setLevel(logging.WARNING)
 
 class OptimadeRester:
     """
-    Class to call OPTIMADE-compliant APIs, see optimade.org
+    Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
-    This class is ready to use but considered in-development and subject to change
-    until the OPTIMADE paper is published.
+    This class is ready to use but considered in-development and subject to change.
+
+    [1] Andersen, C.W., *et al*.
+        OPTIMADE, an API for exchanging materials data.
+        Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
+
     """
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases = {
+    aliases: Dict[str, str] = {
         "aflow": "http://aflow.org/API/optimade/",
         "cod": "https://www.crystallography.net/cod/optimade",
         "mcloud.2dstructures": "https://aiida.materialscloud.org/2dstructures/optimade",
@@ -63,7 +65,10 @@ class OptimadeRester:
         "tcod": "https://www.crystallography.net/tcod/optimade",
     }
 
-    def __init__(self, aliases_or_resource_urls: Optional[Union[str, List[str]]] = None, timeout=5):
+    # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
+    mandatory_response_fields: Set[str] = {"lattice_vectors", "cartesian_site_positions", "species", "species_at_sites"}
+
+    def __init__(self, aliases_or_resource_urls: Optional[Union[str, List[str]]] = None, timeout: int = 5):
         """
         OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
@@ -155,7 +160,11 @@ class OptimadeRester:
 
     @staticmethod
     def _build_filter(
-        elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None
+        elements: Union[str, List[str]] = None,
+        nelements: int = None,
+        nsites: int = None,
+        chemical_formula_anonymous: str = None,
+        chemical_formula_hill: str = None,
     ):
         """
         Convenience method to build an OPTIMADE filter.
@@ -191,11 +200,11 @@ class OptimadeRester:
 
     def get_structures(
         self,
-        elements=None,
-        nelements=None,
-        nsites=None,
-        chemical_formula_anonymous=None,
-        chemical_formula_hill=None,
+        elements: Union[List[str], str] = None,
+        nelements: int = None,
+        nsites: int = None,
+        chemical_formula_anonymous: str = None,
+        chemical_formula_hill: str = None,
     ) -> Dict[str, Dict[str, Structure]]:
         """
         Retrieve Structures from OPTIMADE providers.
@@ -225,11 +234,12 @@ class OptimadeRester:
 
     def get_snls(
         self,
-        elements=None,
-        nelements=None,
-        nsites=None,
-        chemical_formula_anonymous=None,
-        chemical_formula_hill=None,
+        elements: Union[List[str], str] = None,
+        nelements: int = None,
+        nsites: int = None,
+        chemical_formula_anonymous: str = None,
+        chemical_formula_hill: str = None,
+        additional_response_fields: Union[str, List[str], Set[str]] = None,
     ) -> Dict[str, Dict[str, StructureNL]]:
         """
         Retrieve StructureNL from OPTIMADE providers.
@@ -247,6 +257,8 @@ class OptimadeRester:
             nsites: Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
             chemical_formula_anonymous: Anonymous chemical formula
             chemical_formula_hill: Chemical formula following Hill convention
+            additional_response_fields: Any additional fields desired from the OPTIMADE API,
+            these will be stored under the `'_optimade'` key in each `StructureNL.data` dictionary.
 
         Returns: Dict of (Dict of StructureNLs keyed by that database's id system) keyed by provider
         """
@@ -259,7 +271,7 @@ class OptimadeRester:
             chemical_formula_hill=chemical_formula_hill,
         )
 
-        return self.get_snls_with_filter(optimade_filter)
+        return self.get_snls_with_filter(optimade_filter, additional_response_fields=additional_response_fields)
 
     def get_structures_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, Structure]]:
         """
@@ -279,7 +291,11 @@ class OptimadeRester:
 
         return all_structures
 
-    def get_snls_with_filter(self, optimade_filter: str) -> Dict[str, Dict[str, StructureNL]]:
+    def get_snls_with_filter(
+        self,
+        optimade_filter: str,
+        additional_response_fields: Union[str, List[str], Set[str]] = None,
+    ) -> Dict[str, Dict[str, StructureNL]]:
         """
         Get structures satisfying a given OPTIMADE filter.
 
@@ -291,11 +307,11 @@ class OptimadeRester:
 
         all_snls = {}
 
+        fields = self._handle_response_fields(additional_response_fields)
+
         for identifier, resource in self.resources.items():
 
-            fields = "response_fields=lattice_vectors,cartesian_site_positions,species,species_at_sites"
-
-            url = join(resource, f"v1/structures?filter={optimade_filter}&{fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={fields}")
 
             try:
 
@@ -303,7 +319,7 @@ class OptimadeRester:
 
                 structures = self._get_snls_from_resource(json, url, identifier)
 
-                pbar = PBar(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
+                pbar = tqdm(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
 
                 # TODO: check spec for `more_data_available` boolean, may simplify this conditional
                 if ("links" in json) and ("next" in json["links"]) and (json["links"]["next"]):
@@ -363,7 +379,12 @@ class OptimadeRester:
                     coords=data["attributes"]["cartesian_site_positions"],
                     coords_are_cartesian=True,
                 )
-                namespaced_data = {k: v for k, v in data.items() if k.startswith("_")}
+                # Grab any custom fields or non-mandatory fields if they were requested
+                namespaced_data = {
+                    k: v
+                    for k, v in data["attributes"].items()
+                    if k.startswith("_") or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                }
 
                 # TODO: follow `references` to add reference information here
                 snl = StructureNL(
@@ -386,7 +407,12 @@ class OptimadeRester:
                         coords=data["attributes"]["cartesian_site_positions"],
                         coords_are_cartesian=True,
                     )
-                    namespaced_data = {k: v for k, v in data["attributes"].items() if k.startswith("_")}
+                    # Grab any custom fields or non-mandatory fields if they were requested
+                    namespaced_data = {
+                        k: v
+                        for k, v in data["attributes"].items()
+                        if k.startswith("_") or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                    }
 
                     # TODO: follow `references` to add reference information here
                     snl = StructureNL(
@@ -499,6 +525,22 @@ class OptimadeRester:
             return ps
 
         return _parse_provider_link(provider, provider_link_json)
+
+    def _handle_response_fields(self, additional_response_fields: Union[str, List[str], Set[str]] = None) -> str:
+        """
+        Used internally to handle the mandatory and additional response fields.
+
+        Args:
+            additional_response_fields: A set of additional fields to request.
+
+        Returns:
+            A string of comma-separated OPTIMADE response fields.
+        """
+        if isinstance(additional_response_fields, str):
+            additional_response_fields = [additional_response_fields]
+        if not additional_response_fields:
+            additional_response_fields = set()
+        return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

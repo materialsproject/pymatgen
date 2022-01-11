@@ -7,6 +7,7 @@ import unittest
 
 import numpy as np
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.chemenv.utils.math_utils import (
     _cartesian_product,
     cosinus_step,
@@ -22,7 +23,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
 )
 
 
-class MathUtilsTest(unittest.TestCase):
+class MathUtilsTest(PymatgenTest):
     def test_list_cartesian_product(self):
         list_of_lists = [[0, 1], [2, 5, 4], [5]]
         self.assertEqual(
@@ -121,9 +122,10 @@ class MathUtilsTest(unittest.TestCase):
     def test_cosinus_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
         self.assertEqual(cosinus_step(vals, edges=[0.0, 1.0]).tolist(), [1.0] * 8)
-        self.assertEqual(
+        self.assertArrayAlmostEqual(
             cosinus_step(vals, edges=[7.0, 11.0]).tolist(),
-            [0.0, 0.0, 0.0, 0.14644660940672627, 0.5, 0.8535533905932737, 1.0, 1.0],
+            [0.0, 0.0, 0.0, 0.14644660940672616, 0.5, 0.8535533905932737, 1.0, 1.0],
+            5,
         )
 
     def test_powern_parts_step(self):
