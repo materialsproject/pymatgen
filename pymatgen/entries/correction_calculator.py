@@ -6,18 +6,18 @@ entries given to the CorrectionCalculator constructor.
 import os
 import warnings
 from collections import OrderedDict
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union, Optional
 
 import numpy as np
 import plotly.graph_objects as go
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
 
-from pymatgen.analysis.reaction_calculator import ComputedReaction
-from pymatgen.analysis.structure_analyzer import sulfide_type
 from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
+from pymatgen.analysis.reaction_calculator import ComputedReaction
+from pymatgen.analysis.structure_analyzer import sulfide_type
 
 
 def _func(x, *m):
@@ -308,7 +308,7 @@ class CorrectionCalculator:
                 round(self.corrections_std_error[i], 4),
             )
 
-        # set ozonide correction to 0 so that this species does not receive a correction
+        # set ozonide correction to 0 so that this species does not recieve a correction
         # while other oxide types do
         self.corrections_dict["ozonide"] = (0, 0)
 

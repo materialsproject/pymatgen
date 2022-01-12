@@ -38,7 +38,7 @@ class PymatgenTest(unittest.TestCase):
         import warnings
 
         warnings.warn(
-            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicitly. "
+            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
             "Now using a fallback location based on relative path from this module."
         )
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
@@ -175,14 +175,14 @@ class PymatgenTest(unittest.TestCase):
                 with open(tmpfile, mode) as fh:
                     pmg_pickle_dump(objects, fh, protocol=protocol)
             except Exception as exc:
-                errors.append(f"pickle.dump with protocol {protocol} raised:\n{exc}")
+                errors.append(f"pickle.dump with protocol {protocol} raised:\n{str(exc)}")
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
                     new_objects = pmg_pickle_load(fh)
             except Exception as exc:
-                errors.append(f"pickle.load with protocol {protocol} raised:\n{exc}")
+                errors.append(f"pickle.load with protocol {protocol} raised:\n{str(exc)}")
                 continue
 
             # Test for equality

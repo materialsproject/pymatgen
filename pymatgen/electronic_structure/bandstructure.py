@@ -361,7 +361,7 @@ class BandStructure:
             - "energy": The energy of the VBM
             - "projections": The projections along sites and orbitals of the
             VBM if any projection data is available (else it is an empty
-            dictionary). The format is similar to the projections field in
+            dictionnary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
         """
@@ -427,7 +427,7 @@ class BandStructure:
             - "energy": The energy of the CBM
             - "projections": The projections along sites and orbitals of the
             CBM if any projection data is available (else it is an empty
-            dictionary). The format is similar to the projections field in
+            dictionnary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
         """

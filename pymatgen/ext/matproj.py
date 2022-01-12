@@ -14,23 +14,22 @@ https://www.materialsproject.org/dashboard.
 import itertools
 import json
 import logging
-import math
 import platform
 import re
 import sys
 import warnings
+from typing import List
 from enum import Enum, unique
 from time import sleep
-from typing import List
+import math
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 from tqdm import tqdm
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE
-from pymatgen.core import __version__ as PMG_VERSION
-from pymatgen.core import yaml
+
+from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -38,7 +37,8 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import PBar, get_chunks
+from pymatgen.core import __version__ as PMG_VERSION
+
 
 logger = logging.getLogger(__name__)
 
@@ -267,7 +267,7 @@ class MPRester:
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
         except Exception as ex:
-            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
     def get_database_version(self):
@@ -589,7 +589,7 @@ class MPRester:
             chemsys (str or [str]): Chemical system string comprising element
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
-            solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProject2020Compatibility
@@ -601,8 +601,8 @@ class MPRester:
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
             Compatibility,
-            MaterialsProject2020Compatibility,
             MaterialsProjectAqueousCompatibility,
+            MaterialsProject2020Compatibility,
             MaterialsProjectCompatibility,
         )
 
@@ -615,7 +615,7 @@ class MPRester:
         else:
             raise ValueError(
                 "Solid compatibility can only be 'MaterialsProjectCompatibility', "
-                "'MaterialsProject2020Compatibility', or an instance of a Compatibility class"
+                "'MaterialsProject2020Compatibility', or an instance of a Compatability class"
             )
 
         pbx_entries = []

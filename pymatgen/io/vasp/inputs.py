@@ -955,9 +955,9 @@ class Incar(dict, MSONable):
 
     def check_params(self):
         """
-        Raises a warning for nonsensical or non-existent INCAR tags and
-        parameters. If a keyword doesn't exist (e.g. there's a typo in a
-        keyword), your calculation will still run, however VASP will ignore the
+        Raises a warning for nonsensical or non-existant INCAR tags and
+        parameters. If a keyword doesn't exist (e.g. theres a typo in a
+        keyword), your calculation will still run, however VASP will igore the
         parameter without letting you know, hence why we have this Incar method.
         """
         for k, v in self.items():
@@ -1350,7 +1350,8 @@ class Kpoints(MSONable):
         VASP manual.
 
         Args:
-            divisions: Parameter determining the number of k-points along each high symmetry line.
+            divisions: Parameter determining the number of k-points along each
+                hight symetry lines.
             ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
 
         Returns:

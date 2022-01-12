@@ -1032,7 +1032,7 @@ def get_atom_map(structure):
 
 def get_absorbing_atom_symbol_index(absorbing_atom, structure):
     """
-    Return the absorbing atom symbol and site index in the given structure.
+    Return the absorbing atom symboll and site index in the given structure.
 
     Args:
         absorbing_atom (str/int): symbol or site index

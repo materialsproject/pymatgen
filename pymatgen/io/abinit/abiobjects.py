@@ -418,7 +418,7 @@ _mode2spinvars = {
 
 class Smearing(AbivarAble, MSONable):
     """
-    Variables defining the smearing technique. The preferred way to instantiate
+    Variables defining the smearing technique. The preferred way to instanciate
     a `Smearing` object is via the class method Smearing.as_smearing(string)
     """
 
@@ -1171,7 +1171,7 @@ class PPModelModes(Enum):
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
-    The common way to instantiate a PPModel object is via the class method PPModel.as_ppmodel(string)
+    The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
 
     @classmethod

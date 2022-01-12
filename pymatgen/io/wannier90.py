@@ -93,7 +93,7 @@ class Unk:
             )
         if len(temp_val.shape) == 5 and temp_val.shape[1] != 2:
             raise ValueError(
-                f"invalid noncollinear data, shape should be (nbnd, 2, ngx, ngy, ngz), given {temp_val.shape}"
+                "invalid noncollinear data, shape should be (nbnd" f", 2, ngx, ngy, ngz), given {temp_val.shape}"
             )
         self._data = temp_val
 

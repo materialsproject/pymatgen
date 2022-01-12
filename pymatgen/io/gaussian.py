@@ -13,9 +13,9 @@ import scipy.constants as cst
 from monty.io import zopen
 
 from pymatgen.core.composition import Composition
-from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
@@ -110,7 +110,7 @@ class GaussianInput:
         """
         Args:
             mol: Input molecule. It can either be a Molecule object,
-                a string giving the geometry in a format supported by Gaussian,
+                a string giving the geometry in a format supported by Guassian,
                 or ``None``. If the molecule is ``None``, you will need to use
                 read it in from a checkpoint. Consider adding ``CHK`` to the
                 ``link0_parameters``.
@@ -431,7 +431,7 @@ class GaussianInput:
         """
         Return GaussianInput string
 
-        Option: when cart_coords is set to True return the cartesian coordinates
+        Option: whe cart_coords sets to True return the cartesian coordinates
                 instead of the z-matrix
 
         """
@@ -487,7 +487,7 @@ class GaussianInput:
             output.append(str(self._mol))
         output.append("")
         if self.gen_basis is not None:
-            output.append(f"{self.gen_basis}\n")
+            output.append(f"{self.gen_basis:s}\n")
         output.append(para_dict_to_string(self.input_parameters, "\n"))
         output.append("\n")
         return "\n".join(output)

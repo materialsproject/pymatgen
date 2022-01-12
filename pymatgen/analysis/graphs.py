@@ -427,7 +427,7 @@ class StructureGraph(MSONable):
                     if warn_duplicates:
                         warnings.warn(
                             "Trying to add an edge that already exists from "
-                            f"site {from_index} to site {to_index} in {to_jimage}."
+                            "site {} to site {} in {}.".format(from_index, to_index, to_jimage)
                         )
                     return
 
@@ -885,7 +885,7 @@ class StructureGraph(MSONable):
         # add display options for nodes
         for n in g.nodes():
             # get label by species name
-            label = f"{self.structure[n].specie}({n})" if node_labels else ""
+            label = f"{str(self.structure[n].specie)}({n})" if node_labels else ""
 
             # use standard color scheme for nodes
             c = EL_COLORS[color_scheme].get(str(self.structure[n].specie.symbol), [0, 0, 0])
@@ -1204,7 +1204,7 @@ class StructureGraph(MSONable):
                 n_u = u % len(self.structure)
                 n_v = v % len(self.structure)
 
-                # get fractional coordinates of where atoms defined
+                # get fractional co-ordinates of where atoms defined
                 # by edge are expected to be, relative to original
                 # lattice (keeping original lattice has
                 # significant benefits)
@@ -1212,7 +1212,7 @@ class StructureGraph(MSONable):
                 u_frac = self.structure[n_u].frac_coords
 
                 # using the position of node u as a reference,
-                # get relative Cartesian coordinates of where
+                # get relative Cartesian co-ordinates of where
                 # atoms defined by edge are expected to be
                 v_image_cart = orig_lattice.get_cartesian_coords(v_image_frac)
                 u_cart = orig_lattice.get_cartesian_coords(u_frac)
@@ -1220,7 +1220,7 @@ class StructureGraph(MSONable):
 
                 # now retrieve position of node v in
                 # new supercell, and get asgolute Cartesian
-                # coordinates of where atoms defined by edge
+                # co-ordinates of where atoms defined by edge
                 # are expected to be
                 v_expec = new_structure[u].coords + v_rel
 
@@ -2629,7 +2629,7 @@ class MoleculeGraph(MSONable):
         # add display options for nodes
         for n in g.nodes():
             # get label by species name
-            label = f"{self.molecule[n].specie}({n})" if node_labels else ""
+            label = f"{str(self.molecule[n].specie)}({n})" if node_labels else ""
 
             # use standard color scheme for nodes
             c = EL_COLORS[color_scheme].get(str(self.molecule[n].specie.symbol), [0, 0, 0])

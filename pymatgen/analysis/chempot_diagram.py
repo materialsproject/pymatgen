@@ -28,10 +28,10 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 import plotly.express as px
 from monty.json import MSONable
-from plotly.graph_objects import Figure, Mesh3d, Scatter, Scatter3d
+from plotly.graph_objects import Scatter, Scatter3d, Mesh3d, Figure
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
-from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
 from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
@@ -491,7 +491,7 @@ class ChemicalPotentialDiagram(MSONable):
             layout_name = "default_3d_axis_layout"
 
         def get_chempot_axis_title(element) -> str:
-            return f"μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
+            return f"μ<sub>{str(element)}</sub> - μ<sub>" f"{str(element)}</sub><sup>o</sup> (eV)"
 
         axes_layout = {}
         for ax, el in zip(axes, elements):
@@ -548,7 +548,7 @@ class ChemicalPotentialDiagram(MSONable):
         return "-".join(sorted(e.symbol for e in self.elements))
 
     def __repr__(self):
-        return f"ChemicalPotentialDiagram for {self.chemical_system} with {len(self.entries)} entries"
+        return f"ChemicalPotentialDiagram for {self.chemical_system} with {len(self.entries)} " f"entries"
 
 
 def simple_pca(data: np.ndarray, k: int = 2) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

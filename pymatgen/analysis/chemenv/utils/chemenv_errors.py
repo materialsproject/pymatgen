@@ -46,7 +46,7 @@ class NeighborsNotComputedChemenvError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return f"The neighbors were not computed for the following site : \n{self.site}"
+        return "The neighbors were not computed for the following site : \n" + str(self.site)
 
 
 class EquivalentSiteSearchError(AbstractChemenvError):
@@ -61,7 +61,7 @@ class EquivalentSiteSearchError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return f"Equivalent site could not be found for the following site : {self.site}"
+        return f"Equivalent site could not be found for the following site : {str(self.site)}"
 
 
 class SolidAngleError(AbstractChemenvError):
@@ -76,7 +76,9 @@ class SolidAngleError(AbstractChemenvError):
         self.cosinus = cosinus
 
     def __str__(self):
-        return f"Value of cosinus ({self.cosinus}) from which an angle should be retrieved is not between -1.0 and 1.0"
+        return "Value of cosinus ({}) from which an angle should be retrieved is not between -1.0 and 1.0".format(
+            self.cosinus
+        )
 
 
 class ChemenvError(Exception):
@@ -95,4 +97,4 @@ class ChemenvError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return f"{self.cls}: {self.method}\n{self.msg}"
+        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)

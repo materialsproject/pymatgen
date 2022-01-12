@@ -16,10 +16,10 @@ import copy
 import itertools
 import logging
 import math
-import warnings
 from collections import defaultdict
 from fractions import Fraction
 from math import cos, sin
+import warnings
 
 import numpy as np
 import spglib
@@ -523,7 +523,7 @@ class SpacegroupAnalyzer:
             latt = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
             # for the conventional cell representation,
-            # we always show the rhombohedral lattices as hexagonal
+            # we allways show the rhombohedral lattices as hexagonal
 
             # check first if we have the refined structure shows a rhombohedral
             # cell
@@ -835,7 +835,7 @@ class PointGroupAnalyzer:
 
         a. Linear molecules have one zero eigenvalue. Possible symmetry
            operations are C*v or D*v
-        b. Asymmetric top molecules have all different eigenvalues. The
+        b. Asymetric top molecules have all different eigenvalues. The
            maximum rotational symmetry in such molecules is 2
         c. Symmetric top molecules have 1 unique eigenvalue, which gives a
            unique rotation axis.  All axial point groups are possible
@@ -924,7 +924,7 @@ class PointGroupAnalyzer:
 
     def _proc_asym_top(self):
         """
-        Handles asymmetric top molecules, which cannot contain rotational
+        Handles assymetric top molecules, which cannot contain rotational
         symmetry larger than 2.
         """
         self._check_R2_axes_asym()
@@ -940,7 +940,7 @@ class PointGroupAnalyzer:
 
     def _proc_sym_top(self):
         """
-        Handles symmetric top molecules which has one unique eigenvalue whose
+        Handles symetric top molecules which has one unique eigenvalue whose
         corresponding principal axis is a unique rotational axis.  More complex
         handling required to look for R2 axes perpendicular to this unique
         axis.
@@ -1012,7 +1012,7 @@ class PointGroupAnalyzer:
     def _check_R2_axes_asym(self):
         """
         Test for 2-fold rotation along the principal axes. Used to handle
-        asymmetric top molecules.
+        asymetric top molecules.
         """
         for v in self.principal_axes:
             op = SymmOp.from_axis_angle_and_translation(v, 180)

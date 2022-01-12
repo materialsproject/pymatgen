@@ -33,7 +33,7 @@ class SOCSpillage:
     @staticmethod
     def isclose(n1, n2, rel_tol=1e-7):
         """
-        Checking if the numbers are close enough
+        Checking if the numbers are close enoung
         """
         return abs(n1 - n2) < rel_tol
 

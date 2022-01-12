@@ -736,7 +736,7 @@ class ConnectedComponent(MSONable):
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
-                logging.debug(f"  In node #{inode:d}/{len(current_nodes):d} in level {tree_level:d} ({node})")
+                logging.debug(f"  In node #{inode:d}/{len(current_nodes):d} in level {tree_level:d} ({str(node)})")
                 node_neighbors = list(tree.neighbors(n=node))
                 node_edges = centered_connected_subgraph.edges(nbunch=[node], data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
@@ -957,7 +957,7 @@ class ConnectedComponent(MSONable):
             out.extend([str(en) for en in sorted(self.graph.nodes())])
             return "\n".join(out)
         for en in sorted(self.graph.nodes()):
-            out.append(f"{en}, connected to :")
+            out.append(f"{str(en)}, connected to :")
             en_neighbs = nx.neighbors(self.graph, en)
             for en_neighb in sorted(en_neighbs):
                 out.append(f"  - {en_neighb} with delta image cells")

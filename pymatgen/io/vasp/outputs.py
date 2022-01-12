@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-Classes for reading/manipulating/writing VASP output files.
+Classes for reading/manipulating/writing VASP ouput files.
 """
 
 import datetime
@@ -2404,7 +2404,7 @@ class Outcar:
 
     def read_nmr_efg(self):
         """
-        Parse the NMR Electric Field Gradient interpreted values.
+        Parse the NMR Electric Field Gradient interpretted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
@@ -3753,7 +3753,7 @@ class VolumetricData(MSONable):
         a = self.dim
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for x, y, z in itertools.product(*(list(range(i)) for i in a)):
+            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {
@@ -3996,7 +3996,7 @@ class Procar:
 
     .. attribute:: weights
 
-        The weights associated with each k-point as an nd.array of length
+        The weights associated with each k-point as an nd.array of lenght
         nkpoints.
 
     ..attribute:: phase_factors
@@ -4691,7 +4691,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
 # I use numpy.fromfile instead of scipy.io.FortranFile here because the records
 # are of fixed length, so the record length is only written once. In fortran,
 # this amounts to using open(..., form='unformatted', recl=recl_len). In
-# contrast when you write UNK files, the record length is written at the
+# constrast when you write UNK files, the record length is written at the
 # beginning of each record. This allows you to use scipy.io.FortranFile. In
 # fortran, this amounts to using open(..., form='unformatted') [i.e. no recl=].
 class Wavecar:

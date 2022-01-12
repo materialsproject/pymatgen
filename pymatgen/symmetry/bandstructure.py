@@ -11,14 +11,16 @@ from warnings import warn
 import networkx as nx
 import numpy as np
 
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.electronic_structure.core import Spin
+
 from pymatgen.symmetry.kpath import (
     KPathBase,
     KPathLatimerMunro,
     KPathSeek,
     KPathSetyawanCurtarolo,
 )
+
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -160,7 +162,7 @@ class HighSymmKpath(KPathBase):
     def label_index(self):
         """
         Returns:
-        The correspondence between numbers and kpoint symbols for the
+        The correspondance between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
@@ -169,7 +171,7 @@ class HighSymmKpath(KPathBase):
     def equiv_labels(self):
         """
         Returns:
-        The correspondence between the kpoint symbols in the Latimer and
+        The correspondance between the kpoint symbols in the Latimer and
         Munro convention, Setyawan and Curtarolo, and Hinuma
         conventions respectively. Only generated when path_type = 'all'.
         """
@@ -307,7 +309,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
     @staticmethod
     def get_continuous_path(bandstructure):
         """
-        Obtain a continuous version of an inputted path using graph theory.
+        Obtain a continous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
         odd-degree to ensure a Eulerian path can be formed. Initial
         k-path must be able to be converted to a connected graph. See
@@ -318,7 +320,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
 
         Returns:
-        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
+        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continous path.
         """
 
         G = nx.Graph()

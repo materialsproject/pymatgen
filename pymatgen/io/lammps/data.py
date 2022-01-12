@@ -30,10 +30,10 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core import yaml
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.operations import SymmOp
 from pymatgen.util.io_utils import clean_lines
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
@@ -524,7 +524,7 @@ class LammpsData(MSONable):
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
                 Masses section. Default to None, where the labels are
-                automatically added based on either element guess or
+                automaticaly added based on either element guess or
                 dummy specie assignment.
             guess_element (bool): Whether to guess the element based on
                 its atomic mass. Default to True, otherwise dummy
@@ -571,7 +571,7 @@ class LammpsData(MSONable):
             for el, vc in masses["element"].value_counts().iteritems():
                 masses.loc[masses["element"] == el, "label"] = ["%s%d" % (el, c) for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
-        mass_info = [(row.label, row.mass) for row in masses.itertuples()]
+        mass_info = [tuple([r["label"], r["mass"]]) for _, r in masses.iterrows()]
 
         nonbond_coeffs, topo_coeffs = None, None
         if self.force_field:
@@ -784,7 +784,7 @@ class LammpsData(MSONable):
             atom_style (str): Output atom_style. Default to "full".
 
         """
-        atom_types = set.union(*(t.species for t in topologies))
+        atom_types = set.union(*[t.species for t in topologies])
         assert atom_types.issubset(ff.maps["Atoms"].keys()), "Unknown atom type found in topologies"
 
         items = dict(box=box, atom_style=atom_style, masses=ff.masses, force_field=ff.force_field)
@@ -1142,7 +1142,7 @@ class ForceField(MSONable):
             distinct_types.append(d["types"])
             for k in class2_data.keys():
                 class2_data[k].append(d[k])
-        distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
+        distinct_types = [set(itertools.chain(*[find_eq_types(t, kw) for t in dt])) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
         assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
@@ -1214,7 +1214,7 @@ class ForceField(MSONable):
 class CombinedData(LammpsData):
     """
     Object for a collective set of data for a series of LAMMPS data file.
-    velocities not yet implemented.
+    velocities not yet implementd.
     """
 
     def __init__(
@@ -1341,7 +1341,7 @@ class CombinedData(LammpsData):
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
                 Masses section. Default to None, where the labels are
-                automatically added based on either element guess or
+                automaticaly added based on either element guess or
                 dummy specie assignment.
             guess_element (bool): Whether to guess the element based on
                 its atomic mass. Default to True, otherwise dummy

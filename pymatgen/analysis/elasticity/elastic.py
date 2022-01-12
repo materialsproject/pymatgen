@@ -1055,7 +1055,7 @@ def generate_pseudo(strain_states, order=3):
             exps /= np.math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
-        present_syms = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
+        present_syms = set.union(*[exp.atoms(sp.Symbol) for exp in svec])
         absent_syms += [set(cvec) - present_syms]
         m = np.zeros((6 * nstates, len(cvec)))
         for n, c in enumerate(cvec):

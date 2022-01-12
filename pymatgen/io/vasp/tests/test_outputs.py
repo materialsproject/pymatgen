@@ -15,10 +15,17 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
-from pymatgen.core import Element
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
+
 from pymatgen.core.lattice import Lattice
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
+from pymatgen.core import Element
+from pymatgen.electronic_structure.core import Magmom, OrbitalType
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import (
@@ -41,10 +48,6 @@ from pymatgen.io.vasp.outputs import (
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    import h5py
-except ImportError:
-    h5py = None
 
 class VasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -452,7 +455,7 @@ class VasprunTest(PymatgenTest):
                 with self.assertRaises(VaspParserError):
                     _ = vasprun.get_band_structure(line_mode=True)
 
-                # Check KPOINTS.gz successfully inferred and used if present
+                # Check KPOINTS.gz succesfully inferred and used if present
                 with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in:
                     with gzip.open("KPOINTS.gz", "wb") as f_out:
                         copyfileobj(f_in, f_out)
