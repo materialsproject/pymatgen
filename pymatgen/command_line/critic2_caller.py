@@ -348,8 +348,8 @@ class CriticalPoint(MSONable):
 
         :param index: index of point
         :param type: type of point, given as a string
-        :param coords: Cartesian co-ordinates in Angstroms
-        :param frac_coords: fractional co-ordinates
+        :param coords: Cartesian coordinates in Angstroms
+        :param frac_coords: fractional coordinates
         :param point_group: point group associated with critical point
         :param multiplicity: number of equivalent critical points
         :param field: value of field at point (f)
@@ -866,7 +866,7 @@ class Critic2Analysis(MSONable):
         :param idx: index
         :param unique_idx: index of unique CriticalPoint,
             used to look up more information of point (field etc.)
-        :param frac_coord: fractional co-ordinates of point
+        :param frac_coord: fractional coordinates of point
         :return:
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}

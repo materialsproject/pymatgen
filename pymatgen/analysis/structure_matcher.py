@@ -1195,7 +1195,7 @@ class StructureMatcher(MSONable):
 class PointDefectComparator(MSONable):
     """
     A class that matches pymatgen Point Defect objects even if their
-    cartesian co-ordinates are different (compares sublattices for the defect)
+    cartesian coordinates are different (compares sublattices for the defect)
 
     NOTE: for defect complexes (more than a single defect),
     this comparator will break.

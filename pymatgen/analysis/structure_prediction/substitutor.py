@@ -93,7 +93,7 @@ class Substitutor(MSONable):
                 e.g., [Species('Li',1),Species('Ni',2), Species('O',-2)]
 
             structures_list:
-                a list of dictionnary of the form {'structure':Structure object
+                a list of dictionary of the form {'structure':Structure object
                 ,'id':some id where it comes from}
                 the id can for instance refer to an ICSD id.
 

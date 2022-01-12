@@ -117,7 +117,7 @@ class Cube:
         Create a mask for a sphere with radius=radius, centered at cx, cy, cz.
 
         Args:
-            radius: (flaot) of the mask (in Angstroms)
+            radius: (float) of the mask (in Angstroms)
             cx, cy, cz: (float) the fractional coordinates of the center of the sphere
         """
         dx, dy, dz = (
