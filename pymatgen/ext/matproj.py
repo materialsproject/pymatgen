@@ -21,10 +21,13 @@ import warnings
 from typing import List
 from enum import Enum, unique
 from time import sleep
+import math
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
+from tqdm import tqdm
+
 
 from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.core.composition import Composition
@@ -34,11 +37,22 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import PBar, get_chunks
 from pymatgen.core import __version__ as PMG_VERSION
 
 
 logger = logging.getLogger(__name__)
+
+
+def get_chunks(sequence, size=1):
+    """
+    Args:
+        sequence ():
+        size ():
+
+    Returns:
+    """
+    chunks = int(math.ceil(len(sequence) / float(size)))
+    return [sequence[i * size : (i + 1) * size] for i in range(chunks)]
 
 
 @unique
@@ -998,7 +1012,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        progress_bar = PBar(total=len(mids))
+        progress_bar = tqdm(total=len(mids))
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})

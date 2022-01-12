@@ -10,13 +10,13 @@ from typing import Dict, List, Optional, Union, Set
 from urllib.parse import urlparse
 
 import requests
+from tqdm import tqdm
 
 # from retrying import retry
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.sequence import PBar
 
 
 # TODO: importing optimade-python-tool's data structures will make more sense
@@ -319,7 +319,7 @@ class OptimadeRester:
 
                 structures = self._get_snls_from_resource(json, url, identifier)
 
-                pbar = PBar(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
+                pbar = tqdm(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
 
                 # TODO: check spec for `more_data_available` boolean, may simplify this conditional
                 if ("links" in json) and ("next" in json["links"]) and (json["links"]["next"]):

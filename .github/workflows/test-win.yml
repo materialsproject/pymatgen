@@ -1,4 +1,4 @@
-name: Testing Mac Windows
+name: Testing Windows
 
 on: [ pull_request ]
 
@@ -8,13 +8,13 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ macos-latest, windows-latest ]
-        python-version: [ 3.8 ]
+        os: [ windows-latest ]
+        python-version: [ '3.9' ]
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         pkg:
           - pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
           - pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
-          - pymatgen/electronic_structure pymatgen/symmetry pymatgen/ext pymatgen/command_line
+          - pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line  pymatgen/ext
           - pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
 
     runs-on: ${{ matrix.os }}
@@ -49,7 +49,7 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install -r requirements-dev.txt
           pip install -e .
       - name: pytest ${{ matrix.pkg }}
         run: |
