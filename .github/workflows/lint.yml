@@ -20,7 +20,7 @@ jobs:
     - uses: actions/cache@v2
       id: pip-cache
       with:
-        path: ${{ pip cache dir }}
+        path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
