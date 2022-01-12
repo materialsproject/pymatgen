@@ -1350,8 +1350,7 @@ class Kpoints(MSONable):
         VASP manual.
 
         Args:
-            divisions: Parameter determining the number of k-points along each
-                hight symetry lines.
+            divisions: Parameter determining the number of k-points along each high symmetry line.
             ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
 
         Returns:

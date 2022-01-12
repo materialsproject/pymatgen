@@ -1137,7 +1137,7 @@ class Species(MSONable, Stringify):
             A Species object.
 
         Raises:
-            ValueError if species_string cannot be intepreted.
+            ValueError if species_string cannot be interpreted.
         """
 
         # e.g. Fe2+,spin=5

@@ -2404,7 +2404,7 @@ class Outcar:
 
     def read_nmr_efg(self):
         """
-        Parse the NMR Electric Field Gradient interpretted values.
+        Parse the NMR Electric Field Gradient interpreted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.

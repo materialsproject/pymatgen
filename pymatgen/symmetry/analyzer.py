@@ -523,7 +523,7 @@ class SpacegroupAnalyzer:
             latt = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
             # for the conventional cell representation,
-            # we allways show the rhombohedral lattices as hexagonal
+            # we always show the rhombohedral lattices as hexagonal
 
             # check first if we have the refined structure shows a rhombohedral
             # cell

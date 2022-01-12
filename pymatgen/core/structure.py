@@ -3288,7 +3288,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
     @property
     def lattice(self) -> Lattice:
         """
-        :return: Lattice assciated with structure.
+        :return: Lattice associated with structure.
         """
         return self._lattice
 

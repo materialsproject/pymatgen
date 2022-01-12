@@ -110,7 +110,7 @@ class GaussianInput:
         """
         Args:
             mol: Input molecule. It can either be a Molecule object,
-                a string giving the geometry in a format supported by Guassian,
+                a string giving the geometry in a format supported by Gaussian,
                 or ``None``. If the molecule is ``None``, you will need to use
                 read it in from a checkpoint. Consider adding ``CHK`` to the
                 ``link0_parameters``.
