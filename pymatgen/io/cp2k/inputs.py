@@ -1870,6 +1870,7 @@ class Kpoints(Section):
 
         keywords.update(
             {
+                "SCHEME": Keyword("SCHEME", scheme),
                 "EPS_GEO": Keyword("EPS_GEO", eps_geo),
                 "FULL_GRID": Keyword("FULL_GRID", full_grid),
                 "PARALLEL_GROUP_SIZE": Keyword("PARALLEL_GROUP_SIZE", parallel_group_size),
