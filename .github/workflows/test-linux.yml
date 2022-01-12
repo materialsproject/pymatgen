@@ -37,11 +37,13 @@ jobs:
           python-version: 3.9
       - name: Cache pip
         uses: actions/cache@v2
+        id: pip-cache
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          path: ${{ pip cache dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - name: Install OpenBabel and Libs
         shell: bash -l {0}
         run: |
@@ -49,6 +51,7 @@ jobs:
           sudo apt-get install csh gfortran
           conda install -c conda-forge openbabel
       - name: Install dependencies
+        if: steps.pip-cache.outputs.cache-hit != 'true'
         shell: bash -l {0}
         run: |
           # Note that this is the way to update env variables in a way that persist for the entire job.
