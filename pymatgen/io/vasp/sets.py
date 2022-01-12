@@ -1200,9 +1200,9 @@ class MPStaticSet(MPRelaxSet):
             if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
                 if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                     k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-                    kpoints = Kpoints.monkhorst_automatic(k_div)
+                    kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
                 else:
-                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir="."):
