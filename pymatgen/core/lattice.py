@@ -116,7 +116,7 @@ class Lattice(MSONable):
             m = (self.lengths, self.angles)
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
-        return fmt.format(*(format(c, fmt_spec) for row in m for c in row))
+        return fmt.format(*[format(c, fmt_spec) for row in m for c in row])
 
     def copy(self):
         """Deep copy of self."""
@@ -1988,8 +1988,8 @@ def get_points_in_spheres(
             neighbors.append([])
             continue
         nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
-        nn_images = itertools.chain(*(cube_to_images[k] for k in ks))
-        nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))
+        nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
+        nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
         dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
         nns: List[Tuple[np.ndarray, float, int, np.ndarray]] = []
         for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):

@@ -169,7 +169,7 @@ class AdditionalConditionInt(int, StrategyOption):
     def __new__(cls, integer):
         """Special int representing additional conditions."""
         if str(int(integer)) != str(integer):
-            raise ValueError(f"Additional condition {integer} is not an integer")
+            raise ValueError(f"Additional condition {str(integer)} is not an integer")
         intger = int.__new__(cls, integer)
         if intger not in AdditionalConditions.ALL:
             raise ValueError(f"Additional condition {integer:d} is not allowed")
@@ -451,7 +451,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         out += "\n\n"
         out += "  Options :\n  {}\n".format("-" * 9)
         for option_name, option_dict in self.STRATEGY_OPTIONS.items():
-            out += f"   - {option_name} : {getattr(self, option_name)}\n"
+            out += f"   - {option_name} : {str(getattr(self, option_name))}\n"
         return out
 
     @abc.abstractmethod

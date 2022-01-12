@@ -8,18 +8,19 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
+import math
 import itertools
 import logging
-import math
 import time
 
 import numpy as np
+
 from monty.json import MSONable
 
-from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
-from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.analysis.local_env import MinimumDistanceNN
 
 
 class InsertSitesTransformation(AbstractTransformation):
@@ -406,7 +407,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter
-        search of permutations for example), but this won't make a difference
+        search of permutations for example), but this wont make a difference
         until the number of permutations is on the order of 30,000.
         """
         self.logger.debug("Performing fast ordering")
@@ -458,9 +459,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
-        from pymatgen.transformations.advanced_transformations import (
-            EnumerateStructureTransformation,
-        )
+        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)

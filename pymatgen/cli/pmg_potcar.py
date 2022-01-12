@@ -56,7 +56,7 @@ def generate_potcar(args):
             p = Potcar(args.symbols, functional=args.functional)
             p.write_file("POTCAR")
         except Exception as ex:
-            print(f"An error has occurred: {ex}")
+            print(f"An error has occurred: {str(ex)}")
 
     else:
         print("No valid options selected.")

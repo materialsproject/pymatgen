@@ -74,7 +74,7 @@ class CrystalAIRester:
                 return response.json()
             raise ValueError(f"REST query returned with error status code {response.status_code}")
         except Exception as ex:
-            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise ValueError(msg)
 
     def predict_structure(self, model_name, structure):
@@ -98,5 +98,5 @@ class CrystalAIRester:
                 return response.json()
             raise ValueError(f"REST query returned with error status code {response.status_code}")
         except Exception as ex:
-            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise ValueError(msg)

@@ -119,7 +119,7 @@ class CifBlock:
         s = "loop_"
         for l in loop:
             s += "\n " + l
-        for fields in zip(*(self.data[k] for k in loop)):
+        for fields in zip(*[self.data[k] for k in loop]):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
@@ -549,7 +549,7 @@ class CifParser:
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
 
-        # check for finite precision frac coordinates (e.g. 0.6667 instead of 0.6666666...7)
+        # check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
         important_fracs = (1 / 3.0, 2 / 3.0)
         fracs_to_change = {}
@@ -566,7 +566,7 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
+                "Some fractional co-ordinates rounded to ideal values to avoid issues with finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
@@ -944,7 +944,7 @@ class CifParser:
             for op in self.symmetry_operations:
                 c = op.operate(coord)
                 inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
-                # can't use if inds, because python is dumb and np.array([0]) evaluates
+                # cant use if inds, because python is dumb and np.array([0]) evaluates
                 # to False
                 if len(inds):
                     return keys[inds[0]]
@@ -1058,7 +1058,7 @@ class CifParser:
                     im_h = 0
                     species = comp
 
-                # The following might be a more natural representation of equivalent indices,
+                # The following might be a more natural representation of equivalent indicies,
                 # but is not in the format expect by SymmetrizedStructure:
                 #   equivalent_indices.append(list(range(len(allcoords), len(coords)+len(allcoords))))
                 # The above gives a list like:

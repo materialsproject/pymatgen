@@ -73,7 +73,7 @@ class PmgUnpickler(pickle.Unpickler):
             type_tag, key_id = pid
         except Exception:
             # Sometimes we get a string such as ('Element', u'C') instead
-            # of a real tuple. Use ast to evaluate the expression (much safer
+            # of a real tuple. Use ast to evalute the expression (much safer
             # than eval).
             import ast
 
@@ -84,7 +84,7 @@ class PmgUnpickler(pickle.Unpickler):
         # Always raises an error if you cannot return the correct object.
         # Otherwise, the unpickler will think None is the object referenced
         # by the persistent ID.
-        raise pickle.UnpicklingError(f"unsupported persistent object with pid {pid}")
+        raise pickle.UnpicklingError("unsupported persistent object with pid %s" % pid)
 
 
 def pmg_pickle_load(filobj, **kwargs):

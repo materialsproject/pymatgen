@@ -3,7 +3,7 @@
 
 
 """
-This package contains classes to parse input files from the exciting
+This package containes classes to parse input files from the exciting
 code package.
 """
 

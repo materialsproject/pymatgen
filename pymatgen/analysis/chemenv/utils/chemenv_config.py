@@ -9,8 +9,9 @@ import json
 from os import makedirs
 from os.path import exists, expanduser
 
-from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 from pymatgen.core import SETTINGS
+from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
+
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -71,7 +72,7 @@ class ChemEnvConfig:
                 print(" - No access to materials project")
             print(" - Package options :")
             for key, val in self.package_options.items():
-                print(f"     {key}   :   {val}")
+                print(f"     {str(key)}   :   {str(val)}")
             print("\nChoose in the following :")
             print(" <1> + <ENTER> : configuration of the package options (strategy, ...)")
             print(" <q> + <ENTER> : quit without saving configuration")
@@ -104,8 +105,8 @@ class ChemEnvConfig:
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup.keys())
-        for idx, strategy in enumerate(strategies, 1):
-            print(f" <{idx}> : {strategy}")
+        for istrategy, strategy in enumerate(strategies):
+            print(f" <{str(istrategy + 1)}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {
             "strategy": strategies[int(test) - 1],
@@ -115,9 +116,12 @@ class ChemEnvConfig:
         if len(strategy_class.STRATEGY_OPTIONS) > 0:
             for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
                 while True:
-                    print(f"  => Enter value for option '{option}' (<ENTER> for default = {option_dict['default']})\n")
+                    print(
+                        '  => Enter value for option "{}" '
+                        "(<ENTER> for default = {})\n".format(option, str(option_dict["default"]))
+                    )
                     print("     Valid options are :\n")
-                    print(f"       {option_dict['type'].allowed_values}")
+                    print("       {}".format(option_dict["type"].allowed_values))
                     test = input("     Your choice : ")
                     if test == "":
                         self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](

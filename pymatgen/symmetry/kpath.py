@@ -1071,13 +1071,13 @@ class KPathLatimerMunro(KPathBase):
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
     obtain the correct Brillouin zone within the current
-    implementation). This is checked during initialization and a
+    implementaiton). This is checked during initialization and a
     warning is issued if the condition is not fulfilled.
     In the case of magnetic structures, care must also be taken to
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
     upon application of lattice translations). There is no way to
-    programmatically check for this, so if the input structure is
+    programatically check for this, so if the input structure is
     incorrect, the class will output the incorrect kpath without
     any warning being issued.
     """
@@ -1675,7 +1675,7 @@ class KPathLatimerMunro(KPathBase):
 
     def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
 
-        little_groups_points = []  # elements are lists of indices of recip_point_group. the
+        little_groups_points = []  # elements are lists of indicies of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
         for (i, orbit) in enumerate(key_points_inds_orbits):
@@ -1689,7 +1689,7 @@ class KPathLatimerMunro(KPathBase):
                 if check_gamma:
                     little_groups_points[i].append(j)
 
-        # elements are lists of indices of recip_point_group. the list
+        # elements are lists of indicies of recip_point_group. the list
         # little_groups_lines[i] is
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]

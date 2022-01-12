@@ -782,7 +782,7 @@ class BSPlotter:
                     labels[i] = "$" + l + "$"
 
             # If next branch is not continuous,
-            # join the first lbl to the previous tick label
+            # join the firts lbl to the previous tick label
             # and add the second lbl to ticks list
             # otherwise add to ticks list both new labels.
             # Similar for distances.
@@ -1641,7 +1641,7 @@ class BSPlotterProjected(BSPlotter):
                         if number_figs == 1:
                             plt.subplot(1, 1, 1)
                         else:
-                            row = number_figs // 2
+                            row = int(number_figs / 2)
                             if number_figs % 2 == 0:
                                 plt.subplot(row, 2, count)
                             else:
@@ -1906,12 +1906,12 @@ class BSPlotterProjected(BSPlotter):
                                 print("You want to consider all '%s' atoms." % elt)
                                 break
 
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
                         if isinstance(number, int):
                             if number not in indices:
-                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
+                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
                         else:
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
                     nelems = Counter(dictpa[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError("You put at least two similar site numbers into 'dictpa[%s]'." % elt)
@@ -1961,7 +1961,7 @@ class BSPlotterProjected(BSPlotter):
                                 if number not in dictpa[elt]:
                                     raise ValueError(
                                         "You cannot sum projection with atom number '%s' because it is not "
-                                        "mentioned in dicpta[%s]" % (str(number), elt)
+                                        "metioned in dicpta[%s]" % (str(number), elt)
                                     )
                             else:
                                 raise ValueError("You put wrong site numbers in 'sum_atoms[%s]'." % elt)
@@ -3914,7 +3914,7 @@ def plot_fermi_surface(
     transparency_factor=None,
     labels_scale_factor=0.05,
     points_scale_factor=0.02,
-    interactive=True,
+    interative=True,
 ):
     """
     Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
@@ -3954,7 +3954,7 @@ def plot_fermi_surface(
             surface.
         labels_scale_factor (float): factor to tune size of the kpoint labels
         points_scale_factor (float): factor to tune size of the kpoint points
-        interactive (bool): if True an interactive figure will be shown.
+        interative (bool): if True an interactive figure will be shown.
             If False a non interactive figure will be shown, but it is possible
             to plot other surfaces on the same figure. To make it interactive,
             run mlab.show().
@@ -4094,7 +4094,7 @@ def plot_fermi_surface(
         # mlab.view(distance='auto')
         fig.scene.isometric_view()
 
-    if interactive:
+    if interative:
         mlab.show()
 
     return fig, mlab

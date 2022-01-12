@@ -6,6 +6,7 @@ This module provides utility classes for string operations.
 import re
 from fractions import Fraction
 
+
 SUBSCRIPT_UNICODE = {
     "0": "₀",
     "1": "₁",

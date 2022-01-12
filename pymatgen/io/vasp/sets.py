@@ -575,15 +575,15 @@ class DictSet(VaspInputSet):
             elif any(el.Z > 20 for el in structure.composition):
                 incar["LMAXMIX"] = 4
 
-        # Warn user about LASPH for meta-GGAs, hybrids, and vdW-DF
-        if not settings.get("LASPH", False) and (
-            settings.get("METAGGA", False)
-            or settings.get("LHFCALC", False)
-            or settings.get("LDAU", False)
-            or settings.get("LUSE_VDW", False)
+        # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
+        if not incar.get("LASPH", False) and (
+            incar.get("METAGGA")
+            or incar.get("LHFCALC", False)
+            or incar.get("LDAU", False)
+            or incar.get("LUSE_VDW", False)
         ):
             warnings.warn(
-                "LASPH = True should be set for +U, meta-GGAs, and vdW-DFT",
+                "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
                 BadInputSetWarning,
             )
 
@@ -781,12 +781,12 @@ class DictSet(VaspInputSet):
 
     def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
         """
-        Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
+        Calculates the NGX, NGY, and NGZ values using the information availible in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
 
         Args:
             max_prime_factor (int): the valid prime factors of the grid size in each direction
-                                    VASP has many different setting for this to handle many compiling options.
+                                    VASP has many different setting for this to handel many compiling options.
                                     For typical MPI options all prime factors up to 7 are allowed
         """
 
@@ -796,7 +796,7 @@ class DictSet(VaspInputSet):
         _AUTOA = 0.529177249
         _PI = 3.141592653589793238
 
-        # TODO Only do this for VASP 6 for now. Older version require more advanced logic
+        # TODO Only do this for VASP 6 for now. Older version require more advanced logitc
 
         # get the ENCUT val
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:

@@ -4,9 +4,10 @@
 import unittest
 
 import numpy as np
+from numpy.core.records import array
 
 from pymatgen.core.interface import Interface
-from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
@@ -16,13 +17,15 @@ class InterfaceTest(PymatgenTest):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 
     def test_basic_props(self):
+        props = ["film_indices", "film_sites", "film"]
+
         interface = self.interface
         assert isinstance(interface, Interface)
 
-        assert len(interface.substrate_indices) == 14
+        assert len(interface.substrate_indicies) == 14
         assert len(interface.film_indices) == 36
         assert len(interface.film_sites) == len(interface.film_indices)
-        assert len(interface.substrate_sites) == len(interface.substrate_indices)
+        assert len(interface.substrate_sites) == len(interface.substrate_indicies)
         assert interface.gap == 2.0
         assert np.allclose(interface.in_plane_offset, [0, 0])
         assert interface.vacuum_over_film == 20.0

@@ -1,54 +1,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import glob
+
 import hashlib
-import os
-import shutil
 import tempfile
 import unittest
-import warnings
-from pathlib import Path
-from zipfile import ZipFile
 
-import numpy as np
 import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 from monty.json import MontyDecoder
 
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core import SETTINGS, Lattice, Species, Structure
+from pymatgen.core import SETTINGS
+from pymatgen.core import Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.io.vasp.sets import (
-    BadInputSetWarning,
-    LobsterSet,
-    MITMDSet,
-    MITNEBSet,
-    MITRelaxSet,
-    MPHSEBSSet,
-    MPMetalRelaxSet,
-    MPNMRSet,
-    MPNonSCFSet,
-    MPRelaxSet,
-    MPScanRelaxSet,
-    MPScanStaticSet,
-    MPSOCSet,
-    MPStaticSet,
-    MVLElasticSet,
-    MVLGBSet,
-    MVLGWSet,
-    MVLNPTMDSet,
-    MVLRelax52Set,
-    MVLScanRelaxSet,
-    MVLSlabSet,
-    batch_write_input,
-    get_structure_from_prev_run,
-    get_valid_magmom_struct,
-    loadfn,
-)
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.io.vasp.sets import *
 from pymatgen.util.testing import PymatgenTest
 
 MODULE_DIR = Path(__file__).resolve().parent
@@ -127,7 +94,8 @@ class MITMPRelaxSetTest(PymatgenTest):
             # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
             # Trigger a warning.
-            MITRelaxSet(structure).incar
+            vis = MITRelaxSet(structure)
+            incar = vis.incar
             # Verify some things
             self.assertIn("ISMEAR", str(w[-1].message))
 
@@ -316,7 +284,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         incar = MITRelaxSet(s, user_incar_settings={"LDAU": True}).incar
         self.assertFalse("LDAUU" in incar)  # LDAU = False
 
-        # User set a compound to be sulfide by specifying values of "LDAUL" etc.
+        # User set a compound to be sulfide by specifing values of "LDAUL" etc.
         s = Structure(lattice, ["Fe", "Cl", "S"], coords)
         incar = MITRelaxSet(
             s,
@@ -649,6 +617,7 @@ class MPStaticSetTest(PymatgenTest):
         self.assertTrue(os.path.exists("MPStaticSet.zip"))
         with ZipFile("MPStaticSet.zip", "r") as zip:
             contents = zip.namelist()
+            print(contents)
             self.assertTrue(set(contents).issuperset({"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"}))
             spec = zip.open("POTCAR.spec", "r").read().decode()
             self.assertEqual(spec, "Si")
@@ -658,7 +627,7 @@ class MPStaticSetTest(PymatgenTest):
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):
             si = self.get_structure("Si")
-            MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
+            vis = MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def test_grid_size_from_struct(self):
         # TODO grab a bunch_of_calculations store as a list of tuples
@@ -1132,7 +1101,7 @@ class MVLSlabSetTest(PymatgenTest):
 
     def test_as_dict(self):
         vis_dict = self.vis.as_dict()
-        MVLSlabSet.from_dict(vis_dict)
+        new = MVLSlabSet.from_dict(vis_dict)
 
 
 class MVLElasticSetTest(PymatgenTest):
@@ -1526,7 +1495,7 @@ class MPScanStaticSetTest(PymatgenTest):
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):
             si = self.get_structure("Si")
-            MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
+            vis = MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -1605,7 +1574,7 @@ class MVLRelax52SetTest(PymatgenTest):
 
     def test_potcar_functional_warning(self):
         with pytest.warns(FutureWarning, match="argument is deprecated"):
-            MVLRelax52Set(self.struct, potcar_functional="PBE_52")
+            test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
 
     def test_as_from_dict(self):
         d = self.mvl_rlx_set.as_dict()

@@ -164,7 +164,7 @@ class Spectrum(MSONable):
 
     def __sub__(self, other):
         """
-        Subtract one Spectrum object from another. Checks that x scales are
+        Substract one Spectrum object from another. Checks that x scales are
         the same.
         Otherwise, a ValueError is thrown
 
@@ -172,7 +172,7 @@ class Spectrum(MSONable):
             other: Another Spectrum object
 
         Returns:
-            Subtraction of the two Spectrum objects
+            Substraction of the two Spectrum objects
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")

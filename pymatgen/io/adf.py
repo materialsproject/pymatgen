@@ -152,9 +152,9 @@ class AdfKey(MSONable):
             s = ""
             for op in self.options:
                 if self._sized_op:
-                    s += f"{op[0]}={op[1]} "
+                    s += "{:s}={:s} ".format(*map(str, op))
                 else:
-                    s += f"{op} "
+                    s += f"{str(op):s} "
             return s.strip()
         return ""
 
@@ -184,9 +184,9 @@ class AdfKey(MSONable):
         different string format will be used.
 
         """
-        s = f"{self.key}"
+        s = f"{self.key:s}"
         if len(self.options) > 0:
-            s += f" {self._options_string()}"
+            s += f" {self._options_string():s}"
         s += "\n"
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
@@ -513,7 +513,7 @@ class AdfTask(MSONable):
 
         """
         if operation not in self.operations.keys():
-            raise AdfInputError(f"Invalid ADF task {operation}")
+            raise AdfInputError(f"Invalid ADF task {operation:s}")
         self.operation = operation
         self.title = title
         self.basis_set = basis_set if basis_set is not None else self.get_default_basis_set()
@@ -606,7 +606,7 @@ class AdfTask(MSONable):
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError(f"{block_key} is not an AdfKey!")
+                raise ValueError(f"{str(block_key)} is not an AdfKey!")
             s += str(block_key) + "\n"
         return s
 

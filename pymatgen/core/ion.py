@@ -117,7 +117,7 @@ class Ion(Composition, MSONable, Stringify):
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the
-                Lanthanides, Actinides and hydrogen. Note that polyanions
+                Lanthanides, Actanides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
             hydrates: If True (default), attempt to recognize hydrated metal

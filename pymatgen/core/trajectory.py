@@ -515,7 +515,7 @@ class Trajectory(MSONable):
                 lines.append(" ".join(site_symbols))
                 lines.append(" ".join([str(x) for x in natoms]))
 
-            lines.append(f"Direct configuration=     {si + 1}")
+            lines.append(f"Direct configuration=     {str(si + 1)}")
 
             for (frac_coord, specie) in zip(frac_coords, self.species):
                 coords = frac_coord

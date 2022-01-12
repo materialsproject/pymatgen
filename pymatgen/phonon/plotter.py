@@ -29,7 +29,7 @@ def freq_units(units):
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1
 
     Returns:
-        Returns conversion factor from THz to the required units and the label in the form of a namedtuple
+        Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
 
     """
 
@@ -511,7 +511,7 @@ class PhononBSPlotter:
 class ThermoPlotter:
     """
     Plotter for thermodynamic properties obtained from phonon DOS.
-    If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
+    If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
     the plots in units of mol instead of mole-cell
     """
 
