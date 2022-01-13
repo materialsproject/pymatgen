@@ -2803,7 +2803,7 @@ class LobsterSet(MPRelaxSet):
         if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
             super().__init__(structure, **kwargs)
         else:
-            super().__init__(structure, user_potcar_functional="PBE_54", **kwargs)
+            super().__init__(structure, user_potcar_functional="PBE_54", user_potcar_settings={"W": "W_sv"}, **kwargs)
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
