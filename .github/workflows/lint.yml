@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 jobs:
   build:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
