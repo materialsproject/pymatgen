@@ -1,15 +1,16 @@
 [build-system]
 requires = [
      # pin NumPy version used in the build
-     "numpy>=1.20.1",
-     "setuptools>=43.0.0"
+     "oldest-supported-numpy",
+     "setuptools>=43.0.0",
+     "Cython>=0.29.23"
 ]
 build-backend = "setuptools.build_meta"
 
 
 [tool.black]
 line-length = 120
-target-version = ['py38']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 
@@ -25,6 +26,7 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | test_files
   )/
 )
 '''

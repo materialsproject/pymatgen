@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 jobs:
   build:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -17,6 +19,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

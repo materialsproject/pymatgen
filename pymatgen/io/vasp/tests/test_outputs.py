@@ -15,6 +15,12 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.core.structure import Structure
@@ -1557,6 +1563,7 @@ class ChgcarTest(PymatgenTest):
         self.assertTrue(chg_from_file.is_soc)
         os.remove("CHGCAR_pmg_soc")
 
+    @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
@@ -1571,7 +1578,7 @@ class ChgcarTest(PymatgenTest):
                 self.assertIn(z, [Element.Ni.Z, Element.O.Z])
 
             for sp in f["species"]:
-                self.assertIn(sp, ["Ni", "O"])
+                self.assertIn(sp, [b"Ni", b"O"])
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
         self.assertArrayAlmostEqual(chgcar2.data["total"], chgcar.data["total"])
