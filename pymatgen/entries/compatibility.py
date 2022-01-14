@@ -910,7 +910,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry):
+    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]):
         """
         Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
