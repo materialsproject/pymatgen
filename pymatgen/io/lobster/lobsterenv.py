@@ -295,11 +295,11 @@ class LobsterNeighbors(NearNeighbors):
 
         return lse
 
-    def get_info_icohps_to_neighbors(self, isites=[], onlycation_isites=True):
+    def get_info_icohps_to_neighbors(self, isites=None, onlycation_isites=True):
         """
         this method will return information of cohps of neighbors
         Args:
-            isites: list of site ids, if isite==[], all isites will be used to add the icohps of the neighbors
+            isites: list of site ids, if isite==None, all isites will be used to add the icohps of the neighbors
             onlycation_isites: will only use cations, if isite==[]
 
 
@@ -307,12 +307,13 @@ class LobsterNeighbors(NearNeighbors):
             sum of icohps of neighbors to certain sites [given by the id in structure], number of bonds to this site,
             labels (from ICOHPLIST) for
             these bonds
-            [the latter is useful for plotting summed COHP plots]
+            [the latter is useful for plotting summed COHP plots],
+            list of the central isite for each label
         """
 
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
-        if isites == []:
+        if isites is None:
             if onlycation_isites:
                 isites = [i for i in range(len(self.structure)) if self.valences[i] >= 0.0]
             else:
@@ -323,6 +324,7 @@ class LobsterNeighbors(NearNeighbors):
         number_bonds = 0
         labels = []
         atoms = []
+        final_isites=[]
         for ival, site in enumerate(self.structure):
             if ival in isites:
                 for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival]):
@@ -336,8 +338,8 @@ class LobsterNeighbors(NearNeighbors):
                         ]
                     )
                     number_bonds += 1
-
-        return summed_icohps, list_icohps, number_bonds, labels, atoms
+                    final_isites.append(ival)
+        return summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites
 
     def plot_cohps_of_neighbors(
         self,
@@ -397,7 +399,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_info_cohps_to_neighbors(
         self,
         path_to_COHPCAR="COHPCAR.lobster",
-        isites=[],
+        isites=None,
         only_bonds_to=None,
         onlycation_isites=True,
         per_bond=True,
@@ -418,7 +420,7 @@ class LobsterNeighbors(NearNeighbors):
 
         """
         # TODO: add options for orbital-resolved cohps
-        summed_icohps, list_icohps, number_bonds, labels, atoms = self.get_info_icohps_to_neighbors(
+        summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
             isites=isites, onlycation_isites=onlycation_isites
         )
 
@@ -453,21 +455,23 @@ class LobsterNeighbors(NearNeighbors):
             )
 
         else:
-            # TODO: check if this is okay
             # labels of the COHPs that will be summed!
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
             # print(labels)
             # print(atoms)
-            for label, atompair in zip(labels, atoms):
-                # durchlaufe only_bonds_to=[] und sage ja, falls eines der Labels in atompair ist, dann speichere
-                # new_label
+            for label, atompair, isite in zip(labels, atoms,final_isites):
                 present = False
-                # print(only_bonds_to)
                 for atomtype in only_bonds_to:
-                    if atomtype in (self._split_string(atompair[0])[0], self._split_string(atompair[1])[0]):
-                        present = True
+                    # This is necessary to identify also bonds between the same elements correctly!
+                    if str(self.structure[isite].species.elements[0]) != atomtype:
+                        if atomtype in (self._split_string(atompair[0])[0], self._split_string(atompair[1])[0]):
+                            present = True
+                    else:
+                        if atomtype ==self._split_string(atompair[0])[0] and atomtype== self._split_string(atompair[1])[0]:
+                            present = True
+
                 if present:
                     new_labels.append(label)
                     new_atoms.append(atompair)
