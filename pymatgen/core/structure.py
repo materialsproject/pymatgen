@@ -436,7 +436,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def add_site_property(self, property_name: str, values: List):
         """
-        Adds a property to a site.
+        Adds a property to a site. Note: This is the preferred method
+        for adding magnetic moments, selective dynamics, and related
+        site-specific properties to a structure/molecule object.
+        Examples:
+            structure.add_site_property("magmom", [1.0, 0.0])
+            structure.add_site_property("selective_dynamics", [[True, True, True], [False, False, False]])
 
         Args:
             property_name (str): The name of the property to add.

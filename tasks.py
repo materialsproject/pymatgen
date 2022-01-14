@@ -247,7 +247,7 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%m.%d"), sim=False):
+def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), sim=False):
     """
     Create a preliminary change log using the git logs.
 
@@ -289,7 +289,7 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%m.%d"), 
 
 
 @task
-def release(ctx, version=datetime.datetime.now().strftime("%Y.%m.%d"), nodoc=False):
+def release(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
