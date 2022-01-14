@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -59,7 +58,7 @@ class CRESTOutput(MSONable):
 
         # Get CREST command
         crest_cmd = None
-        with open(output_filepath, "r") as xtbout_file:
+        with open(output_filepath) as xtbout_file:
             for line in xtbout_file:
                 if "> crest" in line:
                     crest_cmd = line.strip()[8:]
@@ -72,7 +71,7 @@ class CRESTOutput(MSONable):
             self.coord_file = os.path.join(self.path, split_cmd[0])
             self.input_structure = Molecule.from_file(filename=self.coord_file)
         except FileNotFoundError:
-            print("Input file {} not found".format(split_cmd[0]))
+            print(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
         for i, entry in enumerate(split_cmd):
@@ -123,7 +122,7 @@ class CRESTOutput(MSONable):
             )
             conformer_degeneracies = []
             energies = []
-            with open(output_filepath, "r") as xtbout_file:
+            with open(output_filepath) as xtbout_file:
                 for line in xtbout_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
@@ -143,7 +142,7 @@ class CRESTOutput(MSONable):
                         n_rot_file = int(os.path.splitext(f)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
                 if len(n_rot_files) > 0:
-                    final_rotamer_filename = "crest_rotamers_{}.xyz".format(max(n_rot_files))
+                    final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz"
             try:
                 rotamers_path = os.path.join(self.path, final_rotamer_filename)
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules
@@ -157,7 +156,7 @@ class CRESTOutput(MSONable):
                         self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
                     start = i + 1
             except FileNotFoundError:
-                print("{} not found, no rotamer list processed".format(final_rotamer_filename))
+                print(f"{final_rotamer_filename} not found, no rotamer list processed")
 
             # Get lowest energy conformer from 'crest_best.xyz'
             crestbest_path = os.path.join(self.path, "crest_best.xyz")
@@ -166,7 +165,7 @@ class CRESTOutput(MSONable):
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print("{} not found".format(crestbest_path))
+                print(f"{crestbest_path} not found")
 
         else:
             crestbest_path = os.path.join(self.path, "crest_best.xyz")
@@ -175,4 +174,4 @@ class CRESTOutput(MSONable):
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print("{} not found".format(crestbest_path))
+                print(f"{crestbest_path} not found")

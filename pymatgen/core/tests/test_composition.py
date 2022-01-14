@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -7,13 +6,12 @@ Created on Nov 10, 2012
 @author: shyue
 """
 
-from pymatgen.util.testing import PymatgenTest
-
 import random
 import unittest
 
 from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
+from pymatgen.util.testing import PymatgenTest
 
 
 class CompositionTest(PymatgenTest):
@@ -29,15 +27,16 @@ class CompositionTest(PymatgenTest):
             Composition("ZnOH"),
         ]
 
-        self.indeterminate_comp = []
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", False))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("co2o3"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
+        self.indeterminate_comp = [
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", True),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", False),
+            Composition.ranked_compositions_from_indeterminate_formula("co2o3"),
+            Composition.ranked_compositions_from_indeterminate_formula("ncalu"),
+            Composition.ranked_compositions_from_indeterminate_formula("calun"),
+            Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"),
+            Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"),
+            Composition.ranked_compositions_from_indeterminate_formula("Fee3"),
+        ]
 
     def test_immutable(self):
         try:
@@ -392,7 +391,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. " + "%s should be equal to %s" % (comp1.formula, comp2.formula),
+            "Composition equality test failed. " + f"{comp1.formula} should be equal to {comp2.formula}",
         )
         self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
 
@@ -629,6 +628,26 @@ class CompositionTest(PymatgenTest):
 
         cmp1 = cmp1.remove_charges()
         self.assertEqual(str(cmp1), str(cmp2))
+
+    def test_replace(self):
+        Fe2O3 = Composition("Fe2O3")
+        Cu2O3 = Composition("Cu2O3")
+        MgCuO3 = Composition("MgCuO3")
+        Mg2Cu2O3 = Composition("Mg2Cu2O3")
+
+        Cu2O3_repl = Fe2O3.replace({"Fe": "Cu"})
+        self.assertEqual(Cu2O3_repl, Cu2O3)
+
+        # handles one-to-many substitutions
+        MgCuO3_repl = Fe2O3.replace({"Fe": {"Cu": 0.5, "Mg": 0.5}})
+        self.assertEqual(MgCuO3_repl, MgCuO3)
+
+        # handles unnormalized one-to-many substitutions
+        Mg2Cu2O3_repl = Fe2O3.replace({"Fe": {"Cu": 1, "Mg": 1}})
+        self.assertEqual(Mg2Cu2O3_repl, Mg2Cu2O3)
+
+        # leaves the composition unchanged when replacing non-existent species
+        self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
 
 
 class ChemicalPotentialTest(unittest.TestCase):

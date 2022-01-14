@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -67,7 +66,7 @@ class EOSBase(metaclass=ABCMeta):
         vmin, vmax = min(self.volumes), max(self.volumes)
 
         if not vmin < v0 and v0 < vmax:
-            raise EOSError("The minimum volume of a fitted parabola is " "not in the input volumes\n.")
+            raise EOSError("The minimum volume of a fitted parabola is not in the input volumes\n.")
 
         return e0, b0, b1, v0
 
@@ -194,12 +193,12 @@ class EOSBase(metaclass=ABCMeta):
         plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", "{} fit".format(self.__class__.__name__))
+        label = kwargs.get("label", f"{self.__class__.__name__} fit")
         lines = [
             "Equation of State: %s" % self.__class__.__name__,
             "Minimum energy = %1.2f eV" % self.e0,
             "Minimum or reference volume = %1.2f Ang^3" % self.v0,
-            "Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" % (self.b0, self.b0_GPa),
+            f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
             "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1,
         ]
         text = "\n".join(lines)
@@ -243,12 +242,12 @@ class EOSBase(metaclass=ABCMeta):
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", "{} fit".format(self.__class__.__name__))
+        label = kwargs.get("label", f"{self.__class__.__name__} fit")
         lines = [
             "Equation of State: %s" % self.__class__.__name__,
             "Minimum energy = %1.2f eV" % self.e0,
             "Minimum or reference volume = %1.2f Ang^3" % self.v0,
-            "Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" % (self.b0, self.b0_GPa),
+            f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
             "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1,
         ]
         text = "\n".join(lines)
@@ -523,7 +522,7 @@ class NumericalEOS(PolynomialEOS):
             e_v_work.pop(0)
             ndata_fit = len(e_v_work)
 
-        logger.info("total number of polynomials: {}".format(len(all_coeffs)))
+        logger.info(f"total number of polynomials: {len(all_coeffs)}")
 
         norm = 0.0
         fit_poly_order = ndata

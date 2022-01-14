@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -868,7 +867,7 @@ class PESScanSet(QChemDictSet):
         self.max_scf_cycles = max_scf_cycles
 
         if scan_variables is None:
-            raise ValueError("Cannot run a pes_scan job without some variable " "to scan over!")
+            raise ValueError("Cannot run a pes_scan job without some variable to scan over!")
 
         super().__init__(
             molecule=molecule,

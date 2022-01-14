@@ -215,15 +215,15 @@ class SOCSpillage:
         print("                   INDIRECT DIRECT      HOMO/LUMO (eV)")
         print(
             "no spin-orbit gaps",
-            "{:+.3f}".format(float(noso_lumo - noso_homo)),
-            "{:+.3f}".format(noso_direct),
+            f"{float(noso_lumo - noso_homo):+.3f}",
+            f"{noso_direct:+.3f}",
             "   ",
             [noso_homo, noso_lumo],
         )
         print(
             "spin-orbit gaps   ",
-            "{:+.3f}".format(float(so_lumo - so_homo)),
-            "{:+.3f}".format(so_direct),
+            f"{float(so_lumo - so_homo):+.3f}",
+            f"{so_direct:+.3f}",
             "   ",
             [so_homo, so_lumo],
         )

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,6 +7,9 @@ import warnings
 from numbers import Number
 from pathlib import Path
 from collections import OrderedDict
+import json
+
+from monty.json import MontyEncoder, MontyDecoder
 
 import numpy as np
 
@@ -23,7 +25,6 @@ from pymatgen.analysis.phase_diagram import (
     tet_coord,
     triangular_coord,
     uniquelines,
-    BasePhaseDiagram,
 )
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
@@ -580,13 +581,17 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(cp2["FeO-LiFeO2-Fe"][elem], energy)
 
     def test_to_from_dict(self):
-
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
         pd = PhaseDiagram([entry])
         d = pd.as_dict()
         pd_roundtrip = PhaseDiagram.from_dict(d)
         self.assertEqual(pd.all_entries[0].entry_id, pd_roundtrip.all_entries[0].entry_id)
+        dd = self.pd.as_dict()
+        new_pd = PhaseDiagram.from_dict(dd)
+        new_dd = new_pd.as_dict()
+        self.assertEqual(new_dd, dd)
+        self.assertIsInstance(pd.to_json(), str)
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
@@ -599,7 +604,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         stable_formulas = [ent.original_entry.composition.reduced_formula for ent in self.pd.stable_entries]
         expected_stable = ["Li5FeO4", "Li2FeO3", "LiFeO2", "Fe2O3", "Li2O2"]
         for formula in expected_stable:
-            self.assertTrue(formula in stable_formulas, "{} not in stable entries!".format(formula))
+            self.assertTrue(formula in stable_formulas, f"{formula} not in stable entries!")
         self.assertEqual(len(self.pd6.stable_entries), 4)
 
     def test_get_formation_energy(self):
@@ -619,30 +624,11 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                 energy,
                 stable_formation_energies[formula],
                 7,
-                "Calculated formation for {} is not correct!".format(formula),
+                f"Calculated formation for {formula} is not correct!",
             )
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
-
-
-class BasePhaseDiagramTest(PhaseDiagramTest):
-    def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
-        self.pd = BasePhaseDiagram.from_entries(self.entries)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
-    def test_init(self):
-        pass
-
-    def test_as_dict_from_dict(self):
-        dd = self.pd.as_dict()
-        new_pd = BasePhaseDiagram.from_dict(dd)
-        new_dd = new_pd.as_dict()
-        self.assertEqual(new_dd, dd)
 
 
 class CompoundPhaseDiagramTest(unittest.TestCase):

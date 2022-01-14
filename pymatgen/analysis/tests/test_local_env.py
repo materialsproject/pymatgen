@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import os
@@ -198,8 +197,8 @@ class VoronoiNNTest(PymatgenTest):
             by_one = self.nn.get_nn_info(self.s, i)
 
             # Get the weights
-            all_weights = sorted([x["weight"] for x in info])
-            by_one_weights = sorted([x["weight"] for x in by_one])
+            all_weights = sorted(x["weight"] for x in info)
+            by_one_weights = sorted(x["weight"] for x in by_one)
 
             self.assertArrayAlmostEqual(all_weights, by_one_weights)
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -17,7 +16,7 @@ try:
     have_babel = True
 except ImportError:
     have_babel = False
-    print("OpenBabel not found, parsed molecules structures will not be  " "checked")
+    print("OpenBabel not found, parsed molecules structures will not be  checked")
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"

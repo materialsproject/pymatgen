@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -241,7 +240,7 @@ class MoleculeStructureComparator(MSONable):
         elements = mol.composition.as_dict().keys()
         unavailable_elements = list(set(elements) - set(self.covalent_radius.keys()))
         if len(unavailable_elements) > 0:
-            raise ValueError("The covalent radius for element {} is not " "available".format(unavailable_elements))
+            raise ValueError(f"The covalent radius for element {unavailable_elements} is not available")
         bond_13 = self.get_13_bonds(self.priority_bonds)
         max_length = [
             (self.covalent_radius[mol.sites[p[0]].specie.symbol] + self.covalent_radius[mol.sites[p[1]].specie.symbol])

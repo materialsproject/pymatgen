@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -53,17 +52,17 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
         drone = VaspToComputedEntryDrone(inc_structure=True, data=["filename", "initial_structure"])
 
     ncpus = multiprocessing.cpu_count()
-    logging.info("Detected {} cpus".format(ncpus))
+    logging.info(f"Detected {ncpus} cpus")
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(SAVE_FILE) and not reanalyze:
-        msg = "Using previously assimilated data from {}.".format(SAVE_FILE) + " Use -r to force re-analysis."
+        msg = f"Using previously assimilated data from {SAVE_FILE}." + " Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
         if ncpus > 1:
             queen.parallel_assimilate(rootdir)
         else:
             queen.serial_assimilate(rootdir)
-        msg = "Analysis results saved to {} for faster ".format(SAVE_FILE) + "subsequent loading."
+        msg = f"Analysis results saved to {SAVE_FILE} for faster " + "subsequent loading."
         queen.save_data(SAVE_FILE)
 
     entries = queen.get_data()
@@ -78,13 +77,13 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
             delta_vol = "NA"
         else:
             delta_vol = e.structure.volume / e.data["initial_structure"].volume - 1
-            delta_vol = "{:.2f}".format(delta_vol * 100)
+            delta_vol = f"{delta_vol * 100:.2f}"
         all_data.append(
             (
                 e.data["filename"].replace("./", ""),
                 re.sub(r"\s+", "", e.composition.formula),
-                "{:.5f}".format(e.energy),
-                "{:.5f}".format(e.energy_per_atom),
+                f"{e.energy:.5f}",
+                f"{e.energy_per_atom:.5f}",
                 delta_vol,
             )
         )
@@ -159,7 +158,7 @@ def analyze(args):
         if args.ion_list[0] == "All":
             ion_list = None
         else:
-            (start, end) = [int(i) for i in re.split(r"-", args.ion_list[0])]
+            (start, end) = (int(i) for i in re.split(r"-", args.ion_list[0]))
             ion_list = list(range(start, end + 1))
         for d in args.directories:
             return get_magnetizations(d, ion_list)

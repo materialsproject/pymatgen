@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -194,7 +193,7 @@ class QCInput(MSONable):
         Returns:
             (str) String representation of multi job input file.
         """
-        multi_job_string = str()
+        multi_job_string = ""
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
                 multi_job_string += job_i.__str__() + "\n@@@\n\n"
@@ -326,9 +325,7 @@ class QCInput(MSONable):
             else:
                 raise ValueError('The only acceptable text value for molecule is "read"')
         else:
-            mol_list.append(
-                " {charge} {spin_mult}".format(charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity)
-            )
+            mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
                 mol_list.append(
                     " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
@@ -350,7 +347,7 @@ class QCInput(MSONable):
         rem_list = []
         rem_list.append("$rem")
         for key, value in rem.items():
-            rem_list.append("   {key} = {value}".format(key=key, value=value))
+            rem_list.append(f"   {key} = {value}")
         rem_list.append("$end")
         return "\n".join(rem_list)
 
@@ -369,11 +366,11 @@ class QCInput(MSONable):
         opt_list.append("$opt")
         # loops over all opt sections
         for key, value in opt.items():
-            opt_list.append("{section}".format(section=key))
+            opt_list.append(f"{key}")
             # loops over all values within the section
             for i in value:
-                opt_list.append("   {val}".format(val=i))
-            opt_list.append("END{section}".format(section=key))
+                opt_list.append(f"   {i}")
+            opt_list.append(f"END{key}")
             opt_list.append("")
         # this deletes the empty space after the last section
         del opt_list[-1]
@@ -394,7 +391,7 @@ class QCInput(MSONable):
         pcm_list = []
         pcm_list.append("$pcm")
         for key, value in pcm.items():
-            pcm_list.append("   {key} {value}".format(key=key, value=value))
+            pcm_list.append(f"   {key} {value}")
         pcm_list.append("$end")
         return "\n".join(pcm_list)
 
@@ -412,7 +409,7 @@ class QCInput(MSONable):
         solvent_list = []
         solvent_list.append("$solvent")
         for key, value in solvent.items():
-            solvent_list.append("   {key} {value}".format(key=key, value=value))
+            solvent_list.append(f"   {key} {value}")
         solvent_list.append("$end")
         return "\n".join(solvent_list)
 
@@ -431,7 +428,7 @@ class QCInput(MSONable):
             if value == "tetrahydrofuran":
                 smx_list.append("   {key} {value}".format(key=key, value="thf"))
             else:
-                smx_list.append("   {key} {value}".format(key=key, value=value))
+                smx_list.append(f"   {key} {value}")
         smx_list.append("$end")
         return "\n".join(smx_list)
 
@@ -447,13 +444,13 @@ class QCInput(MSONable):
         """
         scan_list = []
         scan_list.append("$scan")
-        total_vars = sum([len(v) for v in scan.values()])
+        total_vars = sum(len(v) for v in scan.values())
         if total_vars > 2:
-            raise ValueError("Q-Chem only supports PES_SCAN with two or less " "variables.")
+            raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
                 for var in variables:
-                    scan_list.append("   {var_type} {var}".format(var_type=var_type, var=var))
+                    scan_list.append(f"   {var_type} {var}")
         scan_list.append("$end")
         return "\n".join(scan_list)
 
@@ -500,7 +497,7 @@ class QCInput(MSONable):
         plots_list = []
         plots_list.append("$plots")
         for key, value in plots.items():
-            plots_list.append("   {key} {value}".format(key=key, value=value))
+            plots_list.append(f"   {key} {value}")
         plots_list.append("$end")
         return "\n".join(plots_list)
 
@@ -516,7 +513,7 @@ class QCInput(MSONable):
         nbo_list = []
         nbo_list.append("$nbo")
         for key, value in nbo.items():
-            nbo_list.append("   {key} = {value}".format(key=key, value=value))
+            nbo_list.append(f"   {key} = {value}")
         nbo_list.append("$end")
         return "\n".join(nbo_list)
 

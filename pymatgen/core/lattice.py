@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -921,7 +920,7 @@ class Lattice(MSONable):
         for reflection_matrix in reflection_matrices:
             all_reflections.append(np.dot(selling1, reflection_matrix))
 
-        return min([np.linalg.norm(reflection - selling2) for reflection in all_reflections])
+        return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)
 
     def __repr__(self):
         outs = [
@@ -1841,7 +1840,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
     mi = np.asarray(miller_index)
     # deal with the case we have small irregular floats
     # that are all equal or factors of each other
-    mi /= min([m for m in mi if m != 0])
+    mi /= min(m for m in mi if m != 0)
     mi /= np.max(np.abs(mi))
 
     # deal with the case we have nice fractions

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -94,7 +93,7 @@ class ChemicalPotentialDiagram(MSONable):
         ) = self._get_hyperplanes_and_entries()
 
         if self.dim < 2:
-            raise ValueError("ChemicalPotentialDiagram currently requires phase " "diagrams with 2 or more elements!")
+            raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")
 
         if len(self.el_refs) != self.dim:
             missing = set(self.elements).difference(self.el_refs.keys())
@@ -192,7 +191,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     def _get_border_hyperplanes(self) -> np.ndarray:
         """Returns an array of the bounding hyperplanes given by elemental limits"""
-        border_hyperplanes = np.array(([[0] * (self.dim + 1)] * (2 * self.dim)))
+        border_hyperplanes = np.array([[0] * (self.dim + 1)] * (2 * self.dim))
 
         for idx, limit in enumerate(self.lims):
             border_hyperplanes[2 * idx, idx] = -1
@@ -546,7 +545,7 @@ class ChemicalPotentialDiagram(MSONable):
     @property
     def chemical_system(self) -> str:
         """Returns the chemical system (A-B-C-...) of diagram object"""
-        return "-".join(sorted([e.symbol for e in self.elements]))
+        return "-".join(sorted(e.symbol for e in self.elements))
 
     def __repr__(self):
         return f"ChemicalPotentialDiagram for {self.chemical_system} with {len(self.entries)} " f"entries"

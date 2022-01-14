@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -469,7 +468,7 @@ class WulffShape:
         # set ranges of x, y, z
         # find the largest distance between on_wulff pts and the origin,
         # to ensure complete and consistent display for all directions
-        r_range = max([np.linalg.norm(x) for x in wulff_pt_list])
+        r_range = max(np.linalg.norm(x) for x in wulff_pt_list)
         ax.set_xlim([-r_range * 1.1, r_range * 1.1])
         ax.set_ylim([-r_range * 1.1, r_range * 1.1])
         ax.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
@@ -602,7 +601,7 @@ class WulffShape:
                     i=tri_indices[0],
                     j=tri_indices[1],
                     k=tri_indices[2],
-                    hovertemplate="<br>%{text}<br>" + "%s=%.3f %s<br>" % ("\u03b3", plane.e_surf, units),
+                    hovertemplate="<br>%{text}<br>" + "{}={:.3f} {}<br>".format("\u03b3", plane.e_surf, units),
                     color=color,
                     text=[r"Miller index: %s" % hkl] * len(x_pts),
                     hoverinfo="name",

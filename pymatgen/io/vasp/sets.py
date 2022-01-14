@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -282,12 +281,14 @@ class DictSet(VaspInputSet):
     structure and the configuration settings. The order in which the magmom is
     determined is as follows:
 
-    1. If the site itself has a magmom setting, that is used.
-    2. If the species on the site has a spin setting, that is used.
+    1. If the site itself has a magmom setting (i.e. site.properties["magmom"] = float),
+        that is used. This can be set with structure.add_site_property().
+    2. If the species of the site has a spin setting, that is used. This can be set
+        with structure.add_spin_by_element().
     3. If the species itself has a particular setting in the config file, that
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
-       there are no settings, VASP's default of 0.6 is used.
+       there are no settings, a default value of 0.6 is used.
     """
 
     def __init__(
@@ -375,7 +376,7 @@ class DictSet(VaspInputSet):
             international_monoclinic (bool): Whether to use international convention
                 (vs Curtarolo) for monoclinic. Defaults True.
             validate_magmom (bool): Ensure that the missing magmom values are filled
-                in with the vasp default value of 1.0
+                in with the VASP default value of 1.0
         """
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
@@ -431,7 +432,7 @@ class DictSet(VaspInputSet):
             )
         if potcar_functional:
             warnings.warn(
-                "'potcar_functional' argument is deprecated. Use " "'user_potcar_functional' instead.",
+                "'potcar_functional' argument is deprecated. Use 'user_potcar_functional' instead.",
                 FutureWarning,
             )
             self.potcar_functional = potcar_functional
@@ -495,7 +496,7 @@ class DictSet(VaspInputSet):
         structure = self.structure
         incar = Incar()
         comp = structure.composition
-        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda e: e.X)
+        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         hubbard_u = settings.get("LDAU", False)
@@ -504,24 +505,30 @@ class DictSet(VaspInputSet):
             if k == "MAGMOM":
                 mag = []
                 for site in structure:
+                    if v and not isinstance(v, dict):
+                        raise TypeError(
+                            "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
+                            "If you want site-specific magnetic moments, set them in the site magmom properties "
+                            "of the site objects in the structure."
+                        )
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, "spin"):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
-                        if site.specie.symbol == "Co":
+                        if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
                             warnings.warn(
-                                "Co without oxidation state is initialized low spin by default. If this is "
-                                "not desired, please set the spin on the magmom on the site directly to "
-                                "ensure correct initialization"
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
                             )
                         mag.append(v.get(str(site.specie)))
                     else:
                         if site.specie.symbol == "Co":
                             warnings.warn(
-                                "Co without oxidation state is initialized low spin by default. If this is "
-                                "not desired, please set the spin on the magmom on the site directly to "
-                                "ensure correct initialization"
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
                             )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
@@ -568,12 +575,40 @@ class DictSet(VaspInputSet):
             elif any(el.Z > 20 for el in structure.composition):
                 incar["LMAXMIX"] = 4
 
+        # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
+        if not incar.get("LASPH", False) and (
+            incar.get("METAGGA")
+            or incar.get("LHFCALC", False)
+            or incar.get("LDAU", False)
+            or incar.get("LUSE_VDW", False)
+        ):
+            warnings.warn(
+                "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
+                BadInputSetWarning,
+            )
+
         if self.constrain_total_magmom:
-            nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"]])
+            nupdown = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
+            if abs(nupdown - round(nupdown)) > 1e-5:
+                warnings.warn(
+                    "constrain_total_magmom was set to True, but the sum of MAGMOM "
+                    "values is not an integer. NUPDOWN is meant to set the spin "
+                    "multiplet and should typically be an integer. You are likely "
+                    "better off changing the values of MAGMOM or simply setting "
+                    "NUPDOWN directly in your INCAR settings.",
+                    UserWarning,
+                )
             incar["NUPDOWN"] = nupdown
 
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
+
+        # Check that ALGO is appropriate
+        if incar.get("LHFCALC", False) is True and incar.get("ALGO", "Normal") not in ["Normal", "All", "Damped"]:
+            warnings.warn(
+                "Hybrid functionals only support Algo = All, Damped, or Normal.",
+                BadInputSetWarning,
+            )
 
         # Ensure adequate number of KPOINTS are present for the tetrahedron
         # method (ISMEAR=-5). If KSPACING is in the INCAR file the number
@@ -620,10 +655,8 @@ class DictSet(VaspInputSet):
         """
         nelectrons_by_element = {p.element: p.nelectrons for p in self.potcar}
         nelect = sum(
-            [
-                num_atoms * nelectrons_by_element[str(el)]
-                for el, num_atoms in self.structure.composition.element_composition.items()
-            ]
+            num_atoms * nelectrons_by_element[str(el)]
+            for el, num_atoms in self.structure.composition.element_composition.items()
         )
 
         if self.use_structure_charge:
@@ -769,7 +802,7 @@ class DictSet(VaspInputSet):
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max([i_species.enmax for i_species in self.all_input["POTCAR"]])
+            encut = max(i_species.enmax for i_species in self.all_input["POTCAR"])
         #
 
         _CUTOF = [
@@ -990,7 +1023,7 @@ class MPScanRelaxSet(DictSet):
         if self.vdw:
             if self.vdw != "rvv10":
                 warnings.warn(
-                    "Use of van der waals functionals other than rVV10 " "with SCAN is not supported at this time. "
+                    "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. "
                 )
                 # delete any vdw parameters that may have been added to the INCAR
                 vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
@@ -1141,7 +1174,7 @@ class MPStaticSet(MPRelaxSet):
         if incar.get("LDAU"):
             u = incar.get("LDAUU", [])
             j = incar.get("LDAUJ", [])
-            if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
+            if sum(u[x] - j[x] for x, y in enumerate(u)) > 0:
                 for tag in ("LDAUU", "LDAUL", "LDAUJ"):
                     incar.update({tag: parent_incar[tag]})
             # ensure to have LMAXMIX for GGA+U static run
@@ -1167,9 +1200,9 @@ class MPStaticSet(MPRelaxSet):
             if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
                 if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                     k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-                    kpoints = Kpoints.monkhorst_automatic(k_div)
+                    kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
                 else:
-                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir="."):
@@ -1564,10 +1597,10 @@ class MPNonSCFSet(MPRelaxSet):
         self.small_gap_multiply = small_gap_multiply
 
         if self.mode.lower() not in ["line", "uniform", "boltztrap"]:
-            raise ValueError("Supported modes for NonSCF runs are 'Line', " "'Uniform' and 'Boltztrap!")
+            raise ValueError("Supported modes for NonSCF runs are 'Line', 'Uniform' and 'Boltztrap!")
 
         if (self.mode.lower() != "uniform" or nedos < 2000) and optics:
-            warnings.warn("It is recommended to use Uniform mode with a high " "NEDOS for optics calculations.")
+            warnings.warn("It is recommended to use Uniform mode with a high NEDOS for optics calculations.")
 
     @property
     def incar(self) -> Incar:
@@ -1718,8 +1751,8 @@ class MPNonSCFSet(MPRelaxSet):
 
         # automatic setting of nedos using the energy range and the energy step dedos
         if self.nedos == 0:
-            emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
-            emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
+            emax = max(eigs.max() for eigs in vasprun.eigenvalues.values())
+            emin = min(eigs.min() for eigs in vasprun.eigenvalues.values())
             self.nedos = int((emax - emin) / self.dedos)
 
         return self
@@ -1846,7 +1879,7 @@ class MPSOCSet(MPStaticSet):
                     site_properties={"magmom": [[0, 0, site.magmom] for site in self._structure]}
                 )
         else:
-            raise ValueError("Neither the previous structure has magmom " "property nor magmom provided")
+            raise ValueError("Neither the previous structure has magmom property nor magmom provided")
 
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * self.nbands_factor))
         self.prev_incar.update({"NBANDS": nbands})
@@ -2044,7 +2077,7 @@ class MVLGWSet(DictSet):
         self.reciprocal_density = reciprocal_density
         self.mode = mode.upper()
         if self.mode not in MVLGWSet.SUPPORTED_MODES:
-            raise ValueError("%s not one of the support modes : %s" % (self.mode, MVLGWSet.SUPPORTED_MODES))
+            raise ValueError(f"{self.mode} not one of the support modes : {MVLGWSet.SUPPORTED_MODES}")
         self.kwargs = kwargs
         self.copy_wavecar = copy_wavecar
         self.nbands_factor = nbands_factor
@@ -2484,7 +2517,7 @@ class MITNEBSet(MITRelaxSet):
                 d.mkdir(parents=True)
             p.write_file(str(d / "POSCAR"))
             if write_cif:
-                p.structure.to(filename=str(d / "{}.cif".format(i)))
+                p.structure.to(filename=str(d / f"{i}.cif"))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(self.structures[0], user_incar_settings=self.user_incar_settings)
 
@@ -2819,6 +2852,7 @@ class LobsterSet(MPRelaxSet):
             else:
                 self.reciprocal_density = reciprocal_density
 
+        self._config_dict['POTCAR'].update({"W": "W_sv"})
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
@@ -2920,7 +2954,7 @@ def get_structure_from_prev_run(vasprun, outcar=None):
             if len(l_val) == len(structure):
                 site_properties.update({k.lower(): l_val})
             else:
-                raise ValueError("length of list {} not the same as" "structure".format(l_val))
+                raise ValueError(f"length of list {l_val} not the same as structure")
 
     return structure.copy(site_properties=site_properties)
 
@@ -2947,7 +2981,7 @@ def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True
     vpa_new = new_structure.volume / new_structure.num_sites
 
     if abs(vpa_old - vpa_new) / vpa_old > 0.02:
-        raise ValueError("Standardizing cell failed! VPA old: {}, VPA new: {}".format(vpa_old, vpa_new))
+        raise ValueError(f"Standardizing cell failed! VPA old: {vpa_old}, VPA new: {vpa_new}")
 
     sm = StructureMatcher()
     if not sm.fit(structure, new_structure):
@@ -3014,7 +3048,7 @@ def batch_write_input(
             subdir = subfolder(s)
             d = output_dir / subdir
         else:
-            d = output_dir / "{}_{}".format(formula, i)
+            d = output_dir / f"{formula}_{i}"
         if sanitize:
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
@@ -3037,7 +3071,7 @@ _dummy_structure = Structure(
 
 def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     """
-    Make sure that the structure is valid magmoms based on the kind of caculation
+    Make sure that the structure has valid magmoms based on the kind of caculation
     Fill in missing Magmom values
 
     Args:
@@ -3060,10 +3094,12 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
         for isite in structure.sites:
             if "magmom" not in isite.properties or isite.properties["magmom"] is None:
                 pass
-            elif isinstance(isite.properties["magmom"], float):
+            elif isinstance(isite.properties["magmom"], (float, int)):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
+                if isinstance(isite.properties["magmom"], int):
+                    isite.properties["magmom"] = float(isite.properties["magmom"])
             elif len(isite.properties["magmom"]) == 3:
                 if mode == "s":
                     raise TypeError("Magmom type conflict")

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
@@ -129,7 +128,7 @@ class Control(MSONable, dict):
     @classmethod
     @requires(
         f90nml,
-        "ShengBTE Control object requires f90nml to be installed. " "Please get it at https://pypi.org/project/f90nml.",
+        "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
     def from_file(cls, filepath: str):
         """
@@ -169,7 +168,7 @@ class Control(MSONable, dict):
 
     @requires(
         f90nml,
-        "ShengBTE Control object requires f90nml to be installed. " "Please get it at https://pypi.org/project/f90nml.",
+        "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
     def to_file(self, filename: str = "CONTROL"):
         """
@@ -181,7 +180,7 @@ class Control(MSONable, dict):
 
         for param in self.required_params:
             if param not in self.as_dict():
-                warnings.warn("Required parameter '{}' not specified!".format(param))
+                warnings.warn(f"Required parameter '{param}' not specified!")
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})
@@ -255,7 +254,7 @@ class Control(MSONable, dict):
         """
         required = ["lattvec", "types", "elements", "positions"]
         if not all(r in self for r in required):
-            raise ValueError("All of ['lattvec', 'types', 'elements', 'positions'] must be " "in control object")
+            raise ValueError("All of ['lattvec', 'types', 'elements', 'positions'] must be in control object")
 
         unique_elements = self["elements"]
         n_unique_elements = len(unique_elements)

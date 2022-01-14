@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -46,10 +45,10 @@ if __name__ == "__main__":
             continue
         print(cg.name)
         for ipoint, point in enumerate(cg.points):
-            print("Point #{:d} : {} {} {}".format(ipoint, repr(point[0]), repr(point[1]), repr(point[2])))
+            print(f"Point #{ipoint:d} : {repr(point[0])} {repr(point[1])} {repr(point[2])}")
         print("Algorithms used :")
         for ialgo, algo in enumerate(cg.algorithms):
-            print("Algorithm #{:d} :".format(ialgo))
+            print(f"Algorithm #{ialgo:d} :")
             print(algo)
             print("")
         # Visualize the separation plane of a given algorithm
@@ -82,7 +81,7 @@ if __name__ == "__main__":
                 centre = np.sum(pts, axis=0) / len(pts)
 
             factor = 1.5
-            target_dist = max([np.dot(pp - centre, pp - centre) for pp in cg_points])
+            target_dist = max(np.dot(pp - centre, pp - centre) for pp in cg_points)
             current_dist = np.dot(pts[0] - centre, pts[0] - centre)
             factor = factor * target_dist / current_dist
             plane = Plane.from_npoints(points=pts)

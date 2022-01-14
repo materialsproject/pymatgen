@@ -1,6 +1,6 @@
 # Default VASP settings for calculations in the Materials Project
-# using the Strongly Constrained and Appropriately Normed (SCAN)
-# functional.
+# using the Regularized-Restored Strongly Constrained and Appropriately
+# Normed functional (r2SCAN).
 PARENT: VASPIncarBase
 INCAR:
   ALGO: ALL
@@ -29,8 +29,10 @@ POTCAR:
   Ac: Ac
   Ag: Ag
   Al: Al
+  Am: Am
   Ar: Ar
   As: As
+  At: At
   Au: Au
   B: B
   Ba: Ba_sv
@@ -41,7 +43,9 @@ POTCAR:
   Ca: Ca_sv
   Cd: Cd
   Ce: Ce
+  Cf: Cf
   Cl: Cl
+  Cm: Cm
   Co: Co
   Cr: Cr_pv
   Cs: Cs_sv
@@ -51,6 +55,7 @@ POTCAR:
   Eu: Eu
   F: F
   Fe: Fe_pv
+  Fr: Fr_sv
   Ga: Ga_d
   Gd: Gd
   Ge: Ge_d
@@ -84,12 +89,15 @@ POTCAR:
   Pb: Pb_d
   Pd: Pd
   Pm: Pm_3
+  Po: Po_d
   Pr: Pr_3
   Pt: Pt
   Pu: Pu
+  Ra: Ra_sv
   Rb: Rb_sv
   Re: Re_pv
   Rh: Rh_pv
+  Rn: Rn
   Ru: Ru_pv
   S: S
   Sb: Sb

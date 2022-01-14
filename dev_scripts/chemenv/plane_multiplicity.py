@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -37,5 +36,5 @@ if __name__ == "__main__":
         all_plane_points = list(set(all_plane_points))
         all_plane_points = [list(equiv_plane) for equiv_plane in all_plane_points]
 
-    print("All plane points ({:d}) for {} : ".format(len(all_plane_points), cg_symbol))
+    print(f"All plane points ({len(all_plane_points):d}) for {cg_symbol} : ")
     print(all_plane_points)

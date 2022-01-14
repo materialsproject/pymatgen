@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -127,7 +126,7 @@ class PWInput:
                         sub.append("  %s(%d) = %s" % (k2, n, to_str(v1[k2][n - 1])))
                         n += 1
                 else:
-                    sub.append("  %s = %s" % (k2, to_str(v1[k2])))
+                    sub.append(f"  {k2} = {to_str(v1[k2])}")
             if k1 == "system":
                 if "ibrav" not in self.sections[k1]:
                     sub.append("  ibrav = 0")
@@ -145,27 +144,36 @@ class PWInput:
                 p = v
             else:
                 p = v["pseudo"]
-            out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, p))
+            out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
         out.append("ATOMIC_POSITIONS crystal")
         if self.pseudo is not None:
             for site in self.structure:
-                out.append("  %s %.6f %.6f %.6f" % (site.specie, site.a, site.b, site.c))
+                out.append(f"  {site.specie} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
         else:
             for site in self.structure:
                 name = None
                 for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
                     if v == site.properties:
                         name = k
-                out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
+                out.append(f"  {name} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
 
         out.append("K_POINTS %s" % self.kpoints_mode)
-        kpt_str = ["%s" % i for i in self.kpoints_grid]
-        kpt_str.extend(["%s" % i for i in self.kpoints_shift])
-        out.append("  %s" % " ".join(kpt_str))
+        if self.kpoints_mode == "automatic":
+            kpt_str = ["%s" % i for i in self.kpoints_grid]
+            kpt_str.extend(["%s" % i for i in self.kpoints_shift])
+            out.append("  %s" % " ".join(kpt_str))
+        elif self.kpoints_mode == "crystal_b":
+            out.append(" %s" % str(len(self.kpoints_grid)))
+            for i in range(len(self.kpoints_grid)):
+                kpt_str = ["%.s" % str(i) for i in self.kpoints_grid[i]]
+                out.append(" %s" % " ".join(kpt_str))
+        elif self.kpoints_mode == "gamma":
+            pass
+
         out.append("CELL_PARAMETERS angstrom")
         for vec in self.structure.lattice.matrix:
-            out.append("  %f %f %f" % (vec[0], vec[1], vec[2]))
+            out.append(f"  {vec[0]:f} {vec[1]:f} {vec[2]:f}")
         return "\n".join(out)
 
     def as_dict(self):
@@ -253,9 +261,11 @@ class PWInput:
             if "ATOMIC_SPECIES" in line:
                 return ("pseudo",)
             if "K_POINTS" in line:
-                return "kpoints", line.split("{")[1][:-1]
+                return "kpoints", line.split()[1]
+            if "OCCUPATIONS" in line:
+                return "occupations"
             if "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
-                return "structure", line.split("{")[1][:-1]
+                return "structure", line.split()[1]
             if line == "/":
                 return None
             return mode
@@ -268,7 +278,6 @@ class PWInput:
             "cell": {},
         }
         pseudo = {}
-        pseudo_index = 0
         lattice = []
         species = []
         coords = []
@@ -301,10 +310,7 @@ class PWInput:
             elif mode[0] == "pseudo":
                 m = re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line)
                 if m:
-                    pseudo[m.group(1).strip()] = {}
-                    pseudo[m.group(1).strip()]["index"] = pseudo_index
-                    pseudo[m.group(1).strip()]["pseudopot"] = m.group(3).strip()
-                    pseudo_index += 1
+                    pseudo[m.group(1).strip()] = m.group(3).strip()
             elif mode[0] == "kpoints":
                 m = re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line)
                 if m:
@@ -312,6 +318,9 @@ class PWInput:
                     kpoints_shift = (int(m.group(4)), int(m.group(5)), int(m.group(6)))
                 else:
                     kpoints_mode = mode[1]
+                    kpoints_grid = (1, 1, 1)
+                    kpoints_shift = (0, 0, 0)
+
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
@@ -322,18 +331,14 @@ class PWInput:
                         float(m_l.group(3)),
                     ]
                 elif m_p:
-                    site_properties["pseudo"].append(pseudo[m_p.group(1)]["pseudopot"])
-                    species += [pseudo[m_p.group(1)]["pseudopot"].split(".")[0]]
+                    site_properties["pseudo"].append(pseudo[m_p.group(1)])
+                    species.append(m_p.group(1))
                     coords += [[float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]]
 
-                    for k, v in site_properties.items():
-                        if k != "pseudo":
-                            v.append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
-                if mode[1] == "angstrom":
-                    coords_are_cartesian = True
-                elif mode[1] == "crystal":
-                    coords_are_cartesian = False
-
+                    if mode[1] == "angstrom":
+                        coords_are_cartesian = True
+                    elif mode[1] == "crystal":
+                        coords_are_cartesian = False
         structure = Structure(
             Lattice(lattice),
             species,
@@ -344,6 +349,7 @@ class PWInput:
         return PWInput(
             structure=structure,
             control=sections["control"],
+            pseudo=pseudo,
             system=sections["system"],
             electrons=sections["electrons"],
             ions=sections["ions"],

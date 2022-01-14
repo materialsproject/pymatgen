@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -112,7 +111,7 @@ class GruneisenParameter(MSONable):
         elif limit_frequencies is None:
             ind = np.where(w >= 0)
         else:
-            raise ValueError("{} is not an accepted value for limit_frequencies".format(limit_frequencies))
+            raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies")
 
         weights = self.multiplicities
         g = np.dot(weights[ind[0]], np.multiply(cv, gamma)[ind]).sum() / np.dot(weights[ind[0]], cv[ind]).sum()
