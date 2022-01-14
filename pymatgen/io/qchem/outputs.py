@@ -1632,7 +1632,10 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
         try:
             lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
         except RuntimeError:
-            no_failures = False
+            try:
+                lines = jump_to_header(lines, "(Occupancy)   Bond orbital / Coefficients / Hybrids")
+            except RuntimeError:
+                no_failures = False
 
         if no_failures:
 
