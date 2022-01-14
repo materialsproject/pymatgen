@@ -365,9 +365,11 @@ class Cp2kOutput:
             while True:
                 line = f.readline()
                 if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
-                    f.readline()
                     for i in range(self.data["num_atoms"][0][0]):
-                        coord_table.append(f.readline().split())
+                        line = f.readline()
+                        if line == "":
+                            continue
+                        coord_table.append(line.split())
                     break
 
         lattice = self.parse_cell_params()
