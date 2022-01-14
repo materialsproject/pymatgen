@@ -19,7 +19,7 @@ In order to implement a new Set within the current code structure, follow this 3
 
 import os
 import warnings
-from typing import Dict, Union
+from typing import Dict, Iterable, Union
 from pathlib import Path
 from ruamel import yaml
 import numpy as np
@@ -56,6 +56,7 @@ from pymatgen.io.cp2k.utils import (
     get_aux_basis,
     get_unique_site_indices,
     get_cutoff_from_basis,
+    get_xc_functionals,
 )
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
@@ -412,6 +413,7 @@ class DftSet(Cp2kInputSet):
             wfn_restart_file_name=wfn_restart_file_name,
         )
 
+        # Set kpoints only if user supplies them
         if kpoints:
             dft.insert(Kpoints.from_kpoints(kpoints, structure=self.structure, reduce=True))
         if smearing or (band_gap <= 0.0):
@@ -421,9 +423,8 @@ class DftSet(Cp2kInputSet):
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
-        xc_functionals = kwargs.get("xc_functional", "PBE")
-        xc_functionals = xc_functionals if isinstance(xc_functionals, (list, tuple)) else [xc_functionals]
-        xc_functional = XC_FUNCTIONAL(functional='', subsections={xcf: Section(xcf) for xcf in xc_functionals})
+        xc_functionals = get_xc_functionals(kwargs.get("xc_functional", "PBE"))
+        xc_functional = XC_FUNCTIONAL(functionals=xc_functionals)
         xc = Section("XC", subsections={"XC_FUNCTIONAL": xc_functional})
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
@@ -600,7 +601,7 @@ class DftSet(Cp2kInputSet):
                         "AUX_FIT" in k.values for k in v.keywords["BASIS_SET"]
                     ):
                         continue
-                    elif any("AUX_FIT" == k.upper() for k in v.keywords["BASIS_SET"].values):
+                    elif any(k.upper() == "AUX_FIT" for k in v.keywords["BASIS_SET"].values):
                         continue
                     kind = v["ELEMENT"].values[0]
                     v.keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
@@ -615,9 +616,6 @@ class DftSet(Cp2kInputSet):
             self.subsections["FORCE_EVAL"]["DFT"].insert(aux_matrix)
 
         # Define the GGA functional as PBE
-        pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
-        xc_functional = XC_FUNCTIONAL("PBE", subsections={"PBE": pbe})
-
         screening = Section(
             "SCREENING",
             subsections={},
@@ -631,6 +629,9 @@ class DftSet(Cp2kInputSet):
 
         ip_keywords = {}
         if hybrid_functional == "HSE06":
+            pbe = PBE("ORIG", scale_c=1, scale_x=0)
+            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+
             potential_type = potential_type if potential_type else "SHORTRANGE"
             xc_functional.insert(
                 Section(
@@ -638,15 +639,18 @@ class DftSet(Cp2kInputSet):
                     subsections={},
                     keywords={
                         "SCALE_X0": Keyword("SCALE_X0", 1),
-                        "SCALE_X": Keyword("SCALE_X", -hf_fraction),
-                        "OMEGA": Keyword("OMEGA", omega),
+                        "SCALE_X": Keyword("SCALE_X", -0.25),
+                        "OMEGA": Keyword("OMEGA", 0.11),
                     },
                 )
             )
             ip_keywords.update(
-                {"POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type), "OMEGA": Keyword("OMEGA", omega),}
+                {"POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type), "OMEGA": Keyword("OMEGA", 0.11)}
             )
         elif hybrid_functional == "PBE0":
+            pbe = PBE("ORIG", scale_c=1, scale_x=0.75)
+            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+
             potential_type = potential_type if potential_type else "TRUNCATED"
             ip_keywords.update(
                 {
@@ -661,6 +665,9 @@ class DftSet(Cp2kInputSet):
             coulomb operator and the long range operator using scale_longrange,
             scale_coulomb, cutoff_radius, and omega.            
             """
+            pbe = PBE("ORIG", scale_c=1, scale_x=0)
+            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+
             potential_type = potential_type if potential_type else "MIX_CL_TRUNC"
             hf_fraction = 1
             ip_keywords.update(
@@ -694,8 +701,10 @@ class DftSet(Cp2kInputSet):
                     },
                 )
             )
-            xc_functional["pbe"]["scale_x"] = Keyword("SCALE_X", 0)
         else:
+            pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
+            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+
             ip_keywords.update(
                 {
                     "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
@@ -914,7 +923,7 @@ class RelaxSet(DftSet):
             self.insert(Section("MOTION", subsections={}))
         self["MOTION"].insert(geo_opt)
         self.insert(global_section)
-        self.modify_dft_print_iters(max_iter + 1, add_last="numeric")
+        self.modify_dft_print_iters(0, add_last="numeric")
         self.update(override_default_params)
 
 
@@ -964,7 +973,7 @@ class CellOptSet(DftSet):
         self.kwargs = kwargs
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
-        self.modify_dft_print_iters(self.get("max_iter", 200) + 1, add_last="numeric")
+        self.modify_dft_print_iters(0, add_last="numeric")
         self.update(override_default_params)
 
 

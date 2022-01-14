@@ -20,7 +20,7 @@ import textwrap
 import warnings
 import itertools
 from collections import OrderedDict
-from typing import Dict, List, Tuple, Union, Sequence
+from typing import Dict, Iterable, List, Tuple, Union, Sequence
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -1719,48 +1719,31 @@ class BrokenSymmetry(Section):
             l_alpha=l_alpha, l_beta=l_beta, nel_alpha=nel_alpha, nel_beta=nel_beta, n_beta=n_beta, n_alpha=n_alpha
         )
 
-
 class XC_FUNCTIONAL(Section):
 
     """
-    Defines the XC functional to use
+    Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functional: str, subsections: dict = None, **kwargs):
+    def __init__(self, functionals: Iterable = [], subsections: dict = None, **kwargs):
         """
         Initialize the XC_FUNCTIONAL class
         """
 
-        self.functional = functional
+        self.functionals = functionals
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
 
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
-        built_in = [
-            "BL3YLP",
-            "BEEFVDW",
-            "BLYP",
-            "BP",
-            "HCTH120",
-            "LDA",
-            "NONE",
-            "NO_SHORTCUT",
-            "OLYP",
-            "PADE",
-            "PBE",
-            "PBE0",
-            "TPSS",
-        ]
-
-        section_params = [functional] if functional in built_in else []
+        for functional in functionals:
+            self.subsections[functional] = Section(functional, subsections={}, repeats=False)            
 
         super().__init__(
             "XC_FUNCTIONAL",
             subsections=self.subsections,
             location=location,
             repeats=False,
-            section_parameters=section_params,
             **kwargs,
         )
 

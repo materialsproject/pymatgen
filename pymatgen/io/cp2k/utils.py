@@ -5,6 +5,7 @@ Utility functions for assisting with cp2k IO
 import os
 import re
 from pathlib import Path
+import warnings
 import numpy as np
 from ruamel import yaml
 from monty.io import zopen
@@ -270,3 +271,39 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
         }
         exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
         return max([np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases)])
+
+
+# TODO this is not comprehensive. There are so many libxc functionals (e.g. see r2scan)
+# and their availability changes with libxc version. I see no easy way to deal with this
+# So these are just a few of the most common ones.
+# TODO whenever ADMM gets interfaced with LibXC, this should include hybrid functionals
+# and the sets will get more streamlined.
+def get_xc_functionals(name):
+    """
+    Get the XC functionals for a given functional name. This utility does 
+    not deal with defining hybrid functionals since those may or may not
+    require ADMM, which is not supported by LibXC and so needs to be manually
+    defined.
+    
+    Args:
+        name: Name of the functional.
+    """
+    name = name.upper()
+    if name == 'PBE':
+        return ['PBE']
+    if name == 'LDA' or name == 'PADE':
+        return ['PADE']
+    if name == 'B3LYP':
+        return ['B3LYP']
+    if name == 'BLYP':
+        return ['BLYP']
+    if name == 'SCAN':
+        return ['MGGA_X_SCAN', 'MGGA_C_SCAN']
+    if name == 'SCANL':
+        return ['MGGA_X_SCANL', 'MGGA_C_SCANL']
+    if name == 'R2SCAN':
+        return ['MGGA_X_R2SCAN', 'MGGA_C_R2SCAN']
+    if name == 'R2SCANL':
+        return ['MGGA_X_R2SCANL', 'MGGA_C_R2SCANL']
+    warnings.warn("Unknown XC functionals: {}".format(name))
+    return [name]
