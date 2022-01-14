@@ -172,6 +172,32 @@ def group_entries_by_structure(
     return entry_groups
 
 
+def group_entries_by_composition(entries, sort_by_e_per_atom=True):
+    """
+    Given a sequence of Entry-like objects, group them by composition and
+        optionally sort by energy above hull.
+
+    Args:
+        entries (List): Sequence of Entry-like objects.
+        sort_by_e_per_atom (bool): Whether to sort the grouped entries by
+            energy per atom (lowest energy first). Default True.
+
+    Returns:
+        Sequence of sequence of entries by composition. e.g,
+        [[ entry1, entry2], [entry3, entry4, entry5]]
+    """
+    entry_groups = []
+    entries = sorted(entries, key=lambda e: e.composition.reduced_formula)
+    for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+        group = list(g)
+        if sort_by_e_per_atom:
+            group = sorted(group, key=lambda e: e.energy_per_atom)
+
+        entry_groups.append(group)
+
+    return entry_groups
+
+
 class EntrySet(collections.abc.MutableSet, MSONable):
     """
     A convenient container for manipulating entries. Allows for generating
@@ -221,16 +247,30 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             chemsys.update([el.symbol for el in e.composition.keys()])
         return chemsys
 
-    def remove_non_ground_states(self):
+    @property
+    def ground_states(self) -> set:
         """
-        Removes all non-ground state entries, i.e., only keep the lowest energy
+        A set containing only the entries that are ground states, i.e., the lowest energy
         per atom entry at each composition.
         """
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
         ground_states = set()
         for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
-        self.entries = ground_states
+        return ground_states
+
+    def remove_non_ground_states(self):
+        """
+        Removes all non-ground state entries, i.e., only keep the lowest energy
+        per atom entry at each composition.
+        """
+        self.entries = self.ground_states
+
+    def is_ground_state(self, entry) -> bool:
+        """
+        Boolean indicating whether a given Entry is a ground state
+        """
+        return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: List[str]):
         """
