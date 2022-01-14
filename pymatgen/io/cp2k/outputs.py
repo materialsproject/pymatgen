@@ -368,7 +368,7 @@ class Cp2kOutput:
                     for i in range(self.data["num_atoms"][0][0]):
                         line = f.readline()
                         if line == "":
-                            continue
+                            line = f.readline()
                         coord_table.append(line.split())
                     break
 
