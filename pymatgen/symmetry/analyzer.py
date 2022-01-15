@@ -55,6 +55,7 @@ class SpacegroupAnalyzer:
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
+        self._siteprops = structure.site_properties
         latt = structure.lattice.matrix
         positions = structure.frac_coords
         unique_species = []
@@ -75,11 +76,10 @@ class SpacegroupAnalyzer:
             elif site.is_ordered and hasattr(site.specie, "spin"):
                 magmoms.append(site.specie.spin)
             else:
-                magmoms.append(0)
+                magmoms.append(0)  # needed for spglib
 
         self._unique_species = unique_species
         self._numbers = zs
-        # For now, we are setting magmom to zero.
         self._cell = latt, positions, zs, magmoms
 
         self._space_group_data = spglib.get_symmetry_dataset(
@@ -289,25 +289,50 @@ class SpacegroupAnalyzer:
         )
         return SymmetrizedStructure(self._structure, sg, ds["equivalent_atoms"], ds["wyckoffs"])
 
-    def get_refined_structure(self):
+    def get_refined_structure(self, keep_site_properties=False):
         """
         Get the refined structure based on detected symmetry. The refined
         structure is a *conventional* cell setting with atoms moved to the
         expected symmetry positions.
+
+        Args:
+            keep_site_properties (bool): Whether to keep the input site properties (including
+                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                This is disabled by default because the magnetic moments are not always directly
+                transferable between unit cell definitions. For instance, long-range magnetic
+                ordering or antiferromagnetic character may no longer be present (or exist in
+                the same way) in the returned structure. If keep_site_properties is True,
+                each site retains the same site property as in the original structure without
+                further adjustment.
 
         Returns:
             Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         lattice, scaled_positions, numbers = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
-
         species = [self._unique_species[i - 1] for i in numbers]
-        s = Structure(lattice, species, scaled_positions)
+        if keep_site_properties:
+            site_properties = {}
+            for k, v in self._siteprops.items():
+                site_properties[k] = [v[i - 1] for i in numbers]
+        else:
+            site_properties = None
+        s = Structure(lattice, species, scaled_positions, site_properties=site_properties)
         return s.get_sorted_structure()
 
-    def find_primitive(self):
+    def find_primitive(self, keep_site_properties=False):
         """
         Find a primitive version of the unit cell.
+
+        Args:
+            keep_site_properties (bool): Whether to keep the input site properties (including
+                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                This is disabled by default because the magnetic moments are not always directly
+                transferable between unit cell definitions. For instance, long-range magnetic
+                ordering or antiferromagnetic character may no longer be present (or exist in
+                the same way) in the returned structure. If keep_site_properties is True,
+                each site retains the same site property as in the original structure without
+                further adjustment.
 
         Returns:
             A primitive cell in the input cell is searched and returned
@@ -315,10 +340,17 @@ class SpacegroupAnalyzer:
             returned.
         """
         lattice, scaled_positions, numbers = spglib.find_primitive(self._cell, symprec=self._symprec)
-
         species = [self._unique_species[i - 1] for i in numbers]
+        if keep_site_properties:
+            site_properties = {}
+            for k, v in self._siteprops.items():
+                site_properties[k] = [v[i - 1] for i in numbers]
+        else:
+            site_properties = None
 
-        return Structure(lattice, species, scaled_positions, to_unit_cell=True).get_reduced_structure()
+        return Structure(
+            lattice, species, scaled_positions, to_unit_cell=True, site_properties=site_properties
+        ).get_reduced_structure()
 
     def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
         """
@@ -354,6 +386,10 @@ class SpacegroupAnalyzer:
         Challenges and tools. Computational Materials Science,
         49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
 
+        Args:
+            international_monoclinic (bool): Whether to convert to proper international convention
+                such that beta is the non-right angle.
+
         Returns:
             Transformation matrix to go from conventional to primitive cell
         """
@@ -386,7 +422,7 @@ class SpacegroupAnalyzer:
 
         return transf
 
-    def get_primitive_standard_structure(self, international_monoclinic=True):
+    def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
         """
         Gives a structure with a primitive cell according to certain standards
         the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
@@ -394,10 +430,24 @@ class SpacegroupAnalyzer:
         Challenges and tools. Computational Materials Science,
         49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
 
+        Args:
+            international_monoclinic (bool): Whether to convert to proper international convention
+                such that beta is the non-right angle.
+            keep_site_properties (bool): Whether to keep the input site properties (including
+                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                This is disabled by default because the magnetic moments are not always directly
+                transferable between unit cell definitions. For instance, long-range magnetic
+                ordering or antiferromagnetic character may no longer be present (or exist in
+                the same way) in the returned structure. If keep_site_properties is True,
+                each site retains the same site property as in the original structure without
+                further adjustment.
+
         Returns:
             The structure in a primitive standardized cell
         """
-        conv = self.get_conventional_standard_structure(international_monoclinic=international_monoclinic)
+        conv = self.get_conventional_standard_structure(
+            international_monoclinic=international_monoclinic, keep_site_properties=keep_site_properties
+        )
         lattice = self.get_lattice_type()
 
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
@@ -452,7 +502,7 @@ class SpacegroupAnalyzer:
 
         return Structure.from_sites(new_sites)
 
-    def get_conventional_standard_structure(self, international_monoclinic=True):
+    def get_conventional_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
         """
         Gives a structure with a conventional cell according to certain
         standards. The standards are defined in Setyawan, W., & Curtarolo,
@@ -464,11 +514,23 @@ class SpacegroupAnalyzer:
         standard settings within the International Tables of Crystallography,
         for which get_refined_structure should be used instead.
 
+        Args:
+            international_monoclinic (bool): Whether to convert to proper international convention
+                such that beta is the non-right angle.
+            keep_site_properties (bool): Whether to keep the input site properties (including
+                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                This is disabled by default because the magnetic moments are not always directly
+                transferable between unit cell definitions. For instance, long-range magnetic
+                ordering or antiferromagnetic character may no longer be present (or exist in
+                the same way) in the returned structure. If keep_site_properties is True,
+                each site retains the same site property as in the original structure without
+                further adjustment.
+
         Returns:
             The structure in a conventional standardized cell
         """
         tol = 1e-5
-        struct = self.get_refined_structure()
+        struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
         latt = struct.lattice
         latt_type = self.get_lattice_type()
         sorted_lengths = sorted(latt.abc)
