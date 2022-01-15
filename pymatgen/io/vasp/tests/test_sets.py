@@ -617,7 +617,6 @@ class MPStaticSetTest(PymatgenTest):
         self.assertTrue(os.path.exists("MPStaticSet.zip"))
         with ZipFile("MPStaticSet.zip", "r") as zip:
             contents = zip.namelist()
-            print(contents)
             self.assertTrue(set(contents).issuperset({"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"}))
             spec = zip.open("POTCAR.spec", "r").read().decode()
             self.assertEqual(spec, "Si")
@@ -1614,6 +1613,9 @@ class LobsterSetTest(PymatgenTest):
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
+
+        # test W_sw
+        self.lobsterset8 = LobsterSet(Structure.from_file(os.path.join(self.TEST_FILES_DIR, "cohp", "POSCAR.W")))
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar
