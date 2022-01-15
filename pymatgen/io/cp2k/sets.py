@@ -57,6 +57,7 @@ from pymatgen.io.cp2k.utils import (
     get_unique_site_indices,
     get_cutoff_from_basis,
     get_xc_functionals,
+    get_truncated_coulomb_cutoff,
 )
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
@@ -1031,7 +1032,7 @@ class HybridStaticSet(StaticSet):
         self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
-        self.cutoff_radius = cutoff_radius
+        self.cutoff_radius = min(get_truncated_coulomb_cutoff(self.structure), cutoff_radius)
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
@@ -1042,23 +1043,23 @@ class HybridStaticSet(StaticSet):
         self.kwargs = kwargs
 
         self.activate_hybrid(
-            hybrid_functional=hybrid_functional,
-            hf_fraction=hf_fraction,
-            potential_type=potential_type,
-            gga_x_fraction=gga_x_fraction,
-            gga_c_fraction=gga_c_fraction,
-            scale_coulomb=scale_coulomb,
-            scale_gaussian=scale_gaussian,
-            scale_longrange=scale_longrange,
-            max_memory=max_memory,
-            cutoff_radius=cutoff_radius,
-            omega=omega,
-            aux_basis=aux_basis,
-            admm=admm,
-            eps_schwarz=eps_schwarz,
-            eps_schwarz_forces=eps_schwarz_forces,
-            screen_on_initial_p=screen_on_initial_p,
-            screen_p_forces=screen_p_forces,
+            hybrid_functional=self.hybrid_functional,
+            hf_fraction=self.hf_fraction,
+            potential_type=self.potential_type,
+            gga_x_fraction=self.gga_x_fraction,
+            gga_c_fraction=self.gga_c_fraction,
+            scale_coulomb=self.scale_coulomb,
+            scale_gaussian=self.scale_gaussian,
+            scale_longrange=self.scale_longrange,
+            max_memory=self.max_memory,
+            cutoff_radius=self.cutoff_radius,
+            omega=self.omega,
+            aux_basis=self.aux_basis,
+            admm=self.admm,
+            eps_schwarz=self.eps_schwarz,
+            eps_schwarz_forces=self.eps_schwarz_forces,
+            screen_on_initial_p=self.screen_on_initial_p,
+            screen_p_forces=self.screen_p_forces,
         )
         self.update(override_default_params)
 
@@ -1117,7 +1118,7 @@ class HybridRelaxSet(RelaxSet):
         self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
-        self.cutoff_radius = cutoff_radius
+        self.cutoff_radius = min(get_truncated_coulomb_cutoff(self.structure), cutoff_radius)
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
@@ -1128,23 +1129,23 @@ class HybridRelaxSet(RelaxSet):
         self.kwargs = kwargs
 
         self.activate_hybrid(
-            hybrid_functional=hybrid_functional,
-            hf_fraction=hf_fraction,
-            potential_type=potential_type,
-            gga_x_fraction=gga_x_fraction,
-            gga_c_fraction=gga_c_fraction,
-            scale_coulomb=scale_coulomb,
-            scale_gaussian=scale_gaussian,
-            scale_longrange=scale_longrange,
-            max_memory=max_memory,
-            cutoff_radius=cutoff_radius,
-            omega=omega,
-            aux_basis=aux_basis,
-            admm=admm,
-            eps_schwarz=eps_schwarz,
-            eps_schwarz_forces=eps_schwarz_forces,
-            screen_on_initial_p=screen_on_initial_p,
-            screen_p_forces=screen_p_forces,
+            hybrid_functional=self.hybrid_functional,
+            hf_fraction=self.hf_fraction,
+            potential_type=self.potential_type,
+            gga_x_fraction=self.gga_x_fraction,
+            gga_c_fraction=self.gga_c_fraction,
+            scale_coulomb=self.scale_coulomb,
+            scale_gaussian=self.scale_gaussian,
+            scale_longrange=self.scale_longrange,
+            max_memory=self.max_memory,
+            cutoff_radius=self.cutoff_radius,
+            omega=self.omega,
+            aux_basis=self.aux_basis,
+            admm=self.admm,
+            eps_schwarz=self.eps_schwarz,
+            eps_schwarz_forces=self.eps_schwarz_forces,
+            screen_on_initial_p=self.screen_on_initial_p,
+            screen_p_forces=self.screen_p_forces,
         )
         self.update(override_default_params)
 
@@ -1203,7 +1204,7 @@ class HybridCellOptSet(CellOptSet):
         self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
-        self.cutoff_radius = cutoff_radius
+        self.cutoff_radius = min(get_truncated_coulomb_cutoff(self.structure), cutoff_radius)
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
@@ -1214,22 +1215,22 @@ class HybridCellOptSet(CellOptSet):
         self.kwargs = kwargs
 
         self.activate_hybrid(
-            hybrid_functional=hybrid_functional,
-            hf_fraction=hf_fraction,
-            potential_type=potential_type,
-            gga_x_fraction=gga_x_fraction,
-            gga_c_fraction=gga_c_fraction,
-            scale_coulomb=scale_coulomb,
-            scale_gaussian=scale_gaussian,
-            scale_longrange=scale_longrange,
-            max_memory=max_memory,
-            cutoff_radius=cutoff_radius,
-            omega=omega,
-            aux_basis=aux_basis,
-            admm=admm,
-            eps_schwarz=eps_schwarz,
-            eps_schwarz_forces=eps_schwarz_forces,
-            screen_on_initial_p=screen_on_initial_p,
-            screen_p_forces=screen_p_forces,
+            hybrid_functional=self.hybrid_functional,
+            hf_fraction=self.hf_fraction,
+            potential_type=self.potential_type,
+            gga_x_fraction=self.gga_x_fraction,
+            gga_c_fraction=self.gga_c_fraction,
+            scale_coulomb=self.scale_coulomb,
+            scale_gaussian=self.scale_gaussian,
+            scale_longrange=self.scale_longrange,
+            max_memory=self.max_memory,
+            cutoff_radius=self.cutoff_radius,
+            omega=self.omega,
+            aux_basis=self.aux_basis,
+            admm=self.admm,
+            eps_schwarz=self.eps_schwarz,
+            eps_schwarz_forces=self.eps_schwarz_forces,
+            screen_on_initial_p=self.screen_on_initial_p,
+            screen_p_forces=self.screen_p_forces,
         )
         self.update(override_default_params)

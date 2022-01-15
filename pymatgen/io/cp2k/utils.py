@@ -307,3 +307,16 @@ def get_xc_functionals(name):
         return ['MGGA_X_R2SCANL', 'MGGA_C_R2SCANL']
     warnings.warn("Unknown XC functionals: {}".format(name))
     return [name]
+
+def get_truncated_coulomb_cutoff(inp_struct):
+    """
+        Get the truncated Coulomb cutoff for a given structure.
+    """
+
+    m = inp_struct.lattice.matrix
+    m = (abs(m) > 1e-5) * m
+    a, b, c = m[0], m[1], m[2]
+    x = abs(np.dot(a, np.cross(b, c)) / np.linalg.norm(np.cross(b, c)))
+    y = abs(np.dot(b, np.cross(a, c)) / np.linalg.norm(np.cross(a, c)))
+    z = abs(np.dot(c, np.cross(a, b)) / np.linalg.norm(np.cross(a, b)))
+    return np.floor(100*min([x, y, z]) / 2) / 100
