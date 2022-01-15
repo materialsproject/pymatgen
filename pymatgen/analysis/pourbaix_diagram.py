@@ -1030,7 +1030,16 @@ class PourbaixPlotter:
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
 
-    def get_pourbaix_plot(self, limits=None, title="", label_domains=True, plt=None):
+    def get_pourbaix_plot(
+        self,
+        limits=None,
+        title="",
+        label_domains=True,
+        label_fontsize=20,
+        show_water_lines=True,
+        show_neutral_axes=True,
+        plt=None,
+    ):
         """
         Plot Pourbaix diagram.
 
@@ -1039,6 +1048,11 @@ class PourbaixPlotter:
                 of the form [[xlo, xhi], [ylo, yhi]]
             title (str): Title to display on plot
             label_domains (bool): whether to label pourbaix domains
+            label_fontsize: font size for domain labels
+            show_water_lines: whether to show dashed lines indicating the region
+                of water stability.
+            show_neutral_axes; whether to show dashed horizontal and vertical lines
+                at 0 V and pH 7, respectively.
             plt (pyplot): Pyplot instance for plotting
 
         Returns:
@@ -1052,19 +1066,22 @@ class PourbaixPlotter:
         xlim = limits[0]
         ylim = limits[1]
 
-        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
-        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
-        neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
-        V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
-
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
         lw = 3
-        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
-        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
-        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
-        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
+
+        if show_water_lines:
+            h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
+            o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
+            plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
+            plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
+
+        if show_neutral_axes:
+            neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
+            V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
+            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
+            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
         for entry, vertices in self._pbx._stable_domain_vertices.items():
             center = np.average(vertices, axis=0)
@@ -1077,7 +1094,7 @@ class PourbaixPlotter:
                     center,
                     ha="center",
                     va="center",
-                    fontsize=20,
+                    fontsize=label_fontsize,
                     color="b",
                 ).draggable()
 
