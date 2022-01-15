@@ -795,7 +795,7 @@ class CompleteCohpTest(PymatgenTest):
 
         # spinpolarized case:
         filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190")
+        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
