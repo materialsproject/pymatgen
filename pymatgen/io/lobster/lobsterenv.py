@@ -323,7 +323,7 @@ class LobsterNeighbors(NearNeighbors):
         number_bonds = 0
         labels = []
         atoms = []
-        final_isites=[]
+        final_isites = []
         for ival, site in enumerate(self.structure):
             if ival in isites:
                 for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival]):
@@ -410,7 +410,7 @@ class LobsterNeighbors(NearNeighbors):
             path_to_COHPCAR: str, path to COHPCAR
             isites: list of int that indicate the number of the site
             only_bonds_to: list of str, e.g. ["O"] to only show cohps of anything to oxygen
-            onlycation_isites: if isites=[], only cation sites will be returned
+            onlycation_isites: if isites=None, only cation sites will be returned
             per_bond: will normalize per bond
             summed_spin_channels: will sum all spin channels
 
@@ -460,7 +460,7 @@ class LobsterNeighbors(NearNeighbors):
             new_atoms = []
             # print(labels)
             # print(atoms)
-            for label, atompair, isite in zip(labels, atoms,final_isites):
+            for label, atompair, isite in zip(labels, atoms, final_isites):
                 present = False
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly!
@@ -468,7 +468,10 @@ class LobsterNeighbors(NearNeighbors):
                         if atomtype in (self._split_string(atompair[0])[0], self._split_string(atompair[1])[0]):
                             present = True
                     else:
-                        if atomtype ==self._split_string(atompair[0])[0] and atomtype== self._split_string(atompair[1])[0]:
+                        if (
+                            atomtype == self._split_string(atompair[0])[0]
+                            and atomtype == self._split_string(atompair[1])[0]
+                        ):
                             present = True
 
                 if present:
@@ -510,13 +513,13 @@ class LobsterNeighbors(NearNeighbors):
             plotlabel = plotlabel + " (per bond)"
         return plotlabel
 
-    def get_info_icohps_between_neighbors(self, isites=[], onlycation_isites=True):
+    def get_info_icohps_between_neighbors(self, isites=None, onlycation_isites=True):
 
         """
         will return infos about interactions between neighbors of a certain atom
         Args:
-            isites: list of site ids, if isite==[], all isites will be used
-            onlycation_isites: will only use cations, if isite==[]
+            isites: list of site ids, if isite==None, all isites will be used
+            onlycation_isites: will only use cations, if isite==None
 
         Returns:
 
@@ -527,7 +530,7 @@ class LobsterNeighbors(NearNeighbors):
 
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
-        if isites == []:
+        if isites is None:
             if onlycation_isites:
                 isites = [i for i in range(len(self.structure)) if self.valences[i] >= 0.0]
             else:

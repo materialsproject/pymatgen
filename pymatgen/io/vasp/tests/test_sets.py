@@ -9,12 +9,9 @@ import unittest
 import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 from monty.json import MontyDecoder
-
+from pymatgen.core import Lattice
 from pymatgen.core import SETTINGS
-from pymatgen.core import Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
-from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import *
 from pymatgen.util.testing import PymatgenTest
 
@@ -1613,6 +1610,9 @@ class LobsterSetTest(PymatgenTest):
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
+
+        # test W_sw
+        self.lobsterset8 = LobsterSet(Structure.from_file(os.path.join(self.TEST_FILES_DIR, "cohp", "POSCAR.W")))
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar
