@@ -309,7 +309,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 class ComputedEntry(Entry):
     """
     Lightweight Entry object for computed data. Contains facilities
-    for applying corrections to the .energy attribute and for storing
+    for applying corrections to the energy attribute and for storing
     calculation parameters.
     """
 
@@ -775,7 +775,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         if gibbs_model.lower() == "sisso":
             self.gibbs_fn = self.gf_sisso
         else:
-            raise ValueError(f"{gibbs_model} not a valid model. The only currently " f"available model is 'SISSO'.")
+            raise ValueError(f"{gibbs_model} not a valid model. The only currently available model is 'SISSO'.")
 
         self._energy = self.gibbs_fn()
 

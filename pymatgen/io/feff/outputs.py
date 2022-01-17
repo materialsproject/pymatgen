@@ -157,7 +157,7 @@ class LDos(MSONable):
 
         Args:
             feff_inp_file (str): name of feff.inp file for run
-            ldos_file (str): ldos filename for run, assume consequetive order,
+            ldos_file (str): ldos filename for run, assume consecutive order,
                 i.e., ldos01.dat, ldos02.dat....
 
         Returns:

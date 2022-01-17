@@ -154,9 +154,9 @@ def genrecip(a1, a2, a3, encut):
     k = np.arange(-k_max, k_max)
 
     # Convert index to vectors using meshgrid
-    indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+    indices = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
     # Multiply integer vectors to get recipricol space vectors
-    vecs = np.dot(indicies, [b1, b2, b3])
+    vecs = np.dot(indices, [b1, b2, b3])
     # Calculate radii of all vectors
     radii = np.sqrt(np.einsum("ij,ij->i", vecs, vecs))
 
@@ -168,7 +168,7 @@ def genrecip(a1, a2, a3, encut):
 
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
     """
-    Generate reciprocal vector magnitudes within the cutoff along the specied
+    Generate reciprocal vector magnitudes within the cutoff along the specified
     lattice vectors.
     Args:
         a1: Lattice vector a (in Bohrs)
@@ -315,9 +315,9 @@ class StructureMotifInterstitial:
         k = np.arange(0, nbins[2]) + 0.5
 
         # Convert index to vectors using meshgrid
-        indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+        indices = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
         # Multiply integer vectors to get recipricol space vectors
-        vecs = np.multiply(indicies, np.divide(1, nbins))
+        vecs = np.multiply(indices, np.divide(1, nbins))
 
         # Loop over trial positions that are based on a regular
         # grid in fractional coordinate space
