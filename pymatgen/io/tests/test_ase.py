@@ -133,26 +133,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual(molecule.charge, np.sum([1.0] * len(atoms)))
         self.assertEqual(molecule.spin_multiplicity, np.sum([1.0] * len(atoms)) + 1)
 
-    @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
-    def test_back_and_forth(self):
-        from ase.io import read
-
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
-        structure = aio.AseAtomsAdaptor.get_structure(atoms)
-        new_atoms = aio.AseAtomsAdaptor.get_atoms(structure)
-        for k, v in atoms.todict().items():
-            self.assertAlmostEqual(v, new_atoms[k])
-        new_structure = aio.AseAtomsAdaptor.get_structure(new_atoms)
-        self.assertEqual(new_structure, structure)
-
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
-        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
-        new_atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
-        for k, v in atoms.todict().items():
-            self.assertAlmostEqual(v, new_atoms[k])
-        new_molecule = aio.AseAtomsAdaptor.get_molecule(new_atoms)
-        self.assertEqual(new_molecule, molecule)
-
 
 if __name__ == "__main__":
     unittest.main()
