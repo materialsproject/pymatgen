@@ -1,6 +1,6 @@
 .. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
       :alt: CI Status
-      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml
+      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
 
 .. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
       :alt: Conda Downloads

@@ -21,8 +21,8 @@ import warnings
 from pathlib import Path
 from typing import Dict, Union
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     LDOS,
@@ -796,7 +796,7 @@ class RelaxSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
@@ -863,7 +863,7 @@ class CellOptSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """

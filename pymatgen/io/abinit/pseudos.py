@@ -165,7 +165,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         if self.has_hints:
             for accuracy in ("low", "normal", "high"):
                 hint = self.hint_for_accuracy(accuracy=accuracy)
-                app(f"  hint for {accuracy} accuracy: {str(hint)}")
+                app(f"  hint for {accuracy} accuracy: {hint}")
 
         return "\n".join(lines)
 
@@ -412,7 +412,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         try:
             return PspsFile(filepath)
         except Exception as exc:
-            logger.critical(f"Exception while reading PSPS file at {filepath}:\n{str(exc)}")
+            logger.critical(f"Exception while reading PSPS file at {filepath}:\n{exc}")
             return None
 
 
@@ -525,7 +525,7 @@ class AbinitPseudo(Pseudo):
 
     @property
     def supports_soc(self):
-        # Treate ONCVPSP pseudos
+        # Treat ONCVPSP pseudos
         # pylint: disable=E1101
         if self._pspcod == 8:
             switch = self.header["extension_switch"]
@@ -639,7 +639,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         key_nums = list(key_nums)
 
     if len(lines) != len(key_nums):
-        err_msg = f"lines = {str(lines)}\n key_num =  {str(key_nums)}"
+        err_msg = f"lines = {lines}\n key_num =  {key_nums}"
         raise ValueError(err_msg)
 
     kwargs = Namespace()
@@ -1072,14 +1072,14 @@ class PseudoParser:
     )
     del ppdesc
 
-    # renumber functionals from oncvpsp todo confrim that 3 is 2
+    # renumber functionals from oncvpsp todo confirm that 3 is 2
     # _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
     #                2: {'n': 5, 'name': 'HL'},
     #                3: {'n': 2, 'name': 'PWCA'},
     #                4: {'n': 11, 'name': 'PBE'}}
 
     def __init__(self):
-        # List of files that have been parsed succesfully.
+        # List of files that have been parsed successfully.
         self._parsed_paths = []
 
         # List of files that could not been parsed.
@@ -1801,7 +1801,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
                 if multiple occurrences are found. Use allow_multi to prevent this.
 
         Raises:
-            ValueError if symbol is not found or multiple occurences are present and not allow_multi
+            ValueError if symbol is not found or multiple occurrences are present and not allow_multi
         """
         pseudos = self.select_symbols(symbol, ret_list=True)
         if not pseudos or (len(pseudos) > 1 and not allow_multi):
@@ -1816,7 +1816,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         Return the pseudos with the given chemical symbols.
 
         Raises:
-            ValueError if one of the symbols is not found or multiple occurences are present.
+            ValueError if one of the symbols is not found or multiple occurrences are present.
         """
         pseudos = self.select_symbols(symbols, ret_list=True)
         found_symbols = [p.symbol for p in pseudos]
@@ -1873,7 +1873,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
         Raises:
             `ValueError` if one of the chemical symbols is not found or
-            multiple occurences are present in the table.
+            multiple occurrences are present in the table.
         """
         return self.pseudos_with_symbols(structure.symbol_set)
 

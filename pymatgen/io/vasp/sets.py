@@ -56,7 +56,6 @@ from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
-
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
@@ -781,12 +780,12 @@ class DictSet(VaspInputSet):
 
     def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
         """
-        Calculates the NGX, NGY, and NGZ values using the information availible in the INCAR and POTCAR
+        Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
 
         Args:
             max_prime_factor (int): the valid prime factors of the grid size in each direction
-                                    VASP has many different setting for this to handel many compiling options.
+                                    VASP has many different setting for this to handle many compiling options.
                                     For typical MPI options all prime factors up to 7 are allowed
         """
 
@@ -796,7 +795,7 @@ class DictSet(VaspInputSet):
         _AUTOA = 0.529177249
         _PI = 3.141592653589793238
 
-        # TODO Only do this for VASP 6 for now. Older version require more advanced logitc
+        # TODO Only do this for VASP 6 for now. Older version require more advanced logic
 
         # get the ENCUT val
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
@@ -2807,7 +2806,7 @@ class LobsterSet(MPRelaxSet):
         reciprocal_density: int = None,
         address_basis_file: str = None,
         user_supplied_basis: dict = None,
-        user_potcar_settings: dict = {"W": "W_sv"},
+        user_potcar_settings: dict = None,
         **kwargs,
     ):
         """
@@ -2836,7 +2835,7 @@ class LobsterSet(MPRelaxSet):
         if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
             super().__init__(structure, **kwargs)
         else:
-            super().__init__(structure, user_potcar_functional="PBE_54", **kwargs)
+            super().__init__(structure, user_potcar_functional="PBE_54", user_potcar_settings={"W": "W_sv"}, **kwargs)
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
@@ -2852,6 +2851,7 @@ class LobsterSet(MPRelaxSet):
             else:
                 self.reciprocal_density = reciprocal_density
 
+        self._config_dict["POTCAR"].update({"W": "W_sv"})
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
