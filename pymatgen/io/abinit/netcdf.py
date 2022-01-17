@@ -102,7 +102,7 @@ class NetcdfReader:
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error(f"In file {self.path}: {str(exc)}")
+            raise self.Error(f"In file {self.path}: {exc}")
 
         self.ngroups = len(list(self.walk_tree()))
 
@@ -325,7 +325,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     Args:
         ncdata: filename or NetcdfReader instance.
         site_properties: Dictionary with site properties.
-        cls: The Structure class to instanciate.
+        cls: The Structure class to instantiate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 

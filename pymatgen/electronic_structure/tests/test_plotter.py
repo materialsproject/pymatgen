@@ -107,7 +107,7 @@ class BSPlotterTest(unittest.TestCase):
         self.assertEqual(
             len(rescaled_distances),
             len(self.sbs_met.distance),
-            "wrong lenght of distances list",
+            "wrong length of distances list",
         )
         self.assertEqual(rescaled_distances[-1], 6.5191398067252875, "wrong last distance value")
         self.assertEqual(
@@ -122,10 +122,10 @@ class BSPlotterTest(unittest.TestCase):
         en = data["energy"]["1"]
         int_distances, int_energies = self.plotter._interpolate_bands(d, en)
 
-        self.assertEqual(len(int_distances), 10, "wrong lenght of distances list")
-        self.assertEqual(len(int_distances[0]), 100, "wrong lenght of distances in a branch")
-        self.assertEqual(len(int_energies), 10, "wrong lenght of distances list")
-        self.assertEqual(int_energies[0].shape, (16, 100), "wrong lenght of distances list")
+        self.assertEqual(len(int_distances), 10, "wrong length of distances list")
+        self.assertEqual(len(int_distances[0]), 100, "wrong length of distances in a branch")
+        self.assertEqual(len(int_energies), 10, "wrong length of distances list")
+        self.assertEqual(int_energies[0].shape, (16, 100), "wrong length of distances list")
 
     def test_bs_plot_data(self):
         self.assertEqual(
@@ -144,11 +144,11 @@ class BSPlotterTest(unittest.TestCase):
             "wrong number of distances",
         )
 
-        lenght = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
-        self.assertEqual(lenght, 144, "wrong number of distances in the first sequence of branches")
+        length = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
+        self.assertEqual(length, 144, "wrong number of distances in the first sequence of branches")
 
-        lenght = len(self.plotter.bs_plot_data(split_branches=False)["distances"])
-        self.assertEqual(lenght, 2, "wrong number of distances in the first sequence of branches")
+        length = len(self.plotter.bs_plot_data(split_branches=False)["distances"])
+        self.assertEqual(length, 2, "wrong number of distances in the first sequence of branches")
 
         self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][5], "K", "wrong tick label")
         self.assertEqual(
@@ -271,8 +271,8 @@ class PlotBZTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_bz_plot(self):
-        fig, ax = plot_ellipsoid(self.hessian, self.center, lattice=self.rec_latt)
-        fig = plot_brillouin_zone(
+        _, ax = plot_ellipsoid(self.hessian, self.center, lattice=self.rec_latt)
+        plot_brillouin_zone(
             self.rec_latt,
             lines=self.kpath,
             labels=self.labels,

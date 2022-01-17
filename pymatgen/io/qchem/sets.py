@@ -70,7 +70,7 @@ class QChemDictSet(QCInput):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -84,7 +84,7 @@ class QChemDictSet(QCInput):
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
             opt_variables (dict): A dictionary of opt sections, where each opt section is a key
-                and the corresponding values are a list of strings. Stings must be formatted
+                and the corresponding values are a list of strings. Strings must be formatted
                 as instructed by the QChem manual. The different opt sections are: CONSTRAINT, FIXED,
                 DUMMY, and CONNECT.
 
@@ -340,7 +340,7 @@ class SinglePointSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -437,7 +437,7 @@ class OptSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -535,7 +535,7 @@ class TransitionStateSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -631,7 +631,7 @@ class ForceSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -724,7 +724,7 @@ class FreqSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -813,7 +813,7 @@ class PESScanSet(QChemDictSet):
         Args:
             molecule (Pymatgen Molecule object)
             opt_variables (dict): A dictionary of opt sections, where each opt section is a key
-                and the corresponding values are a list of strings. Stings must be formatted
+                and the corresponding values are a list of strings. Strings must be formatted
                 as instructed by the QChem manual. The different opt sections are: CONSTRAINT, FIXED,
                 DUMMY, and CONNECT.
 
@@ -837,7 +837,7 @@ class PESScanSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
