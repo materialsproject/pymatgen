@@ -127,7 +127,8 @@ class MITMPRelaxSetTest(PymatgenTest):
             # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
             # Trigger a warning.
-            MITRelaxSet(structure)
+            vis = MITRelaxSet(structure)
+            _ = vis.incar
             # Verify some things
             self.assertIn("ISMEAR", str(w[-1].message))
 
