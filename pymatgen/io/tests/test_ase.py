@@ -76,7 +76,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_atoms_from_molecule_dyn(self):
-        from ase.constraints import FixAtoms
 
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
@@ -126,6 +125,15 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual([s.species_string for s in molecule], atoms.get_chemical_symbols())
         self.assertEqual(molecule.charge, 0)
         self.assertEqual(molecule.spin_multiplicity, 1)
+
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms.set_initial_charges([1.0] * len(atoms))
+        atoms.set_initial_magnetic_moments([1.0] * len(atoms))
+        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
+        self.assertEqual(molecule.formula, "H2 C2")
+        self.assertEqual([s.species_string for s in molecule], atoms.get_chemical_symbols())
+        self.assertEqual(molecule.charge, np.sum([1.0] * len(atoms)))
+        self.assertEqual(molecule.spin_multiplicity, np.sum([1.0] * len(atoms)) + 1)
 
     def test_back_and_forth(self):
         from ase.io import read
