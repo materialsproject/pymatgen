@@ -130,8 +130,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([1.0] * len(atoms))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
-        self.assertEqual(molecule.formula, "H2 C2")
-        self.assertEqual([s.species_string for s in molecule], atoms.get_chemical_symbols())
         self.assertEqual(molecule.charge, np.sum([1.0] * len(atoms)))
         self.assertEqual(molecule.spin_multiplicity, np.sum([1.0] * len(atoms)) + 1)
 
