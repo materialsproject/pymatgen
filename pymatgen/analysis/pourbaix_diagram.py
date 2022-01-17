@@ -40,7 +40,6 @@ from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.sequence import PBar
 from pymatgen.util.string import Stringify
 
 __author__ = "Sai Jayaraman"
