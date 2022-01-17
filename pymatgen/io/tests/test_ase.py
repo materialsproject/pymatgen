@@ -133,6 +133,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual(molecule.charge, np.sum([1.0] * len(atoms)))
         self.assertEqual(molecule.spin_multiplicity, np.sum([1.0] * len(atoms)) + 1)
 
+    @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_back_and_forth(self):
         from ase.io import read
 
