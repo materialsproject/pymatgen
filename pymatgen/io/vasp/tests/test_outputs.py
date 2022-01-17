@@ -46,6 +46,7 @@ try:
 except ImportError:
     h5py = None
 
+
 class VasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
 
