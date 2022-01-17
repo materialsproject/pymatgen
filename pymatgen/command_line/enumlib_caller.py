@@ -260,10 +260,10 @@ class EnumlibAdaptor:
         base = int(
             ndisordered
             * lcm(
-                *[
+                *(
                     f.limit_denominator(ndisordered * self.max_cell_size).denominator
                     for f in map(fractions.Fraction, index_amounts)
-                ]
+                )
             )
         )
 

@@ -75,7 +75,7 @@ __data__ = "Aug 2, 2013"
 class ZeoCssr(Cssr):
     """
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
-    input CSSR format. The coordinate system is rorated from xyz to zyx.
+    input CSSR format. The coordinate system is rotated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
     """
@@ -268,9 +268,9 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -360,9 +360,9 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             Default is 0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -426,9 +426,9 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 

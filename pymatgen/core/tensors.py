@@ -216,7 +216,7 @@ class Tensor(np.ndarray, MSONable):
         else:
             array = self
 
-        indices = list(itertools.product(*[range(n) for n in array.shape]))
+        indices = list(itertools.product(*(range(n) for n in array.shape)))
         remaining = indices.copy()
         # Start with everything near zero
         grouped = [list(zip(*np.where(np.isclose(array, 0, **kwargs))))]

@@ -81,12 +81,12 @@ def min_max_indexes(seq):
 
 
 def strictly_increasing(values):
-    """True if values are stricly increasing."""
+    """True if values are strictly increasing."""
     return all(x < y for x, y in zip(values, values[1:]))
 
 
 def strictly_decreasing(values):
-    """True if values are stricly decreasing."""
+    """True if values are strictly decreasing."""
     return all(x > y for x, y in zip(values, values[1:]))
 
 

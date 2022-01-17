@@ -559,7 +559,7 @@ class DefectPhaseDiagram(MSONable):
         Produce defect Formation energy vs Fermi energy plot
         Args:
             mu_elts:
-                a dictionnary of {Element:value} giving the chemical
+                a dictionary of {Element:value} giving the chemical
                 potential of each element
             xlim:
                 Tuple (min,max) giving the range of the x (fermi energy) axis
