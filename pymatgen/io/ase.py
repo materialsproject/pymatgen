@@ -190,7 +190,7 @@ class AseAtomsAdaptor:
 
         cls = Molecule if cls is None else cls
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls)
-        molecule.charge = int(np.sum(atoms.get_initial_charges()))
+        molecule.charge = np.sum(atoms.get_initial_charges())
         molecule.spin_multiplicity = int(np.sum(atoms.get_initial_magnetic_moments()) + 1)
 
         return molecule
