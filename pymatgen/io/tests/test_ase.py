@@ -124,6 +124,25 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         self.assertEqual(molecule.formula, "H2 C2")
         self.assertEqual([s.species_string for s in molecule], atoms.get_chemical_symbols())
+        self.assertEqual(molecule.charge, 0)
+        self.assertEqual(molecule.spin_multiplicity, 1)
+
+    def test_back_and_forth(self):
+        from ase.io import read
+
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        structure = aio.AseAtomsAdaptor.get_structure(atoms)
+        new_atoms = aio.AseAtomsAdaptor.get_atoms(structure)
+        self.assertEqual(new_atoms, atoms)
+        new_structure = aio.AseAtomsAdaptor.get_structure(new_atoms)
+        self.assertEqual(new_structure, structure)
+
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
+        new_atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
+        self.assertEqual(new_atoms, atoms)
+        new_molecule = aio.AseAtomsAdaptor.get_molecule(new_atoms)
+        self.assertEqual(new_molecule, molecule)
 
 
 if __name__ == "__main__":
