@@ -139,14 +139,16 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         new_atoms = aio.AseAtomsAdaptor.get_atoms(structure)
-        self.assertEqual(new_atoms, atoms)
+        for k, v in atoms.items():
+            self.assertAlmostEqual(v, new_atoms[k])
         new_structure = aio.AseAtomsAdaptor.get_structure(new_atoms)
         self.assertEqual(new_structure, structure)
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         new_atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
-        self.assertEqual(new_atoms, atoms)
+        for k, v in atoms.items():
+            self.assertAlmostEqual(v, new_atoms[k])
         new_molecule = aio.AseAtomsAdaptor.get_molecule(new_atoms)
         self.assertEqual(new_molecule, molecule)
 
