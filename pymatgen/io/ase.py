@@ -77,11 +77,6 @@ class AseAtomsAdaptor:
             initial_magmoms = structure.site_properties["initial_magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
 
-        # Add tags if present (this is an ASE Atoms site property)
-        if "tags" in structure.site_properties:
-            tags = structure.site_properties["tags"]
-            atoms.set_tags(tags)
-
         # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
         # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
         # dynamics property. As a consequence, if only a subset of dimensions are fixed, this won't get passed to ASE.
@@ -103,6 +98,11 @@ class AseAtomsAdaptor:
         # Set the selective dynamics with the FixAtoms class.
         if fix_atoms is not None:
             atoms.set_constraint(FixAtoms(mask=fix_atoms))
+
+        # Add any remaining site properties to the ASE Atoms object
+        for prop in structure.site_properties:
+            if prop not in ["magmom", "initial_magmom", "tags", "selective_dynamics"]:
+                atoms.set_array(prop, np.array(structure.site_properties[prop]))
 
         return atoms
 
@@ -170,8 +170,11 @@ class AseAtomsAdaptor:
             structure.add_site_property("initial_magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
-        if atoms.has("tags"):
-            structure.add_site_property("tags", atoms.get_tags().tolist())
+
+        # Add any remaining site properties to the Pymatgen structure object
+        for prop in atoms.arrays:
+            if prop not in ["numbers", "positions"]:
+                structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
         return structure
 
