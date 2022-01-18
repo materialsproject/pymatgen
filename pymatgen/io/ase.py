@@ -101,7 +101,7 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in ["magmom", "initial_magmom", "tags", "selective_dynamics"]:
+            if prop not in ["magmom", "initial_magmom", "selective_dynamics"]:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
 
         return atoms
@@ -173,7 +173,7 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the Pymatgen structure object
         for prop in atoms.arrays:
-            if prop not in ["numbers", "positions"]:
+            if prop not in ["numbers", "positions", "magmom", "initial_magmom"]:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
         return structure
