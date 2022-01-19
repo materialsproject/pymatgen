@@ -166,8 +166,8 @@ class BaderAnalysis:
             self.reference_used = bool(chgref_filename)
 
         with ScratchDir("."):
-            tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
             if run_bader:
+                tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
                 with zopen(fpath, "rt") as f_in:
                     with open(tmpfile, "wt") as f_out:
                         shutil.copyfileobj(f_in, f_out)
