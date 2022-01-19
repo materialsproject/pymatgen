@@ -120,7 +120,7 @@ class BaderAnalysis:
             cube_filename (str): Optional. The filename of the cube file.
             run_bader (bool): Optional. Whether to run bader. Defaults to True.
                 If False, BaderAnalysis will look for an ACF.dat file.
-            bader_data_path (str): Path to the bader output files if
+            bader_output_path (str): Path to the bader output files if
                 run_bader is False. Default is the current working directory.
         """
         if not BADEREXE:
