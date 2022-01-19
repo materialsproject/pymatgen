@@ -8,14 +8,7 @@ operations on them.
 
 import os
 
-try:
-    from ruamel import yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
-
+from ruamel.yaml import YAML
 from .composition import Composition  # noqa
 from .lattice import Lattice  # noqa
 from .operations import SymmOp  # noqa
@@ -31,7 +24,7 @@ __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
 __version__ = "2022.01.09"
 
-
+yaml = YAML()
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
@@ -47,7 +40,7 @@ def _load_pmg_settings():
     # Override anything in env vars with that in yml file
     try:
         with open(SETTINGS_FILE) as f:
-            d_yml = yaml.safe_load(f)
+            d_yml = yaml.load(f)
         d.update(d_yml)
     except OSError:
         # If there are any errors, default to using environment variables
