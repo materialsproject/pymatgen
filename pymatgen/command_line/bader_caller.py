@@ -105,6 +105,8 @@ class BaderAnalysis:
         chgref_filename=None,
         parse_atomic_densities=False,
         cube_filename=None,
+        run_bader=True,
+        bader_output_path=None,
     ):
         """
         Initializes the Bader caller.
@@ -116,7 +118,10 @@ class BaderAnalysis:
             parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
                 charge densities are atom centered
             cube_filename (str): Optional. The filename of the cube file.
-
+            run_bader (bool): Optional. Whether to run bader. Defaults to True.
+                If False, BaderAnalysis will look for an ACF.dat file.
+            bader_data_path (str): Path to the bader output files if
+                run_bader is False. Default is the current working directory.
         """
         if not BADEREXE:
             raise RuntimeError(
@@ -129,7 +134,8 @@ class BaderAnalysis:
             raise ValueError("You must provide either a cube file or a CHGCAR")
         if cube_filename and chgcar_filename:
             raise ValueError("You cannot parse a cube and a CHGCAR at the same time.")
-
+        if bader_output_path is None:
+            bader_output_path = ""
         self.parse_atomic_densities = parse_atomic_densities
 
         if chgcar_filename:
@@ -159,38 +165,39 @@ class BaderAnalysis:
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
-        tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
-        with ScratchDir("."):
-            with zopen(fpath, "rt") as f_in:
-                with open(tmpfile, "wt") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            args = [BADEREXE, tmpfile]
-            if chgref_filename:
-                with zopen(chgrefpath, "rt") as f_in:
-                    with open("CHGCAR_ref", "wt") as f_out:
+        if run_bader:
+            tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
+            with ScratchDir("."):
+                with zopen(fpath, "rt") as f_in:
+                    with open(tmpfile, "wt") as f_out:
                         shutil.copyfileobj(f_in, f_out)
-                args += ["-ref", "CHGCAR_ref"]
-            if parse_atomic_densities:
-                args += ["-p", "all_atom"]
-            with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                stdout, _ = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError(
-                    "bader exited with return code %d. Please check your bader installation." % rs.returncode
-                )
+                args = [BADEREXE, tmpfile]
+                if chgref_filename:
+                    with zopen(chgrefpath, "rt") as f_in:
+                        with open("CHGCAR_ref", "wt") as f_out:
+                            shutil.copyfileobj(f_in, f_out)
+                    args += ["-ref", "CHGCAR_ref"]
+                if parse_atomic_densities:
+                    args += ["-p", "all_atom"]
+                with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+                    stdout, _ = rs.communicate()
+                if rs.returncode != 0:
+                    raise RuntimeError(
+                        "bader exited with return code %d. Please check your bader installation." % rs.returncode
+                    )
 
-            try:
-                self.version = float(stdout.split()[5])
-            except ValueError:
-                self.version = -1  # Unknown
-            if self.version < 1.0:
-                warnings.warn(
-                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
-                    UserWarning,
-                )
+                try:
+                    self.version = float(stdout.split()[5])
+                except ValueError:
+                    self.version = -1  # Unknown
+                if self.version < 1.0:
+                    warnings.warn(
+                        "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
+                        UserWarning,
+                    )
 
             data = []
-            with open("ACF.dat") as f:
+            with open(os.path.join(bader_output_path, "ACF.dat")) as f:
                 raw = f.readlines()
                 headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
                 raw.pop(0)
@@ -219,7 +226,7 @@ class BaderAnalysis:
 
                 atomic_densities = []
                 # For each atom in the structure
-                for atom, loc, chg in zip(
+                for _, loc, chg in zip(
                     self.chgcar.structure,
                     self.chgcar.structure.frac_coords,
                     atom_chgcars,
