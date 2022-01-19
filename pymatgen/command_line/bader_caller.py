@@ -320,6 +320,10 @@ class BaderAnalysis:
         Args:
             atom_index:
                 Index of atom.
+            nelect:
+                number of electrons associated with an isolated atom at this index.
+                For most DFT codes this corresponds to the number of valence electrons
+                associated with the pseudopotential (e.g. ZVAL for VASP).
 
         Returns:
             Charge associated with atom from the Bader analysis.
