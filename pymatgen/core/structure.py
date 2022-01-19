@@ -31,14 +31,15 @@ from typing import (
     Tuple,
     Union,
 )
+from io import StringIO
 
+from ruamel.yaml import YAML
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
 
-from pymatgen.core import yaml
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
@@ -1788,7 +1789,7 @@ class IStructure(SiteCollection, MSONable):
         if not isinstance(nimages, collections.abc.Iterable):
             images = np.arange(nimages + 1) / nimages
         else:
-            images = nimages
+            images = nimages  # type: ignore
 
         # Check that both structures have the same species
         for i, site in enumerate(self):
@@ -2341,11 +2342,14 @@ class IStructure(SiteCollection, MSONable):
             s = Prismatic(self).to_string()
             return s
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
+            yaml = YAML()
             if filename:
                 with zopen(filename, "wt") as f:
-                    yaml.safe_dump(self.as_dict(), f)
+                    yaml.dump(self.as_dict(), f)
                 return None
-            return yaml.safe_dump(self.as_dict())
+            sio = StringIO()
+            yaml.dump(self.as_dict(), sio)
+            return sio.getvalue()
         elif fmt == "fleur-inpgen" or fnmatch(fname, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
@@ -2405,7 +2409,8 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt_low == "yaml":
-            d = yaml.safe_load(input_string)
+            yaml = YAML()
+            d = yaml.load(input_string)
             s = Structure.from_dict(d)
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
@@ -3058,12 +3063,14 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
+            yaml = YAML()
             if filename:
                 with zopen(fname, "wt", encoding="utf8") as f:
-                    return yaml.safe_dump(self.as_dict(), f)
+                    return yaml.dump(self.as_dict(), f)
             else:
-                return yaml.safe_dump(self.as_dict())
-
+                sio = StringIO()
+                yaml.dump(self.as_dict(), sio)
+                return sio.getvalue()
         else:
             m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", fname.lower())
             if (not fmt) and m:
@@ -3102,7 +3109,8 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
-            d = yaml.safe_load(input_string)
+            yaml = YAML()
+            d = yaml.load(input_string)
             return cls.from_dict(d)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
