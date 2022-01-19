@@ -31,6 +31,7 @@ from typing import (
     Tuple,
     Union,
 )
+from io import StringIO
 
 from ruamel.yaml import YAML
 import numpy as np
@@ -2346,7 +2347,9 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, "wt") as f:
                     yaml.dump(self.as_dict(), f)
                 return None
-            return yaml.dump(self.as_dict())
+            sio = StringIO()
+            yaml.dump(self.as_dict(), sio)
+            return sio.getvalue()
         elif fmt == "fleur-inpgen" or fnmatch(fname, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
@@ -3065,8 +3068,9 @@ class IMolecule(SiteCollection, MSONable):
                 with zopen(fname, "wt", encoding="utf8") as f:
                     return yaml.dump(self.as_dict(), f)
             else:
-                return yaml.dump(self.as_dict())
-
+                sio = StringIO()
+                yaml.dump(self.as_dict(), sio)
+                return sio.getvalue()
         else:
             m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", fname.lower())
             if (not fmt) and m:
