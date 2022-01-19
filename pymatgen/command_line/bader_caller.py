@@ -165,9 +165,9 @@ class BaderAnalysis:
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
-        if run_bader:
+        with ScratchDir("."):
             tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
-            with ScratchDir("."):
+            if run_bader:
                 with zopen(fpath, "rt") as f_in:
                     with open(tmpfile, "wt") as f_out:
                         shutil.copyfileobj(f_in, f_out)
@@ -196,26 +196,26 @@ class BaderAnalysis:
                         UserWarning,
                     )
 
-                data = []
-                with open(os.path.join(bader_output_path, "ACF.dat")) as f:
-                    raw = f.readlines()
-                    headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
-                    raw.pop(0)
-                    raw.pop(0)
-                    while True:
-                        l = raw.pop(0).strip()
-                        if l.startswith("-"):
-                            break
-                        vals = map(float, l.split()[1:])
-                        data.append(dict(zip(headers, vals)))
-                    for l in raw:
-                        toks = l.strip().split(":")
-                        if toks[0] == "VACUUM CHARGE":
-                            self.vacuum_charge = float(toks[1])
-                        elif toks[0] == "VACUUM VOLUME":
-                            self.vacuum_volume = float(toks[1])
-                        elif toks[0] == "NUMBER OF ELECTRONS":
-                            self.nelectrons = float(toks[1])
+            data = []
+            with open(os.path.join(bader_output_path, "ACF.dat")) as f:
+                raw = f.readlines()
+                headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
+                raw.pop(0)
+                raw.pop(0)
+                while True:
+                    l = raw.pop(0).strip()
+                    if l.startswith("-"):
+                        break
+                    vals = map(float, l.split()[1:])
+                    data.append(dict(zip(headers, vals)))
+                for l in raw:
+                    toks = l.strip().split(":")
+                    if toks[0] == "VACUUM CHARGE":
+                        self.vacuum_charge = float(toks[1])
+                    elif toks[0] == "VACUUM VOLUME":
+                        self.vacuum_volume = float(toks[1])
+                    elif toks[0] == "NUMBER OF ELECTRONS":
+                        self.nelectrons = float(toks[1])
             self.data = data
 
             if self.parse_atomic_densities:
