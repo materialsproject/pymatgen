@@ -299,7 +299,7 @@ class BaderAnalysis:
 
     def get_charge_decorated_structure(self):
         """
-        Returns a charge decorated structure
+        Returns an charge decorated structure
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
