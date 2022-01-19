@@ -23,13 +23,13 @@ from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
 
+from ruamel.yaml import YAML
 import numpy as np
 import pandas as pd
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core import yaml
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
@@ -1180,6 +1180,7 @@ class ForceField(MSONable):
             "topo_coeffs": self.topo_coeffs,
         }
         with open(filename, "w") as f:
+            yaml = YAML()
             yaml.dump(d, f)
 
     @classmethod
@@ -1192,6 +1193,7 @@ class ForceField(MSONable):
 
         """
         with open(filename) as f:
+            yaml = YAML()
             d = yaml.load(f)
         return cls.from_dict(d)
 
