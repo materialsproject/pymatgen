@@ -310,6 +310,22 @@ class BaderAnalysis:
             raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument for cube file")
         return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
 
+    def get_partial_charge(self, atom_index, nelect=None):
+        """
+        Convenience method to get the partial charge on a particular atom. This is
+        simply the negative value of the charge transferred. A positive value indicates
+        that the atom has cationic character, whereas a negative value indicates the
+        site has anionic character.
+
+        Args:
+            atom_index:
+                Index of atom.
+
+        Returns:
+            Charge associated with atom from the Bader analysis.
+        """
+        return -self.get_charge_transfer(atom_index, nelect)
+
     def get_charge_decorated_structure(self):
         """
         Returns a charge decorated structure
