@@ -260,7 +260,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         # because the structure has no site properties, the default MAGMOM is assigned from the
         # config dictionary.
         struct = Structure(lattice, ["Fe", "F"], coords)
-        incar = MPRelaxSet(struct, prev_incar=os.path.join(self.TEST_FILES_DIR, "INCAR")).incar
+        incar = MPStaticSet(struct, prev_incar=os.path.join(self.TEST_FILES_DIR, "INCAR")).incar
         self.assertEqual(incar["MAGMOM"], [5, 0.6])
 
         # Make sure this works with species.
