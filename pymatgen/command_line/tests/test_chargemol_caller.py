@@ -29,7 +29,8 @@ class ChargemolAnalysisTest(unittest.TestCase):
             which("Chargemol_09_26_2017_linux_parallel")
             or which("Chargemol_09_26_2017_linux_serial")
             or which("chargemol")
-        )
+        ),
+        "Chargemol not found",
     )
     def test_run_chargemol(self):
         ca = ChargemolAnalysis(path=os.path.join(PymatgenTest.TEST_FILES_DIR, "chargemol"))
