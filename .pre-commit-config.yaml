@@ -1,4 +1,4 @@
-exclude: ^(docs|.*test_files)
+exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
 repos:
   - repo: https://github.com/psf/black
