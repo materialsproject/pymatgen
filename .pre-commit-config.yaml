@@ -1,17 +1,24 @@
+exclude: ^(docs|.*test_files)
+
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.11b1
+    rev: 21.12b0
     hooks:
       - id: black
+
   - repo: https://github.com/pre-commit/mirrors-pylint
     rev: v3.0.0a4
     hooks:
       - id: pylint
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v4.1.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
       - id: flake8
-        args: [--max-line-length=120]
