@@ -56,7 +56,6 @@ import shutil
 import warnings
 import numpy as np
 
-from monty.dev import requires
 from monty.io import zopen
 from monty.os.path import which
 from monty.tempfile import ScratchDir
@@ -77,14 +76,6 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
-    @requires(
-        which("Chargemol_09_26_2017_linux_parallel")
-        or which("Chargemol_09_26_2017_linux_serial")
-        or which("chargemol"),
-        "ChargemolAnalysis requires the Chargemol executable to be in the path."
-        " Please download the library at https://sourceforge.net/projects/ddec/files"
-        "and follow the instructions.",
-    )
     def __init__(
         self,
         path=None,
@@ -109,26 +100,39 @@ class ChargemolAnalysis:
         """
         if not path:
             path = os.getcwd()
+        if run_chargemol and not (
+            which("Chargemol_09_26_2017_linux_parallel")
+            or which("Chargemol_09_26_2017_linux_serial")
+            or which("chargemol"),
+        ):
+            raise EnvironmentError(
+                "ChargemolAnalysis requires the Chargemol executable to be in the path."
+                " Please download the library at https://sourceforge.net/projects/ddec/files"
+                "and follow the instructions."
+            )
         self._atomic_densities_path = atomic_densities_path
-        self._chgcarpath = self._get_filepath(path, os.path.abspath("CHGCAR"))
-        self._potcarpath = self._get_filepath(path, os.path.abspath("POTCAR"))
-        self._aeccar0path = self._get_filepath(path, os.path.abspath("AECCAR0"))
-        self._aeccar2path = self._get_filepath(path, os.path.abspath("AECCAR2"))
 
-        self.chgcar = Chgcar.from_file(self._chgcarpath)
-        self.aeccar0 = Chgcar.from_file(self._aeccar0path)
-        self.aeccar2 = Chgcar.from_file(self._aeccar2path)
-        self.structure = self.chgcar.structure
-        self.potcar = Potcar.from_file(self._potcarpath)
-        self.natoms = self.chgcar.poscar.natoms
-
-        # List of nelects for each atom from potcar
-        potcar_indices = []
-        for i, v in enumerate(self.natoms):
-            potcar_indices += [i] * v
-        self.nelects = (
-            [self.potcar[potcar_indices[i]].nelectrons for i in range(len(self.structure))] if self.potcar else []
-        )
+        self._chgcarpath = self._get_filepath(path, "CHGCAR")
+        self._potcarpath = self._get_filepath(path, "POTCAR")
+        self._aeccar0path = self._get_filepath(path, "AECCAR0")
+        self._aeccar2path = self._get_filepath(path, "AECCAR2")
+        if run_chargemol and not (self._chgcarpath and self._potcarpath and self._aeccar0path0 and self._aeccar0path2):
+            raise FileNotFoundError("CHGCAR, AECCAR0, AECCAR2, and POTCAR are all needed for Chargemol.")
+        if self._chgcarpath:
+            self.chgcar = Chgcar.from_file(self._chgcarpath)
+            self.structure = self.chgcar.structure
+            self.natoms = self.chgcar.poscar.natoms
+        else:
+            self.chgcar = None
+            self.structure = None
+            self.natoms = None
+            warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
+        if self._potcarpath:
+            self.potcar = Potcar.from_file(self._potcarpath)
+        else:
+            warnings.warn("No POTCAR found. Some properties may be unavailable.", UserWarning)
+        self.aeccar0 = Chgcar.from_file(self._aeccar0path) if self._aeccar0path else None
+        self.aeccar2 = Chgcar.from_file(self._aeccar2path) if self._aeccar2path else None
 
         if run_chargemol:
             self._execute_chargemol()
@@ -159,11 +163,8 @@ class ChargemolAnalysis:
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             warning_msg = "Multiple files detected, using %s" % os.path.basename(paths[0]) if len(paths) > 1 else None
-            fpath = paths[0]
-        else:
-            raise FileNotFoundError(f"Could not find {filename} in {path}")
-        if warning_msg:
             warnings.warn(warning_msg)
+            fpath = paths[0]
         return fpath
 
     def _execute_chargemol(self, **jobcontrol_kwargs):
@@ -302,11 +303,16 @@ class ChargemolAnalysis:
         Returns:
             float: charge on atom_index
         """
-        potcar_indices = []
-        for i, v in enumerate(self.chgcar.poscar.natoms):
-            potcar_indices += [i] * v
-        nelect = self.potcar[potcar_indices[atom_index]].nelectrons
-        return nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
+        if self.potcar and self.natoms:
+            charge = None
+            potcar_indices = []
+            for i, v in enumerate(self.natoms):
+                potcar_indices += [i] * v
+            nelect = self.potcar[potcar_indices[atom_index]].nelectrons
+            charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
+        else:
+            charge = None
+        return charge
 
     def get_partial_charge(self, atom_index, charge_type="ddec"):
         """

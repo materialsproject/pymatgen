@@ -1,0 +1,29 @@
+    2
+jmolscript: load "" {1 1 1} spacegroup "x,y,z" unitcell [{      0.000000     2.829447     2.829447 }, {      2.829447     0.000000     2.829447 }, {      2.829447     2.829447     0.000000 }]
+Na     0.000000     0.000000     0.000000     0.843200
+Cl     2.829447     2.829447     2.829447    -0.843200
+ 
+ Chargemol version 3.5 September 26, 2017.
+See ddec.sourceforge.net for latest version.
+ 
+Computational parameters:
+Number of radial integration shells =    100
+Cutoff radius (pm) =    500
+Error in the integrated total number of electrons before renormalization (e) =    1.3698E-07
+Charge convergence tolerance =    1.0000E-05
+Minimum radius for electron cloud penetration fitting (pm) =    200
+Minimum decay exponent for electron density of buried atom tails =   1.7500
+Maximum decay exponent for electron density of buried atom tails =  2.5000
+Number of iterations to convergence =      7
+ 
+The following XYZ coordinates are in angstroms. The atomic dipoles and quadrupoles are in atomic units.
+atom number, atomic symbol, x, y, z, net_charge, dipole_x, dipole_y, dipole_z, dipole_mag, Qxy, Qxz, Qyz,Q(x^2-y^2), Q(3z^2 - R^2), three eigenvalues of traceless quadrupole moment tensor
+    1 Na     0.000000     0.000000     0.000000     0.843200     0.000000     0.000000    -0.000000     0.000000    -0.000003    -0.000003    -0.000003     0.000000     0.000000    -0.000000     0.000000     0.000000
+    2 Cl     2.829447     2.829447     2.829447    -0.843200    -0.000000    -0.000000    -0.000000     0.000000    -0.000020    -0.000020    -0.000020    -0.000000    -0.000000    -0.000041     0.000020     0.000020
+ 
+The sperically averaged electron density of each atom fit to a function of the form exp(a - br) for r >=rmin_cloud_penetration
+atom number,atomic symbol, x, y, z, a, b, Rsquared where a and b are in atomic units and Rsquared is the squared correlation coefficient
+    1 Na     0.000000     0.000000     0.000000    -1.746178     1.751895     0.999994
+    2 Cl     2.829447     2.829447     2.829447     0.272202     1.755942     0.999940
+ 
+ 2022/01/19  22:49:00
