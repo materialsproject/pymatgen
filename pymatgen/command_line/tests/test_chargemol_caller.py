@@ -30,8 +30,6 @@ class ChargemolAnalysisTest(unittest.TestCase):
             or which("Chargemol_09_26_2017_linux_serial")
             or which("chargemol")
         )
-        or "DDEC6_ATOMIC_DENSITIES_DIR" not in os.path.environ,
-        "Chargemol executable not present.",
     )
     def test_run_chargemol(self):
         ca = ChargemolAnalysis(path=os.path.join(PymatgenTest.TEST_FILES_DIR, "chargemol"))
