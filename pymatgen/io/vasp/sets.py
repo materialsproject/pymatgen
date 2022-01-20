@@ -502,9 +502,6 @@ class DictSet(VaspInputSet):
 
         for k, v in settings.items():
             if k == "MAGMOM":
-                if isinstance(v, list):
-                    incar[k] = v
-                    continue
                 mag = []
                 for site in structure:
                     if hasattr(site, "magmom"):
