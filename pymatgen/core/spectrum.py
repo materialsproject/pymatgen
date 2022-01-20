@@ -6,8 +6,7 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-import sys
-from typing import Callable, List, Union
+from typing import Callable, List, Literal, Union
 
 import numpy as np
 from monty.json import MSONable
@@ -16,11 +15,6 @@ from scipy.ndimage.filters import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.typing import ArrayLike
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):

@@ -12,10 +12,9 @@ diagram analysis.
 import abc
 import json
 import os
-import sys
 import warnings
 from itertools import combinations
-from typing import Dict, List, Union
+from typing import Dict, List, Literal, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -25,11 +24,6 @@ from uncertainties import ufloat
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -116,9 +115,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import Compatibility, CompatibilityError
 from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
-    CompositionEnergyAdjustment,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 

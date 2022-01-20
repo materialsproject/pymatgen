@@ -4,17 +4,12 @@
 Utilities for generating nicer plots.
 """
 import math
-import sys
+from typing import Literal
 
 import numpy as np
 from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitative", "Set1_9")):
