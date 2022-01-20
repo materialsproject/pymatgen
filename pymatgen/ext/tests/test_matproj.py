@@ -477,7 +477,7 @@ class MPResterTest(PymatgenTest):
         self.assertIsInstance(db_version, str)
 
         with open(SETTINGS_FILE) as f:
-            d = yaml.safe_load(f)
+            d = yaml.load(f)
 
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
         self.assertIsInstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)

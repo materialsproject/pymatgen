@@ -200,7 +200,7 @@ class MPRester:
 
             try:
                 with open(SETTINGS_FILE) as f:
-                    d = yaml.safe_load(f)
+                    d = yaml.load(f)
             except OSError:
                 d = {}
 
