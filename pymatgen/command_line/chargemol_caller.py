@@ -116,7 +116,7 @@ class ChargemolAnalysis:
         self._potcarpath = self._get_filepath(path, "POTCAR")
         self._aeccar0path = self._get_filepath(path, "AECCAR0")
         self._aeccar2path = self._get_filepath(path, "AECCAR2")
-        if run_chargemol and not (self._chgcarpath and self._potcarpath and self._aeccar0path0 and self._aeccar0path2):
+        if run_chargemol and not (self._chgcarpath and self._potcarpath and self._aeccar0path and self._aeccar2path):
             raise FileNotFoundError("CHGCAR, AECCAR0, AECCAR2, and POTCAR are all needed for Chargemol.")
         if self._chgcarpath:
             self.chgcar = Chgcar.from_file(self._chgcarpath)
