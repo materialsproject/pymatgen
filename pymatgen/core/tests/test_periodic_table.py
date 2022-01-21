@@ -11,7 +11,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp, ElementBase
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -128,6 +128,23 @@ class ElementTestCase(PymatgenTest):
         }
         for k, v in testsets.items():
             self.assertEqual(Element(k).row, v)
+
+    def test_from_row_and_group(self):
+        testsets = {
+            "H": (1, 1),
+            "He": (1, 18),
+            "Li": (2, 1),
+            "O": (2, 16),
+            "Fe": (4, 8),
+            "La": (6, 3),
+            "Ce": (6, 3),
+            "Lu": (6, 3),
+            "U": (7, 3),
+            "Lr": (7, 3),
+            "Og": (7, 18),
+        }
+        for k, v in testsets.items():
+            self.assertEqual(ElementBase.from_row_and_group(v), Element(k))
 
     def test_valence(self):
         testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
