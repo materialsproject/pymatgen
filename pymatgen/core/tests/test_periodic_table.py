@@ -136,11 +136,11 @@ class ElementTestCase(PymatgenTest):
             "Li": (2, 1),
             "O": (2, 16),
             "Fe": (4, 8),
-            "La": (6, 3),
-            "Ce": (6, 3),
-            "Lu": (6, 3),
-            "U": (7, 3),
-            "Lr": (7, 3),
+            "La": (8, 3),
+            "Ce": (8, 3),
+            "Lu": (8, 3),
+            "U": (9, 3),
+            "Lr": (9, 3),
             "Og": (7, 18),
         }
         for k, v in testsets.items():
