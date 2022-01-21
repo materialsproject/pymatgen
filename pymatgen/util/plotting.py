@@ -252,7 +252,7 @@ def periodic_table_heatmap(
         if el.row > max_row:
             continue
         value = elemental_data.get(el.symbol, blank_value)
-        if (57 <= el.z <= 71) or (89 <= el.z <= 103):
+        if (57 <= el.Z <= 71) or (89 <= el.Z <= 103):
             plot_group = (el.z - 54) % 32
         else:
             plot_group = el.group
