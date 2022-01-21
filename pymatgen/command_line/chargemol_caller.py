@@ -110,6 +110,8 @@ class ChargemolAnalysis:
                 " Please download the library at https://sourceforge.net/projects/ddec/files"
                 "and follow the instructions."
             )
+        if atomic_densities_path == "":
+            atomic_densities_path = os.getcwd()
         self._atomic_densities_path = atomic_densities_path
 
         self._chgcarpath = self._get_filepath(path, "CHGCAR")
