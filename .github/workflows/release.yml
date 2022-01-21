@@ -90,7 +90,6 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
           pip install setuptools wheel twine
-          rm -rf test_files
           python setup.py sdist bdist_wheel
           twine upload --skip-existing dist/*.whl
           twine upload --skip-existing dist/*.tar.gz
