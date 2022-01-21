@@ -18,12 +18,12 @@ from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
+from ruamel.yaml import YAML
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
-from pymatgen.core import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
@@ -46,12 +46,13 @@ __status__ = "Production"
 __date__ = "August 17, 2017"
 
 _directory = os.path.join(os.path.dirname(__file__))
+yaml = YAML()
 
 with open(os.path.join(_directory, "op_params.yaml")) as f:
-    default_op_params = yaml.safe_load(f)
+    default_op_params = yaml.load(f)
 
 with open(os.path.join(_directory, "cn_opt_params.yaml")) as f:
-    cn_opt_params = yaml.safe_load(f)
+    cn_opt_params = yaml.load(f)
 
 with open(os.path.join(_directory, "ionic_radii.json")) as fp:
     _ion_radii = json.load(fp)
@@ -1174,7 +1175,8 @@ class JmolNN(NearNeighbors):
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
         with open(bonds_file) as f:
-            self.el_radius = yaml.safe_load(f)
+            yaml = YAML()
+            self.el_radius = yaml.load(f)
 
         # Update any user preference elemental radii
         if el_radius_updates:

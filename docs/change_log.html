@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.01.09 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.01.09
+                2022.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-1-20">v2022.1.20</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-9">v2022.1.9</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-8">v2022.1.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-0-17">v2022.0.17</a></li>
@@ -381,6 +382,18 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
+<section id="v2022-1-20">
+<h2>v2022.1.20<a class="headerlink" href="#v2022-1-20" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Unicode fixes (&#64;janosh)</p></li>
+<li><p>YAML deprecation fixes. (&#64;janosh)</p></li>
+<li><p>ASE adaptor support for charge, spin multiiciplity and site properties of molecules. (&#64;arosen93).</p></li>
+<li><p>New keyword option (<cite>keep_site_properties</cite>) in various <cite>structure.symmetry.analyzer</cite> functions to keep the site properties on the sites after a transformation. (&#64;arosen93)</p></li>
+<li><p>Bug fixes for Lobster module (&#64;JaGeo).</p></li>
+<li><p>SCAN / GGA(+U) mixing scheme (&#64;rkingsbury). Mixing scheme code lives in the new file <cite>mixing_scheme.py</cite> and is implemented as a <cite>Compatibility</cite> class.</p></li>
+<li><p>Fix for parsing of QuantumExpresso files due to new format (&#64;vorwerkc)</p></li>
+</ul>
+</section>
 <section id="v2022-1-9">
 <h2>v2022.1.9<a class="headerlink" href="#v2022-1-9" title="Permalink to this headline"></a></h2>
 <ul class="simple">

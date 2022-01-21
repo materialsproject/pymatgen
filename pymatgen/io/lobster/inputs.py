@@ -617,6 +617,8 @@ class Lobsterin(dict, MSONable):
         # Warning about a bug in lobster-4.1.0
         with zopen(POTCAR_input, "r") as f:
             data = f.read()
+        if isinstance(data, bytes):
+            data = data.decode("utf-8")
         if "SHA256" in data or "COPYR" in data:
             warnings.warn(
                 "These POTCARs are not compatible with "
