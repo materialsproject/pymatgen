@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -293,7 +292,7 @@ class CifTransmuter(StandardTransmuter):
 
         allcifs = []
         for fname in filenames:
-            with open(fname, "r") as f:
+            with open(fname) as f:
                 allcifs.append(f.read())
         return CifTransmuter(
             "\n".join(allcifs),
@@ -335,7 +334,7 @@ class PoscarTransmuter(StandardTransmuter):
         """
         tstructs = []
         for filename in poscar_filenames:
-            with open(filename, "r") as f:
+            with open(filename) as f:
                 tstructs.append(TransformedStructure.from_poscar_string(f.read(), []))
         return StandardTransmuter(tstructs, transformations, extend_collection=extend_collection)
 
@@ -372,15 +371,15 @@ def batch_write_vasp_input(
         formula = re.sub(r"\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
-            dirname = os.path.join(output_dir, subdir, "{}_{}".format(formula, i))
+            dirname = os.path.join(output_dir, subdir, f"{formula}_{i}")
         else:
-            dirname = os.path.join(output_dir, "{}_{}".format(formula, i))
+            dirname = os.path.join(output_dir, f"{formula}_{i}")
         s.write_vasp_input(vasp_input_set, dirname, create_directory=create_directory, **kwargs)
         if include_cif:
             from pymatgen.io.cif import CifWriter
 
             writer = CifWriter(s.final_structure)
-            writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))
+            writer.write_file(os.path.join(dirname, f"{formula}.cif"))
 
 
 def _apply_transformation(inputs):

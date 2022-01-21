@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -64,7 +63,7 @@ class TransformedStructureTest(PymatgenTest):
         self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
 
     def test_from_dict(self):
-        d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json"), "r"))
+        d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")))
         d["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(d)
         ts.other_parameters["author"] = "Will"
@@ -111,7 +110,7 @@ class TransformedStructureTest(PymatgenTest):
             self.assertEqual(
                 len(w),
                 1,
-                "Warning not raised on type conversion " "with other_parameters",
+                "Warning not raised on type conversion with other_parameters",
             )
         ts = TransformedStructure.from_snl(snl)
         self.assertEqual(ts.history[-1]["@class"], "SubstitutionTransformation")

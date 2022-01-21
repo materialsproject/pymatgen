@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -155,7 +154,7 @@ class GrandPotPDEntry(PDEntry):
         Returns:
             The chemical energy term mu*N in the grand potential
         """
-        return sum([self._composition[el] * pot for el, pot in self.chempots.items()])
+        return sum(self._composition[el] * pot for el, pot in self.chempots.items())
 
     @property
     def energy(self):
@@ -537,7 +536,7 @@ class PhaseDiagram(MSONable):
         Returns:
             Reference energy of the terminal species at a given composition.
         """
-        return sum([comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements]) / comp.num_atoms
+        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements) / comp.num_atoms
 
     def get_form_energy(self, entry):
         """
@@ -551,7 +550,7 @@ class PhaseDiagram(MSONable):
             Formation energy from the elemental references.
         """
         c = entry.composition
-        return entry.energy - sum([c[el] * self.el_refs[el].energy_per_atom for el in c.elements])
+        return entry.energy - sum(c[el] * self.el_refs[el].energy_per_atom for el in c.elements)
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -630,12 +629,12 @@ class PhaseDiagram(MSONable):
 
     def _get_simplex_intersections(self, c1, c2):
         """
-        Returns co-ordinates of the itersection of the tie line between two compositions
+        Returns coordinates of the itersection of the tie line between two compositions
         and the simplexes of the PhaseDiagram.
 
         Args:
-            c1: Reduced dimension co-ordinates of first composition
-            c2: Reduced dimension co-ordinates of second composition
+            c1: Reduced dimension coordinates of first composition
+            c2: Reduced dimension coordinates of second composition
 
         Returns:
             Array of the intersections between the tie line and the simplexes of
@@ -674,7 +673,7 @@ class PhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition per atom
         """
         decomp = self.get_decomposition(comp)
-        return decomp, sum([e.energy_per_atom * n for e, n in decomp.items()])
+        return decomp, sum(e.energy_per_atom * n for e, n in decomp.items())
 
     def get_hull_energy_per_atom(self, comp):
         """
@@ -803,7 +802,7 @@ class PhaseDiagram(MSONable):
 
         For stable entries setting `stable_only` to `True` returns the same energy
         as `get_equilibrium_reaction_energy`. This function is based on a constrained
-        optimisation rather than recalculation of the convex hull making it
+        optimization rather than recalculation of the convex hull making it
         algorithmically cheaper. However, if `tol` is too loose there is potential
         for this algorithm to converge to a different solution.
 
@@ -813,13 +812,13 @@ class PhaseDiagram(MSONable):
                 before calculating a second convex hull to reducing the complexity
                 of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
-            tol (list): Tolerences for convergence of the SLSQP optimization
-                when finding the equilibrium reaction. Tighter tolerences tested first.
+            tol (list): Tolerances for convergence of the SLSQP optimization
+                when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
 
         Returns:
-            (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
+            (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The phase separation energy is given per atom.
         """
@@ -911,7 +910,7 @@ class PhaseDiagram(MSONable):
             **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
                 space_limit (int): The maximum number of competing entries to consider.
                 stable_only (bool): Only use stable materials as competing entries
-                tol (float): The tolerence for convergence of the SLSQP optimization
+                tol (float): The tolerance for convergence of the SLSQP optimization
                     when finding the equilibrium reaction.
                 maxiter (int): The maximum number of iterations of the SLSQP optimizer
                     when finding the equilibrium reaction.
@@ -1840,7 +1839,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "%s %s + %s %s -> " % (
+                        rxn_str = "{} {} + {} {} -> ".format(
                             fmt(c1),
                             r1.reduced_formula,
                             fmt(c2),
@@ -1854,7 +1853,7 @@ class ReactionDiagram:
                         for c, e in zip(coeffs[:-1], face_entries):
                             if c > tol:
                                 r = e.composition.reduced_composition
-                                products.append("%s %s" % (fmt(c / r.num_atoms * factor), r.reduced_formula))
+                                products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
                                 product_entries.append((c, e))
                                 energy += c * e.energy_per_atom
 
@@ -1964,7 +1963,7 @@ def _get_slsqp_decomp(
     Args:
         comp (Composition): A Composition to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
-        tols (list): tolerences to try for SLSQP convergence. Issues observed for
+        tols (list): tolerances to try for SLSQP convergence. Issues observed for
             tol > 1e-7 in the fractional composition (default 1e-8)
         maxiter (int): maximum number of SLSQP iterations
 
@@ -2001,7 +2000,7 @@ def _get_slsqp_decomp(
     bounds = [(0, max_bound)] * len(competing_entries)
     x0 = [1 / len(competing_entries)] * len(competing_entries)
 
-    # NOTE the tolerence needs to be tight to stop the optimization
+    # NOTE the tolerance needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
     # tol > 1e-7 in the fractional composition (default 1e-8).
     for tol in sorted(tols):
@@ -2064,7 +2063,7 @@ class PDPlotter:
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
         self.backend = backend
-        self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries])
+        self._min_energy = min(self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries)
         colors = Set1_3.mpl_colors
         self.plotkwargs = plotkwargs or {
             "markerfacecolor": colors[2],
@@ -2372,7 +2371,7 @@ class PDPlotter:
             center = (0.5, math.sqrt(3) / 6)
         else:
             all_coords = labels.keys()
-            miny = min([c[1] for c in all_coords])
+            miny = min(c[1] for c in all_coords)
             ybuffer = max(abs(miny) * 0.1, 0.1)
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
@@ -2469,7 +2468,7 @@ class PDPlotter:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
-                "Energy [meV/at] above hull (in red)\nInverse energy [" "meV/at] above hull (in green)",
+                "Energy [meV/at] above hull (in red)\nInverse energy [ meV/at] above hull (in green)",
                 rotation=-90,
                 ha="left",
                 va="center",
@@ -2583,7 +2582,7 @@ class PDPlotter:
             center_y = 0
             coords = []
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
-            is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
+            is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-")
@@ -2617,8 +2616,8 @@ class PDPlotter:
         el0 = elements[0]
         el1 = elements[1]
         for entry, coords in missing_lines.items():
-            center_x = sum([c[0] for c in coords])
-            center_y = sum([c[1] for c in coords])
+            center_x = sum(c[0] for c in coords)
+            center_y = sum(c[1] for c in coords)
             comp = entry.composition
             is_x = comp.get_atomic_fraction(el0) < 0.01
             is_y = comp.get_atomic_fraction(el1) < 0.01
@@ -2944,7 +2943,7 @@ class PDPlotter:
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
-                label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
+                label = f"{clean_formula} ({entry_id}) <br> {energy} eV/atom"
 
                 if not stable:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -19,12 +18,12 @@ from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
+from ruamel.yaml import YAML
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
-from pymatgen.core import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
@@ -47,14 +46,15 @@ __status__ = "Production"
 __date__ = "August 17, 2017"
 
 _directory = os.path.join(os.path.dirname(__file__))
+yaml = YAML()
 
-with open(os.path.join(_directory, "op_params.yaml"), "rt") as f:
-    default_op_params = yaml.safe_load(f)
+with open(os.path.join(_directory, "op_params.yaml")) as f:
+    default_op_params = yaml.load(f)
 
-with open(os.path.join(_directory, "cn_opt_params.yaml"), "r") as f:
-    cn_opt_params = yaml.safe_load(f)
+with open(os.path.join(_directory, "cn_opt_params.yaml")) as f:
+    cn_opt_params = yaml.load(f)
 
-with open(os.path.join(_directory, "ionic_radii.json"), "r") as fp:
+with open(os.path.join(_directory, "ionic_radii.json")) as fp:
     _ion_radii = json.load(fp)
 
 
@@ -127,7 +127,7 @@ class ValenceIonicRadiusEvaluator:
                 if radius is None:
                     radius = site.specie.atomic_radius_calculated
                 if radius is None:
-                    raise ValueError("cannot assign radius to element {}".format(site.specie))
+                    raise ValueError(f"cannot assign radius to element {site.specie}")
                 radii.append(radius)
                 continue
 
@@ -227,7 +227,7 @@ class NearNeighbors:
         Boolean property: can this NearNeighbors class be used with Structure
         objects?
         """
-        raise NotImplementedError("structures_allowed" " is not defined!")
+        raise NotImplementedError("structures_allowed is not defined!")
 
     @property
     def molecules_allowed(self):
@@ -235,7 +235,7 @@ class NearNeighbors:
         Boolean property: can this NearNeighbors class be used with Molecule
         objects?
         """
-        raise NotImplementedError("molecules_allowed" " is not defined!")
+        raise NotImplementedError("molecules_allowed is not defined!")
 
     @property
     def extend_structure_molecules(self):
@@ -262,7 +262,7 @@ class NearNeighbors:
         """
 
         siw = self.get_nn_info(structure, n)
-        return sum([e["weight"] for e in siw]) if use_weights else len(siw)
+        return sum(e["weight"] for e in siw) if use_weights else len(siw)
 
     def get_cn_dict(self, structure, n, use_weights=False):
         """
@@ -727,7 +727,7 @@ class VoronoiNN(NearNeighbors):
                     if e.args and "vertex" in e.args[0]:
                         # pass through the error raised by _extract_cell_info
                         raise e
-                    raise RuntimeError("Error in Voronoi neighbor finding; " "max cutoff exceeded")
+                    raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
@@ -841,9 +841,7 @@ class VoronoiNN(NearNeighbors):
                     if self.allow_pathological:
                         continue
 
-                    raise RuntimeError(
-                        "This structure is pathological," " infinite vertex in the voronoi " "construction"
-                    )
+                    raise RuntimeError("This structure is pathological, infinite vertex in the voronoi construction")
 
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
@@ -907,7 +905,7 @@ class VoronoiNN(NearNeighbors):
         # If desired, determine which neighbors are adjacent
         if compute_adj_neighbors:
             # Initialize storage for the adjacent neighbors
-            adj_neighbors = dict((i, []) for i in resultweighted.keys())
+            adj_neighbors = {i: [] for i in resultweighted.keys()}
 
             # Find the neighbors that are adjacent by finding those
             #  that contain exactly two vertices
@@ -1176,8 +1174,9 @@ class JmolNN(NearNeighbors):
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
-        with open(bonds_file, "r") as f:
-            self.el_radius = yaml.safe_load(f)
+        with open(bonds_file) as f:
+            yaml = YAML()
+            self.el_radius = yaml.load(f)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -1345,7 +1344,7 @@ class MinimumDistanceNN(NearNeighbors):
                     }
                 )
         else:
-            min_dist = min([nn.nn_distance for nn in neighs_dists])
+            min_dist = min(nn.nn_distance for nn in neighs_dists)
             for nn in neighs_dists:
                 dist = nn.nn_distance
                 if dist < (1.0 + self.tol) * min_dist:
@@ -1768,7 +1767,7 @@ class MinimumOKeeffeNN(NearNeighbors):
             reldists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
 
         siw = []
-        min_reldist = min([reldist for reldist, neigh in reldists_neighs])
+        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
         for reldist, s in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
@@ -1846,7 +1845,7 @@ class MinimumVIRENN(NearNeighbors):
             reldists_neighs.append([nn.nn_distance / (vire.radii[nn.species_string] + rn), nn])
 
         siw = []
-        min_reldist = min([reldist for reldist, neigh in reldists_neighs])
+        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
         for reldist, s in reldists_neighs:
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
@@ -2031,7 +2030,7 @@ def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, 
 
     if approach == "min_VIRE":
         return MinimumVIRENN(tol=delta, cutoff=cutoff).get_nn(struct, n)
-    raise RuntimeError("unsupported neighbor-finding method ({}).".format(approach))
+    raise RuntimeError(f"unsupported neighbor-finding method ({approach}).")
 
 
 def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10.0, thresh=None):
@@ -2407,7 +2406,7 @@ class LocalStructOrderParams:
         """
 
         if len(thetas) != len(phis):
-            raise ValueError("List of polar and azimuthal angles have to be" " equal!")
+            raise ValueError("List of polar and azimuthal angles have to be equal!")
 
         self._pow_sin_t.clear()
         self._pow_cos_t.clear()
@@ -2781,7 +2780,7 @@ class LocalStructOrderParams:
             str: OP type.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError("Index for getting order parameter type" " out-of-bounds!")
+            raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
     def get_parameters(self, index):
@@ -2801,9 +2800,7 @@ class LocalStructOrderParams:
             [float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
-            raise ValueError(
-                "Index for getting parameters associated with" " order parameter calculation out-of-bounds!"
-            )
+            raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
     def get_order_parameters(self, structure, n, indices_neighs=None, tol=0.0, target_spec=None):
@@ -2906,9 +2903,9 @@ class LocalStructOrderParams:
         centvec = centsite.coords
         if self._computerijs:
             for j, neigh in enumerate(neighsites):
-                rij.append((neigh.coords - centvec))
+                rij.append(neigh.coords - centvec)
                 dist.append(np.linalg.norm(rij[j]))
-                rijnorm.append((rij[j] / dist[j]))
+                rijnorm.append(rij[j] / dist[j])
         if self._computerjks:
             for j, neigh in enumerate(neighsites):
                 rjk.append([])
@@ -3406,7 +3403,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = sorted([i.nn_distance for i in neighs_dists])
+        ds = sorted(i.nn_distance for i in neighs_dists)
 
         ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
 
@@ -3479,7 +3476,7 @@ class BrunnerNN_relative(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = sorted([i.nn_distance for i in neighs_dists])
+        ds = sorted(i.nn_distance for i in neighs_dists)
 
         ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
 
@@ -3552,7 +3549,7 @@ class BrunnerNN_real(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = sorted([i.nn_distance for i in neighs_dists])
+        ds = sorted(i.nn_distance for i in neighs_dists)
 
         ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
 
@@ -4009,7 +4006,7 @@ class CrystalNN(NearNeighbors):
             cn (integer or float): coordination number.
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn(structure, n, use_weights)
 
@@ -4029,7 +4026,7 @@ class CrystalNN(NearNeighbors):
             cn (dict): dictionary of CN of each element bonded to site
         """
         if self.weighted_cn != use_weights:
-            raise ValueError("The weighted_cn parameter and use_weights " "parameter should match!")
+            raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
         return super().get_cn_dict(structure, n, use_weights)
 
@@ -4141,9 +4138,11 @@ def _get_radius(site):
 
 class CutOffDictNN(NearNeighbors):
     """
-    A very basic NN class using a dictionary of fixed
-    cut-off distances. Can also be used with no dictionary
-    defined for a Null/Empty NN class.
+    A basic NN class using a dictionary of fixed cut-off distances.
+    Only pairs of elements listed in the cut-off dictionary are considered
+    during construction of the neighbor lists.
+
+    Omit passing a dictionary for a Null/Empty NN class.
     """
 
     def __init__(self, cut_off_dict=None):
@@ -4152,10 +4151,11 @@ class CutOffDictNN(NearNeighbors):
             cut_off_dict (Dict[str, float]): a dictionary
             of cut-off distances, e.g. {('Fe','O'): 2.0} for
             a maximum Fe-O bond length of 2.0 Angstroms.
-            Note that if your structure is oxidation state
-            decorated, the cut-off distances will have to
-            explicitly include the oxidation state, e.g.
-            {('Fe2+', 'O2-'): 2.0}
+            Bonds will only be created between pairs listed
+            in the cut-off dictionary.
+            If your structure is oxidation state decorated,
+            the cut-off distances will have to explicitly include
+            the oxidation state, e.g. {('Fe2+', 'O2-'): 2.0}
         """
 
         self.cut_off_dict = cut_off_dict or {}
@@ -4213,7 +4213,7 @@ class CutOffDictNN(NearNeighbors):
             cut_offs = loadfn(os.path.join(_directory, "vesta_cutoffs.yaml"))
             return CutOffDictNN(cut_off_dict=cut_offs)
 
-        raise ValueError("Unrecognised preset: {}".format(preset))
+        raise ValueError(f"Unrecognised preset: {preset}")
 
     def get_nn_info(self, structure, n):
         """

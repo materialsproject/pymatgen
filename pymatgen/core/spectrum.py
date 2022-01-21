@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -165,7 +164,7 @@ class Spectrum(MSONable):
 
     def __sub__(self, other):
         """
-        Substract one Spectrum object from another. Checks that x scales are
+        Subtract one Spectrum object from another. Checks that x scales are
         the same.
         Otherwise, a ValueError is thrown
 
@@ -173,7 +172,7 @@ class Spectrum(MSONable):
             other: Another Spectrum object
 
         Returns:
-            Substraction of the two Spectrum objects
+            Subtraction of the two Spectrum objects
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
@@ -224,8 +223,8 @@ class Spectrum(MSONable):
         return "\n".join(
             [
                 self.__class__.__name__,
-                "%s: %s" % (self.XLABEL, self.x),
-                "%s: %s" % (self.YLABEL, self.y),
+                f"{self.XLABEL}: {self.x}",
+                f"{self.YLABEL}: {self.y}",
             ]
         )
 

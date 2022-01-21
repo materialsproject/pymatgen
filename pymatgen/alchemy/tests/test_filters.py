@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -87,7 +86,7 @@ class SpecieProximityFilterTest(PymatgenTest):
 
 class RemoveDuplicatesFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
@@ -106,7 +105,7 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
 
 class RemoveExistingFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()

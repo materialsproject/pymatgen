@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -56,15 +55,15 @@ def _perform_grouping(args):
     unmatched = list(zip(entries, hosts))
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
-        logger.info("Reference tid = {}, formula = {}".format(unmatched[0][0].entry_id, ref_host.formula))
+        logger.info(f"Reference tid = {unmatched[0][0].entry_id}, formula = {ref_host.formula}")
         ref_formula = ref_host.composition.reduced_formula
-        logger.info("Reference host = {}".format(ref_formula))
+        logger.info(f"Reference host = {ref_formula}")
         matches = [unmatched[0]]
         for i in range(1, len(unmatched)):
             test_host = unmatched[i][1]
-            logger.info("Testing tid = {}, formula = {}".format(unmatched[i][0].entry_id, test_host.formula))
+            logger.info(f"Testing tid = {unmatched[i][0].entry_id}, formula = {test_host.formula}")
             test_formula = test_host.composition.reduced_formula
-            logger.info("Test host = {}".format(test_formula))
+            logger.info(f"Test host = {test_formula}")
             m = StructureMatcher(
                 ltol=ltol,
                 stol=stol,
@@ -78,7 +77,7 @@ def _perform_grouping(args):
                 matches.append(unmatched[i])
         groups.append(json.dumps([m[0] for m in matches], cls=MontyEncoder))
         unmatched = list(filter(lambda x: x not in matches, unmatched))
-        logger.info("{} unmatched remaining".format(len(unmatched)))
+        logger.info(f"{len(unmatched)} unmatched remaining")
 
 
 def group_entries_by_structure(
@@ -119,7 +118,7 @@ def group_entries_by_structure(
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
     start = datetime.datetime.now()
-    logger.info("Started at {}".format(start))
+    logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
         symm_entries = collections.defaultdict(list)
@@ -127,7 +126,7 @@ def group_entries_by_structure(
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
         import multiprocessing as mp
 
-        logging.info("Using {} cpus".format(ncpus))
+        logging.info(f"Using {ncpus} cpus")
         manager = mp.Manager()
         groups = manager.list()
         with mp.Pool(ncpus) as p:
@@ -168,8 +167,34 @@ def group_entries_by_structure(
     entry_groups = []
     for g in groups:
         entry_groups.append(json.loads(g, cls=MontyDecoder))
-    logging.info("Finished at {}".format(datetime.datetime.now()))
-    logging.info("Took {}".format(datetime.datetime.now() - start))
+    logging.info(f"Finished at {datetime.datetime.now()}")
+    logging.info(f"Took {datetime.datetime.now() - start}")
+    return entry_groups
+
+
+def group_entries_by_composition(entries, sort_by_e_per_atom=True):
+    """
+    Given a sequence of Entry-like objects, group them by composition and
+        optionally sort by energy above hull.
+
+    Args:
+        entries (List): Sequence of Entry-like objects.
+        sort_by_e_per_atom (bool): Whether to sort the grouped entries by
+            energy per atom (lowest energy first). Default True.
+
+    Returns:
+        Sequence of sequence of entries by composition. e.g,
+        [[ entry1, entry2], [entry3, entry4, entry5]]
+    """
+    entry_groups = []
+    entries = sorted(entries, key=lambda e: e.composition.reduced_formula)
+    for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+        group = list(g)
+        if sort_by_e_per_atom:
+            group = sorted(group, key=lambda e: e.energy_per_atom)
+
+        entry_groups.append(group)
+
     return entry_groups
 
 
@@ -222,16 +247,30 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             chemsys.update([el.symbol for el in e.composition.keys()])
         return chemsys
 
-    def remove_non_ground_states(self):
+    @property
+    def ground_states(self) -> set:
         """
-        Removes all non-ground state entries, i.e., only keep the lowest energy
+        A set containing only the entries that are ground states, i.e., the lowest energy
         per atom entry at each composition.
         """
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
         ground_states = set()
         for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
-        self.entries = ground_states
+        return ground_states
+
+    def remove_non_ground_states(self):
+        """
+        Removes all non-ground state entries, i.e., only keep the lowest energy
+        per atom entry at each composition.
+        """
+        self.entries = self.ground_states
+
+    def is_ground_state(self, entry) -> bool:
+        """
+        Boolean indicating whether a given Entry is a ground state
+        """
+        return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: List[str]):
         """
@@ -250,7 +289,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         chem_sys = set(chemsys)
         if not chem_sys.issubset(self.chemsys):
-            raise ValueError("%s is not a subset of %s" % (chem_sys, self.chemsys))
+            raise ValueError(f"{chem_sys} is not a subset of {self.chemsys}")
         subset = set()
         for e in self.entries:
             elements = [sp.symbol for sp in e.composition.keys()]
@@ -304,7 +343,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         Returns:
             List of Elements, List of PDEntries
         """
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, encoding="utf-8") as f:
             reader = csv.reader(
                 f,
                 delimiter=unicode2str(","),

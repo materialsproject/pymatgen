@@ -7,10 +7,9 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import PymatgenTest
 
-
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "BTO_221_99_polarization")
 bto_folders = ["nonpolar_polarization"]
-bto_folders += ["interpolation_{}_polarization".format(str(i)) for i in range(1, 9)][::-1]
+bto_folders += [f"interpolation_{i}_polarization" for i in range(1, 9)][::-1]
 bto_folders += ["polar_polarization"]
 
 structures = [Structure.from_file(test_dir + "/" + folder + "/POSCAR") for folder in bto_folders]

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -106,9 +105,9 @@ class LDos(MSONable):
 
         for i in range(1, len(pot_dict) + 1):
             if len(str(i)) == 1:
-                ldos[i] = np.loadtxt("{}0{}.dat".format(ldos_file, i))
+                ldos[i] = np.loadtxt(f"{ldos_file}0{i}.dat")
             else:
-                ldos[i] = np.loadtxt("{}{}.dat".format(ldos_file, i))
+                ldos[i] = np.loadtxt(f"{ldos_file}{i}.dat")
 
         for i in range(0, len(ldos[1])):
             dos_energies.append(ldos[1][i][0])
@@ -158,7 +157,7 @@ class LDos(MSONable):
 
         Args:
             feff_inp_file (str): name of feff.inp file for run
-            ldos_file (str): ldos filename for run, assume consequetive order,
+            ldos_file (str): ldos filename for run, assume consecutive order,
                 i.e., ldos01.dat, ldos02.dat....
 
         Returns:
@@ -207,7 +206,7 @@ class LDos(MSONable):
 
         for i in range(0, len(dicts[0]) + 1):
             if len(str(i)) == 1:
-                with zopen("{}0{}.dat".format(ldos_file, i), "rt") as fobject:
+                with zopen(f"{ldos_file}0{i}.dat", "rt") as fobject:
                     f = fobject.readlines()
                     s = float(f[3].split()[2])
                     p = float(f[4].split()[2])

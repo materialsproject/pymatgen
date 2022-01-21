@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -18,7 +17,7 @@ class DefectTransformationTest(PymatgenTest):
         trans_structure = def_transform.apply_transformation(struc)
         self.assertEqual(len(trans_structure), 47)
 
-        # confirm that transformation doesnt work for bulk structures
+        # confirm that transformation doesn't work for bulk structures
         # which are slightly different than those used for defect object
         # scaled volume
         scaled_struc = struc.copy()

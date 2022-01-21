@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -344,7 +343,7 @@ class InterfacialReactivity(MSONable):
         Returns:
             Total number of atoms for non_reservoir elements.
         """
-        return sum([rxn.get_el_amount(e) for e in self.pd.elements])
+        return sum(rxn.get_el_amount(e) for e in self.pd.elements)
 
     def _get_plotly_figure(self) -> Figure:
         """Returns a Plotly figure of reaction kinks diagram"""
@@ -570,7 +569,7 @@ class InterfacialReactivity(MSONable):
             phase at given temperature and pressure.
         """
         if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"Element {element} not one of valid options: " "['O', 'N', " "'Cl', 'F', 'H']")
+            warnings.warn(f"Element {element} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
             return 0
 
         std_temp = 298.15
@@ -621,7 +620,7 @@ class InterfacialReactivity(MSONable):
         Returns:
             Tuple (x_min, E_min).
         """
-        return min([(x, energy) for _, x, energy, _, _ in self.get_kinks()], key=lambda i: i[1])
+        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda i: i[1])
 
     @property
     def products(self):
@@ -684,7 +683,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         """
 
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
-            raise ValueError("Please use the InterfacialReactivity class if using a " "regular phase diagram!")
+            raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True
@@ -752,11 +751,11 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         else:
             grand_potential = self._get_entry_energy(self.pd_non_grand, composition)
 
-        grand_potential -= sum([composition[e] * mu for e, mu in self.pd.chempots.items()])
+        grand_potential -= sum(composition[e] * mu for e, mu in self.pd.chempots.items())
 
         if self.norm:
             # Normalizes energy to the composition excluding element(s)
             # from reservoir.
-            grand_potential /= sum([composition[el] for el in composition if el not in self.pd.chempots])
+            grand_potential /= sum(composition[el] for el in composition if el not in self.pd.chempots)
 
         return grand_potential

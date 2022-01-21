@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -28,7 +27,7 @@ __date__ = "Aug 1, 2018"
 class LammpsRun(MSONable):
     """
     Examples for various simple LAMMPS runs with given simulation box,
-    force field and a few more settings. Experience LAMMPS users should
+    force field and a few more settings. Experienced LAMMPS users should
     consider using write_lammps_inputs method with more sophisticated
     templates.
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -39,7 +38,7 @@ class TestCRESTInput(PymatgenTest):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
         mol = Molecule.from_file(os.path.join(test_dir, "crest_in.xyz"))
         cin = CRESTInput(molecule=mol, constraints=constraints)
-        with open(os.path.join(expected_output_dir, "expected_constrains.txt"), "r") as f:
+        with open(os.path.join(expected_output_dir, "expected_constrains.txt")) as f:
             exp_con = f.read()
             self.assertEqual(
                 exp_con.strip(),

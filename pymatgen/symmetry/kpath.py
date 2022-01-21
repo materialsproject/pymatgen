@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -1072,13 +1071,13 @@ class KPathLatimerMunro(KPathBase):
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
     obtain the correct Brillouin zone within the current
-    implementaiton). This is checked during initialization and a
+    implementation). This is checked during initialization and a
     warning is issued if the condition is not fulfilled.
     In the case of magnetic structures, care must also be taken to
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
     upon application of lattice translations). There is no way to
-    programatically check for this, so if the input structure is
+    programmatically check for this, so if the input structure is
     incorrect, the class will output the incorrect kpath without
     any warning being issued.
     """
@@ -1306,7 +1305,7 @@ class KPathLatimerMunro(KPathBase):
             orbit_cosines.append(
                 sorted(
                     sorted(
-                        [
+                        (
                             (
                                 j,
                                 np.round(
@@ -1317,7 +1316,7 @@ class KPathLatimerMunro(KPathBase):
                             )
                             for k in orbit
                             for j in range(26)
-                        ],
+                        ),
                         key=operator.itemgetter(0),
                     ),
                     key=operator.itemgetter(1),
@@ -1346,9 +1345,9 @@ class KPathLatimerMunro(KPathBase):
                     max_occurence = 0
                 else:
                     if "'" not in point_label:
-                        max_occurence = max([int(label[3:-1]) for label in existing_labels[1:]])
+                        max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
                     else:
-                        max_occurence = max([int(label[4:-1]) for label in existing_labels[1:]])
+                        max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
                 kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
 
@@ -1676,7 +1675,7 @@ class KPathLatimerMunro(KPathBase):
 
     def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
 
-        little_groups_points = []  # elements are lists of indicies of recip_point_group. the
+        little_groups_points = []  # elements are lists of indices of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
         for (i, orbit) in enumerate(key_points_inds_orbits):
@@ -1690,7 +1689,7 @@ class KPathLatimerMunro(KPathBase):
                 if check_gamma:
                     little_groups_points[i].append(j)
 
-        # elements are lists of indicies of recip_point_group. the list
+        # elements are lists of indices of recip_point_group. the list
         # little_groups_lines[i] is
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]
@@ -1736,7 +1735,7 @@ class KPathLatimerMunro(KPathBase):
                 new_magmoms.append(magmom * magmom_axis)
 
         if found_scalar and not axis_specified:
-            warn("At least one magmom had a scalar value and magmom_axis was not specified." "Defaulted to z+ spinor.")
+            warn("At least one magmom had a scalar value and magmom_axis was not specified. Defaulted to z+ spinor.")
 
         struct.remove_site_property("magmom")
         struct.add_site_property("magmom", new_magmoms)
@@ -2204,7 +2203,7 @@ class KPathLatimerMunro(KPathBase):
         while len(orbit_labels_unsorted) < len(orbit_cosines_orig) + 1:
             pop_orbits = []
             pop_labels = []
-            max_cosine_value = max([orb_cos[0][1] for orb_cos in orbit_cosines_copy])
+            max_cosine_value = max(orb_cos[0][1] for orb_cos in orbit_cosines_copy)
             max_cosine_value_inds = [
                 j for j in range(len(orbit_cosines_copy)) if orbit_cosines_copy[j][0][1] == max_cosine_value
             ]

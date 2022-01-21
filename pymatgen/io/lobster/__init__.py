@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -10,17 +9,17 @@ classes to be simply called as pymatgen.io.lobster.Lobsterin for example, to ret
 backwards compatibility.
 """
 
-from .inputs import Lobsterin  # noqa
-from .outputs import (  # noqa
-    Bandoverlaps,  # noqa
-    Charge,  # noqa
-    Cohpcar,  # noqa
-    Doscar,  # noqa
-    Fatband,  # noqa
-    Grosspop,  # noqa
-    Icohplist,  # noqa
-    MadelungEnergies,  # noqa
-    Lobsterout,  # noqa
-    SitePotential,  # noqa
-    Wavefunction,  # noqa
-)  # noqa
+from .inputs import Lobsterin
+from .outputs import (
+    Bandoverlaps,
+    Charge,
+    Cohpcar,
+    Doscar,
+    Fatband,
+    Grosspop,
+    Icohplist,
+    Lobsterout,
+    MadelungEnergies,
+    SitePotential,
+    Wavefunction,
+)

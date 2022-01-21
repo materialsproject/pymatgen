@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -49,8 +48,8 @@ class BalancedReaction(MSONable):
                 {Composition: amt}.
         """
         # sum reactants and products
-        all_reactants = sum([k * v for k, v in reactants_coeffs.items()], Composition({}))
-        all_products = sum([k * v for k, v in products_coeffs.items()], Composition({}))
+        all_reactants = sum((k * v for k, v in reactants_coeffs.items()), Composition({}))
+        all_products = sum((k * v for k, v in products_coeffs.items()), Composition({}))
 
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
@@ -82,7 +81,7 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum([amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp)])
+        return sum(amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp))
 
     def normalize_to(self, comp, factor=1):
         """
@@ -109,7 +108,7 @@ class BalancedReaction(MSONable):
         """
         all_comp = self._all_comp
         coeffs = self._coeffs
-        current_el_amount = sum([all_comp[i][element] * abs(coeffs[i]) for i in range(len(all_comp))]) / 2
+        current_el_amount = sum(all_comp[i][element] * abs(coeffs[i]) for i in range(len(all_comp))) / 2
         scale_factor = factor / current_el_amount
         self._coeffs = [c * scale_factor for c in coeffs]
 
@@ -123,7 +122,7 @@ class BalancedReaction(MSONable):
         Returns:
             Amount of that element in the reaction.
         """
-        return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))]) / 2
+        return sum(self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))) / 2
 
     @property
     def elements(self):
@@ -203,9 +202,9 @@ class BalancedReaction(MSONable):
             elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)
             elif amt < -cls.TOLERANCE:
-                reactant_str.append("{:.4g} {}".format(-amt, formula))
+                reactant_str.append(f"{-amt:.4g} {formula}")
             elif amt > cls.TOLERANCE:
-                product_str.append("{:.4g} {}".format(amt, formula))
+                product_str.append(f"{amt:.4g} {formula}")
 
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
 

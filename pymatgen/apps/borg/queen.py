@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -65,7 +64,7 @@ class BorgQueen:
         status = manager.dict()
         status["count"] = 0
         status["total"] = len(valid_paths)
-        logger.info("{} valid paths found.".format(len(valid_paths)))
+        logger.info(f"{len(valid_paths)} valid paths found.")
         with Pool(self._num_drones) as p:
             p.map(
                 order_assimilation,
@@ -88,7 +87,7 @@ class BorgQueen:
             newdata = self._drone.assimilate(path)
             self._data.append(newdata)
             count += 1
-            logger.info("{}/{} ({:.2f}%) done".format(count, total, count / total * 100))
+            logger.info(f"{count}/{total} ({count / total * 100:.2f}%) done")
         for d in data:
             self._data.append(json.loads(d, cls=MontyDecoder))
 
@@ -129,4 +128,4 @@ def order_assimilation(args):
     status["count"] += 1
     count = status["count"]
     total = status["total"]
-    logger.info("{}/{} ({:.2f}%) done".format(count, total, count / total * 100))
+    logger.info(f"{count}/{total} ({count / total * 100:.2f}%) done")

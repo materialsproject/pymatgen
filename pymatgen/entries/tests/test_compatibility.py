@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -18,11 +17,11 @@ __date__ = "Mar 19, 2012"
 
 import os
 import unittest
+import pytest  # type: ignore
+
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
-
-import pytest
 from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition
@@ -46,6 +45,84 @@ from pymatgen.entries.computed_entries import (
     ConstantEnergyAdjustment,
 )
 from pymatgen.util.testing import PymatgenTest
+
+
+class CorrectionSpecificityTest(unittest.TestCase):
+    """
+    Make sure corrections are only applied to GGA or GGA+U entries
+    """
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        self.entry1 = ComputedEntry(
+            "Fe2O3",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Fe": 5.3, "O": 0},
+                "run_type": "GGA+U",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+        self.entry2 = ComputedEntry(
+            "FeS",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+
+        self.entry3 = ComputedEntry(
+            "Fe2O3",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "R2SCAN",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+
+    def test_correction_specificity(self):
+        processed = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
+
+        assert len(processed) == 2
+
+        assert self.entry1.correction != 0
+        assert self.entry2.correction != 0
+        assert self.entry3.correction == 0.0
 
 
 # abstract Compatibility tests
@@ -539,7 +616,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsInstance(temp_compat, MaterialsProjectCompatibility)
 
 
-class MaterialsProject2020CompatibilityTest(unittest.TestCase):
+class MaterialsProjectCompatibility2020Test(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
@@ -1948,30 +2025,63 @@ class TestMaterialsProjectAqueousCompatibility:
             total energy corrections applied to H2O (eV/H2O) -0.70229 eV/H2O or -0.234 eV/atom
     """
 
-    def test_h_h2o_energy_with_args(self):
+    def test_h_h2o_energy_with_args_single(self):
 
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
-            h2o_energy=-5.195,
+            h2o_energy=-5,
             h2o_adjustments=-0.234,
             solid_compat=None,
         )
 
-        h2o_entry_1 = ComputedEntry(Composition("H2O"), -16)
-        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -10)
-        h2_entry_1 = ComputedEntry(Composition("H2"), -16)
-        h2_entry_2 = ComputedEntry(Composition("H8"), -100)
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), -15)  # -5 eV/atom
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -6)  # -1 eV/atom
+        h2_entry_1 = ComputedEntry(Composition("H8"), -100)  # -12.5 eV/atom
+        h2_entry_2 = ComputedEntry(Composition("H2"), -16)  # -8 eV/atom
 
-        for entry in [h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2]:
+        for entry in [h2o_entry_1, h2o_entry_2]:
             compat.process_entries(entry)
 
-        assert h2o_entry_1.energy_per_atom == pytest.approx(h2o_entry_2.energy_per_atom)
-        assert h2_entry_1.energy_per_atom == pytest.approx(h2_entry_2.energy_per_atom)
+        for entry in [h2_entry_1, h2_entry_2]:
+            with pytest.warns(UserWarning, match="Processing single H2 entries"):
+                compat.process_entries(entry)
+
+        # the corrections should set the energy of any H2 polymorph the same, because
+        # we have only processed one entry at at time. Energy differences of H2O
+        # polymorphs should be preserved.
+        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
+        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom)
 
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
 
-        h2o_form_e = 3 * h2o_entry_2.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
+        h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
+        assert h2o_form_e == pytest.approx(MU_H2O)
+
+    def test_h_h2o_energy_with_args_multi(self):
+
+        compat = MaterialsProjectAqueousCompatibility(
+            o2_energy=-4.9276,
+            h2o_energy=-5,
+            h2o_adjustments=-0.234,
+            solid_compat=None,
+        )
+
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), -15)  # -5 eV/atom
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -6)  # -1 eV/atom
+        h2_entry_1 = ComputedEntry(Composition("H8"), -100)  # -12.5 eV/atom
+        h2_entry_2 = ComputedEntry(Composition("H2"), -16)  # -8 eV/atom
+
+        compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2])
+
+        # Energy differences of H2O and H2 polymorphs should be preserved.
+        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
+        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom + 4.5)
+
+        o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
+        o2_entry_1 = compat.process_entries(o2_entry_1)[0]
+
+        h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_1.energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_h_h2o_energy_no_args(self):
@@ -1979,28 +2089,28 @@ class TestMaterialsProjectAqueousCompatibility:
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility(solid_compat=None)
 
-        h2o_entry_1 = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)
-        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -10)
-        h2_entry_1 = ComputedEntry(Composition("H2"), -16)
-        h2_entry_2 = ComputedEntry(Composition("H8"), -100)
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)  # -5.195 eV/atom
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -6)  # -1 eV/atom
+        h2_entry_1 = ComputedEntry(Composition("H8"), -100)  # -12.5 eV/atom``
+        h2_entry_2 = ComputedEntry(Composition("H2"), -16)  # -8 eV/atom
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
 
         with pytest.raises(CompatibilityError, match="Either specify the energies as arguments to "):
             compat.get_adjustments(h2_entry_1)
 
-        entries = compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
+        compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
 
         assert compat.o2_energy == -4.9276
         assert compat.h2o_energy == -5.195
         assert compat.h2o_adjustments == -0.234
 
-        h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
-        h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
+        # the corrections should preserve the difference in energy among H2O and H2 polymorphs
+        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4.195)
+        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom + 4.5)
 
-        assert h2o_entries[0].energy_per_atom == pytest.approx(h2o_entries[1].energy_per_atom)
-        assert h2_entries[0].energy_per_atom == pytest.approx(h2_entries[1].energy_per_atom)
-
-        h2o_form_e = 3 * h2o_entries[1].energy_per_atom - 2 * h2_entries[0].energy_per_atom - o2_entry_1.energy_per_atom
+        # the water formation energy, calculated from the lowest energy polymorphs,
+        # should equal the experimental value
+        h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_1.energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_compound_entropy(self):
@@ -2037,21 +2147,23 @@ class AqueousCorrectionTest(unittest.TestCase):
         self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
-        O2_entry = self.corr.correct_entry(ComputedEntry(Composition("O2"), -4.9355 * 2))
-        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
-        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
+        O2_entry = self.corr.correct_entry(
+            ComputedEntry(Composition("O2"), -4.9355 * 2, parameters={"run_type": "GGA"})
+        )
+        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3, parameters={"run_type": "GGA"}))
+        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3, parameters={"run_type": "GGA"}))
         H2O_formation_energy = H2O_entry.energy - (H2_entry.energy + O2_entry.energy / 2.0)
         self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
 
-        entry = ComputedEntry(Composition("H2O"), -16)
+        entry = ComputedEntry(Composition("H2O"), -16, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -14.916, 4)
 
-        entry = ComputedEntry(Composition("H2O"), -24)
+        entry = ComputedEntry(Composition("H2O"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -14.916, 4)
 
-        entry = ComputedEntry(Composition("Cl"), -24)
+        entry = ComputedEntry(Composition("Cl"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -24.344373, 4)
 
@@ -2132,11 +2244,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
                 "is_hubbard": False,
                 "hubbards": None,
                 "run_type": "GGA",
-                "potcar_symbols": [
-                    "PAW_PBE Fe 17Jan2003",
-                    "PAW_PBE O 08Apr2002",
-                    "PAW_PBE H 15Jun2001",
-                ],
+                "potcar_symbols": ["PAW_PBE Fe 17Jan2003", "PAW_PBE O 08Apr2002", "PAW_PBE H 15Jun2001"],
             },
         )
 

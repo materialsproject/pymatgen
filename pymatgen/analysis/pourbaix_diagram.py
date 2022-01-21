@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -21,7 +20,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -42,8 +41,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
-from pymatgen.util.sequence import PBar
-
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -328,7 +325,7 @@ class MultiEntry(PourbaixEntry):
             else:
                 start = 0
             return sum(
-                [getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)],
+                (getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)),
                 start,
             )
 
@@ -423,7 +420,7 @@ class IonEntry(PDEntry):
         return d
 
     def __repr__(self):
-        return "IonEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
+        return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
@@ -479,9 +476,9 @@ class PourbaixDiagram(MSONable):
         Args:
             entries ([PourbaixEntry] or [MultiEntry]): Entries list
                 containing Solids and Ions or a list of MultiEntries
-            comp_dict ({str: float}): Dictionary of compositions,
+            comp_dict (dict[str, float]): Dictionary of compositions,
                 defaults to equal parts of each elements
-            conc_dict ({str: float}): Dictionary of ion concentrations,
+            conc_dict (dict[str, float]): Dictionary of ion concentrations,
                 defaults to 1e-6 for each element
             filter_solids (bool): applying this filter to a Pourbaix
                 diagram ensures all included solid phases are filtered by
@@ -538,7 +535,7 @@ class PourbaixDiagram(MSONable):
                 if len(ion_elts) == 1:
                     entry.concentration = conc_dict[ion_elts[0].symbol] * entry.normalization_factor
                 elif len(ion_elts) > 1 and not entry.concentration:
-                    raise ValueError("Elemental concentration not compatible " "with multi-element ions")
+                    raise ValueError("Elemental concentration not compatible with multi-element ions")
 
             self._unprocessed_entries = solid_entries + ion_entries
 
@@ -680,11 +677,11 @@ class PourbaixDiagram(MSONable):
         if nproc is not None:
             f = partial(self.process_multientry, prod_comp=tot_comp)
             with Pool(nproc) as p:
-                multi_entries = list(PBar(p.imap(f, all_combos), total=len(all_combos)))
+                multi_entries = list(p.imap(f, all_combos))
             multi_entries = list(filter(bool, multi_entries))
         else:
             # Serial processing of multi-entry generation
-            for combo in PBar(all_combos):
+            for combo in all_combos:
                 multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
                 if multi_entry:
                     multi_entries.append(multi_entry)
@@ -717,17 +714,15 @@ class PourbaixDiagram(MSONable):
 
         # Generate and filter entries
         processed_entries = []
-        total = sum([comb(len(entries), j + 1) for j in range(N)])
+        total = sum(comb(len(entries), j + 1) for j in range(N))
         if total > 1e6:
-            warnings.warn(
-                "Your pourbaix diagram includes {} entries and may " "take a long time to generate.".format(total)
-            )
+            warnings.warn(f"Your pourbaix diagram includes {total} entries and may take a long time to generate.")
 
         # Parallel processing of multi-entry generation
         if nproc is not None:
             f = partial(self.process_multientry, prod_comp=total_comp)
             with Pool(nproc) as p:
-                processed_entries = list(PBar(p.imap(f, entry_combos), total=total))
+                processed_entries = list(p.imap(f, entry_combos))
             processed_entries = list(filter(bool, processed_entries))
         # Serial processing of multi-entry generation
         else:
@@ -895,7 +890,7 @@ class PourbaixDiagram(MSONable):
             {elt: coeff for elt, coeff in entry.composition.items() if elt not in ELEMENTS_HO}
         ).fractional_composition
         if entry_pbx_comp != pbx_comp:
-            raise ValueError("Composition of stability entry does not match " "Pourbaix Diagram")
+            raise ValueError("Composition of stability entry does not match Pourbaix Diagram")
         entry_normalized_energy = entry.normalized_energy_at_conditions(pH, V)
         hull_energy = self.get_hull_energy(pH, V)
         decomposition_energy = entry_normalized_energy - hull_energy
@@ -1034,7 +1029,16 @@ class PourbaixPlotter:
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
 
-    def get_pourbaix_plot(self, limits=None, title="", label_domains=True, plt=None):
+    def get_pourbaix_plot(
+        self,
+        limits=None,
+        title="",
+        label_domains=True,
+        label_fontsize=20,
+        show_water_lines=True,
+        show_neutral_axes=True,
+        plt=None,
+    ):
         """
         Plot Pourbaix diagram.
 
@@ -1043,6 +1047,11 @@ class PourbaixPlotter:
                 of the form [[xlo, xhi], [ylo, yhi]]
             title (str): Title to display on plot
             label_domains (bool): whether to label pourbaix domains
+            label_fontsize: font size for domain labels
+            show_water_lines: whether to show dashed lines indicating the region
+                of water stability.
+            show_neutral_axes; whether to show dashed horizontal and vertical lines
+                at 0 V and pH 7, respectively.
             plt (pyplot): Pyplot instance for plotting
 
         Returns:
@@ -1056,19 +1065,22 @@ class PourbaixPlotter:
         xlim = limits[0]
         ylim = limits[1]
 
-        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
-        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
-        neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
-        V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
-
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
         lw = 3
-        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
-        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
-        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
-        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
+
+        if show_water_lines:
+            h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
+            o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
+            plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
+            plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
+
+        if show_neutral_axes:
+            neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
+            V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
+            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
+            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
         for entry, vertices in self._pbx._stable_domain_vertices.items():
             center = np.average(vertices, axis=0)
@@ -1081,7 +1093,7 @@ class PourbaixPlotter:
                     center,
                     ha="center",
                     va="center",
-                    fontsize=20,
+                    fontsize=label_fontsize,
                     color="b",
                 ).draggable()
 
@@ -1132,7 +1144,7 @@ class PourbaixPlotter:
         # Plot stability map
         plt.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = plt.colorbar()
-        cbar.set_label("Stability of {} (eV/atom)".format(generate_entry_label(entry)))
+        cbar.set_label(f"Stability of {generate_entry_label(entry)} (eV/atom)")
 
         # Set ticklabels
         # ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]

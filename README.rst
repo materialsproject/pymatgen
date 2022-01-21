@@ -1,6 +1,6 @@
 .. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
       :alt: CI Status
-      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml
+      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
 
 .. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
       :alt: Conda Downloads
@@ -134,7 +134,7 @@ work:
     Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
-    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    <https://doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.
