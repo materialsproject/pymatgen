@@ -252,7 +252,11 @@ def periodic_table_heatmap(
         if el.row > max_row:
             continue
         value = elemental_data.get(el.symbol, blank_value)
-        value_table[el.row - 1, el.group - 1] = value
+        if (57 <= el.z <= 71) or (89 <= el.z <= 103):
+            plot_group = (el.z - 54) % 32
+        else:
+            plot_group = el.group
+        value_table[el.row - 1, plot_group - 1] = value
 
     # Initialize the plt object
     import matplotlib.pyplot as plt
