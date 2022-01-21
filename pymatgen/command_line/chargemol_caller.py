@@ -520,6 +520,20 @@ class ChargemolAnalysis:
     def summary(self):
         """
         Returns a dictionary summary of the Chargemol analysis
+            {
+                "ddec": {
+                            "partial_charges": List[float],
+                            "spin_moments": List[float],
+                            "dipoles": List[float],
+                            "rsquared_moments": List[float],
+                            "rcubed_moments": List[float],
+                            "rfourth_moments": List[float],
+                            "bond_order_dict": Dict
+                        },
+                "cm5": {
+                            "partial_charges": List[float],
+                        }
+            }
         """
 
         summary = {}
