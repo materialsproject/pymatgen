@@ -99,16 +99,35 @@ class ElementTestCase(PymatgenTest):
         testsets = {
             "H": 1,
             "He": 18,
+            "Li": 1,
             "O": 16,
             "Fe": 8,
-            "Li": 1,
             "La": 3,
+            "Ce": 3,
+            "Lu": 3,
             "U": 3,
             "Lr": 3,
             "Og": 18,
         }
         for k, v in testsets.items():
             self.assertEqual(Element(k).group, v)
+
+    def test_row(self):
+        testsets = {
+            "H": 1,
+            "He": 1,
+            "Li": 2,
+            "O": 2,
+            "Fe": 4,
+            "La": 6,
+            "Ce": 6,
+            "Lu": 6,
+            "U": 7,
+            "Lr": 7,
+            "Og": 7,
+        }
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).row, v)
 
     def test_valence(self):
         testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}

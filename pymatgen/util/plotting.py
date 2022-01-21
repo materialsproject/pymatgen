@@ -300,16 +300,7 @@ def periodic_table_heatmap(
     for i, row in enumerate(value_table):
         for j, el in enumerate(row):
             if not np.isnan(el):
-                if i == 7:
-                    real_row = 6
-                    real_group = 3
-                elif i == 8:
-                    real_row = 7
-                    real_group = 3
-                else:
-                    real_row = i + 1
-                    real_group = j + 1
-                symbol = Element.from_row_and_group(real_row, real_group).symbol
+                symbol = Element.from_row_and_group(i + 1, j + 1).symbol
                 rgba = scalar_cmap.to_rgba(el)
                 fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
                 plt.text(
