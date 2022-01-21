@@ -208,6 +208,7 @@ B:
       TZVP-MOLOPT-SR-GTH-q3: 3.05344407
     best_basis: TZV2P-MOLOPT-SR-GTH-q3
     preferred_basis: TZVP-MOLOPT-SR-GTH-q3
+    preferred_aux_basis: optFIT3
   dft_plus_u: null
   potentials:
     gth_potentials:
@@ -353,6 +354,7 @@ C:
   basis_sets:
     aux_basis:
     - cFIT3
+    - optFIT3
     - pFIT3
     - cpFIT3
     - FIT3
@@ -380,6 +382,7 @@ C:
       TZVP-MOLOPT-GTH-q4: 6.132624767898
     best_basis: TZV2PX-MOLOPT-GTH-q4
     preferred_basis: DZVP-MOLOPT-SR-GTH-q4
+    preferred_aux_basis: optFIT3
   dft_plus_u: null
   potentials:
     gth_potentials:

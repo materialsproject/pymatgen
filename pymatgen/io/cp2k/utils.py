@@ -176,7 +176,9 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
         settings = yaml.load(f, Loader=yaml.Loader)
         aux_bases = {
-            s: settings[s]['basis_sets']['aux_basis']
+            s: [settings[s]['basis_sets']['preferred_aux_basis']]
+            if 'preferred_aux_basis' in settings[s]['basis_sets'] 
+            else settings[s]['basis_sets']['aux_basis'] 
             for s in settings
         }
 
@@ -307,6 +309,7 @@ def get_xc_functionals(name):
         return ['MGGA_X_R2SCANL', 'MGGA_C_R2SCANL']
     warnings.warn("Unknown XC functionals: {}".format(name))
     return [name]
+
 
 def get_truncated_coulomb_cutoff(inp_struct):
     """
