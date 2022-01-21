@@ -144,7 +144,7 @@ class ElementTestCase(PymatgenTest):
             "Og": (7, 18),
         }
         for k, v in testsets.items():
-            self.assertEqual(ElementBase.from_row_and_group(v), Element(k))
+            self.assertEqual(ElementBase.from_row_and_group(v[0], v[1]), Element(k))
 
     def test_valence(self):
         testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
