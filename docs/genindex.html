@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; pymatgen 2022.01.09 documentation</title>
+  <title>Index &mdash; pymatgen 2022.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.01.09
+                2022.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -2485,10 +2485,10 @@
 </li>
       <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell">determine_min_cell() (MagOrderingTransformation static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants">dev_principal_invariants (Stress property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.deviator_stress">deviator_stress (Stress property)</a>
 </li>
       <li><a href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Dft">Dft (class in pymatgen.io.cp2k.inputs)</a>
@@ -2558,6 +2558,8 @@
       <li><a href="pymatgen.util.string.html#pymatgen.util.string.disordered_formula">disordered_formula() (in module pymatgen.util.string)</a>
 </li>
       <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation">DisorderOrderedTransformation (class in pymatgen.transformations.advanced_transformations)</a>
+</li>
+      <li><a href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries">display_entries() (MaterialsProjectDFTMixingScheme static method)</a>
 </li>
       <li><a href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.display_help">display_help() (MultiStructuresVis method)</a>
 
@@ -4296,6 +4298,8 @@
 </li>
         <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility.get_adjustments">(MaterialsProjectAqueousCompatibility method)</a>
 </li>
+        <li><a href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments">(MaterialsProjectDFTMixingScheme method)</a>
+</li>
       </ul></li>
       <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher.get_all_anonymous_mappings">get_all_anonymous_mappings() (StructureMatcher method)</a>
 </li>
@@ -5078,6 +5082,8 @@
       <li><a href="pymatgen.apps.battery.insertion_battery.html#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability">get_min_instability() (InsertionElectrode method)</a>
 </li>
       <li><a href="pymatgen.apps.battery.insertion_battery.html#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2">get_min_muO2() (InsertionElectrode method)</a>
+</li>
+      <li><a href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data">get_mixing_state_data() (MaterialsProjectDFTMixingScheme method)</a>
 </li>
       <li><a href="pymatgen.io.ase.html#pymatgen.io.ase.AseAtomsAdaptor.get_molecule">get_molecule() (AseAtomsAdaptor static method)</a>
 </li>
@@ -6349,9 +6355,13 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.ElementBase.ground_state_term_symbol">ground_state_term_symbol (ElementBase property)</a>
 </li>
+      <li><a href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.ground_states">ground_states (EntrySet property)</a>
+</li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.ElementBase.group">group (ElementBase property)</a>
 </li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.group_by_types">group_by_types() (SiteCollection method)</a>
+</li>
+      <li><a href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.group_entries_by_composition">group_entries_by_composition() (in module pymatgen.entries.entry_tools)</a>
 </li>
       <li><a href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.group_entries_by_structure">group_entries_by_structure() (in module pymatgen.entries.entry_tools)</a>
 </li>
@@ -7024,6 +7034,8 @@
 </li>
       </ul></li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.is_gga_family">is_gga_family (LibxcFunc property)</a>
+</li>
+      <li><a href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.is_ground_state">is_ground_state() (EntrySet method)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.ElementBase.is_halogen">is_halogen (ElementBase property)</a>
 </li>
@@ -7839,21 +7851,23 @@
 </li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectCompatibility">MaterialsProjectCompatibility (class in pymatgen.entries.compatibility)</a>
 </li>
+      <li><a href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme">MaterialsProjectDFTMixingScheme (class in pymatgen.entries.mixing_scheme)</a>
+</li>
       <li><a href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.matrix">matrix (Lattice property)</a>
 </li>
       <li><a href="pymatgen.analysis.solar.slme.html#pymatgen.analysis.solar.slme.matrix_eigvals">matrix_eigvals() (in module pymatgen.analysis.solar.slme)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector">matrixTimesVector() (in module pymatgen.analysis.chemenv.utils.coordination_geometry_utils)</a>
 </li>
-      <li><a href="pymatgen.apps.battery.analyzer.html#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_insertion">max_cation_insertion (BatteryAnalyzer property)</a>
-</li>
-      <li><a href="pymatgen.apps.battery.analyzer.html#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_removal">max_cation_removal (BatteryAnalyzer property)</a>
-</li>
       <li><a href="pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity">max_connectivity (VoronoiConnectivity property)</a>
 </li>
       <li><a href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_delta_volume">max_delta_volume (AbstractElectrode property)</a>
 </li>
       <li><a href="pymatgen.core.molecular_orbitals.html#pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity">max_electronegativity() (MolecularOrbitals method)</a>
+</li>
+      <li><a href="pymatgen.apps.battery.analyzer.html#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion">max_ion_insertion (BatteryAnalyzer property)</a>
+</li>
+      <li><a href="pymatgen.apps.battery.analyzer.html#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal">max_ion_removal (BatteryAnalyzer property)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.ElementBase.max_oxidation_state">max_oxidation_state (ElementBase property)</a>
 </li>
@@ -8480,6 +8494,8 @@
         <li><a href="pymatgen.entries.entry_tools.html#module-pymatgen.entries.entry_tools">pymatgen.entries.entry_tools</a>
 </li>
         <li><a href="pymatgen.entries.exp_entries.html#module-pymatgen.entries.exp_entries">pymatgen.entries.exp_entries</a>
+</li>
+        <li><a href="pymatgen.entries.mixing_scheme.html#module-pymatgen.entries.mixing_scheme">pymatgen.entries.mixing_scheme</a>
 </li>
         <li><a href="pymatgen.ext.html#module-pymatgen.ext">pymatgen.ext</a>
 </li>
@@ -10173,6 +10189,8 @@
       <ul>
         <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility.process_entries">(MaterialsProjectAqueousCompatibility method)</a>
 </li>
+        <li><a href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries">(MaterialsProjectDFTMixingScheme method)</a>
+</li>
       </ul></li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entry">process_entry() (Compatibility method)</a>
 
@@ -11421,6 +11439,13 @@
 
       <ul>
         <li><a href="pymatgen.entries.exp_entries.html#module-pymatgen.entries.exp_entries">module</a>
+</li>
+      </ul></li>
+      <li>
+    pymatgen.entries.mixing_scheme
+
+      <ul>
+        <li><a href="pymatgen.entries.mixing_scheme.html#module-pymatgen.entries.mixing_scheme">module</a>
 </li>
       </ul></li>
       <li>
@@ -13535,7 +13560,7 @@
 </li>
       <li><a href="pymatgen.core.interface.html#pymatgen.core.interface.Interface.substrate">substrate (Interface property)</a>
 </li>
-      <li><a href="pymatgen.core.interface.html#pymatgen.core.interface.Interface.substrate_indicies">substrate_indicies (Interface property)</a>
+      <li><a href="pymatgen.core.interface.html#pymatgen.core.interface.Interface.substrate_indices">substrate_indices (Interface property)</a>
 </li>
       <li><a href="pymatgen.core.interface.html#pymatgen.core.interface.Interface.substrate_layers">substrate_layers (Interface property)</a>
 </li>

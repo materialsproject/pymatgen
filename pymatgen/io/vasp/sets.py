@@ -504,12 +504,6 @@ class DictSet(VaspInputSet):
             if k == "MAGMOM":
                 mag = []
                 for site in structure:
-                    if v and not isinstance(v, dict):
-                        raise TypeError(
-                            "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                            "If you want site-specific magnetic moments, set them in the site magmom properties "
-                            "of the site objects in the structure."
-                        )
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, "spin"):
