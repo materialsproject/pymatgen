@@ -252,11 +252,16 @@ def periodic_table_heatmap(
         if el.row > max_row:
             continue
         value = elemental_data.get(el.symbol, blank_value)
-        if (57 <= el.Z <= 71) or (89 <= el.Z <= 103):
-            plot_group = (el.z - 54) % 32
+        if 57 <= el.Z <= 71:
+            plot_row = 8
+            plot_group = (el.Z - 54) % 32
+        elif 89 <= el.Z <= 103:
+            plot_row = 9
+            plot_group = (el.Z - 54) % 32
         else:
+            plot_row = el.row
             plot_group = el.group
-        value_table[el.row - 1, plot_group - 1] = value
+        value_table[plot_row - 1, plot_group - 1] = value
 
     # Initialize the plt object
     import matplotlib.pyplot as plt
@@ -295,7 +300,16 @@ def periodic_table_heatmap(
     for i, row in enumerate(value_table):
         for j, el in enumerate(row):
             if not np.isnan(el):
-                symbol = Element.from_row_and_group(i + 1, j + 1).symbol
+                if i == 7:
+                    real_row = 6
+                    real_group = 3
+                elif i == 8:
+                    real_row = 7
+                    real_group = 3
+                else:
+                    real_row = i + 1
+                    real_group = j + 1
+                symbol = Element.from_row_and_group(real_row, real_group).symbol
                 rgba = scalar_cmap.to_rgba(el)
                 fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
                 plt.text(

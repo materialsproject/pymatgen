@@ -640,9 +640,9 @@ class ElementBase(Enum):
         z = self.Z
         total = 0
         if 57 <= z <= 71:
-            return 8
+            return 6
         if 89 <= z <= 103:
-            return 9
+            return 7
         for i, size in enumerate(_pt_row_sizes):
             total += size
             if total >= z:
