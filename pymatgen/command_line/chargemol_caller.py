@@ -283,7 +283,7 @@ class ChargemolAnalysis:
             float: charge transferred at atom_index
         """
         if charge_type.lower() not in ["ddec", "cm5"]:
-            raise ValueError("Invalid charge_type: %s" % charge_type)
+            raise ValueError(f"Invalid charge_type: {charge_type}")
         if charge_type.lower() == "ddec":
             charge_transfer = -self.ddec_charges[atom_index]
         elif charge_type.lower() == "cm5":
@@ -333,7 +333,7 @@ class ChargemolAnalysis:
             charge_type (str): Type of charge to use ("ddec" or "cm5").
         """
         if charge_type.lower() not in ["ddec", "cm5"]:
-            raise ValueError("Invalid charge_type: %s" % charge_type)
+            raise ValueError(f"Invalid charge_type: {charge_type}")
         if charge_type.lower() == "ddec":
             partial_charge = self.ddec_charges[atom_index]
         elif charge_type.lower() == "cm5":
