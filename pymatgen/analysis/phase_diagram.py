@@ -28,8 +28,9 @@ from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.sequence import PBar
 from pymatgen.util.string import htmlify, latexify
+
+from tqdm.autonotebook import tqdm
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -1544,8 +1545,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Calculate pds for smaller dimension spaces first
         spaces.sort(key=len, reverse=False)
 
-        # TODO PBarSafe is might not be safe as it cannot take an iteratble as input.
-        pds = [self._get_pd_patch_for_space(s) for s in PBar(spaces, disable=(not verbose))]
+        pds = [self._get_pd_patch_for_space(s) for s in tqdm(spaces, disable=(not verbose))]
         pds = dict(pds)
 
         # TODO comprhys: refactor to have self._compute method to allow serialisation
