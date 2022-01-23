@@ -618,7 +618,7 @@ class Vasprun(MSONable):
         """
         try:
             final_istep = self.ionic_steps[-1]
-            if int(self.vasp_version.split(".")[0]) >= 6.0:
+            if int(self.vasp_version.split(".")[0]) >= 6:
                 return final_istep["electronic_steps"][-1]["e_0_energy"]
 
             # Addresses a bug in vasprun.xml. See https://www.vasp.at/forum/viewtopic.php?f=3&t=16942
