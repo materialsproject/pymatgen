@@ -5523,9 +5523,9 @@ class Waveder:
                 np.array of given dtype."""
                 data = b""
                 while True:
-                    prefix = np.fromfile(fp, dtype=int, count=1)[0]
+                    prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
                     data += fp.read(abs(prefix))
-                    suffix = np.fromfile(fp, dtype=int, count=1)[0]
+                    suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
                     if abs(prefix) - abs(suffix):
                         raise RuntimeError(
                             "Read wrong amount of bytes.\n"
@@ -5535,7 +5535,7 @@ class Waveder:
                         break
                 return np.frombuffer(data, dtype=dtype)
 
-            nbands, nelect, nk, ispin = readData(int)
+            nbands, nelect, nk, ispin = readData(np.int32)
             _ = readData(np.float_)  # nodes_in_dielectric_function
             _ = readData(np.float_)  # wplasmon
             if gamma_only:
