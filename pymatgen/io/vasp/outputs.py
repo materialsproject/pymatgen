@@ -1731,7 +1731,15 @@ class Outcar:
 
      .. attribute:: final_energy
 
-        Final (total) energy
+        Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
+
+    .. attribute:: final_energy_wo_entrp
+
+        Final energy before extrapolation of sigma, i.e. energy without entropy.
+
+    .. attribute:: final_fr_energy
+
+        Final "free energy", i.e. free energy TOTEN
 
     .. attribute:: has_onsite_density_matrices
 
@@ -1930,7 +1938,7 @@ class Outcar:
         self.total_mag = total_mag
         self.final_energy = e0
         self.final_energy_wo_entrp = e_wo_entrp
-        self.final_energy_fr_energy = e_fr_energy
+        self.final_fr_energy = e_fr_energy
         self.data = {}
 
         # Read "total number of plane waves", NPLWV:
