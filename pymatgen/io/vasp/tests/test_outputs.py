@@ -1460,22 +1460,22 @@ class OutcarTest(PymatgenTest):
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
         self.assertAlmostEqual(o.final_energy, -11.18981538)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13480014)
-        self.assertAlmostEqual(o.final_energy_fr_energy, -11.21732300)
+        self.assertAlmostEqual(o.final_fr_energy, -11.21732300)
 
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest2.gz")
         self.assertAlmostEqual(o.final_energy, -11.18986774)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13485250)
-        self.assertAlmostEqual(o.final_energy_fr_energy, -11.21737536)
+        self.assertAlmostEqual(o.final_fr_energy, -11.21737536)
 
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest3.gz")
         self.assertAlmostEqual(o.final_energy, -15.89355325)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83853800)
-        self.assertAlmostEqual(o.final_energy_fr_energy, -15.92106087)
+        self.assertAlmostEqual(o.final_fr_energy, -15.92106087)
 
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest4.gz")
         self.assertAlmostEqual(o.final_energy, -15.89364691)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
-        self.assertAlmostEqual(o.final_energy_fr_energy, -15.92115453)
+        self.assertAlmostEqual(o.final_fr_energy, -15.92115453)
 
 
 class BSVasprunTest(PymatgenTest):
