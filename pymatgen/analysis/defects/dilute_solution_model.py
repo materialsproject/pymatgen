@@ -139,7 +139,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                 dC[i,k,k] = 0 due to no effect on ith type atom
                 dC[i,j,k] = 0 if i!=j!=k
     """
-    dC = np.zeros((n, n, n), dtype=np.int_)
+    dC = np.zeros((n, n, n), dtype=int)
     for i in range(n):
         for j in range(n):
             for k in range(n):
@@ -852,7 +852,7 @@ def solute_site_preference_finder(
                 dC[i,k,k] = 0 due to no effect on ith type atom
                 dC[i,j,k] = 0 if i!=j!=k
     """
-    dC = np.zeros((n + 1, n + 1, n), dtype=np.int_)
+    dC = np.zeros((n + 1, n + 1, n), dtype=int)
     for i in range(n):
         for j in range(n):
             for k in range(n):

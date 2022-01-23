@@ -4812,7 +4812,7 @@ class Wavecar:
         self._C = 0.262465831
         with open(self.filename, "rb") as f:
             # read the header information
-            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
+            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
                 print(f"recl={recl}, spin={spin}, rtag={rtag}")
             recl8 = int(recl / 8)
@@ -4831,7 +4831,7 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
+            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -5007,7 +5007,7 @@ class Wavecar:
         nbmaxC[2] /= np.abs(np.sin(phi23))
         nbmaxC += 1
 
-        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int_)
+        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(int)
 
     def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
         """
@@ -5131,7 +5131,7 @@ class Wavecar:
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex_)
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
-            t = tuple(gp.astype(np.int_) + (self.ng / 2).astype(np.int_))
+            t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 
         if shift:
@@ -5523,9 +5523,9 @@ class Waveder:
                 np.array of given dtype."""
                 data = b""
                 while True:
-                    prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    prefix = np.fromfile(fp, dtype=int, count=1)[0]
                     data += fp.read(abs(prefix))
-                    suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    suffix = np.fromfile(fp, dtype=int, count=1)[0]
                     if abs(prefix) - abs(suffix):
                         raise RuntimeError(
                             "Read wrong amount of bytes.\n"
@@ -5535,7 +5535,7 @@ class Waveder:
                         break
                 return np.frombuffer(data, dtype=dtype)
 
-            nbands, nelect, nk, ispin = readData(np.int32)
+            nbands, nelect, nk, ispin = readData(int)
             _ = readData(np.float_)  # nodes_in_dielectric_function
             _ = readData(np.float_)  # wplasmon
             if gamma_only:

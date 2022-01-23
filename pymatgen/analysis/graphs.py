@@ -1135,9 +1135,9 @@ class StructureGraph(MSONable):
         # easier to extend to a general 3x3 scaling matrix.
 
         # code adapted from Structure.__mul__
-        scale_matrix = np.array(scaling_matrix, np.int16)
+        scale_matrix = np.array(scaling_matrix, int)
         if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+            scale_matrix = np.array(scale_matrix * np.eye(3), int)
         else:
             # TODO: test __mul__ with full 3x3 scaling matrices
             raise NotImplementedError("Not tested with 3x3 scaling matrices yet.")
