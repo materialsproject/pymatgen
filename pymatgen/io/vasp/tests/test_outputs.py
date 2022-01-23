@@ -918,7 +918,7 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         outcar.read_corrections()
         self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
-        self.assertAlmostEqual(outcar.final_energy, -797.46760559)
+        self.assertAlmostEqual(outcar.final_energy, -797.46294064)
 
     def test_freq_dielectric(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS"
