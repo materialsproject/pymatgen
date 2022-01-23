@@ -1473,9 +1473,9 @@ class OutcarTest(PymatgenTest):
         self.assertAlmostEqual(o.final_energy_fr_energy, -15.92106087)
 
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest4.gz")
-        self.assertAlmostEqual(o.final_energy, -15.92115453)
+        self.assertAlmostEqual(o.final_energy, -15.89364691)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
-        self.assertAlmostEqual(o.final_energy_fr_energy, -15.89364691)
+        self.assertAlmostEqual(o.final_energy_fr_energy, -15.92115453)
 
 
 class BSVasprunTest(PymatgenTest):
