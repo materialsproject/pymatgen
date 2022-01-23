@@ -149,7 +149,7 @@ class Unk:
                 YY is 1 or 2 for the spin index or NC if noncollinear
         """
         with FortranFile(filename, "w") as f:
-            f.write_record(np.array([*self.ng, self.ik, self.nbnd], dtype=int))
+            f.write_record(np.array([*self.ng, self.ik, self.nbnd], dtype=np.int32))
             for ib in range(self.nbnd):
                 if self.is_noncollinear:
                     f.write_record(self.data[ib, 0].flatten("F"))
