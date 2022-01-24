@@ -671,7 +671,8 @@ class Slab(Structure):
             #the opposite z component
             if np.around(point[2],5) + np.around(site2[2],5) == 0.:
                 #This is to bring back to the unit cell the points that were
-                #obtained in equivalent positions of neightbouring cells
+                #obtained in equivalent positions of neightbouring cells 
+                #(a,b components only)
                 if site2[0] > 1. or site2[0] < 0.:
                      site2[0] = site2[0] % 1.0
                 if site2[1] > 1. or site2[1] < 0.:
