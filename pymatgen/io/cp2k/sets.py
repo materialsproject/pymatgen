@@ -860,8 +860,10 @@ class RelaxSet(DftSet):
     def __init__(
         self,
         structure: Union[Structure, Molecule],
-        max_drift: float = 3e-3,
-        max_force: float = 4.5e-4,
+        max_drift: float = 1.5e-3,
+        rms_drift: float = 1e-3,
+        max_force: float = 1e-3,
+        rms_force: float = 1e-3,
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",
@@ -871,14 +873,22 @@ class RelaxSet(DftSet):
 
         """
         Args:
-            structure:
+            structure: Pymatgen structure object
             max_drift: Convergence criterion for the maximum geometry change between the current and the
                 last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
-                Default value: 3.00000000E-003
+                Default value: 1.5.00000000E-003
+                Default unit: [bohr]
+            rms_drift: Convergence criterion for the RMS geometry change between the current and the
+                last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
+                Default value: 1.00000000E-003
                 Default unit: [bohr]
             max_force (float): Convergence criterion for the maximum force component of the current configuration.
                 This keyword cannot be repeated and it expects precisely one real.
-                Default value: 4.50000000E-004
+                Default value: 1e-3
+                Default unit: [bohr^-1*hartree]
+            rms_force (float): Convergence criterion for the RMS force component of the current configuration.
+                This keyword cannot be repeated and it expects precisely one real.
+                Default value: 1e-3
                 Default unit: [bohr^-1*hartree]
             max_iter (int): Specifies the maximum number of geometry optimization steps.
                 One step might imply several force evaluations for the CG and LBFGS optimizers.
@@ -896,7 +906,9 @@ class RelaxSet(DftSet):
 
         self.structure = structure
         self.max_drift = max_drift
+        self.rms_drift = rms_drift
         self.max_force = max_force
+        self.rms_force = rms_force
         self.max_iter = max_iter
         self.project_name = project_name
         self.optimizer = optimizer
@@ -909,7 +921,8 @@ class RelaxSet(DftSet):
             "TYPE": Keyword("TYPE", "MINIMIZATION"),
             "MAX_DR": Keyword("MAX_DR", max_drift),
             "MAX_FORCE": Keyword("MAX_FORCE", max_force),
-            "RMS_DR": Keyword("RMS_DR", 1.5e-3),
+            "RMS_DR": Keyword("RMS_DR", rms_drift),
+            "RMS_FORCE": Keyword("RMS_FORCE", rms_force),
             "MAX_ITER": Keyword("MAX_ITER", max_iter),
             "OPTIMIZER": Keyword("OPTIMIZER", optimizer),
         }
