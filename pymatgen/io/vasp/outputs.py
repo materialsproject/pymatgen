@@ -810,9 +810,7 @@ class Vasprun(MSONable):
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(
-        self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None, file_path: str = None
-    ):
+    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id=None, file_path=None):
         """
         Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
@@ -846,6 +844,9 @@ class Vasprun(MSONable):
             param_names.update(parameters)
         params = {p: getattr(self, p) for p in param_names}
         data = {p: getattr(self, p) for p in data} if data is not None else {}
+
+        if not entry_id:
+            entry_id = f"vasprun-{datetime.datetime.now()}"
 
         if inc_structure:
             return ComputedStructureEntry(
