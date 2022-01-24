@@ -664,27 +664,38 @@ class Slab(Structure):
         ops = sg.get_symmetry_operations(cartesian=cartesian)
 
         # Each operation on a point will return an equivalent point.
-        # We want to find the point on the other side of the slab.
+        # We want to find the point on the other side of the slab.        
         for op in ops:
-            slab = self.copy()
             site2 = op.operate(point)
-            if "%.6f" % (site2[2]) == "%.6f" % (point[2]):
-                continue
+            #For the slab to be symmetric, the equivalent site has to have
+            #the opposite z component
+            if np.around(point[2],5) + np.around(site2[2],5) == 0.:
+                #This is to bring back to the unit cell the points that were
+                #obtained in equivalent positions of neightbouring cells
+                if site2[0] > 1. or site2[0] < 0.:
+                     site2[0] = site2[0] % 1.0
+                if site2[1] > 1. or site2[1] < 0.:
+                    site2[1] = site2[1] % 1.0
 
-            # Add dummy site to check the overall structure is symmetric
-            slab.append("O", point, coords_are_cartesian=cartesian)
-            slab.append("O", site2, coords_are_cartesian=cartesian)
-            sg = SpacegroupAnalyzer(slab)
-            if sg.is_laue():
-                break
+                # Add dummy site to check the overall structure is symmetric
+                origin_centered_slab.append("O", point, coords_are_cartesian=cartesian)
+                origin_centered_slab.append("O", site2, coords_are_cartesian=cartesian)
 
-            # If not symmetric, remove the two added
-            # sites and try another symmetry operator
-            slab.remove_sites([len(slab) - 1])
-            slab.remove_sites([len(slab) - 1])
-
-        return site2
-
+                if origin_centered_slab.is_symmetric():
+                    #Return the coordinate of the symmetric site on the other 
+                    #side of the slab given in input (shift up or down the 
+                    #coordinates of the point obtained from the origin 
+                    #centered slab)
+                    return site2 - center_first - translation
+                        
+                # If not symmetric, remove the two added
+                # sites and try another symmetry operator
+                origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
+                origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
+            
+        warnings.warn("The symmetric site could not be found for the %s %s \
+                      surface." %(self.composition,self.miller_index))
+                      
     def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
         """
         Class method for adding a site at a specified point in a slab.
