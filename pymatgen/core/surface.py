@@ -660,7 +660,7 @@ class Slab(Structure):
         #shifted slab
         point = point + center_first + translation
 
-        sg = SpacegroupAnalyzer(self)
+        sg = SpacegroupAnalyzer(origin_centered_slab)
         ops = sg.get_symmetry_operations(cartesian=cartesian)
 
         # Each operation on a point will return an equivalent point.
