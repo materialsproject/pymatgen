@@ -1140,7 +1140,7 @@ class BoltztrapAnalyzer:
             relaxation_time (float): constant relaxation time in secs
 
         Returns:
-            If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}. The
+            If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
             'p' links to power factor
             at p-type doping and 'n' to the conductivity at n-type doping.
             Otherwise,

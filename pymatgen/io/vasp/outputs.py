@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-Classes for reading/manipulating/writing VASP ouput files.
+Classes for reading/manipulating/writing VASP output files.
 """
 
 import datetime
@@ -2404,7 +2404,7 @@ class Outcar:
 
     def read_nmr_efg(self):
         """
-        Parse the NMR Electric Field Gradient interpretted values.
+        Parse the NMR Electric Field Gradient interpreted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
@@ -3753,7 +3753,7 @@ class VolumetricData(MSONable):
         a = self.dim
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
+            for x, y, z in itertools.product(*(list(range(i)) for i in a)):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {
@@ -3996,7 +3996,7 @@ class Procar:
 
     .. attribute:: weights
 
-        The weights associated with each k-point as an nd.array of lenght
+        The weights associated with each k-point as an nd.array of length
         nkpoints.
 
     ..attribute:: phase_factors
@@ -4691,7 +4691,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
 # I use numpy.fromfile instead of scipy.io.FortranFile here because the records
 # are of fixed length, so the record length is only written once. In fortran,
 # this amounts to using open(..., form='unformatted', recl=recl_len). In
-# constrast when you write UNK files, the record length is written at the
+# contrast when you write UNK files, the record length is written at the
 # beginning of each record. This allows you to use scipy.io.FortranFile. In
 # fortran, this amounts to using open(..., form='unformatted') [i.e. no recl=].
 class Wavecar:
@@ -4812,7 +4812,7 @@ class Wavecar:
         self._C = 0.262465831
         with open(self.filename, "rb") as f:
             # read the header information
-            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
+            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
                 print(f"recl={recl}, spin={spin}, rtag={rtag}")
             recl8 = int(recl / 8)
@@ -4831,7 +4831,7 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
+            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -5007,7 +5007,7 @@ class Wavecar:
         nbmaxC[2] /= np.abs(np.sin(phi23))
         nbmaxC += 1
 
-        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int_)
+        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(int)
 
     def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
         """
@@ -5131,7 +5131,7 @@ class Wavecar:
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex_)
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
-            t = tuple(gp.astype(np.int_) + (self.ng / 2).astype(np.int_))
+            t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 
         if shift:

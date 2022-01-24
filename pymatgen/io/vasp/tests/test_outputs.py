@@ -15,17 +15,10 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
-
-try:
-    import h5py
-except ImportError:
-    h5py = None
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.core.structure import Structure
 from pymatgen.core import Element
-from pymatgen.electronic_structure.core import Magmom, OrbitalType
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import (
@@ -47,6 +40,11 @@ from pymatgen.io.vasp.outputs import (
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import PymatgenTest
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
 
 
 class VasprunTest(PymatgenTest):
@@ -455,7 +453,7 @@ class VasprunTest(PymatgenTest):
                 with self.assertRaises(VaspParserError):
                     _ = vasprun.get_band_structure(line_mode=True)
 
-                # Check KPOINTS.gz succesfully inferred and used if present
+                # Check KPOINTS.gz successfully inferred and used if present
                 with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in:
                     with gzip.open("KPOINTS.gz", "wb") as f_out:
                         copyfileobj(f_in, f_out)
@@ -1867,7 +1865,7 @@ class WavecarTest(PymatgenTest):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
-        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(np.int_))], 0j)
+        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(int))], 0j)
         mesh = self.w.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))

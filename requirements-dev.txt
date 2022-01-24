@@ -1,5 +1,5 @@
 sphinx
-doc2dash==2.4.0
+doc2dash==2.4.1
 sphinx_rtd_theme==1.0.0
 pytest==6.2.5
 pytest-cov==3.0.0

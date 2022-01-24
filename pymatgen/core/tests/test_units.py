@@ -184,7 +184,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         # here there's a minor difference because we have a ndarray with
-        # dtype=np.int_.
+        # dtype=int.
         a = TimeArray(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
         # Test left and right multiplication.

@@ -6,10 +6,10 @@ import os
 import re
 from pathlib import Path
 
+from ruamel.yaml import YAML
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
-from ruamel import yaml
 
 from pymatgen.core import SETTINGS
 
@@ -87,7 +87,7 @@ def _preprocessor(s, d="."):
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError("This cp2k input processer does not currently support conditional blocks.")
+        raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
     return s
 
 
@@ -138,10 +138,11 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
         if "cardinality" not in d[s]:
             d[s]["cardinality"] = cardinality
 
+    yaml = YAML()
     with open(os.path.join(MODULE_DIR, "basis_molopt.yaml")) as f:
-        data_b = yaml.load(f, Loader=yaml.Loader)
+        data_b = yaml.load(f)
     with open(os.path.join(MODULE_DIR, "gth_potentials.yaml")) as f:
-        data_p = yaml.load(f, Loader=yaml.Loader)
+        data_p = yaml.load(f)
 
     for s in species:
         basis_and_potential[s] = {}

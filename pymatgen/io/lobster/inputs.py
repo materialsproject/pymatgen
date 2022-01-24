@@ -114,11 +114,11 @@ class Lobsterin(dict, MSONable):
 
     def __setitem__(self, key, val):
         """
-        Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of
+        Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
         valid lobsterintags. Also cleans the parameter and val by stripping
         leading and trailing white spaces. Similar to INCAR class.
         """
-        # due to the missing case sensitivity of lobster, the following code is neccessary
+        # due to the missing case sensitivity of lobster, the following code is necessary
         found = False
         for key_here in self.keys():
             if key.strip().lower() == key_here.lower():
@@ -570,7 +570,7 @@ class Lobsterin(dict, MSONable):
         Lobsterindict = {}  # type: Dict
 
         for datum in data:
-            # will remove all commments to avoid complications
+            # will remove all comments to avoid complications
             raw_datum = datum.split("!")[0]
             raw_datum = raw_datum.split("//")[0]
             raw_datum = raw_datum.split("#")[0]
@@ -617,6 +617,8 @@ class Lobsterin(dict, MSONable):
         # Warning about a bug in lobster-4.1.0
         with zopen(POTCAR_input, "r") as f:
             data = f.read()
+        if isinstance(data, bytes):
+            data = data.decode("utf-8")
         if "SHA256" in data or "COPYR" in data:
             warnings.warn(
                 "These POTCARs are not compatible with "

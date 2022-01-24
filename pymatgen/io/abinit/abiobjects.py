@@ -159,7 +159,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         raise ValueError(f"len(typat) != len(coords):\ntypat: {typat}\ncoords: {coords}")
 
     # Note conversion to int and Fortran --> C indexing
-    typat = np.array(typat, dtype=np.int_)
+    typat = np.array(typat, dtype=int)
     species = [znucl_type[typ - 1] for typ in typat]
 
     return cls(
@@ -244,7 +244,7 @@ or the Virtual Crystal Approximation."""
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
-        typat = np.zeros(natom, np.int_)
+        typat = np.zeros(natom, int)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
     else:
@@ -418,7 +418,7 @@ _mode2spinvars = {
 
 class Smearing(AbivarAble, MSONable):
     """
-    Variables defining the smearing technique. The preferred way to instanciate
+    Variables defining the smearing technique. The preferred way to instantiate
     a `Smearing` object is via the class method Smearing.as_smearing(string)
     """
 
@@ -1171,7 +1171,7 @@ class PPModelModes(Enum):
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
-    The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
+    The common way to instantiate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
 
     @classmethod
