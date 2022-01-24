@@ -810,7 +810,9 @@ class Vasprun(MSONable):
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None):
+    def get_computed_entry(
+        self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None, file_path: str = None
+    ):
         """
         Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
@@ -826,6 +828,7 @@ class Vasprun(MSONable):
                 supported by the Vasprun object.
             entry_id (str): Specify an entry id for the ComputedEntry. Defaults to
                 "vasprun-{current datetime}"
+            file_path (str): File path from which data is taken.
 
         Returns:
             ComputedStructureEntry/ComputedEntry
@@ -846,10 +849,20 @@ class Vasprun(MSONable):
 
         if inc_structure:
             return ComputedStructureEntry(
-                self.final_structure, self.final_energy, parameters=params, data=data, entry_id=entry_id
+                self.final_structure,
+                self.final_energy,
+                parameters=params,
+                data=data,
+                entry_id=entry_id,
+                file_path=file_path,
             )
         return ComputedEntry(
-            self.final_structure.composition, self.final_energy, parameters=params, data=data, entry_id=entry_id
+            self.final_structure.composition,
+            self.final_energy,
+            parameters=params,
+            data=data,
+            entry_id=entry_id,
+            file_path=file_path,
         )
 
     def get_band_structure(

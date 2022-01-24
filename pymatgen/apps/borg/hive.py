@@ -119,25 +119,27 @@ class VaspToComputedEntryDrone(AbstractDrone):
         """
         files = os.listdir(path)
         if "relax1" in files and "relax2" in files:
-            filepath = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
+            file_path = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
         else:
             vasprun_files = glob.glob(os.path.join(path, "vasprun.xml*"))
-            filepath = None
+            file_path = None
             if len(vasprun_files) == 1:
-                filepath = vasprun_files[0]
+                file_path = vasprun_files[0]
             elif len(vasprun_files) > 1:
                 # Since multiple files are ambiguous, we will always read
                 # the one that it the last one alphabetically.
-                filepath = sorted(vasprun_files)[-1]
-                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
+                file_path = sorted(vasprun_files)[-1]
+                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {file_path} is being parsed.")
 
         try:
-            vasprun = Vasprun(filepath)
+            vasprun = Vasprun(file_path)
         except Exception as ex:
-            logger.debug(f"error in {filepath}: {ex}")
+            logger.debug(f"error in {file_path}: {ex}")
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        entry = vasprun.get_computed_entry(
+            self._inc_structure, parameters=self._parameters, data=self._data, file_path=file_path
+        )
 
         # entry.parameters["history"] = _get_transformation_history(path)
         return entry
