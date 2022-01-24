@@ -200,7 +200,7 @@ def add_config_var(args):
         sys.exit(-1)
     for i in range(int(len(toks) / 2)):
         d[toks[2 * i]] = toks[2 * i + 1]
-    dumpfn(d, SETTINGS_FILE, default_flow_style=False)
+    dumpfn(d, SETTINGS_FILE)
     print("New %s written!" % (SETTINGS_FILE))
 
 
