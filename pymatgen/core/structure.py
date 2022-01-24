@@ -270,6 +270,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
 
+    @property
+    def symbol_list(self) -> List[str]:
+        """List of element symbols."""
+        return [specie.symbol for specie in self.species]
+    
     @property  # type: ignore
     def atomic_numbers(self) -> Tuple[int]:
         """List of atomic numbers."""
