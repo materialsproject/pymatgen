@@ -56,7 +56,6 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of the algorithm
         """
-        pass
 
     @property
     def algorithm_type(self):

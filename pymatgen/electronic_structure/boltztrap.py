@@ -783,8 +783,6 @@ class BoltztrapError(Exception):
     Raised when the boltztrap gives an error
     """
 
-    pass
-
 
 class BoltztrapAnalyzer:
     """

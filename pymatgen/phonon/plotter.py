@@ -293,14 +293,10 @@ class PhononBSPlotter:
                     if ticks["label"][i] == ticks["label"][i - 1]:
                         logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
-                        logger.debug(
-                            f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}"
-                        )
+                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}"
-                    )
+                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     plt.axvline(ticks["distance"][i], color="k")
         return plt
 

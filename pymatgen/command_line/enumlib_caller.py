@@ -417,5 +417,3 @@ class EnumError(BaseException):
     """
     Error subclass for enumeration errors.
     """
-
-    pass

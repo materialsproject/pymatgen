@@ -43,7 +43,6 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         """
         :return: List of symmetry operations
         """
-        pass
 
     def __contains__(self, item):
         for i in self.symmetry_ops:

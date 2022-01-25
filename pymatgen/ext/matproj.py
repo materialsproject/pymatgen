@@ -1709,5 +1709,3 @@ class MPRestError(Exception):
     Exception class for MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
-
-    pass

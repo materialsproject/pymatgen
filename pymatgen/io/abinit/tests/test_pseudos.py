@@ -5,7 +5,7 @@
 import collections
 import os.path
 
-from pymatgen.io.abinit.pseudos import *
+from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import PymatgenTest
 
 _test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")

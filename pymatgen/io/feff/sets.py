@@ -52,7 +52,6 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Returns header to be used in feff.inp file from a pymatgen structure
         """
-        pass
 
     @property
     @abc.abstractmethod
@@ -63,7 +62,6 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             Atoms object.
         """
-        pass
 
     @property
     @abc.abstractmethod
@@ -79,7 +77,6 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Returns POTENTIAL section used in feff.inp from a structure.
         """
-        pass
 
     def all_input(self):
         """

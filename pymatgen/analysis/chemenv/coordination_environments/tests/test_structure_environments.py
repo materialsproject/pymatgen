@@ -5,7 +5,6 @@ __author__ = "waroquiers"
 
 import json
 import os
-import shutil
 import unittest
 
 import numpy as np

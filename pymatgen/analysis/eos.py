@@ -99,7 +99,6 @@ class EOSBase(metaclass=ABCMeta):
              params (list/tuple): values for the parameters other than the
                 volume used by the eos.
         """
-        pass
 
     def func(self, volume):
         """
@@ -624,5 +623,3 @@ class EOSError(Exception):
     """
     Error class for EOS fitting.
     """
-
-    pass

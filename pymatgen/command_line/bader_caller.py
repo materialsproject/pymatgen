@@ -432,9 +432,7 @@ class BaderAnalysis:
                 # and this would give 'static' over 'relax2' over 'relax'
                 # however, better to use 'suffix' kwarg to avoid this!
                 paths.sort(reverse=True)
-                warning_msg = (
-                    f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
-                )
+                warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
                 fpath = paths[0]
             else:
                 warning_msg = f"Could not find {filename}"

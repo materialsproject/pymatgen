@@ -63,7 +63,6 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of this strategy option.
         """
-        pass
 
 
 class DistanceCutoffFloat(float, StrategyOption):
@@ -1235,7 +1234,6 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of this neighbors set weight.
         """
-        pass
 
     @abc.abstractmethod
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
@@ -1247,7 +1245,6 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         :param additional_info: Additional information.
         :return: Weight of the neighbors set.
         """
-        pass
 
 
 class AngleNbSetWeight(NbSetWeight):
@@ -1336,9 +1333,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         elif self.average_type == "arithmetic":
             self.eval = self.aweight
         else:
-            raise ValueError(
-                f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"'
-            )
+            raise ValueError(f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"')
         self.aa = aa
         self.bb = bb
         if self.aa == 0:
@@ -2748,14 +2743,12 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
 
         Not implemented for this strategy
         """
-        pass
 
     def get_site_neighbors(self, site):
         """Get the neighbors of a given site.
 
         Not implemented for this strategy.
         """
-        pass
 
     def get_site_coordination_environments(
         self,

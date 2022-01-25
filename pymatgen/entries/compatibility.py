@@ -48,8 +48,6 @@ class CompatibilityError(Exception):
     on incompatible calculation
     """
 
-    pass
-
 
 class Correction(metaclass=abc.ABCMeta):
     """

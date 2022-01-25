@@ -484,9 +484,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         )
 
         desc["og_bns_transformation"] = (
-            f"OG-BNS Transform: ({self._data['og_bns_transform']})\n"
-            if desc["magtype"] == 4 and include_og
-            else ""
+            f"OG-BNS Transform: ({self._data['og_bns_transform']})\n" if desc["magtype"] == 4 and include_og else ""
         )
 
         bns_operators_prefix = f"Operators{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "

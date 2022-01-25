@@ -11,7 +11,6 @@ from pymatgen.analysis.surface_analysis import (
     SurfaceEnergyPlotter,
     WorkFunctionAnalyzer,
 )
-from pymatgen.analysis.wulff import WulffShape
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 
@@ -24,7 +23,7 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    cwd = os.path.abspath(os.path.dirname(__file__))
+    os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
     return path
 
@@ -207,7 +206,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             analyzer = self.Oads_analyzer_dict[el]
             # chempot = analyzer.max_adsorption_chempot_range(0)
             wulff = analyzer.wulff_from_chempot(delu_default=-6)
-            se = wulff.weighted_surface_energy
+            wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play
@@ -226,9 +225,9 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             color_dict = analyzer.color_palette_dict()
             for hkl in self.metals_O_entry_dict[el].keys():
                 for clean in self.metals_O_entry_dict[el][hkl].keys():
-                    color = color_dict[clean]
+                    color_dict[clean]
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-                        color = color_dict[ads]
+                        color_dict[ads]
 
     def test_get_surface_equilibrium(self):
         # For clean stoichiometric system, the two equations should

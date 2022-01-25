@@ -79,19 +79,16 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def incar(self):
         """Incar object"""
-        pass
 
     @property
     @abc.abstractmethod
     def kpoints(self):
         """Kpoints object"""
-        pass
 
     @property
     @abc.abstractmethod
     def poscar(self):
         """Poscar object"""
-        pass
 
     @property
     def potcar_symbols(self):
@@ -2987,8 +2984,6 @@ class BadInputSetWarning(UserWarning):
     """
     Warning class for bad but legal inputs.
     """
-
-    pass
 
 
 def batch_write_input(

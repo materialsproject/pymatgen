@@ -551,8 +551,6 @@ class NwInputError(Exception):
     Error class for NwInput.
     """
 
-    pass
-
 
 class NwOutput:
     """

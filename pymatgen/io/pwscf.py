@@ -506,8 +506,6 @@ class PWInputError(BaseException):
     Error for PWInput
     """
 
-    pass
-
 
 class PWOutput:
     """

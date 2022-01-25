@@ -343,14 +343,10 @@ class BSPlotter:
                     if ticks["label"][i] == ticks["label"][i - 1]:
                         logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
-                        logger.debug(
-                            f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}"
-                        )
+                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}"
-                    )
+                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     plt.axvline(ticks["distance"][i], color="k")
         return plt
 
@@ -1770,9 +1766,7 @@ class BSPlotterProjected(BSPlotter):
                     if sum(nelems) > len(nelems):
                         raise ValueError(f"You put in at least two similar orbitals in dictio[{elt}].")
                 else:
-                    raise TypeError(
-                        f"The invalid type of value was put into 'dictio[{elt}]'. It should be list type."
-                    )
+                    raise TypeError(f"The invalid type of value was put into 'dictio[{elt}]'. It should be list type.")
             else:
                 raise KeyError(f"The invalid element was put into 'dictio' as a key: {elt}")
 
@@ -1916,9 +1910,7 @@ class BSPlotterProjected(BSPlotter):
                     if sum(nelems) > len(nelems):
                         raise ValueError(f"You put at least two similar site numbers into 'dictpa[{elt}]'.")
                 else:
-                    raise TypeError(
-                        f"The invalid type of value was put into 'dictpa[{elt}]'. It should be list type."
-                    )
+                    raise TypeError(f"The invalid type of value was put into 'dictpa[{elt}]'. It should be list type.")
             else:
                 raise KeyError(f"The invalid element was put into 'dictpa' as a key: {elt}")
 
@@ -2225,9 +2217,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                         plt.axvline(n_ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}"
-                    )
+                    logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
                     plt.axvline(n_ticks["distance"][i], color="k")
 
         shift = []

@@ -1227,8 +1227,6 @@ class RadialFunction(namedtuple("RadialFunction", "mesh values")):
     Radial Function class.
     """
 
-    pass
-
 
 class PawXmlSetup(Pseudo, PawPseudo):
     """

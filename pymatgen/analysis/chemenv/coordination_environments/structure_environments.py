@@ -654,7 +654,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                f"Number of csms for site #{str(isite)} with mp_symbol \"{mp_symbol}\" = {str(len(csms))}",
+                f'Number of csms for site #{str(isite)} with mp_symbol "{mp_symbol}" = {str(len(csms))}',
             )
         return csms[0]
 
@@ -923,9 +923,7 @@ class StructureEnvironments(MSONable):
                 return dp
 
         else:
-            raise ValueError(
-                f"Wrong value for distance parameter plot type \"{plot_type['distance_parameter'][0]}\""
-            )
+            raise ValueError(f"Wrong value for distance parameter plot type \"{plot_type['distance_parameter'][0]}\"")
 
         if plot_type["angle_parameter"][0] == "one_minus_gamma":
             ylabel = "Angle parameter : $1.0-\\gamma$"

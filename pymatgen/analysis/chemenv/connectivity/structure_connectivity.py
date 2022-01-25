@@ -267,7 +267,6 @@ class StructureConnectivity(MSONable):
         Returns:
 
         """
-        pass
 
     def get_connected_components(self, environments_symbols=None, only_atoms=None):
         """

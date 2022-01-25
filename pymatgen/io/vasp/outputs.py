@@ -1329,7 +1329,6 @@ class Vasprun(MSONable):
             s = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
             s = None
-            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["structure"] = s
@@ -1358,7 +1357,6 @@ class Vasprun(MSONable):
             istep = {i.attrib["name"]: float(i.text) for i in elem.find("energy").findall("i")}
         except AttributeError:  # not all calculations have an energy
             istep = {}
-            pass
         esteps = []
         for scstep in elem.findall("scstep"):
             try:
@@ -1370,7 +1368,6 @@ class Vasprun(MSONable):
             s = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
             s = None
-            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
@@ -4326,8 +4323,6 @@ class VaspParserError(Exception):
     Exception class for VASP parsing.
     """
 
-    pass
-
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projections=False):
     """
@@ -5630,5 +5625,3 @@ class UnconvergedVASPWarning(Warning):
     """
     Warning for unconverged vasp run.
     """
-
-    pass

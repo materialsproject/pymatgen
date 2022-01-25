@@ -1584,8 +1584,6 @@ class MolGraphSplitError(Exception):
     subgraphs
     """
 
-    pass
-
 
 class MoleculeGraph(MSONable):
     """

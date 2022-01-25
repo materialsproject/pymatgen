@@ -837,9 +837,7 @@ class IStructure(SiteCollection, MSONable):
             )
 
         if len(species) != len(coords):
-            raise ValueError(
-                f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!"
-            )
+            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
             np.array(coords, dtype=np.float_) if not coords_are_cartesian else latt.get_fractional_coords(coords)
@@ -937,14 +935,10 @@ class IStructure(SiteCollection, MSONable):
             )
 
         if len(species) != len(coords):
-            raise ValueError(
-                f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!"
-            )
+            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         if len(species) != len(magmoms):
-            raise ValueError(
-                f"Supplied species and magmom lengths ({len(species)} vs {len(magmoms)}) are different!"
-            )
+            raise ValueError(f"Supplied species and magmom lengths ({len(species)} vs {len(magmoms)}) are different!")
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
