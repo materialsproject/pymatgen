@@ -641,34 +641,35 @@ class Slab(Structure):
         # This avoids the point coordinates to overlap with the centered+shifted
         # slab
         if not np.all(
-            np.logical_and(origin_centered_slab.frac_coords[:, 2] > 0.0, 
-                           origin_centered_slab.frac_coords[:, 2] < 1.0)
+            np.logical_and(origin_centered_slab.frac_coords[:, 2] > 0.0, origin_centered_slab.frac_coords[:, 2] < 1.0)
         ):
             origin_centered_slab = center_slab(origin_centered_slab)
             # The point coordinates need to be shifted too
             if slab_com[2] < 0.5:
-                center_first = np.array([0.0,0.0,0.5]) + slab_com
+                center_first = np.array([0.0, 0.0, 0.5]) + slab_com
             elif slab_com[2] > 0.5:
-                center_first = np.array([0.0,0.0,0.5]) - slab_com
+                center_first = np.array([0.0, 0.0, 0.5]) - slab_com
             # The new center of mass is at z = 0.5 by definition of the
             # center_slab() function
             translation = np.array([0.0, 0.0, -0.5])
         else:
-            center_first = np.array([0.0,0.0,0.0])
+            center_first = np.array([0.0, 0.0, 0.0])
             translation = -slab_com
-            
+
         # Translate the sites so that the center of mass is at z=0
         origin_centered_slab.translate_sites(
             list(range(origin_centered_slab.num_sites)), translation, to_unit_cell=False
         )
-        
-        if origin_centered_slab.is_symmetric() == False:
-            warnings.warn("The adsorbate symmetric side could not be \
+
+        if not origin_centered_slab.is_symmetric():
+            warnings.warn(
+                "The adsorbate symmetric side could not be \
                           found because the initial slab is not symmetric. \
-                          please try to change the size of the slab.")
-            
+                          please try to change the size of the slab."
+            )
+
             return None
-        
+
         # Translate the point coordinate so it sits on top (or below) the
         # shifted slab
         point = point + center_first + translation
@@ -708,7 +709,7 @@ class Slab(Structure):
                 origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
 
         warnings.warn("The symmetric site could not be found.")
-        
+
         return None
 
     def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
