@@ -8,6 +8,7 @@ Defines the classes relating to 3D lattices.
 import collections
 import itertools
 import math
+from pkgutil import walk_packages
 import warnings
 from fractions import Fraction
 from functools import reduce
@@ -1725,7 +1726,7 @@ class Lattice(MSONable):
         """
         Gets distance between two frac_coords assuming periodic boundary
         conditions. If the index jimage is not specified it selects the j
-        image nearest to the i atom and returns the distance and jimage
+        image nearest to the frac_coords1 and returns the distance and jimage
         indices in terms of lattice vector translations. If the index jimage
         is specified it returns the distance between the frac_coords1 and
         the specified jimage of frac_coords2, and the given jimage is also
@@ -1823,6 +1824,32 @@ class Lattice(MSONable):
 
         return recp_symmops
 
+    def get_weighted_average_position(self, positions: ArrayLike, weights: ArrayLike) -> np.ndarray:
+        """
+        Get the weighted average position of a set of positions.
+        Since we have the problem with periodicity, we will start with the highest weight
+        and work our way down.
+
+        Args:
+            positions (3xN array-like): The positions to average.
+            weights (1xN array-like): The weights of the positions.
+
+        Returns:
+            (3x1 array): The weighted average position in fractional coordinates.
+        """
+
+        pos_weights = list(zip(positions, weights))
+        pos_weights.sort(key=lambda x: x[1], reverse=True)
+        
+        p_guess = np.ones(3) * 0.5
+        w_sum = 0
+        
+        for p, w in pos_weights:
+            _, jimage = self.get_distance_and_image(p_guess, p)
+            p_guess = w_sum * p_guess + w * (p + jimage)
+            w_sum += w
+        return p_guess / w_sum
+        
 
 def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True) -> Tuple[int, int, int]:
     """
