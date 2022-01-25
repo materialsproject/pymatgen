@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -29,6 +28,29 @@ class OptimadeTest(PymatgenTest):
                     len(raw_filter_structs["mp"]),
                     msg="Raw filter {_filter} did not return the same number of results as the query builder.",
                 )
+
+    def test_get_snls_mp(self):
+        with OptimadeRester("mp") as optimade:
+
+            structs = optimade.get_snls(elements=["Ga", "N"], nelements=2)
+
+        with OptimadeRester("mp") as optimade:
+            response_field_structs_single = optimade.get_snls(
+                elements=["Ga", "N"], nelements=2, additional_response_fields="nsites"
+            )
+            response_field_structs_set = optimade.get_snls(
+                elements=["Ga", "N"], nelements=2, additional_response_fields={"nsites", "nelements"}
+            )
+            if ("mp" in response_field_structs_single) and ("mp" in response_field_structs_set):
+                self.assertEqual(len(structs["mp"]), len(response_field_structs_single["mp"]))
+                self.assertEqual(len(structs["mp"]), len(response_field_structs_set["mp"]))
+
+                # Check that the requested response fields appear in the SNL metadata
+                s = list(response_field_structs_single["mp"].values())[0]
+                sp = list(response_field_structs_set["mp"].values())[0]
+                assert "nsites" in s.data["_optimade"]
+                assert "nsites" in sp.data["_optimade"]
+                assert "nelements" in sp.data["_optimade"]
 
     # Tests fail in CI for unknown reason, use for development only.
     # def test_get_structures_mcloud_2dstructures(self):

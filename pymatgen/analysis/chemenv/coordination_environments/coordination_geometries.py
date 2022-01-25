@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -57,7 +56,6 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of the algorithm
         """
-        pass
 
     @property
     def algorithm_type(self):
@@ -417,7 +415,7 @@ class CoordinationGeometry:
                     neighbors set could be found from a "cap hint".
             """
             if hints_type not in self.ALLOWED_HINTS_TYPES:
-                raise ValueError('Type "{}" for NeighborsSetsHints is not allowed'.format(type))
+                raise ValueError(f'Type "{type}" for NeighborsSetsHints is not allowed')
             self.hints_type = hints_type
             self.options = options
 
@@ -433,7 +431,7 @@ class CoordinationGeometry:
             """
             if hints_info["csm"] > self.options["csm_max"]:
                 return []
-            return object.__getattribute__(self, "{}_hints".format(self.hints_type))(hints_info)
+            return object.__getattribute__(self, f"{self.hints_type}_hints")(hints_info)
 
         def single_cap_hints(self, hints_info):
             """
@@ -680,23 +678,23 @@ class CoordinationGeometry:
     def __str__(self):
         symbol = ""
         if self.IUPAC_symbol is not None:
-            symbol += " (IUPAC: {s}".format(s=self.IUPAC_symbol)
+            symbol += f" (IUPAC: {self.IUPAC_symbol}"
             if self.IUCr_symbol is not None:
-                symbol += " || IUCr: {s})".format(s=self.IUCr_symbol)
+                symbol += f" || IUCr: {self.IUCr_symbol})"
             else:
                 symbol += ")"
         elif self.IUCr_symbol is not None:
-            symbol += " (IUCr: {s})".format(s=self.IUCr_symbol)
+            symbol += f" (IUCr: {self.IUCr_symbol})"
         outs = [
-            "Coordination geometry type : {n}{s}\n".format(n=self.name, s=symbol),
-            "  - coordination number : {c}".format(c=self.coordination),
+            f"Coordination geometry type : {self.name}{symbol}\n",
+            f"  - coordination number : {self.coordination}",
         ]
         if self.points is None:
             outs.append("... not yet implemented")
         else:
             outs.append("  - list of points :")
             for pp in self.points:
-                outs.append("    - {p}".format(p=pp))
+                outs.append(f"    - {pp}")
         outs.append("------------------------------------------------------------")
         outs.append("")
 
@@ -705,16 +703,16 @@ class CoordinationGeometry:
     def __repr__(self):
         symbol = ""
         if self.IUPAC_symbol is not None:
-            symbol += " (IUPAC: {s}".format(s=self.IUPAC_symbol)
+            symbol += f" (IUPAC: {self.IUPAC_symbol}"
             if self.IUCr_symbol is not None:
-                symbol += " || IUCr: {s})".format(s=self.IUCr_symbol)
+                symbol += f" || IUCr: {self.IUCr_symbol})"
             else:
                 symbol += ")"
         elif self.IUCr_symbol is not None:
-            symbol += " (IUCr: {s})".format(s=self.IUCr_symbol)
+            symbol += f" (IUCr: {self.IUCr_symbol})"
         outs = [
-            "Coordination geometry type : {n}{s}\n".format(n=self.name, s=symbol),
-            "  - coordination number : {c}".format(c=self.coordination),
+            f"Coordination geometry type : {self.name}{symbol}\n",
+            f"  - coordination number : {self.coordination}",
         ]
         outs.append("------------------------------------------------------------")
         outs.append("")
@@ -936,12 +934,12 @@ class CoordinationGeometry:
                 np.array([np.mean([_vertices[face_vertex][ii] for face_vertex in face]) for ii in range(3)])
             )
 
-        out = "{}\n".format(len(_vertices) + len(_face_centers))
+        out = f"{len(_vertices) + len(_face_centers)}\n"
         for vv in _vertices:
-            out += "{:15.8f} {:15.8f} {:15.8f}\n".format(vv[0], vv[1], vv[2])
+            out += f"{vv[0]:15.8f} {vv[1]:15.8f} {vv[2]:15.8f}\n"
         for fc in _face_centers:
-            out += "{:15.8f} {:15.8f} {:15.8f}\n".format(fc[0], fc[1], fc[2])
-        out += "{:d}\n".format(number_of_faces)
+            out += f"{fc[0]:15.8f} {fc[1]:15.8f} {fc[2]:15.8f}\n"
+        out += f"{number_of_faces:d}\n"
         for iface, face in enumerate(self._faces):
             if len(face) == 3:
                 out += "4\n"
@@ -950,14 +948,14 @@ class CoordinationGeometry:
             else:
                 for ii, f in enumerate(face):
                     out += "4\n"
-                    out += "{:d}\n".format(len(_vertices) + iface)
-                    out += "{:d}\n".format(f)
-                    out += "{:d}\n".format(face[np.mod(ii + 1, len(face))])
-                    out += "{:d}\n".format(len(_vertices) + iface)
+                    out += f"{len(_vertices) + iface:d}\n"
+                    out += f"{f:d}\n"
+                    out += f"{face[np.mod(ii + 1, len(face))]:d}\n"
+                    out += f"{len(_vertices) + iface:d}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:
-                    out += "{:d}\n".format(face_vertex)
-                out += "{:d}\n".format(face[0])
+                    out += f"{face_vertex:d}\n"
+                out += f"{face[0]:d}\n"
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 
@@ -979,18 +977,18 @@ class AllCoordinationGeometries(dict):
         dict.__init__(self)
         self.cg_list = []
         if only_symbols is None:
-            with open("{}/coordination_geometries_files/allcg.txt".format(module_dir), "r") as f:
+            with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as f:
                 data = f.readlines()
             for line in data:
-                cg_file = "{}/{}".format(module_dir, line.strip())
-                with open(cg_file, "r") as f:
+                cg_file = f"{module_dir}/{line.strip()}"
+                with open(cg_file) as f:
                     dd = json.load(f)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
-                cg_file = "{}/coordination_geometries_files/{}.json".format(module_dir, fsymbol)
-                with open(cg_file, "r") as f:
+                cg_file = f"{module_dir}/coordination_geometries_files/{fsymbol}.json"
+                with open(cg_file) as f:
                     dd = json.load(f)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 
@@ -1022,7 +1020,7 @@ class AllCoordinationGeometries(dict):
                     self.separations_cg[cn][sep].append(cg.mp_symbol)
                     self.minpoints[cn] = min(self.minpoints[cn], algo.minimum_number_of_points)
                     self.maxpoints[cn] = max(self.maxpoints[cn], algo.maximum_number_of_points)
-        self.maxpoints_inplane = {cn: max([sep[1] for sep in seps.keys()]) for cn, seps in self.separations_cg.items()}
+        self.maxpoints_inplane = {cn: max(sep[1] for sep in seps.keys()) for cn, seps in self.separations_cg.items()}
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
@@ -1196,7 +1194,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.name == name or name in gg.alternative_names:
                 return gg
-        raise LookupError('No coordination geometry found with name "{name}"'.format(name=name))
+        raise LookupError(f'No coordination geometry found with name "{name}"')
 
     def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
         """
@@ -1208,7 +1206,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.IUPAC_symbol == IUPAC_symbol:
                 return gg
-        raise LookupError('No coordination geometry found with IUPAC symbol "{symbol}"'.format(symbol=IUPAC_symbol))
+        raise LookupError(f'No coordination geometry found with IUPAC symbol "{IUPAC_symbol}"')
 
     def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
         """
@@ -1220,7 +1218,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.IUCr_symbol == IUCr_symbol:
                 return gg
-        raise LookupError('No coordination geometry found with IUCr symbol "{symbol}"'.format(symbol=IUCr_symbol))
+        raise LookupError(f'No coordination geometry found with IUCr symbol "{IUCr_symbol}"')
 
     def get_geometry_from_mp_symbol(self, mp_symbol):
         """
@@ -1232,7 +1230,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.mp_symbol == mp_symbol:
                 return gg
-        raise LookupError('No coordination geometry found with mp_symbol "{symbol}"'.format(symbol=mp_symbol))
+        raise LookupError(f'No coordination geometry found with mp_symbol "{mp_symbol}"')
 
     def is_a_valid_coordination_geometry(self, mp_symbol=None, IUPAC_symbol=None, IUCr_symbol=None, name=None, cn=None):
         """
@@ -1306,9 +1304,9 @@ class AllCoordinationGeometries(dict):
         if type == "all_geometries_latex_images":
             mystring = ""
             for cn in range(1, maxcn + 1):
-                mystring += "\\section*{{Coordination {cn}}}\n\n".format(cn=cn)
+                mystring += f"\\section*{{Coordination {cn}}}\n\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
-                    mystring += "\\subsubsection*{{{mp} : {name}}}\n\n".format(mp=cg.mp_symbol, name=cg.get_name())
+                    mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
                     mystring += "IUPAC : {iupac}\n\nIUCr : {iucr}\n\n".format(
                         iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol
                     )
@@ -1318,14 +1316,14 @@ class AllCoordinationGeometries(dict):
                     )
                     mystring += "\\end{center}\n\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
-                    mystring += "\\subsubsection*{{{mp} : {name}}}\n\n".format(mp=cg.mp_symbol, name=cg.get_name())
+                    mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
                     mystring += "IUPAC : {iupac}\n\nIUCr : {iucr}\n\n".format(
                         iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol
                     )
         elif type == "all_geometries_latex":
             mystring = ""
             for cn in range(1, maxcn + 1):
-                mystring += "\\subsection*{{Coordination {cn}}}\n\n".format(cn=cn)
+                mystring += f"\\subsection*{{Coordination {cn}}}\n\n"
                 mystring += "\\begin{itemize}\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
                     mystring += "\\item {mp} $\\rightarrow$ {name} ".format(
@@ -1347,7 +1345,7 @@ class AllCoordinationGeometries(dict):
         else:
             mystring = "+-------------------------+\n| Coordination geometries |\n+-------------------------+\n\n"
             for cn in range(1, maxcn + 1):
-                mystring += "==>> CN = {cn} <<==\n".format(cn=cn)
+                mystring += f"==>> CN = {cn} <<==\n"
                 if type == "implemented_geometries":
                     for cg in self.get_implemented_geometries(coordination=cn):
                         if additional_info is not None:
@@ -1360,11 +1358,9 @@ class AllCoordinationGeometries(dict):
                                 addinfo = ""
                         else:
                             addinfo = ""
-                        mystring += " - {mp} : {name}{addinfo}\n".format(
-                            mp=cg.mp_symbol, name=cg.get_name(), addinfo=addinfo
-                        )
+                        mystring += f" - {cg.mp_symbol} : {cg.get_name()}{addinfo}\n"
                 elif type == "all_geometries":
                     for cg in self.get_geometries(coordination=cn):
-                        mystring += " - {mp} : {name}\n".format(mp=cg.mp_symbol, name=cg.get_name())
+                        mystring += f" - {cg.mp_symbol} : {cg.get_name()}\n"
                 mystring += "\n"
         return mystring

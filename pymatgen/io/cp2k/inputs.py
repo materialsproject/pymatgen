@@ -16,10 +16,9 @@ A quick overview of the module:
 import copy
 import os
 import re
-import sys
 import textwrap
 import warnings
-from typing import Dict, List, Sequence, Tuple, Union
+from typing import Dict, List, Literal, Sequence, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -27,11 +26,6 @@ from monty.json import MSONable
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"
@@ -84,7 +78,7 @@ class Keyword(MSONable):
         return (
             self.name.__str__()
             + " "
-            + ("[{}] ".format(self.units) if self.units else "")
+            + (f"[{self.units}] " if self.units else "")
             + " ".join(map(str, self.values))
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
@@ -1138,7 +1132,7 @@ class OrbitalTransformation(Section):
             minimizer (str): The minimizer to use with the OT method. Default is conjugate gradient method,
                 which is more robust, but more well-behaved systems should use DIIS, which can be as much
                 as 50% faster.
-            preconditioner (str): Preconditionar to use for OT, FULL_ALL tends to be most robust, but is
+            preconditioner (str): Preconditioner to use for OT, FULL_ALL tends to be most robust, but is
                 not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be more robust,
                 and is reasonably efficient with large systems. For huge, but well behaved, systems,
                 where construction of the preconditioner can take a very long time, FULL_KINETIC can be a good
@@ -1169,11 +1163,11 @@ class OrbitalTransformation(Section):
             + "Default settings already provide an efficient, yet robust method. Most "
             + "systems benefit from using the FULL_ALL preconditioner combined with a small "
             + "value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using "
-            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalisation"
+            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalization"
             + "is performed. If preconditioned correctly, method guaranteed to find minimum. "
             + "Disadvantages: Sensitive to preconditioning. A good preconditioner can be "
             + "expensive. No smearing, or advanced SCF mixing possible: POOR convergence for "
-            + "metalic systems."
+            + "metallic systems."
         )
 
         keywords = {
@@ -1243,7 +1237,7 @@ class Kind(Section):
 
         Args:
             specie (Species or Element): Object representing the atom.
-            alias (str): Alias for the atom, can be used for specifying modifcations
+            alias (str): Alias for the atom, can be used for specifying modifications
                 to certain atoms but not all, e.g. Mg_1 and Mg_2 to force difference
                 oxidation states on the two atoms.
             magnetization (float): From the CP2K Manual: The magnetization used

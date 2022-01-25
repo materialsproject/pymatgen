@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.molecule_structure_comparator module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.molecule_structure_comparator module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.molecule_structure_comparator.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.nmr module" href="pymatgen.analysis.nmr.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,78 +86,35 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
       <li>pymatgen.analysis.molecule_structure_comparator module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.molecule_structure_comparator.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.molecule_structure_comparator">
-<span id="pymatgen-analysis-molecule-structure-comparator-module"></span><h1>pymatgen.analysis.molecule_structure_comparator module<a class="headerlink" href="#module-pymatgen.analysis.molecule_structure_comparator" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.molecule_structure_comparator">
+<span id="pymatgen-analysis-molecule-structure-comparator-module"></span><h1>pymatgen.analysis.molecule_structure_comparator module<a class="headerlink" href="#module-pymatgen.analysis.molecule_structure_comparator" title="Permalink to this headline"></a></h1>
 <p>This module provides classes to comparsion the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,
 the molecules are deemed to be same. The atom in the two molecule must be
@@ -212,21 +123,21 @@ This module is supposed to perform rough comparisons with the atom order
 correspondence prerequisite, while molecule_matcher is supposed to do exact
 comparisons without the atom order correspondence prerequisite.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.molecule_structure_comparator.CovalentRadius">
-<em class="property">class </em><code class="sig-name descname">CovalentRadius</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/molecule_structure_comparator.py#L29-L133"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.CovalentRadius">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CovalentRadius</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/molecule_structure_comparator.py#L28-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Covalent Radius of the elements.</p>
 <p>Beatriz C. et al. Dalton Trans. 2008, 2832-2838. DOI: 10.1039/b801115j</p>
 <dl class="py attribute">
-<dt id="pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius">
-<code class="sig-name descname">radius</code><em class="property"> = {'Ac': 2.15, 'Ag': 1.45, 'Al': 1.21, 'Am': 1.8, 'Ar': 1.06, 'As': 1.19, 'At': 1.5, 'Au': 1.36, 'B': 0.84, 'Ba': 2.15, 'Be': 0.96, 'Bi': 1.48, 'Br': 1.2, 'C': 0.73, 'Ca': 1.76, 'Cd': 1.44, 'Ce': 2.04, 'Cl': 1.02, 'Cm': 1.69, 'Co': 1.38, 'Cr': 1.39, 'Cs': 2.44, 'Cu': 1.32, 'Dy': 1.92, 'Er': 1.89, 'Eu': 1.98, 'F': 0.57, 'Fe': 1.42, 'Fr': 2.6, 'Ga': 1.22, 'Gd': 1.96, 'Ge': 1.2, 'H': 0.31, 'He': 0.28, 'Hf': 1.75, 'Hg': 1.32, 'Ho': 1.92, 'I': 1.39, 'In': 1.42, 'Ir': 1.41, 'K': 2.03, 'Kr': 1.16, 'La': 2.07, 'Li': 1.28, 'Lu': 1.87, 'Mg': 1.41, 'Mn': 1.5, 'Mo': 1.54, 'N': 0.71, 'Na': 1.66, 'Nb': 1.64, 'Nd': 2.01, 'Ne': 0.58, 'Ni': 1.24, 'Np': 1.9, 'O': 0.66, 'Os': 1.44, 'P': 1.07, 'Pa': 2.0, 'Pb': 1.46, 'Pd': 1.39, 'Pm': 1.99, 'Po': 1.4, 'Pr': 2.03, 'Pt': 1.36, 'Pu': 1.87, 'Ra': 2.21, 'Rb': 2.2, 'Re': 1.51, 'Rh': 1.42, 'Rn': 1.5, 'Ru': 1.46, 'S': 1.05, 'Sb': 1.39, 'Sc': 1.7, 'Se': 1.2, 'Si': 1.11, 'Sm': 1.98, 'Sn': 1.39, 'Sr': 1.95, 'Ta': 1.7, 'Tb': 1.94, 'Tc': 1.47, 'Te': 1.38, 'Th': 2.06, 'Ti': 1.6, 'Tl': 1.45, 'Tm': 1.9, 'U': 1.96, 'V': 1.53, 'W': 1.62, 'Xe': 1.4, 'Y': 1.9, 'Yb': 1.87, 'Zn': 1.22, 'Zr': 1.75}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/molecule_structure_comparator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Ac':</span> <span class="pre">2.15,</span> <span class="pre">'Ag':</span> <span class="pre">1.45,</span> <span class="pre">'Al':</span> <span class="pre">1.21,</span> <span class="pre">'Am':</span> <span class="pre">1.8,</span> <span class="pre">'Ar':</span> <span class="pre">1.06,</span> <span class="pre">'As':</span> <span class="pre">1.19,</span> <span class="pre">'At':</span> <span class="pre">1.5,</span> <span class="pre">'Au':</span> <span class="pre">1.36,</span> <span class="pre">'B':</span> <span class="pre">0.84,</span> <span class="pre">'Ba':</span> <span class="pre">2.15,</span> <span class="pre">'Be':</span> <span class="pre">0.96,</span> <span class="pre">'Bi':</span> <span class="pre">1.48,</span> <span class="pre">'Br':</span> <span class="pre">1.2,</span> <span class="pre">'C':</span> <span class="pre">0.73,</span> <span class="pre">'Ca':</span> <span class="pre">1.76,</span> <span class="pre">'Cd':</span> <span class="pre">1.44,</span> <span class="pre">'Ce':</span> <span class="pre">2.04,</span> <span class="pre">'Cl':</span> <span class="pre">1.02,</span> <span class="pre">'Cm':</span> <span class="pre">1.69,</span> <span class="pre">'Co':</span> <span class="pre">1.38,</span> <span class="pre">'Cr':</span> <span class="pre">1.39,</span> <span class="pre">'Cs':</span> <span class="pre">2.44,</span> <span class="pre">'Cu':</span> <span class="pre">1.32,</span> <span class="pre">'Dy':</span> <span class="pre">1.92,</span> <span class="pre">'Er':</span> <span class="pre">1.89,</span> <span class="pre">'Eu':</span> <span class="pre">1.98,</span> <span class="pre">'F':</span> <span class="pre">0.57,</span> <span class="pre">'Fe':</span> <span class="pre">1.42,</span> <span class="pre">'Fr':</span> <span class="pre">2.6,</span> <span class="pre">'Ga':</span> <span class="pre">1.22,</span> <span class="pre">'Gd':</span> <span class="pre">1.96,</span> <span class="pre">'Ge':</span> <span class="pre">1.2,</span> <span class="pre">'H':</span> <span class="pre">0.31,</span> <span class="pre">'He':</span> <span class="pre">0.28,</span> <span class="pre">'Hf':</span> <span class="pre">1.75,</span> <span class="pre">'Hg':</span> <span class="pre">1.32,</span> <span class="pre">'Ho':</span> <span class="pre">1.92,</span> <span class="pre">'I':</span> <span class="pre">1.39,</span> <span class="pre">'In':</span> <span class="pre">1.42,</span> <span class="pre">'Ir':</span> <span class="pre">1.41,</span> <span class="pre">'K':</span> <span class="pre">2.03,</span> <span class="pre">'Kr':</span> <span class="pre">1.16,</span> <span class="pre">'La':</span> <span class="pre">2.07,</span> <span class="pre">'Li':</span> <span class="pre">1.28,</span> <span class="pre">'Lu':</span> <span class="pre">1.87,</span> <span class="pre">'Mg':</span> <span class="pre">1.41,</span> <span class="pre">'Mn':</span> <span class="pre">1.5,</span> <span class="pre">'Mo':</span> <span class="pre">1.54,</span> <span class="pre">'N':</span> <span class="pre">0.71,</span> <span class="pre">'Na':</span> <span class="pre">1.66,</span> <span class="pre">'Nb':</span> <span class="pre">1.64,</span> <span class="pre">'Nd':</span> <span class="pre">2.01,</span> <span class="pre">'Ne':</span> <span class="pre">0.58,</span> <span class="pre">'Ni':</span> <span class="pre">1.24,</span> <span class="pre">'Np':</span> <span class="pre">1.9,</span> <span class="pre">'O':</span> <span class="pre">0.66,</span> <span class="pre">'Os':</span> <span class="pre">1.44,</span> <span class="pre">'P':</span> <span class="pre">1.07,</span> <span class="pre">'Pa':</span> <span class="pre">2.0,</span> <span class="pre">'Pb':</span> <span class="pre">1.46,</span> <span class="pre">'Pd':</span> <span class="pre">1.39,</span> <span class="pre">'Pm':</span> <span class="pre">1.99,</span> <span class="pre">'Po':</span> <span class="pre">1.4,</span> <span class="pre">'Pr':</span> <span class="pre">2.03,</span> <span class="pre">'Pt':</span> <span class="pre">1.36,</span> <span class="pre">'Pu':</span> <span class="pre">1.87,</span> <span class="pre">'Ra':</span> <span class="pre">2.21,</span> <span class="pre">'Rb':</span> <span class="pre">2.2,</span> <span class="pre">'Re':</span> <span class="pre">1.51,</span> <span class="pre">'Rh':</span> <span class="pre">1.42,</span> <span class="pre">'Rn':</span> <span class="pre">1.5,</span> <span class="pre">'Ru':</span> <span class="pre">1.46,</span> <span class="pre">'S':</span> <span class="pre">1.05,</span> <span class="pre">'Sb':</span> <span class="pre">1.39,</span> <span class="pre">'Sc':</span> <span class="pre">1.7,</span> <span class="pre">'Se':</span> <span class="pre">1.2,</span> <span class="pre">'Si':</span> <span class="pre">1.11,</span> <span class="pre">'Sm':</span> <span class="pre">1.98,</span> <span class="pre">'Sn':</span> <span class="pre">1.39,</span> <span class="pre">'Sr':</span> <span class="pre">1.95,</span> <span class="pre">'Ta':</span> <span class="pre">1.7,</span> <span class="pre">'Tb':</span> <span class="pre">1.94,</span> <span class="pre">'Tc':</span> <span class="pre">1.47,</span> <span class="pre">'Te':</span> <span class="pre">1.38,</span> <span class="pre">'Th':</span> <span class="pre">2.06,</span> <span class="pre">'Ti':</span> <span class="pre">1.6,</span> <span class="pre">'Tl':</span> <span class="pre">1.45,</span> <span class="pre">'Tm':</span> <span class="pre">1.9,</span> <span class="pre">'U':</span> <span class="pre">1.96,</span> <span class="pre">'V':</span> <span class="pre">1.53,</span> <span class="pre">'W':</span> <span class="pre">1.62,</span> <span class="pre">'Xe':</span> <span class="pre">1.4,</span> <span class="pre">'Y':</span> <span class="pre">1.9,</span> <span class="pre">'Yb':</span> <span class="pre">1.87,</span> <span class="pre">'Zn':</span> <span class="pre">1.22,</span> <span class="pre">'Zr':</span> <span class="pre">1.75}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/molecule_structure_comparator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator">
-<em class="property">class </em><code class="sig-name descname">MoleculeStructureComparator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bond_length_cap</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">covalent_radius</span><span class="o">=</span><span class="default_value">{'Ac': 2.15, 'Ag': 1.45, 'Al': 1.21, 'Am': 1.8, 'Ar': 1.06, 'As': 1.19, 'At': 1.5, 'Au': 1.36, 'B': 0.84, 'Ba': 2.15, 'Be': 0.96, 'Bi': 1.48, 'Br': 1.2, 'C': 0.73, 'Ca': 1.76, 'Cd': 1.44, 'Ce': 2.04, 'Cl': 1.02, 'Cm': 1.69, 'Co': 1.38, 'Cr': 1.39, 'Cs': 2.44, 'Cu': 1.32, 'Dy': 1.92, 'Er': 1.89, 'Eu': 1.98, 'F': 0.57, 'Fe': 1.42, 'Fr': 2.6, 'Ga': 1.22, 'Gd': 1.96, 'Ge': 1.2, 'H': 0.31, 'He': 0.28, 'Hf': 1.75, 'Hg': 1.32, 'Ho': 1.92, 'I': 1.39, 'In': 1.42, 'Ir': 1.41, 'K': 2.03, 'Kr': 1.16, 'La': 2.07, 'Li': 1.28, 'Lu': 1.87, 'Mg': 1.41, 'Mn': 1.5, 'Mo': 1.54, 'N': 0.71, 'Na': 1.66, 'Nb': 1.64, 'Nd': 2.01, 'Ne': 0.58, 'Ni': 1.24, 'Np': 1.9, 'O': 0.66, 'Os': 1.44, 'P': 1.07, 'Pa': 2.0, 'Pb': 1.46, 'Pd': 1.39, 'Pm': 1.99, 'Po': 1.4, 'Pr': 2.03, 'Pt': 1.36, 'Pu': 1.87, 'Ra': 2.21, 'Rb': 2.2, 'Re': 1.51, 'Rh': 1.42, 'Rn': 1.5, 'Ru': 1.46, 'S': 1.05, 'Sb': 1.39, 'Sc': 1.7, 'Se': 1.2, 'Si': 1.11, 'Sm': 1.98, 'Sn': 1.39, 'Sr': 1.95, 'Ta': 1.7, 'Tb': 1.94, 'Tc': 1.47, 'Te': 1.38, 'Th': 2.06, 'Ti': 1.6, 'Tl': 1.45, 'Tm': 1.9, 'U': 1.96, 'V': 1.53, 'W': 1.62, 'Xe': 1.4, 'Y': 1.9, 'Yb': 1.87, 'Zn': 1.22, 'Zr': 1.75}</span></em>, <em class="sig-param"><span class="n">priority_bonds</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">priority_cap</span><span class="o">=</span><span class="default_value">0.8</span></em>, <em class="sig-param"><span class="n">ignore_ionic_bond</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">bond_13_cap</span><span class="o">=</span><span class="default_value">0.05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/molecule_structure_comparator.py#L136-L301"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MoleculeStructureComparator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond_length_cap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covalent_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Ac':</span> <span class="pre">2.15,</span> <span class="pre">'Ag':</span> <span class="pre">1.45,</span> <span class="pre">'Al':</span> <span class="pre">1.21,</span> <span class="pre">'Am':</span> <span class="pre">1.8,</span> <span class="pre">'Ar':</span> <span class="pre">1.06,</span> <span class="pre">'As':</span> <span class="pre">1.19,</span> <span class="pre">'At':</span> <span class="pre">1.5,</span> <span class="pre">'Au':</span> <span class="pre">1.36,</span> <span class="pre">'B':</span> <span class="pre">0.84,</span> <span class="pre">'Ba':</span> <span class="pre">2.15,</span> <span class="pre">'Be':</span> <span class="pre">0.96,</span> <span class="pre">'Bi':</span> <span class="pre">1.48,</span> <span class="pre">'Br':</span> <span class="pre">1.2,</span> <span class="pre">'C':</span> <span class="pre">0.73,</span> <span class="pre">'Ca':</span> <span class="pre">1.76,</span> <span class="pre">'Cd':</span> <span class="pre">1.44,</span> <span class="pre">'Ce':</span> <span class="pre">2.04,</span> <span class="pre">'Cl':</span> <span class="pre">1.02,</span> <span class="pre">'Cm':</span> <span class="pre">1.69,</span> <span class="pre">'Co':</span> <span class="pre">1.38,</span> <span class="pre">'Cr':</span> <span class="pre">1.39,</span> <span class="pre">'Cs':</span> <span class="pre">2.44,</span> <span class="pre">'Cu':</span> <span class="pre">1.32,</span> <span class="pre">'Dy':</span> <span class="pre">1.92,</span> <span class="pre">'Er':</span> <span class="pre">1.89,</span> <span class="pre">'Eu':</span> <span class="pre">1.98,</span> <span class="pre">'F':</span> <span class="pre">0.57,</span> <span class="pre">'Fe':</span> <span class="pre">1.42,</span> <span class="pre">'Fr':</span> <span class="pre">2.6,</span> <span class="pre">'Ga':</span> <span class="pre">1.22,</span> <span class="pre">'Gd':</span> <span class="pre">1.96,</span> <span class="pre">'Ge':</span> <span class="pre">1.2,</span> <span class="pre">'H':</span> <span class="pre">0.31,</span> <span class="pre">'He':</span> <span class="pre">0.28,</span> <span class="pre">'Hf':</span> <span class="pre">1.75,</span> <span class="pre">'Hg':</span> <span class="pre">1.32,</span> <span class="pre">'Ho':</span> <span class="pre">1.92,</span> <span class="pre">'I':</span> <span class="pre">1.39,</span> <span class="pre">'In':</span> <span class="pre">1.42,</span> <span class="pre">'Ir':</span> <span class="pre">1.41,</span> <span class="pre">'K':</span> <span class="pre">2.03,</span> <span class="pre">'Kr':</span> <span class="pre">1.16,</span> <span class="pre">'La':</span> <span class="pre">2.07,</span> <span class="pre">'Li':</span> <span class="pre">1.28,</span> <span class="pre">'Lu':</span> <span class="pre">1.87,</span> <span class="pre">'Mg':</span> <span class="pre">1.41,</span> <span class="pre">'Mn':</span> <span class="pre">1.5,</span> <span class="pre">'Mo':</span> <span class="pre">1.54,</span> <span class="pre">'N':</span> <span class="pre">0.71,</span> <span class="pre">'Na':</span> <span class="pre">1.66,</span> <span class="pre">'Nb':</span> <span class="pre">1.64,</span> <span class="pre">'Nd':</span> <span class="pre">2.01,</span> <span class="pre">'Ne':</span> <span class="pre">0.58,</span> <span class="pre">'Ni':</span> <span class="pre">1.24,</span> <span class="pre">'Np':</span> <span class="pre">1.9,</span> <span class="pre">'O':</span> <span class="pre">0.66,</span> <span class="pre">'Os':</span> <span class="pre">1.44,</span> <span class="pre">'P':</span> <span class="pre">1.07,</span> <span class="pre">'Pa':</span> <span class="pre">2.0,</span> <span class="pre">'Pb':</span> <span class="pre">1.46,</span> <span class="pre">'Pd':</span> <span class="pre">1.39,</span> <span class="pre">'Pm':</span> <span class="pre">1.99,</span> <span class="pre">'Po':</span> <span class="pre">1.4,</span> <span class="pre">'Pr':</span> <span class="pre">2.03,</span> <span class="pre">'Pt':</span> <span class="pre">1.36,</span> <span class="pre">'Pu':</span> <span class="pre">1.87,</span> <span class="pre">'Ra':</span> <span class="pre">2.21,</span> <span class="pre">'Rb':</span> <span class="pre">2.2,</span> <span class="pre">'Re':</span> <span class="pre">1.51,</span> <span class="pre">'Rh':</span> <span class="pre">1.42,</span> <span class="pre">'Rn':</span> <span class="pre">1.5,</span> <span class="pre">'Ru':</span> <span class="pre">1.46,</span> <span class="pre">'S':</span> <span class="pre">1.05,</span> <span class="pre">'Sb':</span> <span class="pre">1.39,</span> <span class="pre">'Sc':</span> <span class="pre">1.7,</span> <span class="pre">'Se':</span> <span class="pre">1.2,</span> <span class="pre">'Si':</span> <span class="pre">1.11,</span> <span class="pre">'Sm':</span> <span class="pre">1.98,</span> <span class="pre">'Sn':</span> <span class="pre">1.39,</span> <span class="pre">'Sr':</span> <span class="pre">1.95,</span> <span class="pre">'Ta':</span> <span class="pre">1.7,</span> <span class="pre">'Tb':</span> <span class="pre">1.94,</span> <span class="pre">'Tc':</span> <span class="pre">1.47,</span> <span class="pre">'Te':</span> <span class="pre">1.38,</span> <span class="pre">'Th':</span> <span class="pre">2.06,</span> <span class="pre">'Ti':</span> <span class="pre">1.6,</span> <span class="pre">'Tl':</span> <span class="pre">1.45,</span> <span class="pre">'Tm':</span> <span class="pre">1.9,</span> <span class="pre">'U':</span> <span class="pre">1.96,</span> <span class="pre">'V':</span> <span class="pre">1.53,</span> <span class="pre">'W':</span> <span class="pre">1.62,</span> <span class="pre">'Xe':</span> <span class="pre">1.4,</span> <span class="pre">'Y':</span> <span class="pre">1.9,</span> <span class="pre">'Yb':</span> <span class="pre">1.87,</span> <span class="pre">'Zn':</span> <span class="pre">1.22,</span> <span class="pre">'Zr':</span> <span class="pre">1.75}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority_cap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ionic_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_13_cap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/molecule_structure_comparator.py#L135-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to check whether the connection tables of the two molecules are the
 same. The atom in the two molecule must be paired accordingly.</p>
@@ -248,8 +159,8 @@ acknowledged for the priority bonds.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal">
-<code class="sig-name descname">are_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/molecule_structure_comparator.py#L192-L202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal">
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/molecule_structure_comparator.py#L191-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>Compare the bond table of the two molecules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -262,14 +173,14 @@ acknowledged for the priority bonds.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/molecule_structure_comparator.py#L272-L284"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/molecule_structure_comparator.py#L271-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/molecule_structure_comparator.py#L286-L301"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/molecule_structure_comparator.py#L285-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -281,8 +192,8 @@ acknowledged for the priority bonds.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds">
-<em class="property">static </em><code class="sig-name descname">get_13_bonds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">priority_bonds</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/molecule_structure_comparator.py#L204-L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_13_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priority_bonds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/molecule_structure_comparator.py#L203-L219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>priority_bonds</em>) – </p>
@@ -292,57 +203,45 @@ acknowledged for the priority bonds.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list">
-<code class="sig-name descname">halogen_list</code><em class="property"> = ['F', 'Cl', 'Br', 'I']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/molecule_structure_comparator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list">
+<span class="sig-name descname"><span class="pre">halogen_list</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['F',</span> <span class="pre">'Cl',</span> <span class="pre">'Br',</span> <span class="pre">'I']</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/molecule_structure_comparator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list">
-<code class="sig-name descname">ionic_element_list</code><em class="property"> = ['Na', 'Mg', 'Al', 'Sc', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Rb', 'Sr']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/molecule_structure_comparator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list">
+<span class="sig-name descname"><span class="pre">ionic_element_list</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Na',</span> <span class="pre">'Mg',</span> <span class="pre">'Al',</span> <span class="pre">'Sc',</span> <span class="pre">'V',</span> <span class="pre">'Cr',</span> <span class="pre">'Mn',</span> <span class="pre">'Fe',</span> <span class="pre">'Co',</span> <span class="pre">'Ni',</span> <span class="pre">'Cu',</span> <span class="pre">'Zn',</span> <span class="pre">'Ga',</span> <span class="pre">'Rb',</span> <span class="pre">'Sr']</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/molecule_structure_comparator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

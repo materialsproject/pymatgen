@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.defects.defect_compatibility module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.defects.defect_compatibility module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.defects.defect_compatibility.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.defects.dilute_solution_model module" href="pymatgen.analysis.defects.dilute_solution_model.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,85 +86,41 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects package</a> &raquo;</li>
-        
       <li>pymatgen.analysis.defects.defect_compatibility module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.defects.defect_compatibility.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.defects.defect_compatibility">
-<span id="pymatgen-analysis-defects-defect-compatibility-module"></span><h1>pymatgen.analysis.defects.defect_compatibility module<a class="headerlink" href="#module-pymatgen.analysis.defects.defect_compatibility" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.defects.defect_compatibility">
+<span id="pymatgen-analysis-defects-defect-compatibility-module"></span><h1>pymatgen.analysis.defects.defect_compatibility module<a class="headerlink" href="#module-pymatgen.analysis.defects.defect_compatibility" title="Permalink to this headline"></a></h1>
 <p>This module implements DefectCompatibility analysis for consideration of
 defects</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility">
-<em class="property">class </em><code class="sig-name descname">DefectCompatibility</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plnr_avg_var_tol</span><span class="o">=</span><span class="default_value">0.0001</span></em>, <em class="sig-param"><span class="n">plnr_avg_minmax_tol</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">atomic_site_var_tol</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">atomic_site_minmax_tol</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">tot_relax_tol</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">perc_relax_tol</span><span class="o">=</span><span class="default_value">50.0</span></em>, <em class="sig-param"><span class="n">defect_tot_relax_tol</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">preferred_cc</span><span class="o">=</span><span class="default_value">'freysoldt'</span></em>, <em class="sig-param"><span class="n">free_chg_cutoff</span><span class="o">=</span><span class="default_value">2.1</span></em>, <em class="sig-param"><span class="n">use_bandfilling</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_bandedgeshift</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L35-L680"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DefectCompatibility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plnr_avg_var_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plnr_avg_minmax_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_site_var_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_site_minmax_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tot_relax_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_relax_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_tot_relax_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preferred_cc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'freysoldt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_chg_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_bandfilling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_bandedgeshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L34-L679"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The DefectCompatibility class evaluates corrections and delocalization
 metrics on a DefectEntry. It can only parse based on the available
@@ -269,8 +179,8 @@ sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_final_relaxed_structure_delocalized">
-<code class="sig-name descname">check_final_relaxed_structure_delocalized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L574-L680"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_final_relaxed_structure_delocalized" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_final_relaxed_structure_delocalized">
+<span class="sig-name descname"><span class="pre">check_final_relaxed_structure_delocalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L573-L679"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_final_relaxed_structure_delocalized" title="Permalink to this definition"></a></dt>
 <dd><p>NOTE this assumes initial and final structures have sites indexed in same way</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -283,8 +193,8 @@ sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">
-<code class="sig-name descname">check_freysoldt_delocalized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L477-L526"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">
+<span class="sig-name descname"><span class="pre">check_freysoldt_delocalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L476-L525"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized" title="Permalink to this definition"></a></dt>
 <dd><p>Check for Freysoldt delocalization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -297,8 +207,8 @@ sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized">
-<code class="sig-name descname">check_kumagai_delocalized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L528-L572"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized">
+<span class="sig-name descname"><span class="pre">check_kumagai_delocalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L527-L571"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized" title="Permalink to this definition"></a></dt>
 <dd><p>Check for Kumagai delocalization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -311,8 +221,8 @@ sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis">
-<code class="sig-name descname">delocalization_analysis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L418-L475"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis">
+<span class="sig-name descname"><span class="pre">delocalization_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L417-L474"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis" title="Permalink to this definition"></a></dt>
 <dd><dl>
 <dt>Do delocalization analysis. To do this, one considers:</dt><dd><ol class="lowerroman simple">
 <li><p>sampling region of planar averaged electrostatic potential (freysoldt approach)</p></li>
@@ -334,8 +244,8 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections">
-<code class="sig-name descname">perform_all_corrections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L212-L318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections">
+<span class="sig-name descname"><span class="pre">perform_all_corrections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L211-L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections" title="Permalink to this definition"></a></dt>
 <dd><p>Perform all corrections for a defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -348,8 +258,8 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting">
-<em class="property">static </em><code class="sig-name descname">perform_band_edge_shifting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L397-L416"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perform_band_edge_shifting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L396-L415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting" title="Permalink to this definition"></a></dt>
 <dd><p>Perform band edge shifting correction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -362,8 +272,8 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling">
-<em class="property">static </em><code class="sig-name descname">perform_bandfilling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L371-L395"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perform_bandfilling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L370-L394"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling" title="Permalink to this definition"></a></dt>
 <dd><p>Perform bandfilling correction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -376,8 +286,8 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt">
-<em class="property">static </em><code class="sig-name descname">perform_freysoldt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L320-L339"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perform_freysoldt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L319-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt" title="Permalink to this definition"></a></dt>
 <dd><p>Perform Freysoldt correction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -390,8 +300,8 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai">
-<em class="property">static </em><code class="sig-name descname">perform_kumagai</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L341-L369"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perform_kumagai</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L340-L368"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai" title="Permalink to this definition"></a></dt>
 <dd><p>Perform Kumagai correction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,8 +314,8 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">
-<code class="sig-name descname">process_entry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect_entry</span></em>, <em class="sig-param"><span class="n">perform_corrections</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/defect_compatibility.py#L113-L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">
+<span class="sig-name descname"><span class="pre">process_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perform_corrections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/defect_compatibility.py#L112-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry" title="Permalink to this definition"></a></dt>
 <dd><p>Process a given DefectEntry with qualifiers given from initialization of class.
 Order of processing is:</p>
 <blockquote>
@@ -433,46 +343,34 @@ given initialization of class. If delocalized, flag entry as delocalized
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

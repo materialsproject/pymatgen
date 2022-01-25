@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.elasticity.strain module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.elasticity.strain module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.elasticity.strain.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.elasticity.stress module" href="pymatgen.analysis.elasticity.stress.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,86 +86,42 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.elasticity.html">pymatgen.analysis.elasticity package</a> &raquo;</li>
-        
       <li>pymatgen.analysis.elasticity.strain module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.elasticity.strain.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.elasticity.strain">
-<span id="pymatgen-analysis-elasticity-strain-module"></span><h1>pymatgen.analysis.elasticity.strain module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.strain" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.elasticity.strain">
+<span id="pymatgen-analysis-elasticity-strain-module"></span><h1>pymatgen.analysis.elasticity.strain module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.strain" title="Permalink to this headline"></a></h1>
 <p>This module provides classes and methods used to describe deformations and
 strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation">
-<em class="property">class </em><code class="sig-name descname">Deformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deformation_gradient</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L31-L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Deformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deformation_gradient</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L30-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>Subclass of SquareTensor that describes the deformation gradient tensor</p>
 <p>Create a Deformation object.  Note that the constructor uses __new__
@@ -224,8 +134,8 @@ representing the deformation gradient</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure">
-<code class="sig-name descname">apply_to_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L73-L85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure">
+<span class="sig-name descname"><span class="pre">apply_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L72-L84"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the deformation gradient to a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -236,8 +146,8 @@ be modified by the deformation</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation.from_index_amount">
-<em class="property">classmethod </em><code class="sig-name descname">from_index_amount</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrixpos</span></em>, <em class="sig-param"><span class="n">amt</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L87-L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.from_index_amount" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.from_index_amount">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_index_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrixpos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amt</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L86-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.from_index_amount" title="Permalink to this definition"></a></dt>
 <dd><p>Factory method for constructing a Deformation object
 from a matrix position and amount</p>
 <dl class="field-list simple">
@@ -253,35 +163,35 @@ matrixpos</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices">
-<code class="sig-name descname">get_perturbed_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L57-L63"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices">
+<span class="sig-name descname"><span class="pre">get_perturbed_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L56-L62"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Gets indices of perturbed elements of the deformation gradient,
 i. e. those that differ from the identity</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain">
-<em class="property">property </em><code class="sig-name descname">green_lagrange_strain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">green_lagrange_strain</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain" title="Permalink to this definition"></a></dt>
 <dd><p>calculates the euler-lagrange strain from
 the deformation gradient</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation.is_independent">
-<code class="sig-name descname">is_independent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L51-L55"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.is_independent" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.is_independent">
+<span class="sig-name descname"><span class="pre">is_independent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L50-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.is_independent" title="Permalink to this definition"></a></dt>
 <dd><p>checks to determine whether the deformation is independent</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.elasticity.strain.Deformation.symbol">
-<code class="sig-name descname">symbol</code><em class="property"> = 'd'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.symbol" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.symbol">
+<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'d'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.symbol" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.elasticity.strain.DeformedStructureSet">
-<em class="property">class </em><code class="sig-name descname">DeformedStructureSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">norm_strains</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shear_strains</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">symmetry</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L104-L154"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.DeformedStructureSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.DeformedStructureSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DeformedStructureSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_strains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shear_strains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L103-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.DeformedStructureSet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
 <p>class that generates a set of independently deformed structures that
 can be used to calculate linear stress-strain response</p>
@@ -302,8 +212,8 @@ to each shear mode.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.elasticity.strain.Strain">
-<em class="property">class </em><code class="sig-name descname">Strain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">strain_matrix</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L157-L241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L156-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>Subclass of SquareTensor that describes the Green-Lagrange strain tensor.</p>
 <p>Create a Strain object.  Note that the constructor uses __new__
@@ -317,8 +227,8 @@ representing the Green-Lagrange strain</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Strain.from_deformation">
-<em class="property">classmethod </em><code class="sig-name descname">from_deformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deformation</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L192-L202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_deformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain.from_deformation">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_deformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deformation</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L191-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_deformation" title="Permalink to this definition"></a></dt>
 <dd><p>Factory method that returns a Strain object from a deformation
 gradient</p>
 <dl class="field-list simple">
@@ -329,8 +239,8 @@ gradient</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Strain.from_index_amount">
-<em class="property">classmethod </em><code class="sig-name descname">from_index_amount</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">amount</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L204-L226"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_index_amount" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain.from_index_amount">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_index_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L203-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_index_amount" title="Permalink to this definition"></a></dt>
 <dd><p>Like Deformation.from_index_amount, except generates
 a strain from the zero 3x3 tensor or voigt vector with
 the amount specified in the index location.  Ensures
@@ -347,27 +257,27 @@ full-tensor notation</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix">
-<code class="sig-name descname">get_deformation_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">'upper'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L228-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix">
+<span class="sig-name descname"><span class="pre">get_deformation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'upper'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L227-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>returns the deformation matrix</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.elasticity.strain.Strain.symbol">
-<code class="sig-name descname">symbol</code><em class="property"> = 'e'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.symbol" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain.symbol">
+<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'e'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.symbol" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.elasticity.strain.Strain.von_mises_strain">
-<em class="property">property </em><code class="sig-name descname">von_mises_strain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.von_mises_strain" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain.von_mises_strain">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">von_mises_strain</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.von_mises_strain" title="Permalink to this definition"></a></dt>
 <dd><p>Equivalent strain to Von Mises Stress</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.elasticity.strain.convert_strain_to_deformation">
-<code class="sig-name descname">convert_strain_to_deformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">strain</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">'upper'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/elasticity/strain.py#L244-L264"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.convert_strain_to_deformation">
+<span class="sig-name descname"><span class="pre">convert_strain_to_deformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'upper'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/elasticity/strain.py#L243-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation" title="Permalink to this definition"></a></dt>
 <dd><p>This function converts a strain to a deformation gradient that will
 produce that strain.  Supports three methods:</p>
 <dl class="field-list simple">
@@ -383,46 +293,34 @@ produce that strain.  Supports three methods:</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

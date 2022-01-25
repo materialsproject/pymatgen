@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -160,15 +159,13 @@ class DOS(Spectrum):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
-                )
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
 
 
@@ -368,15 +365,13 @@ class Dos(MSONable):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
-                )
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
 
     @classmethod
@@ -441,7 +436,7 @@ class FermiDos(Dos, MSONable):
             if hasattr(dos, "structure"):
                 structure = dos.structure
             else:
-                raise ValueError("Structure object is not provided and not " "present in dos")
+                raise ValueError("Structure object is not provided and not present in dos")
 
         self.structure = structure
         self.nelecs = nelecs or self.structure.composition.total_electrons
@@ -597,7 +592,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError("Could not find fermi within {}% of concentration={}".format(rtol * 100, concentration))
+            raise ValueError(f"Could not find fermi within {rtol * 100}% of concentration={concentration}")
         return fermi
 
     @classmethod
@@ -774,7 +769,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}

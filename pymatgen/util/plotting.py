@@ -1,21 +1,15 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
 Utilities for generating nicer plots.
 """
 import math
-import sys
-from matplotlib import colors, cm
+from typing import Literal
 
 import numpy as np
+from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitative", "Set1_9")):
@@ -47,7 +41,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
 
         import matplotlib.pyplot as plt
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
+        mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         colors = getattr(mod, color_cycle[1]).mpl_colors
         from cycler import cycler
 
@@ -203,7 +197,7 @@ def periodic_table_heatmap(
     readable_fontcolor=False,
 ):
     """
-    A static method that generates a heat map overlayed on a periodic table.
+    A static method that generates a heat map overlaid on a periodic table.
 
     Args:
          elemental_data (dict): A dictionary with the element as a key and a
@@ -213,7 +207,7 @@ def periodic_table_heatmap(
          cbar_label (string): Label of the colorbar. Default is "".
          cbar_label_size (float): Font size for the colorbar label. Default is 14.
          cmap_range (tuple): Minimum and maximum value of the colormap scale.
-            If None, the colormap will autotmatically scale to the range of the
+            If None, the colormap will automatically scale to the range of the
             data.
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
@@ -361,13 +355,13 @@ def van_arkel_triangle(list_of_materials, annotate=True):
             A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,
                 Interscience, New York (1956)
         and
-            J.A.A Ketelaar, Chemical Constitution (2nd edn.), An Introduction
+            J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
                 to the Theory of the Chemical Bond, Elsevier, New York (1958)
 
     Args:
          list_of_materials (list): A list of computed entries of binary
             materials or a list of lists containing two elements (str).
-         annotate (bool): Whether or not to lable the points on the
+         annotate (bool): Whether or not to label the points on the
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """
@@ -625,7 +619,7 @@ def add_fig_kwargs(func):
             if len(fig.axes) > len(tags):
                 tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
             for ax, tag in zip(fig.axes, tags):
-                ax.annotate("(%s)" % tag, xy=(0.05, 0.95), xycoords="axes fraction")
+                ax.annotate(f"({tag})", xy=(0.05, 0.95), xycoords="axes fraction")
 
         if tight_layout:
             try:

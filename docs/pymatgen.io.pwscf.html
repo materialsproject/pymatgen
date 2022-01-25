@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.io.pwscf module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.io.pwscf module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.io.pwscf.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.shengbte module" href="pymatgen.io.shengbte.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,82 +86,39 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
-        
       <li>pymatgen.io.pwscf module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.pwscf.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.io.pwscf">
-<span id="pymatgen-io-pwscf-module"></span><h1>pymatgen.io.pwscf module<a class="headerlink" href="#module-pymatgen.io.pwscf" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.io.pwscf">
+<span id="pymatgen-io-pwscf-module"></span><h1>pymatgen.io.pwscf module<a class="headerlink" href="#module-pymatgen.io.pwscf" title="Permalink to this headline"></a></h1>
 <p>This module implements input and output processing from PWSCF.</p>
 <dl class="py class">
-<dt id="pymatgen.io.pwscf.PWInput">
-<em class="property">class </em><code class="sig-name descname">PWInput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudo</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">control</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">system</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">electrons</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cell</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kpoints_mode</span><span class="o">=</span><span class="default_value">'automatic'</span></em>, <em class="sig-param"><span class="n">kpoints_grid</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em>, <em class="sig-param"><span class="n">kpoints_shift</span><span class="o">=</span><span class="default_value">0, 0, 0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L22-L495"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PWInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pseudo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoints_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'automatic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoints_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoints_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L21-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base input file class. Right now, only supports no symmetry and is
 very basic.</p>
@@ -238,8 +149,8 @@ on supported parameters. Default to None, which means {}.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWInput.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L171-L186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L179-L194"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Create a dictionary representation of a PWInput object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -249,8 +160,8 @@ on supported parameters. Default to None, which means {}.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWInput.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pwinput_dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L188-L211"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pwinput_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L196-L219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Load a PWInput object from a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -263,8 +174,8 @@ on supported parameters. Default to None, which means {}.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWInput.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L223-L235"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput.from_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L231-L243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Reads an PWInput object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -277,8 +188,8 @@ on supported parameters. Default to None, which means {}.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWInput.from_string">
-<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L237-L354"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_string" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput.from_string">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L245-L360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Reads an PWInput object from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -291,8 +202,8 @@ on supported parameters. Default to None, which means {}.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWInput.proc_val">
-<em class="property">static </em><code class="sig-name descname">proc_val</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L356-L495"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.proc_val" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput.proc_val">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">proc_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L362-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.proc_val" title="Permalink to this definition"></a></dt>
 <dd><p>Static helper method to convert PWINPUT parameters to proper type, e.g.,
 integers, floats, etc.</p>
 <dl class="field-list simple">
@@ -306,8 +217,8 @@ integers, floats, etc.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWInput.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L213-L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInput.write_file">
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L221-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput.write_file" title="Permalink to this definition"></a></dt>
 <dd><p>Write the PWSCF input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -319,15 +230,15 @@ integers, floats, etc.</p>
 </dd></dl>
 
 <dl class="py exception">
-<dt id="pymatgen.io.pwscf.PWInputError">
-<em class="property">exception </em><code class="sig-name descname">PWInputError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L498-L503"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInputError" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWInputError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PWInputError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L504-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInputError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
 <p>Error for PWInput</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.pwscf.PWOutput">
-<em class="property">class </em><code class="sig-name descname">PWOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L506-L595"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWOutput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PWOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L512-L601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parser for PWSCF output file.</p>
 <dl class="field-list simple">
@@ -335,9 +246,9 @@ integers, floats, etc.</p>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename</p>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.io.pwscf.PWOutput.final_energy">
-<em class="property">property </em><code class="sig-name descname">final_energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/io/pwscf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.final_energy" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWOutput.final_energy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">final_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/io/pwscf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.final_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Final energy</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -347,8 +258,8 @@ integers, floats, etc.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWOutput.get_celldm">
-<code class="sig-name descname">get_celldm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L573-L581"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.get_celldm" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWOutput.get_celldm">
+<span class="sig-name descname"><span class="pre">get_celldm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L579-L587"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.get_celldm" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – index</p>
@@ -359,9 +270,9 @@ integers, floats, etc.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.io.pwscf.PWOutput.lattice_type">
-<em class="property">property </em><code class="sig-name descname">lattice_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/io/pwscf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.lattice_type" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWOutput.lattice_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lattice_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/io/pwscf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.lattice_type" title="Permalink to this definition"></a></dt>
 <dd><p>Lattice type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -371,13 +282,13 @@ integers, floats, etc.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.io.pwscf.PWOutput.patterns">
-<code class="sig-name descname">patterns</code><em class="property"> = {'celldm1': 'celldm\\(1\\)=\\s+([\\d\\.]+)\\s', 'celldm2': 'celldm\\(2\\)=\\s+([\\d\\.]+)\\s', 'celldm3': 'celldm\\(3\\)=\\s+([\\d\\.]+)\\s', 'celldm4': 'celldm\\(4\\)=\\s+([\\d\\.]+)\\s', 'celldm5': 'celldm\\(5\\)=\\s+([\\d\\.]+)\\s', 'celldm6': 'celldm\\(6\\)=\\s+([\\d\\.]+)\\s', 'ecut': 'kinetic\\-energy cutoff\\s+=\\s+([\\d\\.\\-]+)\\s+Ry', 'energies': 'total energy\\s+=\\s+([\\d\\.\\-]+)\\sRy', 'lattice_type': 'bravais\\-lattice index\\s+=\\s+(\\d+)', 'nkpts': 'number of k points=\\s+([\\d]+)'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/io/pwscf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.patterns" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWOutput.patterns">
+<span class="sig-name descname"><span class="pre">patterns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'celldm1':</span> <span class="pre">'celldm\\(1\\)=\\s+([\\d\\.]+)\\s',</span> <span class="pre">'celldm2':</span> <span class="pre">'celldm\\(2\\)=\\s+([\\d\\.]+)\\s',</span> <span class="pre">'celldm3':</span> <span class="pre">'celldm\\(3\\)=\\s+([\\d\\.]+)\\s',</span> <span class="pre">'celldm4':</span> <span class="pre">'celldm\\(4\\)=\\s+([\\d\\.]+)\\s',</span> <span class="pre">'celldm5':</span> <span class="pre">'celldm\\(5\\)=\\s+([\\d\\.]+)\\s',</span> <span class="pre">'celldm6':</span> <span class="pre">'celldm\\(6\\)=\\s+([\\d\\.]+)\\s',</span> <span class="pre">'ecut':</span> <span class="pre">'kinetic\\-energy</span> <span class="pre">cutoff\\s+=\\s+([\\d\\.\\-]+)\\s+Ry',</span> <span class="pre">'energies':</span> <span class="pre">'total</span> <span class="pre">energy\\s+=\\s+([\\d\\.\\-]+)\\sRy',</span> <span class="pre">'lattice_type':</span> <span class="pre">'bravais\\-lattice</span> <span class="pre">index\\s+=\\s+(\\d+)',</span> <span class="pre">'nkpts':</span> <span class="pre">'number</span> <span class="pre">of</span> <span class="pre">k</span> <span class="pre">points=\\s+([\\d]+)'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/io/pwscf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.patterns" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.pwscf.PWOutput.read_pattern">
-<code class="sig-name descname">read_pattern</code><span class="sig-paren">(</span><em class="sig-param">patterns</em>, <em class="sig-param">reverse=False</em>, <em class="sig-param">terminate_on_match=False</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../io/pwscf.py#L540-L571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.read_pattern" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.pwscf.PWOutput.read_pattern">
+<span class="sig-name descname"><span class="pre">read_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_on_match=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocess=&lt;class</span> <span class="pre">'str'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../io/pwscf.py#L546-L577"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.read_pattern" title="Permalink to this definition"></a></dt>
 <dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
 <dl class="field-list simple">
@@ -408,46 +319,34 @@ items on one line.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

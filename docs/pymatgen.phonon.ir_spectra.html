@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.phonon.ir_spectra module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.phonon.ir_spectra module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.phonon.ir_spectra.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.phonon.plotter module" href="pymatgen.phonon.plotter.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,85 +86,42 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.phonon.html">pymatgen.phonon package</a> &raquo;</li>
-        
       <li>pymatgen.phonon.ir_spectra module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.phonon.ir_spectra.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.phonon.ir_spectra">
-<span id="pymatgen-phonon-ir-spectra-module"></span><h1>pymatgen.phonon.ir_spectra module<a class="headerlink" href="#module-pymatgen.phonon.ir_spectra" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.phonon.ir_spectra">
+<span id="pymatgen-phonon-ir-spectra-module"></span><h1>pymatgen.phonon.ir_spectra module<a class="headerlink" href="#module-pymatgen.phonon.ir_spectra" title="Permalink to this headline"></a></h1>
 <p>This module provides classes to handle the calculation of the IR spectra
 This implementation is adapted from Abipy
 <a class="reference external" href="https://github.com/abinit/abipy">https://github.com/abinit/abipy</a>
 where it was originally done by Guido Petretto and Matteo Giantomassi</p>
 <dl class="py class">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor">
-<em class="property">class </em><code class="sig-name descname">IRDielectricTensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oscillator_strength</span></em>, <em class="sig-param"><span class="n">ph_freqs_gamma</span></em>, <em class="sig-param"><span class="n">epsilon_infinity</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L27-L196"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IRDielectricTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oscillator_strength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ph_freqs_gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_infinity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L26-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to handle the Ionic Dielectric Tensor
 The implementation is adapted from Abipy
@@ -227,26 +138,27 @@ in Eq. 54 in <a href="#id3"><span class="problematic" id="id4">:cite:`Gonze1997`
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L69-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L68-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Json-serializable dict representation of IRDielectricTensor.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L48-L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L47-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns IRDielectricTensor from dict representation</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra">
-<code class="sig-name descname">get_ir_spectra</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">broad</span><span class="o">=</span><span class="default_value">5e-05</span></em>, <em class="sig-param"><span class="n">emin</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">emax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">divs</span><span class="o">=</span><span class="default_value">500</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L91-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra">
+<span class="sig-name descname"><span class="pre">get_ir_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L90-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra" title="Permalink to this definition"></a></dt>
 <dd><p>The IR spectra is obtained for the different directions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>broad</strong> – a list of broadenings or a single broadening for the phonon peaks</p></li>
-<li><p><strong>emax</strong> (<em>emin</em><em>,</em>) – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emin</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emax</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
 <li><p><strong>divs</strong> – number of frequency samples between emin and emax</p></li>
 </ul>
 </dd>
@@ -266,8 +178,8 @@ in Eq. 54 in <a href="#id3"><span class="problematic" id="id4">:cite:`Gonze1997`
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter">
-<code class="sig-name descname">get_plotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">components</span><span class="o">=</span><span class="default_value">'xx'</span></em>, <em class="sig-param"><span class="n">reim</span><span class="o">=</span><span class="default_value">'reim'</span></em>, <em class="sig-param"><span class="n">broad</span><span class="o">=</span><span class="default_value">5e-05</span></em>, <em class="sig-param"><span class="n">emin</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">emax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">divs</span><span class="o">=</span><span class="default_value">500</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L166-L196"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter">
+<span class="sig-name descname"><span class="pre">get_plotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('xx',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reim'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L165-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter" title="Permalink to this definition"></a></dt>
 <dd><p>Return an instance of the Spectrum plotter containing the different requested components</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,7 +187,8 @@ in Eq. 54 in <a href="#id3"><span class="problematic" id="id4">:cite:`Gonze1997`
 <li><p><strong>components</strong> – A list with the components of the dielectric tensor to plot.
 Can be either two indexes or a string like ‘xx’ to plot the (0,0) component</p></li>
 <li><p><strong>reim</strong> – If ‘re’ (im) is present in the string plots the real (imaginary) part of the dielectric tensor</p></li>
-<li><p><strong>emax</strong> (<em>emin</em><em>,</em>) – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emin</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emax</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
 <li><p><strong>divs</strong> – number of frequency samples between emin and emax</p></li>
 </ul>
 </dd>
@@ -283,28 +196,28 @@ Can be either two indexes or a string like ‘xx’ to plot the (0,0) component<
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum">
-<code class="sig-name descname">get_spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">component</span></em>, <em class="sig-param"><span class="n">reim</span></em>, <em class="sig-param"><span class="n">broad</span><span class="o">=</span><span class="default_value">5e-05</span></em>, <em class="sig-param"><span class="n">emin</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">emax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">divs</span><span class="o">=</span><span class="default_value">500</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L147-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum">
+<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L146-L163"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum" title="Permalink to this definition"></a></dt>
 <dd><p>component: either two indexes or a string like ‘xx’ to plot the (0,0) component
 reim: only “re” or “im”
 broad: a list of broadenings or a single broadening for the phonon peaks</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq">
-<em class="property">property </em><code class="sig-name descname">max_phfreq</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/phonon/ir_spectra.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_phfreq</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/phonon/ir_spectra.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq" title="Permalink to this definition"></a></dt>
 <dd><p>Maximum phonon frequency</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs">
-<em class="property">property </em><code class="sig-name descname">nph_freqs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/phonon/ir_spectra.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nph_freqs</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/phonon/ir_spectra.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs" title="Permalink to this definition"></a></dt>
 <dd><p>Number of phonon frequencies</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/plotting.py#L126-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('xx',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reim'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_phonon_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/plotting.py#L125-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function to generate the Spectrum plotter and directly plot the results</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -360,53 +273,41 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json">
-<code class="sig-name descname">write_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/ir_spectra.py#L82-L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json">
+<span class="sig-name descname"><span class="pre">write_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/ir_spectra.py#L81-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json" title="Permalink to this definition"></a></dt>
 <dd><p>Save a json file with this data</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -140,7 +139,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                 dC[i,k,k] = 0 due to no effect on ith type atom
                 dC[i,j,k] = 0 if i!=j!=k
     """
-    dC = np.zeros((n, n, n), dtype=np.int_)
+    dC = np.zeros((n, n, n), dtype=int)
     for i in range(n):
         for j in range(n):
             for k in range(n):
@@ -200,7 +199,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
             c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n):
-                sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)])
+                sum_mu = sum(mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n))
                 flip = Integer(dC[i, epi, p]) * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
@@ -210,20 +209,20 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     for ind in specie_site_index_map:
         val = 0
         for i in range(*ind):
-            sum_i = sum([c[i, j] * multiplicity[j] for j in range(n)])
+            sum_i = sum(c[i, j] * multiplicity[j] for j in range(n))
             val += sum_i
         total_c.append(val)
 
     c_ratio = [total_c[-1] / total_c[i] for i in range(m)]
 
     # Expression for Omega, the Grand Potential
-    omega1 = e0 - sum([mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n)])
+    omega1 = e0 - sum(mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n))
     omega2 = []
     fm_en_eff = []
     used_dEs = []
     for p_r in range(n):
         for epi in range(n):
-            sum_mu = sum([mu[site_mu_map[j]] * dC[j, epi, p_r] for j in range(n)])
+            sum_mu = sum(mu[site_mu_map[j]] * dC[j, epi, p_r] for j in range(n))
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
             if dE[epi, p_r] not in used_dEs:
@@ -245,7 +244,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         yvals.append(y)
 
     def reduce_mu():
-        omega = [e0 - sum([mu[site_mu_map[i]] * sum(c0[i, :]) for i in range(n)])]
+        omega = [e0 - sum(mu[site_mu_map[i]] * sum(c0[i, :]) for i in range(n))]
         x = solve(omega)
         return x
 
@@ -278,9 +277,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
             # if all(x >= 0 for x in c_val):
             specie_concen = []
             for ind in specie_site_index_map:
-                specie_concen.append(sum([sum(c_val[i, :]) for i in range(*ind)]))
+                specie_concen.append(sum(sum(c_val[i, :]) for i in range(*ind)))
             y_comp = [specie_concen[-1] / specie_concen[i] for i in range(m)]
-            diff = math.sqrt(sum([pow(abs(y_comp[i] - y_vect[i]), 2) for i in range(m)]))
+            diff = math.sqrt(sum(pow(abs(y_comp[i] - y_vect[i]), 2) for i in range(m)))
             if diff < min_diff:
                 min_diff = diff
                 mu_vals = x
@@ -507,8 +506,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         res.append(res1)
 
     res = np.array(res)
-    dtype = [(str("x"), np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n) for j in range(n)]
-    res1 = np.sort(res.view(dtype), order=[str("x")], axis=0)
+    dtype = [("x", np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n) for j in range(n)]
+    res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
     conc_data = {}
     """Because all the plots have identical x-points storing it in a
@@ -853,7 +852,7 @@ def solute_site_preference_finder(
                 dC[i,k,k] = 0 due to no effect on ith type atom
                 dC[i,j,k] = 0 if i!=j!=k
     """
-    dC = np.zeros((n + 1, n + 1, n), dtype=np.int_)
+    dC = np.zeros((n + 1, n + 1, n), dtype=int)
     for i in range(n):
         for j in range(n):
             for k in range(n):
@@ -924,7 +923,7 @@ def solute_site_preference_finder(
             c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n + 1):
-                sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n + 1)])
+                sum_mu = sum(mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n + 1))
                 flip = dC[i, epi, p] * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
@@ -935,7 +934,7 @@ def solute_site_preference_finder(
             host_c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n):
-                sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)])
+                sum_mu = sum(mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n))
                 flip = dC[i, epi, p] * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
@@ -947,7 +946,7 @@ def solute_site_preference_finder(
     for ind in specie_site_index_map:
         val = 0
         for i in range(*ind):
-            sum_i = sum([c[i, j] * multiplicity[j] for j in range(n)])
+            sum_i = sum(c[i, j] * multiplicity[j] for j in range(n))
             val += sum_i
         total_c.append(val)
 
@@ -957,20 +956,20 @@ def solute_site_preference_finder(
     for ind in specie_site_index_map[:-1]:
         val = 0
         for i in range(*ind):
-            sum_i = sum([host_c[i, j] * multiplicity[j] for j in range(n)])
+            sum_i = sum(host_c[i, j] * multiplicity[j] for j in range(n))
             val += sum_i
         host_total_c.append(val)
 
     host_c_ratio = [host_total_c[i] / sum(host_total_c) for i in range(m - 1)]
 
     # Expression for Omega, the Grand Potential
-    omega1 = e0 - sum([mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n)])
+    omega1 = e0 - sum(mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n))
     omega = omega1
 
     used_dEs = []
     for p_r in range(n):
         for epi in range(n):
-            sum_mu1 = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p_r]) for j in range(n)])
+            sum_mu1 = sum(mu[site_mu_map[j]] * Integer(dC[j, epi, p_r]) for j in range(n))
             sum_mu = sum_mu1 - mu[site_mu_map[n]] * dC[n, epi, p_r]
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
@@ -1001,7 +1000,7 @@ def solute_site_preference_finder(
         for i in range(n):
             new_c0[i, i] = host_concen * c0[i, i]
         new_c0[n, n] = 2 * solute_concen
-        omega = [e0 - sum([mu[site_mu_map[i]] * sum(new_c0[i, :]) for i in range(n + 1)])]
+        omega = [e0 - sum(mu[site_mu_map[i]] * sum(new_c0[i, :]) for i in range(n + 1))]
         x = solve(omega)
         return x
 
@@ -1166,8 +1165,8 @@ def solute_site_preference_finder(
         res.append(res1)
 
     res = np.array(res)
-    dtype = [(str("x"), np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n + 1) for j in range(n)]
-    res1 = np.sort(res.view(dtype), order=[str("x")], axis=0)
+    dtype = [("x", np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n + 1) for j in range(n)]
+    res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
     conc = []
     for i in range(n + 1):

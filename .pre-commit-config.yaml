@@ -1,18 +1,40 @@
+exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
+
 repos:
   - repo: https://github.com/psf/black
-    rev: 20.8b1 # Replace by any tag/version: https://github.com/psf/black/tags
+    rev: 21.12b0
     hooks:
-    - id: black
-      language_version: python3 # Should be a command that runs python3.6+
+      - id: black
+
   - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: '36ae6523465f8ba6936f6b63c3df94ab237eda00'  # Use the sha / tag you want to point at
+    rev: v3.0.0a4
     hooks:
-    - id: pylint
+      - id: pylint
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v4.1.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
       - id: flake8
-        args: ["--max-line-length=120"]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.0
+    hooks:
+      - id: pyupgrade
+        args: [--py38-plus]
+
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        args:
+          - --in-place
+          - --remove-unused-variables
+          - --remove-all-unused-imports
+          - --expand-star-imports

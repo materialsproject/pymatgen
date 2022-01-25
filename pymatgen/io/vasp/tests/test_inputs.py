@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -292,7 +291,7 @@ direct
         self.assertRaises(ValueError, setattr, poscar, "velocities", [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
         ans = """
-        LiFePO4
+        Fe4P4O16
 1.0
 10.411767 0.000000 0.000000
 0.000000 6.067172 0.000000
@@ -382,12 +381,10 @@ class IncarTest(PymatgenTest):
         self.assertEqual(type(incar["LORBIT"]), int)
 
     def test_diff(self):
-        incar = self.incar
         filepath1 = PymatgenTest.TEST_FILES_DIR / "INCAR"
         incar1 = Incar.from_file(filepath1)
         filepath2 = PymatgenTest.TEST_FILES_DIR / "INCAR.2"
         incar2 = Incar.from_file(filepath2)
-        filepath3 = PymatgenTest.TEST_FILES_DIR / "INCAR.3"
         incar3 = Incar.from_file(filepath2)
         self.assertEqual(
             incar1.diff(incar2),
@@ -589,8 +586,8 @@ TIME       =  0.4"""
         magmom2 = [-1, -1, -1, 0, 0, 0, 0, 0]
         magmom4 = [Magmom([1.0, 2.0, 2.0])]
 
-        ans_string1 = "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\n" "MAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
-        ans_string2 = "LANGEVIN_GAMMA = 10\nLSORBIT = True\n" "MAGMOM = 3*3*-1 3*5*0\n"
+        ans_string1 = "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\nMAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
+        ans_string2 = "LANGEVIN_GAMMA = 10\nLSORBIT = True\nMAGMOM = 3*3*-1 3*5*0\n"
         ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
         ans_string4_nolsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = False\nMAGMOM = 1*3.0\n"
         ans_string4_lsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = True\nMAGMOM = 1.0 2.0 2.0\n"
@@ -675,7 +672,7 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into nonsensical parameters
-        with self.assertWarns(BadIncarWarning) as cm:
+        with self.assertWarns(BadIncarWarning):
             incar = Incar(
                 {
                     "ADDGRID": True,
@@ -785,6 +782,9 @@ Cartesian
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         self.assertEqual(kpoints.kpts, [[6, 10, 13]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], True)
+        self.assertEqual(kpoints.kpts, [[5, 9, 1]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure
@@ -938,7 +938,7 @@ class PotcarSingleTest(PymatgenTest):
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None) as warning:
+        with pytest.warns(None):
             psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
@@ -980,7 +980,7 @@ class PotcarTest(PymatgenTest):
         # code just grabs the POTCAR from the config file (the config file would
         # grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
-        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in " "for POTCAR")
+        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in for POTCAR")
 
     def test_to_from_dict(self):
         d = self.potcar.as_dict()
@@ -1054,7 +1054,7 @@ class VaspInputTest(PymatgenTest):
         # To add some test.
         with ScratchDir(".") as d:
             self.vinput.run_vasp(d, vasp_cmd=["cat", "INCAR"])
-            with open(os.path.join(d, "vasp.out"), "r") as f:
+            with open(os.path.join(d, "vasp.out")) as f:
                 output = f.read()
                 self.assertEqual(output.split("\n")[0], "ALGO = Damped")
 

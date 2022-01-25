@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.defects.core module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.defects.core module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.defects.core.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.defects.corrections module" href="pymatgen.analysis.defects.corrections.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,84 +86,40 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects package</a> &raquo;</li>
-        
       <li>pymatgen.analysis.defects.core module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.defects.core.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.defects.core">
-<span id="pymatgen-analysis-defects-core-module"></span><h1>pymatgen.analysis.defects.core module<a class="headerlink" href="#module-pymatgen.analysis.defects.core" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.defects.core">
+<span id="pymatgen-analysis-defects-core-module"></span><h1>pymatgen.analysis.defects.core module<a class="headerlink" href="#module-pymatgen.analysis.defects.core" title="Permalink to this headline"></a></h1>
 <p>Base classes representing defects.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.core.Defect">
-<em class="property">class </em><code class="sig-name descname">Defect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">defect_site</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">multiplicity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L33-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Defect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L32-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract class for a single point defect</p>
 <p>Initializes an abstract defect</p>
@@ -229,21 +139,21 @@ used to generate multiplicity.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.bulk_structure">
-<em class="property">property </em><code class="sig-name descname">bulk_structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.bulk_structure" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.bulk_structure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bulk_structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.bulk_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the structure without any defects.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.charge">
-<em class="property">property </em><code class="sig-name descname">charge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.charge" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.charge">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.charge" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the charge of a defect</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L123-L130"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.copy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L122-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.copy" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get a copy of the defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -252,63 +162,63 @@ used to generate multiplicity.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.defect_composition">
-<em class="property">abstract property </em><code class="sig-name descname">defect_composition</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.defect_composition" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.defect_composition">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defect_composition</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.defect_composition" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the defect composition as a Composition object</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.generate_defect_structure">
-<em class="property">abstract </em><code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L98-L105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.generate_defect_structure">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_defect_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L97-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.generate_defect_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Given structure and defect_site (and type of defect) should return a defect_structure that is charged
 :param supercell: supercell integer, vector, or scaling matrix
 :type supercell: int, [3x1], or [[]] (3x3)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.get_multiplicity">
-<em class="property">abstract </em><code class="sig-name descname">get_multiplicity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L115-L121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.get_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.get_multiplicity">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_multiplicity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L114-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.get_multiplicity" title="Permalink to this definition"></a></dt>
 <dd><p>Method to determine multiplicity. For non-Interstitial objects, also confirms that defect_site
 is a site in bulk_structure.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.multiplicity">
-<em class="property">property </em><code class="sig-name descname">multiplicity</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.multiplicity" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.multiplicity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">multiplicity</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.multiplicity" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the multiplicity of a defect site within the structure (needed for concentration analysis)</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.name">
-<em class="property">abstract property </em><code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.name">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.name" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a name for this defect</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.set_charge">
-<code class="sig-name descname">set_charge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_charge</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L132-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.set_charge" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.set_charge">
+<span class="sig-name descname"><span class="pre">set_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L131-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.set_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Sets the overall charge
 :param charge: new charge to set
 :type charge: float</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Defect.site">
-<em class="property">property </em><code class="sig-name descname">site</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.site" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Defect.site">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">site</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.site" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the defect position as a site object</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.core.DefectCorrection">
-<em class="property">class </em><code class="sig-name descname">DefectCorrection</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L686-L722"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectCorrection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DefectCorrection</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L683-L719"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A Correction class modeled off the computed entry correction format</p>
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectCorrection.correct_entry">
-<code class="sig-name descname">correct_entry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L708-L722"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection.correct_entry" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectCorrection.correct_entry">
+<span class="sig-name descname"><span class="pre">correct_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L705-L719"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection.correct_entry" title="Permalink to this definition"></a></dt>
 <dd><p>Corrects a single entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -324,8 +234,8 @@ is a site in bulk_structure.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectCorrection.get_correction">
-<em class="property">abstract </em><code class="sig-name descname">get_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L691-L706"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectCorrection.get_correction">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L688-L703"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection.get_correction" title="Permalink to this definition"></a></dt>
 <dd><p>Returns correction for a single entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -344,8 +254,8 @@ correction_name: energy_correction</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.core.DefectEntry">
-<em class="property">class </em><code class="sig-name descname">DefectEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect</span></em>, <em class="sig-param"><span class="n">uncorrected_energy</span></em>, <em class="sig-param"><span class="n">corrections</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L488-L683"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DefectEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncorrected_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L487-L680"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An lightweight DefectEntry object containing key computed data
 for many defect analysis.</p>
@@ -368,14 +278,14 @@ type</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L532-L545"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L531-L544"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Json-serializable dict representation of DefectEntry</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.bulk_structure">
-<em class="property">property </em><code class="sig-name descname">bulk_structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.bulk_structure" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.bulk_structure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bulk_structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.bulk_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Structure object of bulk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -384,9 +294,9 @@ type</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.charge">
-<em class="property">property </em><code class="sig-name descname">charge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.charge" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.charge">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.charge" title="Permalink to this definition"></a></dt>
 <dd><p>Charge of defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -396,8 +306,8 @@ type</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L606-L614"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.copy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L605-L613"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.copy" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get a copy of the DefectEntry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -407,8 +317,8 @@ type</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.defect_concentration">
-<code class="sig-name descname">defect_concentration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chemical_potentials</span></em>, <em class="sig-param"><span class="n">temperature</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">fermi_level</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L650-L666"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.defect_concentration" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.defect_concentration">
+<span class="sig-name descname"><span class="pre">defect_concentration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_potentials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L647-L663"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.defect_concentration" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the defect concentration for a temperature and Fermi level.
 :param temperature: the temperature in K
 :param fermi_level: the fermi level in eV (with respect to the VBM)</p>
@@ -419,9 +329,9 @@ type</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.energy">
-<em class="property">property </em><code class="sig-name descname">energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.energy" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.energy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.energy" title="Permalink to this definition"></a></dt>
 <dd><p><em>Corrected</em> energy of the entry</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -431,8 +341,8 @@ type</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.formation_energy">
-<code class="sig-name descname">formation_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chemical_potentials</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fermi_level</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L616-L648"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.formation_energy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.formation_energy">
+<span class="sig-name descname"><span class="pre">formation_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_potentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L615-L645"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.formation_energy" title="Permalink to this definition"></a></dt>
 <dd><dl>
 <dt>Compute the formation energy for a defect taking into account a given chemical potential and fermi_level</dt><dd><dl>
 <dt>Args:</dt><dd><blockquote>
@@ -461,8 +371,8 @@ by a band structure calculation)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L547-L569"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L546-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Reconstitute a DefectEntry object from a dict representation created using
 as_dict().</p>
 <blockquote>
@@ -475,9 +385,9 @@ as_dict().</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.multiplicity">
-<em class="property">property </em><code class="sig-name descname">multiplicity</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.multiplicity" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.multiplicity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">multiplicity</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.multiplicity" title="Permalink to this definition"></a></dt>
 <dd><p>Multiplicity of defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -486,9 +396,9 @@ as_dict().</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.name" title="Permalink to this definition"></a></dt>
 <dd><p>Defect name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -497,9 +407,9 @@ as_dict().</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.DefectEntry.site">
-<em class="property">property </em><code class="sig-name descname">site</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.site" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.DefectEntry.site">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">site</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.site" title="Permalink to this definition"></a></dt>
 <dd><p>Site of defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -511,8 +421,8 @@ as_dict().</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.core.Interstitial">
-<em class="property">class </em><code class="sig-name descname">Interstitial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">defect_site</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">site_name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">multiplicity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L309-L423"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Interstitial">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Interstitial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L308-L422"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.Defect</span></code></a></p>
 <p>Subclass of Defect to capture essential information for a single Interstitial defect structure.</p>
 <p>Initializes an interstial defect.
@@ -546,9 +456,9 @@ significant relaxation.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Interstitial.defect_composition">
-<em class="property">property </em><code class="sig-name descname">defect_composition</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.defect_composition" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Interstitial.defect_composition">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defect_composition</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.defect_composition" title="Permalink to this definition"></a></dt>
 <dd><p>Defect composition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -558,8 +468,8 @@ significant relaxation.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Interstitial.generate_defect_structure">
-<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L353-L390"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Interstitial.generate_defect_structure">
+<span class="sig-name descname"><span class="pre">generate_defect_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L352-L389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.generate_defect_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns Defective Interstitial structure, decorated with charge
 If bulk structure had any site properties, all of these properties are
 removed in the resulting defect structure</p>
@@ -571,22 +481,22 @@ removed in the resulting defect structure</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Interstitial.get_multiplicity">
-<code class="sig-name descname">get_multiplicity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L392-L414"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.get_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Interstitial.get_multiplicity">
+<span class="sig-name descname"><span class="pre">get_multiplicity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L391-L413"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.get_multiplicity" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the multiplicity of a defect site within the structure (needed for concentration analysis)</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Interstitial.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Interstitial.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.name" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a name for this defect</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.core.Substitution">
-<em class="property">class </em><code class="sig-name descname">Substitution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">defect_site</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">multiplicity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L209-L306"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Substitution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Substitution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L208-L305"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.Defect</span></code></a></p>
 <p>Subclass of Defect to capture essential information for a single Substitution defect structure.</p>
 <p>Initializes an abstract defect</p>
@@ -606,9 +516,9 @@ used to generate multiplicity.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Substitution.defect_composition">
-<em class="property">property </em><code class="sig-name descname">defect_composition</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.defect_composition" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Substitution.defect_composition">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defect_composition</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.defect_composition" title="Permalink to this definition"></a></dt>
 <dd><p>Composition of defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -618,8 +528,8 @@ used to generate multiplicity.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Substitution.generate_defect_structure">
-<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L231-L275"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Substitution.generate_defect_structure">
+<span class="sig-name descname"><span class="pre">generate_defect_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L230-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.generate_defect_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns Defective Substitution structure, decorated with charge.
 If bulk structure had any site properties, all of these properties are
 removed in the resulting defect structure.</p>
@@ -631,23 +541,23 @@ removed in the resulting defect structure.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Substitution.get_multiplicity">
-<code class="sig-name descname">get_multiplicity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L277-L293"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.get_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Substitution.get_multiplicity">
+<span class="sig-name descname"><span class="pre">get_multiplicity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L276-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.get_multiplicity" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
 and confirms that defect_site is a site in bulk_structure.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Substitution.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Substitution.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.name" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a name for this defect</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.defects.core.Vacancy">
-<em class="property">class </em><code class="sig-name descname">Vacancy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">defect_site</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">multiplicity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L141-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Vacancy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Vacancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L140-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.Defect</span></code></a></p>
 <p>Subclass of Defect to capture essential information for a single Vacancy defect structure.</p>
 <p>Initializes an abstract defect</p>
@@ -667,9 +577,9 @@ used to generate multiplicity.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Vacancy.defect_composition">
-<em class="property">property </em><code class="sig-name descname">defect_composition</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.defect_composition" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Vacancy.defect_composition">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defect_composition</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.defect_composition" title="Permalink to this definition"></a></dt>
 <dd><p>Composition of defect.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -679,31 +589,31 @@ used to generate multiplicity.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Vacancy.generate_defect_structure">
-<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L155-L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Vacancy.generate_defect_structure">
+<span class="sig-name descname"><span class="pre">generate_defect_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L154-L180"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.generate_defect_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns Defective Vacancy structure, decorated with charge
 :param supercell: supercell integer, vector, or scaling matrix
 :type supercell: int, [3x1], or [[]] (3x3)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Vacancy.get_multiplicity">
-<code class="sig-name descname">get_multiplicity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L183-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.get_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Vacancy.get_multiplicity">
+<span class="sig-name descname"><span class="pre">get_multiplicity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L182-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.get_multiplicity" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
 and confirms that defect_site is a site in bulk_structure.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.defects.core.Vacancy.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/defects/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.Vacancy.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/defects/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.name" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a name for this defect</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.defects.core.create_saturated_interstitial_structure">
-<code class="sig-name descname">create_saturated_interstitial_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">interstitial_def</span></em>, <em class="sig-param"><span class="n">dist_tol</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/defects/core.py#L426-L485"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.create_saturated_interstitial_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.defects.core.create_saturated_interstitial_structure">
+<span class="sig-name descname"><span class="pre">create_saturated_interstitial_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interstitial_def</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/defects/core.py#L425-L484"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.create_saturated_interstitial_structure" title="Permalink to this definition"></a></dt>
 <dd><p>this takes a Interstitial defect object and generates the
 sublattice for it based on the structure’s space group.
 Useful for understanding multiplicity of an interstitial
@@ -726,46 +636,34 @@ but ensuring space group is maintained</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

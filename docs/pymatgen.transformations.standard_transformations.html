@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.transformations.standard_transformations module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.transformations.standard_transformations module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.transformations.standard_transformations.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.transformations.transformation_abc module" href="pymatgen.transformations.transformation_abc.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,85 +86,42 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.transformations.html">pymatgen.transformations package</a> &raquo;</li>
-        
       <li>pymatgen.transformations.standard_transformations module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.transformations.standard_transformations.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.transformations.standard_transformations">
-<span id="pymatgen-transformations-standard-transformations-module"></span><h1>pymatgen.transformations.standard_transformations module<a class="headerlink" href="#module-pymatgen.transformations.standard_transformations" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.transformations.standard_transformations">
+<span id="pymatgen-transformations-standard-transformations-module"></span><h1>pymatgen.transformations.standard_transformations module<a class="headerlink" href="#module-pymatgen.transformations.standard_transformations" title="Permalink to this headline"></a></h1>
 <p>This module defines standard transformations which transforms a structure into
 another structure. Standard transformations operate in a structure-wide manner,
 rather than site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.</p>
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation">
-<em class="property">class </em><code class="sig-name descname">AutoOxiStateDecorationTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symm_tol</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">max_radius</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">max_permutations</span><span class="o">=</span><span class="default_value">100000</span></em>, <em class="sig-param"><span class="n">distance_scale_factor</span><span class="o">=</span><span class="default_value">1.015</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L131-L188"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AutoOxiStateDecorationTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.015</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L130-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation automatically decorates a structure with oxidation
 states using a bond valence approach.</p>
@@ -232,8 +143,8 @@ experimental structure, set this to 1.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L164-L174"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L163-L173"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -245,9 +156,9 @@ experimental structure, set this to 1.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -256,9 +167,9 @@ experimental structure, set this to 1.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -270,8 +181,8 @@ experimental structure, set this to 1.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.ChargedCellTransformation">
-<em class="property">class </em><code class="sig-name descname">ChargedCellTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L985-L1031"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ChargedCellTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargedCellTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L984-L1030"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>The ChargedCellTransformation applies a charge to a structure (or defect
 object).</p>
@@ -282,8 +193,8 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L999-L1011"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L998-L1010"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -295,9 +206,9 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>NotImplementedError</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -306,9 +217,9 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -320,8 +231,8 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation">
-<em class="property">class </em><code class="sig-name descname">ConventionalCellTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">international_monoclinic</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L753-L801"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConventionalCellTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L752-L800"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This class finds the conventional cell of the input structure.</p>
 <dl class="field-list simple">
@@ -335,8 +246,8 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dl>
 <p>as the non-right-angle in the unit cell</p>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L770-L781"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L769-L780"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Returns most primitive cell for structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -348,9 +259,9 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -359,9 +270,9 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -373,8 +284,8 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.DeformStructureTransformation">
-<em class="property">class </em><code class="sig-name descname">DeformStructureTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deformation</span><span class="o">=</span><span class="default_value">1, 0, 0, 0, 1, 0, 0, 0, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L863-L907"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DeformStructureTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DeformStructureTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((1,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1))</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L862-L906"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation deforms a structure by a deformation gradient matrix</p>
 <dl class="field-list simple">
@@ -383,8 +294,8 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L876-L886"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L875-L885"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -396,16 +307,16 @@ Defaults to zero. Has to be a single integer. e.g. 2</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 Inverse Transformation.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -417,8 +328,8 @@ Inverse Transformation.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation">
-<em class="property">class </em><code class="sig-name descname">DiscretizeOccupanciesTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_denominator</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_denominator</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L910-L982"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DiscretizeOccupanciesTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_denominator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_denominator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L909-L981"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Discretizes the site occupancies in a disordered structure; useful for
 grouping similar structures or as a pre-processing step for order-disorder
@@ -439,8 +350,8 @@ that might require large cell sizes to perform an enumeration.
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L937-L962"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L936-L961"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Discretizes the site occupancies in the structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -452,9 +363,9 @@ that might require large cell sizes to perform an enumeration.
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -463,9 +374,9 @@ that might require large cell sizes to perform an enumeration.
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -477,8 +388,8 @@ that might require large cell sizes to perform an enumeration.
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation">
-<em class="property">class </em><code class="sig-name descname">OrderDisorderedStructureTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">algo</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">symmetrized_structures</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_oxi_states</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L497-L699"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OrderDisorderedStructureTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrized_structures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_oxi_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L496-L698"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Order a disordered structure. The disordered structure must be oxidation
 state decorated for ewald sum to be computed. No attempt is made to perform
@@ -513,23 +424,23 @@ ordering.</p></li>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST">
-<code class="sig-name descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST">
+<span class="sig-name descname"><span class="pre">ALGO_BEST_FIRST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE">
-<code class="sig-name descname">ALGO_COMPLETE</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE">
+<span class="sig-name descname"><span class="pre">ALGO_COMPLETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST">
-<code class="sig-name descname">ALGO_FAST</code><em class="property"> = 0</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST">
+<span class="sig-name descname"><span class="pre">ALGO_FAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">return_ranked_list</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L545-L672"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_ranked_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L544-L671"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>For this transformation, the apply_transformation method will return
 only the ordered structure with the lowest Ewald energy, to be
 consistent with the method signature of the other transformations.
@@ -558,9 +469,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -569,9 +480,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -580,9 +491,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure">
-<em class="property">property </em><code class="sig-name descname">lowest_energy_structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lowest_energy_structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Lowest energy structure found.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -594,21 +505,22 @@ transmuted structure class.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation">
-<em class="property">class </em><code class="sig-name descname">OxidationStateDecorationTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oxidation_states</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L89-L128"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OxidationStateDecorationTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oxidation_states</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L88-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation decorates a structure with oxidation states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>oxidation_states</strong> (<em>dict</em>) – Oxidation states supplied as a dict,</p></li>
-<li><p><strong>{&quot;Li&quot;</strong> (<em>e.g.</em><em>,</em>) – 1, “O”:-2}</p></li>
+<li><p><strong>e.g.</strong> – 1, “O”:-2}</p></li>
+<li><p><strong>{&quot;Li&quot;</strong> – 1, “O”:-2}</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L102-L114"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L101-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -620,9 +532,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -631,9 +543,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -645,14 +557,14 @@ transmuted structure class.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation">
-<em class="property">class </em><code class="sig-name descname">OxidationStateRemovalTransformation</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L191-L228"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OxidationStateRemovalTransformation</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L190-L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation removes oxidation states from a structure.</p>
 <p>No arg needed.</p>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L202-L214"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L201-L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -664,9 +576,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -675,9 +587,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -689,8 +601,8 @@ transmuted structure class.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation">
-<em class="property">class </em><code class="sig-name descname">PartialRemoveSpecieTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specie_to_remove</span></em>, <em class="sig-param"><span class="n">fraction_to_remove</span></em>, <em class="sig-param"><span class="n">algo</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L413-L494"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PartialRemoveSpecieTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specie_to_remove</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fraction_to_remove</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L412-L493"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Remove fraction of specie from a structure.</p>
 <p>Requires an oxidation state decorated structure for ewald sum to be
@@ -712,28 +624,28 @@ variables to set the algo.</p></li>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST">
-<code class="sig-name descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST">
+<span class="sig-name descname"><span class="pre">ALGO_BEST_FIRST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE">
-<code class="sig-name descname">ALGO_COMPLETE</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE">
+<span class="sig-name descname"><span class="pre">ALGO_COMPLETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE">
-<code class="sig-name descname">ALGO_ENUMERATE</code><em class="property"> = 3</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE">
+<span class="sig-name descname"><span class="pre">ALGO_ENUMERATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST">
-<code class="sig-name descname">ALGO_FAST</code><em class="property"> = 0</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST">
+<span class="sig-name descname"><span class="pre">ALGO_FAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">return_ranked_list</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L445-L469"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_ranked_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L444-L468"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -758,9 +670,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -769,9 +681,9 @@ transmuted structure class.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -783,8 +695,8 @@ transmuted structure class.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation">
-<em class="property">class </em><code class="sig-name descname">PerturbStructureTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distance</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">min_distance</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L804-L860"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PerturbStructureTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L803-L859"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation perturbs a structure by a specified distance in random
 directions. Used for breaking symmetries.</p>
@@ -801,8 +713,8 @@ distribution between ‘min_distance’ and ‘distance’.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L828-L840"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L827-L839"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -814,9 +726,9 @@ distribution between ‘min_distance’ and ‘distance’.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -825,9 +737,9 @@ distribution between ‘min_distance’ and ‘distance’.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -839,8 +751,8 @@ distribution between ‘min_distance’ and ‘distance’.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation">
-<em class="property">class </em><code class="sig-name descname">PrimitiveCellTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">0.5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L702-L750"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrimitiveCellTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L701-L749"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This class finds the primitive cell of the input structure.
 It returns a structure that is not necessarily orthogonalized
@@ -854,8 +766,8 @@ tolerance of 0.5. Defaults to 0.5.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L719-L730"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L718-L729"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Returns most primitive cell for structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -868,9 +780,9 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -879,9 +791,9 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -893,8 +805,8 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation">
-<em class="property">class </em><code class="sig-name descname">RemoveSpeciesTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species_to_remove</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L365-L410"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RemoveSpeciesTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_to_remove</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L364-L409"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Remove all occurrences of some species from a structure.</p>
 <dl class="field-list simple">
@@ -903,8 +815,8 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L377-L390"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L376-L389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -916,9 +828,9 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -927,9 +839,9 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -941,8 +853,8 @@ guaranteed to have len(new structure) &lt;= len(structure).</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.RotationTransformation">
-<em class="property">class </em><code class="sig-name descname">RotationTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axis</span></em>, <em class="sig-param"><span class="n">angle</span></em>, <em class="sig-param"><span class="n">angle_in_radians</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L35-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RotationTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RotationTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_in_radians</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L34-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>The RotationTransformation applies a rotation to a structure.</p>
 <dl class="field-list simple">
@@ -956,8 +868,8 @@ Else degrees are assumed.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L53-L65"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L52-L64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -969,16 +881,16 @@ Else degrees are assumed.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RotationTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 Inverse Transformation.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -990,8 +902,8 @@ Inverse Transformation.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation">
-<em class="property">class </em><code class="sig-name descname">ScaleToRelaxedTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unrelaxed_structure</span></em>, <em class="sig-param"><span class="n">relaxed_structure</span></em>, <em class="sig-param"><span class="n">species_map</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L1034-L1116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScaleToRelaxedTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unrelaxed_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relaxed_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L1033-L1115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Takes the unrelaxed and relaxed structure and applies its site and volume
 relaxation to a structurally similar structures (e.g. bulk: NaCl and PbTe
@@ -1015,8 +927,8 @@ generate a disordered structure.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L1072-L1096"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L1071-L1095"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a copy of structure with lattice parameters
 and sites scaled to the same degree as the relaxed_structure.</p>
 <dl class="simple">
@@ -1028,9 +940,9 @@ and sites scaled to the same degree as the relaxed_structure.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1039,9 +951,9 @@ and sites scaled to the same degree as the relaxed_structure.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1053,8 +965,8 @@ and sites scaled to the same degree as the relaxed_structure.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation">
-<em class="property">class </em><code class="sig-name descname">SubstitutionTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species_map</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L298-L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SubstitutionTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SubstitutionTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_map</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L297-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation substitutes species for one another.</p>
 <dl class="field-list simple">
@@ -1068,8 +980,8 @@ generate a disordered structure.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L319-L338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L318-L337"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1081,16 +993,16 @@ generate a disordered structure.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 Inverse Transformation.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1102,8 +1014,8 @@ Inverse Transformation.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation">
-<em class="property">class </em><code class="sig-name descname">SupercellTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaling_matrix</span><span class="o">=</span><span class="default_value">1, 0, 0, 0, 1, 0, 0, 0, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L231-L295"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SupercellTransformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SupercellTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((1,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1))</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L230-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>The RotationTransformation applies a rotation to a structure.</p>
 <dl class="field-list simple">
@@ -1116,8 +1028,8 @@ are the lattice vectors of the original structure.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L265-L275"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation">
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L264-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1130,8 +1042,8 @@ are the lattice vectors of the original structure.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors">
-<em class="property">static </em><code class="sig-name descname">from_scaling_factors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scale_a</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">scale_b</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">scale_c</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../transformations/standard_transformations.py#L247-L263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_scaling_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../transformations/standard_transformations.py#L246-L262"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get a SupercellTransformation from a simple
 series of three numbers for scaling each lattice vector. Equivalent to
 calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
@@ -1150,9 +1062,9 @@ calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SupercellTransformation.inverse">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>NotImplementedError</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1161,9 +1073,9 @@ calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/transformations/standard_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1174,46 +1086,34 @@ calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

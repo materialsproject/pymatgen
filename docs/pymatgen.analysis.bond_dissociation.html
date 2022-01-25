@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.bond_dissociation module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.bond_dissociation module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.bond_dissociation.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.bond_valence module" href="pymatgen.analysis.bond_valence.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,82 +86,39 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
       <li>pymatgen.analysis.bond_dissociation module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.bond_dissociation.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.bond_dissociation">
-<span id="pymatgen-analysis-bond-dissociation-module"></span><h1>pymatgen.analysis.bond_dissociation module<a class="headerlink" href="#module-pymatgen.analysis.bond_dissociation" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.bond_dissociation">
+<span id="pymatgen-analysis-bond-dissociation-module"></span><h1>pymatgen.analysis.bond_dissociation module<a class="headerlink" href="#module-pymatgen.analysis.bond_dissociation" title="Permalink to this headline"></a></h1>
 <p>Module for BondDissociationEnergies.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies">
-<em class="property">class </em><code class="sig-name descname">BondDissociationEnergies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule_entry</span></em>, <em class="sig-param"><span class="n">fragment_entries</span></em>, <em class="sig-param"><span class="n">allow_additional_charge_separation</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">multibreak</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/bond_dissociation.py#L31-L402"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BondDissociationEnergies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule_entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_additional_charge_separation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multibreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/bond_dissociation.py#L30-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Standard constructor for bond dissociation energies. All bonds in the principle molecule are
 looped through and their dissociation energies are calculated given the energies of the resulting
@@ -231,8 +142,8 @@ of self.expected_charges below for more specific information.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.build_new_entry">
-<code class="sig-name descname">build_new_entry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frags</span></em>, <em class="sig-param"><span class="n">bonds</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/bond_dissociation.py#L364-L402"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.build_new_entry" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.build_new_entry">
+<span class="sig-name descname"><span class="pre">build_new_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/bond_dissociation.py#L363-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.build_new_entry" title="Permalink to this definition"></a></dt>
 <dd><p>Simple function to format a bond dissociation entry that will eventually be returned to the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -248,8 +159,8 @@ of self.expected_charges below for more specific information.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.filter_fragment_entries">
-<code class="sig-name descname">filter_fragment_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fragment_entries</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/bond_dissociation.py#L297-L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.filter_fragment_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.filter_fragment_entries">
+<span class="sig-name descname"><span class="pre">filter_fragment_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fragment_entries</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/bond_dissociation.py#L296-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.filter_fragment_entries" title="Permalink to this definition"></a></dt>
 <dd><p>Filter the fragment entries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -262,8 +173,8 @@ of self.expected_charges below for more specific information.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.fragment_and_process">
-<code class="sig-name descname">fragment_and_process</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bonds</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/bond_dissociation.py#L135-L273"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.fragment_and_process" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.fragment_and_process">
+<span class="sig-name descname"><span class="pre">fragment_and_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/bond_dissociation.py#L134-L272"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.fragment_and_process" title="Permalink to this definition"></a></dt>
 <dd><p>Fragment and process bonds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -276,8 +187,8 @@ of self.expected_charges below for more specific information.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.search_fragment_entries">
-<code class="sig-name descname">search_fragment_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frag</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/bond_dissociation.py#L275-L295"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.search_fragment_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.bond_dissociation.BondDissociationEnergies.search_fragment_entries">
+<span class="sig-name descname"><span class="pre">search_fragment_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frag</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/bond_dissociation.py#L274-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_dissociation.BondDissociationEnergies.search_fragment_entries" title="Permalink to this definition"></a></dt>
 <dd><p>Search all fragment entries for those isomorphic to the given fragment.
 We distinguish between entries where both initial and final molgraphs are isomorphic to the
 given fragment (entries) vs those where only the intial molgraph is isomorphic to the given
@@ -291,46 +202,34 @@ fragment (initial_entries) vs those where only the final molgraph is isomorphic 
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

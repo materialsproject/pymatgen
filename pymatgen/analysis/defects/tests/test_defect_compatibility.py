@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -51,7 +50,7 @@ class DefectCompatibilityTest(PymatgenTest):
             "defect_frac_sc_coords": [0.0, 0.0, 0.0],
             "initial_defect_structure": kumagai_defect_structure,
             "dielectric": 18.118 * np.identity(3),
-            "gamma": 0.153156,  # not neccessary to load gamma, but speeds up unit test
+            "gamma": 0.153156,  # not necessary to load gamma, but speeds up unit test
         }
 
         v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))

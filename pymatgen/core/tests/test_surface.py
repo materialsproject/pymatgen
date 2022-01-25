@@ -28,7 +28,6 @@ from pymatgen.util.testing import PymatgenTest
 
 
 def get_path(path_str):
-    cwd = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
     return path
 
@@ -177,7 +176,7 @@ class SlabTest(PymatgenTest):
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
-            total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
             self.assertTrue(slab.is_symmetric())
             self.assertEqual(total_surf_sites / 2, 4)
 
@@ -187,7 +186,7 @@ class SlabTest(PymatgenTest):
             slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
-            total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
             r2 = total_surf_sites / (2 * slab.surface_area)
             self.assertArrayAlmostEqual(r1, r2)
 
@@ -232,7 +231,7 @@ class SlabTest(PymatgenTest):
 
         for i, slabs in enumerate(all_slabs):
 
-            assymetric_count = 0
+            asymmetric_count = 0
             symmetric_count = 0
 
             for i, slab in enumerate(slabs):
@@ -240,12 +239,12 @@ class SlabTest(PymatgenTest):
 
                 # Check if a slab is symmetric
                 if not sg.is_laue():
-                    assymetric_count += 1
+                    asymmetric_count += 1
                 else:
                     symmetric_count += 1
 
             # Check if slabs are all symmetric
-            self.assertEqual(assymetric_count, 0)
+            self.assertEqual(asymmetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
 
         # Check if we can generate symmetric slabs from bulk with no inversion
@@ -713,7 +712,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
     def test_get_d(self):
 
-        # Ensure that regardles of the size of the vacuum or slab
+        # Ensure that regardless of the size of the vacuum or slab
         # layer, the spacing between atomic layers should be the same
 
         recon = ReconstructionGenerator(self.Si, 10, 10, "diamond_100_2x1")

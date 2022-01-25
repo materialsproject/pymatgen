@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -52,7 +51,7 @@ class VoltageProfilePlotter:
                 system, i.e. 'Electrode 1', 'Electrode 2', ...
         """
         if not label:
-            label = "Electrode {}".format(len(self._electrodes) + 1)
+            label = f"Electrode {len(self._electrodes) + 1}"
         self._electrodes[label] = electrode
 
     def get_plot_data(self, electrode, term_zero=True):

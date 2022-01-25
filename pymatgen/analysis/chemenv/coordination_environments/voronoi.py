@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -128,7 +127,7 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.process_time()
-        logging.debug("Neighbors distances and angles set up in {:.2f} seconds".format(t2 - t1))
+        logging.debug(f"Neighbors distances and angles set up in {t2 - t1:.2f} seconds")
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
@@ -149,7 +148,7 @@ class DetailedVoronoiContainer(MSONable):
         logging.debug("Setting up Voronoi list :")
 
         for jj, isite in enumerate(indices):
-            logging.debug("  - Voronoi analysis for site #{:d} ({:d}/{:d})".format(isite, jj + 1, len(indices)))
+            logging.debug(f"  - Voronoi analysis for site #{isite:d} ({jj + 1:d}/{len(indices):d})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -167,7 +166,7 @@ class DetailedVoronoiContainer(MSONable):
                     ridge_vertices_indices = voro.ridge_vertices[iridge]
                     if -1 in ridge_vertices_indices:
                         raise RuntimeError(
-                            "This structure is pathological," " infinite vertex in the voronoi " "construction"
+                            "This structure is pathological, infinite vertex in the voronoi construction"
                         )
 
                     ridge_point2 = max(ridge_points)
@@ -194,7 +193,7 @@ class DetailedVoronoiContainer(MSONable):
             self.voronoi_list2[isite] = results2
             self.voronoi_list_coords[isite] = np.array([dd["site"].coords for dd in results2])
         t2 = time.process_time()
-        logging.debug("Voronoi list set up in {:.2f} seconds".format(t2 - t1))
+        logging.debug(f"Voronoi list set up in {t2 - t1:.2f} seconds")
 
     def setup_neighbors_distances_and_angles(self, indices):
         """
@@ -703,7 +702,7 @@ class DetailedVoronoiContainer(MSONable):
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the distance is not implemented".format(plot_type["distance_parameter"])
+                f"Plotting type \"{plot_type['distance_parameter']}\" for the distance is not implemented"
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -716,7 +715,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the angle is not implemented".format(plot_type["angle_parameter"])
+                f"Plotting type \"{plot_type['angle_parameter']}\" for the angle is not implemented"
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -852,7 +851,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -911,7 +910,7 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
         subplot.plot(xx, yy)
 
         return fig

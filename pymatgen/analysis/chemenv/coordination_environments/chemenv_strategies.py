@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -64,7 +63,6 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of this strategy option.
         """
-        pass
 
 
 class DistanceCutoffFloat(float, StrategyOption):
@@ -165,15 +163,15 @@ class AdditionalConditionInt(int, StrategyOption):
 
     allowed_values = "Integer amongst :\n"
     for integer, description in AdditionalConditions.CONDITION_DESCRIPTION.items():
-        allowed_values += ' - {:d} for "{}"\n'.format(integer, description)
+        allowed_values += f' - {integer:d} for "{description}"\n'
 
     def __new__(cls, integer):
         """Special int representing additional conditions."""
         if str(int(integer)) != str(integer):
-            raise ValueError("Additional condition {} is not an integer".format(str(integer)))
+            raise ValueError(f"Additional condition {integer} is not an integer")
         intger = int.__new__(cls, integer)
         if intger not in AdditionalConditions.ALL:
-            raise ValueError("Additional condition {:d} is not allowed".format(integer))
+            raise ValueError(f"Additional condition {integer:d} is not allowed")
         return intger
 
     def as_dict(self):
@@ -445,14 +443,14 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def __str__(self):
-        out = '  Chemenv Strategy "{}"\n'.format(self.__class__.__name__)
-        out += "  {}\n\n".format("=" * (19 + len(self.__class__.__name__)))
-        out += "  Description :\n  {}\n".format("-" * 13)
+        out = f'  Chemenv Strategy "{self.__class__.__name__}"\n'
+        out += f"  {'=' * (19 + len(self.__class__.__name__))}\n\n"
+        out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
         out += "\n\n"
-        out += "  Options :\n  {}\n".format("-" * 9)
+        out += f"  Options :\n  {'-' * 9}\n"
         for option_name, option_dict in self.STRATEGY_OPTIONS.items():
-            out += "   - {} : {}\n".format(option_name, str(getattr(self, option_name)))
+            out += f"   - {option_name} : {getattr(self, option_name)}\n"
         return out
 
     @abc.abstractmethod
@@ -763,7 +761,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         ce, ce_map = ce_and_map
         if ce is None:
             ce_dict = {
-                "ce_symbol": "UNKNOWN:{:d}".format(ce_map[0]),
+                "ce_symbol": f"UNKNOWN:{ce_map[0]:d}",
                 "ce_dict": None,
                 "ce_fraction": 1.0,
             }
@@ -1236,7 +1234,6 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of this neighbors set weight.
         """
-        pass
 
     @abc.abstractmethod
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
@@ -1248,7 +1245,6 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         :param additional_info: Additional information.
         :return: Weight of the neighbors set.
         """
-        pass
 
 
 class AngleNbSetWeight(NbSetWeight):
@@ -1337,9 +1333,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         elif self.average_type == "arithmetic":
             self.eval = self.aweight
         else:
-            raise ValueError(
-                'Average type is "{}" while it should be ' '"geometric" or "arithmetic"'.format(average_type)
-            )
+            raise ValueError(f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"')
         self.aa = aa
         self.bb = bb
         if self.aa == 0:
@@ -2046,7 +2040,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             raise NotImplementedError()
             # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
-            raise ValueError('Weight type is "{}" while it should be "has_intersection"'.format(weight_type))
+            raise ValueError(f'Weight type is "{weight_type}" while it should be "has_intersection"')
         self.surface_definition = surface_definition
         self.nb_sets_from_hints = nb_sets_from_hints
         self.other_nb_sets = other_nb_sets
@@ -2666,7 +2660,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     ]
                     fractions = self.ce_estimator_fractions(csms)
                     if fractions is None:
-                        ce_symbols.append("UNCLEAR:{:d}".format(cn))
+                        ce_symbols.append(f"UNCLEAR:{cn:d}")
                         ce_dicts.append(None)
                         ce_fractions.append(nb_set_fraction)
                         all_weights = weights_additional_info["weights"][isite][cn_map]
@@ -2687,7 +2681,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                             ce_dict_fractions.append(dict_fractions)
                             ce_maps.append(cn_map)
                 else:
-                    ce_symbols.append("UNCLEAR:{:d}".format(cn))
+                    ce_symbols.append(f"UNCLEAR:{cn:d}")
                     ce_dicts.append(None)
                     ce_fractions.append(nb_set_fraction)
                     all_weights = weights_additional_info["weights"][isite][cn_map]
@@ -2749,14 +2743,12 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
 
         Not implemented for this strategy
         """
-        pass
 
     def get_site_neighbors(self, site):
         """Get the neighbors of a given site.
 
         Not implemented for this strategy.
         """
-        pass
 
     def get_site_coordination_environments(
         self,

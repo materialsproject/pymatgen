@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -17,10 +16,12 @@ from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
 from uncertainties import ufloat
+from tqdm import tqdm
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import (
+    EnergyAdjustment,
     CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
@@ -28,12 +29,12 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-from pymatgen.util.sequence import PBar
+
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 
-__author__ = "Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
+__author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -46,8 +47,6 @@ class CompatibilityError(Exception):
     Exception class for Compatibility. Raised by attempting correction
     on incompatible calculation
     """
-
-    pass
 
 
 class Correction(metaclass=abc.ABCMeta):
@@ -168,7 +167,7 @@ class PotcarCorrection(Correction):
         return ufloat(0.0, 0.0)
 
     def __str__(self):
-        return "{} Potcar Correction".format(self.input_set.__name__)
+        return f"{self.input_set.__name__} Potcar Correction"
 
 
 @cached_class
@@ -199,6 +198,10 @@ class GasCorrection(Correction):
 
         # set error to 0 because old MPCompatibility doesn't have errors
 
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
+
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
             correction += self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
@@ -206,7 +209,7 @@ class GasCorrection(Correction):
         return correction
 
     def __str__(self):
-        return "{} Gas Correction".format(self.name)
+        return f"{self.name} Gas Correction"
 
 
 @cached_class
@@ -241,6 +244,10 @@ class AnionCorrection(Correction):
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -298,7 +305,7 @@ class AnionCorrection(Correction):
         return correction
 
     def __str__(self):
-        return "{} Anion Correction".format(self.name)
+        return f"{self.name} Anion Correction"
 
 
 @cached_class
@@ -340,7 +347,13 @@ class AqueousCorrection(Correction):
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
+
         correction = ufloat(0.0, 0.0)
+
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
                 corr = cpdenergies[rform] * comp.num_atoms - entry.uncorrected_energy - entry.correction
@@ -381,10 +394,11 @@ class AqueousCorrection(Correction):
                 # next, add MU_H2O for each water molecule present
                 correction += ufloat(-1 * MU_H2O * nH2O, 0.0)
                 # correction += 0.5 * 2.46 * nH2O  # this is the old way this correction was calculated
+
         return correction
 
     def __str__(self):
-        return "{} Aqueous Correction".format(self.name)
+        return f"{self.name} Aqueous Correction"
 
 
 @cached_class
@@ -433,7 +447,7 @@ class UCorrection(Correction):
             error_file: Path to the selected compatibilityErrors.yaml config file.
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
+            raise CompatibilityError(f"Invalid compat_type {compat_type}")
 
         c = loadfn(config_file)
 
@@ -461,16 +475,21 @@ class UCorrection(Correction):
         """
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError(
-                "Entry {} has invalid run type {}. Discarding.".format(entry.entry_id, entry.parameters.get("run_type"))
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
             )
 
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
 
-        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
+
         ucorr = self.u_corrections.get(most_electroneg, {})
         usettings = self.u_settings.get(most_electroneg, {})
         uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
@@ -479,14 +498,14 @@ class UCorrection(Correction):
             sym = el.symbol
             # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError("Invalid U value of %s on %s" % (calc_u.get(sym, 0), sym))
+                raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0)} on {sym}")
             if sym in ucorr:
                 correction += ufloat(ucorr[sym], uerrors[sym]) * comp[el]
 
         return correction
 
     def __str__(self):
-        return "{} {} Correction".format(self.name, self.compat_type)
+        return f"{self.name} {self.compat_type} Correction"
 
 
 class Compatibility(MSONable, metaclass=abc.ABCMeta):
@@ -497,7 +516,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: ComputedEntry):
+    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]) -> List[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -516,7 +535,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if the entry is not compatible
         """
-        return
 
     def process_entry(self, entry):
         """
@@ -533,7 +551,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return self.process_entries(entry)[0]
         return None
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True, verbose: bool = False):
+    def process_entries(
+        self, entries: Union[ComputedEntry, ComputedStructureEntry, list], clean: bool = True, verbose: bool = False
+    ):
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
@@ -556,7 +576,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         processed_entry_list = []
 
-        for entry in PBar(entries, disable=(not verbose)):
+        for entry in tqdm(entries, disable=(not verbose)):
             ignore_entry = False
             # if clean is True, remove all previous adjustments from the entry
             if clean:
@@ -613,9 +633,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         if len(entry.energy_adjustments) > 0:
             print("The following energy adjustments have been applied to this entry:")
             for e in entry.energy_adjustments:
-                print(
-                    "\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(e.name, e.value, e.value / entry.composition.num_atoms)
-                )
+                print(f"\t\t{e.name}: {e.value:.3f} eV ({e.value / entry.composition.num_atoms:.3f} eV/atom)")
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 
@@ -747,18 +765,18 @@ class CorrectionsList(Compatibility):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print("The uncorrected value of the energy of %s is %f eV" % (entry.composition, d["uncorrected_energy"]))
-        print("The following corrections / screening are applied for %s:\n" % d["compatibility"])
+        print(f"The uncorrected value of the energy of {entry.composition} is {d['uncorrected_energy']:f} eV")
+        print(f"The following corrections / screening are applied for {d['compatibility']}:\n")
         for c in d["corrections"]:
-            print("%s correction: %s\n" % (c["name"], c["description"]))
-            print("For the entry, this correction has the value %f eV." % c["value"])
+            print(f"{c['name']} correction: {c['description']}\n")
+            print(f"For the entry, this correction has the value {c['value']:f} eV.")
             if c["uncertainty"] != 0 or c["value"] == 0:
-                print("This correction has an uncertainty value of %f eV." % c["uncertainty"])
+                print(f"This correction has an uncertainty value of {c['uncertainty']:f} eV.")
             else:
                 print("This correction does not have uncertainty data available")
             print("-" * 30)
 
-        print("The final energy after corrections is %f" % d["corrected_energy"])
+        print(f"The final energy after corrections is {d['corrected_energy']:f}")
 
 
 class MaterialsProjectCompatibility(CorrectionsList):
@@ -858,7 +876,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
+            raise CompatibilityError(f"Invalid compat_type {compat_type}")
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
@@ -926,7 +944,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         comp = entry.composition
         rform = comp.reduced_formula
         # sorted list of elements, ordered by electronegativity
-        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
 
         # Skip single elements
         if len(comp) == 1:
@@ -1005,7 +1023,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                     self.comp_correction[ox_type],
                     comp["O"],
                     uncertainty_per_atom=self.comp_errors[ox_type],
-                    name="MP2020 anion correction ({})".format(ox_type),
+                    name=f"MP2020 anion correction ({ox_type})",
                     cls=self.as_dict(),
                 )
             )
@@ -1053,7 +1071,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name="MP2020 anion correction ({})".format(anion),
+                            name=f"MP2020 anion correction ({anion})",
                             cls=self.as_dict(),
                         )
                     )
@@ -1070,14 +1088,14 @@ class MaterialsProject2020Compatibility(Compatibility):
             sym = el.symbol
             # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError("Invalid U value of {:.1f} on {}".format(calc_u.get(sym, 0), sym))
+                raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0):.1f} on {sym}")
             if sym in ucorr:
                 adjustments.append(
                     CompositionEnergyAdjustment(
                         ucorr[sym],
                         comp[el],
                         uncertainty_per_atom=uerrors[sym],
-                        name="MP2020 GGA/GGA+U mixing correction ({})".format(sym),
+                        name=f"MP2020 GGA/GGA+U mixing correction ({sym})",
                         cls=self.as_dict(),
                     )
                 )
@@ -1171,8 +1189,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
            the experimental reaction energy of -2.458 eV/H2O is reproduced.
         2. Add entropy to the DFT energy of any compounds that are liquid or
            gaseous at room temperature
-        3. Adjust the energy of H2O for consistency with the adjusted H2 energy.
-        4. Adjust the DFT energies of solid hydrate compounds (compounds that
+        3. Adjust the DFT energies of solid hydrate compounds (compounds that
            contain water, e.g. FeO.nH2O) such that the energies of the embedded
            H2O molecules are equal to the experimental free energy
 
@@ -1198,11 +1215,11 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Note that this class requires as inputs the ground-state DFT energies of O2 and H2O, plus the value of any
         energy adjustments applied to an H2O molecule. If these parameters are not provided in __init__, they can
-        be automatically populated by including ComputedEntry for the ground state of O2 and H2O in a list of entries
-        passed to process_entries. process_entries will fail if one or the other is not provided.
+        be automatically populated by including ComputedEntry for the ground state of O2 and H2O in a list of
+        entries passed to process_entries. process_entries will fail if one or the other is not provided.
 
         Args:
-            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+            solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProject2020Compatibility
@@ -1225,10 +1242,11 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         elif issubclass(type(solid_compat), Compatibility):
             self.solid_compat = solid_compat
         else:
-            raise ValueError("Expected a Compatability class, instance of a Compatability or None")
+            raise ValueError("Expected a Compatibility class, instance of a Compatibility or None")
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
+        self.h2_energy = None
         self.h2o_adjustments = h2o_adjustments
 
         if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
@@ -1253,7 +1271,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
 
-    def get_adjustments(self, entry: ComputedEntry):
+    def get_adjustments(self, entry):
         """
         Returns the corrections applied to a particular entry.
 
@@ -1283,7 +1301,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
         # for this calculation ONLY, we need the (corrected) DFT energy of water
-        self.h2_energy = round(
+        self.fit_h2_energy = round(
             0.5
             * (
                 3 * (self.h2o_energy - self.cpd_entropies["H2O"]) - (self.o2_energy - self.cpd_entropies["O2"]) - MU_H2O
@@ -1291,46 +1309,29 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             6,
         )
 
-        # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
-        self.fit_h2o_energy = round(
-            (2 * self.h2_energy + (self.o2_energy - self.cpd_entropies["O2"]) + MU_H2O) / 3,
-            6,
-        )
-
         comp = entry.composition
         rform = comp.reduced_formula
 
-        # pin the energy of all H2 entries to h2_energy
+        # use fit_h2_energy to adjust the energy of all H2 polymorphs such that
+        # the lowest energy polymorph has the correct experimental value
+        # if h2o and o2 energies have been set explicitly via kwargs, then
+        # all H2 polymorphs will get the same energy.
         if rform == "H2":
             adjustments.append(
                 ConstantEnergyAdjustment(
-                    self.h2_energy * comp.num_atoms - entry.energy,
+                    (self.fit_h2_energy - self.h2_energy) * comp.num_atoms,
                     uncertainty=np.nan,
                     name="MP Aqueous H2 / H2O referencing",
                     cls=self.as_dict(),
-                    description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                    description="Adjusts the H2 energy to reproduce the experimental "
                     "Gibbs formation free energy of H2O, based on the DFT energy "
-                    "of Oxygen",
-                )
-            )
-
-        # pin the energy of all H2O entries to fit_h2o_energy
-        elif rform == "H2O":
-            adjustments.append(
-                ConstantEnergyAdjustment(
-                    self.fit_h2o_energy * comp.num_atoms - entry.energy,
-                    uncertainty=np.nan,
-                    name="MP Aqueous H2 / H2O referencing",
-                    cls=self.as_dict(),
-                    description="Adjusts the H2 and H2O energy to reproduce the experimental "
-                    "Gibbs formation free energy of H2O, based on the DFT energy "
-                    "of Oxygen",
+                    "of Oxygen and H2O",
                 )
             )
 
         # add minus T delta S to the DFT energy (enthalpy) of compounds that are
         # molecular-like at room temperature
-        elif rform in self.cpd_entropies and rform != "H2O":
+        if rform in self.cpd_entropies:
             adjustments.append(
                 TemperatureEnergyAdjustment(
                     -1 * self.cpd_entropies[rform] / 298,
@@ -1410,17 +1411,36 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         if self.solid_compat:
             entries = self.solid_compat.process_entries(entries, clean=True)
 
-        # extract the DFT energies of oxygen and water from the list of entries, if present
-        if not self.o2_energy:
-            o2_entries = [e for e in entries if e.composition.reduced_formula == "O2"]
-            if o2_entries:
-                self.o2_energy = min(e.energy_per_atom for e in o2_entries)
+        # when processing single entries, all H2 polymorphs will get assigned the
+        # same energy
+        if len(entries) == 1 and entries[0].composition.reduced_formula == "H2":
+            warnings.warn(
+                "Processing single H2 entries will result in the all polymorphs "
+                "being assigned the same energy. This should not cause problems "
+                "with Pourbaix diagram construction, but may be confusing. "
+                "Pass all entries to process_entries() at once in if you want to "
+                "preserve H2 polymorph energy differnces."
+            )
 
-        if not self.h2o_energy and not self.h2o_adjustments:
-            h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
-            if h2o_entries:
-                h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
-                self.h2o_energy = h2o_entries[0].energy_per_atom
-                self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
+        # extract the DFT energies of oxygen and water from the list of entries, if present
+        # do not do this when processing a single entry, as it might lead to unintended
+        # results
+        if len(entries) > 1:
+            if not self.o2_energy:
+                o2_entries = [e for e in entries if e.composition.reduced_formula == "O2"]
+                if o2_entries:
+                    self.o2_energy = min(e.energy_per_atom for e in o2_entries)
+
+            if not self.h2o_energy and not self.h2o_adjustments:
+                h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
+                if h2o_entries:
+                    h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
+                    self.h2o_energy = h2o_entries[0].energy_per_atom
+                    self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
+
+        h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
+        if h2_entries:
+            h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
+            self.h2_energy = h2_entries[0].energy_per_atom
 
         return super().process_entries(entries, clean=clean, verbose=verbose)

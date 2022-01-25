@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.apps.battery.analyzer module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.apps.battery.analyzer module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.apps.battery.analyzer.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.apps.battery.battery_abc module" href="pymatgen.apps.battery.battery_abc.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,84 +86,40 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.apps.html">pymatgen.apps package</a> &raquo;</li>
-        
           <li><a href="pymatgen.apps.battery.html">pymatgen.apps.battery package</a> &raquo;</li>
-        
       <li>pymatgen.apps.battery.analyzer module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.apps.battery.analyzer.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.apps.battery.analyzer">
-<span id="pymatgen-apps-battery-analyzer-module"></span><h1>pymatgen.apps.battery.analyzer module<a class="headerlink" href="#module-pymatgen.apps.battery.analyzer" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.apps.battery.analyzer">
+<span id="pymatgen-apps-battery-analyzer-module"></span><h1>pymatgen.apps.battery.analyzer module<a class="headerlink" href="#module-pymatgen.apps.battery.analyzer" title="Permalink to this headline"></a></h1>
 <p>Analysis classes for batteries</p>
 <dl class="py class">
-<dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer">
-<em class="property">class </em><code class="sig-name descname">BatteryAnalyzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struc_oxid</span></em>, <em class="sig-param"><span class="n">cation</span><span class="o">=</span><span class="default_value">'Li'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../apps/battery/analyzer.py#L29-L222"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BatteryAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc_oxid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxi_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../apps/battery/analyzer.py#L28-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A suite of methods for starting with an oxidized structure and determining its potential as a battery</p>
 <p>Pass in a structure for analysis</p>
@@ -218,21 +128,23 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struc_oxid</strong> – a Structure object; oxidation states <em>must</em> be assigned for this structure; disordered
 structures should be OK</p></li>
-<li><p><strong>cation</strong> – a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.</p></li>
+<li><p><strong>working_ion</strong> – a String symbol or Element for the working ion.</p></li>
+<li><p><strong>oxy_override</strong> – a dict of String element symbol, Integer oxidation state pairs.
+by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav">
-<code class="sig-name descname">get_max_capgrav</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">remove</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">insert</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../apps/battery/analyzer.py#L120-L136"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav" title="Permalink to this definition">¶</a></dt>
-<dd><p>Give max capacity in mAh/g for inserting and removing a charged cation
-Note that the weight is normalized to the most lithiated state,
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav">
+<span class="sig-name descname"><span class="pre">get_max_capgrav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../apps/battery/analyzer.py#L137-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav" title="Permalink to this definition"></a></dt>
+<dd><p>Give max capacity in mAh/g for inserting and removing a charged ion
+Note that the weight is normalized to the most ion-packed state,
 thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>remove</strong> – (bool) whether to allow cation removal</p></li>
-<li><p><strong>insert</strong> – (bool) whether to allow cation insertion</p></li>
+<li><p><strong>remove</strong> – (bool) whether to allow ion removal</p></li>
+<li><p><strong>insert</strong> – (bool) whether to allow ion insertion</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -242,14 +154,14 @@ thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li i
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol">
-<code class="sig-name descname">get_max_capvol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">remove</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">insert</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">volume</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../apps/battery/analyzer.py#L138-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Give max capacity in mAh/cc for inserting and removing a charged cation into base structure.</p>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol">
+<span class="sig-name descname"><span class="pre">get_max_capvol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../apps/battery/analyzer.py#L155-L169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol" title="Permalink to this definition"></a></dt>
+<dd><p>Give max capacity in mAh/cc for inserting and removing a charged ion into base structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>remove</strong> – (bool) whether to allow cation removal</p></li>
-<li><p><strong>insert</strong> – (bool) whether to allow cation insertion</p></li>
+<li><p><strong>remove</strong> – (bool) whether to allow ion removal</p></li>
+<li><p><strong>insert</strong> – (bool) whether to allow ion insertion</p></li>
 <li><p><strong>volume</strong> – (float) volume to use for normalization (default=volume of initial structure)</p></li>
 </ul>
 </dd>
@@ -260,9 +172,9 @@ thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li i
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid">
-<code class="sig-name descname">get_removals_int_oxid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../apps/battery/analyzer.py#L154-L179"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. in order to
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid">
+<span class="sig-name descname"><span class="pre">get_removals_int_oxid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../apps/battery/analyzer.py#L171-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a set of ion removal steps, e.g. set([1.0 2.0 4.0]) etc. in order to
 produce integer oxidation states of the redox metals.
 If multiple redox metals are present, all combinations of reduction/oxidation are tested.
 Note that having more than 3 redox metals will likely slow down the algorithm.</p>
@@ -272,31 +184,31 @@ Li4Fe3Mn1(PO4)4 will return [1.0, 2.0, 3.0, 4.0])
 Li6V4(PO4)6 will return [4.0, 6.0])  <em>note that this example is not normalized</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>array of integer cation removals. If you double the unit cell, your answers will be twice as large!</p>
+<dd class="field-odd"><p>array of integer ion removals. If you double the unit cell, your answers will be twice as large!</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_insertion">
-<em class="property">property </em><code class="sig-name descname">max_cation_insertion</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_insertion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maximum number of cation A that can be inserted while maintaining charge-balance.
-No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the
-extra Li.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_ion_insertion</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of ion A that can be inserted while maintaining charge-balance.
+No consideration is given to whether there (geometrically speaking) are ion sites to actually accommodate the
+extra ions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</p>
+<dd class="field-odd"><p>integer amount of ion. Depends on cell size (this is an ‘extrinsic’ function!)</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_removal">
-<em class="property">property </em><code class="sig-name descname">max_cation_removal</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_removal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maximum number of cation A that can be removed while maintaining charge-balance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_ion_removal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of ion A that can be removed while maintaining charge-balance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</p>
+<dd class="field-odd"><p>integer amount of ion. Depends on cell size (this is an ‘extrinsic’ function!)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -304,8 +216,8 @@ extra Li.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.apps.battery.analyzer.is_redox_active_intercalation">
-<code class="sig-name descname">is_redox_active_intercalation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../apps/battery/analyzer.py#L225-L249"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.is_redox_active_intercalation">
+<span class="sig-name descname"><span class="pre">is_redox_active_intercalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../apps/battery/analyzer.py#L250-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition"></a></dt>
 <dd><p>True if element is redox active and interesting for intercalation materials</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -314,46 +226,34 @@ extra Li.</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

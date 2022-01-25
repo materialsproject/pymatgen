@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -52,9 +51,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(
-            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
-        )
+        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
     return lower_and_upper_functions
 
 
@@ -677,12 +674,12 @@ class Plane:
         :return: String representation of the Plane object
         """
         outs = ["Plane object"]
-        outs.append("  => Normal vector : {nn}".format(nn=self.normal_vector))
+        outs.append(f"  => Normal vector : {self.normal_vector}")
         outs.append("  => Equation of the plane ax + by + cz + d = 0")
-        outs.append("     with a = {v}".format(v=self._coefficients[0]))
-        outs.append("          b = {v}".format(v=self._coefficients[1]))
-        outs.append("          c = {v}".format(v=self._coefficients[2]))
-        outs.append("          d = {v}".format(v=self._coefficients[3]))
+        outs.append(f"     with a = {self._coefficients[0]}")
+        outs.append(f"          b = {self._coefficients[1]}")
+        outs.append(f"          c = {self._coefficients[2]}")
+        outs.append(f"          d = {self._coefficients[3]}")
         return "\n".join(outs)
 
     def is_in_plane(self, pp, dist_tolerance):
@@ -866,7 +863,7 @@ class Plane:
         for pp in proj:
             xyzpp = np.dot(pp, PP)
             xypps.append(xyzpp[0:2])
-        if str(plane_center) == str("mean"):
+        if str(plane_center) == "mean":
             mean = np.zeros(2, np.float_)
             for pp in xypps:
                 mean += pp
@@ -1013,7 +1010,7 @@ class Plane:
         :param points: List of points.
         :return: Plane.
         """
-        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float_)
+        mean_point = np.array([sum(pp[ii] for pp in points) for ii in range(3)], np.float_)
         mean_point /= len(points)
         AA = np.zeros((len(points), 3), np.float_)
         for ii, pp in enumerate(points):

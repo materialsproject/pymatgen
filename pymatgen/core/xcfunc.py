@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -126,7 +125,7 @@ class XcFunc(MSONable):
             return obj
         if is_string(obj):
             return cls.from_name(obj)
-        raise TypeError("Don't know how to convert <%s:%s> to Xcfunc" % (type(obj), str(obj)))
+        raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
@@ -168,7 +167,7 @@ class XcFunc(MSONable):
                     return cls(xc=k)
                 if len(k) == 2:
                     return cls(x=k[0], c=k[1])
-                raise ValueError("Wrong key: %s" % k)
+                raise ValueError(f"Wrong key: {k}")
 
         # At this point, we should have something in the form
         # name="GGA_X_PBE+GGA_C_PBE" or  name=""LDA_XC_TETER93"
@@ -254,7 +253,7 @@ class XcFunc(MSONable):
         return "+".join([self.x.name, self.c.name])
 
     def __repr__(self):
-        return "%s" % self.name
+        return f"{self.name}"
 
     def __hash__(self):
         return hash(self.name)

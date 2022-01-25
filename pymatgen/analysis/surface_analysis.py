@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -173,7 +172,7 @@ class SlabEntry(ComputedStructureEntry):
         n = self.get_unit_primitive_area
         Nads = self.Nads_in_slab
 
-        BE = (self.energy - n * self.clean_entry.energy) / Nads - sum([ads.energy_per_atom for ads in self.adsorbates])
+        BE = (self.energy - n * self.clean_entry.energy) / Nads - sum(ads.energy_per_atom for ads in self.adsorbates)
         return BE * Nads if eads else BE
 
     def surface_energy(self, ucell_entry, ref_entries=None):
@@ -269,7 +268,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         Returns the TOTAL number of adsorbates in the slab on BOTH sides
         """
-        return sum([self.composition.as_dict()[a] for a in self.ads_entries_dict.keys()])
+        return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict.keys())
 
     @property
     def Nsurfs_ads_in_slab(self):
@@ -353,7 +352,7 @@ class SlabEntry(ComputedStructureEntry):
         ads_strs = list(self.ads_entries_dict.keys())
 
         cleaned = self.cleaned_up_slab
-        label += " %s" % (cleaned.composition.reduced_composition)
+        label += f" {cleaned.composition.reduced_composition}"
 
         if self.adsorbates:
             for ads in ads_strs:
@@ -1140,9 +1139,9 @@ class SurfaceEnergyPlotter:
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
         plt.plot([xrange[1], xrange[1]], ylim, "--k")
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-rich", xy=xy, xytext=xy, rotation=90, fontsize=17)
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-poor", xy=xy, xytext=xy, rotation=90, fontsize=17)
 
         return plt
 
@@ -1188,7 +1187,7 @@ class SurfaceEnergyPlotter:
                         # Now plot the surface energy vs binding energy
                         plt.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate("%.2f" % (ml), xy=[se, be], xytext=[se, be])
+                            plt.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
         plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
@@ -1244,8 +1243,8 @@ class SurfaceEnergyPlotter:
         delu_dict = delu_dict if delu_dict else {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol("delu_%s" % (str(elements[0])))
-        delu2 = Symbol("delu_%s" % (str(elements[1])))
+        delu1 = Symbol(f"delu_{str(elements[0])}")
+        delu2 = Symbol(f"delu_{str(elements[1])}")
         range1 = ranges[0]
         range2 = ranges[1]
 
@@ -1943,7 +1942,7 @@ class NanoscaleStability:
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
         plt.xlabel(r"Particle radius ($%s$)" % (ru))
-        eu = "$%s/%s^3$" % (e_units, ru)
+        eu = f"${e_units}/{ru}^3$"
         plt.ylabel(r"$G_{form}$ (%s)" % (eu))
 
         plt.plot(r_list, gform_list, label=label)

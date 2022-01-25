@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.symmetry.bandstructure module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.symmetry.bandstructure module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.symmetry.bandstructure.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.symmetry.groups module" href="pymatgen.symmetry.groups.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,83 +86,40 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.symmetry.html">pymatgen.symmetry package</a> &raquo;</li>
-        
       <li>pymatgen.symmetry.bandstructure module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.symmetry.bandstructure.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.symmetry.bandstructure">
-<span id="pymatgen-symmetry-bandstructure-module"></span><h1>pymatgen.symmetry.bandstructure module<a class="headerlink" href="#module-pymatgen.symmetry.bandstructure" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.symmetry.bandstructure">
+<span id="pymatgen-symmetry-bandstructure-module"></span><h1>pymatgen.symmetry.bandstructure module<a class="headerlink" href="#module-pymatgen.symmetry.bandstructure" title="Permalink to this headline"></a></h1>
 <p>Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.</p>
 <dl class="py class">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath">
-<em class="property">class </em><code class="sig-name descname">HighSymmKpath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">has_magmoms</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">magmom_axis</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path_type</span><span class="o">=</span><span class="default_value">'setyawan_curtarolo'</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../symmetry/bandstructure.py#L35-L406"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.symmetry.bandstructure.HighSymmKpath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HighSymmKpath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magmom_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'setyawan_curtarolo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../symmetry/bandstructure.py#L32-L403"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
 <p>This class generates path along high symmetry lines in the
 Brillouin zone according to different conventions.
@@ -251,19 +162,19 @@ equivalence of points and lines on the BZ.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels">
-<em class="property">property </em><code class="sig-name descname">equiv_labels</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equiv_labels</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
-The correspondance between the kpoint symbols in the Latimer and
+The correspondence between the kpoint symbols in the Latimer and
 Munro convention, Setyawan and Curtarolo, and Hinuma
 conventions respectively. Only generated when path_type = ‘all’.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path">
-<em class="property">static </em><code class="sig-name descname">get_continuous_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bandstructure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../symmetry/bandstructure.py#L310-L406"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Obtain a continous version of an inputted path using graph theory.
+<dt class="sig sig-object py" id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_continuous_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bandstructure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../symmetry/bandstructure.py#L307-L403"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path" title="Permalink to this definition"></a></dt>
+<dd><p>Obtain a continuous version of an inputted path using graph theory.
 This routine will attempt to add connections between nodes of
 odd-degree to ensure a Eulerian path can be formed. Initial
 k-path must be able to be converted to a connected graph. See
@@ -272,75 +183,63 @@ for more details.</p>
 <p>Args:
 bandstructure (BandstructureSymmLine): BandstructureSymmLine object.</p>
 <p>Returns:
-bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continous path.</p>
+bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.label_index">
-<em class="property">property </em><code class="sig-name descname">label_index</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.label_index" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.symmetry.bandstructure.HighSymmKpath.label_index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label_index</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.label_index" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
-The correspondance between numbers and kpoint symbols for the
+The correspondence between numbers and kpoint symbols for the
 combined kpath generated when path_type = ‘all’. None otherwise.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths">
-<em class="property">property </em><code class="sig-name descname">path_lengths</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path_lengths</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
 conventions in the combined HighSymmKpath object when path_type = ‘all’ respectively.
 None otherwise.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_type">
-<em class="property">property </em><code class="sig-name descname">path_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_type" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_type" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The type of kpath chosen</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

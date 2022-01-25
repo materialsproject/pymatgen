@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,6 @@ import json
 import os
 import unittest
 import warnings
-from io import open
 
 import scipy
 from monty.os.path import which
@@ -34,7 +32,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class DosPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), encoding="utf-8") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
         warnings.simplefilter("ignore")
@@ -72,18 +70,18 @@ class DosPlotterTest(unittest.TestCase):
 
 class BSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json"), encoding="utf-8") as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
 
         self.assertEqual(len(self.plotter._bs), 1, "wrong number of band objects")
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json"), encoding="utf-8") as f:
             d = json.loads(f.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(d)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json"), encoding="utf-8") as f:
             d = json.loads(f.read())
             self.sbs_met = BandStructureSymmLine.from_dict(d)
 
@@ -109,7 +107,7 @@ class BSPlotterTest(unittest.TestCase):
         self.assertEqual(
             len(rescaled_distances),
             len(self.sbs_met.distance),
-            "wrong lenght of distances list",
+            "wrong length of distances list",
         )
         self.assertEqual(rescaled_distances[-1], 6.5191398067252875, "wrong last distance value")
         self.assertEqual(
@@ -124,10 +122,10 @@ class BSPlotterTest(unittest.TestCase):
         en = data["energy"]["1"]
         int_distances, int_energies = self.plotter._interpolate_bands(d, en)
 
-        self.assertEqual(len(int_distances), 10, "wrong lenght of distances list")
-        self.assertEqual(len(int_distances[0]), 100, "wrong lenght of distances in a branch")
-        self.assertEqual(len(int_energies), 10, "wrong lenght of distances list")
-        self.assertEqual(int_energies[0].shape, (16, 100), "wrong lenght of distances list")
+        self.assertEqual(len(int_distances), 10, "wrong length of distances list")
+        self.assertEqual(len(int_distances[0]), 100, "wrong length of distances in a branch")
+        self.assertEqual(len(int_energies), 10, "wrong length of distances list")
+        self.assertEqual(int_energies[0].shape, (16, 100), "wrong length of distances list")
 
     def test_bs_plot_data(self):
         self.assertEqual(
@@ -141,16 +139,16 @@ class BSPlotterTest(unittest.TestCase):
             "wrong number of distances in the first sequence of branches",
         )
         self.assertEqual(
-            sum([len(e) for e in self.plotter.bs_plot_data()["distances"]]),
+            sum(len(e) for e in self.plotter.bs_plot_data()["distances"]),
             160,
             "wrong number of distances",
         )
 
-        lenght = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
-        self.assertEqual(lenght, 144, "wrong number of distances in the first sequence of branches")
+        length = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
+        self.assertEqual(length, 144, "wrong number of distances in the first sequence of branches")
 
-        lenght = len(self.plotter.bs_plot_data(split_branches=False)["distances"])
-        self.assertEqual(lenght, 2, "wrong number of distances in the first sequence of branches")
+        length = len(self.plotter.bs_plot_data(split_branches=False)["distances"])
+        self.assertEqual(length, 2, "wrong number of distances in the first sequence of branches")
 
         self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][5], "K", "wrong tick label")
         self.assertEqual(
@@ -202,7 +200,7 @@ class BSPlotterTest(unittest.TestCase):
 
 class BSPlotterProjectedTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), encoding="utf-8") as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
@@ -273,8 +271,8 @@ class PlotBZTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_bz_plot(self):
-        fig, ax = plot_ellipsoid(self.hessian, self.center, lattice=self.rec_latt)
-        fig = plot_brillouin_zone(
+        _, ax = plot_ellipsoid(self.hessian, self.center, lattice=self.rec_latt)
+        plot_brillouin_zone(
             self.rec_latt,
             lines=self.kpath,
             labels=self.labels,
@@ -576,10 +574,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 class CohpPlotterTest(PymatgenTest):
     def setUp(self):
         path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_cohp_lobster.json")
-        with open(os.path.join(path), "r") as f:
+        with open(os.path.join(path)) as f:
             self.cohp = CompleteCohp.from_dict(json.load(f))
         path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_coop_lobster.json")
-        with open(os.path.join(path), "r") as f:
+        with open(os.path.join(path)) as f:
             self.coop = CompleteCohp.from_dict(json.load(f))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
         self.coop_plot = CohpPlotter(are_coops=True)

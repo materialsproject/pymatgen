@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.transition_state module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.transition_state module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.transition_state.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.wulff module" href="pymatgen.analysis.wulff.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,85 +86,42 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
       <li>pymatgen.analysis.transition_state module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.transition_state.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.transition_state">
-<span id="pymatgen-analysis-transition-state-module"></span><h1>pymatgen.analysis.transition_state module<a class="headerlink" href="#module-pymatgen.analysis.transition_state" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.transition_state">
+<span id="pymatgen-analysis-transition-state-module"></span><h1>pymatgen.analysis.transition_state module<a class="headerlink" href="#module-pymatgen.analysis.transition_state" title="Permalink to this headline"></a></h1>
 <p>Some reimplementation of Henkelman’s Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
 Henkelman’s utilities will be added.</p>
 <p>This allows the usage and customization in Python.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis">
-<em class="property">class </em><code class="sig-name descname">NEBAnalysis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">energies</span></em>, <em class="sig-param"><span class="n">forces</span></em>, <em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">spline_options</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L25-L293"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NEBAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L24-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An NEBAnalysis class.</p>
 <p>Initializes an NEBAnalysis from the cumulative root mean squared distances
@@ -231,8 +142,8 @@ be zero.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L279-L293"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L278-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Dict representation of NEBAnalysis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -242,8 +153,8 @@ be zero.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis.from_dir">
-<em class="property">classmethod </em><code class="sig-name descname">from_dir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root_dir</span></em>, <em class="sig-param"><span class="n">relaxation_dirs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L201-L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.from_dir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis.from_dir">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relaxation_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L200-L276"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.from_dir" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes a NEBAnalysis object from a directory of a NEB run.
 Note that OUTCARs must be present in all image directories. For the
 terminal OUTCARs from relaxation calculations, you can specify the
@@ -283,8 +194,8 @@ terminal points for the energies.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis.from_outcars">
-<em class="property">classmethod </em><code class="sig-name descname">from_outcars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outcars</span></em>, <em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L86-L129"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.from_outcars" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis.from_outcars">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_outcars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L85-L128"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.from_outcars" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes an NEBAnalysis from Outcar and Structure objects. Use
 the static constructors, e.g., <a class="reference internal" href="#pymatgen.analysis.transition_state.NEBAnalysis.from_dir" title="pymatgen.analysis.transition_state.NEBAnalysis.from_dir"><code class="xref py py-class docutils literal notranslate"><span class="pre">from_dir</span></code></a> instead if you
 prefer to have these automatically generated from a directory of NEB
@@ -305,8 +216,8 @@ scipy.interplotate.PiecewisePolynomial.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis.get_extrema">
-<code class="sig-name descname">get_extrema</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">normalize_rxn_coordinate</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L131-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.get_extrema" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis.get_extrema">
+<span class="sig-name descname"><span class="pre">get_extrema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize_rxn_coordinate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L130-L154"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.get_extrema" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the positions of the extrema along the MEP. Both local
 minimums and maximums are returned.</p>
 <dl class="field-list simple">
@@ -322,8 +233,8 @@ reaction coordinate to between 0 and 1. Defaults to True.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis.get_plot">
-<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">normalize_rxn_coordinate</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">label_barrier</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L157-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.get_plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis.get_plot">
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize_rxn_coordinate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_barrier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L156-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.get_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the NEB plot. Uses Henkelman’s approach of spline fitting
 each section of the reaction path based on tangent force and energies.</p>
 <dl class="field-list simple">
@@ -341,8 +252,8 @@ reaction coordinate to between 0 and 1. Defaults to True.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.transition_state.NEBAnalysis.setup_spline">
-<code class="sig-name descname">setup_spline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spline_options</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L59-L84"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.setup_spline" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.NEBAnalysis.setup_spline">
+<span class="sig-name descname"><span class="pre">setup_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spline_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L58-L83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.setup_spline" title="Permalink to this definition"></a></dt>
 <dd><p>Setup of the options for the spline interpolation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -356,8 +267,8 @@ be zero.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.transition_state.combine_neb_plots">
-<code class="sig-name descname">combine_neb_plots</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neb_analyses</span></em>, <em class="sig-param"><span class="n">arranged_neb_analyses</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reverse_plot</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/transition_state.py#L296-L393"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.combine_neb_plots" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.transition_state.combine_neb_plots">
+<span class="sig-name descname"><span class="pre">combine_neb_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neb_analyses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arranged_neb_analyses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/transition_state.py#L295-L390"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.combine_neb_plots" title="Permalink to this definition"></a></dt>
 <dd><p>neb_analyses: a list of NEBAnalysis objects</p>
 <p>arranged_neb_analyses: The code connects two end points with the
 smallest-energy difference. If all end points have very close energies, it’s
@@ -372,46 +283,34 @@ reverse_plot: reverse the plot or percolation direction.
 return: a NEBAnalysis object</p>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,8 +5,7 @@
 Classes for reading/manipulating/writing QChem input files.
 """
 import logging
-import sys
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from monty.io import zopen
 
@@ -15,11 +13,6 @@ from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -64,7 +57,7 @@ class QCInput(InputFile):
                 Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
             opt (dict of lists):
                 A dictionary of opt sections, where each opt section is a key and the corresponding
-                values are a list of strings. Stings must be formatted as instructed by the QChem manual.
+                values are a list of strings. Strings must be formatted as instructed by the QChem manual.
                 The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
                 Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
             pcm (dict):
@@ -85,7 +78,7 @@ class QCInput(InputFile):
                 more than two.
                 Ex. scan = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
             van_der_waals (dict):
-                A dictionary of custom van der Waals radii to be used when construcing cavities for the PCM
+                A dictionary of custom van der Waals radii to be used when constructing cavities for the PCM
                 model or when computing, e.g. Mulliken charges. They keys are strs whose meaning depends on
                 the value of vdw_mode, and the values are the custom radii in angstroms.
             vdw_mode (str): Method of specifying custom van der Waals radii - 'atomic' or 'sequential'.
@@ -200,7 +193,7 @@ class QCInput(InputFile):
         Returns:
             (str) String representation of multi job input file.
         """
-        multi_job_string = str()
+        multi_job_string = ""
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
                 multi_job_string += job_i.__str__() + "\n@@@\n\n"
@@ -309,9 +302,7 @@ class QCInput(InputFile):
             else:
                 raise ValueError('The only acceptable text value for molecule is "read"')
         else:
-            mol_list.append(
-                " {charge} {spin_mult}".format(charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity)
-            )
+            mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
                 mol_list.append(
                     " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
@@ -333,7 +324,7 @@ class QCInput(InputFile):
         rem_list = []
         rem_list.append("$rem")
         for key, value in rem.items():
-            rem_list.append("   {key} = {value}".format(key=key, value=value))
+            rem_list.append(f"   {key} = {value}")
         rem_list.append("$end")
         return "\n".join(rem_list)
 
@@ -352,11 +343,11 @@ class QCInput(InputFile):
         opt_list.append("$opt")
         # loops over all opt sections
         for key, value in opt.items():
-            opt_list.append("{section}".format(section=key))
+            opt_list.append(f"{key}")
             # loops over all values within the section
             for i in value:
-                opt_list.append("   {val}".format(val=i))
-            opt_list.append("END{section}".format(section=key))
+                opt_list.append(f"   {i}")
+            opt_list.append(f"END{key}")
             opt_list.append("")
         # this deletes the empty space after the last section
         del opt_list[-1]
@@ -377,7 +368,7 @@ class QCInput(InputFile):
         pcm_list = []
         pcm_list.append("$pcm")
         for key, value in pcm.items():
-            pcm_list.append("   {key} {value}".format(key=key, value=value))
+            pcm_list.append(f"   {key} {value}")
         pcm_list.append("$end")
         return "\n".join(pcm_list)
 
@@ -395,7 +386,7 @@ class QCInput(InputFile):
         solvent_list = []
         solvent_list.append("$solvent")
         for key, value in solvent.items():
-            solvent_list.append("   {key} {value}".format(key=key, value=value))
+            solvent_list.append(f"   {key} {value}")
         solvent_list.append("$end")
         return "\n".join(solvent_list)
 
@@ -412,9 +403,9 @@ class QCInput(InputFile):
         smx_list.append("$smx")
         for key, value in smx.items():
             if value == "tetrahydrofuran":
-                smx_list.append("   {key} {value}".format(key=key, value="thf"))
+                smx_list.append(f"   {key} thf")
             else:
-                smx_list.append("   {key} {value}".format(key=key, value=value))
+                smx_list.append(f"   {key} {value}")
         smx_list.append("$end")
         return "\n".join(smx_list)
 
@@ -430,13 +421,13 @@ class QCInput(InputFile):
         """
         scan_list = []
         scan_list.append("$scan")
-        total_vars = sum([len(v) for v in scan.values()])
+        total_vars = sum(len(v) for v in scan.values())
         if total_vars > 2:
-            raise ValueError("Q-Chem only supports PES_SCAN with two or less " "variables.")
+            raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
                 for var in variables:
-                    scan_list.append("   {var_type} {var}".format(var_type=var_type, var=var))
+                    scan_list.append(f"   {var_type} {var}")
         scan_list.append("$end")
         return "\n".join(scan_list)
 
@@ -483,7 +474,7 @@ class QCInput(InputFile):
         plots_list = []
         plots_list.append("$plots")
         for key, value in plots.items():
-            plots_list.append("   {key} {value}".format(key=key, value=value))
+            plots_list.append(f"   {key} {value}")
         plots_list.append("$end")
         return "\n".join(plots_list)
 
@@ -499,7 +490,7 @@ class QCInput(InputFile):
         nbo_list = []
         nbo_list.append("$nbo")
         for key, value in nbo.items():
-            nbo_list.append("   {key} = {value}".format(key=key, value=value))
+            nbo_list.append(f"   {key} = {value}")
         nbo_list.append("$end")
         return "\n".join(nbo_list)
 
@@ -660,7 +651,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_table:
-            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
+            print("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
             return {}
 
         return dict(pcm_table[0])
@@ -681,7 +672,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not vdw_table:
-            print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
+            print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
         if vdw_table[0][0][0] == 2:
@@ -707,7 +698,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not solvent_table:
-            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
+            print("No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines.")
             return {}
 
         return dict(solvent_table[0])
@@ -728,7 +719,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         smx_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not smx_table:
-            print("No valid smx inputs found. Note that there should be no '=' chracters in smx input lines.")
+            print("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
             return {}
         smx = {}
         for key, val in smx_table[0]:
@@ -753,7 +744,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if scan_table == []:
-            print("No valid scan inputs found. Note that there should be no '=' chracters in scan input lines.")
+            print("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
             return {}
 
         stre = []
@@ -788,7 +779,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         plots_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if plots_table == []:
-            print("No valid plots inputs found. Note that there should be no '=' chracters in plots input lines.")
+            print("No valid plots inputs found. Note that there should be no '=' characters in plots input lines.")
             return {}
         plots = {}
         for key, val in plots_table[0]:

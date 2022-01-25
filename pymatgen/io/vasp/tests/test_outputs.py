@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,7 +7,7 @@ import json
 import os
 import unittest
 import warnings
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -16,11 +15,10 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.core.structure import Structure
 from pymatgen.core import Element
-from pymatgen.electronic_structure.core import Magmom, OrbitalType
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import (
@@ -42,6 +40,11 @@ from pymatgen.io.vasp.outputs import (
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import PymatgenTest
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
 
 
 class VasprunTest(PymatgenTest):
@@ -139,6 +142,24 @@ class VasprunTest(PymatgenTest):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
         self.assertAlmostEqual(v.final_energy, -9.78310677)
 
+    def test_energies(self):
+
+        # VASP 5.4.1
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
+        self.assertAlmostEqual(v.final_energy, -11.18981538)
+
+        # VASP 6.2.1
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest2.gz")
+        self.assertAlmostEqual(v.final_energy, -11.18986774)
+
+        # VASP 5.4.1
+        o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest3.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89355325)
+
+        # VASP 6.2.1
+        o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest4.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89364691)
+
     def test_nonlmn(self):
 
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
@@ -161,7 +182,7 @@ class VasprunTest(PymatgenTest):
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
-        totalscsteps = sum([len(i["electronic_steps"]) for i in vasprun.ionic_steps])
+        totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
 
@@ -450,7 +471,7 @@ class VasprunTest(PymatgenTest):
                 with self.assertRaises(VaspParserError):
                     _ = vasprun.get_band_structure(line_mode=True)
 
-                # Check KPOINTS.gz succesfully inferred and used if present
+                # Check KPOINTS.gz successfully inferred and used if present
                 with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in:
                     with gzip.open("KPOINTS.gz", "wb") as f_out:
                         copyfileobj(f_in, f_out)
@@ -539,6 +560,11 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(bs_gap, eigen_gap, places=3)
         self.assertNotAlmostEqual(vrun.get_band_structure(efermi=None).get_band_gap()["energy"], eigen_gap, places=3)
         self.assertNotEqual(bs_gap, 0)
+
+        # branch 4 - E_fermi incorrectly placed inside a band
+        vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.bad_fermi.gz")
+        smart_fermi = vrun.calculate_efermi()
+        self.assertAlmostEqual(smart_fermi, 6.0165)
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
@@ -769,7 +795,7 @@ class OutcarTest(PymatgenTest):
                     "Maximum memory used (kb)": 0.0,
                     "Average memory used (kb)": 0.0,
                     "User time (sec)": 544.204,
-                    "cores": "8",
+                    "cores": 8,
                 },
             )
             self.assertAlmostEqual(outcar.efermi, 2.0112)
@@ -910,7 +936,7 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         outcar.read_corrections()
         self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
-        self.assertAlmostEqual(outcar.final_energy, -797.46760559)
+        self.assertAlmostEqual(outcar.final_energy, -797.46294064)
 
     def test_freq_dielectric(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS"
@@ -1036,7 +1062,7 @@ class OutcarTest(PymatgenTest):
                 "Maximum memory used (kb)": 62900.0,
                 "Average memory used (kb)": 0.0,
                 "User time (sec)": 49.602,
-                "cores": "32",
+                "cores": 32,
             },
         )
         self.assertAlmostEqual(outcar.efermi, 8.0942)
@@ -1431,6 +1457,36 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
 
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.1.mpi"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats["cores"], 64)
+
+    def test_energies(self):
+
+        # VASP 5.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
+        self.assertAlmostEqual(o.final_energy, -11.18981538)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13480014)
+        self.assertAlmostEqual(o.final_fr_energy, -11.21732300)
+
+        # VASP 6.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest2.gz")
+        self.assertAlmostEqual(o.final_energy, -11.18986774)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13485250)
+        self.assertAlmostEqual(o.final_fr_energy, -11.21737536)
+
+        # VASP 5.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest3.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89355325)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83853800)
+        self.assertAlmostEqual(o.final_fr_energy, -15.92106087)
+
+        # VASP 6.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest4.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89364691)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
+        self.assertAlmostEqual(o.final_fr_energy, -15.92115453)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1549,6 +1605,7 @@ class ChgcarTest(PymatgenTest):
         self.assertTrue(chg_from_file.is_soc)
         os.remove("CHGCAR_pmg_soc")
 
+    @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
@@ -1563,7 +1620,7 @@ class ChgcarTest(PymatgenTest):
                 self.assertIn(z, [Element.Ni.Z, Element.O.Z])
 
             for sp in f["species"]:
-                self.assertIn(sp, ["Ni", "O"])
+                self.assertIn(sp, [b"Ni", b"O"])
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
         self.assertArrayAlmostEqual(chgcar2.data["total"], chgcar.data["total"])
@@ -1852,7 +1909,7 @@ class WavecarTest(PymatgenTest):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
-        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(np.int_))], 0j)
+        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(int))], 0j)
         mesh = self.w.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
@@ -2067,7 +2124,7 @@ class WavederTest(PymatgenTest):
     def test_consistency(self):
         wder = Waveder(self.TEST_FILES_DIR / "WAVEDER.Si")
         wderf = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
-        with open(self.TEST_FILES_DIR / "WAVEDERF.Si", "r") as f:
+        with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
             first_line = [int(a) for a in f.readline().split()]
         self.assertEqual(wder.nkpoints, first_line[1])
         self.assertEqual(wder.nbands, first_line[2])

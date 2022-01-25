@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
 
@@ -43,7 +41,7 @@ class Nwchem2Fiesta(MSONable):
         filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)
         logfile: logfile of NWCHEM2FIESTA
 
-        the run method launchs NWCHEM2FIESTA
+        the run method launches NWCHEM2FIESTA
 
         """
 
@@ -297,10 +295,10 @@ class BasisSetReader:
         o.append("=========================================")
         o.append("Reading basis set:")
         o.append("")
-        o.append(" Basis set for {} atom ".format(str(self.filename)))
-        o.append(" Maximum angular momentum = {}".format(self.data["lmax"]))
-        o.append(" Number of atomics orbitals = {}".format(self.data["n_nlo"]))
-        o.append(" Number of nlm orbitals = {}".format(self.data["n_nlmo"]))
+        o.append(f" Basis set for {self.filename} atom ")
+        o.append(f" Maximum angular momentum = {self.data['lmax']}")
+        o.append(f" Number of atomics orbitals = {self.data['n_nlo']}")
+        o.append(f" Number of nlm orbitals = {self.data['n_nlmo']}")
         o.append("=========================================")
 
         return str(0)
@@ -413,7 +411,7 @@ class FiestaInput(MSONable):
 
     def dump_TDDFT_data_in_GW_run(self, TDDFT_dump=True):
         """
-        :param TDDFT_dump: boolen
+        :param TDDFT_dump: boolean
         :return: set the do_tddft variable to one in cell.in
         """
         if TDDFT_dump:
@@ -436,7 +434,7 @@ class FiestaInput(MSONable):
                 int(self._mol.composition.num_atoms), len(self._mol.symbol_set)
             )
         )
-        o.append(" Number of valence bands = {}".format(int(self._mol.nelectrons / 2)))
+        o.append(f" Number of valence bands = {int(self._mol.nelectrons / 2)}")
         o.append(
             " Sigma grid specs: n_grid = {} ;  dE_grid = {} (eV)".format(
                 self.correlation_grid["n_grid"], self.correlation_grid["dE_grid"]
@@ -453,22 +451,22 @@ class FiestaInput(MSONable):
                     self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
                 )
             )
-            o.append(" Performing   {} diagonal COHSEX iterations".format(self.COHSEX_options["nit_cohsex"]))
+            o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal COHSEX iterations")
         elif self.COHSEX_options["eigMethod"] == "HF":
             o.append(
                 " Correcting  {} valence bands and   {} conduction bands at HF level".format(
                     self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
                 )
             )
-            o.append(" Performing   {} diagonal HF iterations".format(self.COHSEX_options["nit_cohsex"]))
+            o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal HF iterations")
 
-        o.append(" Using resolution of identity : {}".format(self.COHSEX_options["resMethod"]))
+        o.append(f" Using resolution of identity : {self.COHSEX_options['resMethod']}")
         o.append(
             " Correcting  {} valence bands and  {} conduction bands at GW level".format(
                 self.GW_options["nv_corr"], self.GW_options["nc_corr"]
             )
         )
-        o.append(" Performing   {} GW iterations".format(self.GW_options["nit_gw"]))
+        o.append(f" Performing   {self.GW_options['nit_gw']} GW iterations")
 
         if int(self.BSE_TDDFT_options["do_bse"]) == 1:
             o.append(" Dumping data for BSE treatment")
@@ -482,7 +480,7 @@ class FiestaInput(MSONable):
             symbols.append(syb)
 
         for site in self._mol:
-            o.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
+            o.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
 
         o.append("=========================================")
 
@@ -503,7 +501,7 @@ class FiestaInput(MSONable):
 
         geometry = []
         for site in self._mol:
-            geometry.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
+            geometry.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
 
         t = Template(
             """# number of atoms and species

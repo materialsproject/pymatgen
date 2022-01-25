@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -271,7 +270,7 @@ class DefectPhaseDiagram(MSONable):
                                 cb_list,
                             )
                         )
-                    logger.info("{} is only stable defect out of {}".format(name_stable_below_vbm, name_set))
+                    logger.info(f"{name_stable_below_vbm} is only stable defect out of {name_set}")
                     transition_level_map[track_name] = {}
                     stable_entries[track_name] = list([defects[vbm_def_index]])
                     finished_charges[track_name] = [one_def.charge for one_def in defects]
@@ -447,14 +446,12 @@ class DefectPhaseDiagram(MSONable):
 
         def _get_total_q(ef):
             qd_tot = sum(
-                [
-                    d["charge"] * d["conc"]
-                    for d in self.defect_concentrations(
-                        chemical_potentials=chemical_potentials,
-                        temperature=temperature,
-                        fermi_level=ef,
-                    )
-                ]
+                d["charge"] * d["conc"]
+                for d in self.defect_concentrations(
+                    chemical_potentials=chemical_potentials,
+                    temperature=temperature,
+                    fermi_level=ef,
+                )
             )
             qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
@@ -478,14 +475,12 @@ class DefectPhaseDiagram(MSONable):
 
         high_temp_fermi_level = self.solve_for_fermi_energy(quench_temperature, chemical_potentials, bulk_dos)
         fixed_defect_charge = sum(
-            [
-                d["charge"] * d["conc"]
-                for d in self.defect_concentrations(
-                    chemical_potentials=chemical_potentials,
-                    temperature=quench_temperature,
-                    fermi_level=high_temp_fermi_level,
-                )
-            ]
+            d["charge"] * d["conc"]
+            for d in self.defect_concentrations(
+                chemical_potentials=chemical_potentials,
+                temperature=quench_temperature,
+                fermi_level=high_temp_fermi_level,
+            )
         )
 
         fdos = FermiDos(bulk_dos, bandgap=self.band_gap)
@@ -564,7 +559,7 @@ class DefectPhaseDiagram(MSONable):
         Produce defect Formation energy vs Fermi energy plot
         Args:
             mu_elts:
-                a dictionnary of {Element:value} giving the chemical
+                a dictionary of {Element:value} giving the chemical
                 potential of each element
             xlim:
                 Tuple (min,max) giving the range of the x (fermi energy) axis
@@ -717,7 +712,7 @@ class DefectPhaseDiagram(MSONable):
         plt.xlabel("Fermi energy (eV)", size=ax_fontsize * width)
         plt.ylabel("Defect Formation\nEnergy (eV)", size=ax_fontsize * width)
         if title:
-            plt.title("{}".format(title), size=ax_fontsize * width)
+            plt.title(f"{title}", size=ax_fontsize * width)
 
         if saved:
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")

@@ -10,6 +10,7 @@ dependencies/spglib*/build
 *.swp
 *.swo
 *.pyd
+*.c
 pymatgen/pymatgen.cfg
 dist
 _build

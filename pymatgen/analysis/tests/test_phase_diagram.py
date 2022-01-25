@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -459,6 +458,11 @@ class PhaseDiagramTest(unittest.TestCase):
             n_h_e = self.pd.get_hull_energy(entry.composition.fractional_composition)
             self.assertAlmostEqual(n_h_e, entry.energy_per_atom)
 
+    def test_get_hull_energy_per_atom(self):
+        for entry in self.pd.stable_entries:
+            h_e = self.pd.get_hull_energy_per_atom(entry.composition)
+            self.assertAlmostEqual(h_e, entry.energy_per_atom)
+
     def test_1d_pd(self):
         entry = PDEntry("H", 0)
         pd = PhaseDiagram([entry])
@@ -605,7 +609,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         stable_formulas = [ent.original_entry.composition.reduced_formula for ent in self.pd.stable_entries]
         expected_stable = ["Li5FeO4", "Li2FeO3", "LiFeO2", "Fe2O3", "Li2O2"]
         for formula in expected_stable:
-            self.assertTrue(formula in stable_formulas, "{} not in stable entries!".format(formula))
+            self.assertTrue(formula in stable_formulas, f"{formula} not in stable entries!")
         self.assertEqual(len(self.pd6.stable_entries), 4)
 
     def test_get_formation_energy(self):
@@ -625,7 +629,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                 energy,
                 stable_formation_energies[formula],
                 7,
-                "Calculated formation for {} is not correct!".format(formula),
+                f"Calculated formation for {formula} is not correct!",
             )
 
     def test_str(self):

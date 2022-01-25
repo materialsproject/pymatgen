@@ -21,8 +21,8 @@ import warnings
 from pathlib import Path
 from typing import Dict, Union
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     LDOS,
@@ -410,7 +410,7 @@ class DftSet(Cp2kInputSet):
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias="LDOS {}".format(i + 1), verbose=False))
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
 
     def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
@@ -681,9 +681,9 @@ class DftSet(Cp2kInputSet):
         }
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
         if not self.check("FORCE_EVAL/SUBSYS/CELL"):
-            x = max([s.coords[0] for s in self.structure.sites])
-            y = max([s.coords[1] for s in self.structure.sites])
-            z = max([s.coords[2] for s in self.structure.sites])
+            x = max(s.coords[0] for s in self.structure.sites)
+            y = max(s.coords[1] for s in self.structure.sites)
+            z = max(s.coords[2] for s in self.structure.sites)
             self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[x, 0, 0], [0, y, 0], [0, 0, z]])))
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
 
@@ -796,7 +796,7 @@ class RelaxSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
@@ -863,7 +863,7 @@ class CellOptSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """

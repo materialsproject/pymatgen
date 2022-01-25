@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -96,12 +95,8 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             AbstractMolAtomMapper
         """
         for trans_modules in ["molecule_matcher"]:
-            import sys
 
-            if sys.version_info > (3, 0):
-                level = 0  # Python 3.x
-            else:
-                level = -1  # Python 2.x
+            level = 0  # Python 3.x
             mod = __import__(
                 "pymatgen.analysis." + trans_modules,
                 globals(),
@@ -185,8 +180,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         Return inchi as molecular hash
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat(str("inchi"))
-        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
+        obconv.SetOutFormat("inchi")
+        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
@@ -264,9 +259,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             List of equivalent atoms.
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat(str("inchi"))
-        obconv.AddOption(str("a"), ob.OBConversion.OUTOPTIONS)
-        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
+        obconv.SetOutFormat("inchi")
+        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
+        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(
             r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
@@ -789,7 +784,7 @@ class KabschMatcher(MSONable):
             RMSD : Root mean squared deviation between P and Q
         """
         if self.target.atomic_numbers != p.atomic_numbers:
-            raise ValueError("The order of the species aren't matching! " "Please try using `PermInvMatcher`.")
+            raise ValueError("The order of the species aren't matching! Please try using `PermInvMatcher`.")
 
         p_coord, q_coord = p.cart_coords, self.target.cart_coords
 
@@ -1340,13 +1335,11 @@ class GeneticOrderMatcher(KabschMatcher):
                     if rmsd > self.threshold:
                         continue
 
-                    logger.debug("match - rmsd: {}, inds: {}".format(rmsd, inds))
+                    logger.debug(f"match - rmsd: {rmsd}, inds: {inds}")
                     matches.append(inds)
 
             partial_matches = matches
 
-            logger.info(
-                "number of atom in the fragment: {}, " "number of possible matches: {}".format(i + 1, len(matches))
-            )
+            logger.info(f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}")
 
         return matches

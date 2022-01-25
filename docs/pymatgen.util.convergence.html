@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.util.convergence module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.util.convergence module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.util.convergence.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.util.coord module" href="pymatgen.util.coord.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,78 +86,35 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.util.html">pymatgen.util package</a> &raquo;</li>
-        
       <li>pymatgen.util.convergence module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.util.convergence.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.util.convergence">
-<span id="pymatgen-util-convergence-module"></span><h1>pymatgen.util.convergence module<a class="headerlink" href="#module-pymatgen.util.convergence" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.util.convergence">
+<span id="pymatgen-util-convergence-module"></span><h1>pymatgen.util.convergence module<a class="headerlink" href="#module-pymatgen.util.convergence" title="Permalink to this headline"></a></h1>
 <p>function for calculating the convergence of an x, y data set
 main api:</p>
 <p>test_conv(xs, ys, name, tol)</p>
@@ -215,8 +126,8 @@ for tol &gt; 0
 returns the x_value for which dy(x)/dx &lt; tol for all x &gt;= x_value, conv is true is such a x_value exists
 for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value</p>
 <dl class="py exception">
-<dt id="pymatgen.util.convergence.SplineInputError">
-<em class="property">exception </em><code class="sig-name descname">SplineInputError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L47-L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.SplineInputError" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.SplineInputError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SplineInputError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L46-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.SplineInputError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Error for Spline input</p>
 <dl class="field-list simple">
@@ -227,26 +138,26 @@ for the best fit a gnuplot line is printed plotting the data, the function and t
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.determine_convergence">
-<code class="sig-name descname">determine_convergence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.0001</span></em>, <em class="sig-param"><span class="n">extra</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'extra'</span></em>, <em class="sig-param"><span class="n">plots</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L527-L608"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.determine_convergence" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.determine_convergence">
+<span class="sig-name descname"><span class="pre">determine_convergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'extra'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L526-L607"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.determine_convergence" title="Permalink to this definition"></a></dt>
 <dd><p>test it and at which x_value dy(x)/dx &lt; tol for all x &gt;= x_value, conv is true is such a x_value exists.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.exponential">
-<code class="sig-name descname">exponential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L143-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.exponential" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.exponential">
+<span class="sig-name descname"><span class="pre">exponential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L142-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.exponential" title="Permalink to this definition"></a></dt>
 <dd><p>exponential function base n to fit convergence data</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.extrapolate_reciprocal">
-<code class="sig-name descname">extrapolate_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">noise</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L351-L371"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.extrapolate_reciprocal">
+<span class="sig-name descname"><span class="pre">extrapolate_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L350-L370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>return the parameters such that a + b / x^n hits the last two data points</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.extrapolate_simple_reciprocal">
-<code class="sig-name descname">extrapolate_simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L336-L348"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.extrapolate_simple_reciprocal">
+<span class="sig-name descname"><span class="pre">extrapolate_simple_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L335-L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_simple_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -259,8 +170,8 @@ for the best fit a gnuplot line is printed plotting the data, the function and t
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.get_derivatives">
-<code class="sig-name descname">get_derivatives</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">fd</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L60-L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_derivatives" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.get_derivatives">
+<span class="sig-name descname"><span class="pre">get_derivatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L59-L91"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.get_derivatives" title="Permalink to this definition"></a></dt>
 <dd><p>return the derivatives of y(x) at the points x
 if scipy is available a spline is generated to calculate the derivatives
 if scipy is not available the left and right slopes are calculated, if both exist the average is returned
@@ -268,8 +179,8 @@ putting fd to zero always returns the finite difference slopes</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.get_weights">
-<code class="sig-name descname">get_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L395-L420"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_weights" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.get_weights">
+<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L394-L419"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.get_weights" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -283,8 +194,8 @@ putting fd to zero always returns the finite difference slopes</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.id_generator">
-<code class="sig-name descname">id_generator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">chars</span><span class="o">=</span><span class="default_value">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L35-L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.id_generator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.id_generator">
+<span class="sig-name descname"><span class="pre">id_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L34-L43"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.id_generator" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -297,28 +208,28 @@ putting fd to zero always returns the finite difference slopes</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.measure">
-<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em>, <em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">popt</span></em>, <em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L374-L392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.measure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.measure">
+<span class="sig-name descname"><span class="pre">measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L373-L391"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.measure" title="Permalink to this definition"></a></dt>
 <dd><p>measure the quality of a fit</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.multi_curve_fit">
-<code class="sig-name descname">multi_curve_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L423-L463"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_curve_fit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.multi_curve_fit">
+<span class="sig-name descname"><span class="pre">multi_curve_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L422-L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_curve_fit" title="Permalink to this definition"></a></dt>
 <dd><p>fit multiple functions to the x, y data, return the best fit</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.multi_reciprocal_extra">
-<code class="sig-name descname">multi_reciprocal_extra</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">noise</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L466-L484"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_reciprocal_extra" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.multi_reciprocal_extra">
+<span class="sig-name descname"><span class="pre">multi_reciprocal_extra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L465-L483"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_reciprocal_extra" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates for a series of powers ns the parameters for which the last two points are at the curve.
 With these parameters measure how well the other data points fit.
 return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_exponential">
-<code class="sig-name descname">p0_exponential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L165-L180"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_exponential" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_exponential">
+<span class="sig-name descname"><span class="pre">p0_exponential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L164-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_exponential" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -331,14 +242,14 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_reciprocal">
-<code class="sig-name descname">p0_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L134-L140"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_reciprocal">
+<span class="sig-name descname"><span class="pre">p0_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L133-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>predictor for first guess for reciprocal</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_simple_2reciprocal">
-<code class="sig-name descname">p0_simple_2reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L259-L272"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_simple_2reciprocal">
+<span class="sig-name descname"><span class="pre">p0_simple_2reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L258-L271"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_2reciprocal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -351,8 +262,8 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_simple_4reciprocal">
-<code class="sig-name descname">p0_simple_4reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L290-L303"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_simple_4reciprocal">
+<span class="sig-name descname"><span class="pre">p0_simple_4reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L289-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_4reciprocal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -365,8 +276,8 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_simple_5reciprocal">
-<code class="sig-name descname">p0_simple_5reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L321-L333"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_simple_5reciprocal">
+<span class="sig-name descname"><span class="pre">p0_simple_5reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L320-L332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_5reciprocal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -379,8 +290,8 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_simple_reciprocal">
-<code class="sig-name descname">p0_simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L227-L241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_simple_reciprocal">
+<span class="sig-name descname"><span class="pre">p0_simple_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L226-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -393,8 +304,8 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.p0_single_reciprocal">
-<code class="sig-name descname">p0_single_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L197-L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_single_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.p0_single_reciprocal">
+<span class="sig-name descname"><span class="pre">p0_single_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L196-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_single_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -407,8 +318,8 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.print_and_raise_error">
-<code class="sig-name descname">print_and_raise_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L100-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_and_raise_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.print_and_raise_error">
+<span class="sig-name descname"><span class="pre">print_and_raise_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L99-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.print_and_raise_error" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -422,87 +333,75 @@ return the best fit.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.print_plot_line">
-<code class="sig-name descname">print_plot_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em>, <em class="sig-param"><span class="n">popt</span></em>, <em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">ys</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">extra</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L487-L524"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_plot_line" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.print_plot_line">
+<span class="sig-name descname"><span class="pre">print_plot_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L486-L523"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.print_plot_line" title="Permalink to this definition"></a></dt>
 <dd><p>print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.reciprocal">
-<code class="sig-name descname">reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L116-L131"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.reciprocal">
+<span class="sig-name descname"><span class="pre">reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L115-L130"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>reciprocal function to the power n to fit convergence data</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.simple_2reciprocal">
-<code class="sig-name descname">simple_2reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L244-L256"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.simple_2reciprocal">
+<span class="sig-name descname"><span class="pre">simple_2reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L243-L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_2reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.simple_4reciprocal">
-<code class="sig-name descname">simple_4reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L275-L287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.simple_4reciprocal">
+<span class="sig-name descname"><span class="pre">simple_4reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L274-L286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_4reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.simple_5reciprocal">
-<code class="sig-name descname">simple_5reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L306-L318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.simple_5reciprocal">
+<span class="sig-name descname"><span class="pre">simple_5reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L305-L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_5reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.simple_reciprocal">
-<code class="sig-name descname">simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L213-L224"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.simple_reciprocal">
+<span class="sig-name descname"><span class="pre">simple_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L212-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.convergence.single_reciprocal">
-<code class="sig-name descname">single_reciprocal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">c</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/convergence.py#L183-L194"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.single_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.convergence.single_reciprocal">
+<span class="sig-name descname"><span class="pre">single_reciprocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/convergence.py#L182-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.convergence.single_reciprocal" title="Permalink to this definition"></a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -72,7 +71,7 @@ class LinearAssignment:
             self.c[: self.nx] = self.orig_c
 
         # initialize solution vectors
-        self._x = np.zeros(self.n, dtype=np.int_) - 1
+        self._x = np.zeros(self.n, dtype=int) - 1
         self._y = self._x.copy()
 
         # if column reduction doesn't find a solution, augment with shortest
@@ -196,7 +195,7 @@ class LinearAssignment:
 
         # compute distances
         self._d = self.c[istar] - self._v
-        _pred = np.zeros(self.n, dtype=np.int_) + istar
+        _pred = np.zeros(self.n, dtype=int) + istar
 
         # initialize sets
         # READY: set of nodes visited and in the path (whose price gets
@@ -204,9 +203,9 @@ class LinearAssignment:
         # SCAN: set of nodes at the bottom of the tree, which we need to
         # look at
         # T0DO: unvisited nodes
-        _ready = np.zeros(self.n, dtype=np.bool)
-        _scan = np.zeros(self.n, dtype=np.bool)
-        _todo = np.zeros(self.n, dtype=np.bool) + True
+        _ready = np.zeros(self.n, dtype=bool)
+        _scan = np.zeros(self.n, dtype=bool)
+        _todo = np.zeros(self.n, dtype=bool) + True
 
         while True:
             # populate scan with minimum reduced distances

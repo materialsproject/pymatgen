@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -230,7 +229,7 @@ class ElementTestCase(PymatgenTest):
                 self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
 
             if el.symbol not in ["He", "Ne", "Ar"]:
-                self.assertTrue(el.X > 0, "No electroneg for %s" % el)
+                self.assertTrue(el.X > 0, f"No electroneg for {el}")
 
         self.assertRaises(ValueError, Element.from_Z, 1000)
 

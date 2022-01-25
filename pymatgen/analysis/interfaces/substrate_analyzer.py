@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -119,12 +118,12 @@ class SubstrateAnalyzer(ZSLGenerator):
     def generate_surface_vectors(self, film_millers, substrate_millers):
         """
         Generates the film/substrate slab combinations for a set of given
-        miller indicies
+        miller indices
 
         Args:
             film_millers(array): all miller indices to generate slabs for
                 film
-            substrate_millers(array): all miller indicies to generate slabs
+            substrate_millers(array): all miller indices to generate slabs
                 for substrate
         """
         vector_sets = []
@@ -163,20 +162,20 @@ class SubstrateAnalyzer(ZSLGenerator):
             elasticity_tensor(ElasticTensor): elasticity tensor for the film
                 in the IEEE orientation
             film_millers(array): film facets to consider in search as defined by
-                miller indicies
+                miller indices
             substrate_millers(array): substrate facets to consider in search as
-                defined by miller indicies
+                defined by miller indices
             ground_state_energy(float): ground state energy for the film
             lowest(bool): only consider lowest matching area for each surface
         """
         self.film = film
         self.substrate = substrate
 
-        # Generate miller indicies if none specified for film
+        # Generate miller indices if none specified for film
         if film_millers is None:
             film_millers = sorted(get_symmetrically_distinct_miller_indices(self.film, self.film_max_miller))
 
-        # Generate miller indicies if none specified for substrate
+        # Generate miller indices if none specified for substrate
         if substrate_millers is None:
             substrate_millers = sorted(
                 get_symmetrically_distinct_miller_indices(self.substrate, self.substrate_max_miller)

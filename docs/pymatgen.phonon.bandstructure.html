@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.phonon.bandstructure module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.phonon.bandstructure module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.phonon.bandstructure.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.phonon.dos module" href="pymatgen.phonon.dos.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,82 +86,39 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.phonon.html">pymatgen.phonon package</a> &raquo;</li>
-        
       <li>pymatgen.phonon.bandstructure module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.phonon.bandstructure.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.phonon.bandstructure">
-<span id="pymatgen-phonon-bandstructure-module"></span><h1>pymatgen.phonon.bandstructure module<a class="headerlink" href="#module-pymatgen.phonon.bandstructure" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.phonon.bandstructure">
+<span id="pymatgen-phonon-bandstructure-module"></span><h1>pymatgen.phonon.bandstructure module<a class="headerlink" href="#module-pymatgen.phonon.bandstructure" title="Permalink to this headline"></a></h1>
 <p>This module provides classes to define a phonon band structure.</p>
 <dl class="py class">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure">
-<em class="property">class </em><code class="sig-name descname">PhononBandStructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qpoints</span></em>, <em class="sig-param"><span class="n">frequencies</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">nac_frequencies</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">eigendisplacements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nac_eigendisplacements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L65-L307"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononBandStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nac_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nac_eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L64-L306"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This is the most generic phonon band structure data possible
 it’s defined by a list of qpoints + frequencies for each of them.
@@ -250,8 +161,8 @@ provide projections to the band structure</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L250-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L249-L282"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable dict</p>
@@ -260,8 +171,8 @@ provide projections to the band structure</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking">
-<code class="sig-name descname">asr_breaking</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tol_eigendisplacements</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L220-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking">
+<span class="sig-name descname"><span class="pre">asr_breaking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol_eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L219-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the breaking of the acoustic sum rule for the three acoustic modes,
 if Gamma is present. None otherwise.
 If eigendisplacements are available they are used to determine the acoustic
@@ -272,8 +183,8 @@ identified or eigendisplacements are missing the first 3 modes will be used
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L285-L307"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L284-L306"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
@@ -285,8 +196,8 @@ identified or eigendisplacements are missing the first 3 modes will be used
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir">
-<code class="sig-name descname">get_nac_eigendisplacements_along_dir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">direction</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L202-L218"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir">
+<span class="sig-name descname"><span class="pre">get_nac_eigendisplacements_along_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L201-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
 None if the direction is not present or nac_eigendisplacements has not been calculated.</p>
 <dl class="field-list simple">
@@ -301,8 +212,8 @@ None if the direction is not present or nac_eigendisplacements has not been calc
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir">
-<code class="sig-name descname">get_nac_frequencies_along_dir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">direction</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L184-L200"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir">
+<span class="sig-name descname"><span class="pre">get_nac_frequencies_along_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L183-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the nac_frequencies for the given direction (not necessarily a versor).
 None if the direction is not present or nac_frequencies has not been calculated.</p>
 <dl class="field-list simple">
@@ -316,35 +227,35 @@ None if not found.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements">
-<em class="property">property </em><code class="sig-name descname">has_eigendisplacements</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/phonon/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_eigendisplacements</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/phonon/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements" title="Permalink to this definition"></a></dt>
 <dd><p>True if eigendisplacements are present.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq">
-<code class="sig-name descname">has_imaginary_freq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L163-L168"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq">
+<span class="sig-name descname"><span class="pre">has_imaginary_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L162-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq" title="Permalink to this definition"></a></dt>
 <dd><p>True if imaginary frequencies are present in the BS.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.has_nac">
-<em class="property">property </em><code class="sig-name descname">has_nac</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/phonon/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_nac" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.has_nac">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_nac</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/phonon/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_nac" title="Permalink to this definition"></a></dt>
 <dd><p>True if nac_frequencies are present.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructure.min_freq">
-<code class="sig-name descname">min_freq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L155-L161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.min_freq">
+<span class="sig-name descname"><span class="pre">min_freq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L154-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the point where the minimum frequency is reached and its value</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">
-<em class="property">class </em><code class="sig-name descname">PhononBandStructureSymmLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qpoints</span></em>, <em class="sig-param"><span class="n">frequencies</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">has_nac</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">eigendisplacements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L310-L638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononBandStructureSymmLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_nac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L309-L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.bandstructure.PhononBandStructure</span></code></a></p>
 <p>This object stores phonon band structures along selected (symmetry) lines in the
 Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
@@ -378,27 +289,27 @@ provide projections to the band structure</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L603-L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L602-L614"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">
-<code class="sig-name descname">as_phononwebsite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L492-L570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">
+<span class="sig-name descname"><span class="pre">as_phononwebsite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L491-L569"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite" title="Permalink to this definition"></a></dt>
 <dd><p>Return a dictionary with the phononwebsite format:
 <a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder">
-<code class="sig-name descname">band_reorder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L572-L601"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder">
+<span class="sig-name descname"><span class="pre">band_reorder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L571-L600"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder" title="Permalink to this definition"></a></dt>
 <dd><p>Re-order the eigenvalues according to the similarity of the eigenvectors</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L617-L638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L616-L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
@@ -408,8 +319,8 @@ provide projections to the band structure</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch">
-<code class="sig-name descname">get_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L454-L480"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch">
+<span class="sig-name descname"><span class="pre">get_branch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L453-L479"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch" title="Permalink to this definition"></a></dt>
 <dd><p>Returns in what branch(es) is the qpoint. There can be several
 branches.</p>
 <dl class="field-list simple">
@@ -426,8 +337,8 @@ branches</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints">
-<code class="sig-name descname">get_equivalent_qpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L427-L452"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints">
+<span class="sig-name descname"><span class="pre">get_equivalent_qpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L426-L451"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the list of qpoint indices equivalent (meaning they are the
 same frac coords) to the given one.</p>
 <dl class="field-list simple">
@@ -443,8 +354,8 @@ same frac coords) to the given one.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite">
-<code class="sig-name descname">write_phononwebsite</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L482-L490"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite">
+<span class="sig-name descname"><span class="pre">write_phononwebsite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L481-L489"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite" title="Permalink to this definition"></a></dt>
 <dd><p>Write a json file for the phononwebsite:
 <a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a></p>
 </dd></dl>
@@ -452,64 +363,52 @@ same frac coords) to the given one.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.phonon.bandstructure.eigenvectors_from_displacements">
-<code class="sig-name descname">eigenvectors_from_displacements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disp</span></em>, <em class="sig-param"><span class="n">masses</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L34-L40"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.eigenvectors_from_displacements" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.eigenvectors_from_displacements">
+<span class="sig-name descname"><span class="pre">eigenvectors_from_displacements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L33-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.eigenvectors_from_displacements" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate the eigenvectors from the atomic displacements</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.phonon.bandstructure.estimate_band_connection">
-<code class="sig-name descname">estimate_band_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prev_eigvecs</span></em>, <em class="sig-param"><span class="n">eigvecs</span></em>, <em class="sig-param"><span class="n">prev_band_order</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L43-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.estimate_band_connection" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.estimate_band_connection">
+<span class="sig-name descname"><span class="pre">estimate_band_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev_eigvecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigvecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_band_order</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L42-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.estimate_band_connection" title="Permalink to this definition"></a></dt>
 <dd><p>A function to order the phonon eigenvectors taken from phonopy</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.phonon.bandstructure.get_reasonable_repetitions">
-<code class="sig-name descname">get_reasonable_repetitions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">natoms</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../phonon/bandstructure.py#L19-L31"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.get_reasonable_repetitions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.get_reasonable_repetitions">
+<span class="sig-name descname"><span class="pre">get_reasonable_repetitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">natoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../phonon/bandstructure.py#L18-L30"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.get_reasonable_repetitions" title="Permalink to this definition"></a></dt>
 <dd><p>Choose the number of repetitions
 according to the number of atoms in the system</p>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -7,6 +7,8 @@ on:
 
 jobs:
   test:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
 
     strategy:
       max-parallel: 20
@@ -32,15 +34,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
       - uses: actions/cache@v2
-        if: startsWith(runner.os, 'macOS')
         with:
-          path: ~/Library/Caches/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          path: ~/Library/Caches/pip # needs to change if `runs-on: macos` changes
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -59,7 +60,7 @@ jobs:
       max-parallel: 2
       matrix:
         os: [ macos-latest, windows-latest ]
-        python-version: [ 3.7, 3.8 ]
+        python-version: [ '3.8', '3.9', '3.10' ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -68,10 +69,13 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Get pip cache dir
+        id: cache-dir
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
       - uses: actions/cache@v2
-        if: startsWith(runner.os, 'macOS')
         with:
-          path: ~/Library/Caches/pip
+          path: ${{ steps.cache-dir.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
@@ -87,5 +91,6 @@ jobs:
         run: |
           pip install setuptools wheel twine
           python setup.py sdist bdist_wheel
-          twine upload dist/*.whl
+          twine upload --skip-existing dist/*.whl
           twine upload --skip-existing dist/*.tar.gz
+        continue-on-error: true

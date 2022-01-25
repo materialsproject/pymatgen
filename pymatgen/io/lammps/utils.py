@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,7 +8,6 @@ This module defines utility classes and functions.
 
 import os
 import tempfile
-from io import open
 from subprocess import PIPE, Popen
 
 import numpy as np
@@ -234,7 +232,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
+            self.control_params["output"] = f"{output_file.split('.')[0]}.{self.control_params['filetype']}"
         if self.boxit:
             self._set_box()
 
@@ -260,11 +258,11 @@ class PackmolRunner:
         """
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
-            length = max([np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)]) + 2.0
+            length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
             net_volume += (length ** 3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
-            self.param_list[idx]["inside box"] = "0.0 0.0 0.0 {} {} {}".format(length, length, length)
+            self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
 
     def _write_input(self, input_dir="."):
         """
@@ -275,12 +273,12 @@ class PackmolRunner:
         """
         with open(os.path.join(input_dir, self.input_file), "wt", encoding="utf-8") as inp:
             for k, v in self.control_params.items():
-                inp.write("{} {}\n".format(k, self._format_param_val(v)))
+                inp.write(f"{k} {self._format_param_val(v)}\n")
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
             # input file.
             for idx, mol in enumerate(self.mols):
-                filename = os.path.join(input_dir, "{}.{}".format(idx, self.control_params["filetype"]))
+                filename = os.path.join(input_dir, f"{idx}.{self.control_params['filetype']}")
                 # pdb
                 if self.control_params["filetype"] == "pdb":
                     self.write_pdb(mol, filename, num=idx + 1)
@@ -302,7 +300,7 @@ class PackmolRunner:
                     )
                 )
                 for k, v in self.param_list[idx].items():
-                    inp.write("  {} {}\n".format(k, self._format_param_val(v)))
+                    inp.write(f"  {k} {self._format_param_val(v)}\n")
                 inp.write("end structure\n")
 
     def run(self, site_property=None):
@@ -319,18 +317,18 @@ class PackmolRunner:
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            with open(os.path.join(scratch_dir, self.input_file), "r") as packmol_input:
+            with open(os.path.join(scratch_dir, self.input_file)) as packmol_input:
                 with Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as p:
                     (stdout, stderr) = p.communicate()
             output_file = os.path.join(self.control_params["output"])
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
-                print("packed molecule written to {}".format(self.control_params["output"]))
+                print(f"packed molecule written to {self.control_params['output']}")
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
-            raise RuntimeError("Packmol execution failed. %s\n%s" % (stdout, stderr))
+            raise RuntimeError(f"Packmol execution failed. {stdout}\n{stderr}")
 
     @staticmethod
     def write_pdb(mol, filename, name=None, num=None):
@@ -346,7 +344,7 @@ class PackmolRunner:
             bma = BabelMolAdaptor.from_file("tmp.pdb", "pdb")
 
         num = num or 1
-        name = name or "ml{}".format(num)
+        name = name or f"ml{num}"
 
         # bma = BabelMolAdaptor(mol)
         pbm = pb.Molecule(bma._obmol)
@@ -366,7 +364,7 @@ class PackmolRunner:
             if mol.formula not in lookup:
                 mol.translate_sites(indices=range(len(mol)), vector=-mol.center_of_mass)
                 lookup[mol.formula] = mol.copy()
-            self.map_residue_to_mol["ml{}".format(idx + 1)] = lookup[mol.formula]
+            self.map_residue_to_mol[f"ml{idx + 1}"] = lookup[mol.formula]
 
     def convert_obatoms_to_molecule(self, atoms, residue_name=None, site_property="ff_map"):
         """
@@ -434,7 +432,7 @@ class PackmolRunner:
         bma = BabelMolAdaptor.from_file(filename, "pdb")
         pbm = pb.Molecule(bma._obmol)
 
-        assert len(pbm.residues) == sum([x["number"] for x in self.param_list])
+        assert len(pbm.residues) == sum(x["number"] for x in self.param_list)
 
         packed_mol = self.convert_obatoms_to_molecule(
             pbm.residues[0].atoms,
@@ -476,7 +474,7 @@ class LammpsRunner:
         Write the input/data files and run LAMMPS.
         """
         lammps_cmd = self.lammps_bin + ["-in", self.input_filename]
-        print("Running: {}".format(" ".join(lammps_cmd)))
+        print(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:
             (stdout, stderr) = p.communicate()
         return stdout, stderr

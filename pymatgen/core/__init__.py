@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,30 +8,23 @@ operations on them.
 
 import os
 
-try:
-    from ruamel import yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
+from ruamel.yaml import YAML
 
-from .composition import Composition  # noqa
-from .lattice import Lattice  # noqa
-from .operations import SymmOp  # noqa
-from .periodic_table import DummySpecies, Element, Species  # noqa
-from .sites import PeriodicSite, Site  # noqa
-from .structure import IMolecule, IStructure, Molecule, Structure  # noqa
-from .units import ArrayWithUnit, FloatWithUnit, Unit  # noqa
-
+from .composition import Composition
+from .lattice import Lattice
+from .operations import SymmOp
+from .periodic_table import DummySpecies, Element, Species
+from .sites import PeriodicSite, Site
+from .structure import IMolecule, IStructure, Molecule, Structure
+from .units import ArrayWithUnit, FloatWithUnit, Unit
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.0.16"
+__version__ = "2022.1.24"
 
-
+yaml = YAML()
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
@@ -47,10 +39,10 @@ def _load_pmg_settings():
 
     # Override anything in env vars with that in yml file
     try:
-        with open(SETTINGS_FILE, "rt") as f:
-            d_yml = yaml.safe_load(f)
+        with open(SETTINGS_FILE) as f:
+            d_yml = yaml.load(f)
         d.update(d_yml)
-    except IOError:
+    except (OSError, TypeError):
         # If there are any errors, default to using environment variables
         # if present.
         pass

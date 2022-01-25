@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#  coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -34,14 +33,14 @@ def get_energies(rootdir, reanalyze, verbose):
         logging.basicConfig(level=logging.INFO, format=FORMAT)
     drone = GaussianToComputedEntryDrone(inc_structure=True, parameters=["filename"])
     ncpus = multiprocessing.cpu_count()
-    logging.info("Detected {} cpus".format(ncpus))
+    logging.info(f"Detected {ncpus} cpus")
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(save_file) and not reanalyze:
-        msg = "Using previously assimilated data from {}.".format(save_file) + " Use -f to force re-analysis."
+        msg = f"Using previously assimilated data from {save_file}." + " Use -f to force re-analysis."
         queen.load_data(save_file)
     else:
         queen.parallel_assimilate(rootdir)
-        msg = "Results saved to {} for faster reloading.".format(save_file)
+        msg = f"Results saved to {save_file} for faster reloading."
         queen.save_data(save_file)
 
     entries = queen.get_data()
@@ -50,10 +49,10 @@ def get_energies(rootdir, reanalyze, verbose):
         (
             e.parameters["filename"].replace("./", ""),
             re.sub(r"\s+", "", e.composition.formula),
-            "{}".format(e.parameters["charge"]),
-            "{}".format(e.parameters["spin_mult"]),
-            "{:.5f}".format(e.energy),
-            "{:.5f}".format(e.energy_per_atom),
+            f"{e.parameters['charge']}",
+            f"{e.parameters['spin_mult']}",
+            f"{e.energy:.5f}",
+            f"{e.energy_per_atom:.5f}",
         )
         for e in entries
     ]

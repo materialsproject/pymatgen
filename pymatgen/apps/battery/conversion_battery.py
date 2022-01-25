@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -73,7 +72,7 @@ class ConversionElectrode(AbstractElectrode):
                 working_ion_entry = e
 
         if not allow_unstable and not entry:
-            raise ValueError("Not stable compound found at composition {}.".format(comp))
+            raise ValueError(f"Not stable compound found at composition {comp}.")
 
         profile = pd.get_element_profile(working_ion, comp)
         # Need to reverse because voltage goes form most charged to most
@@ -403,26 +402,22 @@ class ConversionVoltagePair(AbstractVoltagePair):
                 break
 
         prev_mass_dischg = (
-            sum([prev_rxn.all_comp[i].weight * abs(prev_rxn.coeffs[i]) for i in range(len(prev_rxn.all_comp))]) / 2
+            sum(prev_rxn.all_comp[i].weight * abs(prev_rxn.coeffs[i]) for i in range(len(prev_rxn.all_comp))) / 2
         )
         vol_charge = sum(
-            [
-                abs(prev_rxn.get_coeff(e.composition)) * e.structure.volume
-                for e in step1["entries"]
-                if e.composition.reduced_formula != working_ion
-            ]
+            abs(prev_rxn.get_coeff(e.composition)) * e.structure.volume
+            for e in step1["entries"]
+            if e.composition.reduced_formula != working_ion
         )
         mass_discharge = (
-            sum([curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))]) / 2
+            sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
         )
         mass_charge = prev_mass_dischg
         mass_discharge = mass_discharge
         vol_discharge = sum(
-            [
-                abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
-                for e in step2["entries"]
-                if e.composition.reduced_formula != working_ion
-            ]
+            abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
+            for e in step2["entries"]
+            if e.composition.reduced_formula != working_ion
         )
 
         totalcomp = Composition({})
@@ -459,12 +454,12 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            "Conversion voltage pair with working ion {}".format(self.working_ion_entry.composition.reduced_formula),
-            "Reaction : {}".format(self.rxn),
-            "V = {}, mAh = {}".format(self.voltage, self.mAh),
-            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge),
-            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
-            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge),
+            f"Conversion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"Reaction : {self.rxn}",
+            f"V = {self.voltage}, mAh = {self.mAh}",
+            f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
+            f"mass_charge = {self.mass_charge}, mass_discharge = {self.mass_discharge}",
+            f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",
         ]
         return "\n".join(output)
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -153,7 +152,7 @@ class ZSLGenerator(MSONable):
                 a super lattice of area j*film area
         """
 
-        transformation_indicies = [
+        transformation_indices = [
             (i, j)
             for i in range(1, int(self.max_area / film_area))
             for j in range(1, int(self.max_area / substrate_area))
@@ -164,11 +163,11 @@ class ZSLGenerator(MSONable):
             for j in range(1, int(self.max_area / substrate_area))
             if np.absolute(substrate_area / film_area - float(i) / j) < self.max_area_ratio_tol
         ]
-        transformation_indicies = list(set(transformation_indicies))
+        transformation_indices = list(set(transformation_indices))
 
         # Sort sets by the square of the matching area and yield in order
         # from smallest to largest
-        for i, j in sorted(transformation_indicies, key=lambda x: x[0] * x[1]):
+        for i, j in sorted(transformation_indices, key=lambda x: x[0] * x[1]):
             yield (gen_sl_transform_matricies(i), gen_sl_transform_matricies(j))
 
     def get_equiv_transformations(self, transformation_sets, film_vectors, substrate_vectors):
@@ -212,12 +211,12 @@ class ZSLGenerator(MSONable):
         substrate_area = vec_area(*substrate_vectors)
 
         # Generate all super lattice comnbinations for a given set of miller
-        # indicies
+        # indices
         transformation_sets = self.generate_sl_transformation_sets(film_area, substrate_area)
 
         # Check each super-lattice pair to see if they match
         for match in self.get_equiv_transformations(transformation_sets, film_vectors, substrate_vectors):
-            # Yield the match area, the miller indicies,
+            # Yield the match area, the miller indices,
             yield ZSLMatch(
                 film_sl_vectors=match[0],
                 substrate_sl_vectors=match[1],

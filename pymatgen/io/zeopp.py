@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -76,7 +75,7 @@ __data__ = "Aug 2, 2013"
 class ZeoCssr(Cssr):
     """
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
-    input CSSR format. The coordinate system is rorated from xyz to zyx.
+    input CSSR format. The coordinate system is rotated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
     """
@@ -106,8 +105,8 @@ class ZeoCssr(Cssr):
                 self.structure.lattice.alpha,
                 self.structure.lattice.beta,
             ),
-            "{} 0".format(len(self.structure)),
-            "0 {}".format(self.structure.formula),
+            f"{len(self.structure)} 0",
+            f"0 {self.structure.formula}",
         ]
         for i, site in enumerate(self.structure.sites):
             # if not hasattr(site, 'charge'):
@@ -269,9 +268,9 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -287,7 +286,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             rad_flag = True
             with open(rad_file, "w+") as fp:
                 for el in rad_dict.keys():
-                    fp.write("{} {}\n".format(el, rad_dict[el].real))
+                    fp.write(f"{el} {rad_dict[el].real}\n")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         (
@@ -361,9 +360,9 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             Default is 0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -375,7 +374,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         rad_file = name + ".rad"
         with open(rad_file, "w+") as fp:
             for el in rad_dict.keys():
-                print("{} {}".format(el, rad_dict[el].real), file=fp)
+                print(f"{el} {rad_dict[el].real}", file=fp)
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         # vornet, vor_edge_centers, vor_face_centers = \
@@ -427,9 +426,9 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -445,13 +444,13 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             rad_flag = True
             with open(rad_file, "w+") as fp:
                 for el in rad_dict.keys():
-                    fp.write("{} {}\n".format(el, rad_dict[el].real))
+                    fp.write(f"{el} {rad_dict[el].real}\n")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"
         atmnet.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
-            with open(out_file, "rt") as fp:
+            with open(out_file) as fp:
                 output = fp.readline()
         else:
             output = ""
@@ -492,7 +491,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3, probe_rad=0
             rad_file = name + ".rad"
             with open(rad_file, "w") as fp:
                 for el in rad_dict.keys():
-                    fp.write("{0}     {1}".format(el, rad_dict[el]))
+                    fp.write(f"{el}     {rad_dict[el]}")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
         vol_str = volume(atmnet, 0.3, probe_rad, 10000)

@@ -159,7 +159,7 @@ class StructureConnectivity(MSONable):
             environments_symbols: Symbols of the environments for the environment subgraph.
             only_atoms: Atoms to be considered.
         """
-        logging.info("Setup of environment subgraph for environments {}".format(", ".join(environments_symbols)))
+        logging.info(f"Setup of environment subgraph for environments {', '.join(environments_symbols)}")
         if not isinstance(environments_symbols, collections.abc.Iterable):
             environments_symbols = [environments_symbols]
         environments_symbols = sorted(environments_symbols)
@@ -267,7 +267,6 @@ class StructureConnectivity(MSONable):
         Returns:
 
         """
-        pass
 
     def get_connected_components(self, environments_symbols=None, only_atoms=None):
         """

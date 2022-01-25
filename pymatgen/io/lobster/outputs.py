@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
@@ -310,7 +309,7 @@ class Icohplist:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[1:-1]
         if len(data) == 0:
-            raise IOError("ICOHPLIST file contains no data.")
+            raise OSError("ICOHPLIST file contains no data.")
 
         # Which Lobster version?
         if len(data[0].split()) == 8:
@@ -349,7 +348,7 @@ class Icohplist:
             # TODO: adapt this for orbitalwise stuff
             num_bonds = len(data_without_orbitals) // 2
             if num_bonds == 0:
-                raise IOError("ICOHPLIST file contains no data.")
+                raise OSError("ICOHPLIST file contains no data.")
         else:
             num_bonds = len(data_without_orbitals)
 
@@ -364,7 +363,7 @@ class Icohplist:
             line = data_without_orbitals[bond].split()
             icohp = {}
             if version == "2.2.1":
-                label = "%s" % (line[0])
+                label = f"{line[0]}"
                 atom1 = str(line[1])
                 atom2 = str(line[2])
                 length = float(line[3])
@@ -375,7 +374,7 @@ class Icohplist:
                     icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[4])
 
             elif version == "3.1.1":
-                label = "%s" % (line[0])
+                label = f"{line[0]}"
                 atom1 = str(line[1])
                 atom2 = str(line[2])
                 length = float(line[3])
@@ -649,7 +648,7 @@ class Charge:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[3:-3]
         if len(data) == 0:
-            raise IOError("CHARGES file contains no data.")
+            raise OSError("CHARGES file contains no data.")
 
         self.num_atoms = len(data)
         self.atomlist = []  # type: List[str]
@@ -773,7 +772,7 @@ class Lobsterout:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")  # [3:-3]
         if len(data) == 0:
-            raise IOError("lobsterout does not contain any data")
+            raise OSError("lobsterout does not contain any data")
 
         # check if Lobster starts from a projection
         self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
@@ -1690,7 +1689,7 @@ class MadelungEnergies:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[5]
         if len(data) == 0:
-            raise IOError("MadelungEnergies file contains no data.")
+            raise OSError("MadelungEnergies file contains no data.")
         line = data.split()
         self.ewald_splitting = float(line[0])
         self.madelungenergies_Mulliken = float(line[1])
@@ -1729,7 +1728,7 @@ class SitePotential:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")
         if len(data) == 0:
-            raise IOError("SitePotentials file contains no data.")
+            raise OSError("SitePotentials file contains no data.")
 
         self.ewald_splitting = float(data[0].split()[9])
 

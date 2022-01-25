@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -30,7 +29,7 @@ def freq_units(units):
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1
 
     Returns:
-        Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
+        Returns conversion factor from THz to the required units and the label in the form of a namedtuple
 
     """
 
@@ -54,7 +53,7 @@ def freq_units(units):
     try:
         return d[units.lower().strip()]
     except KeyError:
-        raise KeyError("Value for units `{}` unknown\nPossible values are:\n {}".format(units, list(d.keys())))
+        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(d.keys())}")
 
 
 class PhononDosPlotter:
@@ -200,7 +199,7 @@ class PhononDosPlotter:
         ylim = plt.ylim()
         plt.plot([0, 0], ylim, "k--", linewidth=2)
 
-        plt.xlabel(r"$\mathrm{{Frequencies\ ({})}}$".format(u.label))
+        plt.xlabel(fr"$\mathrm{{Frequencies\ ({u.label})}}$")
         plt.ylabel(r"$\mathrm{Density\ of\ states}$")
 
         plt.legend()
@@ -274,16 +273,16 @@ class PhononBSPlotter:
             if i == 0:
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
-                logger.debug("Adding label {l} at {d}".format(l=tt[0], d=tt[1]))
+                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
             else:
                 if tt[1] == temp_ticks[i - 1][1]:
-                    logger.debug("Skipping label {i}".format(i=tt[1]))
+                    logger.debug(f"Skipping label {tt[1]}")
                 else:
-                    logger.debug("Adding label {l} at {d}".format(l=tt[0], d=tt[1]))
+                    logger.debug(f"Adding label {tt[0]} at {tt[1]}")
                     uniq_d.append(tt[0])
                     uniq_l.append(tt[1])
 
-        logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
+        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
         plt.gca().set_xticklabels(uniq_l)
 
@@ -292,16 +291,12 @@ class PhononBSPlotter:
                 # don't print the same label twice
                 if i != 0:
                     if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug("already print label... " "skipping label {i}".format(i=ticks["label"][i]))
+                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
-                        logger.debug(
-                            "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
-                        )
+                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
-                    )
+                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     plt.axvline(ticks["distance"][i], color="k")
         return plt
 
@@ -371,7 +366,7 @@ class PhononBSPlotter:
 
         # Main X and Y Labels
         plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
-        ylabel = r"$\mathrm{{Frequencies\ ({})}}$".format(u.label)
+        ylabel = fr"$\mathrm{{Frequencies\ ({u.label})}}$"
         plt.ylabel(ylabel, fontsize=30)
 
         # X range (K)
@@ -512,7 +507,7 @@ class PhononBSPlotter:
 class ThermoPlotter:
     """
     Plotter for thermodynamic properties obtained from phonon DOS.
-    If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
+    If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
     the plots in units of mol instead of mole-cell
     """
 
@@ -691,11 +686,11 @@ class ThermoPlotter:
             temperatures,
             ylabel="Thermodynamic properties",
             ylim=ylim,
-            label=r"$C_v$ (J/K/mol{})".format(mol),
+            label=fr"$C_v$ (J/K/mol{mol})",
             **kwargs,
         )
         self._plot_thermo(
-            self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0], label=r"$S$ (J/K/mol{})".format(mol), **kwargs
+            self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0], label=fr"$S$ (J/K/mol{mol})", **kwargs
         )
         self._plot_thermo(
             self.dos.internal_energy,
@@ -703,7 +698,7 @@ class ThermoPlotter:
             ylim=ylim,
             ax=fig.axes[0],
             factor=1e-3,
-            label=r"$\Delta E$ (kJ/mol{})".format(mol),
+            label=fr"$\Delta E$ (kJ/mol{mol})",
             **kwargs,
         )
         self._plot_thermo(
@@ -712,7 +707,7 @@ class ThermoPlotter:
             ylim=ylim,
             ax=fig.axes[0],
             factor=1e-3,
-            label=r"$\Delta F$ (kJ/mol{})".format(mol),
+            label=fr"$\Delta F$ (kJ/mol{mol})",
             **kwargs,
         )
 
@@ -754,7 +749,7 @@ class GruneisenPlotter:
 
         plt = pretty_plot(12, 8)
 
-        plt.xlabel(r"$\mathrm{{Frequency\ ({})}}$".format(u.label))
+        plt.xlabel(fr"$\mathrm{{Frequency\ ({u.label})}}$")
         plt.ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n = len(y) - 1

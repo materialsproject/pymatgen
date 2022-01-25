@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -46,7 +45,7 @@ class XSF:
         cart_coords = self.structure.cart_coords
         app("# Cartesian coordinates in Angstrom.")
         app("PRIMCOORD")
-        app(" %d 1" % len(cart_coords))
+        app(f" {len(cart_coords)} 1")
 
         for site, coord in zip(self.structure, cart_coords):
             if atom_symbol:

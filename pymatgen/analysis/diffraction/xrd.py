@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -68,28 +67,28 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     is as follows
 
     1. Calculate reciprocal lattice of structure. Find all reciprocal points
-       within the limiting sphere given by :math:`\\frac{2}{\\lambda}`.
+       within the limiting sphere given by :math:` \frac{2}{ \lambda}`.
 
-    2. For each reciprocal point :math:`\\mathbf{g_{hkl}}` corresponding to
+    2. For each reciprocal point :math:` \mathbf{g_{hkl}}` corresponding to
        lattice plane :math:`(hkl)`, compute the Bragg condition
-       :math:`\\sin(\\theta) = \\frac{\\lambda}{2d_{hkl}}`
+       :math:` \sin( \theta) =  \frac{ \lambda}{2d_{hkl}}`
 
     3. Compute the structure factor as the sum of the atomic scattering
        factors. The atomic scattering factors are given by
 
        .. math::
 
-           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \
-           \\exp(-b_is^2)
+           f(s) = Z - 41.78214 \times s^2 \times \sum \limits_{i=1}^n a_i \
+            \exp(-b_is^2)
 
-       where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`
+       where :math:`s = \ frac{\ sin(\ theta)}{\ lambda}` and :math:`a_i`
        and :math:`b_i` are the fitted parameters for each element. The
        structure factor is then given by
 
        .. math::
 
-           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}
-           \\cdot \\mathbf{r})
+           F_{hkl} =  \sum \limits_{j=1}^N f_j  \exp(2 \pi i  \mathbf{g_{hkl}}
+            \cdot  \mathbf{r})
 
     4. The intensity is then given by the modulus square of the structure
        factor.
@@ -103,8 +102,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
        .. math::
 
-           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}
-           {\\sin^2(\\theta)\\cos(\\theta)}
+           P( \theta) =  \frac{1 +  \cos^2(2 \theta)}
+           { \sin^2( \theta) \cos( \theta)}
     """
 
     # Tuple of available radiation keywords.
@@ -273,7 +272,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
-        max_intensity = max([v[0] for v in peaks.values()])
+        max_intensity = max(v[0] for v in peaks.values())
         x = []
         y = []
         hkls = []

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,28 +5,9 @@
 
 import sys
 import platform
+import numpy
 
 from setuptools import setup, find_namespace_packages, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
-
-
-class build_ext(_build_ext):
-    """Extension builder that checks for numpy before install."""
-
-    def finalize_options(self):
-        """Override finalize_options."""
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        import builtins
-
-        if hasattr(builtins, "__NUMPY_SETUP__"):
-            # pylint: disable=E1101
-            del builtins.__NUMPY_SETUP__
-        import importlib
-        import numpy
-
-        importlib.reload(numpy)
-        self.include_dirs.append(numpy.get_include())
 
 
 extra_link_args = []
@@ -87,8 +67,6 @@ but pymatgen offer several advantages:
    the well-established Materials Project. It is also actively being developed
    and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org),
    the ABINIT group and many other research groups.
-
-With effect from version 2021.1.1, pymatgen only supports Python >3.7.
 """
 
 setup(
@@ -97,9 +75,8 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.0.16",
-    cmdclass={"build_ext": build_ext},
-    python_requires=">=3.7",
+    version="2022.1.24",
+    python_requires=">=3.8",
     install_requires=[
         "numpy>=1.20.1",
         "requests",
@@ -115,15 +92,14 @@ setup(
         "pandas",
         "plotly>=4.5.0",
         "uncertainties>=3.1.4",
+        "Cython>=0.29.23",
+        "pybtex",
+        "tqdm",
     ],
     extras_require={
-        "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        ':python_version < "3.8"': [
-            "typing-extensions>=3.7.4.3",
-        ],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
@@ -182,9 +158,9 @@ setup(
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -197,12 +173,12 @@ setup(
     ext_modules=[
         Extension(
             "pymatgen.optimization.linear_assignment",
-            ["pymatgen/optimization/linear_assignment.c"],
+            ["pymatgen/optimization/linear_assignment.pyx"],
             extra_link_args=extra_link_args,
         ),
-        Extension("pymatgen.util.coord_cython", ["pymatgen/util/coord_cython.c"], extra_link_args=extra_link_args),
+        Extension("pymatgen.util.coord_cython", ["pymatgen/util/coord_cython.pyx"], extra_link_args=extra_link_args),
         Extension(
-            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.c"], extra_link_args=extra_link_args
+            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.pyx"], extra_link_args=extra_link_args
         ),
     ],
     entry_points={
@@ -214,4 +190,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
+    include_dirs=numpy.get_include(),
 )

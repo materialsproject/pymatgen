@@ -1,4 +1,3 @@
-# coding: utf-8
 import os
 
 for parent, subdir, files in os.walk("../pymatgen"):

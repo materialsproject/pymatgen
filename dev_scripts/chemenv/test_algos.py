@@ -1,8 +1,6 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 Development script to test the algorithms of a given model coordination environments
@@ -55,7 +53,7 @@ if __name__ == "__main__":
         try:
             nperms = int(test)
         except Exception:
-            raise ValueError("Could not turn {} into integer ...".format(test))
+            raise ValueError(f"Could not turn {test} into integer ...")
         perms_iterator = []
         for ii in range(nperms):
             shuffle(myindices)
@@ -70,7 +68,7 @@ if __name__ == "__main__":
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
         points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
-        print("Perm # {:d}/{:d} : ".format(iperm, nperms), indices_perm)
+        print(f"Perm # {iperm:d}/{nperms:d} : ", indices_perm)
 
         algos_results = []
         for algo in cg.algorithms:

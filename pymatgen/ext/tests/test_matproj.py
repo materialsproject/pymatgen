@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import random
@@ -94,7 +93,7 @@ class MPResterTest(PymatgenTest):
                 val = self.rester.get_data(mpid, prop=prop)[0][prop]
                 if prop in ["energy", "energy_per_atom"]:
                     prop = "final_" + prop
-                self.assertAlmostEqual(expected_vals[prop], val, 2, "Failed with property %s" % prop)
+                self.assertAlmostEqual(expected_vals[prop], val, 2, f"Failed with property {prop}")
             elif prop in ["elements", "icsd_ids", "task_ids"]:
                 upstream_vals = set(self.rester.get_data(mpid, prop=prop)[0][prop])
                 self.assertLessEqual(set(expected_vals[prop]), upstream_vals)
@@ -146,13 +145,13 @@ class MPResterTest(PymatgenTest):
         syms2 = "Li-Fe-O"
         entries = self.rester.get_entries_in_chemsys(syms)
         entries2 = self.rester.get_entries_in_chemsys(syms2)
-        elements = set([Element(sym) for sym in syms])
+        elements = {Element(sym) for sym in syms}
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
 
-        e1 = set([i.entry_id for i in entries])
-        e2 = set([i.entry_id for i in entries2])
+        e1 = {i.entry_id for i in entries}
+        e2 = {i.entry_id for i in entries2}
         self.assertTrue(e1 == e2)
 
     def test_get_structure_by_material_id(self):
@@ -326,7 +325,7 @@ class MPResterTest(PymatgenTest):
                         entry.composition,
                         entry.uncorrected_energy + 0.01,
                         parameters=entry.parameters,
-                        entry_id="mod_{}".format(entry.entry_id),
+                        entry_id=f"mod_{entry.entry_id}",
                     )
                 )
         rest_ehulls = self.rester.get_stability(modified_entries)
@@ -444,7 +443,7 @@ class MPResterTest(PymatgenTest):
 
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
-            self.assertEqual(len(Composition(c)), 3, "Failed in %s" % c)
+            self.assertEqual(len(Composition(c)), 3, f"Failed in {c}")
 
         chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
@@ -466,7 +465,7 @@ class MPResterTest(PymatgenTest):
             r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
-        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers["user-agent"]))
+        self.assertIsNotNone(m, msg=f"Unexpected user-agent value {headers['user-agent']}")
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
@@ -477,8 +476,8 @@ class MPResterTest(PymatgenTest):
 
         self.assertIsInstance(db_version, str)
 
-        with open(SETTINGS_FILE, "rt") as f:
-            d = yaml.safe_load(f)
+        with open(SETTINGS_FILE) as f:
+            d = yaml.load(f)
 
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
         self.assertIsInstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)

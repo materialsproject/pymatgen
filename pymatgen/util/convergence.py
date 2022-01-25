@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.import string
 
@@ -409,7 +408,7 @@ def get_weights(xs, ys, mode=2):
             mind = min(abs(d), mind)
         weights = []
         for d in ds:
-            weights.append(abs((mind / d)))
+            weights.append(abs(mind / d))
     if mode == 2:
         maxxs = max(xs) ** 2
         weights = []
@@ -493,26 +492,22 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
         for n in range(0, len(ys), 1):
             f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
     tol = abs(tol)
-    line = "plot 'convdat.%s' pointsize 4 lt 0, " % idp
-    line += "%s lt 3, %s lt 4, %s lt 4, " % (popt[0], popt[0] - tol, popt[0] + tol)
+    line = f"plot 'convdat.{idp}' pointsize 4 lt 0, "
+    line += f"{popt[0]} lt 3, {popt[0] - tol} lt 4, {popt[0] + tol} lt 4, "
     if function is exponential:
-        line += "%s + %s * %s ** -x" % (
-            popt[0],
-            popt[1],
-            min(max(1.00001, popt[2]), 1.2),
-        )
+        line += f"{popt[0]} + {popt[1]} * {min(max(1.00001, popt[2]), 1.2)} ** -x"
     elif function is reciprocal:
-        line += "%s + %s / x**%s" % (popt[0], popt[1], min(max(0.5, popt[2]), 6))
+        line += f"{popt[0]} + {popt[1]} / x**{min(max(0.5, popt[2]), 6)}"
     elif function is single_reciprocal:
-        line += "%s + %s / (x - %s)" % (popt[0], popt[1], popt[2])
+        line += f"{popt[0]} + {popt[1]} / (x - {popt[2]})"
     elif function is simple_reciprocal:
-        line += "%s + %s / x" % (popt[0], popt[1])
+        line += f"{popt[0]} + {popt[1]} / x"
     elif function is simple_2reciprocal:
-        line += "%s + %s / x**2" % (popt[0], popt[1])
+        line += f"{popt[0]} + {popt[1]} / x**2"
     elif function is simple_4reciprocal:
-        line += "%s + %s / x**4" % (popt[0], popt[1])
+        line += f"{popt[0]} + {popt[1]} / x**4"
     elif function is simple_5reciprocal:
-        line += "%s + %s / x**0.5" % (popt[0], popt[1])
+        line += f"{popt[0]} + {popt[1]} / x**0.5"
     else:
         print(function, " no plot ")
 

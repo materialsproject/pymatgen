@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -93,7 +92,7 @@ def coord_list_mapping(subset, superset, atol=1e-8):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates " "in superset")
+        raise ValueError("Something wrong with the inputs, likely duplicates in superset")
     return inds
 
 
@@ -259,9 +258,9 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
     if mask is not None:
-        m = np.array(mask, dtype=np.int_)
+        m = np.array(mask, dtype=int)
     else:
-        m = np.zeros((len(subset), len(superset)), dtype=np.int_)
+        m = np.zeros((len(subset), len(superset)), dtype=int)
     atol = np.zeros(3, dtype=np.float64) + atol
     return cuc.is_coord_subset_pbc(c1, c2, atol, m)
 
@@ -350,7 +349,7 @@ def get_angle(v1, v2, units="degrees"):
         return math.degrees(angle)
     if units == "radians":
         return angle
-    raise ValueError("Invalid units {}".format(units))
+    raise ValueError(f"Invalid units {units}")
 
 
 class Simplex(MSONable):
@@ -475,11 +474,11 @@ class Simplex(MSONable):
 
     def __repr__(self):
         output = [
-            "{}-simplex in {}D space".format(self.simplex_dim, self.space_dim),
+            f"{self.simplex_dim}-simplex in {self.space_dim}D space",
             "Vertices:",
         ]
         for coord in self._coords:
-            output.append("\t({})".format(", ".join(map(str, coord))))
+            output.append(f"\t({', '.join(map(str, coord))})")
         return "\n".join(output)
 
     def __str__(self):

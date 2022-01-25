@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -97,7 +96,7 @@ class JahnTellerTest(unittest.TestCase):
                 {
                     "ligand": "O2-",
                     "ligand_bond_length_spread": 0.2111,
-                    "ligand_bond_lengths": set([2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863]),
+                    "ligand_bond_lengths": {2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863},
                     "strength": "weak",
                     "motif": "oct",
                     "motif_order_parameter": 0.1441,

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -207,7 +206,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
             self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == nrows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
-            ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol, spg_number))
+            ax.set_title(f"{structure.formula} {spg_symbol} ({spg_number}) ")
 
         return fig
 

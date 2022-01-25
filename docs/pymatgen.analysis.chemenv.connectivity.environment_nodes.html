@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.chemenv.connectivity.environment_nodes module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.chemenv.connectivity.environment_nodes module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.connectivity.environment_nodes.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.connectivity.structure_connectivity module" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,86 +86,41 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.chemenv.connectivity.html">pymatgen.analysis.chemenv.connectivity package</a> &raquo;</li>
-        
       <li>pymatgen.analysis.chemenv.connectivity.environment_nodes module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.connectivity.environment_nodes.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.chemenv.connectivity.environment_nodes">
-<span id="pymatgen-analysis-chemenv-connectivity-environment-nodes-module"></span><h1>pymatgen.analysis.chemenv.connectivity.environment_nodes module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity.environment_nodes" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.chemenv.connectivity.environment_nodes">
+<span id="pymatgen-analysis-chemenv-connectivity-environment-nodes-module"></span><h1>pymatgen.analysis.chemenv.connectivity.environment_nodes module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity.environment_nodes" title="Permalink to this headline"></a></h1>
 <p>Environment nodes module.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode">
-<em class="property">class </em><code class="sig-name descname">AbstractEnvironmentNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">central_site</span></em>, <em class="sig-param"><span class="n">i_central_site</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L10-L95"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractEnvironmentNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">central_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_central_site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L10-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract class used to define an environment as a node in a graph.</p>
 <p>Constructor for the AbstractEnvironmentNode object.</p>
@@ -225,113 +134,113 @@ subclass of Site (e.g. PeriodicSite, …).</p></li>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM">
-<code class="sig-name descname">ATOM</code><em class="property"> = 6</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM">
+<span class="sig-name descname"><span class="pre">ATOM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS">
-<code class="sig-name descname">CE_NNBCES_NBCES_LIGANDS</code><em class="property"> = -1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS">
+<span class="sig-name descname"><span class="pre">CE_NNBCES_NBCES_LIGANDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT">
-<code class="sig-name descname">COORDINATION_ENVIRONMENT</code><em class="property"> = 0</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT">
+<span class="sig-name descname"><span class="pre">COORDINATION_ENVIRONMENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS">
-<code class="sig-name descname">DEFAULT_EXTENSIONS</code><em class="property"> = (6, 0)</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS">
+<span class="sig-name descname"><span class="pre">DEFAULT_EXTENSIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(6,</span> <span class="pre">0)</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT">
-<code class="sig-name descname">LIGANDS_ARRANGEMENT</code><em class="property"> = 4</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT">
+<span class="sig-name descname"><span class="pre">LIGANDS_ARRANGEMENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES">
-<code class="sig-name descname">NEIGHBORING_CES</code><em class="property"> = 2</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES">
+<span class="sig-name descname"><span class="pre">NEIGHBORING_CES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS">
-<code class="sig-name descname">NEIGHBORING_COORDINATION_ENVIRONMENTS</code><em class="property"> = 2</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS">
+<span class="sig-name descname"><span class="pre">NEIGHBORING_COORDINATION_ENVIRONMENTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT">
-<code class="sig-name descname">NEIGHBORS_LIGANDS_ARRANGEMENT</code><em class="property"> = 5</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT">
+<span class="sig-name descname"><span class="pre">NEIGHBORS_LIGANDS_ARRANGEMENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE">
-<code class="sig-name descname">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE</code><em class="property"> = 3</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE">
+<span class="sig-name descname"><span class="pre">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT">
-<code class="sig-name descname">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT</code><em class="property"> = 3</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT">
+<span class="sig-name descname"><span class="pre">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES">
-<code class="sig-name descname">NUMBER_OF_NEIGHBORING_CES</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES">
+<span class="sig-name descname"><span class="pre">NUMBER_OF_NEIGHBORING_CES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS">
-<code class="sig-name descname">NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS">
+<span class="sig-name descname"><span class="pre">NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol">
-<em class="property">property </em><code class="sig-name descname">atom_symbol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Symbol of the atom on the central site.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce">
-<em class="property">property </em><code class="sig-name descname">ce</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ce</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce" title="Permalink to this definition"></a></dt>
+<dd><p>Coordination environment of this node.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ce_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol" title="Permalink to this definition"></a></dt>
+<dd><p>Coordination environment of this node.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coordination_environment</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment" title="Permalink to this definition"></a></dt>
 <dd><p>Coordination environment of this node.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol">
-<em class="property">property </em><code class="sig-name descname">ce_symbol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Coordination environment of this node.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment">
-<em class="property">abstract property </em><code class="sig-name descname">coordination_environment</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Coordination environment of this node.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal">
-<code class="sig-name descname">everything_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L62-L65"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal">
+<span class="sig-name descname"><span class="pre">everything_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L62-L65"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal" title="Permalink to this definition"></a></dt>
 <dd><p>Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
 as well as the central site itself.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite">
-<em class="property">property </em><code class="sig-name descname">isite</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isite</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite" title="Permalink to this definition"></a></dt>
 <dd><p>Index of the central site.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol">
-<em class="property">property </em><code class="sig-name descname">mp_symbol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mp_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Coordination environment of this node.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode">
-<em class="property">class </em><code class="sig-name descname">EnvironmentNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">central_site</span></em>, <em class="sig-param"><span class="n">i_central_site</span></em>, <em class="sig-param"><span class="n">ce_symbol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L98-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnvironmentNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">central_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_central_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ce_symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L98-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode" title="pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode</span></code></a></p>
 <p>Class used to define an environment as a node in a graph.</p>
 <p>Constructor for the EnvironmentNode object.</p>
@@ -345,15 +254,15 @@ subclass of Site (e.g. PeriodicSite, …).</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment">
-<em class="property">property </em><code class="sig-name descname">coordination_environment</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coordination_environment</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/connectivity/environment_nodes.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment" title="Permalink to this definition"></a></dt>
 <dd><p>Coordination environment of this node.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal">
-<code class="sig-name descname">everything_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L121-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal">
+<span class="sig-name descname"><span class="pre">everything_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L121-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal" title="Permalink to this definition"></a></dt>
 <dd><p>Compare with another environment node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -365,8 +274,8 @@ subclass of Site (e.g. PeriodicSite, …).</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node">
-<code class="sig-name descname">get_environment_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">central_site</span></em>, <em class="sig-param"><span class="n">i_central_site</span></em>, <em class="sig-param"><span class="n">ce_symbol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L160-L171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node">
+<span class="sig-name descname"><span class="pre">get_environment_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">central_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_central_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ce_symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/connectivity/environment_nodes.py#L160-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node" title="Permalink to this definition"></a></dt>
 <dd><p>Get the EnvironmentNode class or subclass for the given site and symbol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -382,46 +291,34 @@ subclass of Site (e.g. PeriodicSite, …).</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

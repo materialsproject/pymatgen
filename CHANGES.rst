@@ -1,6 +1,61 @@
 Change log
 ==========
 
+v2022.1.24
+----------
+* Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.
+
+v2022.1.20
+----------
+* Unicode fixes (@janosh)
+* YAML deprecation fixes. (@janosh)
+* ASE adaptor support for charge, spin multiiciplity and site properties of molecules. (@arosen93).
+* New keyword option (`keep_site_properties`) in various `structure.symmetry.analyzer` functions to keep the site properties on the sites after a transformation. (@arosen93)
+* Bug fixes for Lobster module (@JaGeo). 
+* SCAN / GGA(+U) mixing scheme (@rkingsbury). Mixing scheme code lives in the new file `mixing_scheme.py` and is implemented as a `Compatibility` class.
+* Fix for parsing of QuantumExpresso files due to new format (@vorwerkc)
+
+v2022.1.9
+---------
+* Formal support for Python 3.10.
+* Misc refactoring and bug fixes. No new functionality.
+
+
+v2022.1.8
+---------
+* First proper new release of 2022 formalizes the switch back to date-based versioning introduced as a temporary measure last year.
+* Numpy version pinned to 1.22.0. This is necessary to avoid binary incompatibility.
+* With the numpy version, py37 support is dropped.
+* ASE io improvements (e.g., magnetic moments and selective dynamics transfer). @arosen93
+* New automatic k-point generation scheme, `automatic_density_by_lengths`, which allows the user to specify a density of k-points in each dimension (rather than just for the entire volume). @arosen93
+* Build improvements to dynamically generate C code by running Cython on pyx files rather than having hard-generated .c files.
+
+v2022.0.17
+----------
+
+Welcome to new contributor @e-kwsm!
+
+* More robust smart fermi method by @utf in https://github.com/materialsproject/pymatgen/pull/2303
+* Replace-species by @janosh in https://github.com/materialsproject/pymatgen/pull/2291
+* Add warning if improper ALGO is used for hybrid calculations by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2298
+* Wrap supercell to unit cell when performing change of setting by @jmmshn in https://github.com/materialsproject/pymatgen/pull/2300
+* Clearer handling of the MAGMOM flag in pymatgen.io.vasp.sets by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2301
+* Add warning if LASPH != True for meta-GGA/hybrid/vdW/+U by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2297
+* Add ability to request additional OPTIMADE fields by @ml-evs in https://github.com/materialsproject/pymatgen/pull/2315
+* Add missing elements to MPScanRelaxSet PBE .54 potentials by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2316
+
+* Fix write Trajectory XDATACAR with variable lattice by @gpetretto in https://github.com/materialsproject/pymatgen/pull/2310
+* Fix small cutoff neighbor by @chc273 in https://github.com/materialsproject/pymatgen/pull/2277
+* Add Composition.replace() by @janosh in https://github.com/materialsproject/pymatgen/pull/2284
+* Ion bugfixes and enhancements by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/2287
+* Fix oddly split strings and a few typos by @janosh in https://github.com/materialsproject/pymatgen/pull/2285
+* InsertionElectrode bug fix and documentation update by @acrutt in https://github.com/materialsproject/pymatgen/pull/2257
+* Remove accidentally tracked files and unset executable flag by @e-kwsm in https://github.com/materialsproject/pymatgen/pull/2296
+
+* Update DOI URLs by @e-kwsm in https://github.com/materialsproject/pymatgen/pull/2295
+* Documentation update: Fix missing Outcar attributes and update elemental_dos_dos string by @arosen93 in https://github.com/materialsproject/pymatgen/pull/2293
+* Documentation update for CutOffDictNN by @ltalirz in https://github.com/materialsproject/pymatgen/pull/2278
+
 v2022.0.16
 ----------
 
@@ -11,8 +66,8 @@ v2022.0.16
 v2022.0.15
 ----------
 
-Welcome to new contributors @blokhin, @pzarabadip, @ml-evs, @wuxiaohua1011, @janssenhenning and @penicillin0. A reminder to all new contributors to 
-ensure your information is accurate at https://pymatgen.org/team.html so that 
+Welcome to new contributors @blokhin, @pzarabadip, @ml-evs, @wuxiaohua1011, @janssenhenning and @penicillin0. A reminder to all new contributors to
+ensure your information is accurate at https://pymatgen.org/team.html so that
 you are acknowledged appropriately by filling out the linked form.
 
 * Breaking change in PhaseDiagram serialization which will affect any users of BasePhaseDiagram which has now been removed (@shyuep, 2b9911d)
@@ -38,7 +93,7 @@ you are acknowledged appropriately by filling out the linked form.
 
 v2022.0.14
 ----------
-* Update OPTIMADE interface to allow querying multiple providers, this changes the 
+* Update OPTIMADE interface to allow querying multiple providers, this changes the
   method signature of OptimadeRester and so is considered a backwards incompatible change (@mkhorton, #2238)
 
 v2022.0.13
@@ -51,7 +106,7 @@ v2022.0.13
 
 v2022.0.12
 ----------
-* @chc273 Major bugfix for cython handling of fractional coordinates wrapping. 
+* @chc273 Major bugfix for cython handling of fractional coordinates wrapping.
 * @mattmcdermott Bug fix for entry_ID phase diagram plotting bug described in this Issue: #2219
 * @FCMeng Fix for PWSCF to distinguish same element with different oxidation state, which might have different pseudopotentials.
 * @gmatteo fix minor bug when reading Structure from a netcdf4 file with hdf5 groups
@@ -99,17 +154,17 @@ v2022.0.8
 ---------
 * PR #2130 @rkingsbury ensures that energy corrections applied to each anion
   have unique names (e.g., N vs. Cl vs. Br).
-* PR #2133 @rkingsbury adds support for custom vdW radii to `QCInput` and 
+* PR #2133 @rkingsbury adds support for custom vdW radii to `QCInput` and
   `QChemDictSet`. These radii are used in the construction of PCM cavities and
-  when calculating charges.  
-* PR #2123 from @gpetretto fixes bug in `get_conventional_standard_structure` 
+  when calculating charges.
+* PR #2123 from @gpetretto fixes bug in `get_conventional_standard_structure`
   method of the `SpacegroupAnalyzer` for triclinic crystals.
 * PR #2134 from @ab5424 supports zopen in parsing lammps logs
 * PR #2132 from @htz1992213 speeds up LammpsData.as_string for
   non-hybrid data with large coeff sections and adds as_lammpsdata method to
-  CombinedData  
+  CombinedData
 * PR #2129 from @richardtran415 improves analysis of surface symmetry of slabs.
-* PR #2117 from @nwinner contains bug fixes for bader caller.    
+* PR #2117 from @nwinner contains bug fixes for bader caller.
 
 v2022.0.7
 ---------
@@ -137,12 +192,12 @@ v2022.0.5
 
 v2022.0.4 / v2021.3.9
 ---------------------
-* Element now has `ionization_energies`, `ionization_energy` and 
+* Element now has `ionization_energies`, `ionization_energy` and
   `electron_affinity` properties.
 * Extensive documentation has been added on pymatgen compatibility and the
-  new namespace architecture! We have also released a 
+  new namespace architecture! We have also released a
   `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
-  to help new developers write add-ons for pymatgen! Check out our 
+  to help new developers write add-ons for pymatgen! Check out our
   :doc:`contributing page</contributing>` for details.
 
 v2022.0.3
@@ -213,11 +268,11 @@ v2021.3.4 (Yanked)
 
 v2021.3.3
 ---------
-* **Backwards incompatible**: pymatgen.SETTINGS have been moved to 
+* **Backwards incompatible**: pymatgen.SETTINGS have been moved to
   pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
   since most of these settings are used within pymatgen itself.
 * **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
-  removed since no one was using them. 
+  removed since no one was using them.
 * critic2_caller has been refactored. (@samblau)
 * Improved hash for Compositon (@CompRhys)
 * Fixes Outcar parsing for VASP 6.2.0. (@MichaelWolloch)
@@ -244,9 +299,9 @@ v2021.2.8.1
 
 v2021.2.8
 ---------
-* Addition of new job types to Q-Chem IO (@espottesmith, #2055), 
+* Addition of new job types to Q-Chem IO (@espottesmith, #2055),
   note `metal_edge_extender` has been moved into `local_env` for this change
-* Improvements to string utils, new Stringify mixin with 
+* Improvements to string utils, new Stringify mixin with
   to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (@shyuep)
 * Improvements to build system (@shyuep, @ltalirz, see #2046)
 * Entry is now immutable, removing "in_place" option for normalize (@mkhorton, @mattmcdermott, #2060)
@@ -255,7 +310,7 @@ v2021.2.8
 
 v2021.1.28
 ----------
-* Ability to read Lobster wavefunctions (@JaGeo, #2034) 
+* Ability to read Lobster wavefunctions (@JaGeo, #2034)
 * Method to estimate number of bands for VASP calculation (@rwoodsrobinson, #2044)
 * Q-Chem cube file plotting and improvements to output parsring (@samblau, #2032)
 * Improvements to PhaseDiagram hashing and equality checking (@CompRhys, #2014)
@@ -271,7 +326,7 @@ v2020.12.18
 -----------
 * New IsayevNN nearest-neighbor algorithm (@utf, #2011)
 * Improvements to electrode objects (@jmmshn, #2016)
-* Improvements to Element and PhaseDiagram (@jmmshn, #2005) 
+* Improvements to Element and PhaseDiagram (@jmmshn, #2005)
 * Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (@shyuep, see issue #2010)
 * Bug fix to VASP run type detection (@rkingsbury, #2007)
 
@@ -405,8 +460,8 @@ v2020.4.2
 v2020.3.13
 ----------
 * Added angle_tolerance to CifWriter.
-* Change default float precision in CifWriter to 8. Adds float_prec kwarg to 
-  allow setting of arbitrary precision. 
+* Change default float precision in CifWriter to 8. Adds float_prec kwarg to
+  allow setting of arbitrary precision.
 * Rudimentary pymatgen.io.vasp.help.VaspDoc class for obtaining help from VASP wiki.
 * Massive documentation cleanup.
 * Reorganization of Entry, ComputedEntry (@ayushsgupta).
@@ -417,14 +472,14 @@ v2020.3.2
 ---------
 * New MonteCarloRattleTransformation and phonopy integration (@utf)
 * New structure connectivity features in Chemenv analysis (@davidwaroquiers)
-* Bug fixes (@richardtran415, @chc273, @JaGeo, @dskoda, @rkingsbury, 
+* Bug fixes (@richardtran415, @chc273, @JaGeo, @dskoda, @rkingsbury,
   @jmmshn, @espottesmith, @gVallverdu, @yimingchen95, @fraricci)
 
 v2020.1.28
 ----------
 * Plugin architecture for pymatgen.
 * Improvements to pymatgen.analysis.xas.spectrum.XAS class. (@yiming)
-* Fixes for ISYM uniform bug and auto-NEDSO (@fraricci) 
+* Fixes for ISYM uniform bug and auto-NEDSO (@fraricci)
 * Improvements to ReactionDiagram.
 * Chemenv improvements (@davidwaroquiers)
 * Misc bug fixes.

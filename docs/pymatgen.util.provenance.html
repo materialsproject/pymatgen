@@ -1,45 +1,26 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.util.provenance module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.util.provenance module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.util.provenance.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.util.sequence module" href="pymatgen.util.sequence.html" />
+    <link rel="next" title="pymatgen.util.serialization module" href="pymatgen.util.serialization.html" />
     <link rel="prev" title="pymatgen.util.plotting module" href="pymatgen.util.plotting.html" />
  
 <script type="text/javascript">
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,106 +86,63 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.util.html">pymatgen.util package</a> &raquo;</li>
-        
       <li>pymatgen.util.provenance module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.util.provenance.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.util.provenance">
-<span id="pymatgen-util-provenance-module"></span><h1>pymatgen.util.provenance module<a class="headerlink" href="#module-pymatgen.util.provenance" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.util.provenance">
+<span id="pymatgen-util-provenance-module"></span><h1>pymatgen.util.provenance module<a class="headerlink" href="#module-pymatgen.util.provenance" title="Permalink to this headline"></a></h1>
 <p>Classes and methods related to the Structure Notation Language (SNL)</p>
 <dl class="py class">
-<dt id="pymatgen.util.provenance.Author">
-<em class="property">class </em><code class="sig-name descname">Author</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">email</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L118-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.Author">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Author</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L120-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.Author" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.util.provenance.Author" title="pymatgen.util.provenance.Author"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.util.provenance.Author</span></code></a></p>
 <p>An Author contains two fields:</p>
 <dl class="py attribute">
-<dt id="pymatgen.util.provenance.Author.name">
-<code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/util/provenance.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.Author.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/util/provenance.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.name" title="Permalink to this definition"></a></dt>
 <dd><p>Name of author (String)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.util.provenance.Author.email">
-<code class="sig-name descname">email</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/util/provenance.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.email" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.Author.email">
+<span class="sig-name descname"><span class="pre">email</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/util/provenance.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.email" title="Permalink to this definition"></a></dt>
 <dd><p>Email of author (String)</p>
 </dd></dl>
 
 <p>Create new instance of Author(name, email)</p>
 <dl class="py method">
-<dt id="pymatgen.util.provenance.Author.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L137-L141"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.Author.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L139-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONable dict.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.provenance.Author.from_dict">
-<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L143-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.Author.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L145-L154"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -243,8 +154,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.provenance.Author.parse_author">
-<em class="property">static </em><code class="sig-name descname">parse_author</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">author</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L154-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.parse_author" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.Author.parse_author">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_author</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L156-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.parse_author" title="Permalink to this definition"></a></dt>
 <dd><p>Parses an Author object from either a String, dict, or tuple</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -260,8 +171,8 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.util.provenance.HistoryNode">
-<em class="property">class </em><code class="sig-name descname">HistoryNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">description</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L52-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HistoryNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L56-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.util.provenance.HistoryNode" title="pymatgen.util.provenance.HistoryNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.util.provenance.HistoryNode</span></code></a></p>
 <p>A HistoryNode represents a step in the chain of events that lead to a
 Structure. HistoryNodes leave ‘breadcrumbs’ so that you can trace back how
@@ -272,35 +183,35 @@ a custom description of how that code was applied (e.g. a site removal
 Transformation was applied).</p>
 <p>A HistoryNode contains three fields:</p>
 <dl class="py attribute">
-<dt id="pymatgen.util.provenance.HistoryNode.name">
-<code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/util/provenance.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/util/provenance.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.name" title="Permalink to this definition"></a></dt>
 <dd><p>The name of a code or resource that this Structure encountered in
 its history (String)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.util.provenance.HistoryNode.url">
-<code class="sig-name descname">url</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/util/provenance.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.url" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode.url">
+<span class="sig-name descname"><span class="pre">url</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/util/provenance.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.url" title="Permalink to this definition"></a></dt>
 <dd><p>The URL of that code/resource (String)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.util.provenance.HistoryNode.description">
-<code class="sig-name descname">description</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/util/provenance.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.description" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/util/provenance.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.description" title="Permalink to this definition"></a></dt>
 <dd><p>A free-form description of how the code/resource is related to the
 Structure (dict).</p>
 </dd></dl>
 
 <p>Create new instance of HistoryNode(name, url, description)</p>
 <dl class="py method">
-<dt id="pymatgen.util.provenance.HistoryNode.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L79-L83"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L83-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Dict</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.provenance.HistoryNode.from_dict">
-<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h_node</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L85-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_node</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L89-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -312,8 +223,8 @@ Structure (dict).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.provenance.HistoryNode.parse_history_node">
-<em class="property">static </em><code class="sig-name descname">parse_history_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h_node</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L96-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.parse_history_node" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.HistoryNode.parse_history_node">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_history_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_node</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L100-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.parse_history_node" title="Permalink to this definition"></a></dt>
 <dd><p>Parses a History Node object from either a dict or a tuple.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,8 +240,8 @@ tuple.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.util.provenance.StructureNL">
-<em class="property">class </em><code class="sig-name descname">StructureNL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct_or_mol</span></em>, <em class="sig-param"><span class="n">authors</span></em>, <em class="sig-param"><span class="n">projects</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">references</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">remarks</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">history</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">created_at</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L180-L424"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.StructureNL">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StructureNL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct_or_mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remarks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L182-L422"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The Structure Notation Language (SNL, pronounced ‘snail’) is container
 for a pymatgen Structure/Molecule object with some additional fields for
@@ -371,14 +282,14 @@ underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.util.provenance.StructureNL.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L288-L304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.StructureNL.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L286-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.provenance.StructureNL.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L306-L332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.StructureNL.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L304-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -390,8 +301,8 @@ underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.provenance.StructureNL.from_structures">
-<em class="property">classmethod </em><code class="sig-name descname">from_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">authors</span></em>, <em class="sig-param"><span class="n">projects</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">references</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">remarks</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">histories</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">created_at</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L334-L387"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.from_structures" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.StructureNL.from_structures">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remarks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L332-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.from_structures" title="Permalink to this definition"></a></dt>
 <dd><p>A convenience method for getting a list of StructureNL objects by
 specifying structures and metadata separately. Some of the metadata
 is applied to all of the structures for ease of use.</p>
@@ -423,8 +334,8 @@ same as the list of structures if not None.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.provenance.is_valid_bibtex">
-<code class="sig-name descname">is_valid_bibtex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reference</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/provenance.py#L33-L49"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.is_valid_bibtex" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.provenance.is_valid_bibtex">
+<span class="sig-name descname"><span class="pre">is_valid_bibtex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/provenance.py#L37-L53"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.provenance.is_valid_bibtex" title="Permalink to this definition"></a></dt>
 <dd><p>Use pybtex to validate that a reference is in proper BibTeX format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -436,46 +347,34 @@ same as the list of structures if not None.</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

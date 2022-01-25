@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -82,12 +81,12 @@ def min_max_indexes(seq):
 
 
 def strictly_increasing(values):
-    """True if values are stricly increasing."""
+    """True if values are strictly increasing."""
     return all(x < y for x, y in zip(values, values[1:]))
 
 
 def strictly_decreasing(values):
-    """True if values are stricly decreasing."""
+    """True if values are strictly decreasing."""
     return all(x > y for x, y in zip(values, values[1:]))
 
 
@@ -131,7 +130,7 @@ def monotonic(values, mode="<", atol=1.0e-8):
             if abs(vp - v) > atol and vp >= v:
                 return False
 
-    raise ValueError("Wrong mode %s" % str(mode))
+    raise ValueError(f"Wrong mode {str(mode)}")
 
 
 def round_to_sigfigs(num, sigfigs):
@@ -143,7 +142,7 @@ def round_to_sigfigs(num, sigfigs):
         raise TypeError("Number of significant figures must be integer.")
 
     if sigfigs < 1:
-        raise ValueError("Number of significant figures " "must be larger than zero.")
+        raise ValueError("Number of significant figures must be larger than zero.")
 
     if num == 0:
         return num

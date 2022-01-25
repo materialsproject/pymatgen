@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -282,7 +281,7 @@ class SimpleChargeGenerator(DefectGenerator):
                 self.defect.site.coords, 0.1, include_index=True
             )[0][2]
             def_site_valence = struct_valences[site_index]
-        except Exception:  # sometimes valences cant be assigned
+        except Exception:  # sometimes valences can't be assigned
             def_site_valence = 0
 
         if isinstance(defect, Vacancy):

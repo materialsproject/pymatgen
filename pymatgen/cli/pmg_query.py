@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -34,16 +33,16 @@ def do_query(args):
             s = d["structure"]
             formula = re.sub(r"\s+", "", s.formula)
             if args.structure == "poscar":
-                fname = "POSCAR.%s_%s" % (d["task_id"], formula)
+                fname = f"POSCAR.{d['task_id']}_{formula}"
             else:
-                fname = "%s-%s.%s" % (d["task_id"], formula, args.structure)
+                fname = f"{d['task_id']}-{formula}.{args.structure}"
             s.to(filename=fname)
             count += 1
         print("%d structures written!" % count)
     elif args.entries:
         entries = m.get_entries(criteria)
         dumpfn(entries, args.entries)
-        print("%d entries written to %s!" % (len(entries), args.entries))
+        print(f"{len(entries)} entries written to {args.entries}!")
     else:
         props = ["e_above_hull", "spacegroup"]
         props += args.data

@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.diffraction.core module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.diffraction.core module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.diffraction.core.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.diffraction.neutron module" href="pymatgen.analysis.diffraction.neutron.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,99 +86,55 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.diffraction.html">pymatgen.analysis.diffraction package</a> &raquo;</li>
-        
       <li>pymatgen.analysis.diffraction.core module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.diffraction.core.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.diffraction.core">
-<span id="pymatgen-analysis-diffraction-core-module"></span><h1>pymatgen.analysis.diffraction.core module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.core" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.diffraction.core">
+<span id="pymatgen-analysis-diffraction-core-module"></span><h1>pymatgen.analysis.diffraction.core module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.core" title="Permalink to this headline"></a></h1>
 <p>This module implements core classes for calculation of diffraction patterns.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator">
-<em class="property">class </em><code class="sig-name descname">AbstractDiffractionPatternCalculator</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/diffraction/core.py#L43-L212"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractDiffractionPatternCalculator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/diffraction/core.py#L42-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for computing the diffraction pattern of a crystal.</p>
 <dl class="py attribute">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL">
-<code class="sig-name descname">SCALED_INTENSITY_TOL</code><em class="property"> = 0.001</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL">
+<span class="sig-name descname"><span class="pre">SCALED_INTENSITY_TOL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.001</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL">
-<code class="sig-name descname">TWO_THETA_TOL</code><em class="property"> = 1e-05</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL">
+<span class="sig-name descname"><span class="pre">TWO_THETA_TOL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-05</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern">
-<em class="property">abstract </em><code class="sig-name descname">get_pattern</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">scaled</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">two_theta_range</span><span class="o">=</span><span class="default_value">0, 90</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/diffraction/core.py#L58-L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_theta_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">90)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/diffraction/core.py#L57-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the diffraction pattern for a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -246,8 +156,8 @@ sphere of radius 2 / wavelength.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot">
-<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">two_theta_range</span><span class="o">=</span><span class="default_value">0, 90</span></em>, <em class="sig-param"><span class="n">annotate_peaks</span><span class="o">=</span><span class="default_value">'compact'</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_labels</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/diffraction/core.py#L78-L166"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot">
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_theta_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">90)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotate_peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'compact'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/diffraction/core.py#L77-L165"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the diffraction plot as a matplotlib.pyplot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -274,8 +184,8 @@ created.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures">
-<code class="sig-name descname">plot_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../util/plotting.py#L185-L212"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures">
+<span class="sig-name descname"><span class="pre">plot_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../util/plotting.py#L184-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Plot diffraction patterns for multiple structures on the same figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,8 +247,8 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot">
-<code class="sig-name descname">show_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/diffraction/core.py#L168-L183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot">
+<span class="sig-name descname"><span class="pre">show_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/diffraction/core.py#L167-L182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Shows the diffraction plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -360,8 +270,8 @@ long version, e.g. (1, 0, 0).  If None, do not show anything.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.analysis.diffraction.core.DiffractionPattern">
-<em class="property">class </em><code class="sig-name descname">DiffractionPattern</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">hkls</span></em>, <em class="sig-param"><span class="n">d_hkls</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/diffraction/core.py#L18-L40"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.DiffractionPattern">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DiffractionPattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_hkls</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/diffraction/core.py#L17-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum" title="pymatgen.core.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.spectrum.Spectrum</span></code></a></p>
 <p>A representation of a diffraction pattern</p>
 <dl class="field-list simple">
@@ -379,20 +289,20 @@ intensity.</p></li>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL">
-<code class="sig-name descname">XLABEL</code><em class="property"> = '$2\\Theta$'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL">
+<span class="sig-name descname"><span class="pre">XLABEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'$2\\Theta$'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL">
-<code class="sig-name descname">YLABEL</code><em class="property"> = 'Intensity'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL">
+<span class="sig-name descname"><span class="pre">YLABEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Intensity'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/diffraction/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.diffraction.core.get_unique_families">
-<code class="sig-name descname">get_unique_families</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hkls</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/diffraction/core.py#L215-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.get_unique_families" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.diffraction.core.get_unique_families">
+<span class="sig-name descname"><span class="pre">get_unique_families</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/diffraction/core.py#L214-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.get_unique_families" title="Permalink to this definition"></a></dt>
 <dd><p>Returns unique families of Miller indices. Families must be permutations
 of each other.</p>
 <dl class="field-list simple">
@@ -408,46 +318,34 @@ of each other.</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

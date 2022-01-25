@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.entries.correction_calculator module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.entries.correction_calculator module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.entries.correction_calculator.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.entries.entry_tools module" href="pymatgen.entries.entry_tools.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,120 +86,77 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.entries.html">pymatgen.entries package</a> &raquo;</li>
-        
       <li>pymatgen.entries.correction_calculator module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.entries.correction_calculator.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.entries.correction_calculator">
-<span id="pymatgen-entries-correction-calculator-module"></span><h1>pymatgen.entries.correction_calculator module<a class="headerlink" href="#module-pymatgen.entries.correction_calculator" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.entries.correction_calculator">
+<span id="pymatgen-entries-correction-calculator-module"></span><h1>pymatgen.entries.correction_calculator module<a class="headerlink" href="#module-pymatgen.entries.correction_calculator" title="Permalink to this headline"></a></h1>
 <p>This module calculates corrections for the species listed below, fitted to the experimental and computed
 entries given to the CorrectionCalculator constructor.</p>
 <dl class="py class">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator">
-<em class="property">class </em><code class="sig-name descname">CorrectionCalculator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">['oxide', 'peroxide', 'superoxide', 'S', 'F', 'Cl', 'Br', 'I', 'N', 'Se', 'Si', 'Sb', 'Te', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'W', 'Mo', 'H']</span></em>, <em class="sig-param"><span class="n">max_error</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">allow_unstable</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>bool<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">exclude_polyanions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">['SO4', 'SO3', 'CO3', 'NO3', 'NO2', 'OCl3', 'ClO3', 'ClO4', 'HO', 'ClO', 'SeO3', 'TiO3', 'TiO4', 'WO4', 'SiO3', 'SiO4', 'Si2O5', 'PO3', 'PO4', 'P2O7']</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../entries/correction_calculator.py#L30-L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CorrectionCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['oxide',</span> <span class="pre">'peroxide',</span> <span class="pre">'superoxide',</span> <span class="pre">'S',</span> <span class="pre">'F',</span> <span class="pre">'Cl',</span> <span class="pre">'Br',</span> <span class="pre">'I',</span> <span class="pre">'N',</span> <span class="pre">'Se',</span> <span class="pre">'Si',</span> <span class="pre">'Sb',</span> <span class="pre">'Te',</span> <span class="pre">'V',</span> <span class="pre">'Cr',</span> <span class="pre">'Mn',</span> <span class="pre">'Fe',</span> <span class="pre">'Co',</span> <span class="pre">'Ni',</span> <span class="pre">'W',</span> <span class="pre">'Mo',</span> <span class="pre">'H']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_unstable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_polyanions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['SO4',</span> <span class="pre">'SO3',</span> <span class="pre">'CO3',</span> <span class="pre">'NO3',</span> <span class="pre">'NO2',</span> <span class="pre">'OCl3',</span> <span class="pre">'ClO3',</span> <span class="pre">'ClO4',</span> <span class="pre">'HO',</span> <span class="pre">'ClO',</span> <span class="pre">'SeO3',</span> <span class="pre">'TiO3',</span> <span class="pre">'TiO4',</span> <span class="pre">'WO4',</span> <span class="pre">'SiO3',</span> <span class="pre">'SiO4',</span> <span class="pre">'Si2O5',</span> <span class="pre">'PO3',</span> <span class="pre">'PO4',</span> <span class="pre">'P2O7']</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../entries/correction_calculator.py#L30-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.</p>
 <p>It graphs residual errors after applying the computed corrections and creates the MPCompatibility.yaml
 file the Correction classes use.</p>
 <dl class="py attribute">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.species">
-<code class="sig-name descname">species</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/entries/correction_calculator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.species" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.species">
+<span class="sig-name descname"><span class="pre">species</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/entries/correction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.species" title="Permalink to this definition"></a></dt>
 <dd><p>list of species that corrections are being calculated for</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.exp_compounds">
-<code class="sig-name descname">exp_compounds</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/entries/correction_calculator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.exp_compounds" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.exp_compounds">
+<span class="sig-name descname"><span class="pre">exp_compounds</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/entries/correction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.exp_compounds" title="Permalink to this definition"></a></dt>
 <dd><p>list of dictionaries which each contain a compound’s formula and experimental data</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.calc_compounds">
-<code class="sig-name descname">calc_compounds</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/entries/correction_calculator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.calc_compounds" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.calc_compounds">
+<span class="sig-name descname"><span class="pre">calc_compounds</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/entries/correction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.calc_compounds" title="Permalink to this definition"></a></dt>
 <dd><p>dictionary of ComputedEntry objects</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.corrections">
-<code class="sig-name descname">corrections</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/entries/correction_calculator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.corrections">
+<span class="sig-name descname"><span class="pre">corrections</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/entries/correction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections" title="Permalink to this definition"></a></dt>
 <dd><p>list of corrections in same order as species list</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_std_error">
-<code class="sig-name descname">corrections_std_error</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/entries/correction_calculator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_std_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_std_error">
+<span class="sig-name descname"><span class="pre">corrections_std_error</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/entries/correction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_std_error" title="Permalink to this definition"></a></dt>
 <dd><p>list of the variances of the corrections in same order as species list</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_dict">
-<code class="sig-name descname">corrections_dict</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/entries/correction_calculator.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_dict">
+<span class="sig-name descname"><span class="pre">corrections_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/entries/correction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_dict" title="Permalink to this definition"></a></dt>
 <dd><p>dictionary of format {‘species’: (value, uncertainty)} for easier correction lookup</p>
 </dd></dl>
 
@@ -267,8 +178,8 @@ will be excluded from the fit</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.compute_corrections">
-<code class="sig-name descname">compute_corrections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_entries</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">calc_entries</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../entries/correction_calculator.py#L153-L321"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.compute_corrections" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.compute_corrections">
+<span class="sig-name descname"><span class="pre">compute_corrections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp_entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../entries/correction_calculator.py#L153-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.compute_corrections" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -286,8 +197,8 @@ will be excluded from the fit</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.compute_from_files">
-<code class="sig-name descname">compute_from_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_gz</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">comp_gz</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../entries/correction_calculator.py#L137-L151"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.compute_from_files" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.compute_from_files">
+<span class="sig-name descname"><span class="pre">compute_from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp_gz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_gz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../entries/correction_calculator.py#L137-L151"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.compute_from_files" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -303,14 +214,14 @@ data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error">
-<code class="sig-name descname">graph_residual_error</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; plotly.graph_objs._figure.Figure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../entries/correction_calculator.py#L323-L358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error">
+<span class="sig-name descname"><span class="pre">graph_residual_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objs._figure.Figure</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../entries/correction_calculator.py#L317-L352"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error" title="Permalink to this definition"></a></dt>
 <dd><p>Graphs the residual errors for all compounds after applying computed corrections.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error_per_species">
-<code class="sig-name descname">graph_residual_error_per_species</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specie</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; plotly.graph_objs._figure.Figure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../entries/correction_calculator.py#L360-L427"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error_per_species" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error_per_species">
+<span class="sig-name descname"><span class="pre">graph_residual_error_per_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objs._figure.Figure</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../entries/correction_calculator.py#L354-L421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error_per_species" title="Permalink to this definition"></a></dt>
 <dd><p>Graphs the residual errors for each compound that contains specie after applying computed corrections.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -323,8 +234,8 @@ data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.entries.correction_calculator.CorrectionCalculator.make_yaml">
-<code class="sig-name descname">make_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'MP2020'</span></em>, <em class="sig-param"><span class="n">dir</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../entries/correction_calculator.py#L429-L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.make_yaml" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.entries.correction_calculator.CorrectionCalculator.make_yaml">
+<span class="sig-name descname"><span class="pre">make_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MP2020'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../entries/correction_calculator.py#L423-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.correction_calculator.CorrectionCalculator.make_yaml" title="Permalink to this definition"></a></dt>
 <dd><p>Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
 for correction uncertainties.</p>
 <dl class="field-list simple">
@@ -341,46 +252,34 @@ save the file in the current working directory.</p></li>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

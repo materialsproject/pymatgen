@@ -1,42 +1,23 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &mdash; pymatgen 2022.0.15 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &mdash; pymatgen 2022.1.24 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.utils.coordination_geometry_utils.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.utils.defs_utils module" href="pymatgen.analysis.chemenv.utils.defs_utils.html" />
@@ -50,33 +31,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.15
+                2022.1.24
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +48,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,104 +86,59 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
-        
           <li><a href="pymatgen.analysis.chemenv.utils.html">pymatgen.analysis.chemenv.utils package</a> &raquo;</li>
-        
       <li>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils">
-<span id="pymatgen-analysis-chemenv-utils-coordination-geometry-utils-module"></span><h1>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils">
+<span id="pymatgen-analysis-chemenv-utils-coordination-geometry-utils-module"></span><h1>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils" title="Permalink to this headline"></a></h1>
 <p>This module contains some utility functions and classes that are used in the chemenv package.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane">
-<em class="property">class </em><code class="sig-name descname">Plane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coefficients</span></em>, <em class="sig-param"><span class="n">p1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">p2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">p3</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L585-L1085"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L584-L1084"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class used to describe a plane</p>
 <p>Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
 :param coefficients: abcd coefficients of the plane</p>
 <dl class="py attribute">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.TEST_2D_POINTS">
-<code class="sig-name descname">TEST_2D_POINTS</code><em class="property"> = [array([0., 0.]), array([1., 0.]), array([0., 1.]), array([-1.,  0.]), array([ 0., -1.]), array([0., 2.]), array([2., 0.]), array([ 0., -2.]), array([-2.,  0.]), array([1., 1.]), array([2., 2.]), array([-1., -1.]), array([-2., -2.]), array([1., 2.]), array([ 1., -2.]), array([-1.,  2.]), array([-1., -2.]), array([2., 1.]), array([ 2., -1.]), array([-2.,  1.]), array([-2., -1.])]</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.TEST_2D_POINTS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.TEST_2D_POINTS">
+<span class="sig-name descname"><span class="pre">TEST_2D_POINTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[array([0.,</span> <span class="pre">0.]),</span> <span class="pre">array([1.,</span> <span class="pre">0.]),</span> <span class="pre">array([0.,</span> <span class="pre">1.]),</span> <span class="pre">array([-1.,</span>&#160; <span class="pre">0.]),</span> <span class="pre">array([</span> <span class="pre">0.,</span> <span class="pre">-1.]),</span> <span class="pre">array([0.,</span> <span class="pre">2.]),</span> <span class="pre">array([2.,</span> <span class="pre">0.]),</span> <span class="pre">array([</span> <span class="pre">0.,</span> <span class="pre">-2.]),</span> <span class="pre">array([-2.,</span>&#160; <span class="pre">0.]),</span> <span class="pre">array([1.,</span> <span class="pre">1.]),</span> <span class="pre">array([2.,</span> <span class="pre">2.]),</span> <span class="pre">array([-1.,</span> <span class="pre">-1.]),</span> <span class="pre">array([-2.,</span> <span class="pre">-2.]),</span> <span class="pre">array([1.,</span> <span class="pre">2.]),</span> <span class="pre">array([</span> <span class="pre">1.,</span> <span class="pre">-2.]),</span> <span class="pre">array([-1.,</span>&#160; <span class="pre">2.]),</span> <span class="pre">array([-1.,</span> <span class="pre">-2.]),</span> <span class="pre">array([2.,</span> <span class="pre">1.]),</span> <span class="pre">array([</span> <span class="pre">2.,</span> <span class="pre">-1.]),</span> <span class="pre">array([-2.,</span>&#160; <span class="pre">1.]),</span> <span class="pre">array([-2.,</span> <span class="pre">-1.])]</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.TEST_2D_POINTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a">
-<em class="property">property </em><code class="sig-name descname">a</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">a</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a" title="Permalink to this definition"></a></dt>
 <dd><p>Coefficient a of the plane.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.abcd">
-<em class="property">property </em><code class="sig-name descname">abcd</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.abcd" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.abcd">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abcd</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.abcd" title="Permalink to this definition"></a></dt>
 <dd><p>Return a tuple with the plane coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -238,21 +147,21 @@
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.b">
-<em class="property">property </em><code class="sig-name descname">b</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.b" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.b">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.b" title="Permalink to this definition"></a></dt>
 <dd><p>Coefficient b of the plane.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.c">
-<em class="property">property </em><code class="sig-name descname">c</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.c" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.c">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">c</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.c" title="Permalink to this definition"></a></dt>
 <dd><p>Coefficient c of the plane.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.coefficients">
-<em class="property">property </em><code class="sig-name descname">coefficients</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.coefficients" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.coefficients">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coefficients</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.coefficients" title="Permalink to this definition"></a></dt>
 <dd><p>Return a copy of the plane coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -261,35 +170,35 @@
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.crosses_origin">
-<em class="property">property </em><code class="sig-name descname">crosses_origin</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.crosses_origin" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.crosses_origin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crosses_origin</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.crosses_origin" title="Permalink to this definition"></a></dt>
 <dd><p>Whether this plane crosses the origin (i.e. coefficient d is 0.0).</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.d">
-<em class="property">property </em><code class="sig-name descname">d</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.d" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.d">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">d</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.d" title="Permalink to this definition"></a></dt>
 <dd><p>Coefficient d of the plane.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_origin">
-<em class="property">property </em><code class="sig-name descname">distance_to_origin</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_origin" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_origin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">distance_to_origin</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_origin" title="Permalink to this definition"></a></dt>
 <dd><p>Distance of the plane to the origin.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_point">
-<code class="sig-name descname">distance_to_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L740-L746"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_point" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_point">
+<span class="sig-name descname"><span class="pre">distance_to_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L739-L745"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_point" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the absolute distance from the plane to the point
 :param point: Point for which distance is computed
 :return: Distance between the plane and the point</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances">
-<code class="sig-name descname">distances</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L748-L756"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances">
+<span class="sig-name descname"><span class="pre">distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L747-L755"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the distances from the plane to each of the points. Positive distances are on the side of the
 normal of the plane while negative distances are on the other side
 :param points: Points for which distances are computed
@@ -300,8 +209,8 @@ normal of the plane while negative distances are on the other side
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_groups">
-<code class="sig-name descname">distances_indices_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">delta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">delta_factor</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">sign</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L775-L803"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_groups" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_groups">
+<span class="sig-name descname"><span class="pre">distances_indices_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L774-L802"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_groups" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the distances from the plane to each of the points. Positive distances are on the side of the
 normal of the plane while negative distances are on the other side. Indices sorting the points from closest
 to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
@@ -327,8 +236,8 @@ indices, when the sign parameter is True, items are given as tuples of (index, s
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_sorted">
-<code class="sig-name descname">distances_indices_sorted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">sign</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L758-L773"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_sorted" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_sorted">
+<span class="sig-name descname"><span class="pre">distances_indices_sorted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L757-L772"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_sorted" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the distances from the plane to each of the points. Positive distances are on the side of the
 normal of the plane while negative distances are on the other side. Indices sorting the points from closest
 to furthest is also computed.
@@ -342,8 +251,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error">
-<code class="sig-name descname">fit_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">'least_square_distance'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L881-L892"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error">
+<span class="sig-name descname"><span class="pre">fit_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'least_square_distance'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L880-L891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error" title="Permalink to this definition"></a></dt>
 <dd><p>Evaluate the error for a list of points with respect to this plane.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -359,8 +268,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error">
-<code class="sig-name descname">fit_least_square_distance_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L894-L900"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error">
+<span class="sig-name descname"><span class="pre">fit_least_square_distance_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L893-L899"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error" title="Permalink to this definition"></a></dt>
 <dd><p>Evaluate the sum of squared distances error for a list of points with respect to this plane.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -373,8 +282,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error">
-<code class="sig-name descname">fit_maximum_distance_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L902-L908"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error">
+<span class="sig-name descname"><span class="pre">fit_maximum_distance_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L901-L907"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error" title="Permalink to this definition"></a></dt>
 <dd><p>Evaluate the max distance error for a list of points with respect to this plane.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -387,8 +296,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_2points_and_origin">
-<em class="property">classmethod </em><code class="sig-name descname">from_2points_and_origin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L961-L969"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_2points_and_origin" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_2points_and_origin">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_2points_and_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L960-L968"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_2points_and_origin" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes plane from two points and the origin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,8 +313,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_3points">
-<em class="property">classmethod </em><code class="sig-name descname">from_3points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em>, <em class="sig-param"><span class="n">p3</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L971-L987"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_3points" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_3points">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_3points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L970-L986"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_3points" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes plane from three points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -422,8 +331,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_coefficients">
-<em class="property">classmethod </em><code class="sig-name descname">from_coefficients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1075-L1085"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_coefficients" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_coefficients">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1074-L1084"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_coefficients" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize plane from its coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -441,8 +350,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints">
-<em class="property">classmethod </em><code class="sig-name descname">from_npoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">best_fit</span><span class="o">=</span><span class="default_value">'least_square_distance'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L989-L1007"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_npoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'least_square_distance'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L988-L1006"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes plane from a list of points.</p>
 <p>If the number of points is larger than 3, will use a least square fitting or max distance fitting.</p>
 <dl class="field-list simple">
@@ -459,8 +368,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_least_square_distance">
-<em class="property">classmethod </em><code class="sig-name descname">from_npoints_least_square_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1009-L1030"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_least_square_distance" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_least_square_distance">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_npoints_least_square_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1008-L1029"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_least_square_distance" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes plane from a list of points using a least square fitting procedure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -473,8 +382,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_maximum_distance">
-<em class="property">classmethod </em><code class="sig-name descname">from_npoints_maximum_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1048-L1073"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_maximum_distance" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_maximum_distance">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_npoints_maximum_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1047-L1072"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_maximum_distance" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes plane from a list of points using a max distance fitting procedure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -487,8 +396,8 @@ latter, when the sign parameter is True, items of the sorting list are given as 
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate">
-<code class="sig-name descname">indices_separate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">dist_tolerance</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L716-L738"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate">
+<span class="sig-name descname"><span class="pre">indices_separate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_tolerance</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L715-L737"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate" title="Permalink to this definition"></a></dt>
 <dd><p>Returns three lists containing the indices of the points lying on one side of the plane, on the plane
 and on the other side of the plane. The dist_tolerance parameter controls the tolerance to which a point
 is considered to lie on the plane or not (distance to the plane)
@@ -506,8 +415,8 @@ on the other side of the plane</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.init_3points">
-<code class="sig-name descname">init_3points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nonzeros</span></em>, <em class="sig-param"><span class="n">zeros</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L648-L672"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.init_3points" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.init_3points">
+<span class="sig-name descname"><span class="pre">init_3points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nonzeros</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeros</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L647-L671"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.init_3points" title="Permalink to this definition"></a></dt>
 <dd><p>Initialialize three random points on this plane.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -523,16 +432,16 @@ on the other side of the plane</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_list">
-<code class="sig-name descname">is_in_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plane_list</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L705-L714"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_list">
+<span class="sig-name descname"><span class="pre">is_in_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plane_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L704-L713"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_list" title="Permalink to this definition"></a></dt>
 <dd><p>Checks whether the plane is identical to one of the Planes in the plane_list list of Planes
 :param plane_list: List of Planes to be compared to
 :return: True if the plane is in the list, False otherwise</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_plane">
-<code class="sig-name descname">is_in_plane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pp</span></em>, <em class="sig-param"><span class="n">dist_tolerance</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L688-L695"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_plane" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_plane">
+<span class="sig-name descname"><span class="pre">is_in_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_tolerance</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L687-L694"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_plane" title="Permalink to this definition"></a></dt>
 <dd><p>Determines if point pp is in the plane within the tolerance dist_tolerance
 :param pp: point to be tested
 :param dist_tolerance: tolerance on the distance to the plane within which point pp is considered in the plane
@@ -540,16 +449,16 @@ on the other side of the plane</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as">
-<code class="sig-name descname">is_same_plane_as</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plane</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L697-L703"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as">
+<span class="sig-name descname"><span class="pre">is_same_plane_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plane</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L696-L702"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as" title="Permalink to this definition"></a></dt>
 <dd><p>Checks whether the plane is identical to another Plane “plane”
 :param plane: Plane to be compared to
 :return: True if the two facets are identical, False otherwise</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors">
-<code class="sig-name descname">orthonormal_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L813-L824"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors">
+<span class="sig-name descname"><span class="pre">orthonormal_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L812-L823"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
 third one is the normal vector of the plane
 :return: List of orthogonal vectors
@@ -557,8 +466,8 @@ third one is the normal vector of the plane
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors_old">
-<code class="sig-name descname">orthonormal_vectors_old</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L826-L844"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors_old" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors_old">
+<span class="sig-name descname"><span class="pre">orthonormal_vectors_old</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L825-L843"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors_old" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
 third one is the normal vector of the plane
 :return: List of orthogonal vectors
@@ -566,8 +475,8 @@ third one is the normal vector of the plane
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector">
-<em class="property">classmethod </em><code class="sig-name descname">perpendicular_bisector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1032-L1046"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perpendicular_bisector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L1031-L1045"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize a plane from the perpendicular bisector of two points.</p>
 <p>The perpendicular bisector of two points is the plane perpendicular to the vector joining these two points
 and passing through the middle of the segment joining the two points.</p>
@@ -585,16 +494,16 @@ and passing through the middle of the segment joining the two points.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim">
-<code class="sig-name descname">project_and_to2dim</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pps</span></em>, <em class="sig-param"><span class="n">plane_center</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L856-L879"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim">
+<span class="sig-name descname"><span class="pre">project_and_to2dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_center</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L855-L878"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim" title="Permalink to this definition"></a></dt>
 <dd><p>Projects the list of points pps to the plane and changes the basis from 3D to the 2D basis of the plane
 :param pps: List of points to be projected
 :return: :raise:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices">
-<code class="sig-name descname">project_and_to2dim_ordered_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pps</span></em>, <em class="sig-param"><span class="n">plane_center</span><span class="o">=</span><span class="default_value">'mean'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L846-L854"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices">
+<span class="sig-name descname"><span class="pre">project_and_to2dim_ordered_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L845-L853"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Projects each points in the point list pps on plane and returns the indices that would sort the
 list of projected points in anticlockwise order
 :param pps: List of points to project on plane
@@ -602,8 +511,8 @@ list of projected points in anticlockwise order
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.projectionpoints">
-<code class="sig-name descname">projectionpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pps</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L805-L811"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.projectionpoints" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.projectionpoints">
+<span class="sig-name descname"><span class="pre">projectionpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pps</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L804-L810"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.projectionpoints" title="Permalink to this definition"></a></dt>
 <dd><p>Projects each points in the point list pps on plane and returns the list of projected points
 :param pps: List of points to project on plane
 :return: List of projected point on plane</p>
@@ -612,24 +521,24 @@ list of projected points in anticlockwise order
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort">
-<code class="sig-name descname">anticlockwise_sort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pps</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L498-L511"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort">
+<span class="sig-name descname"><span class="pre">anticlockwise_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pps</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L497-L510"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort" title="Permalink to this definition"></a></dt>
 <dd><p>Sort a list of 2D points in anticlockwise order
 :param pps: List of points to be sorted
 :return: Sorted list of points</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort_indices">
-<code class="sig-name descname">anticlockwise_sort_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pps</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L514-L523"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort_indices" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort_indices">
+<span class="sig-name descname"><span class="pre">anticlockwise_sort_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pps</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L513-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the indices that would sort a list of 2D points in anticlockwise order
 :param pps: List of points to be sorted
 :return: Indices of the sorted list of points</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.changebasis">
-<code class="sig-name descname">changebasis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uu</span></em>, <em class="sig-param"><span class="n">vv</span></em>, <em class="sig-param"><span class="n">nn</span></em>, <em class="sig-param"><span class="n">pps</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L453-L472"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.changebasis" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.changebasis">
+<span class="sig-name descname"><span class="pre">changebasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pps</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L452-L471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.changebasis" title="Permalink to this definition"></a></dt>
 <dd><p>For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
 expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
 :param uu: First vector of the basis
@@ -640,8 +549,8 @@ expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.collinear">
-<code class="sig-name descname">collinear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em>, <em class="sig-param"><span class="n">p3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">0.25</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L475-L495"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.collinear" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.collinear">
+<span class="sig-name descname"><span class="pre">collinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L474-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.collinear" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if the three points p1, p2 and p3 are collinear or not within a given tolerance. The collinearity is
 checked by computing the area of the triangle defined by the three points p1, p2 and p3. If the area of this
 triangle is less than (tolerance x largest_triangle), then the three points are considered collinear. The
@@ -665,8 +574,8 @@ largest_triangle is defined as the right triangle whose legs are the two smalles
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">
-<code class="sig-name descname">diamond_functions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">yy</span></em>, <em class="sig-param"><span class="n">y_x0</span></em>, <em class="sig-param"><span class="n">x_y0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L175-L261"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">
+<span class="sig-name descname"><span class="pre">diamond_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_y0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L174-L260"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions" title="Permalink to this definition"></a></dt>
 <dd><p>Method that creates two upper and lower functions based on points xx and yy
 as well as intercepts defined by y_x0 and x_y0. The resulting functions
 form kind of a distorted diamond-like structure aligned from
@@ -715,8 +624,8 @@ x—-b                          p–y</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.function_comparison">
-<code class="sig-name descname">function_comparison</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f1</span></em>, <em class="sig-param"><span class="n">f2</span></em>, <em class="sig-param"><span class="n">x1</span></em>, <em class="sig-param"><span class="n">x2</span></em>, <em class="sig-param"><span class="n">numpoints_check</span><span class="o">=</span><span class="default_value">500</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L61-L91"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.function_comparison" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.function_comparison">
+<span class="sig-name descname"><span class="pre">function_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpoints_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L60-L90"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.function_comparison" title="Permalink to this definition"></a></dt>
 <dd><p>Method that compares two functions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -741,8 +650,8 @@ functions that do not cross…)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f">
-<code class="sig-name descname">get_lower_and_upper_f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">surface_calculation_options</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L29-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f">
+<span class="sig-name descname"><span class="pre">get_lower_and_upper_f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_calculation_options</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L28-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f" title="Permalink to this definition"></a></dt>
 <dd><p>Get the lower and upper functions defining a surface in the distance-angle space of neighbors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -755,8 +664,8 @@ functions that do not cross…)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond">
-<code class="sig-name descname">is_anion_cation_bond</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">valences</span></em>, <em class="sig-param"><span class="n">ii</span></em>, <em class="sig-param"><span class="n">jj</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L570-L582"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond">
+<span class="sig-name descname"><span class="pre">is_anion_cation_bond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ii</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L569-L581"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if two given sites are an anion and a cation.
 :param valences: list of site valences
 :param ii: index of a site
@@ -765,8 +674,8 @@ functions that do not cross…)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector">
-<code class="sig-name descname">matrixTimesVector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">MM</span></em>, <em class="sig-param"><span class="n">aa</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L416-L426"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector">
+<span class="sig-name descname"><span class="pre">matrixTimesVector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aa</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L415-L425"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -781,8 +690,8 @@ functions that do not cross…)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle">
-<code class="sig-name descname">my_solid_angle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">coords</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L366-L398"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle">
+<span class="sig-name descname"><span class="pre">my_solid_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L365-L397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle" title="Permalink to this definition"></a></dt>
 <dd><p>Helper method to calculate the solid angle of a set of coords from the
 center.</p>
 <dl class="field-list simple">
@@ -799,8 +708,8 @@ center.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions">
-<code class="sig-name descname">quarter_ellipsis_functions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">yy</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L94-L140"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions">
+<span class="sig-name descname"><span class="pre">quarter_ellipsis_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L93-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions" title="Permalink to this definition"></a></dt>
 <dd><p>Method that creates two quarter-ellipse functions based on points xx and yy. The ellipsis is supposed to
 be aligned with the axes. The two ellipsis pass through the two points xx and yy.</p>
 <dl class="field-list simple">
@@ -817,8 +726,8 @@ be aligned with the axes. The two ellipsis pass through the two points xx and yy
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection">
-<code class="sig-name descname">rectangle_surface_intersection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rectangle</span></em>, <em class="sig-param"><span class="n">f_lower</span></em>, <em class="sig-param"><span class="n">f_upper</span></em>, <em class="sig-param"><span class="n">bounds_lower</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bounds_upper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">check</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">numpoints_check</span><span class="o">=</span><span class="default_value">500</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L264-L363"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection">
+<span class="sig-name descname"><span class="pre">rectangle_surface_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rectangle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_upper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpoints_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L263-L362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection" title="Permalink to this definition"></a></dt>
 <dd><p>Method to calculate the surface of the intersection of a rectangle (aligned with axes) and another surface
 defined by two functions f_lower and f_upper.</p>
 <dl class="field-list simple">
@@ -840,8 +749,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords">
-<code class="sig-name descname">rotateCoords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">R</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L429-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords">
+<span class="sig-name descname"><span class="pre">rotateCoords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L428-L439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords" title="Permalink to this definition"></a></dt>
 <dd><p>Rotate the list of points using rotation matrix R
 :param coords: List of points to be rotated
 :param R: Rotation matrix
@@ -849,8 +758,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt">
-<code class="sig-name descname">rotateCoordsOpt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">R</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L443-L450"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt">
+<span class="sig-name descname"><span class="pre">rotateCoordsOpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L442-L449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt" title="Permalink to this definition"></a></dt>
 <dd><p>Rotate the list of points using rotation matrix R
 :param coords: List of points to be rotated
 :param R: Rotation matrix
@@ -858,8 +767,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list">
-<code class="sig-name descname">separation_in_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separation_indices</span></em>, <em class="sig-param"><span class="n">separation_indices_list</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L556-L567"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list">
+<span class="sig-name descname"><span class="pre">separation_in_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">separation_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_indices_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L555-L566"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if the separation indices of a plane are already in the list
 :param separation_indices: list of separation indices (three arrays of integers)
 :param separation_indices_list: list of the list of separation indices to be compared to
@@ -867,8 +776,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation">
-<code class="sig-name descname">sort_separation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separation</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L526-L534"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation">
+<span class="sig-name descname"><span class="pre">sort_separation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">separation</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L525-L533"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation" title="Permalink to this definition"></a></dt>
 <dd><p>Sort a separation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -881,8 +790,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple">
-<code class="sig-name descname">sort_separation_tuple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separation</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L537-L553"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple">
+<span class="sig-name descname"><span class="pre">sort_separation_tuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">separation</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L536-L552"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple" title="Permalink to this definition"></a></dt>
 <dd><p>Sort a separation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -895,8 +804,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions">
-<code class="sig-name descname">spline_functions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lower_points</span></em>, <em class="sig-param"><span class="n">upper_points</span></em>, <em class="sig-param"><span class="n">degree</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L143-L172"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions">
+<span class="sig-name descname"><span class="pre">spline_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L142-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions" title="Permalink to this definition"></a></dt>
 <dd><p>Method that creates two (upper and lower) spline functions based on points lower_points and upper_points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -913,8 +822,8 @@ defined by two functions f_lower and f_upper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.vectorsToMatrix">
-<code class="sig-name descname">vectorsToMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">aa</span></em>, <em class="sig-param"><span class="n">bb</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.15/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L401-L413"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.vectorsToMatrix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.vectorsToMatrix">
+<span class="sig-name descname"><span class="pre">vectorsToMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.1.24/pymatgen/core/../analysis/chemenv/utils/coordination_geometry_utils.py#L400-L412"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.vectorsToMatrix" title="Permalink to this definition"></a></dt>
 <dd><p>Performs the vector multiplication of the elements of two vectors, constructing the 3x3 matrix.
 :param aa: One vector of size 3
 :param bb: Another vector of size 3
@@ -924,46 +833,34 @@ defined by two functions f_lower and f_upper.</p>
 </div></blockquote>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
