@@ -114,7 +114,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             try:
                 fh = open(fname)  # pylint: disable=R1732
             except OSError:
-                logger.warning("Cannot open file %s" % fname)
+                logger.warning(f"Cannot open file {fname}")
                 continue
 
             try:
@@ -135,7 +135,7 @@ class AbinitTimerParser(collections.abc.Iterable):
     def _read(self, fh, fname):
         """Parse the TIMER section"""
         if fname in self._timers:
-            raise self.Error("Cannot overwrite timer associated to: %s " % fname)
+            raise self.Error(f"Cannot overwrite timer associated to: {fname} ")
 
         def parse_line(line):
             """Parse single line."""
@@ -195,7 +195,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                         raise self.Error("line should be empty: " + str(inside) + line)
 
         if not has_timer:
-            raise self.Error("%s: No timer section found" % fname)
+            raise self.Error(f"{fname}: No timer section found")
 
         # Add it to the dict
         self._timers[fname] = data
@@ -562,7 +562,7 @@ class ParallelEfficiency(dict):
             fract = self[sect_name]["wall_fract"]
             vals = alternate(peff, fract)
 
-            table.append([sect_name] + ["%.2f" % val for val in vals])
+            table.append([sect_name] + [f"{val:.2f}" for val in vals])
 
         return table
 

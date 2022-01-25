@@ -244,8 +244,8 @@ class VampireCaller:
         mc_timesteps = self.mc_timesteps
         mat_name = self.mat_name
 
-        input_script = ["material:unit-cell-file=%s.ucf" % (mat_name)]
-        input_script += ["material:file=%s.mat" % (mat_name)]
+        input_script = [f"material:unit-cell-file={mat_name}.ucf"]
+        input_script += [f"material:file={mat_name}.mat"]
 
         # Specify periodic boundary conditions
         input_script += [
@@ -258,15 +258,15 @@ class VampireCaller:
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
 
-        input_script += ["dimensions:unit-cell-size-x = %.10f !A" % (ucx)]
-        input_script += ["dimensions:unit-cell-size-y = %.10f !A" % (ucy)]
-        input_script += ["dimensions:unit-cell-size-z = %.10f !A" % (ucz)]
+        input_script += [f"dimensions:unit-cell-size-x = {ucx:.10f} !A"]
+        input_script += [f"dimensions:unit-cell-size-y = {ucy:.10f} !A"]
+        input_script += [f"dimensions:unit-cell-size-z = {ucz:.10f} !A"]
 
         # System size in nm
         input_script += [
-            "dimensions:system-size-x = %.1f !nm" % (mcbs),
-            "dimensions:system-size-y = %.1f !nm" % (mcbs),
-            "dimensions:system-size-z = %.1f !nm" % (mcbs),
+            f"dimensions:system-size-x = {mcbs:.1f} !nm",
+            f"dimensions:system-size-y = {mcbs:.1f} !nm",
+            f"dimensions:system-size-z = {mcbs:.1f} !nm",
         ]
 
         # Critical temperature Monte Carlo calculation

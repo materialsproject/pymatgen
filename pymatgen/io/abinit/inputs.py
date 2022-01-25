@@ -132,7 +132,7 @@ def as_structure(obj):
             return Structure.from_dict(obj)
         return aobj.structure_from_abivars(cls=None, **obj)
 
-    raise TypeError("Don't know how to convert %s into a structure" % type(obj))
+    raise TypeError(f"Don't know how to convert {type(obj)} into a structure")
 
 
 class ShiftMode(Enum):
@@ -162,7 +162,7 @@ class ShiftMode(Enum):
             return obj
         if is_string(obj):
             return cls(obj[0].upper())
-        raise TypeError("The object provided is not handled: type %s" % type(obj))
+        raise TypeError(f"The object provided is not handled: type {type(obj)}")
 
 
 def _stopping_criterion(runlevel, accuracy):
@@ -249,7 +249,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError("invalid shift_mode: `%s`" % str(shift_mode))
+    raise ValueError(f"invalid shift_mode: `{str(shift_mode)}`")
 
 
 def gs_input(
@@ -758,7 +758,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.exists(pseudo_dir):
-                raise self.Error("Directory %s does not exist" % pseudo_dir)
+                raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
 
         try:
@@ -1110,7 +1110,7 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error("Cannot find the following pseudopotential files:\n%s" % str(missing))
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{str(missing)}")
 
             pseudos = PseudoTable(pseudo_paths)
 

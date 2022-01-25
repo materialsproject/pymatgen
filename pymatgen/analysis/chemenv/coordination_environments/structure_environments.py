@@ -654,7 +654,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                "Number of csms for site #{} with " 'mp_symbol "{}" = {}'.format(str(isite), mp_symbol, str(len(csms))),
+                f'Number of csms for site #{str(isite)} with mp_symbol "{mp_symbol}" = {str(len(csms))}',
             )
         return csms[0]
 
@@ -923,9 +923,7 @@ class StructureEnvironments(MSONable):
                 return dp
 
         else:
-            raise ValueError(
-                'Wrong value for distance parameter plot type "{}"'.format(plot_type["distance_parameter"][0])
-            )
+            raise ValueError(f"Wrong value for distance parameter plot type \"{plot_type['distance_parameter'][0]}\"")
 
         if plot_type["angle_parameter"][0] == "one_minus_gamma":
             ylabel = "Angle parameter : $1.0-\\gamma$"
@@ -943,7 +941,7 @@ class StructureEnvironments(MSONable):
                 return ap
 
         else:
-            raise ValueError('Wrong value for angle parameter plot type "{}"'.format(plot_type["angle_parameter"][0]))
+            raise ValueError(f"Wrong value for angle parameter plot type \"{plot_type['angle_parameter'][0]}\"")
         dist_limits = [dp_func(dp) for dp in dist_limits]
         ang_limits = [ap_func(ap) for ap in ang_limits]
 
@@ -2332,10 +2330,10 @@ class ChemicalEnvironments(MSONable):
             out += f"   - {mp_symbol}\n"
             out += f"      csm1 (with central site) : {csm_wcs}"
             out += f"      csm2 (without central site) : {csm_wocs}"
-            out += "     algo : {}".format(self.coord_geoms[mp_symbol]["algo"])
-            out += "     perm : {}\n".format(self.coord_geoms[mp_symbol]["permutation"])
-            out += "       local2perfect : {}\n".format(str(self.coord_geoms[mp_symbol]["local2perfect_map"]))
-            out += "       perfect2local : {}\n".format(str(self.coord_geoms[mp_symbol]["perfect2local_map"]))
+            out += f"     algo : {self.coord_geoms[mp_symbol]['algo']}"
+            out += f"     perm : {self.coord_geoms[mp_symbol]['permutation']}\n"
+            out += f"       local2perfect : {str(self.coord_geoms[mp_symbol]['local2perfect_map'])}\n"
+            out += f"       perfect2local : {str(self.coord_geoms[mp_symbol]['perfect2local_map'])}\n"
         return out
 
     def is_close_to(self, other, rtol=0.0, atol=1e-8):

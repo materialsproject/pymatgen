@@ -181,7 +181,7 @@ class ElementBase(Enum):
             energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
             ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
-        self.symbol = "%s" % symbol
+        self.symbol = f"{symbol}"
         d = _pt_data[symbol]
 
         # Store key variables for quick access
@@ -294,7 +294,7 @@ class ElementBase(Enum):
                             # Ignore error. val will just remain a string.
                             pass
             return val
-        raise AttributeError("Element has no attribute %s!" % item)
+        raise AttributeError(f"Element has no attribute {item}!")
 
     @property
     def data(self) -> dict:
@@ -592,7 +592,7 @@ class ElementBase(Enum):
         for sym, data in _pt_data.items():
             if data["Atomic no"] == z:
                 return Element(sym)
-        raise ValueError("No element with this atomic number %s" % z)
+        raise ValueError(f"No element with this atomic number {z}")
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> "Element":
@@ -1103,10 +1103,10 @@ class Species(MSONable, Stringify):
             d = self._el.data
             oxstr = str(int(self._oxi_state))
             if oxstr in d.get("Ionic radii hs", {}):
-                warnings.warn("No default ionic radius for %s. Using hs data." % self)
+                warnings.warn(f"No default ionic radius for {self}. Using hs data.")
                 return d["Ionic radii hs"][oxstr]
             if oxstr in d.get("Ionic radii ls", {}):
-                warnings.warn("No default ionic radius for %s. Using ls data." % self)
+                warnings.warn(f"No default ionic radius for {self}. Using ls data.")
                 return d["Ionic radii ls"][oxstr]
         warnings.warn(f"No ionic radius for {self}!")
         return None
@@ -1249,7 +1249,7 @@ class Species(MSONable, Stringify):
                 )
         else:
             data = radii[spin]
-        return data["%s_radius" % radius_type]
+        return data[f"{radius_type}_radius"]
 
     def get_crystal_field_spin(
         self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"

@@ -48,8 +48,6 @@ class CompatibilityError(Exception):
     on incompatible calculation
     """
 
-    pass
-
 
 class Correction(metaclass=abc.ABCMeta):
     """
@@ -477,7 +475,7 @@ class UCorrection(Correction):
         """
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError(
-                "Entry {} has invalid run type {}. Discarding.".format(entry.entry_id, entry.parameters.get("run_type"))
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
             )
 
         calc_u = entry.parameters.get("hubbards", None)
@@ -767,18 +765,18 @@ class CorrectionsList(Compatibility):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print("The uncorrected value of the energy of {} is {:f} eV".format(entry.composition, d["uncorrected_energy"]))
-        print("The following corrections / screening are applied for %s:\n" % d["compatibility"])
+        print(f"The uncorrected value of the energy of {entry.composition} is {d['uncorrected_energy']:f} eV")
+        print(f"The following corrections / screening are applied for {d['compatibility']}:\n")
         for c in d["corrections"]:
-            print("{} correction: {}\n".format(c["name"], c["description"]))
-            print("For the entry, this correction has the value %f eV." % c["value"])
+            print(f"{c['name']} correction: {c['description']}\n")
+            print(f"For the entry, this correction has the value {c['value']:f} eV.")
             if c["uncertainty"] != 0 or c["value"] == 0:
-                print("This correction has an uncertainty value of %f eV." % c["uncertainty"])
+                print(f"This correction has an uncertainty value of {c['uncertainty']:f} eV.")
             else:
                 print("This correction does not have uncertainty data available")
             print("-" * 30)
 
-        print("The final energy after corrections is %f" % d["corrected_energy"])
+        print(f"The final energy after corrections is {d['corrected_energy']:f}")
 
 
 class MaterialsProjectCompatibility(CorrectionsList):

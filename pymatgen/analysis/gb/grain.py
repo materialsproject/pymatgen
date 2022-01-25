@@ -242,8 +242,8 @@ class GrainBoundary(Structure):
     def __str__(self):
         comp = self.composition
         outs = [
-            "Gb Summary (%s)" % comp.formula,
-            "Reduced Formula: %s" % comp.reduced_formula,
+            f"Gb Summary ({comp.formula})",
+            f"Reduced Formula: {comp.reduced_formula}",
             f"Rotation axis: {self.rotation_axis}",
             f"Rotation angle: {self.rotation_angle}",
             f"GB plane: {self.gb_plane}",
@@ -253,7 +253,7 @@ class GrainBoundary(Structure):
         ]
 
         def to_s(x, rjust=10):
-            return ("%0.6f" % x).rjust(rjust)
+            return (f"{x:0.6f}").rjust(rjust)
 
         outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))

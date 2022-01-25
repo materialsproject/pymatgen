@@ -248,8 +248,8 @@ class EnumlibAdaptor:
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append("%d" % len(index_species))
-        output.append("%d" % len(coord_str))
+        output.append(f"{len(index_species)}")
+        output.append(f"{len(coord_str)}")
         output.extend(coord_str)
 
         output.append(f"{self.min_cell_size} {self.max_cell_size}")
@@ -417,5 +417,3 @@ class EnumError(BaseException):
     """
     Error subclass for enumeration errors.
     """
-
-    pass

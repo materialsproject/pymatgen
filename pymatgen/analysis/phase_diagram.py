@@ -537,7 +537,7 @@ class PhaseDiagram(MSONable):
     def __repr__(self):
         symbols = [el.symbol for el in self.elements]
         output = [
-            "{} phase diagram".format("-".join(symbols)),
+            f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
@@ -1430,7 +1430,7 @@ class ReactionDiagram:
         r1 = entry1.composition.reduced_composition
         r2 = entry2.composition.reduced_composition
 
-        logger.debug("%d total entries." % len(all_entries))
+        logger.debug(f"{len(all_entries)} total entries.")
 
         pd = PhaseDiagram(all_entries + [entry1, entry2])
         terminal_formulas = [
@@ -1438,9 +1438,9 @@ class ReactionDiagram:
             entry2.composition.reduced_formula,
         ]
 
-        logger.debug("%d stable entries" % len(pd.stable_entries))
-        logger.debug("%d facets" % len(pd.facets))
-        logger.debug("%d qhull_entries" % len(pd.qhull_entries))
+        logger.debug(f"{len(pd.stable_entries)} stable entries")
+        logger.debug(f"{len(pd.facets)} facets")
+        logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
         done = []
@@ -1520,7 +1520,7 @@ class ReactionDiagram:
                             )
                         )
                     )
-                    logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
+                    logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
 

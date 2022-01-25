@@ -68,7 +68,7 @@ class Spectrum(MSONable):
             return self.x
         if item == self.YLABEL.lower():
             return self.y
-        raise AttributeError("Invalid attribute name %s" % str(item))
+        raise AttributeError(f"Invalid attribute name {str(item)}")
 
     def __len__(self):
         return self.ydim[0]
@@ -88,7 +88,7 @@ class Spectrum(MSONable):
         elif mode.lower() == "max":
             factor = np.max(self.y, axis=0)
         else:
-            raise ValueError("Unsupported normalization mode %s!" % mode)
+            raise ValueError(f"Unsupported normalization mode {mode}!")
 
         self.y /= factor / value
 

@@ -90,7 +90,7 @@ class CrystalAIRester:
             10 ** prediction to get the actual value.
         """
         response = None
-        url = self.url + "/predict_structure/%s" % model_name
+        url = self.url + f"/predict_structure/{model_name}"
         try:
             data = {"structure": structure.to(fmt="POSCAR"), "fmt": "POSCAR"}
             response = self.session.post(url, data=data)

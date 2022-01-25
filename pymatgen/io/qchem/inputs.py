@@ -420,7 +420,7 @@ class QCInput(MSONable):
         smx_list.append("$smx")
         for key, value in smx.items():
             if value == "tetrahydrofuran":
-                smx_list.append("   {key} {value}".format(key=key, value="thf"))
+                smx_list.append(f"   {key} thf")
             else:
                 smx_list.append(f"   {key} {value}")
         smx_list.append("$end")

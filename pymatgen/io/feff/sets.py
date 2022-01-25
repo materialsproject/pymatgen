@@ -52,7 +52,6 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Returns header to be used in feff.inp file from a pymatgen structure
         """
-        pass
 
     @property
     @abc.abstractmethod
@@ -63,7 +62,6 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             Atoms object.
         """
-        pass
 
     @property
     @abc.abstractmethod
@@ -79,7 +77,6 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Returns POTENTIAL section used in feff.inp from a structure.
         """
-        pass
 
     def all_input(self):
         """
@@ -198,7 +195,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         """
         if "RECIPROCAL" in self.config_dict:
             if self.small_system:
-                self.config_dict["CIF"] = "{}.cif".format(self.structure.formula.replace(" ", ""))
+                self.config_dict["CIF"] = f"{self.structure.formula.replace(' ', '')}.cif"
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
                 logger.warning("Setting COREHOLE = RPA for K-space calculation")

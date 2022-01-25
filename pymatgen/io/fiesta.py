@@ -296,9 +296,9 @@ class BasisSetReader:
         o.append("Reading basis set:")
         o.append("")
         o.append(f" Basis set for {self.filename} atom ")
-        o.append(" Maximum angular momentum = {}".format(self.data["lmax"]))
-        o.append(" Number of atomics orbitals = {}".format(self.data["n_nlo"]))
-        o.append(" Number of nlm orbitals = {}".format(self.data["n_nlmo"]))
+        o.append(f" Maximum angular momentum = {self.data['lmax']}")
+        o.append(f" Number of atomics orbitals = {self.data['n_nlo']}")
+        o.append(f" Number of nlm orbitals = {self.data['n_nlmo']}")
         o.append("=========================================")
 
         return str(0)
@@ -451,22 +451,22 @@ class FiestaInput(MSONable):
                     self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
                 )
             )
-            o.append(" Performing   {} diagonal COHSEX iterations".format(self.COHSEX_options["nit_cohsex"]))
+            o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal COHSEX iterations")
         elif self.COHSEX_options["eigMethod"] == "HF":
             o.append(
                 " Correcting  {} valence bands and   {} conduction bands at HF level".format(
                     self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
                 )
             )
-            o.append(" Performing   {} diagonal HF iterations".format(self.COHSEX_options["nit_cohsex"]))
+            o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal HF iterations")
 
-        o.append(" Using resolution of identity : {}".format(self.COHSEX_options["resMethod"]))
+        o.append(f" Using resolution of identity : {self.COHSEX_options['resMethod']}")
         o.append(
             " Correcting  {} valence bands and  {} conduction bands at GW level".format(
                 self.GW_options["nv_corr"], self.GW_options["nc_corr"]
             )
         )
-        o.append(" Performing   {} GW iterations".format(self.GW_options["nit_gw"]))
+        o.append(f" Performing   {self.GW_options['nit_gw']} GW iterations")
 
         if int(self.BSE_TDDFT_options["do_bse"]) == 1:
             o.append(" Dumping data for BSE treatment")

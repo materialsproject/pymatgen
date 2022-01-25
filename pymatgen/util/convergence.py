@@ -492,14 +492,10 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
         for n in range(0, len(ys), 1):
             f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
     tol = abs(tol)
-    line = "plot 'convdat.%s' pointsize 4 lt 0, " % idp
+    line = f"plot 'convdat.{idp}' pointsize 4 lt 0, "
     line += f"{popt[0]} lt 3, {popt[0] - tol} lt 4, {popt[0] + tol} lt 4, "
     if function is exponential:
-        line += "{} + {} * {} ** -x".format(
-            popt[0],
-            popt[1],
-            min(max(1.00001, popt[2]), 1.2),
-        )
+        line += f"{popt[0]} + {popt[1]} * {min(max(1.00001, popt[2]), 1.2)} ** -x"
     elif function is reciprocal:
         line += f"{popt[0]} + {popt[1]} / x**{min(max(0.5, popt[2]), 6)}"
     elif function is single_reciprocal:

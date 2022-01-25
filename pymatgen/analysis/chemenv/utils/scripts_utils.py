@@ -254,7 +254,7 @@ def compute_environments(chemenv_configuration):
             found = False
             print("Enter the source from which the structure is coming or <q> to quit :")
             for key_character, qq in questions.items():
-                print(" - <{}> for a structure from {}".format(key_character, string_sources[qq]["string"]))
+                print(f" - <{key_character}> for a structure from {string_sources[qq]['string']}")
             test = input(" ... ")
             if test == "q":
                 break
