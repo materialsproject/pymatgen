@@ -624,7 +624,7 @@ class Vasprun(MSONable):
             final_estep = final_istep["electronic_steps"][-1]
             electronic_energy_diff = final_estep["e_0_energy"] - final_estep["e_fr_energy"]
             total_energy_bugfix = np.round(electronic_energy_diff + final_istep["e_fr_energy"], 8)
-            if np.abs(total_energy - total_energy_bugfix) > 1e-6:
+            if np.abs(total_energy - total_energy_bugfix) > 1e-7:
                 return total_energy_bugfix
 
             return total_energy
