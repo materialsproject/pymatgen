@@ -624,58 +624,61 @@ class Slab(Structure):
             point: Fractional coordinate. A point equivalent to the
                 parameter point, but on the other side of the slab
         """
-        
-        #Copy the slab to origin_centereded_slab
+
+        # Copy the slab to origin_centereded_slab
         origin_centered_slab = self.copy()
-        
-        #Calculate the slab center of mass (com)
-        slab_com = np.array([0.,0.,origin_centered_slab.center_of_mass[2]])
-        
-        #This is to make sure all the sites are inside the unit cell and not 
-        #in neighbouring cells or on the cell boundary.
-        
-        #If the slab needs to be centered, use the center_slab() function.
-        #In this case the 'point' shift needs to be calculated in two steps:
-        #1. shift so the point is on top (or bottom) of the centered slab
-        #2. shift the point down by 0.5 (new center of mass after centering)
-        #This avoids the point coordinates to overlap with the centered+shifted
-        #slab
-        if not np.all(np.logical_and(origin_centered_slab.frac_coords[:,2] > 0.,
-                                     origin_centered_slab.frac_coords[:,2] < 1.)):                        
+
+        # Calculate the slab center of mass (com)
+        slab_com = np.array([0.0, 0.0, origin_centered_slab.center_of_mass[2]])
+
+        # This is to make sure all the sites are inside the unit cell and not
+        # in neighbouring cells or on the cell boundary.
+
+        # If the slab needs to be centered, use the center_slab() function.
+        # In this case the 'point' shift needs to be calculated in two steps:
+        # 1. shift so the point is on top (or bottom) of the centered slab
+        # 2. shift the point down by 0.5 (new center of mass after centering)
+        # This avoids the point coordinates to overlap with the centered+shifted
+        # slab
+        if not np.all(
+            np.logical_and(origin_centered_slab.frac_coords[:, 2] > 0.0, 
+                           origin_centered_slab.frac_coords[:, 2] < 1.0)
+        ):
             origin_centered_slab = center_slab(origin_centered_slab)
-            #The point coordinates need to be shifted too
-            center_first = 0.5 + slab_com   
-            #The new center of mass is at z = 0.5 by definition of the 
-            #center_slab() function
-            translation = np.array([0.,0.,-0.5])
+            # The point coordinates need to be shifted too
+            center_first = 0.5 + slab_com
+            # The new center of mass is at z = 0.5 by definition of the
+            # center_slab() function
+            translation = np.array([0.0, 0.0, -0.5])
         else:
             translation = -slab_com
-            center_first = 0.
-            
-        #Translate the sites so that the center of mass is at z=0
-        origin_centered_slab.translate_sites(list(range(origin_centered_slab.num_sites)),
-                                             translation, to_unit_cell=False)
-                        
-        #Translate the point coordinate so it sits on top (or below) the 
-        #shifted slab
+            center_first = 0.0
+
+        # Translate the sites so that the center of mass is at z=0
+        origin_centered_slab.translate_sites(
+            list(range(origin_centered_slab.num_sites)), translation, to_unit_cell=False
+        )
+
+        # Translate the point coordinate so it sits on top (or below) the
+        # shifted slab
         point = point + center_first + translation
 
         sg = SpacegroupAnalyzer(origin_centered_slab)
         ops = sg.get_symmetry_operations(cartesian=cartesian)
 
         # Each operation on a point will return an equivalent point.
-        # We want to find the point on the other side of the slab.        
+        # We want to find the point on the other side of the slab.
         for op in ops:
             site2 = op.operate(point)
-            #For the slab to be symmetric, the equivalent site has to have
-            #the opposite z component
-            if np.around(point[2],5) + np.around(site2[2],5) == 0.:
-                #This is to bring back to the unit cell the points that were
-                #obtained in equivalent positions of neightbouring cells 
-                #(a,b components only)
-                if site2[0] > 1. or site2[0] < 0.:
-                     site2[0] = site2[0] % 1.0
-                if site2[1] > 1. or site2[1] < 0.:
+            # For the slab to be symmetric, the equivalent site has to have
+            # the opposite z component
+            if np.around(point[2], 5) + np.around(site2[2], 5) == 0.0:
+                # This is to bring back to the unit cell the points that were
+                # obtained in equivalent positions of neightbouring cells
+                # (a,b components only)
+                if site2[0] > 1.0 or site2[0] < 0.0:
+                    site2[0] = site2[0] % 1.0
+                if site2[1] > 1.0 or site2[1] < 0.0:
                     site2[1] = site2[1] % 1.0
 
                 # Add dummy site to check the overall structure is symmetric
@@ -683,20 +686,23 @@ class Slab(Structure):
                 origin_centered_slab.append("O", site2, coords_are_cartesian=cartesian)
 
                 if origin_centered_slab.is_symmetric():
-                    #Return the coordinate of the symmetric site on the other 
-                    #side of the slab given in input (shift up or down the 
-                    #coordinates of the point obtained from the origin 
-                    #centered slab)
+                    # Return the coordinate of the symmetric site on the other
+                    # side of the slab given in input (shift up or down the
+                    # coordinates of the point obtained from the origin
+                    # centered slab)
                     return site2 - center_first - translation
-                        
+
                 # If not symmetric, remove the two added
                 # sites and try another symmetry operator
                 origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
                 origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
-            
-        warnings.warn("The symmetric site could not be found for the %s %s \
-                      surface." %(self.composition,self.miller_index))
-                      
+
+        warnings.warn(
+            "The symmetric site could not be found for the %s %s \
+                      surface."
+            % (self.composition, self.miller_index)
+        )
+
     def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
         """
         Class method for adding a site at a specified point in a slab.
