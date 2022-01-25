@@ -618,13 +618,15 @@ class Vasprun(MSONable):
         """
         try:
             final_istep = self.ionic_steps[-1]
-            if int(self.vasp_version.split(".")[0]) >= 6:
-                return final_istep["e_0_energy"]
+            total_energy = final_istep["e_0_energy"]
 
             # Addresses a bug in vasprun.xml. See https://www.vasp.at/forum/viewtopic.php?f=3&t=16942
             final_estep = final_istep["electronic_steps"][-1]
-            electronic_energy = final_estep["e_0_energy"] - final_estep["e_fr_energy"]
-            total_energy = np.round(electronic_energy + final_istep["e_fr_energy"], 8)
+            electronic_energy_diff = final_estep["e_0_energy"] - final_estep["e_fr_energy"]
+            total_energy_bugfix = np.round(electronic_energy_diff + final_istep["e_fr_energy"], 8)
+            if np.abs(total_energy - total_energy_bugfix) > 1e-6:
+                return total_energy_bugfix
+
             return total_energy
         except (IndexError, KeyError):
             warnings.warn(

@@ -143,15 +143,20 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(v.final_energy, -9.78310677)
 
     def test_energies(self):
+
+        # VASP 5.4.1
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
         self.assertAlmostEqual(v.final_energy, -11.18981538)
 
+        # VASP 6.2.1
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest2.gz")
         self.assertAlmostEqual(v.final_energy, -11.18986774)
 
+        # VASP 5.4.1
         o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest3.gz")
         self.assertAlmostEqual(o.final_energy, -15.89355325)
 
+        # VASP 6.2.1
         o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest4.gz")
         self.assertAlmostEqual(o.final_energy, -15.89364691)
 
@@ -1457,21 +1462,26 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(outcar.run_stats["cores"], 64)
 
     def test_energies(self):
+
+        # VASP 5.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
         self.assertAlmostEqual(o.final_energy, -11.18981538)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13480014)
         self.assertAlmostEqual(o.final_fr_energy, -11.21732300)
 
+        # VASP 6.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest2.gz")
         self.assertAlmostEqual(o.final_energy, -11.18986774)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13485250)
         self.assertAlmostEqual(o.final_fr_energy, -11.21737536)
 
+        # VASP 5.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest3.gz")
         self.assertAlmostEqual(o.final_energy, -15.89355325)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83853800)
         self.assertAlmostEqual(o.final_fr_energy, -15.92106087)
 
+        # VASP 6.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest4.gz")
         self.assertAlmostEqual(o.final_energy, -15.89364691)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
