@@ -17,6 +17,7 @@ from typing import Union, Optional, Dict
 from monty.json import MSONable
 from monty.dev import deprecated
 
+from pymatgen.io.core import InputFile
 from pymatgen.io.template import TemplateInputGen
 from pymatgen.io.lammps.data import LammpsData  # , CombinedData
 
