@@ -42,7 +42,7 @@ def _load_pmg_settings():
         with open(SETTINGS_FILE) as f:
             d_yml = yaml.load(f)
         d.update(d_yml)
-    except OSError:
+    except (OSError, TypeError):
         # If there are any errors, default to using environment variables
         # if present.
         pass
