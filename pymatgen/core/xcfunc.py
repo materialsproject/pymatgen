@@ -238,7 +238,7 @@ class XcFunc(MSONable):
         return "+".join([self.x.family, self.c.family])
 
     @lazy_property
-    def name(self):
+    def name(self) -> str:
         """
         The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME
@@ -252,8 +252,8 @@ class XcFunc(MSONable):
             return self.xc.name
         return "+".join([self.x.name, self.c.name])
 
-    def __repr__(self):
-        return f"{self.name}"
+    def __repr__(self) -> str:
+        return str(self.name)
 
     def __hash__(self):
         return hash(self.name)

@@ -105,14 +105,14 @@ class CoordinationEnvironmentMorphing:
             morphing_factors,
             fractions_initial_environment,
             "b-",
-            label=f"{self.initial_environment_symbol}",
+            label=self.initial_environment_symbol,
             linewidth=1.5,
         )
         subplot.plot(
             morphing_factors,
             fractions_final_environment,
             "g--",
-            label=f"{self.expected_final_environment_symbol}",
+            label=self.expected_final_environment_symbol,
             linewidth=1.5,
         )
 

@@ -2305,7 +2305,7 @@ class IStructure(SiteCollection, MSONable):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
-                    f.write(f"{s}")
+                    f.write(s)
             return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
