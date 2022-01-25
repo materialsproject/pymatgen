@@ -5,8 +5,7 @@
 Classes for reading/manipulating/writing QChem input files.
 """
 import logging
-import sys
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -14,11 +13,6 @@ from monty.json import MSONable
 from pymatgen.core import Molecule
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"

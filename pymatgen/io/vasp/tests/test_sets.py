@@ -78,7 +78,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPSCANRelaxSet.yaml": "dfa9fee19178cb38c6a121ce6096db40693478e8",
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
         self.assertDictEqual(

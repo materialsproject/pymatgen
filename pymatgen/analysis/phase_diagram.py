@@ -12,8 +12,8 @@ import logging
 import math
 import os
 import re
-import sys
 from functools import lru_cache
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objs as go
@@ -28,11 +28,6 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -288,8 +283,6 @@ class TransformedPDEntryError(Exception):
     """
     An exception class for TransformedPDEntry.
     """
-
-    pass
 
 
 class PhaseDiagram(MSONable):
@@ -1570,8 +1563,6 @@ class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
     """
-
-    pass
 
 
 def get_facets(qhull_data, joggle=False):

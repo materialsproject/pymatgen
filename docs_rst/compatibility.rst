@@ -83,11 +83,11 @@ their canonical import::
     from pymatgen import ArrayWithUnit, FloatWithUnit, Unit  # now "from pymatgen.core.units ..."
     from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.core ..."
     from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
-	
+
 If your existing code uses `from pymatgen import <something>`, you will need to make
 modifications.
 
-The easiest way is to use an IDE to run a Search and Replace. 
+The easiest way is to use an IDE to run a Search and Replace.
 First, replace any `from pymatgen import MPRester` with
 `from pymatgen.ext.matproj import MPRester`. Then, replace
 `from pymatgen import` with `from pymatgen.core import`. Alternatively, if you

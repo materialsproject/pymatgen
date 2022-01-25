@@ -5,24 +5,18 @@
 import ast
 import json
 import re
-import sys
 import warnings
 from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Literal, Optional, Tuple, Union
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
@@ -1539,16 +1533,12 @@ class Specie(Species):
     to maintain backwards compatibility.
     """
 
-    pass
-
 
 class DummySpecie(DummySpecies):
     """
     This maps the historical grammatically inaccurate DummySpecie to DummySpecies
     to maintain backwards compatibility.
     """
-
-    pass
 
 
 def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
