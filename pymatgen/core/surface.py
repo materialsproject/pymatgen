@@ -646,14 +646,17 @@ class Slab(Structure):
         ):
             origin_centered_slab = center_slab(origin_centered_slab)
             # The point coordinates need to be shifted too
-            center_first = 0.5 + slab_com
+            if slab_com[2] < 0.5:
+                center_first = np.array([0.0,0.0,0.5]) + slab_com
+            elif slab_com[2] > 0.5:
+                center_first = np.array([0.0,0.0,0.5]) - slab_com
             # The new center of mass is at z = 0.5 by definition of the
             # center_slab() function
             translation = np.array([0.0, 0.0, -0.5])
         else:
+            center_first = np.array([0.0,0.0,0.0])
             translation = -slab_com
-            center_first = 0.0
-
+            
         # Translate the sites so that the center of mass is at z=0
         origin_centered_slab.translate_sites(
             list(range(origin_centered_slab.num_sites)), translation, to_unit_cell=False
