@@ -1421,20 +1421,6 @@ class MPScanRelaxSetTest(PymatgenTest):
         for f in ["INCAR", "POSCAR", "POTCAR"]:
             os.remove(f)
 
-        # TODO - enable these additional tests after Vasp IO adopts
-        # the abstract interface for write_input
-        # self.mp_scan_set.write_input(".", potcar_spec=True)
-        # self.assertTrue(os.path.exists("POTCAR.spec"))
-
-        # self.mp_scan_set.write_input(".", include_cif=True)
-        # self.assertTrue(os.path.exists("Fe4P4O16.cif"))
-
-        # self.mp_scan_set.write_input(".", zip_output=True)
-        # self.assertTrue(os.path.exists("MPScanRelaxSet.zip"))
-
-        # for f in ["POTCAR.spec", "Fe4P4O16.cif", "MPScanRelaxSet.zip"]:
-        #     os.remove(f)
-
 
 class MPScanStaticSetTest(PymatgenTest):
     def setUp(self):

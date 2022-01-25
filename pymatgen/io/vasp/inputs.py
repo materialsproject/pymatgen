@@ -15,7 +15,6 @@ import os
 import re
 import subprocess
 import warnings
-from pathlib import Path
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
@@ -35,7 +34,6 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.io.core import InputFile
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import ArrayLike, PathLike
@@ -46,7 +44,7 @@ __copyright__ = "Copyright 2011, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-class Poscar(InputFile):
+class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
@@ -535,6 +533,14 @@ class Poscar(InputFile):
         """
         return self.get_string()
 
+    def write_file(self, filename: PathLike, **kwargs):
+        """
+        Writes POSCAR to a file. The supported kwargs are the same as those for
+        the Poscar.get_string method and are passed through directly.
+        """
+        with zopen(filename, "wt") as f:
+            f.write(self.get_string(**kwargs))
+
     def as_dict(self) -> dict:
         """
         :return: MSONable dict.
@@ -627,7 +633,7 @@ class BadIncarWarning(UserWarning):
     """
 
 
-class Incar(dict, InputFile):
+class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -729,20 +735,29 @@ class Incar(dict, InputFile):
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
 
-    def write_file(self, filename: Union[str, Path], sort_keys=True, pretty=False) -> None:
+    def write_file(self, filename: PathLike):
         """
-        Write the input file.
+        Write Incar to a file.
 
         Args:
-            filename: The filename to output to, including path.
-            sort_keys (bool): Set to True to sort the INCAR parameters
-                alphabetically. Defaults to False.
-            pretty (bool): Set to True for pretty aligned output. Defaults
-                to False.
+            filename (str): filename to write to.
         """
-        filename = filename if isinstance(filename, Path) else Path(filename)
-        with open(filename, "wt") as f:
-            f.write(self.get_string(sort_keys=sort_keys, pretty=pretty))
+        with zopen(filename, "wt") as f:
+            f.write(self.__str__())
+
+    @staticmethod
+    def from_file(filename: PathLike) -> "Incar":
+        """
+        Reads an Incar object from a file.
+
+        Args:
+            filename (str): Filename for file
+
+        Returns:
+            Incar object
+        """
+        with zopen(filename, "rt") as f:
+            return Incar.from_string(f.read())
 
     @staticmethod
     def from_string(string: str) -> "Incar":
@@ -1002,7 +1017,7 @@ class Kpoints_supported_modes(Enum):
         raise ValueError(f"Can't interprete Kpoint mode {s}")
 
 
-class Kpoints(InputFile):
+class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
@@ -1356,19 +1371,19 @@ class Kpoints(InputFile):
             num_kpts=int(divisions),
         )
 
-    # @staticmethod
-    # def from_file(filename):
-    #     """
-    #     Reads a Kpoints object from a KPOINTS file.
+    @staticmethod
+    def from_file(filename):
+        """
+        Reads a Kpoints object from a KPOINTS file.
 
-    #     Args:
-    #         filename (str): filename to read from.
+        Args:
+            filename (str): filename to read from.
 
-    #     Returns:
-    #         Kpoints object
-    #     """
-    #     with zopen(filename, "rt") as f:
-    #         return Kpoints.from_string(f.read())
+        Returns:
+            Kpoints object
+        """
+        with zopen(filename, "rt") as f:
+            return Kpoints.from_string(f.read())
 
     @staticmethod
     def from_string(string):
@@ -1496,12 +1511,6 @@ class Kpoints(InputFile):
             f.write(self.__str__())
 
     def __repr__(self):
-        return self.__str__()
-
-    def get_string(self) -> str:
-        """
-        Return a string representation of the KPoints object.
-        """
         return self.__str__()
 
     def __str__(self):
@@ -2161,7 +2170,7 @@ class PotcarSingle:
             raise AttributeError(a)
 
 
-class Potcar(list, InputFile):
+class Potcar(list, MSONable):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
@@ -2212,14 +2221,13 @@ class Potcar(list, InputFile):
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @staticmethod
-    def from_file(filename: Union[str, Path]):
+    def from_file(filename: str):
         """
         Reads Potcar from file.
 
         :param filename: Filename
         :return: Potcar
         """
-        filename = filename if isinstance(filename, str) else str(filename)
         try:
             with zopen(filename, "rt") as f:
                 fdata = f.read()
@@ -2244,6 +2252,16 @@ class Potcar(list, InputFile):
 
     def __str__(self):
         return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
+
+    def write_file(self, filename):
+        """
+        Write Potcar to a file.
+
+        Args:
+            filename (str): filename to write to.
+        """
+        with zopen(filename, "wt") as f:
+            f.write(self.__str__())
 
     @property
     def symbols(self):
@@ -2286,12 +2304,6 @@ class Potcar(list, InputFile):
             for el in symbols:
                 p = PotcarSingle.from_symbol_and_functional(el, functional)
                 self.append(p)
-
-    def get_string(self) -> str:
-        """
-        Return a string representation of the Potcar object.
-        """
-        return self.__str__()
 
 
 class VaspInput(dict, MSONable):
