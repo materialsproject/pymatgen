@@ -1359,9 +1359,7 @@ class AllCoordinationGeometries(dict):
                                 addinfo = ""
                         else:
                             addinfo = ""
-                        mystring += " - {mp} : {name}{addinfo}\n".format(
-                            mp=cg.mp_symbol, name=cg.get_name(), addinfo=addinfo
-                        )
+                        mystring += f" - {cg.mp_symbol} : {cg.get_name()}{addinfo}\n"
                 elif type == "all_geometries":
                     for cg in self.get_geometries(coordination=cn):
                         mystring += f" - {cg.mp_symbol} : {cg.get_name()}\n"

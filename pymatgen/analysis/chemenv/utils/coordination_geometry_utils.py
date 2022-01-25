@@ -52,7 +52,7 @@ def get_lower_and_upper_f(surface_calculation_options):
         )
     else:
         raise ValueError(
-            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
+            f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented"
         )
     return lower_and_upper_functions
 

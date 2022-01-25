@@ -433,11 +433,11 @@ class BaderAnalysis:
                 # however, better to use 'suffix' kwarg to avoid this!
                 paths.sort(reverse=True)
                 warning_msg = (
-                    "Multiple files detected, using %s" % os.path.basename(paths[0]) if len(paths) > 1 else None
+                    f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
                 )
                 fpath = paths[0]
             else:
-                warning_msg = "Could not find %s" % filename
+                warning_msg = f"Could not find {filename}"
                 if filename in ["AECCAR0", "AECCAR2"]:
                     warning_msg += ", cannot calculate charge transfer."
                 elif filename == "POTCAR":

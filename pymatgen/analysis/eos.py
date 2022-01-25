@@ -195,11 +195,11 @@ class EOSBase(metaclass=ABCMeta):
         color = kwargs.get("color", "r")
         label = kwargs.get("label", f"{self.__class__.__name__} fit")
         lines = [
-            "Equation of State: %s" % self.__class__.__name__,
-            "Minimum energy = %1.2f eV" % self.e0,
-            "Minimum or reference volume = %1.2f Ang^3" % self.v0,
+            f"Equation of State: {self.__class__.__name__}",
+            f"Minimum energy = {self.e0:1.2f} eV",
+            f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1,
+            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -244,11 +244,11 @@ class EOSBase(metaclass=ABCMeta):
         color = kwargs.get("color", "r")
         label = kwargs.get("label", f"{self.__class__.__name__} fit")
         lines = [
-            "Equation of State: %s" % self.__class__.__name__,
-            "Minimum energy = %1.2f eV" % self.e0,
-            "Minimum or reference volume = %1.2f Ang^3" % self.v0,
+            f"Equation of State: {self.__class__.__name__}",
+            f"Minimum energy = {self.e0:1.2f} eV",
+            f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1,
+            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)

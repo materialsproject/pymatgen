@@ -956,7 +956,7 @@ class Incar(dict, MSONable):
             # First check if this parameter even exists
             if k not in incar_params.keys():
                 warnings.warn(
-                    "Cannot find %s in the list of INCAR flags" % (k),
+                    f"Cannot find {k} in the list of INCAR flags",
                     BadIncarWarning,
                     stacklevel=2,
                 )
@@ -1014,7 +1014,7 @@ class Kpoints_supported_modes(Enum):
         for m in Kpoints_supported_modes:
             if m.name.lower()[0] == c:
                 return m
-        raise ValueError("Can't interprete Kpoint mode %s" % s)
+        raise ValueError(f"Can't interprete Kpoint mode {s}")
 
 
 class Kpoints(MSONable):
@@ -1734,7 +1734,7 @@ class PotcarSingle:
             try:
                 self.keywords[key] = self.parse_functions[key](val)
             except KeyError:
-                warnings.warn("Ignoring unknown variable type %s" % key)
+                warnings.warn(f"Ignoring unknown variable type {key}")
 
         PSCTR = OrderedDict()
 

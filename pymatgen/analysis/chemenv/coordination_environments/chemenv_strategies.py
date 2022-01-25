@@ -445,11 +445,11 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
 
     def __str__(self):
         out = f'  Chemenv Strategy "{self.__class__.__name__}"\n'
-        out += "  {}\n\n".format("=" * (19 + len(self.__class__.__name__)))
-        out += "  Description :\n  {}\n".format("-" * 13)
+        out += f"  {'=' * (19 + len(self.__class__.__name__))}\n\n"
+        out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
         out += "\n\n"
-        out += "  Options :\n  {}\n".format("-" * 9)
+        out += f"  Options :\n  {'-' * 9}\n"
         for option_name, option_dict in self.STRATEGY_OPTIONS.items():
             out += f"   - {option_name} : {getattr(self, option_name)}\n"
         return out
@@ -1337,7 +1337,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
             self.eval = self.aweight
         else:
             raise ValueError(
-                'Average type is "{}" while it should be ' '"geometric" or "arithmetic"'.format(average_type)
+                f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"'
             )
         self.aa = aa
         self.bb = bb

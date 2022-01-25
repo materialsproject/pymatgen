@@ -564,7 +564,7 @@ class LammpsData(MSONable):
             atomic_numbers = np.argmin(diff, axis=1) + 1
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
         else:
-            symbols = ["Q%s" % a for a in map(chr, range(97, 97 + len(unique_masses)))]
+            symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
@@ -723,9 +723,9 @@ class LammpsData(MSONable):
                     elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
-                        raise ValueError("Format in Atoms section inconsistent with atom_style %s" % atom_style)
+                        raise ValueError(f"Format in Atoms section inconsistent with atom_style {atom_style}")
                 else:
-                    raise NotImplementedError("Parser for %s section not implemented" % kw)
+                    raise NotImplementedError(f"Parser for {kw} section not implemented")
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
@@ -745,7 +745,7 @@ class LammpsData(MSONable):
             if (
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
-                raise RuntimeError(err_msg + "%s section appears before Atoms section" % name)
+                raise RuntimeError(err_msg + f"{name} section appears before Atoms section")
             body.update({name: section})
 
         err_msg += "Nos. of {} do not match between header and {} section"
@@ -824,7 +824,7 @@ class LammpsData(MSONable):
             df = pd.DataFrame(np.concatenate(topo_collector[k]), columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
             if any(pd.isnull(df["type"])):  # Throw away undefined topologies
-                warnings.warn("Undefined %s detected and removed" % k.lower())
+                warnings.warn(f"Undefined {k.lower()} detected and removed")
                 df.dropna(subset=["type"], inplace=True)
                 df.reset_index(drop=True, inplace=True)
             df.index += 1
@@ -1145,9 +1145,9 @@ class ForceField(MSONable):
         distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
-        assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
+        assert len(type_union) == type_counts, f"Duplicated items found under different coefficients in {kw}"
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
-        assert atoms.issubset(self.maps["Atoms"].keys()), "Undefined atom type found in %s" % kw
+        assert atoms.issubset(self.maps["Atoms"].keys()), f"Undefined atom type found in {kw}"
         mapper = {}
         for i, dt in enumerate(distinct_types):
             for t in dt:

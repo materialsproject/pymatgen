@@ -278,7 +278,7 @@ class BoltztrapRunner(MSONable):
                         )
                     )
                     for e in eigs:
-                        f.write("%18.8f\n" % (sign * float(e)))
+                        f.write(f"{sign * float(e):18.8f}\n")
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -317,7 +317,7 @@ class BoltztrapRunner(MSONable):
                     )
 
                     for e in eigs:
-                        f.write("%18.8f\n" % (float(e)))
+                        f.write(f"{float(e):18.8f}\n")
 
     def write_struct(self, output_file):
         """
@@ -339,7 +339,7 @@ class BoltztrapRunner(MSONable):
                     )
                 )
             elif self._symprec is None:
-                f.write("{} {}\n".format(self._bs.structure.composition.formula, "symmetries disabled"))
+                f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
 
             f.write(
                 "{}\n".format(
@@ -360,7 +360,7 @@ class BoltztrapRunner(MSONable):
 
             for c in ops:
                 for row in c:
-                    f.write("{}\n".format(" ".join(str(i) for i in row)))
+                    f.write(f"{' '.join(str(i) for i in row)}\n")
 
     def write_def(self, output_file):
         """
@@ -429,7 +429,7 @@ class BoltztrapRunner(MSONable):
                                 )
                             )
                             for t in tmp_proj:
-                                f.write("%18.8f\n" % float(t))
+                                f.write(f"{float(t):18.8f}\n")
         with open(output_file_def, "w") as f:
             so = ""
             if self._bs.is_spin_polarized:
@@ -493,7 +493,7 @@ class BoltztrapRunner(MSONable):
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
-                fout.write("%s                     # run mode (only BOLTZ is supported)\n" % self.run_type)
+                fout.write(f"{self.run_type}                     # run mode (only BOLTZ is supported)\n")
                 fout.write(".15                       # (efcut) energy range of chemical potential\n")
                 fout.write(f"{self.tmax} {self.tgrid}                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")

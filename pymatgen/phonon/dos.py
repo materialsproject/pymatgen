@@ -107,7 +107,7 @@ class PhononDos(MSONable):
         """
         Returns a string which can be easily plotted (using gnuplot).
         """
-        stringarray = ["#{:30s} {:30s}".format("Frequency", "Density")]
+        stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
             stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
         return "\n".join(stringarray)

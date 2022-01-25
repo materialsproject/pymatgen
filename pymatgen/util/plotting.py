@@ -41,7 +41,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
 
         import matplotlib.pyplot as plt
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
+        mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         colors = getattr(mod, color_cycle[1]).mpl_colors
         from cycler import cycler
 
@@ -619,7 +619,7 @@ def add_fig_kwargs(func):
             if len(fig.axes) > len(tags):
                 tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
             for ax, tag in zip(fig.axes, tags):
-                ax.annotate("(%s)" % tag, xy=(0.05, 0.95), xycoords="axes fraction")
+                ax.annotate(f"({tag})", xy=(0.05, 0.95), xycoords="axes fraction")
 
         if tight_layout:
             try:

@@ -484,13 +484,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         )
 
         desc["og_bns_transformation"] = (
-            "OG-BNS Transform: ({})\n".format(self._data["og_bns_transform"])
+            f"OG-BNS Transform: ({self._data['og_bns_transform']})\n"
             if desc["magtype"] == 4 and include_og
             else ""
         )
 
-        bns_operators_prefix = "Operators{}: ".format(" (BNS)" if desc["magtype"] == 4 and include_og else "")
-        bns_wyckoff_prefix = "Wyckoff Positions{}: ".format(" (BNS)" if desc["magtype"] == 4 and include_og else "")
+        bns_operators_prefix = f"Operators{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "
+        bns_wyckoff_prefix = f"Wyckoff Positions{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "
 
         # apply textwrap on long lines
         desc["bns_operators"] = textwrap.fill(

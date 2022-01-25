@@ -91,11 +91,11 @@ class SlabEntryTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     label = clean.create_slab_label
                     comp = str(clean.composition.reduced_composition)
-                    self.assertEqual(str(hkl) + " %s" % (comp), label)
+                    self.assertEqual(str(hkl) + f" {comp}", label)
 
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         label = ads.create_slab_label
-                        self.assertEqual(label, str(hkl) + " %s+O, 0.250 ML" % (comp))
+                        self.assertEqual(label, str(hkl) + f" {comp}+O, 0.250 ML")
 
     def test_surface_energy(self):
         # For a nonstoichiometric case, the cheimcal potentials do not
@@ -326,8 +326,8 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
     def test_shift(self):
         wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=-0.25, blength=3.7, **self.kwargs)
         self.assertEqual(
-            "%.f" % (self.wf_analyzer.ave_bulk_p),
-            "%.f" % (wf_analyzer_shift.ave_bulk_p),
+            f"{self.wf_analyzer.ave_bulk_p:.f}",
+            f"{wf_analyzer_shift.ave_bulk_p:.f}",
         )
 
     def test_is_converged(self):

@@ -191,7 +191,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -204,7 +204,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -228,7 +228,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -262,7 +262,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                     if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -278,7 +278,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.trib()
 
         else:
-            warn("Unknown lattice type %s" % lattice_type)
+            warn(f"Unknown lattice type {lattice_type}")
 
     @property
     def conventional(self):

@@ -229,7 +229,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn("Possible issue in cif file at line: {}".format("".join(s).strip()))
+                warnings.warn(f"Possible issue in cif file at line: {''.join(s).strip()}")
         return cls(data, loops, header)
 
 
@@ -250,7 +250,7 @@ class CifFile:
         self.comment = comment or "# generated using pymatgen"
 
     def __str__(self):
-        s = ["%s" % v for v in self.data.values()]
+        s = [f"{v}" for v in self.data.values()]
         return self.comment + "\n" + "\n".join(s) + "\n"
 
     @classmethod
@@ -1158,7 +1158,7 @@ class CifParser:
                 self.warnings.append(str(exc))
                 warnings.warn("No structure parsed for %d structure in CIF. Section of CIF file below." % (i + 1))
                 warnings.warn(str(d))
-                warnings.warn("Error is %s." % str(exc))
+                warnings.warn(f"Error is {str(exc)}.")
 
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))

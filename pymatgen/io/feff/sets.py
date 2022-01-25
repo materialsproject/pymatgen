@@ -198,7 +198,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         """
         if "RECIPROCAL" in self.config_dict:
             if self.small_system:
-                self.config_dict["CIF"] = "{}.cif".format(self.structure.formula.replace(" ", ""))
+                self.config_dict["CIF"] = f"{self.structure.formula.replace(' ', '')}.cif"
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
                 logger.warning("Setting COREHOLE = RPA for K-space calculation")

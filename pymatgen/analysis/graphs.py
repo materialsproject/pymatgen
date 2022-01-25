@@ -940,7 +940,7 @@ class StructureGraph(MSONable):
             if weight_labels:
                 units = g.graph.get("edge_weight_units", "")
                 if d.get("weight"):
-                    d["label"] = "{:.2f} {}".format(d["weight"], units)
+                    d["label"] = f"{d['weight']:.2f} {units}"
 
             # update edge with our new style attributes
             g.edges[u, v, k].update(d)
@@ -1071,7 +1071,7 @@ class StructureGraph(MSONable):
                 labels = [(label[0], mapping[label[1]]) for label in labels]
 
             labels = [f"{label[1]}({label[0]})" for label in labels]
-            motif = "{}-{}".format(centre_sp, ",".join(labels))
+            motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
         return sorted(list(motifs))
@@ -1329,7 +1329,7 @@ class StructureGraph(MSONable):
             if edge_weight_units:
                 edge_label += f" ({edge_weight_units})"
             header += f"  {edge_label}"
-            header_line += "  {}".format("-" * max([18, len(edge_label)]))
+            header_line += f"  {'-' * max([18, len(edge_label)])}"
         else:
             print_weights = False
 
@@ -1347,7 +1347,7 @@ class StructureGraph(MSONable):
                 )
         else:
             for u, v, data in edges:
-                s += "{:4}  {:4}  {:12}\n".format(u, v, str(data.get("to_jimage", (0, 0, 0))))
+                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}\n"
 
         return s
 
@@ -2687,7 +2687,7 @@ class MoleculeGraph(MSONable):
             if weight_labels:
                 units = g.graph.get("edge_weight_units", "")
                 if d.get("weight"):
-                    d["label"] = "{:.2f} {}".format(d["weight"], units)
+                    d["label"] = f"{d['weight']:.2f} {units}"
 
             # update edge with our new style attributes
             g.edges[u, v, k].update(d)
@@ -2775,7 +2775,7 @@ class MoleculeGraph(MSONable):
             if edge_weight_units:
                 edge_label += f" ({edge_weight_units})"
             header += f"  {edge_label}"
-            header_line += "  {}".format("-" * max([18, len(edge_label)]))
+            header_line += f"  {'-' * max([18, len(edge_label)])}"
         else:
             print_weights = False
 
@@ -2793,7 +2793,7 @@ class MoleculeGraph(MSONable):
                 )
         else:
             for u, v, data in edges:
-                s += "{:4}  {:4}  {:12}\n".format(u, v, str(data.get("to_jimage", (0, 0, 0))))
+                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}\n"
 
         return s
 

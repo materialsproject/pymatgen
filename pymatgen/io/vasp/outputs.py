@@ -354,7 +354,7 @@ class Vasprun(MSONable):
                 # add the tailing information in the last step from the run
                 to_parse = "<calculation>".join(new_steps)
                 if steps[-1] != new_steps[-1]:
-                    to_parse = "{}<calculation>{}{}".format(preamble, to_parse, steps[-1].split("</calculation>")[-1])
+                    to_parse = f"{preamble}<calculation>{to_parse}{steps[-1].split('</calculation>')[-1]}"
                 else:
                     to_parse = f"{preamble}<calculation>{to_parse}"
                 self._parse(
@@ -377,9 +377,9 @@ class Vasprun(MSONable):
                 self.update_charge_from_potcar(parse_potcar_file)
 
         if self.incar.get("ALGO", "") not in ["CHI", "BSE"] and (not self.converged):
-            msg = "%s is an unconverged VASP run.\n" % filename
-            msg += "Electronic convergence reached: %s.\n" % self.converged_electronic
-            msg += "Ionic convergence reached: %s." % self.converged_ionic
+            msg = f"{filename} is an unconverged VASP run.\n"
+            msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
+            msg += f"Ionic convergence reached: {self.converged_ionic}."
             warnings.warn(msg, UnconvergedVASPWarning)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
@@ -1054,7 +1054,7 @@ class Vasprun(MSONable):
                     pc = Potcar.from_file(os.path.join(p, fn))
                     if {d.header for d in pc} == set(self.potcar_symbols):
                         return pc
-            warnings.warn("No POTCAR file with matching TITEL fields" " was found in {}".format(os.path.abspath(p)))
+            warnings.warn(f"No POTCAR file with matching TITEL fields was found in {os.path.abspath(p)}")
             return None
 
         if isinstance(path, (str, Path)):

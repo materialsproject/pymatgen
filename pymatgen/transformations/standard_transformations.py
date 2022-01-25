@@ -577,7 +577,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {"%s0+" % k.symbol: v for k, v in site.species.items()}
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}
 
         equivalent_sites = []
         exemplars = []

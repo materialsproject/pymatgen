@@ -135,7 +135,7 @@ class NwTask(MSONable):
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn("Basis set %s not in in NWCHEM_BASIS_LIBRARY" % b)
+                    warnings.warn(f"Basis set {b} not in in NWCHEM_BASIS_LIBRARY")
 
         self.basis_set_option = basis_set_option
 

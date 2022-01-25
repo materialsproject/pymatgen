@@ -49,8 +49,8 @@ def get_energies(rootdir, reanalyze, verbose):
         (
             e.parameters["filename"].replace("./", ""),
             re.sub(r"\s+", "", e.composition.formula),
-            "{}".format(e.parameters["charge"]),
-            "{}".format(e.parameters["spin_mult"]),
+            f"{e.parameters['charge']}",
+            f"{e.parameters['spin_mult']}",
             f"{e.energy:.5f}",
             f"{e.energy_per_atom:.5f}",
         )

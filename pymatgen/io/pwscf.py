@@ -73,11 +73,11 @@ class PWInput:
                 try:
                     site.properties["pseudo"]
                 except KeyError:
-                    raise PWInputError("Missing %s in pseudo specification!" % site)
+                    raise PWInputError(f"Missing {site} in pseudo specification!")
         else:
             for species in self.structure.composition.keys():
                 if str(species) not in pseudo:
-                    raise PWInputError("Missing %s in pseudo specification!" % species)
+                    raise PWInputError(f"Missing {species} in pseudo specification!")
         self.pseudo = pseudo
 
         self.sections = sections
@@ -106,9 +106,9 @@ class PWInput:
 
         def to_str(v):
             if isinstance(v, str):
-                return "'%s'" % v
+                return f"'{v}'"
             if isinstance(v, float):
-                return "%s" % str(v).replace("e", "d")
+                return f"{str(v).replace('e', 'd')}"
             if isinstance(v, bool):
                 if v:
                     return ".TRUE."
@@ -117,7 +117,7 @@ class PWInput:
 
         for k1 in ["control", "system", "electrons", "ions", "cell"]:
             v1 = self.sections[k1]
-            out.append("&%s" % k1.upper())
+            out.append(f"&{k1.upper()}")
             sub = []
             for k2 in sorted(v1.keys()):
                 if isinstance(v1[k2], list):
@@ -131,9 +131,9 @@ class PWInput:
                 if "ibrav" not in self.sections[k1]:
                     sub.append("  ibrav = 0")
                 if "nat" not in self.sections[k1]:
-                    sub.append("  nat = %d" % len(self.structure))
+                    sub.append(f"  nat = {len(self.structure)}")
                 if "ntyp" not in self.sections[k1]:
-                    sub.append("  ntyp = %d" % len(site_descriptions))
+                    sub.append(f"  ntyp = {len(site_descriptions)}")
             sub.append("/")
             out.append(",\n".join(sub))
 
@@ -158,16 +158,16 @@ class PWInput:
                         name = k
                 out.append(f"  {name} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
 
-        out.append("K_POINTS %s" % self.kpoints_mode)
+        out.append(f"K_POINTS {self.kpoints_mode}")
         if self.kpoints_mode == "automatic":
-            kpt_str = ["%s" % i for i in self.kpoints_grid]
-            kpt_str.extend(["%s" % i for i in self.kpoints_shift])
-            out.append("  %s" % " ".join(kpt_str))
+            kpt_str = [f"{i}" for i in self.kpoints_grid]
+            kpt_str.extend([f"{i}" for i in self.kpoints_shift])
+            out.append(f"  {' '.join(kpt_str)}")
         elif self.kpoints_mode == "crystal_b":
-            out.append(" %s" % str(len(self.kpoints_grid)))
+            out.append(f" {str(len(self.kpoints_grid))}")
             for i in range(len(self.kpoints_grid)):
                 kpt_str = ["%.s" % str(i) for i in self.kpoints_grid[i]]
-                out.append(" %s" % " ".join(kpt_str))
+                out.append(f" {' '.join(kpt_str)}")
         elif self.kpoints_mode == "gamma":
             pass
 
