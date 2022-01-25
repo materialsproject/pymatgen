@@ -23,7 +23,6 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
     return path
 
@@ -225,9 +224,9 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             color_dict = analyzer.color_palette_dict()
             for hkl in self.metals_O_entry_dict[el].keys():
                 for clean in self.metals_O_entry_dict[el][hkl].keys():
-                    color_dict[clean]
+                    _ = color_dict[clean]
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-                        color_dict[ads]
+                        _ = color_dict[ads]
 
     def test_get_surface_equilibrium(self):
         # For clean stoichiometric system, the two equations should
@@ -324,10 +323,7 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
 
     def test_shift(self):
         wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=-0.25, blength=3.7, **self.kwargs)
-        self.assertEqual(
-            f"{self.wf_analyzer.ave_bulk_p:.f}",
-            f"{wf_analyzer_shift.ave_bulk_p:.f}",
-        )
+        self.assertAlmostEqual(self.wf_analyzer.ave_bulk_p, wf_analyzer_shift.ave_bulk_p, places=0)
 
     def test_is_converged(self):
         self.assertTrue(self.wf_analyzer.is_converged())
