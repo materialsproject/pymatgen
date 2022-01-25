@@ -658,7 +658,14 @@ class Slab(Structure):
         origin_centered_slab.translate_sites(
             list(range(origin_centered_slab.num_sites)), translation, to_unit_cell=False
         )
-
+        
+        if origin_centered_slab.is_symmetric() == False:
+            warnings.warn("The adsorbate symmetric side could not be \
+                          found because the initial slab is not symmetric. \
+                          please try to change the size of the slab.")
+            
+            return None
+        
         # Translate the point coordinate so it sits on top (or below) the
         # shifted slab
         point = point + center_first + translation
@@ -697,11 +704,9 @@ class Slab(Structure):
                 origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
                 origin_centered_slab.remove_sites([len(origin_centered_slab) - 1])
 
-        warnings.warn(
-            "The symmetric site could not be found for the %s %s \
-                      surface."
-            % (self.composition, self.miller_index)
-        )
+        warnings.warn("The symmetric site could not be found.")
+        
+        return None
 
     def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
         """
