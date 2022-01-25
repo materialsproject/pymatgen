@@ -27,6 +27,7 @@ class BaderAnalysisTest(unittest.TestCase):
         )
         self.assertEqual(len(analysis.data), 14)
         self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
+        self.assertEqual(analysis.data[0]["charge"], analysis.get_charge(0))
         self.assertAlmostEqual(analysis.nelectrons, 96)
         self.assertAlmostEqual(analysis.vacuum_charge, 0)
         ans = [
@@ -47,6 +48,7 @@ class BaderAnalysisTest(unittest.TestCase):
         ]
         for i in range(14):
             self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i), 3)
+        self.assertEqual(analysis.get_partial_charge(0), -analysis.get_charge_transfer(0))
         s = analysis.get_oxidation_state_decorated_structure()
         self.assertAlmostEqual(s[0].specie.oxi_state, 1.3863218, 3)
 
