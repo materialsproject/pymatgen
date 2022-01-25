@@ -44,12 +44,13 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install OpenBabel and Libs
+      - name: Install OpenBabel, Packmol, and Libs
         shell: bash -l {0}
         run: |
           # Required for gulp.
           sudo apt-get install csh gfortran
           conda install -c conda-forge openbabel
+          conda install -c conda-forge packmol
       - name: Install dependencies
         shell: bash -l {0}
         run: |

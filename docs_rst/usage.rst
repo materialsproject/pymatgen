@@ -320,11 +320,12 @@ Q-Chem, LAMMPS, CP2K, AbInit, and many more.
 
 The core class for managing inputs is the :class:`InputSet`. An :class:`InputSet` object contains
 all the data necessary to write one or more input files for a calculation.
-Specifically, every :class:`InputSet` has a `write_inputs()` method that writes all the
+Specifically, every :class:`InputSet` has a `write_input()` method that writes all the
 necessary files to a location you specify. There are also :class:`InputGenerator` classes
 that yield :class:`InputSet` with settings tailored to specific calculation types (for example,
 a structure relaxation). You can think of :class:`InputGenerator` classes as "recipes" for
-accomplishing specific computational tasks. 
+accomplishing specific computational tasks, while :class:`InputSet` contain those recipes
+applied to a specific system or structure.
 
 Custom settings can be provided to :class:`InputGenerator` on instantiation. For example,
 to construct an :class:`InputSet` for a VASP structure relaxation using default Materials
@@ -334,7 +335,7 @@ Project parameters, but change the `NSW` parameter from the default (99) to 500:
 
     input_gen = MPRelaxGen(user_incar_settings={"NSW": 500})
     vasp_input_set = input_gen.get_input_set(structure)
-    vasp_input_set.write_inputs('/path/to/calc/directory')
+    vasp_input_set.write_input('/path/to/calc/directory')
 
 You can also use `InputSet.from_directory()` to construct a pymatgen :class:`InputSet`
 from a directory containing calculation inputs.
@@ -344,7 +345,7 @@ inherit from :class:`InputFile`, which provides a standard interface for reading
 writing individual files.
 
 Use of :class:`InputFile`, :class:`InputSet`, and :class:`InputGenerator` classes is
-not yet fully standardized across codes supported by pymatgen, so please refer to the
+not yet fully implemented by all codes supported by pymatgen, so please refer to the
 respective module documentation for each code for more details.
 
 pymatgen.borg - High-throughput data assimilation
