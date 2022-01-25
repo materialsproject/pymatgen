@@ -1116,7 +1116,7 @@ class BasicMultiDataset:
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError("ndtset %d cannot be <=0" % ndtset)
+            raise ValueError(f"ndtset {ndtset} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
@@ -1247,7 +1247,7 @@ class BasicMultiDataset:
         """
         if self.ndtset > 1:
             # Multi dataset mode.
-            lines = ["ndtset %d" % self.ndtset]
+            lines = [f"ndtset {int(self.ndtset)}"]
 
             def has_same_variable(kref, vref, other_inp):
                 """True if variable kref is present in other_inp with the same value."""
@@ -1289,7 +1289,7 @@ class BasicMultiDataset:
                     lines.append(str(InputVariable(vname, value)))
 
             for i, inp in enumerate(self):
-                header = "### DATASET %d ###" % (i + 1)
+                header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
                 s = inp.to_string(
                     post=str(i + 1),
@@ -1319,5 +1319,5 @@ class BasicMultiDataset:
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):
-            p = root + "DS%d" % i + ext
+            p = root + f"DS{i}" + ext
             inp.write(filepath=p)

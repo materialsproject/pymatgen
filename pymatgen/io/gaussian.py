@@ -474,8 +474,8 @@ class GaussianInput:
         output.append(self.title)
         output.append("")
 
-        charge_str = "" if self.charge is None else "%d" % self.charge
-        multip_str = "" if self.spin_multiplicity is None else " %d" % self.spin_multiplicity
+        charge_str = "" if self.charge is None else f"{self.charge}"
+        multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity}"
         output.append(f"{charge_str}{multip_str}")
 
         if isinstance(self._mol, Molecule):

@@ -317,7 +317,7 @@ def contract(s):
             old = t
             count.append([1, t])
 
-    return " ".join("%d*%s" % (c, t) for c, t in count)
+    return " ".join(f"{c}*{t}" for c, t in count)
 
 
 class AbivarAble(metaclass=abc.ABCMeta):
@@ -438,7 +438,7 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
+        s = f"occopt {self.occopt} # {self.mode} Smearing\n"
         if self.tsmear:
             s += f"tsmear {self.tsmear}"
         return s
