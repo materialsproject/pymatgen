@@ -618,16 +618,16 @@ class Vasprun(MSONable):
         """
         try:
             final_istep = self.ionic_steps[-1]
-            if final_istep["e_wo_entrp"] != final_istep["electronic_steps"][-1]["e_0_energy"]:
-                warnings.warn(
-                    "Final e_wo_entrp differs from the final "
-                    "electronic step. VASP may have included some "
-                    "corrections, e.g., vdw. Vasprun will return "
-                    "the final e_wo_entrp, i.e., including "
-                    "corrections in such instances."
-                )
-                return final_istep["e_wo_entrp"]
-            return final_istep["electronic_steps"][-1]["e_0_energy"]
+            total_energy = final_istep["e_0_energy"]
+
+            # Addresses a bug in vasprun.xml. See https://www.vasp.at/forum/viewtopic.php?f=3&t=16942
+            final_estep = final_istep["electronic_steps"][-1]
+            electronic_energy_diff = final_estep["e_0_energy"] - final_estep["e_fr_energy"]
+            total_energy_bugfix = np.round(electronic_energy_diff + final_istep["e_fr_energy"], 8)
+            if np.abs(total_energy - total_energy_bugfix) > 1e-7:
+                return total_energy_bugfix
+
+            return total_energy
         except (IndexError, KeyError):
             warnings.warn(
                 "Calculation does not have a total energy. "
@@ -1733,7 +1733,15 @@ class Outcar:
 
      .. attribute:: final_energy
 
-        Final (total) energy
+        Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
+
+    .. attribute:: final_energy_wo_entrp
+
+        Final energy before extrapolation of sigma, i.e. energy without entropy.
+
+    .. attribute:: final_fr_energy
+
+        Final "free energy", i.e. free energy TOTEN
 
     .. attribute:: has_onsite_density_matrices
 
@@ -1786,13 +1794,17 @@ class Outcar:
         total_mag = None
         nelect = None
         efermi = None
-        total_energy = None
+        e_fr_energy = None
+        e_wo_entrp = None
+        e0 = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
         efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile(r"number of electron\s+(\S+)\s+magnetization")
         mag_patt = re.compile(r"number of electron\s+\S+\s+magnetization\s+(" r"\S+)")
-        toten_pattern = re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
+        e_fr_energy_pattern = re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
+        e_wo_entrp_pattern = re.compile(r"energy  without entropy\s*=\s+([\d\-\.]+)")
+        e0_pattern = re.compile(r"energy\(sigma->0\)\s*=\s+([\d\-\.]+)")
 
         all_lines = []
         for line in reverse_readfile(self.filename):
@@ -1828,10 +1840,19 @@ class Outcar:
                 m = mag_patt.search(clean)
                 if m:
                     total_mag = float(m.group(1))
-                if total_energy is None:
-                    m = toten_pattern.search(clean)
+
+                if e_fr_energy is None:
+                    m = e_fr_energy_pattern.search(clean)
                     if m:
-                        total_energy = float(m.group(1))
+                        e_fr_energy = float(m.group(1))
+                if e_wo_entrp is None:
+                    m = e_wo_entrp_pattern.search(clean)
+                    if m:
+                        e_wo_entrp = float(m.group(1))
+                if e0 is None:
+                    m = e0_pattern.search(clean)
+                    if m:
+                        e0 = float(m.group(1))
             if all([nelect, total_mag is not None, efermi is not None, run_stats]):
                 break
 
@@ -1917,7 +1938,9 @@ class Outcar:
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.final_energy = total_energy
+        self.final_energy = e0
+        self.final_energy_wo_entrp = e_wo_entrp
+        self.final_fr_energy = e_fr_energy
         self.data = {}
 
         # Read "total number of plane waves", NPLWV:
