@@ -966,7 +966,7 @@ class StructureTest(PymatgenTest):
 
     def test_default_dict_attrs(self):
         d = self.structure.as_dict()
-        self.assertEqual(d["charge"] == 0)
+        self.assertEqual(d["charge"], 0)
 
     def test_to_from_abivars(self):
         """Test as_dict, from_dict with fmt == abivars."""
@@ -1476,8 +1476,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
     def test_default_dict_attrs(self):
         d = self.mol.as_dict()
-        self.assertEqual(d["charge"] == 0)
-        self.assertEqual(d["spin_multiplicity"] == 1)
+        self.assertEqual(d["charge"], 0)
+        self.assertEqual(d["spin_multiplicity"], 1)
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03", "yaml"]:
