@@ -51,8 +51,8 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(self.gpentry.energy_per_atom, 50.0 / 2, "Wrong energy per atom!")
 
     def test_get_name(self):
-        self.assertEqual(self.entry.name, "LiFeO2", "Wrong name!")
-        self.assertEqual(self.gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(self.entry.name, "mp-757614", "Wrong name!")
+        self.assertEqual(self.gpentry.name, "mp-757614", "Wrong name!")
 
     def test_get_composition(self):
         comp = self.entry.composition
@@ -71,10 +71,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(entry.name, "mp-757614", "Wrong name!")
         self.assertEqual(entry.energy_per_atom, 53.0 / 4)
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        self.assertEqual(gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(gpentry.name, "mp-757614", "Wrong name!")
         self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
 
         d_anon = d.copy()
