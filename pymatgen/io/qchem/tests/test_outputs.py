@@ -213,7 +213,7 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
-    def _test_all(self):
+    def test_all(self):
         self.maxDiff = None
         single_outs = {}
         for file in single_job_out_names:
