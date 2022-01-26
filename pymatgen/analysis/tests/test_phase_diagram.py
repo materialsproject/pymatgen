@@ -1,16 +1,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import json
 import os
 import unittest
 import warnings
 from numbers import Number
 from pathlib import Path
-from collections import OrderedDict
 
 import numpy as np
-from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
@@ -105,7 +102,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = ["Li2O", "FeO", "LiO8"]
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
-        sp_mapping = OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 

@@ -535,7 +535,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             CompatibilityError if the entry is not compatible
         """
 
-    def process_entry(self, entry):
+    def process_entry(self, entry: ComputedEntry) -> Optional[ComputedEntry]:
         """
         Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
@@ -546,13 +546,14 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
-        if self.process_entries(entry):
+        try:
             return self.process_entries(entry)[0]
-        return None
+        except IndexError:
+            return None
 
     def process_entries(
         self, entries: Union[ComputedEntry, ComputedStructureEntry, list], clean: bool = True, verbose: bool = False
-    ):
+    ) -> List[ComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
