@@ -1388,7 +1388,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return np.array(mesh)
 
     def _parse_radfunc(self, func_name):
-        """Parse the first occurence of func_name in the XML file."""
+        """Parse the first occurrence of func_name in the XML file."""
         # pylint: disable=E1101
         node = self.root.find(func_name)
         grid = node.attrib["grid"]
@@ -1943,7 +1943,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
     def select_family(self, family):
         """
-        Return PseudoTable with element beloging to the specified family, e.g. familiy="alkaline"
+        Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"
         """
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])

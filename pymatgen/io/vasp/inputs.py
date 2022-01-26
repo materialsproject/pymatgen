@@ -1014,7 +1014,7 @@ class Kpoints_supported_modes(Enum):
         for m in Kpoints_supported_modes:
             if m.name.lower()[0] == c:
                 return m
-        raise ValueError(f"Can't interprete Kpoint mode {s}")
+        raise ValueError(f"Can't interpret Kpoint mode {s}")
 
 
 class Kpoints(MSONable):

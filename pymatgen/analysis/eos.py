@@ -102,7 +102,7 @@ class EOSBase(metaclass=ABCMeta):
 
     def func(self, volume):
         """
-        The equation of state function with the paramters other than volume set
+        The equation of state function with the parameters other than volume set
         to the ones obtained from fitting.
 
         Args:

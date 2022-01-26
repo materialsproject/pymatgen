@@ -869,7 +869,7 @@ class PhaseDiagram(MSONable):
             phase separation energy per atom of entry. Stable entries should have
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0. Entries that have the same
-            composition as a stable energy may have postive or negative phase
+            composition as a stable energy may have positive or negative phase
             separation energies depending on their own energy.
         """
         return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
@@ -2171,7 +2171,7 @@ class PDPlotter:
             image_format
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
-            **kwargs: Pass through to get_plot functino.
+            **kwargs: Pass through to get_plot function.
         """
         plt = self.get_plot(**kwargs)
 

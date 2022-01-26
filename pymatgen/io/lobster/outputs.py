@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -717,10 +718,10 @@ class Lobsterout:
         Boolean, indicates that DOSCAR.lobster is present
 
       .. attribute: has_Projection
-        Boolean, indcates that projectionData.lobster is present
+        Boolean, indicates that projectionData.lobster is present
 
       .. attribute: has_bandoverlaps
-        Boolean, indcates that bandOverlaps.lobster is present
+        Boolean, indicates that bandOverlaps.lobster is present
 
       .. attribute: has_density_of_energies
         Boolean, indicates that DensityOfEnergy.lobster is present

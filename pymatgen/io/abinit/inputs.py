@@ -1031,7 +1031,7 @@ class BasicMultiDataset:
         for i in range(multi.ndtset):
             multi[i].set_vars(ecut=1)
 
-    BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:
+    BasicMultiDataset provides its own implementation of __getattr__ so that one can simply use:
 
         multi.set_vars(ecut=1)
 

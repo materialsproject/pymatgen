@@ -326,7 +326,7 @@ class BondDissociationEnergies(MSONable):
             entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["final_molecule"]), OpenBabelNN()
             )
-            # Classify any potential structural change that occured during optimization:
+            # Classify any potential structural change that occurred during optimization:
             if entry["initial_molgraph"].isomorphic_to(entry["final_molgraph"]):
                 entry["structure_change"] = "no_change"
             else:

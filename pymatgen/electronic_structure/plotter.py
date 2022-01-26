@@ -265,7 +265,7 @@ class BSPlotter:
 
     def _check_bs_kpath(self, bs_list):
         """
-        Helper method that chack the all the band objs in bs_list are
+        Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
 

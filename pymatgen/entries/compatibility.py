@@ -9,27 +9,26 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import Optional, Sequence, Union, List, Type
+from typing import List, Optional, Sequence, Type, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
-from uncertainties import ufloat
 from tqdm import tqdm
+from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import (
-    EnergyAdjustment,
     CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
+    EnergyAdjustment,
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
@@ -1419,7 +1418,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 "being assigned the same energy. This should not cause problems "
                 "with Pourbaix diagram construction, but may be confusing. "
                 "Pass all entries to process_entries() at once in if you want to "
-                "preserve H2 polymorph energy differnces."
+                "preserve H2 polymorph energy differences."
             )
 
         # extract the DFT energies of oxygen and water from the list of entries, if present

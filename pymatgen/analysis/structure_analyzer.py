@@ -17,10 +17,10 @@ import numpy as np
 from monty.dev import deprecated
 from scipy.spatial import Voronoi
 
+from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
@@ -126,7 +126,7 @@ class VoronoiAnalyzer:
             step_freq (int): perform analysis every step_freq steps
             qhull_options (str): options to pass to qhull
             most_frequent_polyhedra (int): this many unique polyhedra with
-                highest frequences is stored.
+                highest frequencies is stored.
 
         Returns:
             A list of tuples in the form (voronoi_index,frequency)

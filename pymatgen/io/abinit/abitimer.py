@@ -46,7 +46,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         parser = AbinitTimerParser()
         parser.parse(list_of_files)
 
-    To analyze all *.abo files withing top, use:
+    To analyze all *.abo files within top, use:
 
         parser, paths, okfiles = AbinitTimerParser.walk(top=".", ext=".abo")
     """
@@ -439,7 +439,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         Args:
             key: Keyword used to extract data from the timers. Only the first `nmax`
                 sections with largest value are show.
-            mmax: Maximum nuber of sections to show. Other entries are grouped together
+            mmax: Maximum number of sections to show. Other entries are grouped together
                 in the `others` section.
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
