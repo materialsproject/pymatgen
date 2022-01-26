@@ -68,15 +68,11 @@ class AdfInputError(Exception):
     The default error class for ADF.
     """
 
-    pass
-
 
 class AdfOutputError(Exception):
     """
     The default error class for errors raised by ``AdfOutput``.
     """
-
-    pass
 
 
 class AdfKey(MSONable):
@@ -275,7 +271,7 @@ class AdfKey(MSONable):
         Parameters
         ----------
         option : Sized or str or int or float
-            A new option to add. This must have the same format with exsiting
+            A new option to add. This must have the same format with existing
             options.
 
         Raises

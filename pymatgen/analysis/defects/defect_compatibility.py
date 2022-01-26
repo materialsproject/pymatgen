@@ -253,7 +253,7 @@ class DefectCompatibility(MSONable):
             try:
                 defect_entry = self.perform_kumagai(defect_entry)
             except Exception:
-                logger.info("Kumagai correction error occured! Wont perform correction.")
+                logger.info("Kumagai correction error occurred! Wont perform correction.")
 
         # add potalign based on preferred correction setting if it does not already exist in defect entry
         if self.preferred_cc == "freysoldt":

@@ -342,7 +342,7 @@ class CifParser:
             structure (heuristic).
             """
             # Doesn't seem to be a canonical way to test if magCIF file
-            # describes incommensurate strucure or not, so instead check
+            # describes incommensurate structure or not, so instead check
             # for common datanames
             if not self.feature_flags["magcif"]:
                 return False
@@ -559,7 +559,7 @@ class CifParser:
                     try:
                         frac = str2float(frac)
                     except Exception:
-                        # co-ordinate might not be defined e.g. '?'
+                        # coordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
                         if abs(1 - frac / comparison_frac) < 1e-4:
@@ -1032,7 +1032,7 @@ class CifParser:
                     # moments as Species 'spin' property, instead of site
                     # property, but this introduces ambiguities for end user
                     # (such as unintended use of `spin` and Species will have
-                    # fictious oxidation state).
+                    # fictitious oxidation state).
                     raise NotImplementedError("Disordered magnetic structures not currently supported.")
 
         if coord_to_species.items():

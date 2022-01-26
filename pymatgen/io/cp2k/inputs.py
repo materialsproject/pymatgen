@@ -122,7 +122,7 @@ class Keyword(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        Initialise from dictonary
+        Initialise from dictionary
         """
         return Keyword(
             d["name"],

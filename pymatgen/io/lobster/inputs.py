@@ -379,7 +379,7 @@ class Lobsterin(dict, MSONable):
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols
-            address_basis_file_min: path to file with the minium required basis by the POTCAR
+            address_basis_file_min: path to file with the minimum required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in

@@ -598,7 +598,7 @@ class CollinearMagneticStructureAnalyzer:
 
     def __str__(self):
         """
-        Sorts a Structure (by fractional co-ordinate), and
+        Sorts a Structure (by fractional coordinate), and
         prints sites with magnetic information. This is
         useful over Structure.__str__ because sites are in
         a consistent order, which makes visual comparison between

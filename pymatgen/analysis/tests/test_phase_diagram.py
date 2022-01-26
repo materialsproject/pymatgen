@@ -5,9 +5,9 @@ import json
 import os
 import unittest
 import warnings
-from collections import OrderedDict
 from numbers import Number
 from pathlib import Path
+from collections import OrderedDict
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
@@ -289,7 +289,6 @@ class PhaseDiagramTest(unittest.TestCase):
                     self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d, 7)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
-                pass
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:

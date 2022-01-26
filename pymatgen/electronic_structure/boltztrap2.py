@@ -682,11 +682,11 @@ class BztTransportProperties:
                 compute_properties_doping() method for details.
             npts_mu: number of energy points at which to calculate transport properties
             CRTA: constant value of the relaxation time
-            save_bztTranspProps: Default False. If True all computed tranport properties
+            save_bztTranspProps: Default False. If True all computed transport properties
                 will be stored in fname file.
-            load_bztTranspProps: Default False. If True all computed tranport properties
+            load_bztTranspProps: Default False. If True all computed transport properties
                 will be loaded from fname file.
-            fname: File path where to save/load tranport properties.
+            fname: File path where to save/load transport properties.
 
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
@@ -914,7 +914,7 @@ class BztTransportProperties:
     #     return epsilon[pos]
 
     def save(self, fname="bztTranspProps.json.gz"):
-        """Save the tranport properties to fname file."""
+        """Save the transport properties to fname file."""
         lst_props = [
             self.temp_r,
             self.CRTA,
@@ -950,7 +950,7 @@ class BztTransportProperties:
         dumpfn(lst_props, fname)
 
     def load(self, fname="bztTranspProps.json.gz"):
-        """Load the tranport properties from fname file."""
+        """Load the transport properties from fname file."""
         d = loadfn(fname)
         (
             self.temp_r,
