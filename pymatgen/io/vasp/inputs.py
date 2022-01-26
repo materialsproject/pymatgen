@@ -1526,14 +1526,14 @@ class Kpoints(MSONable):
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += f" {self.kpts_weights[i]} {self.labels[i]}"
+                    lines[-1] += f" {int(self.kpts_weights[i])} {self.labels[i]}"
                 else:
-                    lines[-1] += f" {self.kpts_weights[i]}"
+                    lines[-1] += f" {int(self.kpts_weights[i])}"
 
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
-            lines.append(f"{self.tet_number} {self.tet_weight:f}")
+            lines.append(f"{int(self.tet_number)} {self.tet_weight:f}")
             for sym_weight, vertices in self.tet_connections:
                 a, b, c, d = vertices
                 lines.append(f"{sym_weight} {a} {b} {c} {d}")
