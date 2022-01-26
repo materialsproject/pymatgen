@@ -69,6 +69,12 @@ class PDEntry(Entry):
         self.name = name if name else self.composition.reduced_formula
         self.attribute = attribute
 
+    def __repr__(self):
+        name = ""
+        if self.name != self.composition.reduced_formula:
+            name = f" ({self.name})"
+        return f"{self.__class__.__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
+
     @property
     def energy(self) -> float:
         """
