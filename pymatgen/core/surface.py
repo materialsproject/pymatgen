@@ -470,14 +470,14 @@ class Slab(Structure):
     def __str__(self):
         comp = self.composition
         outs = [
-            "Slab Summary (%s)" % comp.formula,
-            "Reduced Formula: %s" % comp.reduced_formula,
+            f"Slab Summary ({comp.formula})",
+            f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor.__str__()}",
         ]
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
@@ -578,7 +578,7 @@ class Slab(Structure):
             # species, eg. bond distance of each neighbor or neighbor species. The
             # decimal place to get some cn to be equal.
             cn = v.get_cn(ucell, i, use_weights=True)
-            cn = float("%.5f" % (round(cn, 5)))
+            cn = float(f"{round(cn, 5):.5f}")
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
@@ -592,7 +592,7 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = float("%.5f" % (round(v.get_cn(self, i, use_weights=True), 5)))
+                cn = float(f"{round(v.get_cn(self, i, use_weights=True), 5):.5f}")
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
@@ -633,7 +633,7 @@ class Slab(Structure):
         for op in ops:
             slab = self.copy()
             site2 = op.operate(point)
-            if "%.6f" % (site2[2]) == "%.6f" % (point[2]):
+            if f"{site2[2]:.6f}" == f"{point[2]:.6f}":
                 continue
 
             # Add dummy site to check the overall structure is symmetric
@@ -844,7 +844,7 @@ class SlabGenerator:
 
         slab_scale_factor = []
         non_orth_ind = []
-        eye = np.eye(3, dtype=np.int_)
+        eye = np.eye(3, dtype=int)
         for i, j in enumerate(miller_index):
             if j == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,
@@ -1579,7 +1579,7 @@ def get_d(slab):
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for i, site in enumerate(sorted_sites):
-        if not "%.6f" % (site.frac_coords[2]) == "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
+        if not f"{site.frac_coords[2]:.6f}" == f"{sorted_sites[i + 1].frac_coords[2]:.6f}":
             d = abs(site.frac_coords[2] - sorted_sites[i + 1].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
@@ -1829,7 +1829,7 @@ def generate_all_slabs(
         )
 
         if len(slabs) > 0:
-            logger.debug("%s has %d slabs... " % (miller, len(slabs)))
+            logger.debug(f"{miller} has {len(slabs)} slabs... ")
             all_slabs.extend(slabs)
 
     if include_reconstructions:

@@ -417,7 +417,7 @@ class GaussianInput:
         """
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs = []
         for i, site in enumerate(self._mol):

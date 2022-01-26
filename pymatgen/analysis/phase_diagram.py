@@ -12,9 +12,9 @@ import logging
 import math
 import os
 import re
-import sys
 import warnings
 from functools import lru_cache
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objs as go
@@ -30,11 +30,6 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -292,8 +287,6 @@ class TransformedPDEntryError(Exception):
     """
     An exception class for TransformedPDEntry.
     """
-
-    pass
 
 
 class PhaseDiagram(MSONable):
@@ -1787,7 +1780,7 @@ class ReactionDiagram:
         r1 = entry1.composition.reduced_composition
         r2 = entry2.composition.reduced_composition
 
-        logger.debug("%d total entries." % len(all_entries))
+        logger.debug(f"{len(all_entries)} total entries.")
 
         pd = PhaseDiagram(all_entries + [entry1, entry2])
         terminal_formulas = [
@@ -1795,9 +1788,9 @@ class ReactionDiagram:
             entry2.composition.reduced_formula,
         ]
 
-        logger.debug("%d stable entries" % len(pd.stable_entries))
-        logger.debug("%d facets" % len(pd.facets))
-        logger.debug("%d qhull_entries" % len(pd.qhull_entries))
+        logger.debug(f"{len(pd.stable_entries)} stable entries")
+        logger.debug(f"{len(pd.facets)} facets")
+        logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
         done = []
@@ -1877,7 +1870,7 @@ class ReactionDiagram:
                             )
                         )
                     )
-                    logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
+                    logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
 
@@ -1920,8 +1913,6 @@ class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
     """
-
-    pass
 
 
 def get_facets(qhull_data, joggle=False):

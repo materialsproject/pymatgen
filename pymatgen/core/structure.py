@@ -14,7 +14,6 @@ import math
 import os
 import random
 import re
-import sys
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
@@ -25,6 +24,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Optional,
     Sequence,
     Set,
@@ -49,11 +49,6 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class Neighbor(Site):
@@ -747,7 +742,7 @@ class IStructure(SiteCollection, MSONable):
             (Structure) Note that missing properties are set as None.
         """
         if len(sites) < 1:
-            raise ValueError("You need at least one site to construct a %s" % cls)
+            raise ValueError(f"You need at least one site to construct a {cls}")
         prop_keys = []  # type: List[str]
         props = {}
         lattice = sites[0].lattice
@@ -761,7 +756,7 @@ class IStructure(SiteCollection, MSONable):
                 props[k][i] = v
         for k, v in props.items():
             if any(vv is None for vv in v):
-                warnings.warn("Not all sites have property %s. Missing values are set to None." % k)
+                warnings.warn(f"Not all sites have property {k}. Missing values are set to None.")
         return cls(
             lattice,
             [site.species for site in sites],
@@ -842,9 +837,7 @@ class IStructure(SiteCollection, MSONable):
             )
 
         if len(species) != len(coords):
-            raise ValueError(
-                "Supplied species and coords lengths (%d vs %d) are different!" % (len(species), len(coords))
-            )
+            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
             np.array(coords, dtype=np.float_) if not coords_are_cartesian else latt.get_fractional_coords(coords)
@@ -942,14 +935,10 @@ class IStructure(SiteCollection, MSONable):
             )
 
         if len(species) != len(coords):
-            raise ValueError(
-                "Supplied species and coords lengths (%d vs %d) are different!" % (len(species), len(coords))
-            )
+            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         if len(species) != len(magmoms):
-            raise ValueError(
-                "Supplied species and magmom lengths (%d vs %d) are different!" % (len(species), len(magmoms))
-            )
+            raise ValueError(f"Supplied species and magmom lengths ({len(species)} vs {len(magmoms)}) are different!")
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
@@ -1096,9 +1085,9 @@ class IStructure(SiteCollection, MSONable):
             you prefer a subclass to return its own type, you need to override
             this method in the subclass.
         """
-        scale_matrix = np.array(scaling_matrix, np.int16)
+        scale_matrix = np.array(scaling_matrix, int)
         if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+            scale_matrix = np.array(scale_matrix * np.eye(3), int)
         new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
 
         f_lat = lattice_points_in_supercell(scale_matrix)
@@ -2111,7 +2100,7 @@ class IStructure(SiteCollection, MSONable):
         ]
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
@@ -2316,7 +2305,7 @@ class IStructure(SiteCollection, MSONable):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
-                    f.write("%s" % s)
+                    f.write(f"{s}")
             return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
@@ -2355,7 +2344,7 @@ class IStructure(SiteCollection, MSONable):
 
             writer = FleurInput(self, **kwargs)
         else:
-            raise ValueError("Invalid format: `%s`" % str(fmt))
+            raise ValueError(f"Invalid format: `{str(fmt)}`")
 
         if filename:
             writer.write_file(filename)
@@ -2780,10 +2769,10 @@ class IMolecule(SiteCollection, MSONable):
 
     def __str__(self):
         outs = [
-            "Full Formula (%s)" % self.composition.formula,
+            f"Full Formula ({self.composition.formula})",
             "Reduced Formula: " + self.composition.reduced_formula,
             f"Charge = {self._charge}, Spin Mult = {self._spin_multiplicity}",
-            "Sites (%d)" % len(self),
+            f"Sites ({len(self)})",
         ]
         for i, site in enumerate(self):
             outs.append(
@@ -2791,7 +2780,7 @@ class IMolecule(SiteCollection, MSONable):
                     [
                         str(i),
                         site.species_string,
-                        " ".join([("%0.6f" % j).rjust(12) for j in site.coords]),
+                        " ".join([f"{j:0.6f}".rjust(12) for j in site.coords]),
                     ]
                 )
             )
@@ -3801,7 +3790,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         else:
                             props[key] = None
                             warnings.warn(
-                                "Sites with different site property %s are merged. So property is set to none" % key
+                                f"Sites with different site property {key} are merged. So property is set to none"
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
@@ -4218,8 +4207,6 @@ class StructureError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
-
-    pass
 
 
 with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:

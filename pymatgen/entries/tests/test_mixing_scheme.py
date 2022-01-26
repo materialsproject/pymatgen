@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -29,9 +28,9 @@ but the mixing scheme is design to be able to mix any two functionals.
 Most mixing states are subsets of the `ms_complete` mixing state. `ms_complete`
 was crafted to capture most of the scenarios that may be encountered when mixing
 ComputedStructureEntry from different functionals. It comprises a complete binary
-phase diagram, with all entries present as both GGA and R2SCAN calculations. 
+phase diagram, with all entries present as both GGA and R2SCAN calculations.
 
-Note that these entries are inspired by, but NOT equivalent to, the real SnBr2 phase 
+Note that these entries are inspired by, but NOT equivalent to, the real SnBr2 phase
 diagram. Rather than use real energies or structures, arbitrary energies and structures
 have been used to keep this test file cleaner and easier to understand. The Bromine
 structures are the one exception to this. These structures are taken from real calculations
@@ -116,9 +115,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import Compatibility, CompatibilityError
 from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
-    CompositionEnergyAdjustment,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 

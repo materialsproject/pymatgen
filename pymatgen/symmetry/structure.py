@@ -61,7 +61,7 @@ class SymmetrizedStructure(Structure):
         self.equivalent_indices: List[int] = equivalent_indices  # type: ignore
         self.equivalent_sites: List[PeriodicSite] = equivalent_sites  # type: ignore
         self.wyckoff_letters = wyckoff_letters
-        self.wyckoff_symbols = ["%d%s" % (len(w), w[0]) for w in wyckoff_symbols]
+        self.wyckoff_symbols = [f"{len(w)}{w[0]}" for w in wyckoff_symbols]
 
     def copy(self):
         """
@@ -102,7 +102,7 @@ class SymmetrizedStructure(Structure):
         ]
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))

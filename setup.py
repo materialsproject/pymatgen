@@ -75,7 +75,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.1.20",
+    version="2022.1.24",
     python_requires=">=3.8",
     install_requires=[
         "numpy>=1.20.1",
@@ -94,7 +94,7 @@ setup(
         "uncertainties>=3.1.4",
         "Cython>=0.29.23",
         "pybtex",
-        "tqdm"
+        "tqdm",
     ],
     extras_require={
         "ase": ["ase>=3.3"],

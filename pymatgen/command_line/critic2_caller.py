@@ -37,6 +37,7 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
 (https://doi.org/10.1016/j.cpc.2008.07.018)
 """
 
+import glob
 import logging
 import os
 import subprocess
@@ -52,7 +53,6 @@ from monty.tempfile import ScratchDir
 from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.command_line.bader_caller import get_filepath
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
@@ -320,6 +320,29 @@ class CriticalPointType(Enum):
     ring = "ring"  # (3, 1)
     cage = "cage"  # (3, 3)
     nnattr = "nnattr"  # (3, -3), non-nuclear attractor
+
+
+def get_filepath(filename, warning, path, suffix):
+    """
+    Args:
+        filename: Filename
+        warning: Warning message
+        path: Path to search
+        suffix: Suffixes to search.
+    """
+    paths = glob.glob(os.path.join(path, filename + suffix + "*"))
+    if not paths:
+        warnings.warn(warning)
+        return None
+    if len(paths) > 1:
+        # using reverse=True because, if multiple files are present,
+        # they likely have suffixes 'static', 'relax', 'relax2', etc.
+        # and this would give 'static' over 'relax2' over 'relax'
+        # however, better to use 'suffix' kwarg to avoid this!
+        paths.sort(reverse=True)
+        warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
+    path = paths[0]
+    return path
 
 
 class CriticalPoint(MSONable):

@@ -13,5 +13,5 @@ release an add-on package.
   analysis, including path determination for NEB calculations, analysis of MD trajectories (RDF, van Hove, Arrhenius
   plots, etc.)
 
-* `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur/>`_: Provides modules for reading and writing 
-  files used by the `fleur <www.flapw.de/>`_ DFT code 
+* `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur/>`_: Provides modules for reading and writing
+  files used by the `fleur <www.flapw.de/>`_ DFT code

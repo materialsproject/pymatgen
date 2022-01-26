@@ -5,21 +5,19 @@
 import os
 import unittest
 from pathlib import Path
-from monty.serialization import loadfn, dumpfn
-import os
+
+from monty.serialization import dumpfn, loadfn
+
 from pymatgen.core.periodic_table import Element
-from pymatgen.entries.entry_tools import (
-    group_entries_by_structure,
-    group_entries_by_composition,
-    EntrySet,
-)
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.entry_tools import (
+    EntrySet,
+    group_entries_by_composition,
+    group_entries_by_structure,
+)
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
-from pymatgen.util.testing import PymatgenTest
 
 
 class FuncTest(unittest.TestCase):
@@ -43,10 +41,10 @@ class FuncTest(unittest.TestCase):
         ]
 
         groups = group_entries_by_composition(entries)
-        self.assertEqual(sorted([len(g) for g in groups]), [2, 2, 3])
+        self.assertEqual(sorted(len(g) for g in groups), [2, 2, 3])
         self.assertLess(len(groups), len(entries))
         # Make sure no entries are left behind
-        self.assertEqual(sum([len(g) for g in groups]), len(entries))
+        self.assertEqual(sum(len(g) for g in groups), len(entries))
         # test sorting by energy
         for g in groups:
             assert g == sorted(g, key=lambda e: e.energy_per_atom)
