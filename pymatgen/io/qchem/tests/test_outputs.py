@@ -12,8 +12,9 @@ from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    pass
+    from openbabel import openbabel
 
+    openbabel  # reference openbabel so it's not unused import
     have_babel = True
 except ImportError:
     have_babel = False
