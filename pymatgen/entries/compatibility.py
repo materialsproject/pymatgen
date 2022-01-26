@@ -30,15 +30,17 @@ from pymatgen.entries.computed_entries import (
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
-
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "April 2020"
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
+
+AnyCompEntry = Union[ComputedEntry, ComputedStructureEntry]
 
 
 class CompatibilityError(Exception):
@@ -515,7 +517,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]) -> List[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyCompEntry) -> List[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -552,7 +554,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return None
 
     def process_entries(
-        self, entries: Union[ComputedEntry, ComputedStructureEntry, list], clean: bool = True, verbose: bool = False
+        self, entries: Union[AnyCompEntry, List[AnyCompEntry]], clean: bool = True, verbose: bool = False
     ) -> List[ComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
@@ -908,7 +910,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]):
+    def get_adjustments(self, entry: AnyCompEntry):
         """
         Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
@@ -1387,7 +1389,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False, verbose: bool = False):
+    def process_entries(
+        self, entries: Union[ComputedEntry, List[ComputedEntry]], clean: bool = False, verbose: bool = False
+    ):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -1441,6 +1445,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
         if h2_entries:
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
-            self.h2_energy = h2_entries[0].energy_per_atom
+            self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore
 
         return super().process_entries(entries, clean=clean, verbose=verbose)
