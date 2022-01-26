@@ -8,7 +8,6 @@ Defines the classes relating to 3D lattices.
 import collections
 import itertools
 import math
-from pkgutil import walk_packages
 import warnings
 from fractions import Fraction
 from functools import reduce
@@ -1838,18 +1837,22 @@ class Lattice(MSONable):
             (3x1 array): The weighted average position in fractional coordinates.
         """
 
+        if len(positions) != len(weights):
+            raise ValueError("The number of positions and weights must be the same.")
+        # TODO: can be replaced with the zip(..., strict=True) syntax in Python 3.10
         pos_weights = list(zip(positions, weights))
         pos_weights.sort(key=lambda x: x[1], reverse=True)
-        
+
+        # initial guess at the center with zero weight
         p_guess = np.ones(3) * 0.5
         w_sum = 0
-        
+
         for p, w in pos_weights:
             _, jimage = self.get_distance_and_image(p_guess, p)
-            p_guess = w_sum * p_guess + w * (p + jimage)
+            p_guess = (w_sum * p_guess + w * (p + jimage)) / (w_sum + w)
             w_sum += w
-        return p_guess / w_sum
-        
+        return p_guess
+
 
 def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True) -> Tuple[int, int, int]:
     """

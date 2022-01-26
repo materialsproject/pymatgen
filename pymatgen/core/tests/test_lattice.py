@@ -594,6 +594,20 @@ class LatticeTestCase(PymatgenTest):
             np.array([0, 0, 0, -(a3 ** 2), -(b3 ** 2), -(c3 ** 2)]),
         )
 
+    def test_get_weighted_average_position(self):
+        latt = Lattice.hexagonal(10, 20)
+        g_guess = latt.get_weighted_average_position(
+            positions=[
+                [0.6, 0.7, 0.5],
+                [0.9, 0.8, 0.5],
+                [0.1, 0.2, 0.5],
+                [0.1, 0.95, 0.5],
+            ],
+            weights=[1, 1, 1, 1],
+        )
+        ref = np.sum([[0.6, 0.7, 0.5], [0.9, 0.8, 0.5], [1.1, 1.2, 0.5], [1.1, 0.95, 0.5]], axis=0) / 4
+        np.testing.assert_array_almost_equal(g_guess, ref)
+
 
 if __name__ == "__main__":
     import unittest
