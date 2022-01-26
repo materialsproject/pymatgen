@@ -1,6 +1,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import json
 import os
 import unittest
 import warnings
@@ -8,8 +9,8 @@ from numbers import Number
 from pathlib import Path
 from collections import OrderedDict
 
-
 import numpy as np
+from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
@@ -35,7 +36,7 @@ module_dir = Path(__file__).absolute().parent
 class PDEntryTest(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
-        self.entry = PDEntry(comp, 53)
+        self.entry = PDEntry(comp, 53, name="mp-757614")
         self.gpentry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
 
     def test_get_energy(self):
@@ -84,7 +85,11 @@ class PDEntryTest(unittest.TestCase):
             self.fail("Should not need to supply name!")
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entry))
+        self.assertEqual(str(self.entry), "PDEntry : Li1 Fe1 O2 (mp-757614) with energy = 53.0000")
+        pde = self.entry.as_dict()
+        del pde["name"]
+        pde = PDEntry.from_dict(pde)
+        self.assertEqual(str(pde), "PDEntry : Li1 Fe1 O2 with energy = 53.0000")
 
     def test_read_csv(self):
         entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
