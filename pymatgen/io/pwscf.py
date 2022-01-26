@@ -123,7 +123,7 @@ class PWInput:
                 if isinstance(v1[k2], list):
                     n = 1
                     for l in v1[k2][: len(site_descriptions)]:
-                        sub.append("  %s(%d) = %s" % (k2, n, to_str(v1[k2][n - 1])))
+                        sub.append(f"  {k2}({n}) = {to_str(v1[k2][n - 1])}")
                         n += 1
                 else:
                     sub.append(f"  {k2} = {to_str(v1[k2])}")
@@ -166,7 +166,7 @@ class PWInput:
         elif self.kpoints_mode == "crystal_b":
             out.append(f" {str(len(self.kpoints_grid))}")
             for i in range(len(self.kpoints_grid)):
-                kpt_str = ["%.s" % str(i) for i in self.kpoints_grid[i]]
+                kpt_str = [f"{str(i):.}" for i in self.kpoints_grid[i]]
                 out.append(f" {' '.join(kpt_str)}")
         elif self.kpoints_mode == "gamma":
             pass
@@ -574,15 +574,15 @@ class PWOutput:
         )
         self.data.update(matches)
 
-    def get_celldm(self, i):
+    def get_celldm(self, idx: int):
         """
         Args:
-            i (int): index
+            idx (int): index
 
         Returns:
             Cell dimension along index
         """
-        return self.data["celldm%d" % i]
+        return self.data[f"celldm{idx}"]
 
     @property
     def final_energy(self):

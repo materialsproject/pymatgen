@@ -397,7 +397,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.grid(True)
 
         # Set xticks and labels.
-        labels = ["MPI=%d, OMP=%d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
+        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -464,7 +464,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             else:
                 rest += svals
 
-        names.append("others (nmax=%d)" % nmax)
+        names.append(f"others (nmax={nmax})")
         values.append(rest)
 
         # The dataset is stored in values. Now create the stacked histogram.
@@ -481,10 +481,10 @@ class AbinitTimerParser(collections.abc.Iterable):
             bottom += vals
 
         ax.set_ylabel(key)
-        ax.set_title("Stacked histogram with the %d most important sections" % nmax)
+        ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = ["MPI=%d, OMP=%d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
+        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
