@@ -1,9 +1,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import os
 import unittest
+import warnings
 
-from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path, np, os, warnings, which
+import numpy as np
+
+from pymatgen.command_line.bader_caller import (
+    BaderAnalysis,
+    bader_analysis_from_path,
+    which,
+)
 from pymatgen.util.testing import PymatgenTest
 
 

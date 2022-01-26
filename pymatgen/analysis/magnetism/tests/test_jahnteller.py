@@ -1,9 +1,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import os
 import unittest
 
-from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species, np, os
+import numpy as np
+
+from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 

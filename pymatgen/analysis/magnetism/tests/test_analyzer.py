@@ -4,6 +4,7 @@
 import os
 import unittest
 
+import numpy as np
 from monty.os.path import which
 
 from pymatgen.analysis.magnetism import (
@@ -12,7 +13,6 @@ from pymatgen.analysis.magnetism import (
     Ordering,
     loadfn,
     magnetic_deformation,
-    np,
     warnings,
 )
 from pymatgen.core import Element, Lattice, Species, Structure

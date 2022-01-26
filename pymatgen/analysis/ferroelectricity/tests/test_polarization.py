@@ -1,11 +1,12 @@
 import os
 import unittest
 
+import numpy as np
+
 from pymatgen.analysis.ferroelectricity.polarization import (
     EnergyTrend,
     Polarization,
     get_total_ionic_dipole,
-    np,
     zval_dict_from_potcar,
 )
 from pymatgen.core.structure import Structure

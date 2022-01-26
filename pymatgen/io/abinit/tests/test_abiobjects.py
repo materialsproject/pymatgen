@@ -3,6 +3,8 @@
 
 import os
 
+import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.abinit.abiobjects import (
@@ -14,7 +16,6 @@ from pymatgen.io.abinit.abiobjects import (
     Smearing,
     SpinMode,
     lattice_from_abivars,
-    np,
     species_by_znucl,
     structure_to_abivars,
 )

@@ -2,6 +2,7 @@ import os
 import unittest
 from pathlib import Path
 
+import numpy as np
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.periodic_table import Element
@@ -21,7 +22,6 @@ from pymatgen.io.phonopy import (
     get_phonon_dos_from_fc,
     get_phonopy_structure,
     get_pmg_structure,
-    np,
 )
 from pymatgen.util.testing import PymatgenTest
 
