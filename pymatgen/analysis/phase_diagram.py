@@ -21,6 +21,7 @@ import plotly.graph_objs as go
 from monty.json import MontyDecoder, MSONable
 from scipy.optimize import minimize
 from scipy.spatial import ConvexHull
+from tqdm.autonotebook import tqdm
 
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core.composition import Composition
@@ -29,8 +30,6 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-
-from tqdm.autonotebook import tqdm
 
 if sys.version_info >= (3, 8):
     from typing import Literal
