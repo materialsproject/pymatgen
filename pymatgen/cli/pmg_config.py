@@ -79,7 +79,7 @@ def setup_potcars(args):
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
                 except Exception as ex:
-                    print("An error has occurred. Message is %s. Trying to continue... " % str(ex))
+                    print(f"An error has occurred. Message is {str(ex)}. Trying to continue... ")
 
     print("")
     print(
@@ -192,7 +192,7 @@ def add_config_var(args):
     d = {}
     if os.path.exists(SETTINGS_FILE):
         shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
-        print("Existing {} backed up to {}".format(SETTINGS_FILE, SETTINGS_FILE + ".bak"))
+        print(f"Existing {SETTINGS_FILE} backed up to {SETTINGS_FILE + '.bak'}")
         d = loadfn(SETTINGS_FILE)
     toks = args.var_spec
     if len(toks) % 2 != 0:
@@ -200,8 +200,8 @@ def add_config_var(args):
         sys.exit(-1)
     for i in range(int(len(toks) / 2)):
         d[toks[2 * i]] = toks[2 * i + 1]
-    dumpfn(d, SETTINGS_FILE, default_flow_style=False)
-    print("New %s written!" % (SETTINGS_FILE))
+    dumpfn(d, SETTINGS_FILE)
+    print(f"New {SETTINGS_FILE} written!")
 
 
 def configure_pmg(args):

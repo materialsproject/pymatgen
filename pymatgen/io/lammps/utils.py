@@ -229,7 +229,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
+            self.control_params["output"] = f"{output_file.split('.')[0]}.{self.control_params['filetype']}"
         if self.boxit:
             self._set_box()
 
@@ -275,7 +275,7 @@ class PackmolRunner:
             # the molecule id and the corresponding filename in the packmol
             # input file.
             for idx, mol in enumerate(self.mols):
-                filename = os.path.join(input_dir, "{}.{}".format(idx, self.control_params["filetype"]))
+                filename = os.path.join(input_dir, f"{idx}.{self.control_params['filetype']}")
                 # pdb
                 if self.control_params["filetype"] == "pdb":
                     self.write_pdb(mol, filename, num=idx + 1)
@@ -321,7 +321,7 @@ class PackmolRunner:
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
-                print("packed molecule written to {}".format(self.control_params["output"]))
+                print(f"packed molecule written to {self.control_params['output']}")
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
@@ -471,7 +471,7 @@ class LammpsRunner:
         Write the input/data files and run LAMMPS.
         """
         lammps_cmd = self.lammps_bin + ["-in", self.input_filename]
-        print("Running: {}".format(" ".join(lammps_cmd)))
+        print(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:
             (stdout, stderr) = p.communicate()
         return stdout, stderr

@@ -363,7 +363,7 @@ class Icohplist:
             line = data_without_orbitals[bond].split()
             icohp = {}
             if version == "2.2.1":
-                label = "%s" % (line[0])
+                label = f"{line[0]}"
                 atom1 = str(line[1])
                 atom2 = str(line[2])
                 length = float(line[3])
@@ -374,7 +374,7 @@ class Icohplist:
                     icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[4])
 
             elif version == "3.1.1":
-                label = "%s" % (line[0])
+                label = f"{line[0]}"
                 atom1 = str(line[1])
                 atom2 = str(line[2])
                 length = float(line[3])

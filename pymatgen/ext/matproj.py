@@ -200,7 +200,7 @@ class MPRester:
 
             try:
                 with open(SETTINGS_FILE) as f:
-                    d = yaml.safe_load(f)
+                    d = yaml.load(f)
             except OSError:
                 d = {}
 
@@ -297,7 +297,7 @@ class MPRester:
         Returns:
             materials_id (str)
         """
-        return self._make_request("/materials/mid_from_tid/%s" % task_id)
+        return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
     def get_materials_id_references(self, material_id):
         """
@@ -309,7 +309,7 @@ class MPRester:
         Returns:
             BibTeX (str)
         """
-        return self._make_request("/materials/%s/refs" % material_id)
+        return self._make_request(f"/materials/{material_id}/refs")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -350,7 +350,7 @@ class MPRester:
         Returns:
             ([str]) List of all materials ids.
         """
-        return self._make_request("/materials/%s/mids" % chemsys_formula, mp_decode=False)
+        return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
 
     def get_doc(self, materials_id):
         """
@@ -365,7 +365,7 @@ class MPRester:
             Dict of json document of all data that is displayed on a materials
             details page.
         """
-        return self._make_request("/materials/%s/doc" % materials_id, mp_decode=False)
+        return self._make_request(f"/materials/{materials_id}/doc", mp_decode=False)
 
     def get_xas_data(self, material_id, absorbing_element):
         """
@@ -412,7 +412,7 @@ class MPRester:
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        sub_url = "/tasks/%s" % chemsys_formula_id
+        sub_url = f"/tasks/{chemsys_formula_id}"
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
@@ -538,7 +538,7 @@ class MPRester:
         entries = []
         for d in data:
             d["potcar_symbols"] = [
-                "{} {}".format(d["pseudo_potential"]["functional"], l) for l in d["pseudo_potential"]["labels"]
+                f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
@@ -1329,7 +1329,7 @@ class MPRester:
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
-            e = self._make_request("/element/%s/tasks/isolated_atom" % (el), mp_decode=False)[0]
+            e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
@@ -1369,7 +1369,7 @@ class MPRester:
         """
         req = f"/materials/{material_id}/substrates?n={number}"
         if orient:
-            req += "&orient={}".format(" ".join(map(str, orient)))
+            req += f"&orient={' '.join(map(str, orient))}"
         return self._make_request(req)
 
     def get_all_substrates(self):
@@ -1709,5 +1709,3 @@ class MPRestError(Exception):
     Exception class for MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
-
-    pass

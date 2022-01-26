@@ -326,7 +326,7 @@ class FloatWithUnit(float):
             if char.isalpha() or char.isspace():
                 break
         else:
-            raise Exception("Unit is missing in string %s" % s)
+            raise Exception(f"Unit is missing in string {s}")
         num, unit = float(s[:i]), s[i:]
 
         # Find unit type (set it to None if it cannot be detected)
@@ -834,7 +834,7 @@ def unitized(unit):
             elif val is None:
                 pass
             else:
-                raise TypeError("Don't know how to assign units to %s" % str(val))
+                raise TypeError(f"Don't know how to assign units to {str(val)}")
             return val
 
         return wrapped_f

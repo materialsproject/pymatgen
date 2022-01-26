@@ -206,4 +206,4 @@ def write_lammps_inputs(
         elif isinstance(data, str) and os.path.exists(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            warnings.warn("No data file supplied. Skip writing %s." % data_filename)
+            warnings.warn(f"No data file supplied. Skip writing {data_filename}.")

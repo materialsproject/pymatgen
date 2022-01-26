@@ -16,10 +16,9 @@ A quick overview of the module:
 import copy
 import os
 import re
-import sys
 import textwrap
 import warnings
-from typing import Dict, List, Sequence, Tuple, Union
+from typing import Dict, List, Literal, Sequence, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -27,11 +26,6 @@ from monty.json import MSONable
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"

@@ -79,19 +79,16 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def incar(self):
         """Incar object"""
-        pass
 
     @property
     @abc.abstractmethod
     def kpoints(self):
         """Kpoints object"""
-        pass
 
     @property
     @abc.abstractmethod
     def poscar(self):
         """Poscar object"""
-        pass
 
     @property
     def potcar_symbols(self):
@@ -254,7 +251,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 
 def _load_yaml_config(fname):
-    config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
+    config = loadfn(str(MODULE_DIR / (f"{fname}.yaml")))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -504,12 +501,6 @@ class DictSet(VaspInputSet):
             if k == "MAGMOM":
                 mag = []
                 for site in structure:
-                    if v and not isinstance(v, dict):
-                        raise TypeError(
-                            "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                            "If you want site-specific magnetic moments, set them in the site magmom properties "
-                            "of the site objects in the structure."
-                        )
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, "spin"):
@@ -2904,7 +2895,7 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     outcars = list(glob.glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
-        raise ValueError("Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % path)
+        raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
     vsfile_fullpath = str(path / "vasprun.xml")
     outcarfile_fullpath = str(path / "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
@@ -2993,8 +2984,6 @@ class BadInputSetWarning(UserWarning):
     """
     Warning class for bad but legal inputs.
     """
-
-    pass
 
 
 def batch_write_input(

@@ -69,18 +69,32 @@ class AseAtomsAdaptor:
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between "magmom" and an "initial_magmom" site property.
-        if "magmom" in structure.site_properties:
-            magmoms = structure.site_properties["magmom"]
-            calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms})
-            atoms.calc = calc
         if "initial_magmom" in structure.site_properties:
             initial_magmoms = structure.site_properties["initial_magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
+        if "initial_charge" in structure.site_properties:
+            initial_charges = structure.site_properties["initial_charge"]
+            atoms.set_initial_charges(initial_charges)
 
-        # Add tags if present (this is an ASE Atoms site property)
-        if "tags" in structure.site_properties:
-            tags = structure.site_properties["tags"]
-            atoms.set_tags(tags)
+        if "magmom" in structure.site_properties:
+            magmoms = structure.site_properties["magmom"]
+        else:
+            magmoms = None
+        if "charge" in structure.site_properties:
+            charges = structure.site_properties["charge"]
+        else:
+            charges = None
+        if magmoms or charges:
+            if magmoms and charges:
+                calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms, "charges": charges})
+            elif magmoms:
+                calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms})
+            elif charges:
+                calc = SinglePointDFTCalculator(atoms, **{"charges": charges})
+            atoms.calc = calc
+
+        # Get the oxidation states from the structure
+        oxi_states = [getattr(site.specie, "oxi_state", None) for site in structure]
 
         # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
         # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
@@ -103,6 +117,13 @@ class AseAtomsAdaptor:
         # Set the selective dynamics with the FixAtoms class.
         if fix_atoms is not None:
             atoms.set_constraint(FixAtoms(mask=fix_atoms))
+
+        # Add any remaining site properties to the ASE Atoms object
+        for prop in structure.site_properties:
+            if prop not in ["magmom", "charge", "initial_magmom", "initial_charge", "selective_dynamics"]:
+                atoms.set_array(prop, np.array(structure.site_properties[prop]))
+        if np.any(oxi_states):
+            atoms.set_array("oxi_states", np.array(oxi_states))
 
         return atoms
 
@@ -128,13 +149,23 @@ class AseAtomsAdaptor:
         # Get the site magmoms from the ASE Atoms objects.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
             magmoms = atoms.calc.results.get("magmoms", None)
+            charges = atoms.calc.results.get("charges", None)
         else:
             magmoms = None
+            charges = None
 
         if atoms.has("initial_magmoms"):
             initial_magmoms = atoms.get_initial_magnetic_moments()
         else:
             initial_magmoms = None
+        if atoms.has("initial_charges"):
+            initial_charges = atoms.get_initial_charges()
+        else:
+            initial_charges = None
+        if atoms.has("oxi_states"):
+            oxi_states = atoms.get_array("oxi_states")
+        else:
+            oxi_states = None
 
         # If the ASE Atoms object has constraints, make sure that they are of the
         # kind FixAtoms, which are the only ones that can be supported in Pymatgen.
@@ -168,10 +199,29 @@ class AseAtomsAdaptor:
             structure.add_site_property("magmom", magmoms)
         if initial_magmoms is not None:
             structure.add_site_property("initial_magmom", initial_magmoms)
+        if charges is not None:
+            structure.add_site_property("charge", charges)
+        if initial_charges is not None:
+            structure.add_site_property("initial_charge", initial_charges)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
-        if atoms.has("tags"):
-            structure.add_site_property("tags", atoms.get_tags().tolist())
+
+        # Add oxidation states by site
+        if oxi_states is not None:
+            structure.add_oxidation_state_by_site(oxi_states)
+
+        # Add any remaining site properties to the Pymatgen structure object
+        for prop in atoms.arrays:
+            if prop not in [
+                "numbers",
+                "positions",
+                "magmom",
+                "initial_magmom",
+                "charge",
+                "initial_charge",
+                "oxi_states",
+            ]:
+                structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
         return structure
 
@@ -190,5 +240,8 @@ class AseAtomsAdaptor:
 
         cls = Molecule if cls is None else cls
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls)
+        molecule.set_charge_and_spin(
+            np.sum(atoms.get_initial_charges()), int(round(np.sum(atoms.get_initial_magnetic_moments()) + 1, 1))
+        )
 
         return molecule

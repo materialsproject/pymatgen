@@ -302,7 +302,7 @@ class MultiEntry(PourbaixEntry):
             self.weights = weights
         self.entry_list = entry_list
 
-    @lru_cache()
+    @lru_cache
     def __getattr__(self, item):
         """
         Because most of the attributes here are just weighted

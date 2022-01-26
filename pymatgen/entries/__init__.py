@@ -9,19 +9,13 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-import sys
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Union
+from typing import Dict, Literal, Union
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"

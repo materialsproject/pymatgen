@@ -1013,10 +1013,10 @@ class PointGroupAnalyzer:
             ind = 0
         else:
             ind = 1
-        logger.debug("Eigenvalues = %s." % self.eigvals)
+        logger.debug(f"Eigenvalues = {self.eigvals}.")
         unique_axis = self.principal_axes[ind]
         self._check_rot_sym(unique_axis)
-        logger.debug("Rotation symmetries = %s" % self.rot_sym)
+        logger.debug(f"Rotation symmetries = {self.rot_sym}")
         if len(self.rot_sym) > 0:
             self._check_perpendicular_r2_axis(unique_axis)
 

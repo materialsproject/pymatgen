@@ -242,8 +242,8 @@ class GrainBoundary(Structure):
     def __str__(self):
         comp = self.composition
         outs = [
-            "Gb Summary (%s)" % comp.formula,
-            "Reduced Formula: %s" % comp.reduced_formula,
+            f"Gb Summary ({comp.formula})",
+            f"Reduced Formula: {comp.reduced_formula}",
             f"Rotation axis: {self.rotation_axis}",
             f"Rotation angle: {self.rotation_angle}",
             f"GB plane: {self.gb_plane}",
@@ -253,7 +253,7 @@ class GrainBoundary(Structure):
         ]
 
         def to_s(x, rjust=10):
-            return ("%0.6f" % x).rjust(rjust)
+            return (f"{x:0.6f}").rjust(rjust)
 
         outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
@@ -1256,7 +1256,7 @@ class GrainBoundaryGenerator:
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
-        eye = np.eye(3, dtype=np.int_)
+        eye = np.eye(3, dtype=int)
         for h in range(3):
             if abs(r_axis[h]) != 0:
                 eye[h] = np.array(r_axis)
@@ -2107,7 +2107,7 @@ class GrainBoundaryGenerator:
         # quickly generate a supercell, normal is not work in this way
         if quick_gen:
             scale_factor = []
-            eye = np.eye(3, dtype=np.int_)
+            eye = np.eye(3, dtype=int)
             for i, j in enumerate(miller):
                 if j == 0:
                     scale_factor.append(eye[i])

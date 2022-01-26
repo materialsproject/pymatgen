@@ -78,7 +78,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPSCANRelaxSet.yaml": "dfa9fee19178cb38c6a121ce6096db40693478e8",
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
         self.assertDictEqual(
@@ -255,6 +255,13 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar["LDAUU"], [4.0, 0])
+
+        # This seems counterintuitive at first, but even if the prior INCAR has a MAGMOM flag,
+        # because the structure has no site properties, the default MAGMOM is assigned from the
+        # config dictionary.
+        struct = Structure(lattice, ["Fe", "F"], coords)
+        incar = MPStaticSet(struct, prev_incar=os.path.join(self.TEST_FILES_DIR, "INCAR")).incar
+        self.assertEqual(incar["MAGMOM"], [5, 0.6])
 
         # Make sure this works with species.
         struct = Structure(lattice, ["Fe2+", "O2-"], coords)
@@ -518,16 +525,6 @@ class MITMPRelaxSetTest(PymatgenTest):
                 user_incar_settings={"MAGMOM": {"Fe": 5.1}},
                 user_potcar_settings={"Fe": "Fe"},
                 constrain_total_magmom=True,
-            )
-            vis.incar.items()
-
-        # Test the behavior of passing in the wrong type of MAGMOM to user_incar_settings
-        struct = self.structure.copy()
-        with pytest.raises(TypeError, match=r"MAGMOM must be supplied"):
-            vis = MPRelaxSet(
-                struct,
-                user_incar_settings={"MAGMOM": [5.0, 5.0]},
-                user_potcar_settings={"Fe": "Fe"},
             )
             vis.incar.items()
 
