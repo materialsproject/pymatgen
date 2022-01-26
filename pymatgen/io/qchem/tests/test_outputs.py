@@ -5,7 +5,6 @@
 import os
 import unittest
 
-from monty.os.path import which
 from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.structure import Molecule
@@ -13,7 +12,7 @@ from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from openbabel import openbabel
+    pass
 
     have_babel = True
 except ImportError:

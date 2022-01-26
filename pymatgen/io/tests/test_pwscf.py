@@ -8,7 +8,6 @@ import numpy as np
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core import Lattice, Structure
 
 
 class PWInputTest(PymatgenTest):
