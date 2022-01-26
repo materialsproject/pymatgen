@@ -317,7 +317,6 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         """
         No args required.
         """
-        pass
 
     def test(self, structure):
         """

@@ -68,15 +68,11 @@ class AdfInputError(Exception):
     The default error class for ADF.
     """
 
-    pass
-
 
 class AdfOutputError(Exception):
     """
     The default error class for errors raised by ``AdfOutput``.
     """
-
-    pass
 
 
 class AdfKey(MSONable):

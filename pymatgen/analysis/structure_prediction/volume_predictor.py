@@ -105,7 +105,6 @@ class RLSVolumePredictor:
                 warnings.warn("Exception occured. Will attempt atomic radii.")
                 # If error occurs during use of ionic radii scheme, pass
                 # and see if we can resolve it using atomic radii.
-                pass
 
         if "atomic" in self.radii_type:
             comp = structure.composition

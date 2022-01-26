@@ -2,9 +2,9 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-from pathlib import Path
 import os
+import unittest
+
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
@@ -19,7 +19,6 @@ from pymatgen.symmetry.analyzer import (
     iterative_symmetrize,
 )
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
@@ -628,7 +627,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
             for j in eq_set:
-                rotated = np.dot(ops[i][j], coords[i])
+                _ = np.dot(ops[i][j], coords[i])
                 self.assertTrue(np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
 
     def test_symmetrize_molecule2(self):
