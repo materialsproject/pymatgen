@@ -6,8 +6,8 @@ import random
 
 import numpy as np
 
-import pymatgen.util.coord as coord
 from pymatgen.core.lattice import Lattice
+from pymatgen.util import coord
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -186,9 +186,6 @@ class CoordUtilsTest(PymatgenTest):
         vectors = coord.pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
         dists = np.sum(vectors ** 2, axis=-1) ** 0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
-
-        # now try with small loop threshold
-        from pymatgen.util import coord
 
         prev_threshold = coord.LOOP_THRESHOLD
         coord.LOOP_THRESHOLD = 0
