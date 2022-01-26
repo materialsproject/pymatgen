@@ -2205,7 +2205,7 @@ class IStructure(SiteCollection, MSONable):
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "charge": self._charge,
+            "charge": self.charge,
             "lattice": latt_dict,
             "sites": [],
         }
@@ -2793,8 +2793,8 @@ class IMolecule(SiteCollection, MSONable):
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "charge": self._charge,
-            "spin_multiplicity": self._spin_multiplicity,
+            "charge": self.charge,
+            "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
         }
         for site in self:
