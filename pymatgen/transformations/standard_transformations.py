@@ -1009,7 +1009,7 @@ class ChargedCellTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Structure with charge " + f"{self.charge}"
+        return f"Structure with charge {self.charge}"
 
     def __repr__(self):
         return self.__str__()

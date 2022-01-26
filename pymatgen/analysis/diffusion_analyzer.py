@@ -506,7 +506,7 @@ class DiffusionAnalyzer(MSONable):
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label="%s - %d" % (site.specie.__str__(), i))
+                plt.plot(plot_dt, sd, label=f"{site.specie.__str__()} - {i}")
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
             plt.plot(plot_dt, self.mscd, "r")

@@ -215,7 +215,7 @@ class EnumlibAdaptor:
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sgnum = get_sg_info(curr_sites)
         ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
-        logger.debug("Disordered sites has sg # %d" % (sgnum))
+        logger.debug(f"Disordered sites has sg # {sgnum}")
         self.ordered_sites = []
 
         # progressively add ordered sites to our disordered sites
@@ -226,7 +226,7 @@ class EnumlibAdaptor:
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
                 if sgnum != new_sgnum:
-                    logger.debug("Adding %s in enum. New sg # %d" % (sites[0].specie, new_sgnum))
+                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {int(new_sgnum)}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1

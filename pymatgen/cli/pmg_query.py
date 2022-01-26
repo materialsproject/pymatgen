@@ -38,7 +38,7 @@ def do_query(args):
                 fname = f"{d['task_id']}-{formula}.{args.structure}"
             s.to(filename=fname)
             count += 1
-        print("%d structures written!" % count)
+        print(f"{count} structures written!")
     elif args.entries:
         entries = m.get_entries(criteria)
         dumpfn(entries, args.entries)

@@ -3671,8 +3671,8 @@ class VolumetricData(MSONable):
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
             if not vasp4_compatible:
-                lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
-            lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
+            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
