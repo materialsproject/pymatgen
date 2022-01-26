@@ -608,7 +608,7 @@ class LatticeTestCase(PymatgenTest):
         ref = np.sum([[0.6, 0.7, 0.5], [0.9, 0.8, 0.5], [1.1, 1.2, 0.5], [1.1, 0.95, 0.5]], axis=0) / 4
         np.testing.assert_array_almost_equal(g_guess, ref)
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             g_guess = latt.get_weighted_average_position(
                 positions=[
                     [0.6, 0.7, 0.5],
