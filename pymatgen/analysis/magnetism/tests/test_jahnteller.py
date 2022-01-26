@@ -3,7 +3,7 @@
 
 import unittest
 
-from pymatgen.analysis.magnetism.jahnteller import *
+from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species, np, os
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 

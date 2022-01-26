@@ -5,13 +5,29 @@ from pathlib import Path
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.phonopy import *
+from pymatgen.io.phonopy import (
+    CompletePhononDos,
+    PhononBandStructure,
+    PhononBandStructureSymmLine,
+    Structure,
+    get_complete_ph_dos,
+    get_displaced_structures,
+    get_gruneisen_ph_bs_symm_line,
+    get_gruneisenparameter,
+    get_ph_bs_symm_line,
+    get_ph_dos,
+    get_phonon_band_structure_from_fc,
+    get_phonon_band_structure_symm_line_from_fc,
+    get_phonon_dos_from_fc,
+    get_phonopy_structure,
+    get_pmg_structure,
+    np,
+)
 from pymatgen.util.testing import PymatgenTest
 
 try:
     from phonopy import Phonopy
-    from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
-    from phonopy.structure.atoms import PhonopyAtoms
+    from phonopy.file_IO import parse_FORCE_CONSTANTS
 except ImportError as ex:
     print(ex)
     Phonopy = None

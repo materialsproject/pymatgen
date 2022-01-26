@@ -5,7 +5,25 @@
 import random
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.util.coord import *
+from pymatgen.util.coord import (
+    Simplex,
+    all_distances,
+    barycentric_coords,
+    coord_list_mapping,
+    coord_list_mapping_pbc,
+    find_in_coord_list,
+    find_in_coord_list_pbc,
+    get_angle,
+    get_linear_interpolated_value,
+    in_coord_list,
+    in_coord_list_pbc,
+    is_coord_subset,
+    is_coord_subset_pbc,
+    lattice_points_in_supercell,
+    np,
+    pbc_diff,
+    pbc_shortest_vectors,
+)
 from pymatgen.util.testing import PymatgenTest
 
 

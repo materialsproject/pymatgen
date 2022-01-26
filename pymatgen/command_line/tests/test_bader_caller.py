@@ -3,7 +3,7 @@
 
 import unittest
 
-from pymatgen.command_line.bader_caller import *
+from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path, np, os, warnings, which
 from pymatgen.util.testing import PymatgenTest
 
 
