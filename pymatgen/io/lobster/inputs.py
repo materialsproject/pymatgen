@@ -812,13 +812,12 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         max_basis: list of basis entries: e.g., ['Si 3p 3s ']
 
     Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
-
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict = {}
+    basis_dict: Dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:
