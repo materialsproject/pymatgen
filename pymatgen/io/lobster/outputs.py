@@ -16,7 +16,6 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -501,7 +500,7 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        with open(doscar) as f:
+        with zopen(doscar, "rt") as f:
             natoms = int(f.readline().split()[0])
             efermi = float([f.readline() for nn in range(4)][3].split()[17])
             dos = []
