@@ -9,7 +9,7 @@ import copy
 import json
 import logging
 import os
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from collections.abc import Mapping, MutableMapping
 from enum import Enum
 
@@ -752,7 +752,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         args = list(abi_args)[:]
         args.extend(list(abi_kwargs.items()))
 
-        self._vars = OrderedDict(args)
+        self._vars = dict(args)
         self.set_structure(structure)
 
         if pseudo_dir is not None:
@@ -774,7 +774,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         JSON interface used in pymatgen for easier serialization.
         """
-        # Use a list of (key, value) to serialize the OrderedDict
+        # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
             if isinstance(value, np.ndarray):

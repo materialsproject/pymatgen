@@ -15,7 +15,7 @@ import os
 import re
 import subprocess
 import warnings
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from enum import Enum
 from hashlib import md5
 from typing import Any, Dict, Literal, Sequence, Tuple, Union
@@ -1737,7 +1737,7 @@ class PotcarSingle:
             except KeyError:
                 warnings.warn(f"Ignoring unknown variable type {key}")
 
-        PSCTR = OrderedDict()
+        PSCTR = {}
 
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
@@ -1797,7 +1797,7 @@ class PotcarSingle:
                 PSCTR["RRKJ"] = tuple(rrkj_array)
 
         PSCTR.update(self.keywords)
-        self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
+        self.PSCTR = dict(sorted(PSCTR.items()))
 
         if symbol:
             self._symbol = symbol

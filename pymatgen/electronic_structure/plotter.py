@@ -9,7 +9,7 @@ import itertools
 import logging
 import math
 import warnings
-from collections import Counter, OrderedDict
+from collections import Counter
 
 import matplotlib.lines as mlines
 import numpy as np
@@ -71,7 +71,7 @@ class DosPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
-        self._doses = OrderedDict()
+        self._doses = {}
 
     def add_dos(self, label, dos):
         """
@@ -3671,7 +3671,7 @@ class CohpPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self._cohps = OrderedDict()
+        self._cohps = {}
 
     def add_cohp(self, label, cohp):
         """

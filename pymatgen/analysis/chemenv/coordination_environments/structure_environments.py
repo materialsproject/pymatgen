@@ -18,7 +18,6 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from collections import OrderedDict
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -294,7 +293,7 @@ class StructureEnvironments(MSONable):
             next_dists = [src["dp_dict"]["next"] for src in mysrc]
             next_angs = [src["ap_dict"]["next"] for src in mysrc]
 
-            points_dict = OrderedDict()
+            points_dict = {}
 
             pdists = []
             pangs = []

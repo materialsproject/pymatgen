@@ -19,7 +19,6 @@ more info.
 import itertools
 import re
 import warnings
-from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
 
@@ -371,9 +370,9 @@ class LammpsData(MSONable):
 """
         box = self.box.get_string(distance)
 
-        body_dict = OrderedDict()
+        body_dict = {}
         body_dict["Masses"] = self.masses
-        types = OrderedDict()
+        types = {}
         types["atom"] = len(self.masses)
         if self.force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
@@ -384,7 +383,7 @@ class LammpsData(MSONable):
                     types[kw.lower()[:-7]] = len(self.force_field[kw])
 
         body_dict["Atoms"] = self.atoms
-        counts = OrderedDict()
+        counts = {}
         counts["atoms"] = len(self.atoms)
         if self.velocities is not None:
             body_dict["Velocities"] = self.velocities
@@ -1033,7 +1032,7 @@ class ForceField(MSONable):
                 strings (symbols) and floats are all acceptable for the
                 values, with the first two converted to the atomic mass
                 of an element. It is recommended to use
-                OrderedDict.items() to prevent key duplications.
+                dict.items() to prevent key duplications.
                 [("C", 12.01), ("H", Element("H")), ("O", "O"), ...]
             nonbond_coeffs [coeffs]: List of pair or pairij
                 coefficients, of which the sequence must be sorted

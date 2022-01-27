@@ -17,7 +17,6 @@ __email__ = "adozier@uky.edu"
 __date__ = "April 7, 2012"
 
 import argparse
-from collections import OrderedDict
 
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.feff.outputs import LDos
@@ -71,7 +70,7 @@ def main():
     f = LDos.from_file(args.filename1[0], args.filename[0])
     dos = f.complete_dos
 
-    all_dos = OrderedDict()
+    all_dos = {}
     all_dos["Total"] = dos
 
     structure = f.complete_dos.structure

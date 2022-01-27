@@ -1349,7 +1349,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             terminal_compositions = [c.fractional_composition for c in terminal_compositions]
 
         # Map terminal compositions to unique dummy species.
-        sp_mapping = collections.OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
@@ -1533,7 +1533,7 @@ class ReactionDiagram:
         self.entry1 = entry1
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
-        self.labels = collections.OrderedDict()
+        self.labels = {}
         for i, e in enumerate(rxn_entries):
             self.labels[str(i + 1)] = e.attribute
             e.name = str(i + 1)

@@ -87,7 +87,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # timers[filename][mpi_rank]
         # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
-        self._timers = collections.OrderedDict()
+        self._timers = {}
 
     def __iter__(self):
         return self._timers.__iter__()

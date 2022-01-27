@@ -7,7 +7,6 @@ This module contains some script utils that are used in the chemenv package.
 
 
 import re
-from collections import OrderedDict
 
 import numpy as np
 
@@ -40,7 +39,6 @@ from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
 
-
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -49,7 +47,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = OrderedDict()  # type: dict
+strategies_class_lookup = {}
 strategies_class_lookup["SimplestChemenvStrategy"] = SimplestChemenvStrategy
 
 
