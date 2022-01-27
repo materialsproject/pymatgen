@@ -1337,7 +1337,7 @@ class CifWriter:
         loops.append(["_symmetry_equiv_pos_site_id", "_symmetry_equiv_pos_as_xyz"])
 
         try:
-            symbol_to_oxinum = {el.__str__(): el.oxi_state for el in sorted(comp.elements)}
+            symbol_to_oxinum = {el.__str__(): float(el.oxi_state) for el in sorted(comp.elements)}
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
