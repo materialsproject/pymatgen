@@ -668,8 +668,8 @@ class DoscarTest(unittest.TestCase):
         self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist())
         self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
-            self.DOSCAR_spin_pol.completedos.structure.frac_coords,
-            self.structure.frac_coords,
+                self.DOSCAR_spin_pol.completedos.structure.frac_coords,
+                self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)
@@ -2212,16 +2212,16 @@ class LobsterinTest(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                np.isclose(kpoint[0], kpoint2[0])
-                and np.isclose(kpoint[1], kpoint2[1])
-                and np.isclose(kpoint[2], kpoint2[2])
+                    np.isclose(kpoint[0], kpoint2[0])
+                    and np.isclose(kpoint[1], kpoint2[1])
+                    and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                np.isclose(-kpoint[0], kpoint2[0])
-                and np.isclose(-kpoint[1], kpoint2[1])
-                and np.isclose(-kpoint[2], kpoint2[2])
+                    np.isclose(-kpoint[0], kpoint2[0])
+                    and np.isclose(-kpoint[1], kpoint2[1])
+                    and np.isclose(-kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
