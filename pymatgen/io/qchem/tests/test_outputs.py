@@ -296,12 +296,17 @@ class TestQCOutput(PymatgenTest):
     def test_NBO5_vs_NBO7_hybridization_character(self):
         data5 = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo5_1.qout")).data
         data7 = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
-        self.assertEqual(len(data5["nbo_data"]["hybridization_character"]),
-            len(data7["nbo_data"]["hybridization_character"]))
-        self.assertEqual(data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9],
-            data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9])
-        self.assertEqual(data5["nbo_data"]["hybridization_character"][0]["s"][0],
-            data7["nbo_data"]["hybridization_character"][0]["s"][0])
+        self.assertEqual(
+            len(data5["nbo_data"]["hybridization_character"]), len(data7["nbo_data"]["hybridization_character"])
+        )
+        self.assertEqual(
+            data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9],
+            data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9],
+        )
+        self.assertEqual(
+            data5["nbo_data"]["hybridization_character"][0]["s"][0],
+            data7["nbo_data"]["hybridization_character"][0]["s"][0],
+        )
         self.assertEqual(data5["nbo_data"]["hybridization_character"][1]["bond index"][7], "149")
         self.assertEqual(data7["nbo_data"]["hybridization_character"][1]["bond index"][7], "21")
 
