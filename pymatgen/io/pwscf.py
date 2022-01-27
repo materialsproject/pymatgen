@@ -166,7 +166,6 @@ class PWInput:
         elif self.kpoints_mode == "crystal_b":
             out.append(f" {str(len(self.kpoints_grid))}")
             for i in range(len(self.kpoints_grid)):
-                # kpt_str = [f"{str(i):.4f}" for i in self.kpoints_grid[i]]
                 kpt_str = [f"{entry:.4f}" for entry in self.kpoints_grid[i]]
                 out.append(f" {' '.join(kpt_str)}")
         elif self.kpoints_mode == "gamma":
