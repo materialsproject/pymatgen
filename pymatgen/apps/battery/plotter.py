@@ -15,8 +15,6 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 12, 2012"
 
 
-from collections import OrderedDict
-
 import plotly.graph_objects as go
 from pymatgen.util.plotting import pretty_plot
 
@@ -36,7 +34,7 @@ class VoltageProfilePlotter:
             - frac_x: the atomic fraction of the working ion
             hide_negative: If True only plot the voltage steps above zero
         """
-        self._electrodes = OrderedDict()
+        self._electrodes = {}
         self.xaxis = xaxis
         self.hide_negative = hide_negative
 

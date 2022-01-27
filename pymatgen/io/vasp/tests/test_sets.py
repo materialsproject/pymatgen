@@ -1,21 +1,54 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
+import glob
 import hashlib
+import os
+import shutil
 import tempfile
 import unittest
+import warnings
+from pathlib import Path
+from zipfile import ZipFile
 
+import numpy as np
 import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 from monty.json import MontyDecoder
 
-from pymatgen.core import SETTINGS
-from pymatgen.core import Lattice, Species, Structure
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.io.vasp.sets import *
+from pymatgen.io.vasp.sets import (
+    BadInputSetWarning,
+    LobsterSet,
+    MITMDSet,
+    MITNEBSet,
+    MITRelaxSet,
+    MPHSEBSSet,
+    MPMetalRelaxSet,
+    MPNMRSet,
+    MPNonSCFSet,
+    MPRelaxSet,
+    MPScanRelaxSet,
+    MPScanStaticSet,
+    MPSOCSet,
+    MPStaticSet,
+    MVLElasticSet,
+    MVLGBSet,
+    MVLGWSet,
+    MVLNPTMDSet,
+    MVLRelax52Set,
+    MVLScanRelaxSet,
+    MVLSlabSet,
+    batch_write_input,
+    get_structure_from_prev_run,
+    get_valid_magmom_struct,
+    loadfn,
+)
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 MODULE_DIR = Path(__file__).resolve().parent
@@ -45,7 +78,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPSCANRelaxSet.yaml": "dfa9fee19178cb38c6a121ce6096db40693478e8",
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
         self.assertDictEqual(
@@ -95,7 +128,7 @@ class MITMPRelaxSetTest(PymatgenTest):
             warnings.simplefilter("always")
             # Trigger a warning.
             vis = MITRelaxSet(structure)
-            incar = vis.incar
+            _ = vis.incar
             # Verify some things
             self.assertIn("ISMEAR", str(w[-1].message))
 
@@ -223,6 +256,13 @@ class MITMPRelaxSetTest(PymatgenTest):
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar["LDAUU"], [4.0, 0])
 
+        # This seems counterintuitive at first, but even if the prior INCAR has a MAGMOM flag,
+        # because the structure has no site properties, the default MAGMOM is assigned from the
+        # config dictionary.
+        struct = Structure(lattice, ["Fe", "F"], coords)
+        incar = MPStaticSet(struct, prev_incar=os.path.join(self.TEST_FILES_DIR, "INCAR")).incar
+        self.assertEqual(incar["MAGMOM"], [5, 0.6])
+
         # Make sure this works with species.
         struct = Structure(lattice, ["Fe2+", "O2-"], coords)
         incar = MPRelaxSet(struct).incar
@@ -284,7 +324,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         incar = MITRelaxSet(s, user_incar_settings={"LDAU": True}).incar
         self.assertFalse("LDAUU" in incar)  # LDAU = False
 
-        # User set a compound to be sulfide by specifing values of "LDAUL" etc.
+        # User set a compound to be sulfide by specifying values of "LDAUL" etc.
         s = Structure(lattice, ["Fe", "Cl", "S"], coords)
         incar = MITRelaxSet(
             s,
@@ -488,16 +528,6 @@ class MITMPRelaxSetTest(PymatgenTest):
             )
             vis.incar.items()
 
-        # Test the behavior of passing in the wrong type of MAGMOM to user_incar_settings
-        struct = self.structure.copy()
-        with pytest.raises(TypeError, match=r"MAGMOM must be supplied"):
-            vis = MPRelaxSet(
-                struct,
-                user_incar_settings={"MAGMOM": [5.0, 5.0]},
-                user_potcar_settings={"Fe": "Fe"},
-            )
-            vis.incar.items()
-
 
 class MPStaticSetTest(PymatgenTest):
     def setUp(self):
@@ -626,7 +656,7 @@ class MPStaticSetTest(PymatgenTest):
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):
             si = self.get_structure("Si")
-            vis = MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
+            MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def test_grid_size_from_struct(self):
         # TODO grab a bunch_of_calculations store as a list of tuples
@@ -1100,7 +1130,7 @@ class MVLSlabSetTest(PymatgenTest):
 
     def test_as_dict(self):
         vis_dict = self.vis.as_dict()
-        new = MVLSlabSet.from_dict(vis_dict)
+        MVLSlabSet.from_dict(vis_dict)
 
 
 class MVLElasticSetTest(PymatgenTest):
@@ -1494,7 +1524,7 @@ class MPScanStaticSetTest(PymatgenTest):
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):
             si = self.get_structure("Si")
-            vis = MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
+            MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -1573,7 +1603,7 @@ class MVLRelax52SetTest(PymatgenTest):
 
     def test_potcar_functional_warning(self):
         with pytest.warns(FutureWarning, match="argument is deprecated"):
-            test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
+            MVLRelax52Set(self.struct, potcar_functional="PBE_52")
 
     def test_as_from_dict(self):
         d = self.mvl_rlx_set.as_dict()

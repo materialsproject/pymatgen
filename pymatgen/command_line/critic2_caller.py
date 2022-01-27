@@ -37,6 +37,7 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
 (https://doi.org/10.1016/j.cpc.2008.07.018)
 """
 
+import glob
 import logging
 import os
 import subprocess
@@ -52,7 +53,6 @@ from monty.tempfile import ScratchDir
 from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.command_line.bader_caller import get_filepath
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
@@ -322,6 +322,29 @@ class CriticalPointType(Enum):
     nnattr = "nnattr"  # (3, -3), non-nuclear attractor
 
 
+def get_filepath(filename, warning, path, suffix):
+    """
+    Args:
+        filename: Filename
+        warning: Warning message
+        path: Path to search
+        suffix: Suffixes to search.
+    """
+    paths = glob.glob(os.path.join(path, filename + suffix + "*"))
+    if not paths:
+        warnings.warn(warning)
+        return None
+    if len(paths) > 1:
+        # using reverse=True because, if multiple files are present,
+        # they likely have suffixes 'static', 'relax', 'relax2', etc.
+        # and this would give 'static' over 'relax2' over 'relax'
+        # however, better to use 'suffix' kwarg to avoid this!
+        paths.sort(reverse=True)
+        warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
+    path = paths[0]
+    return path
+
+
 class CriticalPoint(MSONable):
     """
     Access information about a critical point and the field values at that point.
@@ -348,8 +371,8 @@ class CriticalPoint(MSONable):
 
         :param index: index of point
         :param type: type of point, given as a string
-        :param coords: Cartesian co-ordinates in Angstroms
-        :param frac_coords: fractional co-ordinates
+        :param coords: Cartesian coordinates in Angstroms
+        :param frac_coords: fractional coordinates
         :param point_group: point group associated with critical point
         :param multiplicity: number of equivalent critical points
         :param field: value of field at point (f)
@@ -866,7 +889,7 @@ class Critic2Analysis(MSONable):
         :param idx: index
         :param unique_idx: index of unique CriticalPoint,
             used to look up more information of point (field etc.)
-        :param frac_coord: fractional co-ordinates of point
+        :param frac_coord: fractional coordinates of point
         :return:
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}

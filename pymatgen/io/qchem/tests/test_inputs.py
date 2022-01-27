@@ -707,7 +707,7 @@ $end"""
 
     def test_read_scan(self):
         str_scan = """Once more, I'm trying to break you!
-        
+
 $scan
    stre 1 2 1.1 1.4 0.03
    bend 3 4 5 60 90 5
@@ -721,7 +721,7 @@ $end"""
         str_scan_1 = """Once more, I"m trying to break you!
 $scan
    boo 1 4 1.2 1.5 0.02
-   tors = 3 6 1.5 1.9 0.01        
+   tors = 3 6 1.5 1.9 0.01
 $end
 """
         scan_test_1 = QCInput.read_scan(str_scan_1)
@@ -729,7 +729,7 @@ $end
         self.assertDictEqual(scan_test_1, scan_actual_1)
 
         str_scan_2 = """Once more, I'm trying to break you!
-        
+
 $scan
    stre 1 2 1.1 1.4 0.03
    bend 3 4 5 60 90 5

@@ -154,9 +154,9 @@ def genrecip(a1, a2, a3, encut):
     k = np.arange(-k_max, k_max)
 
     # Convert index to vectors using meshgrid
-    indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+    indices = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
     # Multiply integer vectors to get recipricol space vectors
-    vecs = np.dot(indicies, [b1, b2, b3])
+    vecs = np.dot(indices, [b1, b2, b3])
     # Calculate radii of all vectors
     radii = np.sqrt(np.einsum("ij,ij->i", vecs, vecs))
 
@@ -168,7 +168,7 @@ def genrecip(a1, a2, a3, encut):
 
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
     """
-    Generate reciprocal vector magnitudes within the cutoff along the specied
+    Generate reciprocal vector magnitudes within the cutoff along the specified
     lattice vectors.
     Args:
         a1: Lattice vector a (in Bohrs)
@@ -315,9 +315,9 @@ class StructureMotifInterstitial:
         k = np.arange(0, nbins[2]) + 0.5
 
         # Convert index to vectors using meshgrid
-        indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+        indices = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
         # Multiply integer vectors to get recipricol space vectors
-        vecs = np.multiply(indicies, np.divide(1, nbins))
+        vecs = np.multiply(indices, np.divide(1, nbins))
 
         # Loop over trial positions that are based on a regular
         # grid in fractional coordinate space
@@ -655,7 +655,7 @@ class TopographyAnalyzer:
             for v in vs:
                 node_points_map[v].update(pts)
 
-        logger.debug("%d total Voronoi vertices" % len(voro.vertices))
+        logger.debug(f"{len(voro.vertices)} total Voronoi vertices")
 
         # Vnodes store all the valid voronoi polyhedra. Cation vnodes store
         # the voronoi polyhedra that are already occupied by existing cations.
@@ -687,7 +687,7 @@ class TopographyAnalyzer:
                     if ref is None:
                         vnodes.append(poly)
 
-        logger.debug("%d voronoi vertices in cell." % len(vnodes))
+        logger.debug(f"{len(vnodes)} voronoi vertices in cell.")
 
         # Eliminate all voronoi nodes which are closest to existing cations.
         if len(cations) > 0:
@@ -701,7 +701,7 @@ class TopographyAnalyzer:
             cation_vnodes = [v for i, v in enumerate(vnodes) if i in indices]
             vnodes = [v for i, v in enumerate(vnodes) if i not in indices]
 
-        logger.debug("%d vertices in cell not with cation." % len(vnodes))
+        logger.debug(f"{len(vnodes)} vertices in cell not with cation.")
         self.coords = coords
         self.vnodes = vnodes
         self.cation_vnodes = cation_vnodes
@@ -759,7 +759,7 @@ class TopographyAnalyzer:
                     frac_coords.append(fcoords + image)
             merged_vnodes.append(VoronoiPolyhedron(lattice, np.average(frac_coords, axis=0), poly_indices, self.coords))
         self.vnodes = merged_vnodes
-        logger.debug("%d vertices after combination." % len(self.vnodes))
+        logger.debug(f"{len(self.vnodes)} vertices after combination.")
 
     def remove_collisions(self, min_dist=0.5):
         """
@@ -802,7 +802,7 @@ class TopographyAnalyzer:
             return min(all_dist)
 
         voro = [s.frac_coords for s in self.vnodes]
-        print("Min dist between voronoi vertices centers = %.4f" % get_min_dist(voro))
+        print(f"Min dist between voronoi vertices centers = {get_min_dist(voro):.4f}")
 
         def get_non_framework_dist(fcoords):
             cations = [site.frac_coords for site in self.non_framework]
@@ -813,7 +813,7 @@ class TopographyAnalyzer:
             return np.linalg.norm(min_dist), min(min_dist), max(min_dist)
 
         print(len(self.non_framework))
-        print("MSE dist voro = %s" % str(get_non_framework_dist(voro)))
+        print(f"MSE dist voro = {str(get_non_framework_dist(voro))}")
 
     def write_topology(self, fname="Topo.cif"):
         """
@@ -924,7 +924,7 @@ class VoronoiPolyhedron:
         return calculate_vol(self.polyhedron_coords)
 
     def __str__(self):
-        return "Voronoi polyhedron %s" % self.name
+        return f"Voronoi polyhedron {self.name}"
 
 
 class ChargeDensityAnalyzer(MSONable):

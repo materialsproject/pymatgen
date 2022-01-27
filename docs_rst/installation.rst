@@ -217,7 +217,7 @@ but it comes with some important caveats:
   full test suite on PyPy and it's possible some parts of pymatgen will be broken.
 * All of pymatgen's dependencies now support PyPy including numpy, scipy, and pandas,
   however matplotlib is difficult to install. If trying PyPy, the current advice
-  is to remove the matplotlib dependency, however this means any modules using matplotlib 
+  is to remove the matplotlib dependency, however this means any modules using matplotlib
   will not be importable. The easiest way to install dependencies is using the
   `PyPy builds on conda-forge <https://conda-forge.org/blog/2020/03/10/pypy>`_. For spglib,
   cloning the repository and running ``python setup.py install`` manually is advised.

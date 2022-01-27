@@ -10,13 +10,12 @@ import numpy as np
 from monty.os.path import which
 from monty.serialization import loadfn
 
+from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.analysis.energy_models import IsingModel
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io import atat
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -345,7 +344,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         d = trans.as_dict()
         # Check json encodability
-        s = json.dumps(d)
+        _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
@@ -580,7 +579,7 @@ class DopingTransformationTest(PymatgenTest):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         d = trans.as_dict()
         # Check json encodability
-        s = json.dumps(d)
+        _ = json.dumps(d)
         trans = DopingTransformation.from_dict(d)
         self.assertEqual(str(trans.dopant), "Al3+")
         self.assertEqual(trans.max_structures_per_enum, 1)

@@ -74,7 +74,7 @@ class CrystalAIRester:
                 return response.json()
             raise ValueError(f"REST query returned with error status code {response.status_code}")
         except Exception as ex:
-            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise ValueError(msg)
 
     def predict_structure(self, model_name, structure):
@@ -90,7 +90,7 @@ class CrystalAIRester:
             10 ** prediction to get the actual value.
         """
         response = None
-        url = self.url + "/predict_structure/%s" % model_name
+        url = self.url + f"/predict_structure/{model_name}"
         try:
             data = {"structure": structure.to(fmt="POSCAR"), "fmt": "POSCAR"}
             response = self.session.post(url, data=data)
@@ -98,5 +98,5 @@ class CrystalAIRester:
                 return response.json()
             raise ValueError(f"REST query returned with error status code {response.status_code}")
         except Exception as ex:
-            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise ValueError(msg)

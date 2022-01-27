@@ -13,9 +13,9 @@ import scipy.constants as cst
 from monty.io import zopen
 
 from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
-from pymatgen.core.operations import SymmOp
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
@@ -110,7 +110,7 @@ class GaussianInput:
         """
         Args:
             mol: Input molecule. It can either be a Molecule object,
-                a string giving the geometry in a format supported by Guassian,
+                a string giving the geometry in a format supported by Gaussian,
                 or ``None``. If the molecule is ``None``, you will need to use
                 read it in from a checkpoint. Consider adding ``CHK`` to the
                 ``link0_parameters``.
@@ -417,7 +417,7 @@ class GaussianInput:
         """
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs = []
         for i, site in enumerate(self._mol):
@@ -431,7 +431,7 @@ class GaussianInput:
         """
         Return GaussianInput string
 
-        Option: whe cart_coords sets to True return the cartesian coordinates
+        Option: when cart_coords is set to True return the cartesian coordinates
                 instead of the z-matrix
 
         """
@@ -463,19 +463,13 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output.append(
-            "{diez}{func_bset} {route}".format(
-                diez=self.dieze_tag,
-                func_bset=func_bset_str,
-                route=para_dict_to_string(self.route_parameters),
-            )
-        )
+        output.append(f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}")
         output.append("")
         output.append(self.title)
         output.append("")
 
-        charge_str = "" if self.charge is None else "%d" % self.charge
-        multip_str = "" if self.spin_multiplicity is None else " %d" % self.spin_multiplicity
+        charge_str = "" if self.charge is None else f"{self.charge:.0f}"
+        multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
         output.append(f"{charge_str}{multip_str}")
 
         if isinstance(self._mol, Molecule):
@@ -487,7 +481,7 @@ class GaussianInput:
             output.append(str(self._mol))
         output.append("")
         if self.gen_basis is not None:
-            output.append(f"{self.gen_basis:s}\n")
+            output.append(f"{self.gen_basis}\n")
         output.append(para_dict_to_string(self.input_parameters, "\n"))
         output.append("\n")
         return "\n".join(output)

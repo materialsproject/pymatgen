@@ -187,7 +187,7 @@ class BondDissociationEnergies(MSONable):
                             + smiles
                         )
                     elif len(good_entries) == 1:
-                        # If we have only one good entry, format it and addd it to the list that will eventually return:
+                        # If we have only one good entry, format it and add it to the list that will eventually return:
                         self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
                     else:
                         # We shouldn't ever encounter more than one good entry.
@@ -326,7 +326,7 @@ class BondDissociationEnergies(MSONable):
             entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["final_molecule"]), OpenBabelNN()
             )
-            # Classify any potential structural change that occured during optimization:
+            # Classify any potential structural change that occurred during optimization:
             if entry["initial_molgraph"].isomorphic_to(entry["final_molgraph"]):
                 entry["structure_change"] = "no_change"
             else:

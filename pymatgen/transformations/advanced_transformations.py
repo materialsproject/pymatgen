@@ -88,7 +88,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         return trans.apply_transformation(structure)
 
     def __str__(self):
-        return "Charge Balance Transformation : " + f"Species to remove = {str(self.charge_balance_sp)}"
+        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
     def __repr__(self):
         return self.__str__()
@@ -242,7 +242,7 @@ class MultipleSubstitutionTransformation:
                 sign = "+"
             else:
                 sign = "-"
-            dummy_sp = f"X{str(charge)}{sign}"
+            dummy_sp = f"X{charge}{sign}"
             mapping[self.sp_to_replace] = {
                 self.sp_to_replace: 1 - self.r_fraction,
                 dummy_sp: self.r_fraction,
@@ -261,7 +261,7 @@ class MultipleSubstitutionTransformation:
                     sign = "+"
                 else:
                     sign = "-"
-                st = SubstitutionTransformation({f"X{str(charge)}+": f"{el}{charge}{sign}"})
+                st = SubstitutionTransformation({f"X{charge}+": f"{el}{charge}{sign}"})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
         return outputs
@@ -318,7 +318,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 structure. The refined structure have cell parameters and
                 atomic positions shifted to the expected symmetry positions,
                 which makes it much less sensitive precision issues in enumlib.
-                If you are already starting from an experimental cif, refinment
+                If you are already starting from an experimental cif, refinement
                 should have already been done and it is not necessary. Defaults
                 to False.
             enum_precision_parameter (float): Finite precision parameter for
@@ -752,9 +752,7 @@ class MagOrderingTransformation(AbstractTransformation):
             if satisfies_constraints.count(True) > 1:
                 # site should either not satisfy any constraints, or satisfy
                 # one constraint
-                raise ValueError(
-                    f"Order parameter constraints conflict for site: {str(site.specie)}, {site.properties}"
-                )
+                raise ValueError(f"Order parameter constraints conflict for site: {site.specie}, {site.properties}")
             if any(satisfies_constraints):
                 dummy_specie_idx = satisfies_constraints.index(True)
                 dummy_struct.append(dummy_species[dummy_specie_idx], site.coords, site.lattice)
@@ -772,7 +770,7 @@ class MagOrderingTransformation(AbstractTransformation):
             raise Exception("Something went wrong with enumeration.")
 
         sites_to_remove = []
-        logger.debug(f"Dummy species structure:\n{str(structure)}")
+        logger.debug(f"Dummy species structure:\n{structure}")
         for idx, site in enumerate(structure):
             if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
@@ -798,7 +796,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     properties=structure[orig_site_idx].properties,
                 )
         structure.remove_sites(sites_to_remove)
-        logger.debug(f"Structure with dummy species removed:\n{str(structure)}")
+        logger.debug(f"Structure with dummy species removed:\n{structure}")
         return structure
 
     def _add_spin_magnitudes(self, structure):
@@ -825,7 +823,7 @@ class MagOrderingTransformation(AbstractTransformation):
                         new_properties,
                     )
                     structure.replace(idx, new_specie, properties=site.properties)
-        logger.debug(f"Structure with spin magnitudes:\n{str(structure)}")
+        logger.debug(f"Structure with spin magnitudes:\n{structure}")
         return structure
 
     def apply_transformation(self, structure, return_ranked_list=False):
@@ -1016,7 +1014,7 @@ class DopingTransformation(AbstractTransformation):
             [{"structure": Structure, "energy": float}]
         """
         comp = structure.composition
-        logger.info("Composition: %s" % comp)
+        logger.info(f"Composition: {comp}")
 
         for sp in comp:
             try:
@@ -1051,12 +1049,12 @@ class DopingTransformation(AbstractTransformation):
                 sp for sp in compatible_species if sp in [get_el_sp(s) for s in self.allowed_doping_species]
             ]
 
-        logger.info("Compatible species: %s" % compatible_species)
+        logger.info(f"Compatible species: {compatible_species}")
 
         lengths = structure.lattice.abc
         scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
-        logger.info("Lengths are %s" % str(lengths))
-        logger.info("Scaling = %s" % str(scaling))
+        logger.info(f"Lengths are {str(lengths)}")
+        logger.info(f"Scaling = {str(scaling)}")
 
         all_structures = []
         t = EnumerateStructureTransformation(**self.kwargs)
@@ -1086,7 +1084,7 @@ class DopingTransformation(AbstractTransformation):
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
                     ndopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)
-                    logger.info("Doping %d %s with %d %s." % (nsp_to_remove, sp, ndopant, self.dopant))
+                    logger.info(f"Doping {nsp_to_remove} {sp} with {ndopant} {self.dopant}.")
                     supercell.replace_species(
                         {
                             sp: {
@@ -1128,9 +1126,7 @@ class DopingTransformation(AbstractTransformation):
                 common_charge = lcm(anion_ox, ox_diff)
                 ndopant = common_charge / ox_diff
                 nx_to_remove = common_charge / anion_ox
-                logger.info(
-                    "Doping %d %s with %s and removing %d %s." % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
-                )
+                logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                 supercell.replace_species(
                     {
                         sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},
@@ -1139,10 +1135,10 @@ class DopingTransformation(AbstractTransformation):
                 )
 
             ss = t.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
-            logger.info("%s distinct structures" % len(ss))
+            logger.info(f"{len(ss)} distinct structures")
             all_structures.extend(ss)
 
-        logger.info("Total %s doped structures" % len(all_structures))
+        logger.info(f"Total {len(all_structures)} doped structures")
         if return_ranked_list:
             return all_structures[:return_ranked_list]
 

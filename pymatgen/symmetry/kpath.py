@@ -191,7 +191,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -204,7 +204,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -228,7 +228,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -262,7 +262,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                     if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -278,7 +278,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.trib()
 
         else:
-            warn("Unknown lattice type %s" % lattice_type)
+            warn(f"Unknown lattice type {lattice_type}")
 
     @property
     def conventional(self):
@@ -1071,13 +1071,13 @@ class KPathLatimerMunro(KPathBase):
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
     obtain the correct Brillouin zone within the current
-    implementaiton). This is checked during initialization and a
+    implementation). This is checked during initialization and a
     warning is issued if the condition is not fulfilled.
     In the case of magnetic structures, care must also be taken to
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
     upon application of lattice translations). There is no way to
-    programatically check for this, so if the input structure is
+    programmatically check for this, so if the input structure is
     incorrect, the class will output the incorrect kpath without
     any warning being issued.
     """
@@ -1675,7 +1675,7 @@ class KPathLatimerMunro(KPathBase):
 
     def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
 
-        little_groups_points = []  # elements are lists of indicies of recip_point_group. the
+        little_groups_points = []  # elements are lists of indices of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
         for (i, orbit) in enumerate(key_points_inds_orbits):
@@ -1689,7 +1689,7 @@ class KPathLatimerMunro(KPathBase):
                 if check_gamma:
                     little_groups_points[i].append(j)
 
-        # elements are lists of indicies of recip_point_group. the list
+        # elements are lists of indices of recip_point_group. the list
         # little_groups_lines[i] is
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]

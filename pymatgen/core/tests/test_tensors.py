@@ -1,10 +1,21 @@
 import math
+import os
 import unittest
+import warnings
 
+import numpy as np
 from monty.serialization import MontyDecoder
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.tensors import *
+from pymatgen.core.tensors import (
+    SquareTensor,
+    Tensor,
+    TensorCollection,
+    TensorMapping,
+    itertools,
+    loadfn,
+    symmetry_reduce,
+)
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
@@ -443,7 +454,7 @@ class TensorCollectionTest(PymatgenTest):
 
         # Convert to ieee
         for entry in self.ieee_data[:2]:
-            xtal = entry["xtal"]
+            entry["xtal"]
             tc = TensorCollection([entry["original_tensor"]] * 3)
             struct = entry["structure"]
             self.list_based_function_check("convert_to_ieee", tc, struct)

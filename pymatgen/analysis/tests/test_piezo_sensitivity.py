@@ -19,10 +19,13 @@ import unittest
 import numpy as np
 
 import pymatgen
-from pymatgen.analysis.piezo import PiezoTensor
-from pymatgen.analysis.piezo_sensitivity import *
-from pymatgen.symmetry import site_symmetries as ss
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.analysis.piezo_sensitivity import (
+    BornEffectiveCharge,
+    ForceConstantMatrix,
+    InternalStrainTensor,
+    get_piezo,
+    rand_piezo,
+)
 from pymatgen.util.testing import PymatgenTest
 
 try:

@@ -135,7 +135,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 self._natoms += abs(v)
         self._data = elamt
         if strict and not self.valid:
-            raise ValueError("Composition is not valid, contains: {}".format(", ".join(map(str, self.elements))))
+            raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
     def __getitem__(self, item: SpeciesLike):
         try:
@@ -303,7 +303,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         electronegativity ordering defined in Table VI of "Nomenclature of
         Inorganic Chemistry (IUPAC Recommendations 2005)". This ordering
         effectively follows the groups and rows of the periodic table, except
-        the Lanthanides, Actanides and hydrogen. Polyanions are still determined
+        the Lanthanides, Actinides and hydrogen. Polyanions are still determined
         based on the true electronegativity of the elements.
         e.g. CH2(SO4)2
         """
@@ -361,7 +361,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the
-                Lanthanides, Actanides and hydrogen. Note that polyanions
+                Lanthanides, Actinides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
 
@@ -395,7 +395,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the
-                Lanthanides, Actanides and hydrogen. Note that polyanions
+                Lanthanides, Actinides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
 
@@ -438,7 +438,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if "C" in elements:
             elements = ["C"] + [el for el in elements if el != "C"]
 
-        formula = ["{}{}".format(el, formula_double_format(c[el]) if c[el] != 1 else "") for el in elements]
+        formula = [f"{el}{formula_double_format(c[el]) if c[el] != 1 else ''}" for el in elements]
         return " ".join(formula)
 
     @property
@@ -532,7 +532,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         )
 
         if category not in allowed_categories:
-            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
+            raise ValueError(f"Please pick a category from: {', '.join(allowed_categories)}")
 
         if "block" in category:
             return any(category[0] in el.block for el in self.elements)
@@ -768,11 +768,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         max_sites: int = None,
     ) -> "Composition":
         """
-        Assign oxidation states basedon guessed oxidation states.
+        Assign oxidation states based on guessed oxidation states.
 
         See `oxi_state_guesses` for an explanation of how oxidation states are
         guessed. This operation uses the set of oxidation states for each site
-        that were determined to be most likley from the oxidation state guessing
+        that were determined to be most likely from the oxidation state guessing
         routine.
 
         Args:
@@ -951,14 +951,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # sort the solutions by highest to lowest score
         if all_scores:
             all_sols, all_oxid_combo = zip(
-                *[
+                *(
                     (y, x)
                     for (z, y, x) in sorted(
                         zip(all_scores, all_sols, all_oxid_combo),
                         key=lambda pair: pair[0],
                         reverse=True,
                     )
-                ]
+                )
             )
         return all_sols, all_oxid_combo
 

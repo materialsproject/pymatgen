@@ -2,8 +2,6 @@
 # Distributed under the terms of the MIT License.
 
 
-import collections
-
 from pymatgen.core.units import (
     ArrayWithUnit,
     Energy,
@@ -107,13 +105,13 @@ class FloatWithUnitTest(PymatgenTest):
 
         @unitized("pm")
         def h():
-            d = collections.OrderedDict()
+            d = {}
             for i in range(3):
                 d[i] = i * 20
             return d
 
         self.assertEqual(str(h()[1]), "20.0 pm")
-        self.assertIsInstance(h(), collections.OrderedDict)
+        self.assertIsInstance(h(), dict)
 
         @unitized("kg")
         def i():
@@ -184,7 +182,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         # here there's a minor difference because we have a ndarray with
-        # dtype=np.int_.
+        # dtype=int.
         a = TimeArray(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
         # Test left and right multiplication.

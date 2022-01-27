@@ -447,7 +447,7 @@ class BztInterpolator:
                 bands that will be interpolated
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
-                derivative related trasport properties (Hall coefficient).
+                derivative related transport properties (Hall coefficient).
             save_bztInterp: Default False. If True coefficients and equivalences are
                 saved in fname file.
             load_bztInterp: Default False. If True the coefficients and equivalences
@@ -676,17 +676,17 @@ class BztTransportProperties:
         """
         Args:
             BztInterpolator: a BztInterpolator previously generated
-            temp_r: numpy array of temperatures at which to calculate trasport properties
-            doping: doping levels at which to calculate trasport properties. If provided,
+            temp_r: numpy array of temperatures at which to calculate transport properties
+            doping: doping levels at which to calculate transport properties. If provided,
                 transport properties w.r.t. these doping levels are also computed. See
                 compute_properties_doping() method for details.
-            npts_mu: number of energy points at which to calculate trasport properties
+            npts_mu: number of energy points at which to calculate transport properties
             CRTA: constant value of the relaxation time
-            save_bztTranspProps: Default False. If True all computed tranport properties
+            save_bztTranspProps: Default False. If True all computed transport properties
                 will be stored in fname file.
-            load_bztTranspProps: Default False. If True all computed tranport properties
+            load_bztTranspProps: Default False. If True all computed transport properties
                 will be loaded from fname file.
-            fname: File path where to save/load tranport properties.
+            fname: File path where to save/load transport properties.
 
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
@@ -798,7 +798,7 @@ class BztTransportProperties:
         Calculate all the properties w.r.t. the doping levels in input.
 
         Args:
-            doping: numpy array specifing the doping levels
+            doping: numpy array specifying the doping levels
 
         When executed, it add the following variable at the BztTransportProperties
         object:
@@ -914,7 +914,7 @@ class BztTransportProperties:
     #     return epsilon[pos]
 
     def save(self, fname="bztTranspProps.json.gz"):
-        """Save the tranport properties to fname file."""
+        """Save the transport properties to fname file."""
         lst_props = [
             self.temp_r,
             self.CRTA,
@@ -950,7 +950,7 @@ class BztTransportProperties:
         dumpfn(lst_props, fname)
 
     def load(self, fname="bztTranspProps.json.gz"):
-        """Load the tranport properties from fname file."""
+        """Load the transport properties from fname file."""
         d = loadfn(fname)
         (
             self.temp_r,

@@ -76,7 +76,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle="arc3,rad=%s" % rad,
+                    connectionstyle=f"arc3,rad={rad}",
                     mutation_scale=15.0,
                     lw=2,
                     alpha=alpha,
@@ -90,7 +90,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle="arc3,rad=%s" % rad,
+                    connectionstyle=f"arc3,rad={rad}",
                     mutation_scale=10.0,
                     lw=2,
                     alpha=alpha,
@@ -104,7 +104,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                 patchA=n1,
                 patchB=n2,
                 arrowstyle="-|>",
-                connectionstyle="arc3,rad=%s" % rad,
+                connectionstyle=f"arc3,rad={rad}",
                 mutation_scale=10.0,
                 lw=2,
                 alpha=alpha,
@@ -458,7 +458,7 @@ class ConnectedComponent(MSONable):
                     path.append(test_node)
                     # TODO: there are some paths that appears twice for cycles, and there are some paths that should
                     # probably not be considered
-                    this_path_deltas = [np.zeros(3, np.int_)]
+                    this_path_deltas = [np.zeros(3, int)]
                     for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                         this_path_deltas_new = []
                         for key, edge_data in self._connected_subgraph[node1][node2].items():
@@ -499,7 +499,7 @@ class ConnectedComponent(MSONable):
         for cyc in cycles:
             mycyc = list(cyc)
             mycyc.append(cyc[0])
-            this_cycle_deltas = [np.zeros(3, np.int_)]
+            this_cycle_deltas = [np.zeros(3, int)]
             for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
                 this_cycle_deltas_new = []
                 for key, edge_data in self._connected_subgraph[node1][node2].items():
@@ -736,7 +736,7 @@ class ConnectedComponent(MSONable):
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
-                logging.debug(f"  In node #{inode:d}/{len(current_nodes):d} in level {tree_level:d} ({str(node)})")
+                logging.debug(f"  In node #{inode:d}/{len(current_nodes):d} in level {tree_level:d} ({node})")
                 node_neighbors = list(tree.neighbors(n=node))
                 node_edges = centered_connected_subgraph.edges(nbunch=[node], data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
@@ -778,7 +778,7 @@ class ConnectedComponent(MSONable):
                     logging.debug("          Edge outside the cell ... getting neighbor back inside")
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
-                    myddelta = np.array(ddeltas[0], np.int_)
+                    myddelta = np.array(ddeltas[0], int)
                     node_neighbor_edges = centered_connected_subgraph.edges(
                         nbunch=[node_neighbor], data=True, keys=True
                     )
@@ -797,11 +797,11 @@ class ConnectedComponent(MSONable):
                         ):
                             if edata["start"] == node_neighbor.isite and edata["end"] != node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
-                                    np.array(edata["delta"], np.int_) + myddelta
+                                    np.array(edata["delta"], int) + myddelta
                                 )
                             elif edata["end"] == node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
-                                    np.array(edata["delta"], np.int_) - myddelta
+                                    np.array(edata["delta"], int) - myddelta
                                 )
                             else:
                                 raise ValueError("DUHH")
@@ -957,7 +957,7 @@ class ConnectedComponent(MSONable):
             out.extend([str(en) for en in sorted(self.graph.nodes())])
             return "\n".join(out)
         for en in sorted(self.graph.nodes()):
-            out.append(f"{str(en)}, connected to :")
+            out.append(f"{en}, connected to :")
             en_neighbs = nx.neighbors(self.graph, en)
             for en_neighb in sorted(en_neighbs):
                 out.append(f"  - {en_neighb} with delta image cells")

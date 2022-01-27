@@ -7,7 +7,6 @@
 import logging
 import os.path
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 from monty.collections import AttrDict
@@ -102,7 +101,7 @@ class NetcdfReader:
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error(f"In file {self.path}: {str(exc)}")
+            raise self.Error(f"In file {self.path}: {exc}")
 
         self.ngroups = len(list(self.walk_tree()))
 
@@ -204,7 +203,7 @@ class NetcdfReader:
         assert var.shape[-1] == 2
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
-        raise ValueError("Wrong value for cmode %s" % cmode)
+        raise ValueError(f"Wrong value for cmode {cmode}")
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
@@ -325,7 +324,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     Args:
         ncdata: filename or NetcdfReader instance.
         site_properties: Dictionary with site properties.
-        cls: The Structure class to instanciate.
+        cls: The Structure class to instantiate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 
@@ -468,7 +467,7 @@ _HDR_VARIABLES = (
     ),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
+_HDR_VARIABLES = {h.name: h for h in _HDR_VARIABLES}  # type: ignore
 
 
 class AbinitHeader(AttrDict):

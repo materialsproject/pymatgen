@@ -6,7 +6,7 @@ This module implements plotter for DOS and band structure.
 """
 
 import logging
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 
 import numpy as np
 import scipy.constants as const
@@ -29,7 +29,7 @@ def freq_units(units):
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1
 
     Returns:
-        Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
+        Returns conversion factor from THz to the required units and the label in the form of a namedtuple
 
     """
 
@@ -85,7 +85,7 @@ class PhononDosPlotter:
         """
         self.stack = stack
         self.sigma = sigma
-        self._doses = OrderedDict()
+        self._doses = {}
 
     def add_dos(self, label, dos):
         """
@@ -282,7 +282,7 @@ class PhononBSPlotter:
                     uniq_d.append(tt[0])
                     uniq_l.append(tt[1])
 
-        logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
+        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
         plt.gca().set_xticklabels(uniq_l)
 
@@ -291,16 +291,12 @@ class PhononBSPlotter:
                 # don't print the same label twice
                 if i != 0:
                     if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug("already print label... skipping label {i}".format(i=ticks["label"][i]))
+                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
-                        logger.debug(
-                            "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
-                        )
+                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
-                    )
+                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     plt.axvline(ticks["distance"][i], color="k")
         return plt
 
@@ -511,7 +507,7 @@ class PhononBSPlotter:
 class ThermoPlotter:
     """
     Plotter for thermodynamic properties obtained from phonon DOS.
-    If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
+    If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
     the plots in units of mol instead of mole-cell
     """
 

@@ -361,7 +361,7 @@ class BandStructure:
             - "energy": The energy of the VBM
             - "projections": The projections along sites and orbitals of the
             VBM if any projection data is available (else it is an empty
-            dictionnary). The format is similar to the projections field in
+            dictionary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
         """
@@ -427,7 +427,7 @@ class BandStructure:
             - "energy": The energy of the CBM
             - "projections": The projections along sites and orbitals of the
             CBM if any projection data is available (else it is an empty
-            dictionnary). The format is similar to the projections field in
+            dictionary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
         """
@@ -632,7 +632,7 @@ class BandStructure:
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
 
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+        # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
@@ -992,7 +992,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         d["band_gap"] = self.get_band_gap()
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+        # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]

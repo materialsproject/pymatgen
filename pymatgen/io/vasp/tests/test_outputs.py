@@ -15,17 +15,10 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
-
-try:
-    import h5py
-except ImportError:
-    h5py = None
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.core.structure import Structure
 from pymatgen.core import Element
-from pymatgen.electronic_structure.core import Magmom, OrbitalType
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import (
@@ -47,6 +40,11 @@ from pymatgen.io.vasp.outputs import (
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import PymatgenTest
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
 
 
 class VasprunTest(PymatgenTest):
@@ -143,6 +141,24 @@ class VasprunTest(PymatgenTest):
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
         self.assertAlmostEqual(v.final_energy, -9.78310677)
+
+    def test_energies(self):
+
+        # VASP 5.4.1
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
+        self.assertAlmostEqual(v.final_energy, -11.18981538)
+
+        # VASP 6.2.1
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest2.gz")
+        self.assertAlmostEqual(v.final_energy, -11.18986774)
+
+        # VASP 5.4.1
+        o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest3.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89355325)
+
+        # VASP 6.2.1
+        o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest4.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89364691)
 
     def test_nonlmn(self):
 
@@ -455,7 +471,7 @@ class VasprunTest(PymatgenTest):
                 with self.assertRaises(VaspParserError):
                     _ = vasprun.get_band_structure(line_mode=True)
 
-                # Check KPOINTS.gz succesfully inferred and used if present
+                # Check KPOINTS.gz successfully inferred and used if present
                 with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in:
                     with gzip.open("KPOINTS.gz", "wb") as f_out:
                         copyfileobj(f_in, f_out)
@@ -920,7 +936,7 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         outcar.read_corrections()
         self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
-        self.assertAlmostEqual(outcar.final_energy, -797.46760559)
+        self.assertAlmostEqual(outcar.final_energy, -797.46294064)
 
     def test_freq_dielectric(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS"
@@ -1445,6 +1461,32 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         self.assertEqual(outcar.run_stats["cores"], 64)
 
+    def test_energies(self):
+
+        # VASP 5.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
+        self.assertAlmostEqual(o.final_energy, -11.18981538)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13480014)
+        self.assertAlmostEqual(o.final_fr_energy, -11.21732300)
+
+        # VASP 6.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest2.gz")
+        self.assertAlmostEqual(o.final_energy, -11.18986774)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13485250)
+        self.assertAlmostEqual(o.final_fr_energy, -11.21737536)
+
+        # VASP 5.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest3.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89355325)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83853800)
+        self.assertAlmostEqual(o.final_fr_energy, -15.92106087)
+
+        # VASP 6.2.1
+        o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest4.gz")
+        self.assertAlmostEqual(o.final_energy, -15.89364691)
+        self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
+        self.assertAlmostEqual(o.final_fr_energy, -15.92115453)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1867,7 +1909,7 @@ class WavecarTest(PymatgenTest):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
-        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(np.int_))], 0j)
+        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(int))], 0j)
         mesh = self.w.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))

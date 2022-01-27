@@ -9,7 +9,7 @@ import itertools
 import logging
 import math
 import warnings
-from collections import Counter, OrderedDict
+from collections import Counter
 
 import matplotlib.lines as mlines
 import numpy as np
@@ -71,7 +71,7 @@ class DosPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
-        self._doses = OrderedDict()
+        self._doses = {}
 
     def add_dos(self, label, dos):
         """
@@ -265,7 +265,7 @@ class BSPlotter:
 
     def _check_bs_kpath(self, bs_list):
         """
-        Helper method that chack the all the band objs in bs_list are
+        Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
 
@@ -332,7 +332,7 @@ class BSPlotter:
                     uniq_d.append(t[0])
                     uniq_l.append(t[1])
 
-        logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
+        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
         plt.gca().set_xticklabels(uniq_l)
 
@@ -341,16 +341,12 @@ class BSPlotter:
                 # don't print the same label twice
                 if i != 0:
                     if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug("already print label... skipping label {i}".format(i=ticks["label"][i]))
+                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
-                        logger.debug(
-                            "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
-                        )
+                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
-                    )
+                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     plt.axvline(ticks["distance"][i], color="k")
         return plt
 
@@ -497,7 +493,7 @@ class BSPlotter:
             if bg["direct"]:
                 direct = "Direct"
 
-            bg_str = "{} {} bandgap = {}".format(direct, bg["transition"], bg["energy"])
+            bg_str = f"{direct} {bg['transition']} bandgap = {bg['energy']}"
 
         return {
             "ticks": ticks,
@@ -782,7 +778,7 @@ class BSPlotter:
                     labels[i] = "$" + l + "$"
 
             # If next branch is not continuous,
-            # join the firts lbl to the previous tick label
+            # join the first lbl to the previous tick label
             # and add the second lbl to ticks list
             # otherwise add to ticks list both new labels.
             # Similar for distances.
@@ -1299,8 +1295,8 @@ class BSPlotterProjected(BSPlotter):
 
         # Adjusting  projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
-        print("dictio_d: %s" % str(dictio_d))
-        print("dictpa_d: %s" % str(dictpa_d))
+        print(f"dictio_d: {str(dictio_d)}")
+        print(f"dictpa_d: {str(dictpa_d)}")
 
         if (sum_atoms is None) and (sum_morbs is None):
             proj_br_d = copy.deepcopy(proj_br)
@@ -1607,7 +1603,7 @@ class BSPlotterProjected(BSPlotter):
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
         dictpa, sum_atoms, number_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print("Number of subfigures: %s" % str(number_figs))
+        print(f"Number of subfigures: {str(number_figs)}")
         if number_figs > 9:
             print(
                 "The number of sub-figures %s might be too manny and the implementation might take a long time.\n"
@@ -1641,7 +1637,7 @@ class BSPlotterProjected(BSPlotter):
                         if number_figs == 1:
                             plt.subplot(1, 1, 1)
                         else:
-                            row = int(number_figs / 2)
+                            row = number_figs // 2
                             if number_figs % 2 == 0:
                                 plt.subplot(row, 2, count)
                             else:
@@ -1754,7 +1750,7 @@ class BSPlotterProjected(BSPlotter):
             if Element.is_valid_symbol(elt):
                 if isinstance(dictio[elt], list):
                     if len(dictio[elt]) == 0:
-                        raise ValueError("The dictio[%s] is empty. We cannot do anything" % elt)
+                        raise ValueError(f"The dictio[{elt}] is empty. We cannot do anything")
                     for orb in dictio[elt]:
                         if not isinstance(orb, str):
                             raise ValueError(
@@ -1762,19 +1758,17 @@ class BSPlotterProjected(BSPlotter):
                                 "They should be string." % (elt, str(orb))
                             )
                         if orb not in all_orbitals:
-                            raise ValueError("The invalid name of orbital is given in 'dictio[%s]'." % elt)
+                            raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
                         if orb in individual_orbs.keys():
                             if len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
-                                raise ValueError("The 'dictio[%s]' contains orbitals repeated." % elt)
+                                raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
                     nelems = Counter(dictio[elt]).values()
                     if sum(nelems) > len(nelems):
-                        raise ValueError("You put in at least two similar orbitals in dictio[%s]." % elt)
+                        raise ValueError(f"You put in at least two similar orbitals in dictio[{elt}].")
                 else:
-                    raise TypeError(
-                        "The invalid type of value was put into 'dictio[%s]'. It should be list type." % elt
-                    )
+                    raise TypeError(f"The invalid type of value was put into 'dictio[{elt}]'. It should be list type.")
             else:
-                raise KeyError("The invalid element was put into 'dictio' as a key: %s" % elt)
+                raise KeyError(f"The invalid element was put into 'dictio' as a key: {elt}")
 
         if sum_morbs is None:
             print("You do not want to sum projection over orbitals.")
@@ -1793,16 +1787,16 @@ class BSPlotterProjected(BSPlotter):
                                     "They should be string." % (elt, str(orb))
                                 )
                             if orb not in all_orbitals:
-                                raise ValueError("The invalid name of orbital in 'sum_morbs[%s]' is given." % elt)
+                                raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
                             if orb in individual_orbs.keys():
                                 if len(set(sum_morbs[elt]).intersection(individual_orbs[orb])) != 0:
-                                    raise ValueError("The 'sum_morbs[%s]' contains orbitals repeated." % elt)
+                                    raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
-                            raise ValueError("You put in at least two similar orbitals in sum_morbs[%s]." % elt)
+                            raise ValueError(f"You put in at least two similar orbitals in sum_morbs[{elt}].")
                     else:
                         raise TypeError(
-                            "The invalid type of value was put into 'sum_morbs[%s]'. It should be list type." % elt
+                            f"The invalid type of value was put into 'sum_morbs[{elt}]'. It should be list type."
                         )
                     if elt not in dictio.keys():
                         raise ValueError(
@@ -1810,7 +1804,7 @@ class BSPlotterProjected(BSPlotter):
                             "mentioned in 'dictio'." % elt
                         )
                 else:
-                    raise KeyError("The invalid element was put into 'sum_morbs' as a key: %s" % elt)
+                    raise KeyError(f"The invalid element was put into 'sum_morbs' as a key: {elt}")
 
         for elt in dictio:
             if len(dictio[elt]) == 1:
@@ -1824,10 +1818,10 @@ class BSPlotterProjected(BSPlotter):
                     if sum_morbs is None:
                         pass
                     elif elt not in sum_morbs.keys():
-                        print("You do not want to sum projection over orbitals of element: %s" % elt)
+                        print(f"You do not want to sum projection over orbitals of element: {elt}")
                     else:
                         if len(sum_morbs[elt]) == 0:
-                            raise ValueError("The empty list is an invalid value for sum_morbs[%s]." % elt)
+                            raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
                         if len(sum_morbs[elt]) > 1:
                             for orb in sum_morbs[elt]:
                                 if dictio[elt][0] not in orb:
@@ -1849,10 +1843,10 @@ class BSPlotterProjected(BSPlotter):
                 if sum_morbs is None:
                     pass
                 elif elt not in sum_morbs.keys():
-                    print("You do not want to sum projection over orbitals of element: %s" % elt)
+                    print(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
-                        raise ValueError("The empty list is an invalid value for sum_morbs[%s]." % elt)
+                        raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
                     if len(sum_morbs[elt]) == 1:
                         orb = sum_morbs[elt][0]
                         if orb == "s":
@@ -1864,7 +1858,7 @@ class BSPlotterProjected(BSPlotter):
                             for o in individual_orbs[orb]:
                                 sum_morbs[elt].append(o)
                         else:
-                            raise ValueError("You never sum projection over one orbital in sum_morbs[%s]" % elt)
+                            raise ValueError(f"You never sum projection over one orbital in sum_morbs[{elt}]")
                     else:
                         duplicate = copy.deepcopy(sum_morbs[elt])
                         for orb in sum_morbs[elt]:
@@ -1893,7 +1887,7 @@ class BSPlotterProjected(BSPlotter):
             if Element.is_valid_symbol(elt):
                 if isinstance(dictpa[elt], list):
                     if len(dictpa[elt]) == 0:
-                        raise ValueError("The dictpa[%s] is empty. We cannot do anything" % elt)
+                        raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
@@ -1903,33 +1897,31 @@ class BSPlotterProjected(BSPlotter):
                         if isinstance(number, str):
                             if number.lower() == "all":
                                 dictpa[elt] = indices
-                                print("You want to consider all '%s' atoms." % elt)
+                                print(f"You want to consider all '{elt}' atoms.")
                                 break
 
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                         if isinstance(number, int):
                             if number not in indices:
-                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
+                                raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                         else:
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {str(number)}.")
+                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                     nelems = Counter(dictpa[elt]).values()
                     if sum(nelems) > len(nelems):
-                        raise ValueError("You put at least two similar site numbers into 'dictpa[%s]'." % elt)
+                        raise ValueError(f"You put at least two similar site numbers into 'dictpa[{elt}]'.")
                 else:
-                    raise TypeError(
-                        "The invalid type of value was put into 'dictpa[%s]'. It should be list type." % elt
-                    )
+                    raise TypeError(f"The invalid type of value was put into 'dictpa[{elt}]'. It should be list type.")
             else:
-                raise KeyError("The invalid element was put into 'dictpa' as a key: %s" % elt)
+                raise KeyError(f"The invalid element was put into 'dictpa' as a key: {elt}")
 
         if len(list(dictio.keys())) != len(list(dictpa.keys())):
             raise KeyError("The number of keys in 'dictio' and 'dictpa' are not the same.")
         for elt in dictio.keys():
             if elt not in dictpa.keys():
-                raise KeyError("The element '%s' is not in both dictpa and dictio." % elt)
+                raise KeyError(f"The element '{elt}' is not in both dictpa and dictio.")
         for elt in dictpa.keys():
             if elt not in dictio.keys():
-                raise KeyError("The element '%s' in not in both dictpa and dictio." % elt)
+                raise KeyError(f"The element '{elt}' in not in both dictpa and dictio.")
 
         if sum_atoms is None:
             print("You do not want to sum projection over atoms.")
@@ -1942,7 +1934,7 @@ class BSPlotterProjected(BSPlotter):
                 if Element.is_valid_symbol(elt):
                     if isinstance(sum_atoms[elt], list):
                         if len(sum_atoms[elt]) == 0:
-                            raise ValueError("The sum_atoms[%s] is empty. We cannot do anything" % elt)
+                            raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):  # pylint: disable=C0200
@@ -1952,25 +1944,25 @@ class BSPlotterProjected(BSPlotter):
                             if isinstance(number, str):
                                 if number.lower() == "all":
                                     sum_atoms[elt] = indices
-                                    print("You want to sum projection over all '%s' atoms." % elt)
+                                    print(f"You want to sum projection over all '{elt}' atoms.")
                                     break
-                                raise ValueError("You put wrong site numbers in 'sum_atoms[%s]'." % elt)
+                                raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                             if isinstance(number, int):
                                 if number not in indices:
-                                    raise ValueError("You put wrong site numbers in 'sum_atoms[%s]'." % elt)
+                                    raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                                 if number not in dictpa[elt]:
                                     raise ValueError(
                                         "You cannot sum projection with atom number '%s' because it is not "
-                                        "metioned in dicpta[%s]" % (str(number), elt)
+                                        "mentioned in dicpta[%s]" % (str(number), elt)
                                     )
                             else:
-                                raise ValueError("You put wrong site numbers in 'sum_atoms[%s]'." % elt)
+                                raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                         nelems = Counter(sum_atoms[elt]).values()
                         if sum(nelems) > len(nelems):
-                            raise ValueError("You put at least two similar site numbers into 'sum_atoms[%s]'." % elt)
+                            raise ValueError(f"You put at least two similar site numbers into 'sum_atoms[{elt}]'.")
                     else:
                         raise TypeError(
-                            "The invalid type of value was put into 'sum_atoms[%s]'. It should be list type." % elt
+                            f"The invalid type of value was put into 'sum_atoms[{elt}]'. It should be list type."
                         )
                     if elt not in dictpa.keys():
                         raise ValueError(
@@ -1978,9 +1970,9 @@ class BSPlotterProjected(BSPlotter):
                             "mentioned in 'dictio'." % elt
                         )
                 else:
-                    raise KeyError("The invalid element was put into 'sum_atoms' as a key: %s" % elt)
+                    raise KeyError(f"The invalid element was put into 'sum_atoms' as a key: {elt}")
                 if len(sum_atoms[elt]) == 1:
-                    raise ValueError("We do not sum projection over only one atom: %s" % elt)
+                    raise ValueError(f"We do not sum projection over only one atom: {elt}")
 
         max_number_figs = 0
         decrease = 0
@@ -2208,7 +2200,7 @@ class BSPlotterProjected(BSPlotter):
                     uniq_d.append(t[0])
                     uniq_l.append(t[1])
 
-        logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
+        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
         plt.gca().set_xticklabels(uniq_l)
 
@@ -2217,7 +2209,7 @@ class BSPlotterProjected(BSPlotter):
                 # don't print the same label twice
                 if i != 0:
                     if n_ticks["label"][i] == n_ticks["label"][i - 1]:
-                        logger.debug("already print label... skipping label {i}".format(i=n_ticks["label"][i]))
+                        logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
                     else:
                         logger.debug(
                             "Adding a line at {d}"
@@ -2225,9 +2217,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                         plt.axvline(n_ticks["distance"][i], color="k")
                 else:
-                    logger.debug(
-                        "Adding a line at {d} for label {l}".format(d=n_ticks["distance"][i], l=n_ticks["label"][i])
-                    )
+                    logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
                     plt.axvline(n_ticks["distance"][i], color="k")
 
         shift = []
@@ -3681,7 +3671,7 @@ class CohpPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self._cohps = OrderedDict()
+        self._cohps = {}
 
     def add_cohp(self, label, cohp):
         """
@@ -3914,7 +3904,7 @@ def plot_fermi_surface(
     transparency_factor=None,
     labels_scale_factor=0.05,
     points_scale_factor=0.02,
-    interative=True,
+    interactive=True,
 ):
     """
     Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
@@ -3954,7 +3944,7 @@ def plot_fermi_surface(
             surface.
         labels_scale_factor (float): factor to tune size of the kpoint labels
         points_scale_factor (float): factor to tune size of the kpoint points
-        interative (bool): if True an interactive figure will be shown.
+        interactive (bool): if True an interactive figure will be shown.
             If False a non interactive figure will be shown, but it is possible
             to plot other surfaces on the same figure. To make it interactive,
             run mlab.show().
@@ -4094,7 +4084,7 @@ def plot_fermi_surface(
         # mlab.view(distance='auto')
         fig.scene.isometric_view()
 
-    if interative:
+    if interactive:
         mlab.show()
 
     return fig, mlab

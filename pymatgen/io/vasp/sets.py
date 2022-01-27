@@ -56,6 +56,7 @@ from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
@@ -79,19 +80,16 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def incar(self):
         """Incar object"""
-        pass
 
     @property
     @abc.abstractmethod
     def kpoints(self):
         """Kpoints object"""
-        pass
 
     @property
     @abc.abstractmethod
     def poscar(self):
         """Poscar object"""
-        pass
 
     @property
     def potcar_symbols(self):
@@ -254,7 +252,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 
 def _load_yaml_config(fname):
-    config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
+    config = loadfn(str(MODULE_DIR / (f"{fname}.yaml")))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -504,12 +502,6 @@ class DictSet(VaspInputSet):
             if k == "MAGMOM":
                 mag = []
                 for site in structure:
-                    if v and not isinstance(v, dict):
-                        raise TypeError(
-                            "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                            "If you want site-specific magnetic moments, set them in the site magmom properties "
-                            "of the site objects in the structure."
-                        )
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, "spin"):
@@ -780,12 +772,12 @@ class DictSet(VaspInputSet):
 
     def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
         """
-        Calculates the NGX, NGY, and NGZ values using the information availible in the INCAR and POTCAR
+        Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
 
         Args:
             max_prime_factor (int): the valid prime factors of the grid size in each direction
-                                    VASP has many different setting for this to handel many compiling options.
+                                    VASP has many different setting for this to handle many compiling options.
                                     For typical MPI options all prime factors up to 7 are allowed
         """
 
@@ -795,7 +787,7 @@ class DictSet(VaspInputSet):
         _AUTOA = 0.529177249
         _PI = 3.141592653589793238
 
-        # TODO Only do this for VASP 6 for now. Older version require more advanced logitc
+        # TODO Only do this for VASP 6 for now. Older version require more advanced logic
 
         # get the ENCUT val
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
@@ -2904,7 +2896,7 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     outcars = list(glob.glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
-        raise ValueError("Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % path)
+        raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
     vsfile_fullpath = str(path / "vasprun.xml")
     outcarfile_fullpath = str(path / "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
@@ -2994,8 +2986,6 @@ class BadInputSetWarning(UserWarning):
     Warning class for bad but legal inputs.
     """
 
-    pass
-
 
 def batch_write_input(
     structures,
@@ -3070,7 +3060,7 @@ _dummy_structure = Structure(
 
 def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     """
-    Make sure that the structure has valid magmoms based on the kind of caculation
+    Make sure that the structure has valid magmoms based on the kind of calculation
     Fill in missing Magmom values
 
     Args:

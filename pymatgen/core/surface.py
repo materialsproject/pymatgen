@@ -320,7 +320,7 @@ class Slab(Structure):
             # Check for inversion symmetry. Or if sites from surface (a) can be translated
             # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
             # two surfaces of our slabs are always parallel to the (hkl) plane,
-            # any operation where theres an (hkl) mirror plane has surface symmetry
+            # any operation where there's an (hkl) mirror plane has surface symmetry
             return True
         return False
 
@@ -470,14 +470,14 @@ class Slab(Structure):
     def __str__(self):
         comp = self.composition
         outs = [
-            "Slab Summary (%s)" % comp.formula,
-            "Reduced Formula: %s" % comp.reduced_formula,
+            f"Slab Summary ({comp.formula})",
+            f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor.__str__()}",
         ]
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
@@ -578,7 +578,7 @@ class Slab(Structure):
             # species, eg. bond distance of each neighbor or neighbor species. The
             # decimal place to get some cn to be equal.
             cn = v.get_cn(ucell, i, use_weights=True)
-            cn = float("%.5f" % (round(cn, 5)))
+            cn = float(f"{round(cn, 5):.5f}")
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
@@ -592,7 +592,7 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = float("%.5f" % (round(v.get_cn(self, i, use_weights=True), 5)))
+                cn = float(f"{round(v.get_cn(self, i, use_weights=True), 5):.5f}")
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
@@ -633,7 +633,7 @@ class Slab(Structure):
         for op in ops:
             slab = self.copy()
             site2 = op.operate(point)
-            if "%.6f" % (site2[2]) == "%.6f" % (point[2]):
+            if f"{site2[2]:.6f}" == f"{point[2]:.6f}":
                 continue
 
             # Add dummy site to check the overall structure is symmetric
@@ -724,7 +724,7 @@ class Slab(Structure):
 class SlabGenerator:
     """
     This class generates different slabs using shift values determined by where
-    a unique termination can be found along with other criterias such as where a
+    a unique termination can be found along with other criteria such as where a
     termination doesn't break a polyhedral bond. The shift value then indicates
     where the slab layer will begin and terminate in the slab-vacuum system.
 
@@ -844,7 +844,7 @@ class SlabGenerator:
 
         slab_scale_factor = []
         non_orth_ind = []
-        eye = np.eye(3, dtype=np.int_)
+        eye = np.eye(3, dtype=int)
         for i, j in enumerate(miller_index):
             if j == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,
@@ -862,7 +862,7 @@ class SlabGenerator:
         c_index, dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
-            lcm_miller = lcm(*[miller_index[i] for i, d in non_orth_ind])
+            lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
             for (i, di), (j, dj) in itertools.combinations(non_orth_ind, 2):
                 l = [0, 0, 0]
                 l[i] = -int(round(lcm_miller / miller_index[i]))
@@ -1115,7 +1115,7 @@ class SlabGenerator:
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
-            tol (float): General tolerance paramter for getting primitive
+            tol (float): General tolerance parameter for getting primitive
                 cells and matching structures
             ftol (float): Threshold parameter in fcluster in order to check
                 if two atoms are lying on the same plane. Default thresh set
@@ -1415,7 +1415,7 @@ class ReconstructionGenerator:
                         Indicates what kind of structure is this reconstruction.
                     "miller_index" ([h,k,l]): Miller index of your reconstruction
                     "Woods_notation" (str): For a reconstruction, the a and b
-                        lattice may change to accomodate the symmetry of the
+                        lattice may change to accommodate the symmetry of the
                         reconstruction. This notation indicates the change in
                         the vectors relative to the primitive (p) or
                         conventional (c) slab cell. E.g. p(2x1):
@@ -1579,7 +1579,7 @@ def get_d(slab):
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for i, site in enumerate(sorted_sites):
-        if not "%.6f" % (site.frac_coords[2]) == "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
+        if not f"{site.frac_coords[2]:.6f}" == f"{sorted_sites[i + 1].frac_coords[2]:.6f}":
             d = abs(site.frac_coords[2] - sorted_sites[i + 1].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
@@ -1768,7 +1768,7 @@ def generate_all_slabs(
             specified as a dict of tuples: float of specie1, specie2
             and the max bonding distance. For example, PO4 groups may be
             defined as {("P", "O"): 3}.
-        tol (float): General tolerance paramter for getting primitive
+        tol (float): General tolerance parameter for getting primitive
             cells and matching structures
         ftol (float): Threshold parameter in fcluster in order to check
             if two atoms are lying on the same plane. Default thresh set
@@ -1829,7 +1829,7 @@ def generate_all_slabs(
         )
 
         if len(slabs) > 0:
-            logger.debug("%s has %d slabs... " % (miller, len(slabs)))
+            logger.debug(f"{miller} has {len(slabs)} slabs... ")
             all_slabs.extend(slabs)
 
     if include_reconstructions:

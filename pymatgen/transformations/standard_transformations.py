@@ -196,7 +196,6 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         """
         No arg needed.
         """
-        pass
 
     def apply_transformation(self, structure):  # pylint: disable=R0201
         """
@@ -577,7 +576,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {"%s0+" % k.symbol: v for k, v in site.species.items()}
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}
 
         equivalent_sites = []
         exemplars = []
@@ -885,7 +884,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return self._deform.apply_to_structure(structure)
 
     def __str__(self):
-        return "DeformStructureTransformation : " + f"Deformation = {str(self.deformation)}"
+        return f"DeformStructureTransformation : Deformation = {self.deformation}"
 
     def __repr__(self):
         return self.__str__()
@@ -1010,7 +1009,7 @@ class ChargedCellTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Structure with charge " + f"{self.charge}"
+        return f"Structure with charge {self.charge}"
 
     def __repr__(self):
         return self.__str__()
@@ -1086,7 +1085,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         params = list(structure.lattice.abc)
         params.extend(structure.lattice.angles)
-        new_lattice = Lattice.from_parameters(*[p * self.params_percent_change[i] for i, p in enumerate(params)])
+        new_lattice = Lattice.from_parameters(*(p * self.params_percent_change[i] for i, p in enumerate(params)))
         species, frac_coords = [], []
         for site in self.relaxed_structure:
             species.append(s_map[site.specie])

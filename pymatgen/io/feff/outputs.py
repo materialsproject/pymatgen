@@ -10,7 +10,7 @@ Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 
 
 import re
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 
 import numpy as np
 from monty.io import zopen
@@ -157,14 +157,14 @@ class LDos(MSONable):
 
         Args:
             feff_inp_file (str): name of feff.inp file for run
-            ldos_file (str): ldos filename for run, assume consequetive order,
+            ldos_file (str): ldos filename for run, assume consecutive order,
                 i.e., ldos01.dat, ldos02.dat....
 
         Returns:
             dictionary of dictionaries in order of potential sites
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         """
-        cht = OrderedDict()
+        cht = {}
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:

@@ -7,8 +7,8 @@ import unittest
 import warnings
 from pathlib import Path
 
-import pytest  # type: ignore
 import numpy as np
+import pytest  # type: ignore
 from monty.os.path import which
 
 from pymatgen.core.composition import Composition
@@ -406,8 +406,6 @@ class IStructureTest(PymatgenTest):
         coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
         s = Structure(Lattice.from_parameters(1, 2, 3, 50, 66, 88), ["Ag"] * 2, coords)
 
-        a = [[-1, 2, -3], [3, 2, -4], [1, 0, -1]]
-        b = [[4, 0, 0], [1, 1, 0], [3, 0, 1]]
         c = [[2, 0, 0], [1, 3, 0], [1, 1, 1]]
 
         for sc_matrix in [c]:
@@ -966,6 +964,10 @@ class StructureTest(PymatgenTest):
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
 
+    def test_default_dict_attrs(self):
+        d = self.structure.as_dict()
+        self.assertEqual(d["charge"], 0)
+
     def test_to_from_abivars(self):
         """Test as_dict, from_dict with fmt == abivars."""
         d = self.structure.as_dict(fmt="abivars")
@@ -1194,7 +1196,7 @@ class StructureTest(PymatgenTest):
             "Initial Structure not defaulting to behavior in SiteCollection",
         )
         s = Structure.from_sites(s, charge=1)
-        self.assertEqual(s.charge, 1, "Overall charge not being stored in seperate property")
+        self.assertEqual(s.charge, 1, "Overall charge not being stored in separate property")
         s = s.copy()
         self.assertEqual(s.charge, 1, "Overall charge not being copied properly with no sanitization")
         s = s.copy(sanitize=True)
@@ -1471,6 +1473,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol[0].magmom, 0.5)
         self.assertEqual(mol.formula, "H4 C1")
         self.assertEqual(mol.charge, 1)
+
+    def test_default_dict_attrs(self):
+        d = self.mol.as_dict()
+        self.assertEqual(d["charge"], 0)
+        self.assertEqual(d["spin_multiplicity"], 1)
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03", "yaml"]:

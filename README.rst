@@ -1,12 +1,14 @@
-.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
+.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml/badge.svg
       :alt: CI Status
-      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml
-
-.. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
+      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
+.. image:: https://img.shields.io/pypi/dm/pymatgen?style=flat&color=blue&label=PyPI%20Downloads
+      :alt: PyPI Downloads
+      :target: https://pypi.org/project/pymatgen
+.. image:: https://img.shields.io/conda/dn/conda-forge/pymatgen?style=flat&color=blue&label=Conda%20Downloads
       :alt: Conda Downloads
-
-.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
-      :alt: Coveralls Coverage Report
+      :target: https://anaconda.org/conda-forge/pymatgen
+.. image:: https://img.shields.io/coveralls/github/materialsproject/pymatgen?style=flat&label=Coverage
+      :alt: Coveralls
       :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library

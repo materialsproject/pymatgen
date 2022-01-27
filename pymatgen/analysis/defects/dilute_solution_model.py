@@ -139,7 +139,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                 dC[i,k,k] = 0 due to no effect on ith type atom
                 dC[i,j,k] = 0 if i!=j!=k
     """
-    dC = np.zeros((n, n, n), dtype=np.int_)
+    dC = np.zeros((n, n, n), dtype=int)
     for i in range(n):
         for j in range(n):
             for k in range(n):
@@ -506,7 +506,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         res.append(res1)
 
     res = np.array(res)
-    dtype = [("x", np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n) for j in range(n)]
+    dtype = [("x", np.float64)] + [(f"y{i}{j}", np.float64) for i in range(n) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
     conc_data = {}
@@ -852,7 +852,7 @@ def solute_site_preference_finder(
                 dC[i,k,k] = 0 due to no effect on ith type atom
                 dC[i,j,k] = 0 if i!=j!=k
     """
-    dC = np.zeros((n + 1, n + 1, n), dtype=np.int_)
+    dC = np.zeros((n + 1, n + 1, n), dtype=int)
     for i in range(n):
         for j in range(n):
             for k in range(n):
@@ -1165,7 +1165,7 @@ def solute_site_preference_finder(
         res.append(res1)
 
     res = np.array(res)
-    dtype = [("x", np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n + 1) for j in range(n)]
+    dtype = [("x", np.float64)] + [(f"y{i}{j}", np.float64) for i in range(n + 1) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
     conc = []
