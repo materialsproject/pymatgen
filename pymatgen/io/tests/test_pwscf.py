@@ -156,6 +156,59 @@ CELL_PARAMETERS angstrom
 """
         self.assertEqual(pw.__str__().strip(), ans.strip())
 
+    def test_write_str_with_kpoints(self):
+        s = self.get_structure("Li2O")
+        s.remove_oxidation_states()
+        kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
+        pw = PWInput(
+            s,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            kpoints_mode="crystal_b",
+            kpoints_grid=kpoints,
+        )
+        ans = """
+&CONTROL
+  calculation = 'scf',
+  pseudo_dir = './',
+/
+&SYSTEM
+  ecutwfc = 50,
+  ibrav = 0,
+  nat = 3,
+  ntyp = 2,
+/
+&ELECTRONS
+/
+&IONS
+/
+&CELL
+/
+ATOMIC_SPECIES
+  Li  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
+  O  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+ATOMIC_POSITIONS crystal
+  O 0.000000 0.000000 0.000000
+  Li 0.750178 0.750178 0.750178
+  Li 0.249822 0.249822 0.249822
+K_POINTS crystal_b
+ 5
+ 0.0000 0.0000 0.0000
+ 0.0000 0.5000 0.5000
+ 0.5000 0.0000 0.0000
+ 0.0000 0.0000 0.5000
+ 0.5000 0.5000 0.5000
+CELL_PARAMETERS angstrom
+  2.917389 0.097894 1.520005
+  0.964634 2.755036 1.520005
+  0.133206 0.097894 3.286918
+"""
+        self.assertEqual(pw.__str__().strip(), ans.strip())
+
     def test_read_str(self):
         string = """
 &CONTROL
