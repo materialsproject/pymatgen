@@ -3,7 +3,6 @@
 
 
 import pickle
-import timeit
 
 import numpy as np
 

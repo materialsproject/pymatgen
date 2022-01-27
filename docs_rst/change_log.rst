@@ -11,7 +11,7 @@ v2022.1.20
 * YAML deprecation fixes. (@janosh)
 * ASE adaptor support for charge, spin multiiciplity and site properties of molecules. (@arosen93).
 * New keyword option (`keep_site_properties`) in various `structure.symmetry.analyzer` functions to keep the site properties on the sites after a transformation. (@arosen93)
-* Bug fixes for Lobster module (@JaGeo). 
+* Bug fixes for Lobster module (@JaGeo).
 * SCAN / GGA(+U) mixing scheme (@rkingsbury). Mixing scheme code lives in the new file `mixing_scheme.py` and is implemented as a `Compatibility` class.
 * Fix for parsing of QuantumExpresso files due to new format (@vorwerkc)
 
@@ -781,7 +781,7 @@ v2018.9.30
 * Fix: Outcar parsing issues with certain values of electrostatic potential (@sivonxay)
 * Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
   stoichiometries in some instances (#1286) (@shyuep)
-* Fix: fractional co-ordinate finite precision errors in CifParser, now
+* Fix: fractional coordinate finite precision errors in CifParser, now
   also includes additional warnings for implicit hydrogens (@mkhorton)
 * New features and improvements to GBGenerator (@ucsdlxg, @shyuep)
 * New analysis options in StructureGraph, speed up tests (@mkhorton)

@@ -16,7 +16,27 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.transformations.standard_transformations import *
+from pymatgen.transformations.standard_transformations import (
+    AutoOxiStateDecorationTransformation,
+    ChargedCellTransformation,
+    ConventionalCellTransformation,
+    DeformStructureTransformation,
+    DiscretizeOccupanciesTransformation,
+    EwaldSummation,
+    Fraction,
+    OrderDisorderedStructureTransformation,
+    OxidationStateDecorationTransformation,
+    OxidationStateRemovalTransformation,
+    PartialRemoveSpecieTransformation,
+    PerturbStructureTransformation,
+    PrimitiveCellTransformation,
+    RemoveSpeciesTransformation,
+    RotationTransformation,
+    ScaleToRelaxedTransformation,
+    Structure,
+    SubstitutionTransformation,
+    SupercellTransformation,
+)
 from pymatgen.util.testing import PymatgenTest
 
 

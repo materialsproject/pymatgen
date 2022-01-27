@@ -4,7 +4,6 @@
 __author__ = "waroquiers"
 
 import os
-import shutil
 import unittest
 
 from monty.tempfile import ScratchDir

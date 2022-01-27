@@ -2205,7 +2205,7 @@ class IStructure(SiteCollection, MSONable):
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "charge": self._charge,
+            "charge": self.charge,
             "lattice": latt_dict,
             "sites": [],
         }
@@ -2305,7 +2305,7 @@ class IStructure(SiteCollection, MSONable):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
-                    f.write(f"{s}")
+                    f.write(s)
             return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
@@ -2793,8 +2793,8 @@ class IMolecule(SiteCollection, MSONable):
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "charge": self._charge,
-            "spin_multiplicity": self._spin_multiplicity,
+            "charge": self.charge,
+            "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
         }
         for site in self:

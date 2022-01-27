@@ -1859,7 +1859,7 @@ class NanoscaleStability:
     def scaled_wulff(self, wulffshape, r):
         """
         Scales the Wulff shape with an effective radius r. Note that the resulting
-            Wulff does not neccesarily have the same effective radius as the one
+            Wulff does not necessarily have the same effective radius as the one
             provided. The Wulff shape is scaled by its surface energies where first
             the surface energies are scale by the minimum surface energy and then
             multiplied by the given effective radius.

@@ -13,7 +13,6 @@ import numpy as np
 from monty.serialization import loadfn, dumpfn
 from monty.tempfile import ScratchDir
 
-from pymatgen.core import SETTINGS
 from pymatgen.analysis.pourbaix_diagram import (
     IonEntry,
     MultiEntry,

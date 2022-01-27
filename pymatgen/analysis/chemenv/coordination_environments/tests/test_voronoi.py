@@ -5,7 +5,6 @@ __author__ = "waroquiers"
 
 import os
 import random
-import shutil
 import unittest
 
 import numpy as np
