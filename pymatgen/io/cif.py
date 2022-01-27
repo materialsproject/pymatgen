@@ -70,13 +70,10 @@ class CifBlock:
     def __init__(self, data, loops, header):
         """
         Args:
-            data: dict or OrderedDict of data to go into the cif. Values should
-                    be convertible to string, or lists of these if the key is
-                    in a loop
-            loops: list of lists of keys, grouped by which loop they should
-                    appear in
-            header: name of the block (appears after the data_ on the first
-                line)
+            data: dict of data to go into the cif. Values should be convertible to string,
+                or lists of these if the key is in a loop
+            loops: list of lists of keys, grouped by which loop they should appear in
+            header: name of the block (appears after the data_ on the first line)
         """
         self.loops = loops
         self.data = data
@@ -241,7 +238,7 @@ class CifFile:
     def __init__(self, data, orig_string=None, comment=None):
         """
         Args:
-            data (OrderedDict): Of CifBlock objects.å
+            data (dict): Of CifBlock objects.
             orig_string (str): The original cif string.
             comment (str): Comment string.
         """
@@ -517,8 +514,7 @@ class CifParser:
                 "_atom_site_moment_label",
             ]
 
-            # cannot mutate OrderedDict during enumeration,
-            # so store changes we want to make
+            # cannot mutate dict during enumeration, so store changes we want to make
             changes_to_make = {}
 
             for original_key in data.data:

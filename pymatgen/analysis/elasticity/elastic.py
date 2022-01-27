@@ -981,8 +981,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
         sort (bool): flag for whether to sort strain states
 
     Returns:
-        OrderedDict with strain state keys and dictionaries
-        with stress-strain data corresponding to strain state
+        dict: strain state keys and dictionaries with stress-strain data corresponding to strain state
     """
     # Recast stress/strains
     vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])  # pylint: disable=E1101

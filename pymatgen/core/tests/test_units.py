@@ -2,8 +2,6 @@
 # Distributed under the terms of the MIT License.
 
 
-import collections
-
 from pymatgen.core.units import (
     ArrayWithUnit,
     Energy,
@@ -113,7 +111,7 @@ class FloatWithUnitTest(PymatgenTest):
             return d
 
         self.assertEqual(str(h()[1]), "20.0 pm")
-        self.assertIsInstance(h(), collections.OrderedDict)
+        self.assertIsInstance(h(), dict)
 
         @unitized("kg")
         def i():

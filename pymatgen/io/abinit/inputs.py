@@ -774,7 +774,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         JSON interface used in pymatgen for easier serialization.
         """
-        # Use a list of (key, value) to serialize the OrderedDict
+        # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
             if isinstance(value, np.ndarray):

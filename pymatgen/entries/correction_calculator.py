@@ -5,7 +5,6 @@ entries given to the CorrectionCalculator constructor.
 
 import os
 import warnings
-from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -478,7 +477,6 @@ class CorrectionCalculator:
             path = fn
 
         yml = yaml.YAML()
-        yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
         yml.default_flow_style = False
         contents = yml.load(outline)
 
