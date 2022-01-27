@@ -1824,7 +1824,7 @@ class Lattice(MSONable):
 
         return recp_symmops
 
-    def get_weighted_average_position(self, frac_positions: ArrayLike, weights: ArrayLike) -> np.ndarray:
+    def get_weighted_average_position(self, frac_positions: ArrayLike, weights: ArrayLike = None) -> np.ndarray:
         """
         Get the weighted average position of a set of positions in fractional coordinates.
         The algorithm starts at position with the highest weight, and gradually moves the average point
@@ -1842,6 +1842,8 @@ class Lattice(MSONable):
             (3x1 array): The weighted average position in fractional coordinates.
         """
 
+        if weights is None:
+            weights = [1.0] * len(frac_positions)
         if len(frac_positions) != len(weights):
             raise ValueError("The number of positions and weights must be the same.")
         # TODO: can be replaced with the zip(..., strict=True) syntax in Python 3.10

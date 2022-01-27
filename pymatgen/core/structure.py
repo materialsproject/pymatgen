@@ -641,7 +641,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             The weighted average position of the sites.
         """
         if weights is None:
-            weights = [1] * len(site_indices)
+            weights = [1.0] * len(site_indices)
         elif len(weights) != len(site_indices):
             raise ValueError("Length of weights must be the same as the length of site_indices")
         return np.average([self[i].coords for i in site_indices], axis=0, weights=weights)

@@ -643,6 +643,22 @@ Direct
         self.assertEqual(s, self.struct)
         os.remove("POSCAR.testing.gz")
 
+    def test_get_average_position(self):
+        # frac coords
+        s = Structure(
+            lattice=Lattice.hexagonal(10, 20),
+            species=["Si", "Si", "Si", "Si"],
+            coords=[[0.6, 0.7, 0.5], [0.9, 0.8, 0.5], [0.1, 0.2, 0.5], [0.1, 0.95, 0.5]],
+        )
+        p_guess = s.get_average_position(site_indices=[0, 1, 2, 3])
+        ref = np.sum([[0.6, 0.7, 0.5], [0.9, 0.8, 0.5], [1.1, 1.2, 0.5], [1.1, 0.95, 0.5]], axis=0) / 4
+        np.testing.assert_array_almost_equal(p_guess, ref)
+
+        # cartesian coords
+        p_guess = s.get_average_position(site_indices=[0, 1, 2, 3], cartesian=True)
+        ref = np.average(s.cart_coords, axis=0)
+        np.testing.assert_array_almost_equal(p_guess, ref)
+
 
 class StructureTest(PymatgenTest):
     def setUp(self):
