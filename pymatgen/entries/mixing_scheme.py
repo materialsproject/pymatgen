@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -9,20 +8,24 @@ functionals.
 import os
 import warnings
 from itertools import groupby
-from typing import Optional, Union, List
-import pandas as pd
+from typing import List, Optional, Union
 
 import numpy as np
+import pandas as pd
 
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.entries.compatibility import (
+    Compatibility,
+    CompatibilityError,
+    MaterialsProject2020Compatibility,
+)
 from pymatgen.entries.computed_entries import (
     ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
-from pymatgen.entries.compatibility import Compatibility, CompatibilityError, MaterialsProject2020Compatibility
+from pymatgen.entries.entry_tools import EntrySet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -71,7 +74,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
                 The list of run_type_1 entries provided to process_entries MUST form a complete
                 Phase Diagram in order for the mixing scheme to work. If this condition is not
-                satisifed, processing the entries will fail.
+                satisfied, processing the entries will fail.
 
                 Note that the special string "GGA(+U)" (default) will treat both GGA and GGA+U
                 calculations as a single type. This option exists because GGA/GGA+U mixing is
@@ -87,7 +90,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             fuzzy_matching: Whether to use less strict structure matching logic for
                 diatomic elements O2, N2, F2, H2, and Cl2 as well as I and Br. Outputs of DFT
                 relaxations using
-                different functionals frequently fail to struture match for these elements
+                different functionals frequently fail to structure match for these elements
                 even though they come from the same original material. Fuzzy structure matching
                 considers the materials equivalent if the formula, number of sites, and
                 space group are all identical. If there are multiple materials of run_type_2
@@ -158,7 +161,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
-            warnings.warn("{} cannot process single entries. Supply a list of entries.".format(self.__class__.__name__))
+            warnings.warn(f"{self.__class__.__name__} cannot process single entries. Supply a list of entries.")
             return processed_entry_list
 
         # if clean is True, remove all previous adjustments from the entry
@@ -443,7 +446,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"because there are no {self.run_type_2} ground states at this composition."
             )
 
-        # this statement is here to make pylint happy by gauranteeing a return or raise
+        # this statement is here to make pylint happy by guaranteeing a return or raise
         else:
             raise CompatibilityError(
                 "WARNING! If you see this Exception it means you have encountered"
@@ -659,7 +662,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             chemsys = entries_type_2.chemsys
 
         if verbose:
-            print("  Entries belong to the {} chemical system".format(chemsys))
+            print(f"  Entries belong to the {chemsys} chemical system")
 
         return list(entries_type_1), list(entries_type_2)
 
@@ -671,21 +674,21 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # within the group of matched structures, keep the lowest energy entry from
         # each run_type
         entries_type_1 = sorted(
-            [
+            (
                 e
                 for e in all_entries
                 if e.entry_id in [s.entry_id for s in struct_group] and e.parameters["run_type"] in self.valid_rtypes_1
-            ],
+            ),
             key=lambda x: x.energy_per_atom,
         )
         first_entry = entries_type_1[0] if len(entries_type_1) > 0 else None
 
         entries_type_2 = sorted(
-            [
+            (
                 e
                 for e in all_entries
                 if e.entry_id in [s.entry_id for s in struct_group] and e.parameters["run_type"] in self.valid_rtypes_2
-            ],
+            ),
             key=lambda x: x.energy_per_atom,
         )
         second_entry = entries_type_2[0] if len(entries_type_2) > 0 else None

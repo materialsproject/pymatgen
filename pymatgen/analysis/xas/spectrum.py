@@ -5,9 +5,8 @@
 This module defines classes to represent all xas and stitching methods
 """
 import math
-import sys
 import warnings
-from typing import List
+from typing import List, Literal
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -15,11 +14,6 @@ from scipy.interpolate import interp1d
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"

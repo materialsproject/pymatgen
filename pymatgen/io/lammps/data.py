@@ -19,16 +19,15 @@ more info.
 import itertools
 import re
 import warnings
-from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
 
-from ruamel.yaml import YAML
 import numpy as np
 import pandas as pd
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
@@ -371,9 +370,9 @@ class LammpsData(MSONable):
 """
         box = self.box.get_string(distance)
 
-        body_dict = OrderedDict()
+        body_dict = {}
         body_dict["Masses"] = self.masses
-        types = OrderedDict()
+        types = {}
         types["atom"] = len(self.masses)
         if self.force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
@@ -384,7 +383,7 @@ class LammpsData(MSONable):
                     types[kw.lower()[:-7]] = len(self.force_field[kw])
 
         body_dict["Atoms"] = self.atoms
-        counts = OrderedDict()
+        counts = {}
         counts["atoms"] = len(self.atoms)
         if self.velocities is not None:
             body_dict["Velocities"] = self.velocities
@@ -564,12 +563,12 @@ class LammpsData(MSONable):
             atomic_numbers = np.argmin(diff, axis=1) + 1
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
         else:
-            symbols = ["Q%s" % a for a in map(chr, range(97, 97 + len(unique_masses)))]
+            symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
             for el, vc in masses["element"].value_counts().iteritems():
-                masses.loc[masses["element"] == el, "label"] = ["%s%d" % (el, c) for c in range(1, vc + 1)]
+                masses.loc[masses["element"] == el, "label"] = [f"{el}{c}" for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
@@ -708,11 +707,11 @@ class LammpsData(MSONable):
                     if line.strip()
                 ]
                 df = pd.concat(df_list, ignore_index=True)
-                names = ["id"] + ["coeff%d" % i for i in range(1, df.shape[1])]
+                names = ["id"] + [f"coeff{i}" for i in range(1, df.shape[1])]
             else:
                 df = pd.read_csv(sio, header=None, comment="#", delim_whitespace=True)
                 if kw == "PairIJ Coeffs":
-                    names = ["id1", "id2"] + ["coeff%d" % i for i in range(1, df.shape[1] - 1)]
+                    names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df.shape[1] - 1)]
                     df.index.name = None  # pylint: disable=E1101
                 elif kw in SECTION_HEADERS:
                     names = ["id"] + SECTION_HEADERS[kw]
@@ -723,9 +722,9 @@ class LammpsData(MSONable):
                     elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
-                        raise ValueError("Format in Atoms section inconsistent with atom_style %s" % atom_style)
+                        raise ValueError(f"Format in Atoms section inconsistent with atom_style {atom_style}")
                 else:
-                    raise NotImplementedError("Parser for %s section not implemented" % kw)
+                    raise NotImplementedError(f"Parser for {kw} section not implemented")
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
@@ -745,7 +744,7 @@ class LammpsData(MSONable):
             if (
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
-                raise RuntimeError(err_msg + "%s section appears before Atoms section" % name)
+                raise RuntimeError(err_msg + f"{name} section appears before Atoms section")
             body.update({name: section})
 
         err_msg += "Nos. of {} do not match between header and {} section"
@@ -824,7 +823,7 @@ class LammpsData(MSONable):
             df = pd.DataFrame(np.concatenate(topo_collector[k]), columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
             if any(pd.isnull(df["type"])):  # Throw away undefined topologies
-                warnings.warn("Undefined %s detected and removed" % k.lower())
+                warnings.warn(f"Undefined {k.lower()} detected and removed")
                 df.dropna(subset=["type"], inplace=True)
                 df.reset_index(drop=True, inplace=True)
             df.index += 1
@@ -1033,7 +1032,7 @@ class ForceField(MSONable):
                 strings (symbols) and floats are all acceptable for the
                 values, with the first two converted to the atomic mass
                 of an element. It is recommended to use
-                OrderedDict.items() to prevent key duplications.
+                dict.items() to prevent key duplications.
                 [("C", 12.01), ("H", Element("H")), ("O", "O"), ...]
             nonbond_coeffs [coeffs]: List of pair or pairij
                 coefficients, of which the sequence must be sorted
@@ -1108,7 +1107,7 @@ class ForceField(MSONable):
         pair_df = pd.DataFrame(self.nonbond_coeffs)
         assert self._is_valid(pair_df), "Invalid nonbond coefficients with rows varying in length"
         npair, ncoeff = pair_df.shape
-        pair_df.columns = ["coeff%d" % i for i in range(1, ncoeff + 1)]
+        pair_df.columns = [f"coeff{i}" for i in range(1, ncoeff + 1)]
         nm = len(self.mass_info)
         ncomb = int(nm * (nm + 1) / 2)
         if npair == nm:
@@ -1145,9 +1144,9 @@ class ForceField(MSONable):
         distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
-        assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
+        assert len(type_union) == type_counts, f"Duplicated items found under different coefficients in {kw}"
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
-        assert atoms.issubset(self.maps["Atoms"].keys()), "Undefined atom type found in %s" % kw
+        assert atoms.issubset(self.maps["Atoms"].keys()), f"Undefined atom type found in {kw}"
         mapper = {}
         for i, dt in enumerate(distinct_types):
             for t in dt:
@@ -1157,7 +1156,7 @@ class ForceField(MSONable):
             df = pd.DataFrame(data)
             assert self._is_valid(df), "Invalid coefficients with rows varying in length"
             n, c = df.shape
-            df.columns = ["coeff%d" % i for i in range(1, c + 1)]
+            df.columns = [f"coeff{i}" for i in range(1, c + 1)]
             df.index = range(1, n + 1)
             return df
 
@@ -1416,10 +1415,10 @@ class CombinedData(LammpsData):
         styles = []
         coordinates = cls.parse_xyz(filename=coordinate_file)
         for i in range(0, len(filenames)):
-            exec("cluster%d = LammpsData.from_file(filenames[i])" % (i + 1))
-            names.append("cluster%d" % (i + 1))
-            mols.append(eval("cluster%d" % (i + 1)))
-            styles.append(eval("cluster%d" % (i + 1)).atom_style)
+            exec(f"cluster{i + 1} = LammpsData.from_file(filenames[i])")
+            names.append(f"cluster{i + 1}")
+            mols.append(eval(f"cluster{i + 1}"))
+            styles.append(eval(f"cluster{i + 1}").atom_style)
         style = set(styles)
         assert len(style) == 1, "Files have different atom styles."
         return cls.from_lammpsdata(mols, names, list_of_numbers, coordinates, style.pop())

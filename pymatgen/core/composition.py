@@ -135,7 +135,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 self._natoms += abs(v)
         self._data = elamt
         if strict and not self.valid:
-            raise ValueError("Composition is not valid, contains: {}".format(", ".join(map(str, self.elements))))
+            raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
     def __getitem__(self, item: SpeciesLike):
         try:
@@ -438,7 +438,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if "C" in elements:
             elements = ["C"] + [el for el in elements if el != "C"]
 
-        formula = ["{}{}".format(el, formula_double_format(c[el]) if c[el] != 1 else "") for el in elements]
+        formula = [f"{el}{formula_double_format(c[el]) if c[el] != 1 else ''}" for el in elements]
         return " ".join(formula)
 
     @property
@@ -532,7 +532,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         )
 
         if category not in allowed_categories:
-            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
+            raise ValueError(f"Please pick a category from: {', '.join(allowed_categories)}")
 
         if "block" in category:
             return any(category[0] in el.block for el in self.elements)

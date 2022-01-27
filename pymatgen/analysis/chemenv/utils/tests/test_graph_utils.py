@@ -716,7 +716,7 @@ class GraphUtilsTest(PymatgenTest):
             self.assertEqual(
                 mgc.nodes,
                 nodes_ref,
-                msg="Nodes not equal for inodes = ({})".format(", ".join([str(i) for i in inodes])),
+                msg=f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})",
             )
             self.assertEqual(
                 mgc.edge_indices,

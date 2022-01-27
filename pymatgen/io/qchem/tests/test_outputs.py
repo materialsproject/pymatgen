@@ -5,7 +5,6 @@
 import os
 import unittest
 
-from monty.os.path import which
 from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.structure import Molecule
@@ -15,6 +14,7 @@ from pymatgen.util.testing import PymatgenTest
 try:
     from openbabel import openbabel
 
+    openbabel  # reference openbabel so it's not unused import
     have_babel = True
 except ImportError:
     have_babel = False

@@ -9,7 +9,6 @@ on LOBSTER see www.cohp.de.
 import itertools
 import os
 import warnings
-from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -379,7 +378,7 @@ class Lobsterin(dict, MSONable):
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols
-            address_basis_file_min: path to file with the minium required basis by the POTCAR
+            address_basis_file_min: path to file with the minimum required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in
@@ -617,6 +616,8 @@ class Lobsterin(dict, MSONable):
         # Warning about a bug in lobster-4.1.0
         with zopen(POTCAR_input, "r") as f:
             data = f.read()
+        if isinstance(data, bytes):
+            data = data.decode("utf-8")
         if "SHA256" in data or "COPYR" in data:
             warnings.warn(
                 "These POTCARs are not compatible with "
@@ -811,13 +812,12 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         max_basis: list of basis entries: e.g., ['Si 3p 3s ']
 
     Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
-
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict = OrderedDict({})  # type:  Dict[Any, Any]
+    basis_dict: Dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:

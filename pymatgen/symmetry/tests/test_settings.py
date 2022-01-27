@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.symmetry.settings import *
+from pymatgen.symmetry.settings import JonesFaithfulTransformation, Lattice, SymmOp
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"

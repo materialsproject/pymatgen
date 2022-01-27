@@ -93,7 +93,7 @@ class MPResterTest(PymatgenTest):
                 val = self.rester.get_data(mpid, prop=prop)[0][prop]
                 if prop in ["energy", "energy_per_atom"]:
                     prop = "final_" + prop
-                self.assertAlmostEqual(expected_vals[prop], val, 2, "Failed with property %s" % prop)
+                self.assertAlmostEqual(expected_vals[prop], val, 2, f"Failed with property {prop}")
             elif prop in ["elements", "icsd_ids", "task_ids"]:
                 upstream_vals = set(self.rester.get_data(mpid, prop=prop)[0][prop])
                 self.assertLessEqual(set(expected_vals[prop]), upstream_vals)
@@ -443,7 +443,7 @@ class MPResterTest(PymatgenTest):
 
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
-            self.assertEqual(len(Composition(c)), 3, "Failed in %s" % c)
+            self.assertEqual(len(Composition(c)), 3, f"Failed in {c}")
 
         chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
@@ -465,7 +465,7 @@ class MPResterTest(PymatgenTest):
             r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
-        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers["user-agent"]))
+        self.assertIsNotNone(m, msg=f"Unexpected user-agent value {headers['user-agent']}")
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 

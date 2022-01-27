@@ -19,7 +19,6 @@ __date__ = "Feb 20, 2016"
 
 import abc
 import os
-from collections import OrderedDict
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -63,7 +62,6 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of this strategy option.
         """
-        pass
 
 
 class DistanceCutoffFloat(float, StrategyOption):
@@ -199,7 +197,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_DESCRIPTION = None  # type: str
     STRATEGY_INFO_FIELDS = []  # type: List
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -445,11 +443,11 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
 
     def __str__(self):
         out = f'  Chemenv Strategy "{self.__class__.__name__}"\n'
-        out += "  {}\n\n".format("=" * (19 + len(self.__class__.__name__)))
-        out += "  Description :\n  {}\n".format("-" * 13)
+        out += f"  {'=' * (19 + len(self.__class__.__name__))}\n\n"
+        out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
         out += "\n\n"
-        out += "  Options :\n  {}\n".format("-" * 9)
+        out += f"  Options :\n  {'-' * 9}\n"
         for option_name, option_dict in self.STRATEGY_OPTIONS.items():
             out += f"   - {option_name} : {getattr(self, option_name)}\n"
         return out
@@ -484,7 +482,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -874,7 +872,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",
@@ -1235,7 +1233,6 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         """
         A JSON serializable dict representation of this neighbors set weight.
         """
-        pass
 
     @abc.abstractmethod
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
@@ -1247,7 +1244,6 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         :param additional_info: Additional information.
         :return: Weight of the neighbors set.
         """
-        pass
 
 
 class AngleNbSetWeight(NbSetWeight):
@@ -1336,9 +1332,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         elif self.average_type == "arithmetic":
             self.eval = self.aweight
         else:
-            raise ValueError(
-                'Average type is "{}" while it should be ' '"geometric" or "arithmetic"'.format(average_type)
-            )
+            raise ValueError(f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"')
         self.aa = aa
         self.bb = bb
         if self.aa == 0:
@@ -2748,14 +2742,12 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
 
         Not implemented for this strategy
         """
-        pass
 
     def get_site_neighbors(self, site):
         """Get the neighbors of a given site.
 
         Not implemented for this strategy.
         """
-        pass
 
     def get_site_coordination_environments(
         self,

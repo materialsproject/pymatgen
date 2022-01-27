@@ -583,7 +583,7 @@ class AdsorbateSiteFinder:
                 # Find an equivalent site on the other surface
                 eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
                 for ii in eq_indices:
-                    if "%.6f" % (sym_slab[ii].frac_coords[2]) != "%.6f" % (site.frac_coords[2]):
+                    if f"{sym_slab[ii].frac_coords[2]:.6f}" != f"{site.frac_coords[2]:.6f}":
                         props["surface_properties"][ii] = "substitute"
                         slab.replace(ii, atom)
                         break

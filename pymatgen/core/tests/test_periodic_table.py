@@ -229,7 +229,7 @@ class ElementTestCase(PymatgenTest):
                 self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
 
             if el.symbol not in ["He", "Ne", "Ar"]:
-                self.assertTrue(el.X > 0, "No electroneg for %s" % el)
+                self.assertTrue(el.X > 0, f"No electroneg for {el}")
 
         self.assertRaises(ValueError, Element.from_Z, 1000)
 
@@ -329,7 +329,7 @@ class SpecieTestCase(PymatgenTest):
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
         for i in range(1, 5):
-            self.serialize_with_pickle(getattr(self, "specie%d" % i), test_eq=True)
+            self.serialize_with_pickle(getattr(self, f"specie{i}"), test_eq=True)
         cs = Species("Cs", 1)
         cl = Species("Cl", 1)
 

@@ -22,7 +22,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.01.09"
+__version__ = "2022.1.24"
 
 yaml = YAML()
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -42,7 +42,7 @@ def _load_pmg_settings():
         with open(SETTINGS_FILE) as f:
             d_yml = yaml.load(f)
         d.update(d_yml)
-    except OSError:
+    except (OSError, TypeError):
         # If there are any errors, default to using environment variables
         # if present.
         pass

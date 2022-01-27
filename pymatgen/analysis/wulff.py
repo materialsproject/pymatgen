@@ -519,7 +519,7 @@ class WulffShape:
                 orientation="vertical",
             )
             units = "$J/m^2$" if units_in_JPERM2 else r"$eV/\AA^2$"
-            cbar.set_label("Surface Energies (%s)" % (units), fontsize=25)
+            cbar.set_label(f"Surface Energies ({units})", fontsize=25)
 
         if grid_off:
             ax.grid("off")
@@ -601,7 +601,7 @@ class WulffShape:
                     i=tri_indices[0],
                     j=tri_indices[1],
                     k=tri_indices[2],
-                    hovertemplate="<br>%{text}<br>" + "{}={:.3f} {}<br>".format("\u03b3", plane.e_surf, units),
+                    hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
                     text=[r"Miller index: %s" % hkl] * len(x_pts),
                     hoverinfo="name",
@@ -614,7 +614,7 @@ class WulffShape:
             c = [norm_e, color]
             if c not in color_scale:
                 color_scale.append(c)
-                ticktext.append("%.3f" % plane.e_surf)
+                ticktext.append(f"{plane.e_surf:.3f}")
                 tickvals.append(norm_e)
 
         # Add colorbar

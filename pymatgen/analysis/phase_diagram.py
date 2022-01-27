@@ -12,8 +12,8 @@ import logging
 import math
 import os
 import re
-import sys
 from functools import lru_cache
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objs as go
@@ -28,11 +28,6 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +68,12 @@ class PDEntry(Entry):
         super().__init__(composition, energy)
         self.name = name if name else self.composition.reduced_formula
         self.attribute = attribute
+
+    def __repr__(self):
+        name = ""
+        if self.name != self.composition.reduced_formula:
+            name = f" ({self.name})"
+        return f"{self.__class__.__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
 
     @property
     def energy(self) -> float:
@@ -288,8 +289,6 @@ class TransformedPDEntryError(Exception):
     """
     An exception class for TransformedPDEntry.
     """
-
-    pass
 
 
 class PhaseDiagram(MSONable):
@@ -544,7 +543,7 @@ class PhaseDiagram(MSONable):
     def __repr__(self):
         symbols = [el.symbol for el in self.elements]
         output = [
-            "{} phase diagram".format("-".join(symbols)),
+            f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
@@ -876,7 +875,7 @@ class PhaseDiagram(MSONable):
             phase separation energy per atom of entry. Stable entries should have
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0. Entries that have the same
-            composition as a stable energy may have postive or negative phase
+            composition as a stable energy may have positive or negative phase
             separation energies depending on their own energy.
         """
         return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
@@ -1350,7 +1349,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             terminal_compositions = [c.fractional_composition for c in terminal_compositions]
 
         # Map terminal compositions to unique dummy species.
-        sp_mapping = collections.OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
@@ -1437,7 +1436,7 @@ class ReactionDiagram:
         r1 = entry1.composition.reduced_composition
         r2 = entry2.composition.reduced_composition
 
-        logger.debug("%d total entries." % len(all_entries))
+        logger.debug(f"{len(all_entries)} total entries.")
 
         pd = PhaseDiagram(all_entries + [entry1, entry2])
         terminal_formulas = [
@@ -1445,9 +1444,9 @@ class ReactionDiagram:
             entry2.composition.reduced_formula,
         ]
 
-        logger.debug("%d stable entries" % len(pd.stable_entries))
-        logger.debug("%d facets" % len(pd.facets))
-        logger.debug("%d qhull_entries" % len(pd.qhull_entries))
+        logger.debug(f"{len(pd.stable_entries)} stable entries")
+        logger.debug(f"{len(pd.facets)} facets")
+        logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
         done = []
@@ -1527,14 +1526,14 @@ class ReactionDiagram:
                             )
                         )
                     )
-                    logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
+                    logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
 
         self.entry1 = entry1
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
-        self.labels = collections.OrderedDict()
+        self.labels = {}
         for i, e in enumerate(rxn_entries):
             self.labels[str(i + 1)] = e.attribute
             e.name = str(i + 1)
@@ -1570,8 +1569,6 @@ class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
     """
-
-    pass
 
 
 def get_facets(qhull_data, joggle=False):
@@ -2180,7 +2177,7 @@ class PDPlotter:
             image_format
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
-            **kwargs: Pass through to get_plot functino.
+            **kwargs: Pass through to get_plot function.
         """
         plt = self.get_plot(**kwargs)
 
@@ -2302,8 +2299,8 @@ class PDPlotter:
                 fontsize=22,
             )
 
-        plt.xlabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)".format(el0.symbol))
-        plt.ylabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)".format(el1.symbol))
+        plt.xlabel(f"$\\mu_{{{el0.symbol}}} - \\mu_{{{el0.symbol}}}^0$ (eV)")
+        plt.ylabel(f"$\\mu_{{{el1.symbol}}} - \\mu_{{{el1.symbol}}}^0$ (eV)")
         plt.tight_layout()
         return plt
 

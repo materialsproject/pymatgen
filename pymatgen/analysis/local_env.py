@@ -579,7 +579,7 @@ class NearNeighbors:
         the given site whose ideal CN corresponds to the
         underlying motif (e.g., CN=4, then calculate the
         square planar, tetrahedral, see-saw-like,
-        rectangular see-saw-like order paramters).
+        rectangular see-saw-like order parameters).
 
         Args:
             structure: Structure object
@@ -778,7 +778,7 @@ class VoronoiNN(NearNeighbors):
             indices.extend([(x[2],) + x[3] for x in neighs])
 
         # Get the non-duplicates (using the site indices for numerical stability)
-        indices = np.array(indices, dtype=np.int_)
+        indices = np.array(indices, dtype=int)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
         sites = [sites[i] for i in uniq_inds]
 
@@ -1968,7 +1968,7 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS.keys()):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            ' "{}" in "BV_PARAMS"dictonary'
+            ' "{}" in "BV_PARAMS"dictionary'
             " provided by pymatgen".format(el_symbol)
         )
 

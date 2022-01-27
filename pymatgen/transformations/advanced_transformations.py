@@ -1014,7 +1014,7 @@ class DopingTransformation(AbstractTransformation):
             [{"structure": Structure, "energy": float}]
         """
         comp = structure.composition
-        logger.info("Composition: %s" % comp)
+        logger.info(f"Composition: {comp}")
 
         for sp in comp:
             try:
@@ -1049,12 +1049,12 @@ class DopingTransformation(AbstractTransformation):
                 sp for sp in compatible_species if sp in [get_el_sp(s) for s in self.allowed_doping_species]
             ]
 
-        logger.info("Compatible species: %s" % compatible_species)
+        logger.info(f"Compatible species: {compatible_species}")
 
         lengths = structure.lattice.abc
         scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
-        logger.info("Lengths are %s" % str(lengths))
-        logger.info("Scaling = %s" % str(scaling))
+        logger.info(f"Lengths are {str(lengths)}")
+        logger.info(f"Scaling = {str(scaling)}")
 
         all_structures = []
         t = EnumerateStructureTransformation(**self.kwargs)
@@ -1084,7 +1084,7 @@ class DopingTransformation(AbstractTransformation):
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
                     ndopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)
-                    logger.info("Doping %d %s with %d %s." % (nsp_to_remove, sp, ndopant, self.dopant))
+                    logger.info(f"Doping {nsp_to_remove} {sp} with {ndopant} {self.dopant}.")
                     supercell.replace_species(
                         {
                             sp: {
@@ -1126,9 +1126,7 @@ class DopingTransformation(AbstractTransformation):
                 common_charge = lcm(anion_ox, ox_diff)
                 ndopant = common_charge / ox_diff
                 nx_to_remove = common_charge / anion_ox
-                logger.info(
-                    "Doping %d %s with %s and removing %d %s." % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
-                )
+                logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                 supercell.replace_species(
                     {
                         sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},
@@ -1137,10 +1135,10 @@ class DopingTransformation(AbstractTransformation):
                 )
 
             ss = t.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
-            logger.info("%s distinct structures" % len(ss))
+            logger.info(f"{len(ss)} distinct structures")
             all_structures.extend(ss)
 
-        logger.info("Total %s doped structures" % len(all_structures))
+        logger.info(f"Total {len(all_structures)} doped structures")
         if return_ranked_list:
             return all_structures[:return_ranked_list]
 

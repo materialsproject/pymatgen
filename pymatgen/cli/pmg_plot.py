@@ -6,7 +6,6 @@
 Implementation for `pmg plot` CLI.
 """
 
-from collections import OrderedDict
 
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
@@ -25,7 +24,7 @@ def get_dos_plot(args):
     v = Vasprun(args.dos_file)
     dos = v.complete_dos
 
-    all_dos = OrderedDict()
+    all_dos = {}
     all_dos["Total"] = dos
 
     structure = v.final_structure

@@ -196,7 +196,6 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         """
         No arg needed.
         """
-        pass
 
     def apply_transformation(self, structure):  # pylint: disable=R0201
         """
@@ -577,7 +576,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {"%s0+" % k.symbol: v for k, v in site.species.items()}
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}
 
         equivalent_sites = []
         exemplars = []
@@ -1010,7 +1009,7 @@ class ChargedCellTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Structure with charge " + f"{self.charge}"
+        return f"Structure with charge {self.charge}"
 
     def __repr__(self):
         return self.__str__()

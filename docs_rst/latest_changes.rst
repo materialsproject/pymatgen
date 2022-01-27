@@ -1,8 +1,6 @@
 Change log
 ==========
 
-v2022.1.9
----------
-* Formal support for Python 3.10.
-* Misc refactoring and bug fixes. No new functionality.
-
+v2022.1.24
+----------
+* Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.

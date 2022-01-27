@@ -36,8 +36,6 @@ class FakeNbSet:
     def __len__(self):
         return self.cn
 
-    pass
-
 
 class DummyStructureEnvironments:
     pass
