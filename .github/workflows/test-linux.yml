@@ -9,7 +9,7 @@ jobs:
 
   test:
     # prevent this action from running on forks
-    #if: github.repository == 'materialsproject/pymatgen'
+    if: github.repository == 'materialsproject/pymatgen'
     strategy:
       max-parallel: 20
       matrix:
