@@ -438,13 +438,13 @@ class CorrectionCalculator:
         # elements with U values
         ggaucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
-        comp_corr: "OrderedDict[str, float]" = OrderedDict()
-        o: "OrderedDict[str, float]" = OrderedDict()
-        f: "OrderedDict[str, float]" = OrderedDict()
+        comp_corr: Dict[str, float] = {}
+        o: Dict[str, float] = {}
+        f: Dict[str, float] = {}
 
-        comp_corr_error: "OrderedDict[str, float]" = OrderedDict()
-        o_error: "OrderedDict[str, float]" = OrderedDict()
-        f_error: "OrderedDict[str, float]" = OrderedDict()
+        comp_corr_error: Dict[str, float] = {}
+        o_error: Dict[str, float] = {}
+        f_error: Dict[str, float] = {}
 
         for specie in list(self.species) + ["ozonide"]:
             if specie in ggaucorrection_species:

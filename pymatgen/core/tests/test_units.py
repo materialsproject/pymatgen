@@ -107,7 +107,7 @@ class FloatWithUnitTest(PymatgenTest):
 
         @unitized("pm")
         def h():
-            d = collections.OrderedDict()
+            d = {}
             for i in range(3):
                 d[i] = i * 20
             return d

@@ -10,7 +10,6 @@ stress-strain data
 
 import itertools
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 import sympy as sp
@@ -990,7 +989,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
     vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])  # pylint: disable=E1101
     # Collect independent strain states:
     independent = {tuple(np.nonzero(vstrain)[0].tolist()) for vstrain in vstrains}
-    strain_state_dict = OrderedDict()
+    strain_state_dict = {}
     if add_eq:
         if eq_stress is not None:
             veq_stress = Stress(eq_stress).voigt
