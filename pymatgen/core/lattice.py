@@ -1823,24 +1823,28 @@ class Lattice(MSONable):
 
         return recp_symmops
 
-    def get_weighted_average_position(self, positions: ArrayLike, weights: ArrayLike) -> np.ndarray:
+    def get_weighted_average_position(self, frac_positions: ArrayLike, weights: ArrayLike) -> np.ndarray:
         """
-        Get the weighted average position of a set of positions.
-        Since we have the problem with periodicity, we will start with the highest weight
-        and work our way down.
+        Get the weighted average position of a set of positions in fractional coordinates.
+        The algorithm starts at position with the highest weight, and gradually moves the average point
+        by finding the closest image of each additional position to the average point.
+        This can be used to find the center of mass of a group of sites in a molecule in CH3NH3PbI3
+
+        (Note: Since the average positions in periodic system is not unique, this algorithm only works if the collection
+        of positions is significantly smaller than the unit cell.)
 
         Args:
-            positions (3xN array-like): The positions to average.
+            frac_positions (3xN array-like): The positions to average.
             weights (1xN array-like): The weights of the positions.
 
         Returns:
             (3x1 array): The weighted average position in fractional coordinates.
         """
 
-        if len(positions) != len(weights):
+        if len(frac_positions) != len(weights):
             raise ValueError("The number of positions and weights must be the same.")
         # TODO: can be replaced with the zip(..., strict=True) syntax in Python 3.10
-        pos_weights = list(zip(positions, weights))
+        pos_weights = list(zip(frac_positions, weights))
         pos_weights.sort(key=lambda x: x[1], reverse=True)
 
         # initial guess at the center with zero weight

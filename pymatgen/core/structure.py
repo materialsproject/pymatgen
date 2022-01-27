@@ -51,7 +51,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    from typing import Literal  # pylint: disable=C0412
 else:
     from typing_extensions import Literal
 
@@ -633,6 +633,23 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     new_others.append(site)
             others = new_others
         return cluster
+
+    def get_average_position(self, site_indices: List[int], weights: ArrayLike = None) -> np.ndarray:
+        """
+        Get the average position of a list of sites, if a list of weights is
+        not provided, the weights are set to 1.0 for each site.
+
+        Args:
+            site_indices: List of site indices
+            weights: List of weights for each site in site_indices.
+        Returns:
+            The weighted average position of the sites.
+        """
+        if weights is None:
+            weights = [1] * len(site_indices)
+        elif len(weights) != len(site_indices):
+            raise ValueError("Length of weights must be the same as the length of site_indices")
+        return np.average([self[i].coords for i in site_indices], axis=0, weights=weights)
 
 
 class IStructure(SiteCollection, MSONable):
@@ -2540,6 +2557,26 @@ class IStructure(SiteCollection, MSONable):
 
         s.__class__ = cls
         return s
+
+    def get_average_position(
+        self, site_indices: List[int], weights: ArrayLike = None, cartesian: bool = False
+    ) -> np.ndarray:
+        """
+        Get the average position of a list of sites, if a list of weights is
+        not provided, the weights are set to 1.0 for each site.
+
+        Args:
+            site_indices: List of site indices
+            weights: List of weights for each site in site_indices.
+            cartesian: If True, performs the simple weighted average in cartesian coordinates.
+                If False, find the average in fractional coordinates with automatic consideration for the periodicity.
+        Returns:
+            The weighted average position of the sites in either cartesian or fractional coordinates.
+        """
+        if cartesian:
+            return super().get_average_position(site_indices, weights)
+        fpos = [self[i].frac_coords for i in site_indices]
+        return self.lattice.get_weighted_average_position(frac_positions=fpos, weights=weights)
 
 
 class IMolecule(SiteCollection, MSONable):
