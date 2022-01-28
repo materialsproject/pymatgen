@@ -338,11 +338,11 @@ class Section(MSONable):
         else:
             TypeError("Can only add sections or keywords.")
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, strict=False):
         if isinstance(value, (Section, SectionList)):
             if key in self.subsections:
                 self.subsections[key] = value.__deepcopy__()
-            else:
+            elif not strict:
                 self.insert(value)
         else:
             if not isinstance(value, (Keyword, KeywordList)):
@@ -350,7 +350,9 @@ class Section(MSONable):
             match = [k for k in self.keywords if key.upper() == k.upper()]
             if match:
                 del self.keywords[match[0]]
-            self.keywords[key] = value
+                self.keywords[key] = value
+            elif not strict:
+                self.keywords[key] = value
 
     def __delitem__(self, key):
         """
@@ -423,7 +425,7 @@ class Section(MSONable):
                 return self.keywords[k]
         return default
 
-    def update(self, d: dict):
+    def update(self, d: dict, strict=False):
         """
         Update the Section according to a dictionary argument. This is most useful
         for providing user-override settings to default parameters. As you pass a
@@ -437,29 +439,35 @@ class Section(MSONable):
                 specify the full path of the update. If a section or keyword does not exist, it will be created,
                 but only with the values that are provided in "d", not using default values from a Section object.
 
-                {'SUBSECTION1': {'SUBSEC2': {'NEW_KEYWORD', 'NEW_VAL'},{'NEW_SUBSEC': {'NEW_KWD': 'NEW_VAL'}}}
+                Example: {'SUBSECTION1': {'SUBSEC2': {'NEW_KEYWORD', 'NEW_VAL'},{'NEW_SUBSEC': {'NEW_KWD': 'NEW_VAL'}}}
+
+            strict (bool): If true, only update existing sections and keywords. If false, allow new sections and keywords.
+                Default: False
         """
-        Section._update(self, d)
+        Section._update(self, d, strict=strict)
 
     @staticmethod
-    def _update(d1, d2):
+    def _update(d1, d2, strict=False):
         """
         Helper method for self.update(d) method (see above).
         """
         for k, v in d2.items():
             if isinstance(v, (str, float, int, bool)):
-                d1[k] = Keyword(k, v)
+                d1.__setitem__(k, Keyword(k, v), strict=strict)
             elif isinstance(v, (Keyword, KeywordList)):
-                d1[k] = v
+                d1.__setitem__(k, v, strict=strict)
             elif isinstance(v, dict):
                 tmp = [_ for _ in d1.subsections if k.upper() == _.upper()]
                 if not tmp:
+                    if strict:
+                        continue
                     d1.insert(Section(k, subsections={}))
-                    Section._update(d1.subsections[k], v)
+                    Section._update(d1.subsections[k], v, strict=strict)
                 else:
-                    Section._update(d1.subsections[tmp[0]], v)
+                    Section._update(d1.subsections[tmp[0]], v, strict=strict)
             elif isinstance(v, Section):
-                d1.insert(v)
+                if not strict:
+                    d1.insert(v)
             else:
                 print(type(v))
                 raise TypeError("Unrecognized type.")
@@ -469,6 +477,12 @@ class Section(MSONable):
         Alias for update. Used by custodian.
         """
         self.update(d)
+
+    def safeset(self, d: dict):
+        """
+        Alias for update with strict (no insertions). Used by custodian.
+        """
+        self.update(d, strict=True)
 
     def unset(self, d: dict):
         """
