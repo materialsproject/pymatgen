@@ -628,6 +628,14 @@ class DftSet(Cp2kInputSet):
             },
         )
 
+        # Check for unphysical cutoff radius
+        if isinstance(self.structure, Structure):
+            max_cutoff_radius = get_truncated_coulomb_cutoff(self.structure)
+            if max_cutoff_radius < cutoff_radius:
+                warnings.warn("Provided cutoff radius exceeds half the minimum"
+                              " distance between atoms. Overriding cutoff radius.")
+                self.cutoff_radius = max_cutoff_radius
+
         ip_keywords = {}
         if hybrid_functional == "HSE06":
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
@@ -652,11 +660,14 @@ class DftSet(Cp2kInputSet):
             pbe = PBE("ORIG", scale_c=1, scale_x=0.75)
             xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
 
-            potential_type = potential_type if potential_type else "TRUNCATED"
+            if isinstance(self.structure, Molecule):
+                potential_type = 'COULOMB'
+            else:
+                potential_type = 'TRUNCATED'
             ip_keywords.update(
                 {
                     "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", self.cutoff_radius),
                     "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
                 }
             )
@@ -674,7 +685,7 @@ class DftSet(Cp2kInputSet):
             ip_keywords.update(
                 {
                     "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", self.cutoff_radius),
                     "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
                     "OMEGA": Keyword("OMEGA", omega),
                     "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
@@ -709,7 +720,7 @@ class DftSet(Cp2kInputSet):
             ip_keywords.update(
                 {
                     "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", self.cutoff_radius),
                     "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
                     "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
                     "SCALE_GAUSSIAN": Keyword("SCALE_GAUSSIAN", scale_gaussian),
@@ -941,6 +952,7 @@ class RelaxSet(DftSet):
         self.update(override_default_params)
 
 
+# TODO Add cell opt convergence criteria
 class CellOptSet(DftSet):
 
     """
@@ -1045,7 +1057,7 @@ class HybridStaticSet(StaticSet):
         self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
-        self.cutoff_radius = min(get_truncated_coulomb_cutoff(self.structure), cutoff_radius)
+        self.cutoff_radius = cutoff_radius
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
@@ -1131,7 +1143,7 @@ class HybridRelaxSet(RelaxSet):
         self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
-        self.cutoff_radius = min(get_truncated_coulomb_cutoff(self.structure), cutoff_radius)
+        self.cutoff_radius = cutoff_radius
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
@@ -1217,7 +1229,7 @@ class HybridCellOptSet(CellOptSet):
         self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
-        self.cutoff_radius = min(get_truncated_coulomb_cutoff(self.structure), cutoff_radius)
+        self.cutoff_radius = cutoff_radius
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
