@@ -180,13 +180,17 @@ class Cp2kOutput:
             functional = functional[0]
 
             if functional is None:
-                rt = ""
+                rt = "None"
+            elif functional.__contains__("HYB") or (ip and frac) or (functional) in HYBRID_TYPES:
+                rt = "Hybrid"
             elif functional.__contains__("MGGA") or functional in METAGGA_TYPES:
                 rt = "METAGGA"
             elif functional.__contains__("GGA") or functional in GGA_TYPES:
                 rt = "GGA"
             elif functional.__contains__("LDA") or functional in LDA_TYPES:
                 rt = "LDA"
+            else:
+                rt = "Unknown"
 
         if self.is_hubbard:
             rt += "+U"
