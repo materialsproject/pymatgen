@@ -39,7 +39,7 @@ def _check_input(def_list):
     return flag
 
 
-@deprecated(message="Refactoring of the defects module will eventualy remove this function")
+@deprecated(message="Refactoring of the defects module will eventually remove this function")
 def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_pot=None, generate="plot"):
     """
     Compute the defect densities using dilute solution model.
