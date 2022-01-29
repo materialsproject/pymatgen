@@ -174,7 +174,7 @@ class BaderAnalysis:
                 stdout, _ = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "bader exited with return code %d. Please check your bader installation." % rs.returncode
+                    f"bader exited with return code {rs.returncode}. Please check your bader installation."
                 )
 
             try:

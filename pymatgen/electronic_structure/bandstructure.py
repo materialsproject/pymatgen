@@ -632,7 +632,7 @@ class BandStructure:
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
 
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+        # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
@@ -992,7 +992,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         d["band_gap"] = self.get_band_gap()
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+        # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]

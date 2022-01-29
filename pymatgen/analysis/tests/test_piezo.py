@@ -13,7 +13,6 @@ __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "4/1/16"
 
-import os
 import unittest
 
 import numpy as np

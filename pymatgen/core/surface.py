@@ -1768,7 +1768,7 @@ def generate_all_slabs(
             specified as a dict of tuples: float of specie1, specie2
             and the max bonding distance. For example, PO4 groups may be
             defined as {("P", "O"): 3}.
-        tol (float): General tolerance paramter for getting primitive
+        tol (float): General tolerance parameter for getting primitive
             cells and matching structures
         ftol (float): Threshold parameter in fcluster in order to check
             if two atoms are lying on the same plane. Default thresh set

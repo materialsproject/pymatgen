@@ -10,7 +10,7 @@ import collections
 import logging
 import os
 import sys
-from collections import OrderedDict, defaultdict, namedtuple
+from collections import defaultdict, namedtuple
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -880,7 +880,7 @@ class NcAbinitHeader(AbinitHeader):
         # Parse the section with the projectors.
         # 0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
         # .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        projectors = OrderedDict()
+        projectors = {}
         for idx in range(2 * (lmax + 1)):
             line = lines[idx]
             if idx % 2 == 0:
@@ -1054,19 +1054,17 @@ class PseudoParser:
     ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = OrderedDict(
-        {
-            1: ppdesc(1, "TM", "NC", None),
-            2: ppdesc(2, "GTH", "NC", None),
-            3: ppdesc(3, "HGH", "NC", None),
-            4: ppdesc(4, "Teter", "NC", None),
-            # 5: ppdesc(5, "NC",     , None),
-            6: ppdesc(6, "FHI", "NC", None),
-            7: ppdesc(6, "PAW_abinit_text", "PAW", None),
-            8: ppdesc(8, "ONCVPSP", "NC", None),
-            10: ppdesc(10, "HGHK", "NC", None),
-        }
-    )
+    _PSPCODES = {
+        1: ppdesc(1, "TM", "NC", None),
+        2: ppdesc(2, "GTH", "NC", None),
+        3: ppdesc(3, "HGH", "NC", None),
+        4: ppdesc(4, "Teter", "NC", None),
+        # 5: ppdesc(5, "NC",     , None),
+        6: ppdesc(6, "FHI", "NC", None),
+        7: ppdesc(6, "PAW_abinit_text", "PAW", None),
+        8: ppdesc(8, "ONCVPSP", "NC", None),
+        10: ppdesc(10, "HGHK", "NC", None),
+    }
     del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2
@@ -1282,7 +1280,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # In this way, we know that only the first two bound states (with f and n attributes)
         # should be used for constructing an initial guess for the wave functions.
 
-        self.valence_states = OrderedDict()
+        self.valence_states = {}
         for node in root.find("valence_states"):
             attrib = AttrDict(node.attrib)
             assert attrib.id not in self.valence_states
@@ -1388,7 +1386,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return np.array(mesh)
 
     def _parse_radfunc(self, func_name):
-        """Parse the first occurence of func_name in the XML file."""
+        """Parse the first occurrence of func_name in the XML file."""
         # pylint: disable=E1101
         node = self.root.find(func_name)
         grid = node.attrib["grid"]
@@ -1420,7 +1418,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def ae_partial_waves(self):
         """Dictionary with the AE partial waves indexed by state."""
-        ae_partial_waves = OrderedDict()
+        ae_partial_waves = {}
         for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
             state = attrib["state"]
             # val_state = self.valence_states[state]
@@ -1431,7 +1429,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @property
     def pseudo_partial_waves(self):
         """Dictionary with the pseudo partial waves indexed by state."""
-        pseudo_partial_waves = OrderedDict()
+        pseudo_partial_waves = {}
         for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
             state = attrib["state"]
             # val_state = self.valence_states[state]
@@ -1442,7 +1440,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def projector_functions(self):
         """Dictionary with the PAW projectors indexed by state."""
-        projector_functions = OrderedDict()
+        projector_functions = {}
         for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
             state = attrib["state"]
             # val_state = self.valence_states[state]
@@ -1775,7 +1773,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
             table.all_combinations_for_elements(["Li", "F"])
         """
-        d = OrderedDict()
+        d = {}
         for symbol in element_symbols:
             d[symbol] = self.select_symbols(symbol, ret_list=True)
 
@@ -1943,7 +1941,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
     def select_family(self, family):
         """
-        Return PseudoTable with element beloging to the specified family, e.g. familiy="alkaline"
+        Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"
         """
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])

@@ -51,7 +51,7 @@ class XSF:
             if atom_symbol:
                 sp = site.specie.symbol
             else:
-                sp = "%d" % site.specie.Z
+                sp = f"{site.specie.Z}"
             app(sp + " %20.14f %20.14f %20.14f" % tuple(coord))
 
         return "\n".join(lines)

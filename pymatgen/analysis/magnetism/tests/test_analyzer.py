@@ -4,9 +4,17 @@
 import os
 import unittest
 
+import numpy as np
 from monty.os.path import which
 
-from pymatgen.analysis.magnetism import *
+from pymatgen.analysis.magnetism import (
+    CollinearMagneticStructureAnalyzer,
+    MagneticStructureEnumerator,
+    Ordering,
+    loadfn,
+    magnetic_deformation,
+    warnings,
+)
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
@@ -78,7 +86,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertEqual(Fe_spin[0].specie.spin, 5)
 
         # test we can remove magnetic moment information
-        Fe_none = msa.get_nonmagnetic_structure()
+        msa.get_nonmagnetic_structure()
         self.assertFalse("magmom" in Fe_spin.site_properties)
 
         # test with disorder on magnetic site
@@ -153,7 +161,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         s1_magmoms_ref = [5.0, 0.0]
         self.assertListEqual(s1_magmoms, s1_magmoms_ref)
 
-        msa2 = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111, overwrite_magmom_mode="replace_all_if_undefined")
+        _ = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111, overwrite_magmom_mode="replace_all_if_undefined")
         s2 = msa.get_ferromagnetic_structure(make_primitive=False)
         s2_magmoms = [float(m) for m in s2.site_properties["magmom"]]
         s2_magmoms_ref = [5.0, 0.0]

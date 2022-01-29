@@ -10,7 +10,6 @@ from pymatgen.analysis.interfaces.coherent_interfaces import (
     get_2d_transform,
     get_rot_3d_for_2d,
 )
-from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 

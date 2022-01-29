@@ -1,11 +1,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import os
 import unittest
 
 from monty.os.path import which
 
-from pymatgen.command_line.critic2_caller import *
+from pymatgen.command_line.critic2_caller import Critic2Analysis, Critic2Caller
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 

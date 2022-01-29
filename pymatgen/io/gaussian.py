@@ -463,19 +463,13 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output.append(
-            "{diez}{func_bset} {route}".format(
-                diez=self.dieze_tag,
-                func_bset=func_bset_str,
-                route=para_dict_to_string(self.route_parameters),
-            )
-        )
+        output.append(f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}")
         output.append("")
         output.append(self.title)
         output.append("")
 
-        charge_str = "" if self.charge is None else "%d" % self.charge
-        multip_str = "" if self.spin_multiplicity is None else " %d" % self.spin_multiplicity
+        charge_str = "" if self.charge is None else f"{self.charge:.0f}"
+        multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
         output.append(f"{charge_str}{multip_str}")
 
         if isinstance(self._mol, Molecule):

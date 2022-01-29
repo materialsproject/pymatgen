@@ -7,7 +7,6 @@
 import logging
 import os.path
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 from monty.collections import AttrDict
@@ -468,7 +467,7 @@ _HDR_VARIABLES = (
     ),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
+_HDR_VARIABLES = {h.name: h for h in _HDR_VARIABLES}  # type: ignore
 
 
 class AbinitHeader(AttrDict):

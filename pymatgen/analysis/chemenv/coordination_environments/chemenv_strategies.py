@@ -19,7 +19,6 @@ __date__ = "Feb 20, 2016"
 
 import abc
 import os
-from collections import OrderedDict
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -198,7 +197,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_DESCRIPTION = None  # type: str
     STRATEGY_INFO_FIELDS = []  # type: List
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -483,7 +482,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -873,7 +872,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",

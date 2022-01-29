@@ -56,6 +56,7 @@ from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
@@ -3059,7 +3060,7 @@ _dummy_structure = Structure(
 
 def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     """
-    Make sure that the structure has valid magmoms based on the kind of caculation
+    Make sure that the structure has valid magmoms based on the kind of calculation
     Fill in missing Magmom values
 
     Args:
