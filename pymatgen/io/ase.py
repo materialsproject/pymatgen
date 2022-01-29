@@ -69,19 +69,19 @@ class AseAtomsAdaptor:
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between "magmom" and an "initial_magmom" site property.
-        if "initial_magmom" in structure.site_properties:
-            initial_magmoms = structure.site_properties["initial_magmom"]
+        if "magmom" in structure.site_properties:
+            initial_magmoms = structure.site_properties["magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
-        if "initial_charge" in structure.site_properties:
-            initial_charges = structure.site_properties["initial_charge"]
+        if "charge" in structure.site_properties:
+            initial_charges = structure.site_properties["charge"]
             atoms.set_initial_charges(initial_charges)
 
-        if "magmom" in structure.site_properties:
-            magmoms = structure.site_properties["magmom"]
+        if "final_magmom" in structure.site_properties:
+            magmoms = structure.site_properties["final_magmom"]
         else:
             magmoms = None
-        if "charge" in structure.site_properties:
-            charges = structure.site_properties["charge"]
+        if "final_charge" in structure.site_properties:
+            charges = structure.site_properties["final_charge"]
         else:
             charges = None
         if magmoms or charges:
@@ -120,7 +120,7 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in ["magmom", "charge", "initial_magmom", "initial_charge", "selective_dynamics"]:
+            if prop not in ["magmom", "charge", "final_magmom", "final_charge", "selective_dynamics"]:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
         if np.any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
@@ -196,13 +196,13 @@ class AseAtomsAdaptor:
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between "magmom" and an "initial_magmom" site property.
         if magmoms is not None:
-            structure.add_site_property("magmom", magmoms)
+            structure.add_site_property("final_magmom", magmoms)
         if initial_magmoms is not None:
-            structure.add_site_property("initial_magmom", initial_magmoms)
+            structure.add_site_property("magmom", initial_magmoms)
         if charges is not None:
-            structure.add_site_property("charge", charges)
+            structure.add_site_property("final_charge", charges)
         if initial_charges is not None:
-            structure.add_site_property("initial_charge", initial_charges)
+            structure.add_site_property("charge", initial_charges)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
 
@@ -216,9 +216,9 @@ class AseAtomsAdaptor:
                 "numbers",
                 "positions",
                 "magmom",
-                "initial_magmom",
+                "final_magmom",
                 "charge",
-                "initial_charge",
+                "final_charge",
                 "oxi_states",
             ]:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
