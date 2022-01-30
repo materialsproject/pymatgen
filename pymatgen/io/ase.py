@@ -68,7 +68,12 @@ class AseAtomsAdaptor:
         # Set the site magmoms in the ASE Atoms object
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
-        # have to distinguish between "magmom" and an "initial_magmom" site property.
+        # have to distinguish between these two when constructing the Structure/Molecule.
+        # The mapping selected here is: 
+        # ASE initial magmom <--> Pymatgen "magmom"
+        # ASE final magmom <--> Pymatgen "final_magmom"
+        # ASE initial charge <--> Pymatgen "charge"
+        # ASE final charge <--> Pymatgen "final_charge"
         if "magmom" in structure.site_properties:
             initial_magmoms = structure.site_properties["magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
@@ -194,7 +199,12 @@ class AseAtomsAdaptor:
         # Set the site magmoms in the Pymatgen structure object
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
-        # have to distinguish between "magmom" and an "initial_magmom" site property.
+        # have to distinguish between these two when constructing the Structure/Molecule.
+        # The mapping selected here is: 
+        # ASE initial magmom <--> Pymatgen "magmom"
+        # ASE final magmom <--> Pymatgen "final_magmom"
+        # ASE initial charge <--> Pymatgen "charge"
+        # ASE final charge <--> Pymatgen "final_charge"
         if magmoms is not None:
             structure.add_site_property("final_magmom", magmoms)
         if initial_magmoms is not None:
