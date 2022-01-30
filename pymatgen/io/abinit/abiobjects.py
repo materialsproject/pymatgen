@@ -317,7 +317,7 @@ def contract(s):
             old = t
             count.append([1, t])
 
-    return " ".join("%d*%s" % (c, t) for c, t in count)
+    return " ".join(f"{c}*{t}" for c, t in count)
 
 
 class AbivarAble(metaclass=abc.ABCMeta):
@@ -438,7 +438,7 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
+        s = f"occopt {self.occopt} # {self.mode} Smearing\n"
         if self.tsmear:
             s += f"tsmear {self.tsmear}"
         return s
@@ -1159,7 +1159,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
 
 class PPModelModes(Enum):
-    """Differnt kind of plasmon-pole models."""
+    """Different kind of plasmon-pole models."""
 
     noppmodel = 0
     godby = 1
@@ -1281,7 +1281,7 @@ class HilbertTransform(AbivarAble):
         Args:
             nomegasf: Number of points for sampling the spectral function along the real axis.
             domegasf: Step in Ha for the linear mesh used for the spectral function.
-            spmeth: Algorith for the representation of the delta function.
+            spmeth: Algorithm for the representation of the delta function.
             nfreqre: Number of points along the real axis (linear mesh).
             freqremax: Maximum frequency for W along the real axis (in hartree).
             nfreqim: Number of point along the imaginary axis (Gauss-Legendre mesh).

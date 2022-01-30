@@ -69,7 +69,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             order.
             (None, None) if unform atom is not available.
         """
-        pass
 
     @abc.abstractmethod
     def get_molecule_hash(self, mol):
@@ -83,7 +82,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         Returns:
             A hashable object. Examples can be string formulas, etc.
         """
-        pass
 
     @classmethod
     def from_dict(cls, d):

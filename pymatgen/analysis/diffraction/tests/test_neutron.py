@@ -3,7 +3,6 @@
 
 import unittest
 
-import matplotlib as mpl
 
 from pymatgen.analysis.diffraction.neutron import NDCalculator
 from pymatgen.core.lattice import Lattice

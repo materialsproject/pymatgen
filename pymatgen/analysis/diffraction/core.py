@@ -72,7 +72,6 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         Returns:
             (DiffractionPattern)
         """
-        pass
 
     def get_plot(
         self,

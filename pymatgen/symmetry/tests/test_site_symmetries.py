@@ -10,11 +10,9 @@ __status__ = "Development"
 __date__ = "4/23/19"
 
 import os
-import unittest
 
 import numpy as np
 
-import pymatgen
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.util.testing import PymatgenTest
 

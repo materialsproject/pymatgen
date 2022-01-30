@@ -522,7 +522,7 @@ class FiestaInput(MSONable):
     $nit_gw
 # dumping for BSE and TDDFT
     $do_bse    $do_tddft
-# number of occp. and virtual bands fo BSE: nocore and up to 40 eVs
+# number of occp. and virtual bands of BSE: nocore and up to 40 eVs
     $nv_bse   $nc_bse
 # number of excitations needed and number of iterations
     $npsi_bse   $nit_bse
@@ -681,7 +681,7 @@ $geometry
         toks = l.split()
         BSE_TDDFT_options["do_bse"] = toks[0]
         BSE_TDDFT_options["do_tddft"] = toks[1]
-        # number of occp. and virtual bands fo BSE: nocore and up to 40 eVs
+        # number of occp. and virtual bands of BSE: nocore and up to 40 eVs
         lines.pop(0)
         l = lines.pop(0).strip()
         toks = l.split()

@@ -6,7 +6,7 @@ This module implements plotter for DOS and band structure.
 """
 
 import logging
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 
 import numpy as np
 import scipy.constants as const
@@ -85,7 +85,7 @@ class PhononDosPlotter:
         """
         self.stack = stack
         self.sigma = sigma
-        self._doses = OrderedDict()
+        self._doses = {}
 
     def add_dos(self, label, dos):
         """
