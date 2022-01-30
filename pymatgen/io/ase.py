@@ -69,7 +69,7 @@ class AseAtomsAdaptor:
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
-        # The mapping selected here is: 
+        # The mapping selected here is:
         # ASE initial magmom <--> Pymatgen "magmom"
         # ASE final magmom <--> Pymatgen "final_magmom"
         # ASE initial charge <--> Pymatgen "charge"
@@ -200,7 +200,7 @@ class AseAtomsAdaptor:
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
-        # The mapping selected here is: 
+        # The mapping selected here is:
         # ASE initial magmom <--> Pymatgen "magmom"
         # ASE final magmom <--> Pymatgen "final_magmom"
         # ASE initial charge <--> Pymatgen "charge"
