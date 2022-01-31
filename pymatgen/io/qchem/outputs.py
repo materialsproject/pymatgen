@@ -1134,6 +1134,11 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
 
         self._read_geometries()
+        if have_babel:
+            self.data["structure_change"] = check_for_structure_changes(
+                self.data["initial_molecule"],
+                self.data["molecule_from_last_geometry"],
+            )
         self._read_gradients()
 
         if len(self.data.get("errors")) == 0:
