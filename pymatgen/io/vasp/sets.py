@@ -3298,5 +3298,3 @@ class MPAbsorptionSet(MPRelaxSet):
         """
         input_set = cls(_dummy_structure, mode, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
-
-
