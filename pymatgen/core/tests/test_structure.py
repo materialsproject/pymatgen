@@ -556,6 +556,25 @@ Direct
         self.assertTrue(s_indices[0] == 0)
         self.assertTrue((~np.isnan(s_indices)).all())
         self.assertTrue((symops[0].affine_matrix == np.eye(4)).all())
+        # now more complicated example with bonds of same length but with different symmetry
+        s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ['Cu'], [[0., 0., 0.]])
+        c_indices2, p_indices2, offsets2, distances2, s_indices2, symops2 = s2.get_symmetric_neighbor_list(7, sg=198)
+        self.assertTrue(len(np.unique(s_indices2)) == 2)
+        self.assertTrue(len(s_indices2) == 48)
+        self.assertTrue(len(s_indices2[s_indices2 == 0]) == len(s_indices2[s_indices2 == 1]))
+        self.assertTrue(s_indices2[0] == 0)
+        self.assertTrue(s_indices2[24] == 1)
+        self.assertTrue(np.isclose(distances2[0], distances2[24]))
+        self.assertTrue((symops2[0].affine_matrix == np.eye(4)).all())
+        self.assertTrue((symops2[24].affine_matrix == np.eye(4)).all())
+        from_a2 = s2[c_indices2[0]].frac_coords
+        to_a2 = s2[p_indices2[0]].frac_coords
+        R_a2 = offsets2[0]
+        from_b2 = s2[c_indices2[1]].frac_coords
+        to_b2 = s2[p_indices2[1]].frac_coords
+        R_b2 = offsets2[1]
+        self.assertTrue(symops2[1].are_symmetrically_related_bond(from_a2, to_a2, R_a2, from_b2, to_b2, R_b2))
+        self.assertTrue(symops2[1].are_symmetrically_related_bond(from_b2, to_b2, R_b2, from_a2, to_a2, R_a2))
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(
