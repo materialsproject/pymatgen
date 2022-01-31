@@ -13,7 +13,6 @@ import warnings
 
 import numpy as np
 import sympy as sp
-from monty.dev import deprecated
 from scipy.integrate import quad
 from scipy.optimize import root
 from scipy.special import factorial
@@ -404,17 +403,6 @@ class ElasticTensor(NthOrderElasticTensor):
         vm = 3 ** (1.0 / 3.0) * (1 / vl ** 3 + 2 / vt ** 3) ** (-1.0 / 3.0)
         td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi ** 2 / v0) ** (1.0 / 3.0)
         return td
-
-    @deprecated(
-        "debye_temperature_from_sound_velocities is now the default"
-        "debye_temperature function, this one will be removed."
-    )
-    @raise_error_if_unphysical
-    def debye_temperature_from_sound_velocities(self, structure):
-        """
-        Estimates Debye temperature from sound velocities
-        """
-        return self.debye_temperature(structure)
 
     @property
     def universal_anisotropy(self):

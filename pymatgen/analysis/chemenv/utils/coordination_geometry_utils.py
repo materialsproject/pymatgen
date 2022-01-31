@@ -820,26 +820,6 @@ class Plane:
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 
-    def orthonormal_vectors_old(self):
-        """
-        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
-        third one is the normal vector of the plane
-        :return: List of orthogonal vectors
-        :raise: ValueError if all the coefficients are zero or if there is some other strange error
-        """
-        if self.e1 is None:
-            imax = np.argmax(np.abs(self.normal_vector))
-            if imax == 0:
-                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
-            elif imax == 1:
-                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
-            elif imax == 2:
-                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
-            else:
-                raise ValueError("Only three values in the normal vector, should not be here ...")
-            self.e2 = np.cross(self.e3, self.e1)
-        return [self.e1, self.e2, self.e3]
-
     def project_and_to2dim_ordered_indices(self, pps, plane_center="mean"):
         """
         Projects each points in the point list pps on plane and returns the indices that would sort the

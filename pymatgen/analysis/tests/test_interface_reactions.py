@@ -7,7 +7,10 @@ from pandas import DataFrame
 from plotly.graph_objects import Figure as plotly_figure
 from scipy.spatial import ConvexHull
 
-from pymatgen.analysis.interface_reactions import InterfacialReactivity, GrandPotentialInterfacialReactivity
+from pymatgen.analysis.interface_reactions import (
+    GrandPotentialInterfacialReactivity,
+    InterfacialReactivity,
+)
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
@@ -140,13 +143,13 @@ class InterfaceReactionTest(unittest.TestCase):
             use_hull_energy=False,
         )
         with self.assertRaises(Exception) as context1:
-            ir_13 = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
+            _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
             self.assertTrue(
                 "Please use the GrandPotentialInterfacialReactivity "
                 "class for interfacial reactions with open elements!" == str(context1.exception)
             )
         with self.assertRaises(Exception) as context2:
-            ir_14 = GrandPotentialInterfacialReactivity(
+            _ = GrandPotentialInterfacialReactivity(
                 Composition("O2"),
                 Composition("Mn"),
                 grand_pd=self.gpd,
@@ -272,7 +275,7 @@ class InterfaceReactionTest(unittest.TestCase):
         )
 
     def test_get_products(self):
-        test1 = sorted(self.ir[0].get_products()) == sorted(["MnO2", "O2", "Mn"])
+        test1 = sorted(self.ir[0].products) == sorted(["MnO2", "O2", "Mn"])
         self.assertTrue(
             test1,
             "get_products: decomposition products gets error for reaction not involving chempots species!",
