@@ -17,6 +17,7 @@ import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
+from io import StringIO
 from typing import (
     Any,
     Callable,
@@ -31,13 +32,12 @@ from typing import (
     Tuple,
     Union,
 )
-from io import StringIO
 
-from ruamel.yaml import YAML
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+from ruamel.yaml import YAML
 from tabulate import tabulate
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
