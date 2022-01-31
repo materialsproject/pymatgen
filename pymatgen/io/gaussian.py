@@ -20,7 +20,7 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
 
-__author__ = "Shyue Ping Ong, Germain  Salvato-Vallverdu, Xin Chen"
+__author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -1314,7 +1314,7 @@ class GaussianOutput:
         Get a matplotlib plot of the potential energy surface.
 
         Args:
-            coords: internal coordinate name to use as abcissa.
+            coords: internal coordinate name to use as abscissa.
         """
         from pymatgen.util.plotting import pretty_plot
 
@@ -1378,7 +1378,7 @@ class GaussianOutput:
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
         """
-        Get a matplotlib plot of the UV-visible xas. Transition are plotted
+        Get a matplotlib plot of the UV-visible xas. Transitions are plotted
         as vertical lines and as a sum of normal functions with sigma with. The
         broadening is applied in energy and the xas is plotted as a function
         of the wavelength.
