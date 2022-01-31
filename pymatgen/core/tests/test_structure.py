@@ -548,6 +548,15 @@ Direct
     #
     #     warnings.simplefilter("default")
 
+    def test_get_symmetric_neighbor_list(self):
+        # tetragonal group with all bonds related by symmetry
+        s = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ['Fe'], [[0., 0., 0.]])
+        c_indices, p_indices, offsets, distances, s_indices, symops = s.get_symmetric_neighbor_list(0.8, sg=100)
+        self.assertTrue(len(np.unique(s_indices)) == 1)
+        self.assertTrue(s_indices[0] == 0)
+        self.assertTrue((~np.isnan(s_indices)).all())
+        self.assertTrue((symops[0].affine_matrix == np.eye(4)).all())
+
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(
             Lattice.cubic(2),
