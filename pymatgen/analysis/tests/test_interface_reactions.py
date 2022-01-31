@@ -274,17 +274,17 @@ class InterfaceReactionTest(unittest.TestCase):
             f"_convert: conversion gets error! {answer} expected, but gets {result}",
         )
 
-    def test_get_products(self):
+    def test_products_property(self):
         test1 = sorted(self.ir[0].products) == sorted(["MnO2", "O2", "Mn"])
         self.assertTrue(
             test1,
-            "get_products: decomposition products gets error for reaction not involving chempots species!",
+            "decomposition products gets error for reaction not involving chempots species!",
         )
 
-        test2 = sorted(self.ir[3].get_products()) == sorted(["Li", "MnO2", "Mn", "Li2O"])
+        test2 = sorted(self.ir[3].products) == sorted(["Li", "MnO2", "Mn", "Li2O"])
         self.assertTrue(
             test2,
-            "get_decomp: decomposition products gets error for reaction involving chempots species!",
+            "decomposition products gets error for reaction involving chempots species!",
         )
 
     def test_get_kinks(self):
