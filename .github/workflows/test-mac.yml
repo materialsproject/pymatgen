@@ -37,6 +37,7 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
+            setup.py
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
