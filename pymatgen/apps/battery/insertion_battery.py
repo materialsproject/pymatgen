@@ -13,9 +13,8 @@ __copyright__ = "Copyright 2012, The Materials Project"
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable, Dict, Union, Tuple, List
+from typing import Dict, Iterable, List, Tuple, Union
 
-from monty.dev import deprecated
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
@@ -365,74 +364,6 @@ class InsertionElectrode(AbstractElectrode):
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
-        return d
-
-    @deprecated(
-        replacement=get_summary_dict,
-        message="Name and logic changed, as_dict_summary will be removed in a future release.",
-    )
-    def as_dict_summary(self, print_subelectrodes=True):
-        """
-        Generate a summary dict.
-
-        Args:
-            print_subelectrodes: Also print data on all the possible
-                subelectrodes.
-
-        Returns:
-            A summary of this electrode"s properties in dict format.
-        """
-        chg_comp = self.fully_charged_entry.composition
-        dischg_comp = self.fully_discharged_entry.composition
-
-        ion = self.working_ion
-        d = {
-            "average_voltage": self.get_average_voltage(),
-            "max_voltage": self.max_voltage,
-            "min_voltage": self.min_voltage,
-            "max_delta_volume": self.max_delta_volume,
-            "max_voltage_step": self.max_voltage_step,
-            "capacity_grav": self.get_capacity_grav(),
-            "capacity_vol": self.get_capacity_vol(),
-            "energy_grav": self.get_specific_energy(),
-            "energy_vol": self.get_energy_density(),
-            "working_ion": self.working_ion.symbol,
-            "nsteps": self.num_steps,
-            "framework": self.voltage_pairs[0].framework.to_data_dict,
-            "formula_charge": chg_comp.reduced_formula,
-            "id_charge": self.fully_charged_entry.entry_id,
-            "formula_discharge": dischg_comp.reduced_formula,
-            "id_discharge": self.fully_discharged_entry.entry_id,
-            "fracA_charge": chg_comp.get_atomic_fraction(ion),
-            "fracA_discharge": dischg_comp.get_atomic_fraction(ion),
-            "max_instability": self.get_max_instability(),
-            "min_instability": self.get_min_instability(),
-            "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
-            "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
-            "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
-        }
-
-        if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update(
-                {
-                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
-                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
-                    "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
-                    },
-                }
-            )
-
-        if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
-
-        if print_subelectrodes:
-
-            def f_dict(c):
-                return c.get_summary_dict(print_subelectrodes=False)
-
-            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
-            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
         return d
 
     def __str__(self):
