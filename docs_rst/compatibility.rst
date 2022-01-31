@@ -28,7 +28,7 @@ breaking changes have been made.
 * v2019.3.13 - Renaming of `Site.species_and_occu` to `Site.species`.
 
 Where at all possible, the pymatgen maintainers try to allow for a reasonable deprecation
-schedule. For exampple, the `Site.species` change had a deprecation schedule of about 9 months.
+schedule. For example, the `Site.species` change had a deprecation schedule of about 9 months.
 However, some changes such as the recent reorganization of pymatgen into namespace packages
 cannot be easily done via a deprecation schedule.
 
@@ -64,6 +64,31 @@ Windows and Linux.
 
 Recent Breaking Changes
 -----------------------
+
+Unreleased
+~~~~~~~~~~
+
+Removal of deprecated functions:
+
+`#2405 <https://github.com/materialsproject/pymatgen/pull/2405>`_
+
+#. :code:`Plane.orthonormal_vectors_old()`
+#. :code:`ElasticTensor.debye_temperature_from_sound_velocities()`
+#. :code:`VaspInputSet.all_input()`
+
+`#2397 <https://github.com/materialsproject/pymatgen/pull/2397>`_
+
+#. :code:`get_dimensionality() in pymatgen/analysis/structure_analyzer.py`
+#. :code:`ConversionElectrode.as_dict_summary()`
+#. :code:`InsertionElectrode.as_dict_summary()`
+#. :code:`Lattice.from_lengths_and_angles()`
+#. :code:`Lattice.lengths_and_angles()`
+#. :code:`Site.species_and_occu()`
+
+v2022.01.08
+~~~~~~~~~~~
+
+Dropped Python 3.7 support for compatibility with the latest numpy. `d00945 <https://github.com/materialsproject/pymatgen/commit/d00945491e9b53548ea8a6755a002c2066ad0ac9>`_ `61ec51c <https://github.com/materialsproject/pymatgen/commit/61ec51cc9751d65df0783af3713e2425d733191e>`_
 
 v2022.0.0
 ~~~~~~~~~
