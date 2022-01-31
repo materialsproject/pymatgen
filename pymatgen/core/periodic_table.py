@@ -601,7 +601,7 @@ class ElementBase(Enum):
         raise ValueError("No element with this atomic number %s" % z)
 
     @staticmethod
-    def from_row_and_group(pseudo_row: int, pseudo_group: int) -> "Element":
+    def from_row_and_group(row: int, group: int) -> "Element":
         """
         Returns an element from a row and group number.
         Important Note: For lanthanoids and actinoids, the row number must
@@ -611,10 +611,10 @@ class ElementBase(Enum):
         elements.
 
         Args:
-            pseudo_row (int): (pseudo) row number. This is the
+            row (int): (pseudo) row number. This is the
                 standard row number except for the lanthanoids
                 and actinoids for which it is 8 or 9, respectively.
-            pseudo_group (int): (pseudo) group number. This is the
+            group (int): (pseudo) group number. This is the
                 standard group number except for the lanthanoids
                 and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
@@ -632,7 +632,7 @@ class ElementBase(Enum):
             else:
                 el_pseudorow = el.row
                 el_pseudogroup = el.group
-            if el_pseudorow == pseudo_row and el_pseudogroup == pseudo_group:
+            if el_pseudorow == row and el_pseudogroup == group:
                 return el
         raise ValueError("No element with this row and group!")
 
