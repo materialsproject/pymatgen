@@ -653,8 +653,11 @@ class DftSet(Cp2kInputSet):
                     },
                 )
             )
-            ip_keywords.update(
-                {"POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type), "OMEGA": Keyword("OMEGA", 0.11)}
+            ip_keywords.update({
+                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type), 
+                    "OMEGA": Keyword("OMEGA", 0.11),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                }
             )
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=0.75)
@@ -714,6 +717,9 @@ class DftSet(Cp2kInputSet):
                 )
             )
         else:
+            warnings.warn("Uknown hybrid functional. Using PBE base functional"
+                          " and overriding all settings manually. Proceed with"
+                          " caution.")
             pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
             xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
 
