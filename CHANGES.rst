@@ -5,7 +5,7 @@ v2022.2.1
 ---------
 * Chargemol caller for partial atomic charge analysis (@arosen93)
 * ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (@arosen93)
-* Cleanup of deprecated methods. (@janosh) github-actions-setup-python-now-supports-dependency-caching
+* Cleanup of deprecated methods. (@janosh)
 * Bigfix for gzipped DOSCAR (@JaGeo)
 * Updates for QChem Support (@samblau)
 * QuantumEspresso k-grid fix input fix. (@vorwerkc)
