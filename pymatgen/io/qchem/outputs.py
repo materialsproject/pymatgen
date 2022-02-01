@@ -219,6 +219,53 @@ class QCOutput(MSONable):
                         spin_contamination[ii] = abs(correct_s2 - entry)
                     self.data["warnings"]["spin_contamination"] = spin_contamination
 
+        # Parse additional data from coupled-cluster calculations
+        self.data["coupled_cluster"] = read_pattern(
+            self.text, {"key": r"CCMAN2: suite of methods based on coupled cluster"}
+        ).get("key")
+        if self.data.get("coupled_cluster", []):
+            temp_dict = read_pattern(
+                self.text,
+                {
+                    "SCF": r"\s+SCF energy\s+=\s+([\d\-\.]+)",
+                    "MP2": r"\s+MP2 energy\s+=\s+([\d\-\.]+)",
+                    "CCSD_correlation": r"\s+CCSD correlation energy\s+=\s+([\d\-\.]+)",
+                    "CCSD": r"\s+CCSD total energy\s+=\s+([\d\-\.]+)",
+                    "CCSD(T)_correlation": r"\s+CCSD\(T\) correlation energy\s+=\s+([\d\-\.]+)",
+                    "CCSD(T)": r"\s+CCSD\(T\) total energy\s+=\s+([\d\-\.]+)",
+                },
+            )
+
+            if temp_dict.get("SCF") is None:
+                self.data["hf_scf_energy"] = None
+            else:
+                self.data["hf_scf_energy"] = float(temp_dict["SCF"][0][0])
+
+            if temp_dict.get("MP2") is None:
+                self.data["mp2_energy"] = None
+            else:
+                self.data["mp2_energy"] = float(temp_dict["MP2"][0][0])
+
+            if temp_dict.get("CCSD_correlation") is None:
+                self.data["ccsd_correlation_energy"] = None
+            else:
+                self.data["ccsd_correlation_energy"] = float(temp_dict["CCSD_correlation"][0][0])
+
+            if temp_dict.get("CCSD") is None:
+                self.data["ccsd_total_energy"] = None
+            else:
+                self.data["ccsd_total_energy"] = float(temp_dict["CCSD"][0][0])
+
+            if temp_dict.get("CCSD(T)_correlation") is None:
+                self.data["ccsd(t)_correlation_energy"] = None
+            else:
+                self.data["ccsd(t)_correlation_energy"] = float(temp_dict["CCSD(T)_correlation"][0][0])
+
+            if temp_dict.get("CCSD(T)") is None:
+                self.data["ccsd(t)_total_energy"] = None
+            else:
+                self.data["ccsd(t)_total_energy"] = float(temp_dict["CCSD(T)"][0][0])
+
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*opt"}).get("key")
         if self.data.get("optimization", []):
@@ -1092,6 +1139,11 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
 
         self._read_geometries()
+        if have_babel:
+            self.data["structure_change"] = check_for_structure_changes(
+                self.data["initial_molecule"],
+                self.data["molecule_from_last_geometry"],
+            )
         self._read_gradients()
 
         if len(self.data.get("errors")) == 0:
