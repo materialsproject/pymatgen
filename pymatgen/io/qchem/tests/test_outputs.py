@@ -92,6 +92,12 @@ property_list = {
     "molecules_from_optimized_geometries",
     "scan_energies",
     "scan_constraint_sets",
+    "hf_scf_energy",
+    "mp2_energy",
+    "ccsd_correlation_energy",
+    "ccsd_total_energy",
+    "ccsd(t)_correlation_energy",
+    "ccsd(t)_total_energy",
 }
 
 if have_babel:
@@ -157,6 +163,8 @@ single_job_out_names = {
     "new_qchem_files/pes_scan_single_variable.qout",
     "new_qchem_files/pes_scan_double_variable.qout",
     "new_qchem_files/ts.out",
+    "new_qchem_files/ccsd.qout",
+    "new_qchem_files/ccsdt.qout",
 }
 
 multi_job_out_names = {
