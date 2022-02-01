@@ -976,7 +976,7 @@ class PhaseDiagram(MSONable):
 
         # find position along line
         l = c2 - c1
-        l /= np.sum(l ** 2) ** 0.5
+        l /= np.sum(l**2) ** 0.5
         proj = np.dot(intersections - c1, l)
 
         # only take compositions between endpoints

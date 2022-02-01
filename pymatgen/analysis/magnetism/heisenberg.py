@@ -509,7 +509,7 @@ class HeisenbergMapper:
         # fm_e = fm_e / len(magmoms)
         # afm_e = afm_e / len(afm_magmoms)
 
-        m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
+        m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
 
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
@@ -521,7 +521,7 @@ class HeisenbergMapper:
             logging.warning(iamthedanger)
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        j_avg = delta_e / (m_avg ** 2)  # eV / magnetic ion
+        j_avg = delta_e / (m_avg**2)  # eV / magnetic ion
         j_avg *= 1000  # meV / ion
 
         return j_avg

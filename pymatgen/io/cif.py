@@ -900,7 +900,7 @@ class CifParser:
             if m:
                 parsed_sym = m.group()
 
-        if parsed_sym is not None and (m_sp or not re.match(fr"{parsed_sym}\d*", sym)):
+        if parsed_sym is not None and (m_sp or not re.match(rf"{parsed_sym}\d*", sym)):
             msg = f"{sym} parsed as {parsed_sym}"
             warnings.warn(msg)
             self.warnings.append(msg)

@@ -199,7 +199,7 @@ class PhononDosPlotter:
         ylim = plt.ylim()
         plt.plot([0, 0], ylim, "k--", linewidth=2)
 
-        plt.xlabel(fr"$\mathrm{{Frequencies\ ({u.label})}}$")
+        plt.xlabel(rf"$\mathrm{{Frequencies\ ({u.label})}}$")
         plt.ylabel(r"$\mathrm{Density\ of\ states}$")
 
         plt.legend()
@@ -366,7 +366,7 @@ class PhononBSPlotter:
 
         # Main X and Y Labels
         plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
-        ylabel = fr"$\mathrm{{Frequencies\ ({u.label})}}$"
+        ylabel = rf"$\mathrm{{Frequencies\ ({u.label})}}$"
         plt.ylabel(ylabel, fontsize=30)
 
         # X range (K)
@@ -686,11 +686,11 @@ class ThermoPlotter:
             temperatures,
             ylabel="Thermodynamic properties",
             ylim=ylim,
-            label=fr"$C_v$ (J/K/mol{mol})",
+            label=rf"$C_v$ (J/K/mol{mol})",
             **kwargs,
         )
         self._plot_thermo(
-            self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0], label=fr"$S$ (J/K/mol{mol})", **kwargs
+            self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0], label=rf"$S$ (J/K/mol{mol})", **kwargs
         )
         self._plot_thermo(
             self.dos.internal_energy,
@@ -698,7 +698,7 @@ class ThermoPlotter:
             ylim=ylim,
             ax=fig.axes[0],
             factor=1e-3,
-            label=fr"$\Delta E$ (kJ/mol{mol})",
+            label=rf"$\Delta E$ (kJ/mol{mol})",
             **kwargs,
         )
         self._plot_thermo(
@@ -707,7 +707,7 @@ class ThermoPlotter:
             ylim=ylim,
             ax=fig.axes[0],
             factor=1e-3,
-            label=fr"$\Delta F$ (kJ/mol{mol})",
+            label=rf"$\Delta F$ (kJ/mol{mol})",
             **kwargs,
         )
 
@@ -749,7 +749,7 @@ class GruneisenPlotter:
 
         plt = pretty_plot(12, 8)
 
-        plt.xlabel(fr"$\mathrm{{Frequency\ ({u.label})}}$")
+        plt.xlabel(rf"$\mathrm{{Frequency\ ({u.label})}}$")
         plt.ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n = len(y) - 1
