@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.1.24 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.2.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.1.24
+                2022.2.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-2-1">v2022.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-24">v2022.1.24</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-20">v2022.1.20</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-9">v2022.1.9</a></li>
@@ -383,6 +384,20 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
+<section id="v2022-2-1">
+<h2>v2022.2.1<a class="headerlink" href="#v2022-2-1" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Chargemol caller for partial atomic charge analysis (&#64;arosen93)</p></li>
+<li><p>ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (&#64;arosen93)</p></li>
+<li><p>Cleanup of deprecated methods. (&#64;janosh) github-actions-setup-python-now-supports-dependency-caching</p></li>
+<li><p>Bigfix for gzipped DOSCAR (&#64;JaGeo)</p></li>
+<li><p>Updates for QChem Support (&#64;samblau)</p></li>
+<li><p>QuantumEspresso k-grid fix input fix. (&#64;vorwerkc)</p></li>
+<li><p><cite>Entry.__repr__()</cite> now ouputs name where available. (&#64;janosh)</p></li>
+<li><p>Fixes to Vasprun.final_energy to report <cite>e_0_energy</cite> (the desired energy quantity) for VASP 6+. (&#64;arosen93)</p></li>
+<li><p><cite>Outcar().final_energy</cite> now prints out <cite>e_0_energy</cite> (also called “energy(sigma-&gt;0)” in the OUTCAR) rather than <cite>energy_fr_energy</cite> (also called “free  energy   TOTEN” in the OUTCAR). This is to be consistent with <cite>Vasprun().final_energy</cite> and because it is generally the desired quantity. <cite>Outcar</cite> now has two new attributes: <cite>.final_energy_wo_entrp</cite> and <cite>final_fr_energy</cite>, which correspond to <cite>e_wo_entrp</cite> and <cite>e_fr_energy</cite>, respectively. (&#64;arosen93)</p></li>
+</ul>
+</section>
 <section id="v2022-1-24">
 <h2>v2022.1.24<a class="headerlink" href="#v2022-1-24" title="Permalink to this headline"></a></h2>
 <ul class="simple">
@@ -1311,7 +1326,7 @@ remove non-ground-states, etc. Makes it easier to grab a large set of entries an
 <li><p>Fix: Outcar parsing issues with certain values of electrostatic potential (&#64;sivonxay)</p></li>
 <li><p>Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
 stoichiometries in some instances (#1286) (&#64;shyuep)</p></li>
-<li><p>Fix: fractional co-ordinate finite precision errors in CifParser, now
+<li><p>Fix: fractional coordinate finite precision errors in CifParser, now
 also includes additional warnings for implicit hydrogens (&#64;mkhorton)</p></li>
 <li><p>New features and improvements to GBGenerator (&#64;ucsdlxg, &#64;shyuep)</p></li>
 <li><p>New analysis options in StructureGraph, speed up tests (&#64;mkhorton)</p></li>
