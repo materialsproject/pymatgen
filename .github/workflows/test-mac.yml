@@ -33,12 +33,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/Library/Caches/pip # needs to change if `runs-on: macos` changes
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements{,-dev}.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            setup.py
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel

@@ -291,21 +291,6 @@ class Lattice(MSONable):
         """
         return Lattice.from_parameters(a, a, a, alpha, alpha, alpha)
 
-    @staticmethod
-    @deprecated(message="Use Lattice.from_parameters instead. This will be removed in v2020.*")
-    def from_lengths_and_angles(abc: Sequence[float], ang: Sequence[float]):
-        """
-        Create a Lattice using unit cell lengths and angles (in degrees).
-
-        Args:
-            abc (3x1 array): Lattice parameters, e.g. (4, 4, 5).
-            ang (3x1 array): Lattice angles in degrees, e.g., (90,90,120).
-
-        Returns:
-            A Lattice with the specified lattice parameters.
-        """
-        return Lattice.from_parameters(abc[0], abc[1], abc[2], ang[0], ang[1], ang[2])
-
     @classmethod
     def from_parameters(
         cls,
@@ -449,16 +434,6 @@ class Lattice(MSONable):
         Returns: (a, b, c, alpha, beta, gamma).
         """
         return (*self.lengths, *self.angles)
-
-    @property  # type: ignore
-    @deprecated(message="Use Lattice.parameters instead. This will be removed in v2020.*")
-    def lengths_and_angles(
-        self,
-    ) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
-        """
-        Returns (lattice lengths, lattice angles).
-        """
-        return self.lengths, self.angles
 
     @property
     def reciprocal_lattice(self) -> "Lattice":

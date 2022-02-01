@@ -222,7 +222,9 @@ def periodic_table_heatmap(
             periodic table. Default is "white".
          max_row (integer): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
-            the first 9 rows of elements.
+            the standard 7 rows of the periodic table + 2 rows for the lanthanides
+            and actinides. Use a value of max_row = 7 to exclude the lanthanides and
+            actinides.
          readable_fontcolor (bool): Whether to use readable fontcolor depending
             on background color. Default is False.
     """
@@ -244,10 +246,19 @@ def periodic_table_heatmap(
     blank_value = min_val - 0.01
 
     for el in Element:
-        if el.row > max_row:
-            continue
         value = elemental_data.get(el.symbol, blank_value)
-        value_table[el.row - 1, el.group - 1] = value
+        if 57 <= el.Z <= 71:
+            plot_row = 8
+            plot_group = (el.Z - 54) % 32
+        elif 89 <= el.Z <= 103:
+            plot_row = 9
+            plot_group = (el.Z - 54) % 32
+        else:
+            plot_row = el.row
+            plot_group = el.group
+        if plot_row > max_row:
+            continue
+        value_table[plot_row - 1, plot_group - 1] = value
 
     # Initialize the plt object
     import matplotlib.pyplot as plt

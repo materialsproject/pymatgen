@@ -27,7 +27,6 @@ from typing import List, Literal, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MSONable
 from pandas import DataFrame
 from plotly.graph_objects import Figure, Scatter
@@ -625,13 +624,6 @@ class InterfacialReactivity(MSONable):
         for _, _, _, react, _ in self.get_kinks():
             products = products.union({k.reduced_formula for k in react.products})
         return list(products)
-
-    @deprecated(products)
-    def get_products(self):
-        """
-        Deprecated method. Use the "products" property.
-        """
-        return self.products
 
 
 class GrandPotentialInterfacialReactivity(InterfacialReactivity):

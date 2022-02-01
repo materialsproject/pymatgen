@@ -52,7 +52,6 @@ from typing import List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -135,22 +134,6 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 )
 
         return potcar
-
-    @property  # type: ignore
-    @deprecated(message="Use the get_vasp_input() method instead.")
-    def all_input(self):
-        """
-        Returns all input files as a dict of {filename: vasp object}
-
-        Returns:
-            dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
-        """
-        return {
-            "INCAR": self.incar,
-            "KPOINTS": self.kpoints,
-            "POSCAR": self.poscar,
-            "POTCAR": self.potcar,
-        }
 
     def get_vasp_input(self) -> VaspInput:
         """
@@ -793,7 +776,7 @@ class DictSet(VaspInputSet):
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max(i_species.enmax for i_species in self.all_input["POTCAR"])
+            encut = max(i_species.enmax for i_species in self.get_vasp_input().potcar)
         #
 
         _CUTOF = [
