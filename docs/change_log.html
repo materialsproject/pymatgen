@@ -396,6 +396,7 @@
 <li><p><cite>Entry.__repr__()</cite> now ouputs name where available. (&#64;janosh)</p></li>
 <li><p>Fixes to Vasprun.final_energy to report <cite>e_0_energy</cite> (the desired energy quantity) for VASP 6+. (&#64;arosen93)</p></li>
 <li><p><cite>Outcar().final_energy</cite> now prints out <cite>e_0_energy</cite> (also called “energy(sigma-&gt;0)” in the OUTCAR) rather than <cite>energy_fr_energy</cite> (also called “free  energy   TOTEN” in the OUTCAR). This is to be consistent with <cite>Vasprun().final_energy</cite> and because it is generally the desired quantity. <cite>Outcar</cite> now has two new attributes: <cite>.final_energy_wo_entrp</cite> and <cite>final_fr_energy</cite>, which correspond to <cite>e_wo_entrp</cite> and <cite>e_fr_energy</cite>, respectively. (&#64;arosen93)</p></li>
+<li><p>Improved parsing of coupled cluster calculations in QChem (&#64;espottesmith).</p></li>
 </ul>
 </section>
 <section id="v2022-1-24">

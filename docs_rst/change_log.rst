@@ -12,6 +12,7 @@ v2022.2.1
 * `Entry.__repr__()` now ouputs name where available. (@janosh)
 * Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93) 
 * `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
+* Improved parsing of coupled cluster calculations in QChem (@espottesmith).
 
 v2022.1.24
 ----------
