@@ -3108,22 +3108,22 @@ class MPAbsorptionSet(MPRelaxSet):
 
     """
 
-    #CONFIG = _load_yaml_config("MPAbsorptionSet")
+    # CONFIG = _load_yaml_config("MPAbsorptionSet")
 
     SUPPORTED_MODES = ("IPA", "RPA")
 
     def __init__(
-            self,
-            structure,
-            mode="IPA",
-            copy_wavecar=True,
-            nbands=None,
-            nbands_factor=2,
-            reciprocal_density=400,
-            nkred=None,
-            nedos=2001,
-            prev_incar=None,
-            **kwargs
+        self,
+        structure,
+        mode="IPA",
+        copy_wavecar=True,
+        nbands=None,
+        nbands_factor=2,
+        reciprocal_density=400,
+        nkred=None,
+        nedos=2001,
+        prev_incar=None,
+        **kwargs,
     ):
         """
         Args:
@@ -3174,20 +3174,21 @@ class MPAbsorptionSet(MPRelaxSet):
         :return: Incar
         """
         parent_incar = super().incar
-        absorption_incar = {"ALGO": "Exact",
-                            "EDIFF": 1.0e-8,
-                            "IBRION": -1,
-                            "ICHARG": 1,
-                            "ISMEAR": 0,
-                            "SIGMA": 0.01,
-                            "LWAVE": True,
-                            "LREAL": False,  # for small cell it's more efficient to use reciprocal
-                            "NELM": 100,
-                            "NSW": 0,
-                            "LOPTICS": True,
-                            "CSHIFT": 0.1,
-                            "NEDOS": 2001
-                            }
+        absorption_incar = {
+            "ALGO": "Exact",
+            "EDIFF": 1.0e-8,
+            "IBRION": -1,
+            "ICHARG": 1,
+            "ISMEAR": 0,
+            "SIGMA": 0.01,
+            "LWAVE": True,
+            "LREAL": False,  # for small cell it's more efficient to use reciprocal
+            "NELM": 100,
+            "NSW": 0,
+            "LOPTICS": True,
+            "CSHIFT": 0.1,
+            "NEDOS": 2001,
+        }
         self._config_dict["INCAR"].update(absorption_incar)
 
         if self.mode == "IPA":
@@ -3226,7 +3227,7 @@ class MPAbsorptionSet(MPRelaxSet):
 
         return incar
 
-    def override_from_prev_calc(self, prev_calc_dir='.', **kwargs):
+    def override_from_prev_calc(self, prev_calc_dir=".", **kwargs):
         """
         Update the input set to include settings from a previous calculation.
         Args:
