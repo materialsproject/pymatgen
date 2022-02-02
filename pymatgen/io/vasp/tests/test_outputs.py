@@ -1798,7 +1798,7 @@ class WavecarTest(PymatgenTest):
 
         self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2")
         self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.encut, 25.0)
         self.assertEqual(w.nb, 9)
         self.assertEqual(w.nk, 1)
         self.assertTrue(np.allclose(w.a, a))
@@ -1842,7 +1842,7 @@ class WavecarTest(PymatgenTest):
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.encut, 25.0)
         self.assertEqual(w.nb, 9)
         self.assertEqual(w.nk, 1)
         self.assertTrue(np.allclose(w.a, self.a))
