@@ -68,15 +68,11 @@ class AdfInputError(Exception):
     The default error class for ADF.
     """
 
-    pass
-
 
 class AdfOutputError(Exception):
     """
     The default error class for errors raised by ``AdfOutput``.
     """
-
-    pass
 
 
 class AdfKey(MSONable):
@@ -152,9 +148,9 @@ class AdfKey(MSONable):
             s = ""
             for op in self.options:
                 if self._sized_op:
-                    s += "{:s}={:s} ".format(*map(str, op))
+                    s += f"{op[0]}={op[1]} "
                 else:
-                    s += f"{str(op):s} "
+                    s += f"{op} "
             return s.strip()
         return ""
 
@@ -184,9 +180,9 @@ class AdfKey(MSONable):
         different string format will be used.
 
         """
-        s = f"{self.key:s}"
+        s = f"{self.key}"
         if len(self.options) > 0:
-            s += f" {self._options_string():s}"
+            s += f" {self._options_string()}"
         s += "\n"
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
@@ -275,7 +271,7 @@ class AdfKey(MSONable):
         Parameters
         ----------
         option : Sized or str or int or float
-            A new option to add. This must have the same format with exsiting
+            A new option to add. This must have the same format with existing
             options.
 
         Raises
@@ -513,7 +509,7 @@ class AdfTask(MSONable):
 
         """
         if operation not in self.operations.keys():
-            raise AdfInputError(f"Invalid ADF task {operation:s}")
+            raise AdfInputError(f"Invalid ADF task {operation}")
         self.operation = operation
         self.title = title
         self.basis_set = basis_set if basis_set is not None else self.get_default_basis_set()
@@ -606,7 +602,7 @@ class AdfTask(MSONable):
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError(f"{str(block_key)} is not an AdfKey!")
+                raise ValueError(f"{block_key} is not an AdfKey!")
             s += str(block_key) + "\n"
         return s
 

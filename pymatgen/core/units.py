@@ -73,9 +73,9 @@ BASE_UNITS = {
     "memory": {
         "byte": 1,
         "Kb": 1024,
-        "Mb": 1024 ** 2,
-        "Gb": 1024 ** 3,
-        "Tb": 1024 ** 4,
+        "Mb": 1024**2,
+        "Gb": 1024**3,
+        "Tb": 1024**4,
     },
 }
 
@@ -265,7 +265,7 @@ class Unit(collections.abc.Mapping):
             if not derived:
                 si, f = _get_si_unit(k)
                 b[si] += v
-                factor *= f ** v
+                factor *= f**v
         return {k: v for k, v in b.items() if v != 0}, factor
 
     def get_conversion_factor(self, new_unit):
@@ -326,7 +326,7 @@ class FloatWithUnit(float):
             if char.isalpha() or char.isspace():
                 break
         else:
-            raise Exception("Unit is missing in string %s" % s)
+            raise Exception(f"Unit is missing in string {s}")
         num, unit = float(s[:i]), s[i:]
 
         # Find unit type (set it to None if it cannot be detected)
@@ -397,7 +397,7 @@ class FloatWithUnit(float):
         return FloatWithUnit(float(self) * other, unit_type=None, unit=self._unit * other._unit)
 
     def __pow__(self, i):
-        return FloatWithUnit(float(self) ** i, unit_type=None, unit=self._unit ** i)
+        return FloatWithUnit(float(self) ** i, unit_type=None, unit=self._unit**i)
 
     def __truediv__(self, other):
         val = super().__truediv__(other)
@@ -834,7 +834,7 @@ def unitized(unit):
             elif val is None:
                 pass
             else:
-                raise TypeError("Don't know how to assign units to %s" % str(val))
+                raise TypeError(f"Don't know how to assign units to {str(val)}")
             return val
 
         return wrapped_f

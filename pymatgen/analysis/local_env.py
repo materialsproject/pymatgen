@@ -18,12 +18,12 @@ from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
+from ruamel.yaml import YAML
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
-from pymatgen.core import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
@@ -46,12 +46,13 @@ __status__ = "Production"
 __date__ = "August 17, 2017"
 
 _directory = os.path.join(os.path.dirname(__file__))
+yaml = YAML()
 
 with open(os.path.join(_directory, "op_params.yaml")) as f:
-    default_op_params = yaml.safe_load(f)
+    default_op_params = yaml.load(f)
 
 with open(os.path.join(_directory, "cn_opt_params.yaml")) as f:
-    cn_opt_params = yaml.safe_load(f)
+    cn_opt_params = yaml.load(f)
 
 with open(os.path.join(_directory, "ionic_radii.json")) as fp:
     _ion_radii = json.load(fp)
@@ -578,7 +579,7 @@ class NearNeighbors:
         the given site whose ideal CN corresponds to the
         underlying motif (e.g., CN=4, then calculate the
         square planar, tetrahedral, see-saw-like,
-        rectangular see-saw-like order paramters).
+        rectangular see-saw-like order parameters).
 
         Args:
             structure: Structure object
@@ -777,7 +778,7 @@ class VoronoiNN(NearNeighbors):
             indices.extend([(x[2],) + x[3] for x in neighs])
 
         # Get the non-duplicates (using the site indices for numerical stability)
-        indices = np.array(indices, dtype=np.int_)
+        indices = np.array(indices, dtype=int)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
         sites = [sites[i] for i in uniq_inds]
 
@@ -1174,7 +1175,8 @@ class JmolNN(NearNeighbors):
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
         with open(bonds_file) as f:
-            self.el_radius = yaml.safe_load(f)
+            yaml = YAML()
+            self.el_radius = yaml.load(f)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -1966,7 +1968,7 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS.keys()):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            ' "{}" in "BV_PARAMS"dictonary'
+            ' "{}" in "BV_PARAMS"dictionary'
             " provided by pymatgen".format(el_symbol)
         )
 
@@ -4047,13 +4049,13 @@ class CrystalNN(NearNeighbors):
         x2 = dist_bins[idx + 1]
 
         if dist_bins[idx] == 1:
-            area1 = 0.25 * math.pi * r ** 2
+            area1 = 0.25 * math.pi * r**2
         else:
-            area1 = 0.5 * ((x1 * math.sqrt(r ** 2 - x1 ** 2)) + (r ** 2 * math.atan(x1 / math.sqrt(r ** 2 - x1 ** 2))))
+            area1 = 0.5 * ((x1 * math.sqrt(r**2 - x1**2)) + (r**2 * math.atan(x1 / math.sqrt(r**2 - x1**2))))
 
-        area2 = 0.5 * ((x2 * math.sqrt(r ** 2 - x2 ** 2)) + (r ** 2 * math.atan(x2 / math.sqrt(r ** 2 - x2 ** 2))))
+        area2 = 0.5 * ((x2 * math.sqrt(r**2 - x2**2)) + (r**2 * math.atan(x2 / math.sqrt(r**2 - x2**2))))
 
-        return (area1 - area2) / (0.25 * math.pi * r ** 2)
+        return (area1 - area2) / (0.25 * math.pi * r**2)
 
     @staticmethod
     def transform_to_length(nndata, length):

@@ -14,19 +14,23 @@ https://www.materialsproject.org/dashboard.
 import itertools
 import json
 import logging
+import math
 import platform
 import re
 import sys
 import warnings
-from typing import List
 from enum import Enum, unique
 from time import sleep
+from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
+from tqdm import tqdm
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import __version__ as PMG_VERSION
+from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -34,11 +38,20 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import PBar, get_chunks
-from pymatgen.core import __version__ as PMG_VERSION
-
 
 logger = logging.getLogger(__name__)
+
+
+def get_chunks(sequence, size=1):
+    """
+    Args:
+        sequence ():
+        size ():
+
+    Returns:
+    """
+    chunks = int(math.ceil(len(sequence) / float(size)))
+    return [sequence[i * size : (i + 1) * size] for i in range(chunks)]
 
 
 @unique
@@ -187,7 +200,7 @@ class MPRester:
 
             try:
                 with open(SETTINGS_FILE) as f:
-                    d = yaml.safe_load(f)
+                    d = yaml.load(f)
             except OSError:
                 d = {}
 
@@ -253,7 +266,7 @@ class MPRester:
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
         except Exception as ex:
-            msg = f"{str(ex)}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
     def get_database_version(self):
@@ -284,7 +297,7 @@ class MPRester:
         Returns:
             materials_id (str)
         """
-        return self._make_request("/materials/mid_from_tid/%s" % task_id)
+        return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
     def get_materials_id_references(self, material_id):
         """
@@ -296,7 +309,7 @@ class MPRester:
         Returns:
             BibTeX (str)
         """
-        return self._make_request("/materials/%s/refs" % material_id)
+        return self._make_request(f"/materials/{material_id}/refs")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -337,7 +350,7 @@ class MPRester:
         Returns:
             ([str]) List of all materials ids.
         """
-        return self._make_request("/materials/%s/mids" % chemsys_formula, mp_decode=False)
+        return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
 
     def get_doc(self, materials_id):
         """
@@ -352,7 +365,7 @@ class MPRester:
             Dict of json document of all data that is displayed on a materials
             details page.
         """
-        return self._make_request("/materials/%s/doc" % materials_id, mp_decode=False)
+        return self._make_request(f"/materials/{materials_id}/doc", mp_decode=False)
 
     def get_xas_data(self, material_id, absorbing_element):
         """
@@ -399,7 +412,7 @@ class MPRester:
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        sub_url = "/tasks/%s" % chemsys_formula_id
+        sub_url = f"/tasks/{chemsys_formula_id}"
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
@@ -525,7 +538,7 @@ class MPRester:
         entries = []
         for d in data:
             d["potcar_symbols"] = [
-                "{} {}".format(d["pseudo_potential"]["functional"], l) for l in d["pseudo_potential"]["labels"]
+                f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
@@ -575,7 +588,7 @@ class MPRester:
             chemsys (str or [str]): Chemical system string comprising element
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
-            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+            solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProject2020Compatibility
@@ -587,8 +600,8 @@ class MPRester:
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
             Compatibility,
-            MaterialsProjectAqueousCompatibility,
             MaterialsProject2020Compatibility,
+            MaterialsProjectAqueousCompatibility,
             MaterialsProjectCompatibility,
         )
 
@@ -601,7 +614,7 @@ class MPRester:
         else:
             raise ValueError(
                 "Solid compatibility can only be 'MaterialsProjectCompatibility', "
-                "'MaterialsProject2020Compatibility', or an instance of a Compatability class"
+                "'MaterialsProject2020Compatibility', or an instance of a Compatibility class"
             )
 
         pbx_entries = []
@@ -998,7 +1011,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        progress_bar = PBar(total=len(mids))
+        progress_bar = tqdm(total=len(mids))
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
@@ -1316,7 +1329,7 @@ class MPRester:
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
-            e = self._make_request("/element/%s/tasks/isolated_atom" % (el), mp_decode=False)[0]
+            e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
@@ -1356,7 +1369,7 @@ class MPRester:
         """
         req = f"/materials/{material_id}/substrates?n={number}"
         if orient:
-            req += "&orient={}".format(" ".join(map(str, orient)))
+            req += f"&orient={' '.join(map(str, orient))}"
         return self._make_request(req)
 
     def get_all_substrates(self):
@@ -1696,5 +1709,3 @@ class MPRestError(Exception):
     Exception class for MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
-
-    pass

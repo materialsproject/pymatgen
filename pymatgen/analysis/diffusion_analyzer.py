@@ -277,7 +277,7 @@ class DiffusionAnalyzer(MSONable):
                     dcomponents = dc[:, n:, :] - dc[:, :-n, :]
 
                 # Get msd
-                sq_disp = dx ** 2
+                sq_disp = dx**2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][indices])
 
@@ -343,7 +343,7 @@ class DiffusionAnalyzer(MSONable):
             # Drift and displacement information.
             self.drift = drift
             self.corrected_displacements = dc
-            self.max_ion_displacements = np.max(np.sum(dc ** 2, axis=-1) ** 0.5, axis=1)
+            self.max_ion_displacements = np.max(np.sum(dc**2, axis=-1) ** 0.5, axis=1)
             self.max_framework_displacement = np.max(self.max_ion_displacements[framework_indices])
             self.msd = msd
             self.mscd = mscd
@@ -506,7 +506,7 @@ class DiffusionAnalyzer(MSONable):
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label="%s - %d" % (site.specie.__str__(), i))
+                plt.plot(plot_dt, sd, label=f"{site.specie.__str__()} - {i}")
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
             plt.plot(plot_dt, self.mscd, "r")
@@ -558,7 +558,7 @@ class DiffusionAnalyzer(MSONable):
             f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))
             f.write("\n")
             for dt, msd, msdc, mscd in zip(self.dt, self.msd, self.msd_components, self.mscd):
-                f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(msdc) + [mscd]]))
+                f.write(delimiter.join([f"{v}" for v in [dt, msd] + list(msdc) + [mscd]]))
                 f.write("\n")
 
     @classmethod
@@ -812,7 +812,7 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z**2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
 
 
 def _get_vasprun(args):

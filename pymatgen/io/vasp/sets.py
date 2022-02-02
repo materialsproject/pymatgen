@@ -52,7 +52,6 @@ from typing import List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -80,19 +79,16 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def incar(self):
         """Incar object"""
-        pass
 
     @property
     @abc.abstractmethod
     def kpoints(self):
         """Kpoints object"""
-        pass
 
     @property
     @abc.abstractmethod
     def poscar(self):
         """Poscar object"""
-        pass
 
     @property
     def potcar_symbols(self):
@@ -138,22 +134,6 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 )
 
         return potcar
-
-    @property  # type: ignore
-    @deprecated(message="Use the get_vasp_input() method instead.")
-    def all_input(self):
-        """
-        Returns all input files as a dict of {filename: vasp object}
-
-        Returns:
-            dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
-        """
-        return {
-            "INCAR": self.incar,
-            "KPOINTS": self.kpoints,
-            "POSCAR": self.poscar,
-            "POTCAR": self.potcar,
-        }
 
     def get_vasp_input(self) -> VaspInput:
         """
@@ -255,7 +235,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 
 def _load_yaml_config(fname):
-    config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
+    config = loadfn(str(MODULE_DIR / (f"{fname}.yaml")))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -281,8 +261,10 @@ class DictSet(VaspInputSet):
     structure and the configuration settings. The order in which the magmom is
     determined is as follows:
 
-    1. If the site itself has a magmom setting (`site.magmom`), that is used.
-    2. If the species on the site has a spin setting (`site.spin`), that is used.
+    1. If the site itself has a magmom setting (i.e. site.properties["magmom"] = float),
+        that is used. This can be set with structure.add_site_property().
+    2. If the species of the site has a spin setting, that is used. This can be set
+        with structure.add_spin_by_element().
     3. If the species itself has a particular setting in the config file, that
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
@@ -374,7 +356,7 @@ class DictSet(VaspInputSet):
             international_monoclinic (bool): Whether to use international convention
                 (vs Curtarolo) for monoclinic. Defaults True.
             validate_magmom (bool): Ensure that the missing magmom values are filled
-                in with the vasp default value of 1.0
+                in with the VASP default value of 1.0
         """
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
@@ -508,33 +490,19 @@ class DictSet(VaspInputSet):
                     elif hasattr(site.specie, "spin"):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
-                        if not isinstance(v, dict):
-                            raise TypeError(
-                                "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                                "If you want site-specific magnetic moments, set them in the site.magmom properties "
-                                "of the site objects in the structure"
-                            )
-                        if site.specie.symbol == "Co":
+                        if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
                             warnings.warn(
-                                "Co without an oxidation state is initialized as low spin by default in Pymatgen "
-                                "(unless you have provided a MAGMOM dictionary specifying otherwise). If this default "
-                                "behavior is not desired, please set the spin on the magmom on the site directly to "
-                                "ensure correct initialization"
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
                             )
                         mag.append(v.get(str(site.specie)))
                     else:
-                        if not isinstance(v, dict):
-                            raise TypeError(
-                                "MAGMOM must be supplied in a dictionary format, e.g. {'Fe': 5}. "
-                                "If you want site-specific magnetic moments, set them in the site.magmom properties "
-                                "of the site objects in the structure"
-                            )
                         if site.specie.symbol == "Co":
                             warnings.warn(
-                                "Co without an oxidation state is initialized as low spin by default in Pymatgen "
-                                "(unless you have provided a MAGMOM dictionary specifying otherwise). If this default "
-                                "behavior is not desired, please set the spin on the magmom on the site directly to "
-                                "ensure correct initialization"
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
                             )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
@@ -582,11 +550,11 @@ class DictSet(VaspInputSet):
                 incar["LMAXMIX"] = 4
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
-        if not settings.get("LASPH", False) and (
-            settings.get("METAGGA")
-            or settings.get("LHFCALC", False)
-            or settings.get("LDAU", False)
-            or settings.get("LUSE_VDW", False)
+        if not incar.get("LASPH", False) and (
+            incar.get("METAGGA")
+            or incar.get("LHFCALC", False)
+            or incar.get("LDAU", False)
+            or incar.get("LUSE_VDW", False)
         ):
             warnings.warn(
                 "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
@@ -595,7 +563,7 @@ class DictSet(VaspInputSet):
 
         if self.constrain_total_magmom:
             nupdown = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
-            if nupdown != round(nupdown):
+            if abs(nupdown - round(nupdown)) > 1e-5:
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM "
                     "values is not an integer. NUPDOWN is meant to set the spin "
@@ -787,12 +755,12 @@ class DictSet(VaspInputSet):
 
     def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
         """
-        Calculates the NGX, NGY, and NGZ values using the information availible in the INCAR and POTCAR
+        Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
 
         Args:
             max_prime_factor (int): the valid prime factors of the grid size in each direction
-                                    VASP has many different setting for this to handel many compiling options.
+                                    VASP has many different setting for this to handle many compiling options.
                                     For typical MPI options all prime factors up to 7 are allowed
         """
 
@@ -802,13 +770,13 @@ class DictSet(VaspInputSet):
         _AUTOA = 0.529177249
         _PI = 3.141592653589793238
 
-        # TODO Only do this for VASP 6 for now. Older version require more advanced logitc
+        # TODO Only do this for VASP 6 for now. Older version require more advanced logic
 
         # get the ENCUT val
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max(i_species.enmax for i_species in self.all_input["POTCAR"])
+            encut = max(i_species.enmax for i_species in self.get_vasp_input().potcar)
         #
 
         _CUTOF = [
@@ -1206,9 +1174,9 @@ class MPStaticSet(MPRelaxSet):
             if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
                 if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                     k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-                    kpoints = Kpoints.monkhorst_automatic(k_div)
+                    kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
                 else:
-                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir="."):
@@ -2813,7 +2781,7 @@ class LobsterSet(MPRelaxSet):
         reciprocal_density: int = None,
         address_basis_file: str = None,
         user_supplied_basis: dict = None,
-        user_potcar_settings: dict = {"W": "W_sv"},
+        user_potcar_settings: dict = None,
         **kwargs,
     ):
         """
@@ -2842,7 +2810,7 @@ class LobsterSet(MPRelaxSet):
         if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
             super().__init__(structure, **kwargs)
         else:
-            super().__init__(structure, user_potcar_functional="PBE_54", **kwargs)
+            super().__init__(structure, user_potcar_functional="PBE_54", user_potcar_settings={"W": "W_sv"}, **kwargs)
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
@@ -2858,6 +2826,7 @@ class LobsterSet(MPRelaxSet):
             else:
                 self.reciprocal_density = reciprocal_density
 
+        self._config_dict["POTCAR"].update({"W": "W_sv"})
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
@@ -2910,7 +2879,7 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     outcars = list(glob.glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
-        raise ValueError("Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % path)
+        raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
     vsfile_fullpath = str(path / "vasprun.xml")
     outcarfile_fullpath = str(path / "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
@@ -3000,8 +2969,6 @@ class BadInputSetWarning(UserWarning):
     Warning class for bad but legal inputs.
     """
 
-    pass
-
 
 def batch_write_input(
     structures,
@@ -3076,7 +3043,7 @@ _dummy_structure = Structure(
 
 def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     """
-    Make sure that the structure is valid magmoms based on the kind of caculation
+    Make sure that the structure has valid magmoms based on the kind of calculation
     Fill in missing Magmom values
 
     Args:
@@ -3099,10 +3066,12 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
         for isite in structure.sites:
             if "magmom" not in isite.properties or isite.properties["magmom"] is None:
                 pass
-            elif isinstance(isite.properties["magmom"], float):
+            elif isinstance(isite.properties["magmom"], (float, int)):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
+                if isinstance(isite.properties["magmom"], int):
+                    isite.properties["magmom"] = float(isite.properties["magmom"])
             elif len(isite.properties["magmom"]) == 3:
                 if mode == "s":
                     raise TypeError("Magmom type conflict")

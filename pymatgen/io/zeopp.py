@@ -2,36 +2,18 @@
 # Distributed under the terms of the MIT License.
 
 """
-Module implementing classes and functions to use Zeo++.
+Module implementing classes and functions to use Zeo++
+by Maciej Haranczyk.
+
+If using this module, cite the following paper on Zeo++:
+T.F. Willems, C.H. Rycroft, M. Kazi, J.C. Meza, and M. Haranczyk,
+Algorithms and tools for high-throughput geometry-based analysis of crystalline porous materials,
+Microporous and Mesoporous Materials, 149 (2012) 134-141.
 
 Zeo++ Installation Steps:
 ========================
-1) Zeo++ requires Voro++. Download Voro++ from code.lbl.gov using
-   subversion:
-   "svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk
-   Password is anonsvn.
-2) Stable version of Zeo++ can be obtained from
-   http://www.maciejharanczyk.info/Zeopp/
-   Alternatively it can be obtained from code.lbl.gov. Replace voro
-   with zeo.
-3) (Optional) Install cython from pip
-Mac OS X:
-4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment
-   (compiler, linker).
-   (b) Run make command
-5) (a) Edit the Zeo++/trunk/cython_wrapper/setup.py to correctly point to
-   Voro++ directory.
-   (b) Run "python setup.py develop" to install Zeo++ python bindings.
-   Be patient, it will take a while.
-Linux:
-4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment.
-   (b) Also add -fPIC option to CFLAGS variable in config.mk file.
-   (c) Run make command
-5) (a) Go to Zeo++/zeo/trunk folder and compile zeo++ library using the
-   command "make dylib".
-   (b) Edit the Zeo++/trunk/cython_wrapper/setup_alt.py to correctly
-   point to Voro++ directory.
-   (c) Run "python setup_alt.py develop" to install Zeo++ python bindings.
+A stable version of Zeo++ can be obtained from http://zeoplusplus.org.
+Instructions can be found at http://www.zeoplusplus.org/download.html
 
 Zeo++ Post-Installation Checking:
 ==============================
@@ -75,7 +57,7 @@ __data__ = "Aug 2, 2013"
 class ZeoCssr(Cssr):
     """
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
-    input CSSR format. The coordinate system is rorated from xyz to zyx.
+    input CSSR format. The coordinate system is rotated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
     """
@@ -268,9 +250,9 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -360,9 +342,9 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             Default is 0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 
@@ -426,9 +408,9 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        voronoi nodes as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
 

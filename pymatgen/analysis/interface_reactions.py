@@ -22,13 +22,11 @@ References:
 
 import json
 import os
-import sys
 import warnings
-from typing import List, Tuple, Union
+from typing import List, Literal, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MSONable
 from pandas import DataFrame
 from plotly.graph_objects import Figure, Scatter
@@ -38,11 +36,6 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
@@ -631,13 +624,6 @@ class InterfacialReactivity(MSONable):
         for _, _, _, react, _ in self.get_kinks():
             products = products.union({k.reduced_formula for k in react.products})
         return list(products)
-
-    @deprecated(products)
-    def get_products(self):
-        """
-        Deprecated method. Use the "products" property.
-        """
-        return self.products
 
 
 class GrandPotentialInterfacialReactivity(InterfacialReactivity):

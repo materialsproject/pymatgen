@@ -5,8 +5,7 @@
 Classes for reading/manipulating/writing QChem input files.
 """
 import logging
-import sys
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -14,11 +13,6 @@ from monty.json import MSONable
 from pymatgen.core import Molecule
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -63,7 +57,7 @@ class QCInput(MSONable):
                 Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
             opt (dict of lists):
                 A dictionary of opt sections, where each opt section is a key and the corresponding
-                values are a list of strings. Stings must be formatted as instructed by the QChem manual.
+                values are a list of strings. Strings must be formatted as instructed by the QChem manual.
                 The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
                 Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
             pcm (dict):
@@ -84,7 +78,7 @@ class QCInput(MSONable):
                 more than two.
                 Ex. scan = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
             van_der_waals (dict):
-                A dictionary of custom van der Waals radii to be used when construcing cavities for the PCM
+                A dictionary of custom van der Waals radii to be used when constructing cavities for the PCM
                 model or when computing, e.g. Mulliken charges. They keys are strs whose meaning depends on
                 the value of vdw_mode, and the values are the custom radii in angstroms.
             vdw_mode (str): Method of specifying custom van der Waals radii - 'atomic' or 'sequential'.
@@ -426,7 +420,7 @@ class QCInput(MSONable):
         smx_list.append("$smx")
         for key, value in smx.items():
             if value == "tetrahydrofuran":
-                smx_list.append("   {key} {value}".format(key=key, value="thf"))
+                smx_list.append(f"   {key} thf")
             else:
                 smx_list.append(f"   {key} {value}")
         smx_list.append("$end")
@@ -592,7 +586,7 @@ class QCInput(MSONable):
             (dict) rem
         """
         header = r"^\s*\$rem"
-        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        row = r"\s*([a-zA-Z\_\d]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         return dict(rem_table[0])
@@ -674,7 +668,7 @@ class QCInput(MSONable):
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_table:
-            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
+            print("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
             return {}
 
         return dict(pcm_table[0])
@@ -695,7 +689,7 @@ class QCInput(MSONable):
         footer = r"^\s*\$end"
         vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not vdw_table:
-            print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
+            print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
         if vdw_table[0][0][0] == 2:
@@ -721,7 +715,7 @@ class QCInput(MSONable):
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not solvent_table:
-            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
+            print("No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines.")
             return {}
 
         return dict(solvent_table[0])
@@ -742,7 +736,7 @@ class QCInput(MSONable):
         footer = r"^\s*\$end"
         smx_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not smx_table:
-            print("No valid smx inputs found. Note that there should be no '=' chracters in smx input lines.")
+            print("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
             return {}
         smx = {}
         for key, val in smx_table[0]:
@@ -767,7 +761,7 @@ class QCInput(MSONable):
         footer = r"^\s*\$end"
         scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if scan_table == []:
-            print("No valid scan inputs found. Note that there should be no '=' chracters in scan input lines.")
+            print("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
             return {}
 
         stre = []
@@ -802,7 +796,7 @@ class QCInput(MSONable):
         footer = r"^\s*\$end"
         plots_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if plots_table == []:
-            print("No valid plots inputs found. Note that there should be no '=' chracters in plots input lines.")
+            print("No valid plots inputs found. Note that there should be no '=' characters in plots input lines.")
             return {}
         plots = {}
         for key, val in plots_table[0]:

@@ -110,7 +110,7 @@ class NEBAnalysis(MSONable):
         prev = structures[0]
         for st in structures[1:]:
             dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st)])
-            r.append(np.sqrt(np.sum(dists ** 2)))
+            r.append(np.sqrt(np.sum(dists**2)))
             prev = st
         r = np.cumsum(r)
 
@@ -189,7 +189,7 @@ class NEBAnalysis(MSONable):
             barrier = max(data, key=lambda d: d[1])
             plt.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
             plt.annotate(
-                "%.0f meV" % (np.max(y) - np.min(y)),
+                f"{np.max(y) - np.min(y):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
@@ -268,7 +268,7 @@ class NEBAnalysis(MSONable):
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
-                    raise ValueError("OUTCAR cannot be found for terminal point %s" % d)
+                    raise ValueError(f"OUTCAR cannot be found for terminal point {d}")
                 structures.append(Poscar.from_file(poscar[0]).structure)
             else:
                 outcars.append(Outcar(outcar[0]))

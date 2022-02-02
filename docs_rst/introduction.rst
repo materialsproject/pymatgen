@@ -2,7 +2,7 @@
    :width: 300 px
    :alt: pymatgen
    :align: center
-   
+
 ============
 Introduction
 ============

@@ -5,7 +5,6 @@ import json
 import os
 import random
 import unittest
-from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
@@ -456,7 +455,7 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(self.tatb.atoms.loc[atom_id].name, atom_id)
 
     def test_from_ff_and_topologies(self):
-        mass = OrderedDict()
+        mass = {}
         mass["H"] = 1.0079401
         mass["O"] = 15.999400
         nonbond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
@@ -817,8 +816,8 @@ class FuncTest(unittest.TestCase):
             rotop.rotation_matrix,
             [
                 [1, 0, 0],
-                [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
-                [0, -(2 ** 0.5) / 2, 2 ** 0.5 / 2],
+                [0, 2**0.5 / 2, 2**0.5 / 2],
+                [0, -(2**0.5) / 2, 2**0.5 / 2],
             ],
         )
 

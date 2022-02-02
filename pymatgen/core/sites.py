@@ -10,14 +10,13 @@ import json
 from typing import Optional, Tuple, Union
 
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.util.coord import pbc_diff
-from pymatgen.util.typing import ArrayLike, SpeciesLike, CompositionLike
+from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -163,15 +162,6 @@ class Site(collections.abc.Hashable, MSONable):
             return list(self.species.keys())[0].__str__()
         sorted_species = sorted(self.species.keys())
         return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
-
-    @property  # type: ignore
-    @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
-    def species_and_occu(self):
-        """
-        The species at the site, i.e., a Composition mapping type of
-        element/species to occupancy.
-        """
-        return self.species
 
     @property
     def specie(self) -> Union[Element, Species, DummySpecies]:

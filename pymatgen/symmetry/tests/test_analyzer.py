@@ -2,12 +2,11 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-from pathlib import Path
 import os
+import unittest
+
 import numpy as np
 
-from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
@@ -20,7 +19,6 @@ from pymatgen.symmetry.analyzer import (
     iterative_symmetrize,
 )
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
@@ -135,9 +133,18 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         for a in refined.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
-        s = self.get_structure("Li2O")
-        sg = SpacegroupAnalyzer(s, 0.01)
-        self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
+
+        structure = self.get_structure("Li2O")
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        sg = SpacegroupAnalyzer(structure, 0.01)
+        refined_struct = sg.get_refined_structure(keep_site_properties=True)
+        self.assertEqual(refined_struct.site_properties["magmom"], [1.0] * len(refined_struct))
+
+        structure = self.get_structure("Li2O")
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        sg = SpacegroupAnalyzer(structure, 0.01)
+        refined_struct = sg.get_refined_structure(keep_site_properties=False)
+        self.assertEqual(refined_struct.site_properties.get("magmom", None), None)
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
@@ -173,11 +180,24 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         s = SpacegroupAnalyzer(structure)
         primitive_structure = s.find_primitive()
         self.assertEqual(primitive_structure.formula, "Li2 O1")
+        self.assertTrue(primitive_structure.site_properties.get("magmom", None) is None)
         # This isn't what is expected. All the angles should be 60
         self.assertAlmostEqual(primitive_structure.lattice.alpha, 60)
         self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 60)
         self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume / 4.0)
+
+        structure = parser.get_structures(False)[0]
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        s = SpacegroupAnalyzer(structure)
+        primitive_structure = s.find_primitive(keep_site_properties=True)
+        self.assertEqual(primitive_structure.site_properties["magmom"], [1.0] * len(primitive_structure))
+
+        structure = parser.get_structures(False)[0]
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        s = SpacegroupAnalyzer(structure)
+        primitive_structure = s.find_primitive(keep_site_properties=False)
+        self.assertEqual(primitive_structure.site_properties.get("magmom", None), None)
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
@@ -274,6 +294,18 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.b, 3.9883228679270686)
         self.assertAlmostEqual(conv.lattice.c, 7.288495840048958)
 
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure(keep_site_properties=True)
+        self.assertEqual(conv.site_properties["magmom"], [1.0] * len(conv))
+
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure(keep_site_properties=False)
+        self.assertEqual(conv.site_properties.get("magmom", None), None)
+
     def test_get_primitive_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
         structure = parser.get_structures(False)[0]
@@ -362,6 +394,20 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.a, 5.9352627428399982)
         self.assertAlmostEqual(prim.lattice.b, 5.9352627428399982)
         self.assertAlmostEqual(prim.lattice.c, 5.9352627428399982)
+
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
+        structure = parser.get_structures(False)[0]
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure(keep_site_properties=True)
+        self.assertEqual(prim.site_properties["magmom"], [1.0] * len(prim))
+
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
+        structure = parser.get_structures(False)[0]
+        structure.add_site_property("magmom", [1.0] * len(structure))
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure(keep_site_properties=False)
+        self.assertEqual(prim.site_properties.get("magmom", None), None)
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
@@ -581,7 +627,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
             for j in eq_set:
-                rotated = np.dot(ops[i][j], coords[i])
+                _ = np.dot(ops[i][j], coords[i])
                 self.assertTrue(np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
 
     def test_symmetrize_molecule2(self):

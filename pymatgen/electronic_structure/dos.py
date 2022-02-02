@@ -159,11 +159,11 @@ class DOS(Spectrum):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
                 stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
                 stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
@@ -365,11 +365,11 @@ class Dos(MSONable):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
                 stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
                 stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
@@ -498,7 +498,7 @@ class FermiDos(Dos, MSONable):
             * self.de[: self.idx_vbm + 1],
             axis=0,
         )
-        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm ** 3)
+        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
 
     def get_fermi_interextrapolated(
         self, concentration: float, temperature: float, warn: bool = True, c_ref: float = 1e10, **kwargs

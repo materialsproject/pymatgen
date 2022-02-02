@@ -36,8 +36,6 @@ class FakeNbSet:
     def __len__(self):
         return self.cn
 
-    pass
-
 
 class DummyStructureEnvironments:
     pass
@@ -180,7 +178,7 @@ class StrategyWeightsTest(PymatgenTest):
         fake_nb_set = FakeNbSet()
         dummy_se = DummyStructureEnvironments()
         bias_weight1 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=13.0)
-        bias_weight2 = CNBiasNbSetWeight.geometrically_equidistant(weight_cn1=1.0, weight_cn13=1.1 ** 12)
+        bias_weight2 = CNBiasNbSetWeight.geometrically_equidistant(weight_cn1=1.0, weight_cn13=1.1**12)
         bias_weight3 = CNBiasNbSetWeight.explicit(
             cn_weights={
                 1: 1.0,
@@ -212,14 +210,14 @@ class StrategyWeightsTest(PymatgenTest):
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w1, 7.0, delta=1e-8)
         w2 = bias_weight2.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        self.assertAlmostEqual(w2, 1.1 ** 6, delta=1e-8)
+        self.assertAlmostEqual(w2, 1.1**6, delta=1e-8)
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.3, delta=1e-8)
         fake_nb_set.cn = 13
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w1, 13.0, delta=1e-8)
         w2 = bias_weight2.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        self.assertAlmostEqual(w2, 1.1 ** 12, delta=1e-8)
+        self.assertAlmostEqual(w2, 1.1**12, delta=1e-8)
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.8, delta=1e-8)
 

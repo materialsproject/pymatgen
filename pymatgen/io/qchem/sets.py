@@ -7,19 +7,13 @@ Input sets for Qchem
 
 import logging
 import os
-import sys
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 from monty.io import zopen
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2021, The Materials Project"
@@ -70,7 +64,7 @@ class QChemDictSet(QCInput):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -84,7 +78,7 @@ class QChemDictSet(QCInput):
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
             opt_variables (dict): A dictionary of opt sections, where each opt section is a key
-                and the corresponding values are a list of strings. Stings must be formatted
+                and the corresponding values are a list of strings. Strings must be formatted
                 as instructed by the QChem manual. The different opt sections are: CONSTRAINT, FIXED,
                 DUMMY, and CONNECT.
 
@@ -220,8 +214,18 @@ class QChemDictSet(QCInput):
             myrem["plots"] = "true"
             myrem["make_cube_files"] = "true"
 
+        mynbo = self.nbo_params
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
+            if "version" in self.nbo_params:
+                if self.nbo_params["version"] == 7:
+                    myrem["run_nbo6"] = "true"
+                else:
+                    raise RuntimeError("nbo params version should only be set to 7! Exiting...")
+            mynbo = {}
+            for key in self.nbo_params:
+                if key != "version":
+                    mynbo[key] = self.nbo_params[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -256,9 +260,11 @@ class QChemDictSet(QCInput):
                     for k, v in temp_plots.items():
                         myplots[k] = v
                 if sec == "nbo":
-                    temp_plots = lower_and_check_unique(sec_dict)
-                    for k, v in temp_plots.items():
-                        myplots[k] = v
+                    if mynbo is None:
+                        raise RuntimeError("Can't overwrite nbo params when NBO is not being run! Exiting...")
+                    temp_nbo = lower_and_check_unique(sec_dict)
+                    for k, v in temp_nbo.items():
+                        mynbo[k] = v  # type: ignore
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -275,7 +281,7 @@ class QChemDictSet(QCInput):
             van_der_waals=myvdw,
             vdw_mode=self.vdw_mode,
             plots=myplots,
-            nbo=self.nbo_params,
+            nbo=mynbo,
         )
 
     def write(self, input_file: str):
@@ -328,7 +334,7 @@ class SinglePointSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -425,7 +431,7 @@ class OptSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -523,7 +529,7 @@ class TransitionStateSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -619,7 +625,7 @@ class ForceSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -712,7 +718,7 @@ class FreqSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -801,7 +807,7 @@ class PESScanSet(QChemDictSet):
         Args:
             molecule (Pymatgen Molecule object)
             opt_variables (dict): A dictionary of opt sections, where each opt section is a key
-                and the corresponding values are a list of strings. Stings must be formatted
+                and the corresponding values are a list of strings. Strings must be formatted
                 as instructed by the QChem manual. The different opt sections are: CONSTRAINT, FIXED,
                 DUMMY, and CONNECT.
 
@@ -825,7 +831,7 @@ class PESScanSet(QChemDictSet):
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approxmations"**
+                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem

@@ -291,7 +291,7 @@ direct
         self.assertRaises(ValueError, setattr, poscar, "velocities", [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
         ans = """
-        LiFePO4
+        Fe4P4O16
 1.0
 10.411767 0.000000 0.000000
 0.000000 6.067172 0.000000
@@ -347,7 +347,7 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7)
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4, "Temperature instantiated incorrectly")
 
         poscar.set_temperature(700)
@@ -355,7 +355,7 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7, "Velocities initialized with a net momentum")
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4, "Temperature instantiated incorrectly")
 
     def test_write(self):
@@ -782,6 +782,9 @@ Cartesian
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         self.assertEqual(kpoints.kpts, [[6, 10, 13]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], True)
+        self.assertEqual(kpoints.kpts, [[5, 9, 1]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure

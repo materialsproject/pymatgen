@@ -278,7 +278,7 @@ class BoltztrapRunner(MSONable):
                         )
                     )
                     for e in eigs:
-                        f.write("%18.8f\n" % (sign * float(e)))
+                        f.write(f"{sign * float(e):18.8f}\n")
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -317,7 +317,7 @@ class BoltztrapRunner(MSONable):
                     )
 
                     for e in eigs:
-                        f.write("%18.8f\n" % (float(e)))
+                        f.write(f"{float(e):18.8f}\n")
 
     def write_struct(self, output_file):
         """
@@ -339,7 +339,7 @@ class BoltztrapRunner(MSONable):
                     )
                 )
             elif self._symprec is None:
-                f.write("{} {}\n".format(self._bs.structure.composition.formula, "symmetries disabled"))
+                f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
 
             f.write(
                 "{}\n".format(
@@ -360,7 +360,7 @@ class BoltztrapRunner(MSONable):
 
             for c in ops:
                 for row in c:
-                    f.write("{}\n".format(" ".join(str(i) for i in row)))
+                    f.write(f"{' '.join(str(i) for i in row)}\n")
 
     def write_def(self, output_file):
         """
@@ -429,7 +429,7 @@ class BoltztrapRunner(MSONable):
                                 )
                             )
                             for t in tmp_proj:
-                                f.write("%18.8f\n" % float(t))
+                                f.write(f"{float(t):18.8f}\n")
         with open(output_file_def, "w") as f:
             so = ""
             if self._bs.is_spin_polarized:
@@ -492,8 +492,8 @@ class BoltztrapRunner(MSONable):
                     )
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
-                fout.write("%s                     # run mode (only BOLTZ is supported)\n" % self.run_type)
+                fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
+                fout.write(f"{self.run_type}                     # run mode (only BOLTZ is supported)\n")
                 fout.write(".15                       # (efcut) energy range of chemical potential\n")
                 fout.write(f"{self.tmax} {self.tgrid}                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
@@ -516,7 +516,7 @@ class BoltztrapRunner(MSONable):
                     "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
                 fout.write(
                     str(1)
@@ -553,7 +553,7 @@ class BoltztrapRunner(MSONable):
                     )
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("BANDS                     # run mode (only BOLTZ is supported)\n")
                 fout.write("P " + str(len(self.kpt_line)) + "\n")
                 for kp in self.kpt_line:
@@ -783,8 +783,6 @@ class BoltztrapError(Exception):
     Raised when the boltztrap gives an error
     """
 
-    pass
-
 
 class BoltztrapAnalyzer:
     """
@@ -999,7 +997,7 @@ class BoltztrapAnalyzer:
         - "avg_corr": average of correlation coefficient over the 8 bands
         - "avg_dist": average of energy distance over the 8 bands
         - "nb_list": list of indexes of the 8 compared bands
-        - "acc_thr": list of two float corresponing to the two warning
+        - "acc_thr": list of two float corresponding to the two warning
                      thresholds in input
         - "acc_err": list of two bools:
                      True if the avg_corr > warn_thr[0], and
@@ -1140,7 +1138,7 @@ class BoltztrapAnalyzer:
             relaxation_time (float): constant relaxation time in secs
 
         Returns:
-            If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}. The
+            If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
             'p' links to power factor
             at p-type doping and 'n' to the conductivity at n-type doping.
             Otherwise,
@@ -1385,8 +1383,8 @@ class BoltztrapAnalyzer:
                             result_doping[doping][temp].append(
                                 np.linalg.inv(np.array(self._cond_doping[doping][temp][i]))
                                 * self.doping[doping][i]
-                                * 10 ** 6
-                                * constants.e ** 2
+                                * 10**6
+                                * constants.e**2
                                 / constants.m_e
                             )
                         except np.linalg.LinAlgError:
@@ -1399,7 +1397,7 @@ class BoltztrapAnalyzer:
                         cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
                     except np.linalg.LinAlgError:
                         pass
-                    result[temp].append(cond_inv * conc[temp][i] * 10 ** 6 * constants.e ** 2 / constants.m_e)
+                    result[temp].append(cond_inv * conc[temp][i] * 10**6 * constants.e**2 / constants.m_e)
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)
 
@@ -2459,7 +2457,7 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
             "fdint module not found. Please, install it.\n" + "It is needed to calculate Fermi integral quickly."
         )
 
-    return (2 * np.pi ** 2 * abs(n) * 10 ** 6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
+    return (2 * np.pi**2 * abs(n) * 10**6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
         2 * constants.m_e * constants.k * T / (constants.h / 2 / np.pi) ** 2
     )
 

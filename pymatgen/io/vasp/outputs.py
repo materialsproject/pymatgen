@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-Classes for reading/manipulating/writing VASP ouput files.
+Classes for reading/manipulating/writing VASP output files.
 """
 
 import datetime
@@ -354,7 +354,7 @@ class Vasprun(MSONable):
                 # add the tailing information in the last step from the run
                 to_parse = "<calculation>".join(new_steps)
                 if steps[-1] != new_steps[-1]:
-                    to_parse = "{}<calculation>{}{}".format(preamble, to_parse, steps[-1].split("</calculation>")[-1])
+                    to_parse = f"{preamble}<calculation>{to_parse}{steps[-1].split('</calculation>')[-1]}"
                 else:
                     to_parse = f"{preamble}<calculation>{to_parse}"
                 self._parse(
@@ -377,9 +377,9 @@ class Vasprun(MSONable):
                 self.update_charge_from_potcar(parse_potcar_file)
 
         if self.incar.get("ALGO", "") not in ["CHI", "BSE"] and (not self.converged):
-            msg = "%s is an unconverged VASP run.\n" % filename
-            msg += "Electronic convergence reached: %s.\n" % self.converged_electronic
-            msg += "Ionic convergence reached: %s." % self.converged_ionic
+            msg = f"{filename} is an unconverged VASP run.\n"
+            msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
+            msg += f"Ionic convergence reached: {self.converged_ionic}."
             warnings.warn(msg, UnconvergedVASPWarning)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
@@ -567,7 +567,7 @@ class Vasprun(MSONable):
                 equation
                 """
                 hbar = 6.582119514e-16  # eV/K
-                coeff = np.sqrt(np.sqrt(real ** 2 + imag ** 2) - real) * np.sqrt(2) / hbar * freq
+                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hbar * freq
                 return coeff
 
             absorption_coeff = [
@@ -618,16 +618,16 @@ class Vasprun(MSONable):
         """
         try:
             final_istep = self.ionic_steps[-1]
-            if final_istep["e_wo_entrp"] != final_istep["electronic_steps"][-1]["e_0_energy"]:
-                warnings.warn(
-                    "Final e_wo_entrp differs from the final "
-                    "electronic step. VASP may have included some "
-                    "corrections, e.g., vdw. Vasprun will return "
-                    "the final e_wo_entrp, i.e., including "
-                    "corrections in such instances."
-                )
-                return final_istep["e_wo_entrp"]
-            return final_istep["electronic_steps"][-1]["e_0_energy"]
+            total_energy = final_istep["e_0_energy"]
+
+            # Addresses a bug in vasprun.xml. See https://www.vasp.at/forum/viewtopic.php?f=3&t=16942
+            final_estep = final_istep["electronic_steps"][-1]
+            electronic_energy_diff = final_estep["e_0_energy"] - final_estep["e_fr_energy"]
+            total_energy_bugfix = np.round(electronic_energy_diff + final_istep["e_fr_energy"], 8)
+            if np.abs(total_energy - total_energy_bugfix) > 1e-7:
+                return total_energy_bugfix
+
+            return total_energy
         except (IndexError, KeyError):
             warnings.warn(
                 "Calculation does not have a total energy. "
@@ -1054,7 +1054,7 @@ class Vasprun(MSONable):
                     pc = Potcar.from_file(os.path.join(p, fn))
                     if {d.header for d in pc} == set(self.potcar_symbols):
                         return pc
-            warnings.warn("No POTCAR file with matching TITEL fields" " was found in {}".format(os.path.abspath(p)))
+            warnings.warn(f"No POTCAR file with matching TITEL fields was found in {os.path.abspath(p)}")
             return None
 
         if isinstance(path, (str, Path)):
@@ -1329,7 +1329,6 @@ class Vasprun(MSONable):
             s = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
             s = None
-            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["structure"] = s
@@ -1358,7 +1357,6 @@ class Vasprun(MSONable):
             istep = {i.attrib["name"]: float(i.text) for i in elem.find("energy").findall("i")}
         except AttributeError:  # not all calculations have an energy
             istep = {}
-            pass
         esteps = []
         for scstep in elem.findall("scstep"):
             try:
@@ -1370,7 +1368,6 @@ class Vasprun(MSONable):
             s = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
             s = None
-            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
@@ -1689,7 +1686,7 @@ class Outcar:
         Various useful run stats as a dict including "System time (sec)",
         "Total CPU time used (sec)", "Elapsed time (sec)",
         "Maximum memory used (kb)", "Average memory used (kb)",
-        "User time (sec)".
+        "User time (sec)", "cores"
 
     .. attribute:: elastic_tensor
 
@@ -1733,7 +1730,15 @@ class Outcar:
 
      .. attribute:: final_energy
 
-        Final (total) energy
+        Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
+
+    .. attribute:: final_energy_wo_entrp
+
+        Final energy before extrapolation of sigma, i.e. energy without entropy.
+
+    .. attribute:: final_fr_energy
+
+        Final "free energy", i.e. free energy TOTEN
 
     .. attribute:: has_onsite_density_matrices
 
@@ -1786,13 +1791,17 @@ class Outcar:
         total_mag = None
         nelect = None
         efermi = None
-        total_energy = None
+        e_fr_energy = None
+        e_wo_entrp = None
+        e0 = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
         efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile(r"number of electron\s+(\S+)\s+magnetization")
         mag_patt = re.compile(r"number of electron\s+\S+\s+magnetization\s+(" r"\S+)")
-        toten_pattern = re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
+        e_fr_energy_pattern = re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
+        e_wo_entrp_pattern = re.compile(r"energy  without entropy\s*=\s+([\d\-\.]+)")
+        e0_pattern = re.compile(r"energy\(sigma->0\)\s*=\s+([\d\-\.]+)")
 
         all_lines = []
         for line in reverse_readfile(self.filename):
@@ -1828,10 +1837,19 @@ class Outcar:
                 m = mag_patt.search(clean)
                 if m:
                     total_mag = float(m.group(1))
-                if total_energy is None:
-                    m = toten_pattern.search(clean)
+
+                if e_fr_energy is None:
+                    m = e_fr_energy_pattern.search(clean)
                     if m:
-                        total_energy = float(m.group(1))
+                        e_fr_energy = float(m.group(1))
+                if e_wo_entrp is None:
+                    m = e_wo_entrp_pattern.search(clean)
+                    if m:
+                        e_wo_entrp = float(m.group(1))
+                if e0 is None:
+                    m = e0_pattern.search(clean)
+                    if m:
+                        e0 = float(m.group(1))
             if all([nelect, total_mag is not None, efermi is not None, run_stats]):
                 break
 
@@ -1901,11 +1919,14 @@ class Outcar:
             mag = mag_x
 
         # data from beginning of OUTCAR
-        run_stats["cores"] = 0
+        run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
                 if "running" in line:
-                    run_stats["cores"] = line.split()[2]
+                    if line.split()[1] == "on":
+                        run_stats["cores"] = int(line.split()[2])
+                    else:
+                        run_stats["cores"] = int(line.split()[1])
                     break
 
         self.run_stats = run_stats
@@ -1914,7 +1935,9 @@ class Outcar:
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.final_energy = total_energy
+        self.final_energy = e0
+        self.final_energy_wo_entrp = e_wo_entrp
+        self.final_fr_energy = e_fr_energy
         self.data = {}
 
         # Read "total number of plane waves", NPLWV:
@@ -2401,7 +2424,7 @@ class Outcar:
 
     def read_nmr_efg(self):
         """
-        Parse the NMR Electric Field Gradient interpretted values.
+        Parse the NMR Electric Field Gradient interpreted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
@@ -3648,8 +3671,8 @@ class VolumetricData(MSONable):
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
             if not vasp4_compatible:
-                lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
-            lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
+            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
@@ -3750,7 +3773,7 @@ class VolumetricData(MSONable):
         a = self.dim
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
+            for x, y, z in itertools.product(*(list(range(i)) for i in a)):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {
@@ -3993,7 +4016,7 @@ class Procar:
 
     .. attribute:: weights
 
-        The weights associated with each k-point as an nd.array of lenght
+        The weights associated with each k-point as an nd.array of length
         nkpoints.
 
     ..attribute:: phase_factors
@@ -4299,8 +4322,6 @@ class VaspParserError(Exception):
     """
     Exception class for VASP parsing.
     """
-
-    pass
 
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projections=False):
@@ -4688,7 +4709,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
 # I use numpy.fromfile instead of scipy.io.FortranFile here because the records
 # are of fixed length, so the record length is only written once. In fortran,
 # this amounts to using open(..., form='unformatted', recl=recl_len). In
-# constrast when you write UNK files, the record length is written at the
+# contrast when you write UNK files, the record length is written at the
 # beginning of each record. This allows you to use scipy.io.FortranFile. In
 # fortran, this amounts to using open(..., form='unformatted') [i.e. no recl=].
 class Wavecar:
@@ -4809,7 +4830,7 @@ class Wavecar:
         self._C = 0.262465831
         with open(self.filename, "rb") as f:
             # read the header information
-            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
+            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
                 print(f"recl={recl}, spin={spin}, rtag={rtag}")
             recl8 = int(recl / 8)
@@ -4828,7 +4849,7 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
+            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -5004,7 +5025,7 @@ class Wavecar:
         nbmaxC[2] /= np.abs(np.sin(phi23))
         nbmaxC += 1
 
-        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int_)
+        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(int)
 
     def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
         """
@@ -5044,7 +5065,7 @@ class Wavecar:
                     G = np.array([k1, j2, i3])
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
-                    E = g ** 2 / self._C
+                    E = g**2 / self._C
                     if E < self.encut:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):
@@ -5128,7 +5149,7 @@ class Wavecar:
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex_)
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
-            t = tuple(gp.astype(np.int_) + (self.ng / 2).astype(np.int_))
+            t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 
         if shift:
@@ -5604,5 +5625,3 @@ class UnconvergedVASPWarning(Warning):
     """
     Warning for unconverged vasp run.
     """
-
-    pass

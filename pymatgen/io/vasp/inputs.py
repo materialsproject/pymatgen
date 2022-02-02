@@ -14,12 +14,11 @@ import math
 import os
 import re
 import subprocess
-import sys
 import warnings
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Any, Dict, Sequence, Tuple, Union
+from typing import Any, Dict, Literal, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
@@ -38,11 +37,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import ArrayLike, PathLike
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -607,7 +601,7 @@ class Poscar(MSONable):
         velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
 
         # scale velocities to get correct temperature
-        energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities ** 2, axis=1))
+        energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
         scale = (temperature * dof / (2 * energy / const.k)) ** (1 / 2)
 
         velocities *= scale * 1e-5  # these are in A/fs
@@ -637,8 +631,6 @@ class BadIncarWarning(UserWarning):
     """
     Warning class for bad Incar parameters.
     """
-
-    pass
 
 
 class Incar(dict, MSONable):
@@ -955,16 +947,16 @@ class Incar(dict, MSONable):
 
     def check_params(self):
         """
-        Raises a warning for nonsensical or non-existant INCAR tags and
-        parameters. If a keyword doesn't exist (e.g. theres a typo in a
-        keyword), your calculation will still run, however VASP will igore the
+        Raises a warning for nonsensical or non-existent INCAR tags and
+        parameters. If a keyword doesn't exist (e.g. there's a typo in a
+        keyword), your calculation will still run, however VASP will ignore the
         parameter without letting you know, hence why we have this Incar method.
         """
         for k, v in self.items():
             # First check if this parameter even exists
             if k not in incar_params.keys():
                 warnings.warn(
-                    "Cannot find %s in the list of INCAR flags" % (k),
+                    f"Cannot find {k} in the list of INCAR flags",
                     BadIncarWarning,
                     stacklevel=2,
                 )
@@ -1022,7 +1014,7 @@ class Kpoints_supported_modes(Enum):
         for m in Kpoints_supported_modes:
             if m.name.lower()[0] == c:
                 return m
-        raise ValueError("Can't interprete Kpoint mode %s" % s)
+        raise ValueError(f"Can't interpret Kpoint mode {s}")
 
 
 class Kpoints(MSONable):
@@ -1038,7 +1030,7 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: Kpoints_supported_modes = supported_modes.Gamma,
         kpts: Sequence[Union[float, int, Sequence]] = ((1, 1, 1),),
-        kpts_shift: Tuple[int, int, int] = (0, 0, 0),
+        kpts_shift: Tuple[float, float, float] = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
@@ -1159,7 +1151,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts=(1, 1, 1), shift=(0, 0, 0)):
+    def gamma_automatic(kpts: Tuple[int, int, int] = (1, 1, 1), shift: Tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1181,7 +1173,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts=(2, 2, 2), shift=(0, 0, 0)):
+    def monkhorst_automatic(kpts: Tuple[int, int, int] = (2, 2, 2), shift: Tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1203,7 +1195,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def automatic_density(structure, kppa, force_gamma=False):
+    def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -1215,7 +1207,7 @@ class Kpoints(MSONable):
 
         Args:
             structure (Structure): Input structure
-            kppa (int): Grid density
+            kppa (float): Grid density
             force_gamma (bool): Force a gamma centered mesh (default is to
                 use gamma only for hexagonal cells or odd meshes)
 
@@ -1240,10 +1232,10 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_gamma_density(structure, kppa):
+    def automatic_gamma_density(structure: Structure, kppa: float):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
@@ -1278,10 +1270,10 @@ class Kpoints(MSONable):
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
         num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_density_by_vol(structure, kppvol, force_gamma=False):
+    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
@@ -1302,6 +1294,46 @@ class Kpoints(MSONable):
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
     @staticmethod
+    def automatic_density_by_lengths(
+        structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+    ):
+        """
+        Returns an automatic Kpoint object based on a structure and a k-point
+        density normalized by lattice constants.
+
+        Algorithm:
+            For a given dimension, the # of k-points is chosen as
+            length_density = # of kpoints * lattice constant, e.g. [50.0, 50.0, 1.0] would
+            have k-points of 50/a x 50/b x 1/c.
+
+        Args:
+            structure (Structure): Input structure
+            length_densities (list[floats]): Defines the density of k-points in each
+            dimension, e.g. [50.0, 50.0, 1.0].
+            force_gamma (bool): Force a gamma centered mesh
+
+        Returns:
+            Kpoints
+        """
+        comment = f"k-point density of {length_densities}/[a, b, c]"
+        lattice = structure.lattice
+        abc = lattice.abc
+        num_div = [
+            np.ceil(length_densities[0] / abc[0]),
+            np.ceil(length_densities[1] / abc[1]),
+            np.ceil(length_densities[2] / abc[2]),
+        ]
+        is_hexagonal = lattice.is_hexagonal()
+        has_odd = any(i % 2 == 1 for i in num_div)
+        if has_odd or is_hexagonal or force_gamma:
+            style = Kpoints.supported_modes.Gamma
+        else:
+            style = Kpoints.supported_modes.Monkhorst
+        style = Kpoints.supported_modes.Gamma
+
+        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
+
+    @staticmethod
     def automatic_linemode(divisions, ibz):
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
@@ -1310,8 +1342,7 @@ class Kpoints(MSONable):
         VASP manual.
 
         Args:
-            divisions: Parameter determining the number of k-points along each
-                hight symetry lines.
+            divisions: Parameter determining the number of k-points along each high symmetry line.
             ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
 
         Returns:
@@ -1495,16 +1526,17 @@ class Kpoints(MSONable):
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += " %i %s" % (self.kpts_weights[i], self.labels[i])
+                    lines[-1] += f" {int(self.kpts_weights[i])} {self.labels[i]}"
                 else:
-                    lines[-1] += " %i" % (self.kpts_weights[i])
+                    lines[-1] += f" {int(self.kpts_weights[i])}"
 
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
-            lines.append("%d %f" % (self.tet_number, self.tet_weight))
+            lines.append(f"{int(self.tet_number)} {self.tet_weight:f}")
             for sym_weight, vertices in self.tet_connections:
-                lines.append("%d %d %d %d %d" % (sym_weight, vertices[0], vertices[1], vertices[2], vertices[3]))
+                a, b, c, d = vertices
+                lines.append(f"{sym_weight} {a} {b} {c} {d}")
 
         # Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
@@ -1594,8 +1626,6 @@ class UnknownPotcarWarning(UserWarning):
     """
     Warning raised when POTCAR hashes do not pass validation
     """
-
-    pass
 
 
 class PotcarSingle:
@@ -1705,9 +1735,9 @@ class PotcarSingle:
             try:
                 self.keywords[key] = self.parse_functions[key](val)
             except KeyError:
-                warnings.warn("Ignoring unknown variable type %s" % key)
+                warnings.warn(f"Ignoring unknown variable type {key}")
 
-        PSCTR = OrderedDict()
+        PSCTR = {}
 
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
@@ -1767,7 +1797,7 @@ class PotcarSingle:
                 PSCTR["RRKJ"] = tuple(rrkj_array)
 
         PSCTR.update(self.keywords)
-        self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
+        self.PSCTR = dict(sorted(PSCTR.items()))
 
         if symbol:
             self._symbol = symbol
@@ -2372,7 +2402,6 @@ class VaspInput(dict, MSONable):
                 sub_d[fname.lower()] = ftype.from_file(fullzpath)
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_d[fname.lower()] = None
-                pass
 
         sub_d["optional_files"] = {}
         if optional_files is not None:

@@ -6,10 +6,6 @@ import unittest
 import warnings
 from numbers import Number
 from pathlib import Path
-from collections import OrderedDict
-import json
-
-from monty.json import MontyEncoder, MontyDecoder
 
 import numpy as np
 
@@ -37,7 +33,7 @@ module_dir = Path(__file__).absolute().parent
 class PDEntryTest(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
-        self.entry = PDEntry(comp, 53)
+        self.entry = PDEntry(comp, 53, name="mp-757614")
         self.gpentry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
 
     def test_get_energy(self):
@@ -52,8 +48,8 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(self.gpentry.energy_per_atom, 50.0 / 2, "Wrong energy per atom!")
 
     def test_get_name(self):
-        self.assertEqual(self.entry.name, "LiFeO2", "Wrong name!")
-        self.assertEqual(self.gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(self.entry.name, "mp-757614", "Wrong name!")
+        self.assertEqual(self.gpentry.name, "mp-757614", "Wrong name!")
 
     def test_get_composition(self):
         comp = self.entry.composition
@@ -72,10 +68,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(entry.name, "mp-757614", "Wrong name!")
         self.assertEqual(entry.energy_per_atom, 53.0 / 4)
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        self.assertEqual(gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(gpentry.name, "mp-757614", "Wrong name!")
         self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
 
         d_anon = d.copy()
@@ -86,7 +82,11 @@ class PDEntryTest(unittest.TestCase):
             self.fail("Should not need to supply name!")
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entry))
+        self.assertEqual(str(self.entry), "PDEntry : Li1 Fe1 O2 (mp-757614) with energy = 53.0000")
+        pde = self.entry.as_dict()
+        del pde["name"]
+        pde = PDEntry.from_dict(pde)
+        self.assertEqual(str(pde), "PDEntry : Li1 Fe1 O2 with energy = 53.0000")
 
     def test_read_csv(self):
         entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
@@ -102,7 +102,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = ["Li2O", "FeO", "LiO8"]
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
-        sp_mapping = OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
@@ -286,7 +286,6 @@ class PhaseDiagramTest(unittest.TestCase):
                     self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d, 7)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
-                pass
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
@@ -457,6 +456,11 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(h_e, entry.energy)
             n_h_e = self.pd.get_hull_energy(entry.composition.fractional_composition)
             self.assertAlmostEqual(n_h_e, entry.energy_per_atom)
+
+    def test_get_hull_energy_per_atom(self):
+        for entry in self.pd.stable_entries:
+            h_e = self.pd.get_hull_energy_per_atom(entry.composition)
+            self.assertAlmostEqual(h_e, entry.energy_per_atom)
 
     def test_1d_pd(self):
         entry = PDEntry("H", 0)

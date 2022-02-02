@@ -352,7 +352,7 @@ class SlabEntry(ComputedStructureEntry):
         ads_strs = list(self.ads_entries_dict.keys())
 
         cleaned = self.cleaned_up_slab
-        label += " %s" % (cleaned.composition.reduced_composition)
+        label += f" {cleaned.composition.reduced_composition}"
 
         if self.adsorbates:
             for ads in ads_strs:
@@ -1139,9 +1139,9 @@ class SurfaceEnergyPlotter:
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
         plt.plot([xrange[1], xrange[1]], ylim, "--k")
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-rich", xy=xy, xytext=xy, rotation=90, fontsize=17)
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-poor", xy=xy, xytext=xy, rotation=90, fontsize=17)
 
         return plt
 
@@ -1187,7 +1187,7 @@ class SurfaceEnergyPlotter:
                         # Now plot the surface energy vs binding energy
                         plt.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate("%.2f" % (ml), xy=[se, be], xytext=[se, be])
+                            plt.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
         plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
@@ -1243,8 +1243,8 @@ class SurfaceEnergyPlotter:
         delu_dict = delu_dict if delu_dict else {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol("delu_%s" % (str(elements[0])))
-        delu2 = Symbol("delu_%s" % (str(elements[1])))
+        delu1 = Symbol(f"delu_{str(elements[0])}")
+        delu2 = Symbol(f"delu_{str(elements[1])}")
         range1 = ranges[0]
         range2 = ranges[1]
 
@@ -1831,8 +1831,8 @@ class NanoscaleStability:
 
         else:
             # By approximating the particle as a perfect sphere
-            w_vol = (4 / 3) * np.pi * r ** 3
-            sphere_sa = 4 * np.pi * r ** 2
+            w_vol = (4 / 3) * np.pi * r**3
+            sphere_sa = 4 * np.pi * r**2
             tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
@@ -1840,7 +1840,7 @@ class NanoscaleStability:
         new_r = new_r / 10 if r_units == "nanometers" else new_r
         e = Ebulk + tot_wulff_se
         e = e / 1000 if e_units == "keV" else e
-        e = e / ((4 / 3) * np.pi * new_r ** 3) if normalize else e
+        e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
         density = len(bulk_struct) / bulk_struct.lattice.volume
         e = e / (density * w_vol) if scale_per_atom else e
@@ -1859,7 +1859,7 @@ class NanoscaleStability:
     def scaled_wulff(self, wulffshape, r):
         """
         Scales the Wulff shape with an effective radius r. Note that the resulting
-            Wulff does not neccesarily have the same effective radius as the one
+            Wulff does not necessarily have the same effective radius as the one
             provided. The Wulff shape is scaled by its surface energies where first
             the surface energies are scale by the minimum surface energy and then
             multiplied by the given effective radius.

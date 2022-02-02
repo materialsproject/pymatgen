@@ -59,7 +59,7 @@ class EOSBase(metaclass=ABCMeta):
         self.eos_params = [a, b, c]
 
         v0 = -b / (2 * a)
-        e0 = a * (v0 ** 2) + b * v0 + c
+        e0 = a * (v0**2) + b * v0 + c
         b0 = 2 * a * v0
         b1 = 4  # b1 is usually a small number like 4
 
@@ -99,11 +99,10 @@ class EOSBase(metaclass=ABCMeta):
              params (list/tuple): values for the parameters other than the
                 volume used by the eos.
         """
-        pass
 
     def func(self, volume):
         """
-        The equation of state function with the paramters other than volume set
+        The equation of state function with the parameters other than volume set
         to the ones obtained from fitting.
 
         Args:
@@ -195,11 +194,11 @@ class EOSBase(metaclass=ABCMeta):
         color = kwargs.get("color", "r")
         label = kwargs.get("label", f"{self.__class__.__name__} fit")
         lines = [
-            "Equation of State: %s" % self.__class__.__name__,
-            "Minimum energy = %1.2f eV" % self.e0,
-            "Minimum or reference volume = %1.2f Ang^3" % self.v0,
+            f"Equation of State: {self.__class__.__name__}",
+            f"Minimum energy = {self.e0:1.2f} eV",
+            f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1,
+            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -244,11 +243,11 @@ class EOSBase(metaclass=ABCMeta):
         color = kwargs.get("color", "r")
         label = kwargs.get("label", f"{self.__class__.__name__} fit")
         lines = [
-            "Equation of State: %s" % self.__class__.__name__,
-            "Minimum energy = %1.2f eV" % self.e0,
-            "Minimum or reference volume = %1.2f Ang^3" % self.v0,
+            f"Equation of State: {self.__class__.__name__}",
+            f"Minimum energy = {self.e0:1.2f} eV",
+            f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1,
+            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -325,7 +324,7 @@ class BirchMurnaghan(EOSBase):
         """
         e0, b0, b1, v0 = tuple(params)
         eta = (v0 / volume) ** (1.0 / 3.0)
-        return e0 + 9.0 * b0 * v0 / 16.0 * (eta ** 2 - 1) ** 2 * (6 + b1 * (eta ** 2 - 1.0) - 4.0 * eta ** 2)
+        return e0 + 9.0 * b0 * v0 / 16.0 * (eta**2 - 1) ** 2 * (6 + b1 * (eta**2 - 1.0) - 4.0 * eta**2)
 
 
 class PourierTarantola(EOSBase):
@@ -340,7 +339,7 @@ class PourierTarantola(EOSBase):
         e0, b0, b1, v0 = tuple(params)
         eta = (volume / v0) ** (1.0 / 3.0)
         squiggle = -3.0 * np.log(eta)
-        return e0 + b0 * v0 * squiggle ** 2 / 6.0 * (3.0 + squiggle * (b1 - 2))
+        return e0 + b0 * v0 * squiggle**2 / 6.0 * (3.0 + squiggle * (b1 - 2))
 
 
 class Vinet(EOSBase):
@@ -433,7 +432,7 @@ class DeltaFactor(PolynomialEOS):
         else:
             raise EOSError("No minimum could be found")
 
-        derivV2 = 4.0 / 9.0 * x ** 5.0 * deriv2(x)
+        derivV2 = 4.0 / 9.0 * x**5.0 * deriv2(x)
         derivV3 = -20.0 / 9.0 * x ** (13.0 / 2.0) * deriv2(x) - 8.0 / 27.0 * x ** (15.0 / 2.0) * deriv3(x)
         b0 = derivV2 / x ** (3.0 / 2.0)
         b1 = -1 - x ** (-3.0 / 2.0) * derivV3 / derivV2
@@ -533,7 +532,7 @@ class NumericalEOS(PolynomialEOS):
         for k, v in all_coeffs.items():
             # weighted rms = rms * polynomial order / rms_min / ndata_fit
             weighted_rms = v[1] * k[0] / rms_min / k[1]
-            weight = np.exp(-(weighted_rms ** 2))
+            weight = np.exp(-(weighted_rms**2))
             norm += weight
             coeffs = np.array(v[0])
             # pad the coefficient array with zeros
@@ -624,5 +623,3 @@ class EOSError(Exception):
     """
     Error class for EOS fitting.
     """
-
-    pass

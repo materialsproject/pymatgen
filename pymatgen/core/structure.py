@@ -14,10 +14,10 @@ import math
 import os
 import random
 import re
-import sys
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
+from io import StringIO
 from typing import (
     Any,
     Callable,
@@ -25,6 +25,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Optional,
     Sequence,
     Set,
@@ -36,9 +37,9 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+from ruamel.yaml import YAML
 from tabulate import tabulate
 
-from pymatgen.core import yaml
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
@@ -48,11 +49,6 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class Neighbor(Site):
@@ -436,7 +432,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def add_site_property(self, property_name: str, values: List):
         """
-        Adds a property to a site.
+        Adds a property to a site. Note: This is the preferred method
+        for adding magnetic moments, selective dynamics, and related
+        site-specific properties to a structure/molecule object.
+        Examples:
+            structure.add_site_property("magmom", [1.0, 0.0])
+            structure.add_site_property("selective_dynamics", [[True, True, True], [False, False, False]])
 
         Args:
             property_name (str): The name of the property to add.
@@ -741,7 +742,7 @@ class IStructure(SiteCollection, MSONable):
             (Structure) Note that missing properties are set as None.
         """
         if len(sites) < 1:
-            raise ValueError("You need at least one site to construct a %s" % cls)
+            raise ValueError(f"You need at least one site to construct a {cls}")
         prop_keys = []  # type: List[str]
         props = {}
         lattice = sites[0].lattice
@@ -755,7 +756,7 @@ class IStructure(SiteCollection, MSONable):
                 props[k][i] = v
         for k, v in props.items():
             if any(vv is None for vv in v):
-                warnings.warn("Not all sites have property %s. Missing values are set to None." % k)
+                warnings.warn(f"Not all sites have property {k}. Missing values are set to None.")
         return cls(
             lattice,
             [site.species for site in sites],
@@ -836,9 +837,7 @@ class IStructure(SiteCollection, MSONable):
             )
 
         if len(species) != len(coords):
-            raise ValueError(
-                "Supplied species and coords lengths (%d vs %d) are different!" % (len(species), len(coords))
-            )
+            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
             np.array(coords, dtype=np.float_) if not coords_are_cartesian else latt.get_fractional_coords(coords)
@@ -936,14 +935,10 @@ class IStructure(SiteCollection, MSONable):
             )
 
         if len(species) != len(coords):
-            raise ValueError(
-                "Supplied species and coords lengths (%d vs %d) are different!" % (len(species), len(coords))
-            )
+            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         if len(species) != len(magmoms):
-            raise ValueError(
-                "Supplied species and magmom lengths (%d vs %d) are different!" % (len(species), len(magmoms))
-            )
+            raise ValueError(f"Supplied species and magmom lengths ({len(species)} vs {len(magmoms)}) are different!")
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
@@ -1090,9 +1085,9 @@ class IStructure(SiteCollection, MSONable):
             you prefer a subclass to return its own type, you need to override
             this method in the subclass.
         """
-        scale_matrix = np.array(scaling_matrix, np.int16)
+        scale_matrix = np.array(scaling_matrix, int)
         if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+            scale_matrix = np.array(scale_matrix * np.eye(3), int)
         new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
 
         f_lat = lattice_points_in_supercell(scale_matrix)
@@ -1270,7 +1265,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1328,7 +1323,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1408,7 +1403,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1496,7 +1491,7 @@ class IStructure(SiteCollection, MSONable):
                 sites. This is useful in the situation where you are interested
                 only in one subspecies type, and makes it a lot faster.
             numerical_tol (float): This is a numerical tolerance for distances.
-                Sites which are < numerical_tol are determined to be conincident
+                Sites which are < numerical_tol are determined to be coincident
                 with the site. Sites which are r + numerical_tol away is deemed
                 to be within r from the site. The default of 1e-8 should be
                 ok in most instances.
@@ -1783,7 +1778,7 @@ class IStructure(SiteCollection, MSONable):
         if not isinstance(nimages, collections.abc.Iterable):
             images = np.arange(nimages + 1) / nimages
         else:
-            images = nimages
+            images = nimages  # type: ignore
 
         # Check that both structures have the same species
         for i, site in enumerate(self):
@@ -1901,7 +1896,7 @@ class IStructure(SiteCollection, MSONable):
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
-                differntiating sites.
+                differentiating sites.
             constrain_latt (list/dict): List of lattice parameters we want to
                 preserve, e.g. ["alpha", "c"] or dict with the lattice
                 parameter names as keys and values we want the parameters to
@@ -1985,7 +1980,7 @@ class IStructure(SiteCollection, MSONable):
                             ]
                         )
 
-        # we cant let sites match to their neighbors in the supercell
+        # we can't let sites match to their neighbors in the supercell
         grouped_non_nbrs = []
         for gfcoords in grouped_fcoords:
             fdist = gfcoords[None, :, :] - gfcoords[:, None, :]
@@ -2010,7 +2005,7 @@ class IStructure(SiteCollection, MSONable):
 
             for inv_m, m in zip(inv_ms[inds], ms[inds]):
                 new_m = np.dot(inv_m, self.lattice.matrix)
-                ftol = np.divide(tolerance, np.sqrt(np.sum(new_m ** 2, axis=1)))
+                ftol = np.divide(tolerance, np.sqrt(np.sum(new_m**2, axis=1)))
 
                 valid = True
                 new_coords = []
@@ -2105,7 +2100,7 @@ class IStructure(SiteCollection, MSONable):
         ]
 
         def to_s(x):
-            return "%0.6f" % x
+            return f"{x:0.6f}"
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
@@ -2210,7 +2205,7 @@ class IStructure(SiteCollection, MSONable):
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "charge": self._charge,
+            "charge": self.charge,
             "lattice": latt_dict,
             "sites": [],
         }
@@ -2310,7 +2305,7 @@ class IStructure(SiteCollection, MSONable):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
-                    f.write("%s" % s)
+                    f.write(s)
             return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
@@ -2336,17 +2331,20 @@ class IStructure(SiteCollection, MSONable):
             s = Prismatic(self).to_string()
             return s
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
+            yaml = YAML()
             if filename:
                 with zopen(filename, "wt") as f:
-                    yaml.safe_dump(self.as_dict(), f)
+                    yaml.dump(self.as_dict(), f)
                 return None
-            return yaml.safe_dump(self.as_dict())
+            sio = StringIO()
+            yaml.dump(self.as_dict(), sio)
+            return sio.getvalue()
         elif fmt == "fleur-inpgen" or fnmatch(fname, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
             writer = FleurInput(self, **kwargs)
         else:
-            raise ValueError("Invalid format: `%s`" % str(fmt))
+            raise ValueError(f"Invalid format: `{str(fmt)}`")
 
         if filename:
             writer.write_file(filename)
@@ -2400,7 +2398,8 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt_low == "yaml":
-            d = yaml.safe_load(input_string)
+            yaml = YAML()
+            d = yaml.load(input_string)
             s = Structure.from_dict(d)
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
@@ -2770,10 +2769,10 @@ class IMolecule(SiteCollection, MSONable):
 
     def __str__(self):
         outs = [
-            "Full Formula (%s)" % self.composition.formula,
+            f"Full Formula ({self.composition.formula})",
             "Reduced Formula: " + self.composition.reduced_formula,
             f"Charge = {self._charge}, Spin Mult = {self._spin_multiplicity}",
-            "Sites (%d)" % len(self),
+            f"Sites ({len(self)})",
         ]
         for i, site in enumerate(self):
             outs.append(
@@ -2781,7 +2780,7 @@ class IMolecule(SiteCollection, MSONable):
                     [
                         str(i),
                         site.species_string,
-                        " ".join([("%0.6f" % j).rjust(12) for j in site.coords]),
+                        " ".join([f"{j:0.6f}".rjust(12) for j in site.coords]),
                     ]
                 )
             )
@@ -2794,8 +2793,8 @@ class IMolecule(SiteCollection, MSONable):
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "charge": self._charge,
-            "spin_multiplicity": self._spin_multiplicity,
+            "charge": self.charge,
+            "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
         }
         for site in self:
@@ -3053,12 +3052,14 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
+            yaml = YAML()
             if filename:
                 with zopen(fname, "wt", encoding="utf8") as f:
-                    return yaml.safe_dump(self.as_dict(), f)
+                    return yaml.dump(self.as_dict(), f)
             else:
-                return yaml.safe_dump(self.as_dict())
-
+                sio = StringIO()
+                yaml.dump(self.as_dict(), sio)
+                return sio.getvalue()
         else:
             m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", fname.lower())
             if (not fmt) and m:
@@ -3097,7 +3098,8 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
-            d = yaml.safe_load(input_string)
+            yaml = YAML()
+            d = yaml.load(input_string)
             return cls.from_dict(d)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
@@ -3288,7 +3290,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
     @property
     def lattice(self) -> Lattice:
         """
-        :return: Lattice assciated with structure.
+        :return: Lattice associated with structure.
         """
         return self._lattice
 
@@ -3788,7 +3790,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         else:
                             props[key] = None
                             warnings.warn(
-                                "Sites with different site property %s are merged. So property is set to none" % key
+                                f"Sites with different site property {key} are merged. So property is set to none"
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
@@ -4205,8 +4207,6 @@ class StructureError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
-
-    pass
 
 
 with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:

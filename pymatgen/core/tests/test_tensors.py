@@ -1,10 +1,21 @@
 import math
+import os
 import unittest
+import warnings
 
+import numpy as np
 from monty.serialization import MontyDecoder
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.tensors import *
+from pymatgen.core.tensors import (
+    SquareTensor,
+    Tensor,
+    TensorCollection,
+    TensorMapping,
+    itertools,
+    loadfn,
+    symmetry_reduce,
+)
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
@@ -164,7 +175,7 @@ class TensorTest(PymatgenTest):
 
     def test_einsum_sequence(self):
         x = [1, 0, 0]
-        test = Tensor(np.arange(0, 3 ** 4).reshape((3, 3, 3, 3)))
+        test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         self.assertArrayAlmostEqual([0, 27, 54], test.einsum_sequence([x] * 3))
         self.assertEqual(360, test.einsum_sequence([np.eye(3)] * 2))
         self.assertRaises(ValueError, test.einsum_sequence, Tensor(np.zeros(3)))
@@ -374,7 +385,7 @@ class TensorTest(PymatgenTest):
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
-        self.seq_tc = [t for t in np.arange(4 * 3 ** 3).reshape((4, 3, 3, 3))]
+        self.seq_tc = [t for t in np.arange(4 * 3**3).reshape((4, 3, 3, 3))]
         self.seq_tc = TensorCollection(self.seq_tc)
         self.rand_tc = TensorCollection([t for t in np.random.random((4, 3, 3))])
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
@@ -443,7 +454,7 @@ class TensorCollectionTest(PymatgenTest):
 
         # Convert to ieee
         for entry in self.ieee_data[:2]:
-            xtal = entry["xtal"]
+            entry["xtal"]
             tc = TensorCollection([entry["original_tensor"]] * 3)
             struct = entry["structure"]
             self.list_based_function_check("convert_to_ieee", tc, struct)

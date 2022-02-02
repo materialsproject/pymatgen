@@ -51,9 +51,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(
-            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
-        )
+        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
     return lower_and_upper_functions
 
 
@@ -819,26 +817,6 @@ class Plane:
         if self.e1 is None:
             diff = self.p2 - self.p1
             self.e1 = diff / norm(diff)
-            self.e2 = np.cross(self.e3, self.e1)
-        return [self.e1, self.e2, self.e3]
-
-    def orthonormal_vectors_old(self):
-        """
-        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
-        third one is the normal vector of the plane
-        :return: List of orthogonal vectors
-        :raise: ValueError if all the coefficients are zero or if there is some other strange error
-        """
-        if self.e1 is None:
-            imax = np.argmax(np.abs(self.normal_vector))
-            if imax == 0:
-                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
-            elif imax == 1:
-                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
-            elif imax == 2:
-                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
-            else:
-                raise ValueError("Only three values in the normal vector, should not be here ...")
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 

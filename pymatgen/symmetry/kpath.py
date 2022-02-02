@@ -191,7 +191,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -204,7 +204,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -215,9 +215,9 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.orc()
 
             elif "F" in spg_symbol:
-                if 1 / a ** 2 > 1 / b ** 2 + 1 / c ** 2:
+                if 1 / a**2 > 1 / b**2 + 1 / c**2:
                     self._kpath = self.orcf1(a, b, c)
-                elif 1 / a ** 2 < 1 / b ** 2 + 1 / c ** 2:
+                elif 1 / a**2 < 1 / b**2 + 1 / c**2:
                     self._kpath = self.orcf2(a, b, c)
                 else:
                     self._kpath = self.orcf3(a, b, c)
@@ -228,7 +228,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -255,14 +255,14 @@ class KPathSetyawanCurtarolo(KPathBase):
                 if kgamma == 90:
                     self._kpath = self.mclc2(a, b, c, alpha * pi / 180)
                 if kgamma < 90:
-                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 < 1:
+                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 < 1:
                         self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
-                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 == 1:
+                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 == 1:
                         self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
-                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
+                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -278,7 +278,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.trib()
 
         else:
-            warn("Unknown lattice type %s" % lattice_type)
+            warn(f"Unknown lattice type {lattice_type}")
 
     @property
     def conventional(self):
@@ -376,7 +376,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         BCT1 Path
         """
         self.name = "BCT1"
-        eta = (1 + c ** 2 / a ** 2) / 4.0
+        eta = (1 + c**2 / a**2) / 4.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "M": np.array([-0.5, 0.5, 0.5]),
@@ -394,8 +394,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         BCT2 Path
         """
         self.name = "BCT2"
-        eta = (1 + a ** 2 / c ** 2) / 4.0
-        zeta = a ** 2 / (2 * c ** 2)
+        eta = (1 + a**2 / c**2) / 4.0
+        zeta = a**2 / (2 * c**2)
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "N": np.array([0.0, 0.5, 0.0]),
@@ -453,8 +453,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORFC1 Path
         """
         self.name = "ORCF1"
-        zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
-        eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
+        zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
+        eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
 
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -480,9 +480,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORFC2 Path
         """
         self.name = "ORCF2"
-        phi = (1 + c ** 2 / b ** 2 - c ** 2 / a ** 2) / 4
-        eta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
-        delta = (1 + b ** 2 / a ** 2 - b ** 2 / c ** 2) / 4
+        phi = (1 + c**2 / b**2 - c**2 / a**2) / 4
+        eta = (1 + a**2 / b**2 - a**2 / c**2) / 4
+        delta = (1 + b**2 / a**2 - b**2 / c**2) / 4
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "C": np.array([0.5, 0.5 - eta, 1 - eta]),
@@ -510,8 +510,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORFC3 Path
         """
         self.name = "ORCF3"
-        zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
-        eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
+        zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
+        eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([0.5, 0.5 + zeta, zeta]),
@@ -535,10 +535,10 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORCI Path
         """
         self.name = "ORCI"
-        zeta = (1 + a ** 2 / c ** 2) / 4
-        eta = (1 + b ** 2 / c ** 2) / 4
-        delta = (b ** 2 - a ** 2) / (4 * c ** 2)
-        mu = (a ** 2 + b ** 2) / (4 * c ** 2)
+        zeta = (1 + a**2 / c**2) / 4
+        eta = (1 + b**2 / c**2) / 4
+        delta = (b**2 - a**2) / (4 * c**2)
+        mu = (a**2 + b**2) / (4 * c**2)
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "L": np.array([-mu, mu, 0.5 - delta]),
@@ -566,7 +566,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORCC Path
         """
         self.name = "ORCC"
-        zeta = (1 + a ** 2 / b ** 2) / 4
+        zeta = (1 + a**2 / b**2) / 4
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([zeta, zeta, 0.5]),
@@ -706,7 +706,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        psi = 0.75 - a ** 2 / (4 * b ** 2 * sin(alpha) ** 2)
+        psi = 0.75 - a**2 / (4 * b**2 * sin(alpha) ** 2)
         phi = psi + (0.75 - psi) * b * cos(alpha) / c
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -742,7 +742,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        psi = 0.75 - a ** 2 / (4 * b ** 2 * sin(alpha) ** 2)
+        psi = 0.75 - a**2 / (4 * b**2 * sin(alpha) ** 2)
         phi = psi + (0.75 - psi) * b * cos(alpha) / c
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -775,8 +775,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         MCLC3 Path
         """
         self.name = "MCLC3"
-        mu = (1 + b ** 2 / a ** 2) / 4.0
-        delta = b * c * cos(alpha) / (2 * a ** 2)
+        mu = (1 + b**2 / a**2) / 4.0
+        delta = b * c * cos(alpha) / (2 * a**2)
         zeta = mu - 0.25 + (1 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
@@ -812,8 +812,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         MCLC4 Path
         """
         self.name = "MCLC4"
-        mu = (1 + b ** 2 / a ** 2) / 4.0
-        delta = b * c * cos(alpha) / (2 * a ** 2)
+        mu = (1 + b**2 / a**2) / 4.0
+        delta = b * c * cos(alpha) / (2 * a**2)
         zeta = mu - 0.25 + (1 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
@@ -849,12 +849,12 @@ class KPathSetyawanCurtarolo(KPathBase):
         MCLC5 Path
         """
         self.name = "MCLC5"
-        zeta = (b ** 2 / a ** 2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
+        zeta = (b**2 / a**2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        mu = eta / 2 + b ** 2 / (4 * a ** 2) - b * c * cos(alpha) / (2 * a ** 2)
+        mu = eta / 2 + b**2 / (4 * a**2) - b * c * cos(alpha) / (2 * a**2)
         nu = 2 * mu - zeta
-        rho = 1 - zeta * a ** 2 / b ** 2
-        omega = (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2) * c / (2 * b * cos(alpha))
+        rho = 1 - zeta * a**2 / b**2
+        omega = (4 * nu - 1 - b**2 * sin(alpha) ** 2 / a**2) * c / (2 * b * cos(alpha))
         delta = zeta * c * cos(alpha) / b + omega / 2 - 0.25
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -1071,13 +1071,13 @@ class KPathLatimerMunro(KPathBase):
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
     obtain the correct Brillouin zone within the current
-    implementaiton). This is checked during initialization and a
+    implementation). This is checked during initialization and a
     warning is issued if the condition is not fulfilled.
     In the case of magnetic structures, care must also be taken to
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
     upon application of lattice translations). There is no way to
-    programatically check for this, so if the input structure is
+    programmatically check for this, so if the input structure is
     incorrect, the class will output the incorrect kpath without
     any warning being issued.
     """
@@ -1675,7 +1675,7 @@ class KPathLatimerMunro(KPathBase):
 
     def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
 
-        little_groups_points = []  # elements are lists of indicies of recip_point_group. the
+        little_groups_points = []  # elements are lists of indices of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
         for (i, orbit) in enumerate(key_points_inds_orbits):
@@ -1689,7 +1689,7 @@ class KPathLatimerMunro(KPathBase):
                 if check_gamma:
                     little_groups_points[i].append(j)
 
-        # elements are lists of indicies of recip_point_group. the list
+        # elements are lists of indices of recip_point_group. the list
         # little_groups_lines[i] is
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]

@@ -216,7 +216,7 @@ class Tensor(np.ndarray, MSONable):
         else:
             array = self
 
-        indices = list(itertools.product(*[range(n) for n in array.shape]))
+        indices = list(itertools.product(*(range(n) for n in array.shape)))
         remaining = indices.copy()
         # Start with everything near zero
         grouped = [list(zip(*np.where(np.isclose(array, 0, **kwargs))))]
@@ -941,7 +941,7 @@ class SquareTensor(Tensor):
     def refine_rotation(self):
         """
         Helper method for refining rotation matrix by ensuring
-        that second and third rows are perpindicular to the first.
+        that second and third rows are perpendicular to the first.
         Gets new y vector from an orthogonal projection of x onto y
         and the new z vector from a cross product of the new x and y
 

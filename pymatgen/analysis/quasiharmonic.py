@@ -108,7 +108,7 @@ class QuasiharmonicDebyeApprox:
 
     def optimize_gibbs_free_energy(self):
         """
-        Evaluate the gibbs free energy as a function of V, T and P i.e
+        Evaluate the Gibbs free energy as a function of V, T and P i.e
         G(V, T, P), minimize G(V, T, P) wrt V for each T and store the
         optimum values.
 
@@ -137,11 +137,11 @@ class QuasiharmonicDebyeApprox:
         Evaluate G(V, T, P) at the given temperature(and pressure) and
         minimize it wrt V.
 
-        1. Compute the  vibrational helmholtz free energy, A_vib.
-        2. Compute the gibbs free energy as a function of volume, temperature
+        1. Compute the  vibrational Helmholtz free energy, A_vib.
+        2. Compute the Gibbs free energy as a function of volume, temperature
             and pressure, G(V,T,P).
-        3. Preform an equation of state fit to get the functional form of
-            gibbs free energy:G(V, T, P).
+        3. Perform an equation of state fit to get the functional form of
+            Gibbs free energy:G(V, T, P).
         4. Finally G(V, P, T) is minimized with respect to V.
 
         Args:
@@ -242,16 +242,16 @@ class QuasiharmonicDebyeApprox:
         # floating point limit is reached around y=155, so values beyond that
         # are set to the limiting value(T-->0, y --> \infty) of
         # 6.4939394 (from wolfram alpha).
-        factor = 3.0 / y ** 3
+        factor = 3.0 / y**3
         if y < 155:
-            integral = quadrature(lambda x: x ** 3 / (np.exp(x) - 1.0), 0, y)
+            integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
             return list(integral)[0] * factor
         return 6.493939 * factor
 
     def gruneisen_parameter(self, temperature, volume):
         """
         Slater-gamma formulation(the default):
-            gruneisen paramter = - d log(theta)/ d log(V)
+            gruneisen parameter = - d log(theta)/ d log(V)
                                = - ( 1/6 + 0.5 d log(B)/ d log(V) )
                                = - (1/6 + 0.5 V/B dB/dV),
                                     where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
@@ -317,13 +317,13 @@ class QuasiharmonicDebyeApprox:
         gamma = self.gruneisen_parameter(temperature, volume)
         theta_d = self.debye_temperature(volume)  # K
         theta_a = theta_d * self.natoms ** (-1.0 / 3.0)  # K
-        prefactor = (0.849 * 3 * 4 ** (1.0 / 3.0)) / (20.0 * np.pi ** 3)
+        prefactor = (0.849 * 3 * 4 ** (1.0 / 3.0)) / (20.0 * np.pi**3)
         # kg/K^3/s^3
         prefactor = prefactor * (self.kb / self.hbar) ** 3 * self.avg_mass
-        kappa = prefactor / (gamma ** 2 - 0.514 * gamma + 0.228)
+        kappa = prefactor / (gamma**2 - 0.514 * gamma + 0.228)
         # kg/K/s^3 * Ang = (kg m/s^2)/(Ks)*1e-10
         # = N/(Ks)*1e-10 = Nm/(Kms)*1e-10 = W/K/m*1e-10
-        kappa = kappa * theta_a ** 2 * volume ** (1.0 / 3.0) * 1e-10
+        kappa = kappa * theta_a**2 * volume ** (1.0 / 3.0) * 1e-10
         return kappa
 
     def get_summary_dict(self):

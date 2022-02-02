@@ -21,8 +21,8 @@ import warnings
 from pathlib import Path
 from typing import Dict, Union
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     LDOS,
@@ -249,7 +249,7 @@ class DftSet(Cp2kInputSet):
                 reasonable results for most properties.
             max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
                 corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
-                while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+                while with diagonalization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
@@ -259,7 +259,7 @@ class DftSet(Cp2kInputSet):
                 in which case FULL_KINETIC might be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
-            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
+            rel_cutoff (int): This cutoff decides how the Gaussians are mapped onto the different levels of the
                 multigrid. From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
                     function will cover number of grid points greater than or equal to the number of grid points
                     will cover on a reference grid defined by REL_CUTOFF.
@@ -796,7 +796,7 @@ class RelaxSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
@@ -863,7 +863,7 @@ class CellOptSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """

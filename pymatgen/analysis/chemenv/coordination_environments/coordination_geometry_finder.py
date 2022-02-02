@@ -23,7 +23,6 @@ __date__ = "Feb 20, 2016"
 import itertools
 import logging
 import time
-from collections import OrderedDict
 from random import shuffle
 
 import numpy as np
@@ -734,7 +733,7 @@ class LocalGeometryFinder:
             logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string})")
             t1 = time.process_time()
             if optimization > 0:
-                self.detailed_voronoi.local_planes[isite] = OrderedDict()
+                self.detailed_voronoi.local_planes[isite] = {}
                 self.detailed_voronoi.separations[isite] = {}
             se.init_neighbors_sets(
                 isite=isite,
@@ -875,7 +874,7 @@ class LocalGeometryFinder:
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
             logging.debug("Getting StructureEnvironments with optimized algorithm")
-            nb_set.local_planes = OrderedDict()
+            nb_set.local_planes = {}
             nb_set.separations = {}
             cncgsm = self.get_coordination_symmetry_measures_optim(nb_set=nb_set, optimization=optimization)
         else:
@@ -1700,7 +1699,7 @@ class LocalGeometryFinder:
                         continue
                     if sep not in nb_set.separations:
                         nb_set.separations[sep] = {}
-                    mysep = [np.array(ss, dtype=np.int8) for ss in separation]
+                    mysep = [np.array(ss, dtype=int) for ss in separation]
                     nb_set.separations[sep][separation] = (plane, mysep)
                     if sep == separation_plane_algo.separation:
                         new_seps.append(mysep)

@@ -598,7 +598,7 @@ class CollinearMagneticStructureAnalyzer:
 
     def __str__(self):
         """
-        Sorts a Structure (by fractional co-ordinate), and
+        Sorts a Structure (by fractional coordinate), and
         prints sites with magnetic information. This is
         useful over Structure.__str__ because sites are in
         a consistent order, which makes visual comparison between
@@ -615,7 +615,7 @@ class CollinearMagneticStructureAnalyzer:
         outs.append("Magmoms Sites")
         for site in s:
             if site.properties["magmom"] != 0:
-                prefix = "{:+.2f}   ".format(site.properties["magmom"])
+                prefix = f"{site.properties['magmom']:+.2f}   "
             else:
                 prefix = "        "
             outs.append(prefix + repr(site))
@@ -828,7 +828,7 @@ class MagneticStructureEnumerator:
         if "max_cell_size" not in self.transformation_kwargs:
             # TODO: change to 8 / num_mag_sites ?
             self.transformation_kwargs["max_cell_size"] = max(1, int(4 / num_mag_sites))
-        self.logger.info("Max cell size set to {}".format(self.transformation_kwargs["max_cell_size"]))
+        self.logger.info(f"Max cell size set to {self.transformation_kwargs['max_cell_size']}")
 
         # when enumerating ferrimagnetic structures, it's useful to detect
         # symmetrically distinct magnetic sites, since different
