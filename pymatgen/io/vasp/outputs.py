@@ -4849,7 +4849,7 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=3).astype(int)
+            self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
             self.encut = np.fromfile(f, dtype=np.float64, count=1)
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
