@@ -177,20 +177,15 @@ if __name__ == "__main__":
             else:
                 eop = str(len(algo.explicit_optimized_permutations))
             print(
-                "For ialgo {:d}, plane_points are {}, "
-                "side_0 is {} and "
-                "side_1 is {}.".format(
-                    ialgo,
-                    "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
-                )
+                f"For ialgo {ialgo,:d}, plane_points are "
+                f"[{', '.join([str(pp) for pp in algo.plane_points])}], "
+                f"side_0 is [{', '.join([str(pp) for pp in algo.point_groups[0]])}] and "
+                f"side_1 is [{', '.join([str(pp) for pp in algo.point_groups[1]])}]."
             )
             original_nexplicit_perms.append(len(algo.explicit_permutations))
             original_nexplicit_optimized_perms.append(eop)
             print(
-                "  For this algorithm, there are {} optimized permutations and "
-                "{:d} explicit permutations".format(eop, len(algo.explicit_permutations))
+                f"  For this algorithm, there are {eop} optimized permutations and {len(algo.explicit_permutations):d} explicit permutations"
             )
             if algo.other_plane_points is None:
                 input("Multiplicity and other plane points is not defined for this algorithm !")
@@ -242,8 +237,7 @@ if __name__ == "__main__":
                             break
                     if not found:
                         prt1(
-                            string=" permutation {} : {}".format(
-                                "-".join([str(ii) for ii in sep_perms[icsm]]), str(csm["symmetry_measure"])
+                            string=" permutation {} : {}".format("-".join([str(ii) for ii in sep_perms[icsm]]), str(csm["symmetry_measure"])
                             ),
                             printing_volume=printing_volume,
                         )
@@ -274,8 +268,7 @@ if __name__ == "__main__":
 
         while True:
             test = input(
-                'Get the explicit optimized permutations for geometry "{}" (symbol : "{}") ? '
-                '("y" to confirm, "q" to quit)\n'.format(cg.name, cg_symbol)
+                f'Get the explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}") ? ("y" to confirm, "q" to quit)\n'
             )
             if test not in ["y", "q"]:
                 print("Wrong key, try again")
@@ -292,14 +285,10 @@ if __name__ == "__main__":
         for ialgo, algo in enumerate(cg.algorithms):
             perms_used = {}
             print(
-                "In ialgo {:d} (plane_points : {}, "
-                "side_0 : {} and "
-                "side_1 : {})".format(
-                    ialgo,
-                    "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
-                )
+                f"In ialgo {ialgo:d} (plane_points : "
+                f"[{', '.join([str(pp) for pp in algo.plane_points])}], "
+                f"side_0 : [{', '.join([str(pp) for pp in algo.point_groups[0]])}] and "
+                f"side_1 : [{', '.join([str(pp) for pp in algo.point_groups[1]])}])"
             )
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
                 raise ValueError("Do something for the explicit ones ... (these should anyway be by far ok!)")
@@ -342,9 +331,9 @@ if __name__ == "__main__":
             for indices_perm in perms_iterator:
 
                 prt1(
-                    string="Perm # {:d}/{:d} : {} (est. rem. time : {} sec)".format(
-                        iperm, npermutations, "-".join([str(ii) for ii in indices_perm]), timeleft
-                    ),
+                    string=f"Perm # {iperm:d}/{npermutations:d} : "
+                           f"{'-'.join([str(ii) for ii in indices_perm])} "
+                           f"(est. rem. time : {timeleft} sec)",
                     printing_volume=printing_volume,
                 )
                 # Setup of the local and perfect geometries
