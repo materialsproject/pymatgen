@@ -183,7 +183,7 @@ if __name__ == "__main__":
                     ialgo,
                     "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
                     "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[1]])),
+                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
                 )
             )
             original_nexplicit_perms.append(len(algo.explicit_permutations))
@@ -211,7 +211,7 @@ if __name__ == "__main__":
             explicit_permutations_per_plane = []
             for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                 prt1(
-                    string="In plane {:d} ({})".format(iplane, "-".join(str(pp) for pp in plane_point_indices)),
+                    string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                     printing_volume=printing_volume,
                 )
 
@@ -298,7 +298,7 @@ if __name__ == "__main__":
                     ialgo,
                     "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
                     "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[1]])),
+                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
                 )
             )
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
@@ -358,7 +358,7 @@ if __name__ == "__main__":
                 separation_permutations = list()
                 for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(
-                        string="In plane {:d} ({})".format(iplane, "-".join(str(pp) for pp in plane_point_indices)),
+                        string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                         printing_volume=printing_volume,
                     )
 
@@ -417,7 +417,7 @@ if __name__ == "__main__":
                 )
             )
             for perm, number in perms_used.items():
-                print(" - permutation {} : {:d}".format("-".join([str(pp) for pp in perm]), number))
+                print(f" - permutation {'-'.join([str(pp) for pp in perm])} : {number:d}")
             print(
                 "For ialgo {:d} (plane_points : {}, "
                 "side_0 : {} and "
@@ -427,7 +427,7 @@ if __name__ == "__main__":
                     ialgo,
                     "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
                     "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[1]])),
+                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
                     len(perms_used),
                     len(algo.permutations),
                     str(original_nexplicit_optimized_perms[ialgo]),

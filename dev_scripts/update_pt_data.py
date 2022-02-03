@@ -172,26 +172,26 @@ def parse_shannon_radii():
     sheet = wb["Sheet1"]
     i = 2
     radii = collections.defaultdict(dict)
-    while sheet["E%d" % i].value:
-        if sheet["A%d" % i].value:
-            el = sheet["A%d" % i].value
-        if sheet["B%d" % i].value:
-            charge = int(sheet["B%d" % i].value)
+    while sheet[f"E{int(i)}"].value:
+        if sheet[f"A{int(i)}"].value:
+            el = sheet[f"A{int(i)}"].value
+        if sheet[f"B{int(i)}"].value:
+            charge = int(sheet[f"B{int(i)}"].value)
             radii[el][charge] = dict()
-        if sheet["C%d" % i].value:
-            cn = sheet["C%d" % i].value
+        if sheet[f"C{int(i)}"].value:
+            cn = sheet[f"C{int(i)}"].value
             if cn not in radii[el][charge]:
                 radii[el][charge][cn] = dict()
 
-        if sheet["D%d" % i].value is not None:
-            spin = sheet["D%d" % i].value
+        if sheet[f"D{int(i)}"].value is not None:
+            spin = sheet[f"D{int(i)}"].value
         else:
             spin = ""
         # print("%s - %d - %s" % (el, charge, cn))
 
         radii[el][charge][cn][spin] = {
-            "crystal_radius": float(sheet["E%d" % i].value),
-            "ionic_radius": float(sheet["F%d" % i].value),
+            "crystal_radius": float(sheet[f"E{int(i)}"].value),
+            "ionic_radius": float(sheet[f"F{int(i)}"].value),
         }
         i += 1
 

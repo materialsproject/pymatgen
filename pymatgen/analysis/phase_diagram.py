@@ -165,7 +165,7 @@ class GrandPotPDEntry(PDEntry):
 
     def __repr__(self):
         chempot_str = " ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
-        return "GrandPotPDEntry with original composition " + "{}, energy = {:.4f}, {}".format(
+        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
             self.original_entry.composition, self.original_entry.energy, chempot_str
         )
 
@@ -976,7 +976,7 @@ class PhaseDiagram(MSONable):
 
         # find position along line
         l = c2 - c1
-        l /= np.sum(l**2) ** 0.5
+        l /= np.sum(l ** 2) ** 0.5
         proj = np.dot(intersections - c1, l)
 
         # only take compositions between endpoints

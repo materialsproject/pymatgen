@@ -140,7 +140,7 @@ class InputVariable:
         except Exception:
             return sval
 
-        if fval == 0 or (abs(fval) > 1e-3 and abs(fval) < 1e4):
+        if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
             addlen = 5
         else:
@@ -150,7 +150,7 @@ class InputVariable:
         ndec = max(len(str(fval - int(fval))) - 2, floatdecimal)
         ndec = min(ndec, 10)
 
-        sval = "{v:>{l}.{p}{f}}".format(v=fval, l=ndec + addlen, p=ndec, f=form)
+        sval = f"{fval:>{{ndec + addlen}}.{{ndec}}{{form}}}"
 
         sval = sval.replace("e", "d")
 
@@ -192,7 +192,7 @@ class InputVariable:
         line = "\n"
         for L in values:
             for val in L:
-                line += " {v:{f}}".format(v=val, f=formatspec)
+                line += f" {val:{{formatspec}}}"
             line += "\n"
 
         return line.rstrip("\n")

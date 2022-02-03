@@ -222,9 +222,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "TranslateSitesTransformation for indices " + "{}, vect {} and vect_in_frac_coords = {}".format(
-            self.indices_to_move, self.translation_vector, self.vector_in_frac_coords
-        )
+        return f"TranslateSitesTransformation for indices {self.indices_to_move}, vect {self.translation_vector} and vect_in_frac_coords = {self.vector_in_frac_coords}"
 
     def __repr__(self):
         return self.__str__()
@@ -524,9 +522,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
-        return "PartialRemoveSitesTransformation : Indices and fraction" + " to remove = {}, ALGO = {}".format(
-            self.indices, self.algo
-        )
+        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     def __repr__(self):
         return self.__str__()
