@@ -237,7 +237,8 @@ if __name__ == "__main__":
                             break
                     if not found:
                         prt1(
-                            string=" permutation {} : {}".format("-".join([str(ii) for ii in sep_perms[icsm]]), str(csm["symmetry_measure"])
+                            string=" permutation {} : {}".format(
+                                "-".join([str(ii) for ii in sep_perms[icsm]]), str(csm["symmetry_measure"])
                             ),
                             printing_volume=printing_volume,
                         )
@@ -332,8 +333,8 @@ if __name__ == "__main__":
 
                 prt1(
                     string=f"Perm # {iperm:d}/{npermutations:d} : "
-                           f"{'-'.join([str(ii) for ii in indices_perm])} "
-                           f"(est. rem. time : {timeleft} sec)",
+                    f"{'-'.join([str(ii) for ii in indices_perm])} "
+                    f"(est. rem. time : {timeleft} sec)",
                     printing_volume=printing_volume,
                 )
                 # Setup of the local and perfect geometries
