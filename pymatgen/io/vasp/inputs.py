@@ -601,7 +601,7 @@ class Poscar(MSONable):
         velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
 
         # scale velocities to get correct temperature
-        energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
+        energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities ** 2, axis=1))
         scale = (temperature * dof / (2 * energy / const.k)) ** (1 / 2)
 
         velocities *= scale * 1e-5  # these are in A/fs

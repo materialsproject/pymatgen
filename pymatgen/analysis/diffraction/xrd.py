@@ -226,7 +226,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Store s^2 since we are using it a few times.
-                s2 = s**2
+                s2 = s ** 2
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
