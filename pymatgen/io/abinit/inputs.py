@@ -1298,8 +1298,7 @@ class BasicMultiDataset:
                     exclude=global_vars,
                 )
                 if s:
-                    header = len(header) * "#\n" + header + "\n" + len(header) * "#\n"
-                    s = "\n" + header + s + "\n"
+                    s = f"\n{len(header) * '#'}\n{header}\n{len(header) * '#'}\n{s}\n"
 
                 lines.append(s)
 

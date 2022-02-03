@@ -222,7 +222,11 @@ class TranslateSitesTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return f"TranslateSitesTransformation for indices {self.indices_to_move}, vect {self.translation_vector} and vect_in_frac_coords = {self.vector_in_frac_coords}"
+        return (
+            f"TranslateSitesTransformation for indices {self.indices_to_move}, "
+            f"vect {self.translation_vector} and "
+            f"vect_in_frac_coords = {self.vector_in_frac_coords}"
+        )
 
     def __repr__(self):
         return self.__str__()
