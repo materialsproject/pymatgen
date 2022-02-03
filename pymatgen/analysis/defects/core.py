@@ -422,9 +422,9 @@ class Interstitial(Defect):
         return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
-class Adsorbent(Interstitial):
+class Adsorbate(Interstitial):
     """
-    Subclass of Interstitial with a different name. Used for keeping track of adsorbents, which are
+    Subclass of Interstitial with a different name. Used for keeping track of adsorbate, which are
     treated the same algorithmically as interstitials, but are conceptually separate.
     """
 
@@ -733,7 +733,7 @@ class DefectEntry(MSONable):
         Returns:
             defects concentration per formula unit.
         """
-        n = self.multiplicity
+        n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
         conc = n * np.exp(
             -1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature)
         )
