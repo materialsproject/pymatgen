@@ -8,6 +8,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
@@ -18,9 +19,9 @@ from pymatgen.io.lobster import (
     Fatband,
     Grosspop,
     Icohplist,
-    MadelungEnergies,
     Lobsterin,
     Lobsterout,
+    MadelungEnergies,
     SitePotential,
     Wavefunction,
 )

@@ -11,7 +11,13 @@ from copy import deepcopy
 
 import numpy as np
 
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp, ElementBase
+from pymatgen.core.periodic_table import (
+    DummySpecies,
+    Element,
+    ElementBase,
+    Species,
+    get_el_sp,
+)
 from pymatgen.util.testing import PymatgenTest
 
 

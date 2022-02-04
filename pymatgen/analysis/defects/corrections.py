@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 class FreysoldtCorrection(DefectCorrection):
     """
-    A class for FreysoldtCorrection class. Largely adapated from PyCDT code
+    A class for FreysoldtCorrection class. Largely adapted from PyCDT code
 
     If this correction is used, please reference Freysoldt's original paper.
     doi: 10.1103/PhysRevLett.102.016402
@@ -165,7 +165,7 @@ class FreysoldtCorrection(DefectCorrection):
 
     def perform_es_corr(self, lattice, q, step=1e-4):
         """
-        Peform Electrostatic Freysoldt Correction
+        Perform Electrostatic Freysoldt Correction
         Args:
             lattice: Pymatgen lattice object
             q (int): Charge of defect
@@ -274,7 +274,7 @@ class FreysoldtCorrection(DefectCorrection):
         v_G[1:] = 4 * np.pi / (self.dielectric * g2) * -q * self.q_model.rho_rec(g2)
         v_G[nx // 2] = 0 if not (nx % 2) else v_G[nx // 2]
 
-        # Get the real space potential by peforming a  fft and grabbing the imaginary portion
+        # Get the real space potential by performing a  fft and grabbing the imaginary portion
         v_R = np.fft.fft(v_G)
 
         if abs(np.imag(v_R).max()) > self.madetol:
@@ -369,7 +369,7 @@ class FreysoldtCorrection(DefectCorrection):
 
 class KumagaiCorrection(DefectCorrection):
     """
-    A class for KumagaiCorrection class. Largely adapated from PyCDT code
+    A class for KumagaiCorrection class. Largely adapted from PyCDT code
 
     If this correction is used, please reference Kumagai and Oba's original paper
     (doi: 10.1103/PhysRevB.89.195205) as well as Freysoldt's original
@@ -508,7 +508,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def perform_es_corr(self, gamma, prec, lattice, charge):
         """
-        Peform Electrostatic Kumagai Correction
+        Perform Electrostatic Kumagai Correction
         Args:
             gamma (float): Ewald parameter
             prec (int): Precision parameter for reciprical/real lattice vector generation
@@ -548,7 +548,7 @@ class KumagaiCorrection(DefectCorrection):
         """
         For performing potential alignment in manner described by Kumagai et al.
         Args:
-            defect_structure: Pymatgen Structure object corrsponding to the defect supercell
+            defect_structure: Pymatgen Structure object corresponding to the defect supercell
 
             defect_frac_coords (array): Defect Position in fractional coordinates of the supercell
                 given in bulk_structure

@@ -6,14 +6,19 @@ Development script of the ChemEnv utility to get the explicit permutations for c
 with the separation plane algorithms (typically with coordination numbers >= 6)
 """
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane, collinear
-
-import numpy as np
 import itertools
 import json
+
+import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
+    LocalGeometryFinder,
+)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane, collinear
 
 if __name__ == "__main__":
 

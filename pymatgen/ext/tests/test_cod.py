@@ -6,7 +6,6 @@ import unittest
 import warnings
 
 import requests
-
 from monty.os.path import which
 
 from pymatgen.ext.cod import COD

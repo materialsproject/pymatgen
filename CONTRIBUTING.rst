@@ -99,7 +99,7 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    To aid you, you can copy the example pre-commit hook into your .git/hooks
    directly. This will automatically run pycodestyle and other linting services
    prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.
-3. **Python 3**. We only support Python 3.7+.
+3. **Python 3**. We only support Python 3.8+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method doc strings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a

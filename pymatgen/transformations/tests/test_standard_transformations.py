@@ -39,7 +39,6 @@ from pymatgen.transformations.standard_transformations import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-
 enumlib_present = which("enum.x") and which("makestr.x")
 
 

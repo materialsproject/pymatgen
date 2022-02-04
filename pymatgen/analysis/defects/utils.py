@@ -586,7 +586,7 @@ class TopographyAnalyzer:
                 determine if something are actually periodic boundary images of
                 each other. Default is usually fine.
             max_cell_range (int): This is the range of periodic images to
-                construct the Voronoi tesselation. A value of 1 means that we
+                construct the Voronoi tessellation. A value of 1 means that we
                 include all points from (x +- 1, y +- 1, z+- 1) in the
                 voronoi construction. This is because the Voronoi poly
                 extends beyond the standard unit cell because of PBC.

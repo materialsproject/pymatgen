@@ -165,7 +165,7 @@ class GrandPotPDEntry(PDEntry):
 
     def __repr__(self):
         chempot_str = " ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
-        return "GrandPotPDEntry with original composition " + "{}, energy = {:.4f}, {}".format(
+        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
             self.original_entry.composition, self.original_entry.energy, chempot_str
         )
 
@@ -198,7 +198,7 @@ class GrandPotPDEntry(PDEntry):
 
 class TransformedPDEntry(PDEntry):
     """
-    This class repesents a TransformedPDEntry, which allows for a PDEntry to be
+    This class represents a TransformedPDEntry, which allows for a PDEntry to be
     transformed to a different composition coordinate space. It is used in the
     construction of phase diagrams that do not have elements as the terminal
     compositions.
@@ -238,7 +238,7 @@ class TransformedPDEntry(PDEntry):
         Returns:
             Composition
         """
-        # NOTE this is not infallable as the original entry is mutable and an
+        # NOTE this is not infallible as the original entry is mutable and an
         # end user could choose to normalize or change the original entry.
         # However, the risk of this seems low.
         factor = self._composition.num_atoms / self.original_entry.composition.num_atoms
@@ -855,7 +855,7 @@ class PhaseDiagram(MSONable):
         """
         Provides the energy to the convex hull for the given entry. For stable entries
         already in the phase diagram the algorithm provides the phase separation energy
-        which is refered to as the decomposition enthalpy in:
+        which is referred to as the decomposition enthalpy in:
 
         1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
             A critical examination of compound stability predictions from

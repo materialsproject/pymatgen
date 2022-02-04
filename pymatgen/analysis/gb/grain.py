@@ -1916,7 +1916,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_possible_plane_cubic(plane_cutoff, r_axis, r_angle):
         """
-        Find all possible plane combinations for GBs given a rotaion axis and angle for
+        Find all possible plane combinations for GBs given a rotation axis and angle for
         cubic system, and classify them to different categories, including 'Twist',
         'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
 
@@ -2414,13 +2414,13 @@ def fix_pbc(structure, matrix=None):
 
 def symm_group_cubic(mat):
     """
-     obtain cubic symmetric eqivalents of the list of vectors.
+     obtain cubic symmetric equivalents of the list of vectors.
 
     Args:
         matrix (lattice matrix, n by 3 array/matrix)
 
     Return:
-        cubic symmetric eqivalents of the list of vectors.
+        cubic symmetric equivalents of the list of vectors.
     """
     sym_group = np.zeros([24, 3, 3])
     sym_group[0, :] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]

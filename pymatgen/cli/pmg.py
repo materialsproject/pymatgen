@@ -12,14 +12,14 @@ import sys
 
 from tabulate import tabulate, tabulate_formats
 
-from pymatgen.core import SETTINGS
-from pymatgen.core.structure import Structure
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_query import do_query
 from pymatgen.cli.pmg_structure import analyze_structures
+from pymatgen.core import SETTINGS
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Incar, Potcar
 
 

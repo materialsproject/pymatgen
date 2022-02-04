@@ -230,17 +230,17 @@ class SymmOp(MSONable):
         a = angle if angle_in_radians else angle * pi / 180
         cosa = cos(a)
         sina = sin(a)
-        u = axis / np.linalg.norm(axis)
+        u = axis / np.linalg.norm(axis)  # type: ignore
         r = np.zeros((3, 3))
-        r[0, 0] = cosa + u[0] ** 2 * (1 - cosa)
-        r[0, 1] = u[0] * u[1] * (1 - cosa) - u[2] * sina
-        r[0, 2] = u[0] * u[2] * (1 - cosa) + u[1] * sina
-        r[1, 0] = u[0] * u[1] * (1 - cosa) + u[2] * sina
-        r[1, 1] = cosa + u[1] ** 2 * (1 - cosa)
-        r[1, 2] = u[1] * u[2] * (1 - cosa) - u[0] * sina
-        r[2, 0] = u[0] * u[2] * (1 - cosa) - u[1] * sina
-        r[2, 1] = u[1] * u[2] * (1 - cosa) + u[0] * sina
-        r[2, 2] = cosa + u[2] ** 2 * (1 - cosa)
+        r[0, 0] = cosa + u[0] ** 2 * (1 - cosa)  # type: ignore
+        r[0, 1] = u[0] * u[1] * (1 - cosa) - u[2] * sina  # type: ignore
+        r[0, 2] = u[0] * u[2] * (1 - cosa) + u[1] * sina  # type: ignore
+        r[1, 0] = u[0] * u[1] * (1 - cosa) + u[2] * sina  # type: ignore
+        r[1, 1] = cosa + u[1] ** 2 * (1 - cosa)  # type: ignore
+        r[1, 2] = u[1] * u[2] * (1 - cosa) - u[0] * sina  # type: ignore
+        r[2, 0] = u[0] * u[2] * (1 - cosa) - u[1] * sina  # type: ignore
+        r[2, 1] = u[1] * u[2] * (1 - cosa) + u[0] * sina  # type: ignore
+        r[2, 2] = cosa + u[2] ** 2 * (1 - cosa)  # type: ignore
 
         return SymmOp.from_rotation_and_translation(r, vec)
 

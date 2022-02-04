@@ -146,7 +146,7 @@ class Critic2Caller:
         * CPEPS, float (Bohr units in crystals), minimum distance between
           critical points for them to be equivalent
         * NUCEPS, same as CPEPS but specifically for nucleus critical
-          points (critic2 default is depedent on grid dimensions)
+          points (critic2 default is dependent on grid dimensions)
         * NUCEPSH, same as NUCEPS but specifically for hydrogen nuclei
           since associated charge density can be significantly displaced
           from hydrogen nucleus

@@ -703,7 +703,7 @@ class EwaldMinimizer:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
 
-        # if we wont have enough indices left, return
+        # if we won't have enough indices left, return
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
 

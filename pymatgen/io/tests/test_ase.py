@@ -4,6 +4,7 @@
 
 import os
 import unittest
+
 import numpy as np
 
 import pymatgen.io.ase as aio
@@ -178,8 +179,8 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_dyn(self):
-        from ase.io import read
         from ase.constraints import FixAtoms
+        from ase.io import read
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
@@ -210,8 +211,8 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_back_forth(self):
-        from ase.io import read
         from ase.constraints import FixAtoms
+        from ase.io import read
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))

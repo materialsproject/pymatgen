@@ -2,9 +2,9 @@
 # Distributed under the terms of the MIT License.
 
 
+import copy
 import json
 import os
-import copy
 import unittest
 from collections import defaultdict
 

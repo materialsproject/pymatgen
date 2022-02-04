@@ -256,7 +256,7 @@ class Interface(Structure):
         # Round shifts to tolerance
         pos_shift[:, 0] = _base_round(pos_shift[:, 0], base=tolerance / substrate.lattice.a)
         pos_shift[:, 1] = _base_round(pos_shift[:, 1], base=tolerance / substrate.lattice.b)
-        # C-axis is not usefull
+        # C-axis is not useful
         pos_shift = pos_shift[:, 0:2]
 
         return list(np.unique(pos_shift, axis=0))
@@ -290,7 +290,7 @@ class Interface(Structure):
     def __update_c(self, new_c: float) -> None:
         """
         Modifies the c-direction of the lattice without changing the site cartesian coordinates
-        Be carefull you can mess up the interface by setting a c-length that can't accommodate all the sites
+        Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites
         """
         if new_c <= 0:
             raise ValueError("New c-length must be greater than 0")

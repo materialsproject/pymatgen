@@ -189,7 +189,7 @@ class RelaxationAnalyzer:
                 calculation.
         """
         if final_structure.formula != initial_structure.formula:
-            raise ValueError("Initial and final structures have different " + "formulas!")
+            raise ValueError("Initial and final structures have different formulas!")
         self.initial = initial_structure
         self.final = final_structure
 

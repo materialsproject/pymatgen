@@ -9,10 +9,13 @@ except ImportError as ex:
     phonopy = None
     TotalDos = None
 
-from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line
-from pymatgen.io.phonopy import get_gruneisenparameter
+from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
-from pymatgen.phonon.plotter import GruneisenPhononBSPlotter, GruneisenPhononBandStructureSymmLine, GruneisenPlotter
+from pymatgen.phonon.plotter import (
+    GruneisenPhononBandStructureSymmLine,
+    GruneisenPhononBSPlotter,
+    GruneisenPlotter,
+)
 from pymatgen.util.testing import PymatgenTest
 
 

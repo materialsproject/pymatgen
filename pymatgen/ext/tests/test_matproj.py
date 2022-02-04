@@ -7,11 +7,11 @@ import warnings
 
 import requests
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition, Structure
 from pymatgen.electronic_structure.bandstructure import (
@@ -26,7 +26,6 @@ from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
-
 
 website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
 
