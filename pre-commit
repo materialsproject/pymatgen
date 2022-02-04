@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # To use this pre-commit hook, copy this file to your .git/hooks directory.
-# It is always better to run the linters BEFORE you push to Github rather 
+# It is always better to run the linters BEFORE you push to Github rather
 # than wait for Github to run the linters slowly.
 # You will need to install all the linters, which can be done using:
 # pip install -r requirements-dev.txt
