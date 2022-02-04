@@ -3,17 +3,17 @@
 
 import os
 import unittest
+import warnings
 
 import numpy as np
 from monty.os.path import which
+from monty.serialization import loadfn
 
 from pymatgen.analysis.magnetism import (
     CollinearMagneticStructureAnalyzer,
     MagneticStructureEnumerator,
     Ordering,
-    loadfn,
     magnetic_deformation,
-    warnings,
 )
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
