@@ -924,8 +924,8 @@ class QS(Section):
     def __init__(
         self,
         method: str = "GPW",
-        eps_default: float = 1e-7,
-        extrapolation: str = "PS",
+        eps_default: float = 1e-10,
+        extrapolation: str = "ASPC",
         subsections: dict = None,
         **kwargs,
     ):
@@ -939,7 +939,7 @@ class QS(Section):
                 value of all EPS_* values in QS module. It is not the same as EPS_SCF, which sets convergence accuracy
                 of the SCF cycle alone.
             extrapolation: Method use for extrapolation. If using gamma-point-only calculation, then one should use
-                PS for relaxations and ASPC for MD. See the manual for other options.
+                either PS or ASPC. See the manual for other options.
             subsections: Subsections to initialize with
         """
 
@@ -1152,7 +1152,7 @@ class OrbitalTransformation(Section):
         algorithm: str = "STRICT",
         rotation: bool = False,
         occupation_preconditioner: bool = False,
-        energy_gap: float = 0.01,
+        energy_gap: float = -1,
         linesearch: str = "2PNT",
         subsections: dict = None,
         **kwargs,

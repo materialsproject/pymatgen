@@ -255,7 +255,7 @@ class DftSet(Cp2kInputSet):
         self,
         structure: Union[Structure, Molecule],
         ot: bool = True,
-        band_gap: float = 0.01,
+        energy_gap: float = -1,
         eps_default: float = 1e-12,
         eps_scf: float = 1e-7,
         max_scf: Union[int, None] = None,
@@ -284,7 +284,7 @@ class DftSet(Cp2kInputSet):
                 Band gap is also used by the preconditioner for OT, and should be set as a value SMALLER than the true
                 band gap to get good efficiency. Generally, this parameter does not need to be changed from
                 default of 0.01
-            band_gap (float): The band gap can also be specified in order to determine if ot should be turned on.
+            energy_gap (float): Estimate of energy gap for preconditioner. Default is -1, leaving it up to cp2k.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
                 value, ensuring an overall accuracy of at least this much.
             eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-7. Should
@@ -326,7 +326,7 @@ class DftSet(Cp2kInputSet):
 
         self.structure = structure
         self.ot = ot
-        self.band_gap = band_gap
+        self.energy_gap = energy_gap
         self.eps_default = eps_default
         self.eps_scf = eps_scf
         self.max_scf = max_scf
@@ -353,18 +353,12 @@ class DftSet(Cp2kInputSet):
 
         # If there's a band gap, use OT, else use diagonalization
         if ot:
-            if band_gap <= 0:
-                warnings.warn(
-                    "Orbital Transformation method is being used for"
-                    "a system without a bandgap. OT can have very poor"
-                    "convergence for metallic systems, proceed with caution.",
-                    UserWarning,
-                )
+
             scf.insert(
                 OrbitalTransformation(
                     minimizer=minimizer,
                     preconditioner=preconditioner,
-                    energy_gap=band_gap,
+                    energy_gap=energy_gap,
                     algorithm=algorithm,
                     linesearch=linesearch,
                     rotation=rotation,
@@ -417,7 +411,7 @@ class DftSet(Cp2kInputSet):
         # Set kpoints only if user supplies them
         if kpoints:
             dft.insert(Kpoints.from_kpoints(kpoints, structure=self.structure, reduce=True))
-        if smearing or (band_gap <= 0.0):
+        if smearing:
             scf.kwargs["ADDED_MOS"] = 500
             scf["ADDED_MOS"] = 500  # TODO: how to grab the appropriate number?
             scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 300)))
@@ -770,7 +764,7 @@ class DftSet(Cp2kInputSet):
         """
         if on:
             ot = OrbitalTransformation(
-                minimizer="DIIS", preconditioner="FULL_ALL", algorithm="IRAC", energy_gap=0.01, linesearch="2PNT",
+                minimizer="DIIS", preconditioner="FULL_ALL", algorithm="IRAC", linesearch="2PNT",
             )
             self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
@@ -779,7 +773,7 @@ class DftSet(Cp2kInputSet):
         Method to modify the set to use more robust SCF minimization technique
         """
         ot = OrbitalTransformation(
-            minimizer="CG", preconditioner="FULL_ALL", algorithm="STRICT", energy_gap=0.05, linesearch="3PNT",
+            minimizer="CG", preconditioner="FULL_ALL", algorithm="STRICT", linesearch="3PNT",
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
@@ -789,7 +783,7 @@ class DftSet(Cp2kInputSet):
         :return:
         """
         ot = OrbitalTransformation(
-            minimizer="CG", preconditioner="FULL_ALL", algorithm="STRICT", energy_gap=0.05, linesearch="GOLD",
+            minimizer="CG", preconditioner="FULL_ALL", algorithm="STRICT", linesearch="GOLD",
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
@@ -877,10 +871,10 @@ class RelaxSet(DftSet):
     def __init__(
         self,
         structure: Union[Structure, Molecule],
-        max_drift: float = 1.5e-3,
-        rms_drift: float = 1e-3,
-        max_force: float = 1e-3,
-        rms_force: float = 1e-3,
+        max_drift: float = 3e-3,
+        rms_drift: float = 1.5e-3,
+        max_force: float = 4.5e-4,
+        rms_force: float = 3e-4,
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",

@@ -198,7 +198,7 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
             if aux_bases[k]:
                 basis[k] = aux_bases[k][0]
             else:
-                raise LookupError("NO BASIS OF THAT TYPE")
+                raise LookupError("No basis of that type found for: {}".format(k))
     return basis
 
 
