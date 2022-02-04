@@ -11,8 +11,8 @@ following work::
 
 import logging
 import math
-from abc import ABCMeta
 import warnings
+from abc import ABCMeta
 
 import numpy as np
 import numpy.linalg as la

@@ -7,7 +7,6 @@ import unittest
 
 import numpy as np
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.chemenv.utils.math_utils import (
     _cartesian_product,
     cosinus_step,
@@ -21,6 +20,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smootherstep,
     smoothstep,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 class MathUtilsTest(PymatgenTest):

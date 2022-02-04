@@ -11,7 +11,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import Dict, List, Tuple, cast, Union
+from typing import Dict, List, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd

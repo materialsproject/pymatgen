@@ -6,11 +6,11 @@ import json
 import os
 import unittest
 
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,
 )
+from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Species
 from pymatgen.util.testing import PymatgenTest
 

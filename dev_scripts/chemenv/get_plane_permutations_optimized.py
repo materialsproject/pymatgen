@@ -13,21 +13,25 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-from math import factorial
-
-import numpy as np
 import itertools
-from random import shuffle
 import json
 import os
-import tabulate
 import time
-
+from math import factorial
 from optparse import OptionParser
+from random import shuffle
+
+import numpy as np
+import tabulate
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
+    LocalGeometryFinder,
+)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 
 
 # Printing functions depending on the printing volume option

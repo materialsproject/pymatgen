@@ -12,25 +12,30 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
-
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import NormalizedAngleDistanceNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SelfCSMNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DeltaCSMNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import CNBiasNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DistanceAngleAreaNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import AngleNbSetWeight
-
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
-
-import numpy as np
-import matplotlib.pyplot as plt
 import copy
 import json
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AngleNbSetWeight,
+    CNBiasNbSetWeight,
+    DeltaCSMNbSetWeight,
+    DistanceAngleAreaNbSetWeight,
+    MultiWeightsChemenvStrategy,
+    NormalizedAngleDistanceNbSetWeight,
+    SelfCSMNbSetWeight,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
+    LocalGeometryFinder,
+)
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 allcg = AllCoordinationGeometries()
 

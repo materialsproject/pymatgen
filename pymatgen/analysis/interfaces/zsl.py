@@ -5,10 +5,9 @@
 This module implements the Zur and McGill lattice matching algorithm
 """
 
-from typing import Iterator, List
-
 from dataclasses import dataclass
 from itertools import product
+from typing import Iterator, List
 
 import numpy as np
 from monty.json import MSONable

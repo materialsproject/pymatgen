@@ -9,8 +9,8 @@ import unittest
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import (
     DOS,

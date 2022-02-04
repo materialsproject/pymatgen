@@ -9,13 +9,13 @@ from math import isnan
 
 import numpy as np
 
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.reaction_calculator import (
     BalancedReaction,
     ComputedReaction,
     Reaction,
     ReactionError,
 )
+from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
 

@@ -4,8 +4,8 @@ import unittest
 from monty.os.path import which
 from monty.serialization import loadfn
 
-from pymatgen.core.structure import Structure
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Handong Ling, Rachel Woods-Robinson"

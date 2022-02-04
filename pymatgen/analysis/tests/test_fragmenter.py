@@ -1,5 +1,6 @@
 import os
 import unittest
+
 import pytest
 
 from pymatgen.analysis.fragmenter import Fragmenter

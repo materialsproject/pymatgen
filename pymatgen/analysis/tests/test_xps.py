@@ -1,8 +1,8 @@
 import unittest
 
+from pymatgen.analysis.xps import XPS
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.xps import XPS
 
 
 class XPSTestCase(PymatgenTest):

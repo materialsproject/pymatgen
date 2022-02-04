@@ -16,6 +16,7 @@ __date__ = "Jul 12, 2012"
 
 
 import plotly.graph_objects as go
+
 from pymatgen.util.plotting import pretty_plot
 
 

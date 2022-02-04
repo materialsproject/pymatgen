@@ -16,7 +16,6 @@ from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
-
 Vector3D = Tuple[float, float, float]
 Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
 Matrix2D = Tuple[Vector3D, Vector3D]

@@ -8,9 +8,9 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 import logging
 from itertools import chain
 
-from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
 from monty.json import MSONable
 from scipy.optimize import bisect
 from scipy.spatial import HalfspaceIntersection
