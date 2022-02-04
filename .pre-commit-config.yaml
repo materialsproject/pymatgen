@@ -3,6 +3,9 @@ exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 default_language_version:
   python: python3.8
 
+ci:
+  autoupdate_schedule: monthly
+
 repos:
   - repo: https://github.com/psf/black
     rev: 22.1.0
