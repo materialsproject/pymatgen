@@ -17,7 +17,8 @@ try:
 except ImportError:
     pb = None
 
-from monty.os.path import which
+from shutil import which
+
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.operations import SymmOp

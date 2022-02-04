@@ -4,10 +4,10 @@ import os
 import unittest
 import warnings
 from math import pi
+from shutil import which
 
 import numpy as np
 import pytest
-from monty.os.path import which
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import (
@@ -1061,7 +1061,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         ops_099 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.99)
         ops_101 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=1.01)
         ops_501 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=5.01)
-        ops_voro = LocalStructOrderParams(op_types, parameters=op_params)
+        _ = LocalStructOrderParams(op_types, parameters=op_params)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)

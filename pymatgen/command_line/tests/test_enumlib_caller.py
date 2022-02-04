@@ -4,8 +4,7 @@
 import os
 import unittest
 import warnings
-
-from monty.os.path import which
+from shutil import which
 
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.core.periodic_table import Element

@@ -10,8 +10,7 @@ Created on Jan 22, 2013
 import os
 import sys
 import unittest
-
-from monty.os.path import which
+from shutil import which
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -91,7 +90,7 @@ class GulpCallerTest(unittest.TestCase):
             fmt="poscar",
         )
 
-        bp = BuckinghamPotential(bush_lewis_flag="bush")
+        _ = BuckinghamPotential(bush_lewis_flag="bush")
         gio = GulpIO()
         input = gio.buckingham_input(struct, ["relax conp"])
         caller = GulpCaller()

@@ -34,12 +34,12 @@ import logging
 import math
 import re
 import subprocess
+from shutil import which
 from threading import Timer
 
 import numpy as np
 from monty.dev import requires
 from monty.fractions import lcm
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.periodic_table import DummySpecies

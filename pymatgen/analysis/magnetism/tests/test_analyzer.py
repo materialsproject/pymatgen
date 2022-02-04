@@ -4,9 +4,9 @@
 import os
 import unittest
 import warnings
+from shutil import which
 
 import numpy as np
-from monty.os.path import which
 from monty.serialization import loadfn
 
 from pymatgen.analysis.magnetism import (
