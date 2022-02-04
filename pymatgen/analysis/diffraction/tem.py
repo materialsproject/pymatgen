@@ -107,7 +107,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
-        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)
+        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
         points_matrix = (np.ravel(points[i]) for i in range(0, 3))
         result = np.vstack(list(points_matrix)).transpose()
         return result
@@ -128,7 +128,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if len(points) == 0:
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
-        result = points[filtered]
+        result = points[filtered]  # type: ignore
         result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
         return result_tuples
 
@@ -200,7 +200,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
             for plane in bragg_angles:
                 scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(
-                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None
+                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None  # type: ignore
                 )
                 scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom
