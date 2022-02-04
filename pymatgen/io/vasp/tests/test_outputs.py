@@ -1785,7 +1785,7 @@ class WavecarTest(PymatgenTest):
         self.wH2 = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2_low_symm")
         self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2_low_symm.gamma")
         self.w_ncl = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2.ncl")
-        self.w_frac_encut = Wavecar(self.TEST_FILES_DIR, "WAVECAR.frac_encut")
+        self.w_frac_encut = Wavecar(self.TEST_FILES_DIR / "WAVECAR.frac_encut")
 
     def test_standard(self):
         w = self.w
