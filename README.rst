@@ -109,7 +109,7 @@ installation using conda, which will make things a lot easier, especially on Win
 
     conda install --channel conda-forge pymatgen
 
-In line with the Scientific Python stack, pymatgen will now support a minimum python version off 3.7 from v2021.1.1.
+In line with the Scientific Python stack, in particular :code:`numpy`, :code:`pymatgen` support a minimum Python version off 3.8 from v2022.01.08.
 
 The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_ is always the latest stable
 release that is relatively bug-free and can be installed via pip::

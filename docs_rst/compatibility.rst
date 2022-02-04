@@ -57,7 +57,7 @@ Minimum Python Version
 ----------------------
 
 As a rule of thumb, pymatgen will support whatever versions of Python the latest
-version of numpy supports (at the time of writing, this is Python 3.7+). You can
+version of numpy supports (at the time of writing, this is Python 3.8+). You can
 also check what versions of Python are being tested automatically as part of our
 continuous integration testing on GitHub. We currently test pymatgen on Mac,
 Windows and Linux.
