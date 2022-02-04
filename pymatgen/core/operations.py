@@ -341,9 +341,9 @@ class SymmOp(MSONable):
         translation = np.eye(4)
         translation[0:3, 3] = -np.array(origin)
 
-        xx = 1 - 2 * u**2
-        yy = 1 - 2 * v**2
-        zz = 1 - 2 * w**2
+        xx = 1 - 2 * u ** 2
+        yy = 1 - 2 * v ** 2
+        zz = 1 - 2 * w ** 2
         xy = -2 * u * v
         xz = -2 * u * w
         yz = -2 * v * w
