@@ -73,13 +73,13 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertAlmostEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
-        y = x**3
+        y = x ** 3
         self.assertAlmostEqual(y, 74.088)
         self.assertEqual(str(y.unit), "ang^3")
 
     def test_memory(self):
         mega = Memory(1, "Mb")
-        self.assertEqual(mega.to("byte"), 1024**2)
+        self.assertEqual(mega.to("byte"), 1024 ** 2)
         self.assertEqual(mega, Memory(1, "mb"))
 
         same_mega = Memory.from_string("1Mb")

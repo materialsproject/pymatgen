@@ -542,7 +542,7 @@ class StructureMatcher(MSONable):
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
-        return new_d2**0.5 * normalization, f_translation, s
+        return new_d2 ** 0.5 * normalization, f_translation, s
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
         """

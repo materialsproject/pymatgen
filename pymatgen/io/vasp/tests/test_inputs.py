@@ -347,7 +347,7 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7)
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4, "Temperature instantiated incorrectly")
 
         poscar.set_temperature(700)
@@ -355,7 +355,7 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7, "Velocities initialized with a net momentum")
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4, "Temperature instantiated incorrectly")
 
     def test_write(self):
