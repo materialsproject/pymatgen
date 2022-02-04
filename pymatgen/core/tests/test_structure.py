@@ -847,7 +847,7 @@ class StructureTest(PymatgenTest):
 
     def test_scale_lattice(self):
         initial_coord = self.structure[1].coords
-        self.structure.scale_lattice(self.structure.volume * 1.01 ** 3)
+        self.structure.scale_lattice(self.structure.volume * 1.01**3)
         self.assertArrayAlmostEqual(
             self.structure.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516),

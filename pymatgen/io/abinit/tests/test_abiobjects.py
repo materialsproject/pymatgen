@@ -25,7 +25,7 @@ from pymatgen.util.testing import PymatgenTest
 class LatticeFromAbivarsTest(PymatgenTest):
     def test_rprim_acell(self):
         l1 = lattice_from_abivars(acell=3 * [10], rprim=np.eye(3))
-        self.assertAlmostEqual(l1.volume, bohr_to_ang ** 3 * 1000)
+        self.assertAlmostEqual(l1.volume, bohr_to_ang**3 * 1000)
         assert l1.angles == (90, 90, 90)
         l2 = lattice_from_abivars(acell=3 * [10], angdeg=(90, 90, 90))
         assert l1 == l2

@@ -193,7 +193,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
-    c = Matrix(n, n, [0] * n ** 2)
+    c = Matrix(n, n, [0] * n**2)
     for i in range(n):
         for p in range(n):
             c[i, p] = Integer(c0[i, p])

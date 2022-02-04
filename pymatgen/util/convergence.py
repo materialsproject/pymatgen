@@ -123,10 +123,10 @@ def reciprocal(x, a, b, n):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v ** n)
+            y_l.append(a + b / x_v**n)
         y = np.array(y_l)
     else:
-        y = a + b / x ** n
+        y = a + b / x**n
     return y
 
 
@@ -154,10 +154,10 @@ def exponential(x, a, b, n):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b * n ** -x_v)
+            y_l.append(a + b * n**-x_v)
         y = np.array(y_l)
     else:
-        y = a + b * n ** -x
+        y = a + b * n**-x
     return y
 
 
@@ -248,10 +248,10 @@ def simple_2reciprocal(x, a, b):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v ** c)
+            y_l.append(a + b / x_v**c)
         y = np.array(y_l)
     else:
-        y = a + b / x ** c
+        y = a + b / x**c
     return y
 
 
@@ -279,10 +279,10 @@ def simple_4reciprocal(x, a, b):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v ** c)
+            y_l.append(a + b / x_v**c)
         y = np.array(y_l)
     else:
-        y = a + b / x ** c
+        y = a + b / x**c
     return y
 
 
@@ -310,10 +310,10 @@ def simple_5reciprocal(x, a, b):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v ** c)
+            y_l.append(a + b / x_v**c)
         y = np.array(y_l)
     else:
-        y = a + b / x ** c
+        y = a + b / x**c
     return y
 
 
@@ -357,8 +357,8 @@ def extrapolate_reciprocal(xs, ys, n, noise):
         x1 = (xs[-3] + xs[-4]) / 2
         x2 = (xs[-1] + xs[-2]) / 2
         try:
-            b = (y1 - y2) / (1 / x1 ** n - 1 / x2 ** n)
-            a = y2 - b / x2 ** n
+            b = (y1 - y2) / (1 / x1**n - 1 / x2**n)
+            a = y2 - b / x2**n
         except IndexError:
             print_and_raise_error(xs, ys, "extrapolate_reciprocal")
     else:
@@ -413,7 +413,7 @@ def get_weights(xs, ys, mode=2):
         maxxs = max(xs) ** 2
         weights = []
         for x in xs:
-            weights.append(x ** 2 / maxxs)
+            weights.append(x**2 / maxxs)
     else:
         weights = [1] * len(xs)
     return weights
