@@ -163,7 +163,7 @@ class IsingModel(EnergyModel):
         for i, nns in enumerate(all_nn):
             s1 = getattr(structure[i].specie, "spin", 0)
             for nn in nns:
-                energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance ** 2)
+                energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance**2)
         return energy
 
     def as_dict(self):

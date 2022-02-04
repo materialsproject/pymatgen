@@ -73,9 +73,9 @@ BASE_UNITS = {
     "memory": {
         "byte": 1,
         "Kb": 1024,
-        "Mb": 1024 ** 2,
-        "Gb": 1024 ** 3,
-        "Tb": 1024 ** 4,
+        "Mb": 1024**2,
+        "Gb": 1024**3,
+        "Tb": 1024**4,
     },
 }
 
@@ -265,7 +265,7 @@ class Unit(collections.abc.Mapping):
             if not derived:
                 si, f = _get_si_unit(k)
                 b[si] += v
-                factor *= f ** v
+                factor *= f**v
         return {k: v for k, v in b.items() if v != 0}, factor
 
     def get_conversion_factor(self, new_unit):
@@ -397,7 +397,7 @@ class FloatWithUnit(float):
         return FloatWithUnit(float(self) * other, unit_type=None, unit=self._unit * other._unit)
 
     def __pow__(self, i):
-        return FloatWithUnit(float(self) ** i, unit_type=None, unit=self._unit ** i)
+        return FloatWithUnit(float(self) ** i, unit_type=None, unit=self._unit**i)
 
     def __truediv__(self, other):
         val = super().__truediv__(other)

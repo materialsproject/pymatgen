@@ -1477,7 +1477,7 @@ class Critic2NNTest(PymatgenTest):
         warnings.filters = self.prev_warnings
 
     def test_cn(self):
-        Critic2NN()
+        nn = Critic2NN()
         # self.assertEqual(nn.get_cn(self.diamond, 0), 4)
 
 
