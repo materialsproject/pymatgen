@@ -150,7 +150,7 @@ class InputVariable:
         ndec = max(len(str(fval - int(fval))) - 2, floatdecimal)
         ndec = min(ndec, 10)
 
-        sval = f"{fval:>{{ndec + addlen}}.{{ndec}}{{form}}}"
+        sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
 
         sval = sval.replace("e", "d")
 
