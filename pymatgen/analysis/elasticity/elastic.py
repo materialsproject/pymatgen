@@ -368,7 +368,7 @@ class ElasticTensor(NthOrderElasticTensor):
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
-        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod ** 0.5
+        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod**0.5
 
     @raise_error_if_unphysical
     def cahill_thermalcond(self, structure):
@@ -400,8 +400,8 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
-        vm = 3 ** (1.0 / 3.0) * (1 / vl ** 3 + 2 / vt ** 3) ** (-1.0 / 3.0)
-        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi ** 2 / v0) ** (1.0 / 3.0)
+        vm = 3 ** (1.0 / 3.0) * (1 / vl**3 + 2 / vt**3) ** (-1.0 / 3.0)
+        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1.0 / 3.0)
         return td
 
     @property
@@ -734,9 +734,9 @@ class ElasticTensorExpansion(TensorCollection):
             t_ratio = temperature / td
 
             def integrand(x):
-                return (x ** 4 * np.exp(x)) / (np.exp(x) - 1) ** 2
+                return (x**4 * np.exp(x)) / (np.exp(x) - 1) ** 2
 
-            cv = 9 * 8.314 * t_ratio ** 3 * quad(integrand, 0, t_ratio ** -1)[0]
+            cv = 9 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
