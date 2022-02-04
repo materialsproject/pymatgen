@@ -572,7 +572,7 @@ class AdsorbateSiteFinder:
 
         target_species = target_species or []
 
-        # Get symmetrized structure in case we want to substitue both sides
+        # Get symmetrized structure in case we want to substitute both sides
         sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
 
         # Define a function for substituting a site

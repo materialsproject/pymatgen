@@ -772,7 +772,7 @@ def solute_site_preference_finder(
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         solute_defs: List of solute defect parameters in the dictionary
-            format. Similary to that of antisite defs, wtih solute specie
+            format. Similarly to that of antisite defs, with solute specie
             specified in substitution_specie
         solute_concen: Solute concentration (in fractional value)
         trial_chem_pot: Trial chemical potentials to speedup the plot
@@ -1283,7 +1283,7 @@ def solute_defect_density(
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         solute_defs: List of solute defect parameters in the dictionary
-            format. Similary to that of antisite defs, wtih solute specie
+            format. Similarly to that of antisite defs, with solute specie
             specified in substitution_specie
         solute_concen: Solute concentration (in fractional value)
         T: Temperature in Kelvin

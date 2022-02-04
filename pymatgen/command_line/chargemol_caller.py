@@ -373,7 +373,7 @@ class ChargemolAnalysis:
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
             periodicity (list[bool]): Periodicity of the system.
-                Defaut: [True, True, True].
+                Default: [True, True, True].
             method (str): Method to use for the analysis. Options include "ddec6"
             and "ddec3".
                 Default: "ddec6"

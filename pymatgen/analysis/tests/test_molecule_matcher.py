@@ -37,7 +37,7 @@ def rotate(mol, seed):
     """Performs a random rotation of the sites in a structure.
 
     Args:
-        mol (Molecule): The Molecule object which will be tranformed.
+        mol (Molecule): The Molecule object which will be transformed.
         seed (int): The seed value for the random generator.
     """
     rng = np.random.default_rng(seed=seed)

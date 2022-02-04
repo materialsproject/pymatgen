@@ -884,9 +884,9 @@ class VoronoiNN(NearNeighbors):
                 if compute_adj_neighbors:
                     results[other_site]["verts"] = vind
 
-        # all sites should have atleast two connected ridges in periodic system
+        # all sites should have at least two connected ridges in periodic system
         if not results:
-            raise ValueError("No Voronoi neighbours found for site - try increasing cutoff")
+            raise ValueError("No Voronoi neighbors found for site - try increasing cutoff")
 
         # Get only target elements
         resultweighted = {}

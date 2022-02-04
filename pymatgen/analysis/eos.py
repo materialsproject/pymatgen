@@ -383,7 +383,7 @@ class PolynomialEOS(EOSBase):
         and set to the _params attribute.
         """
         fit_poly = np.poly1d(self.eos_params)
-        # the volume at min energy, used as the intial guess for the
+        # the volume at min energy, used as the initial guess for the
         # optimization wrt volume.
         v_e_min = self.volumes[np.argmin(self.energies)]
         # evaluate e0, v0, b0 and b1
@@ -409,7 +409,7 @@ class DeltaFactor(PolynomialEOS):
 
     def fit(self, order=3):
         """
-        Overriden since this eos works with volume**(2/3) instead of volume.
+        Overridden since this eos works with volume**(2/3) instead of volume.
         """
         x = self.volumes ** (-2.0 / 3.0)
         self.eos_params = np.polyfit(x, self.energies, order)
@@ -417,7 +417,7 @@ class DeltaFactor(PolynomialEOS):
 
     def _set_params(self):
         """
-        Overriden to account for the fact the fit with volume**(2/3) instead
+        Overridden to account for the fact the fit with volume**(2/3) instead
         of volume.
         """
         deriv0 = np.poly1d(self.eos_params)

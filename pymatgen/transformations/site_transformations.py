@@ -235,7 +235,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def inverse(self):
         """
         Returns:
-            TranslateSitesTranformation with the reverse translation.
+            TranslateSitesTransformation with the reverse translation.
         """
         return TranslateSitesTransformation(self.indices_to_move, -self.translation_vector, self.vector_in_frac_coords)
 

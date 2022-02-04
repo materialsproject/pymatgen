@@ -800,7 +800,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertTrue(isinstance(reactants, list))
 
         reactants = sorted(reactants, key=len)
-        # After alterations, reactants sholuld be ethylene and butadiene
+        # After alterations, reactants should be ethylene and butadiene
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
 
@@ -950,7 +950,7 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_replace(self):
         eth_copy_sub = copy.deepcopy(self.ethylene)
         eth_copy_repl = copy.deepcopy(self.ethylene)
-        # First, perform a substiution as above
+        # First, perform a substitution as above
         eth_copy_sub.substitute_group(5, "methyl", MinimumDistanceNN)
         eth_copy_repl.replace_group(5, "methyl", MinimumDistanceNN)
         # Test that replacement on a terminal atom is equivalent to substitution
