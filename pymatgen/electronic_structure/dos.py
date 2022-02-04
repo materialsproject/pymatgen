@@ -7,7 +7,7 @@ This module defines classes to represent the density of states, etc.
 
 import functools
 import warnings
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -785,9 +785,11 @@ class CompleteDos(Dos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}
 
     @property
-    def spin_polarization(self) -> float:
+    def spin_polarization(self) -> Optional[float]:
         """
-        Calculates spin polarization at Fermi level.
+        Calculates spin polarization at Fermi level. If the
+        calculation is not spin-polarized, None will be
+        returned.
 
         See Sanvito et al., doi: 10.1126/sciadv.1602241 for
         an example usage.
@@ -799,6 +801,8 @@ class CompleteDos(Dos):
         n_F = self.get_interpolated_value(self.efermi)
 
         n_F_up = n_F[Spin.up]
+        if Spin.down not in n_F:
+            return None
         n_F_down = n_F[Spin.down]
 
         if (n_F_up + n_F_down) == 0:
