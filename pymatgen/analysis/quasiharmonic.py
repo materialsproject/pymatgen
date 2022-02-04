@@ -242,9 +242,9 @@ class QuasiharmonicDebyeApprox:
         # floating point limit is reached around y=155, so values beyond that
         # are set to the limiting value(T-->0, y --> \infty) of
         # 6.4939394 (from wolfram alpha).
-        factor = 3.0 / y ** 3
+        factor = 3.0 / y**3
         if y < 155:
-            integral = quadrature(lambda x: x ** 3 / (np.exp(x) - 1.0), 0, y)
+            integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
             return list(integral)[0] * factor
         return 6.493939 * factor
 
@@ -317,13 +317,13 @@ class QuasiharmonicDebyeApprox:
         gamma = self.gruneisen_parameter(temperature, volume)
         theta_d = self.debye_temperature(volume)  # K
         theta_a = theta_d * self.natoms ** (-1.0 / 3.0)  # K
-        prefactor = (0.849 * 3 * 4 ** (1.0 / 3.0)) / (20.0 * np.pi ** 3)
+        prefactor = (0.849 * 3 * 4 ** (1.0 / 3.0)) / (20.0 * np.pi**3)
         # kg/K^3/s^3
         prefactor = prefactor * (self.kb / self.hbar) ** 3 * self.avg_mass
-        kappa = prefactor / (gamma ** 2 - 0.514 * gamma + 0.228)
+        kappa = prefactor / (gamma**2 - 0.514 * gamma + 0.228)
         # kg/K/s^3 * Ang = (kg m/s^2)/(Ks)*1e-10
         # = N/(Ks)*1e-10 = Nm/(Kms)*1e-10 = W/K/m*1e-10
-        kappa = kappa * theta_a ** 2 * volume ** (1.0 / 3.0) * 1e-10
+        kappa = kappa * theta_a**2 * volume ** (1.0 / 3.0) * 1e-10
         return kappa
 
     def get_summary_dict(self):

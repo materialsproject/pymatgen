@@ -62,7 +62,7 @@ class GulpCallerTest(unittest.TestCase):
 
         """Some inherent checks are in the run_gulp function itself.
         They should be suffcient for raising errors."""
-        gc.run(gin)
+        gout = gc.run(gin)
 
     def test_decimal(self):
         struct = Structure.from_str(
@@ -95,7 +95,7 @@ class GulpCallerTest(unittest.TestCase):
         gio = GulpIO()
         input = gio.buckingham_input(struct, ["relax conp"])
         caller = GulpCaller()
-        caller.run(input)
+        gout = caller.run(input)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -139,7 +139,7 @@ class GulpIOTest(unittest.TestCase):
 
     def test_library_line_wrong_file(self):
         with self.assertRaises(GulpError):
-            self.gio.library_line("temp_to_fail.lib")
+            gin = self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -260,7 +260,7 @@ class GulpIOTest(unittest.TestCase):
 
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
-        self.gio.tersoff_input(self.structure)
+        gin = self.gio.tersoff_input(self.structure)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")

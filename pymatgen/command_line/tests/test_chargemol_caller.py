@@ -3,6 +3,7 @@
 
 import os
 import unittest
+from monty.os.path import which
 
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
 from pymatgen.util.testing import PymatgenTest

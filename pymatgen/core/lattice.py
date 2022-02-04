@@ -68,7 +68,7 @@ class Lattice(MSONable):
         """
         :return: The lengths (a, b, c) of the lattice.
         """
-        return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)).tolist())  # type: ignore
+        return tuple(np.sqrt(np.sum(self._matrix**2, axis=1)).tolist())  # type: ignore
 
     @property
     def angles(self) -> Tuple[float, float, float]:
@@ -328,7 +328,7 @@ class Lattice(MSONable):
 
             vector_a = [float(a), 0.0, 0.0]
             vector_b = [b * cos_gamma, b * sin_gamma, 0]
-            vector_c = [c1, c2, math.sqrt(c ** 2 - c1 ** 2 - c2 ** 2)]
+            vector_c = [c1, c2, math.sqrt(c**2 - c1**2 - c2**2)]
 
         else:
             val = (cos_alpha * cos_beta - cos_gamma) / (sin_alpha * sin_beta)
@@ -1004,7 +1004,7 @@ class Lattice(MSONable):
         inds = [np.logical_and(dist / l < 1 + ltol, dist / l > 1 / (1 + ltol)) for l in lengths]  # type: ignore
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)  # type: ignore
-        l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
+        l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
 
         def get_angles(v1, v2, l1, l2):
             x = np.inner(v1, v2) / l1[:, None] / l2
@@ -1626,7 +1626,7 @@ class Lattice(MSONable):
         d_2 = np.sum(coords, axis=4)
 
         # Determine which points are within `r` of `center`
-        within_r = np.where(d_2 <= r ** 2)
+        within_r = np.where(d_2 <= r**2)
         #  `within_r` now contains the coordinates of each image that is
         #    inside of the cutoff distance. It has 4 coordinates:
         #   0 - index of the image within `frac_points`

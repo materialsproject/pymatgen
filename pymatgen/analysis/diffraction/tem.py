@@ -89,9 +89,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         wavelength_rel = (
             sc.h
             / np.sqrt(
-                2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c ** 2))
+                2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
             )
-            * (10 ** 10)
+            * (10**10)
         )
         return wavelength_rel
 
@@ -397,25 +397,25 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         cos_beta_star = (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (np.sin(alpha) * np.sin(gamma))
         cos_gamma_star = (np.cos(alpha) * np.cos(beta) - np.cos(gamma)) / (np.sin(alpha) * np.sin(beta))
         r1_norm = np.sqrt(
-            p1[0] ** 2 * a_star ** 2
-            + p1[1] ** 2 * b_star ** 2
-            + p1[2] ** 2 * c_star ** 2
+            p1[0] ** 2 * a_star**2
+            + p1[1] ** 2 * b_star**2
+            + p1[2] ** 2 * c_star**2
             + 2 * p1[0] * p1[1] * a_star * b_star * cos_gamma_star
             + 2 * p1[0] * p1[2] * a_star * c_star * cos_beta_star
             + 2 * p1[1] * p1[2] * b_star * c_star * cos_gamma_star
         )
         r2_norm = np.sqrt(
-            p2[0] ** 2 * a_star ** 2
-            + p2[1] ** 2 * b_star ** 2
-            + p2[2] ** 2 * c_star ** 2
+            p2[0] ** 2 * a_star**2
+            + p2[1] ** 2 * b_star**2
+            + p2[2] ** 2 * c_star**2
             + 2 * p2[0] * p2[1] * a_star * b_star * cos_gamma_star
             + 2 * p2[0] * p2[2] * a_star * c_star * cos_beta_star
             + 2 * p2[1] * p2[2] * b_star * c_star * cos_gamma_star
         )
         r1_dot_r2 = (
-            p1[0] * p2[0] * a_star ** 2
-            + p1[1] * p2[1] * b_star ** 2
-            + p1[2] * p2[2] * c_star ** 2
+            p1[0] * p2[0] * a_star**2
+            + p1[1] * p2[1] * b_star**2
+            + p1[2] * p2[2] * c_star**2
             + (p1[0] * p2[1] + p2[0] * p1[1]) * a_star * b_star * cos_gamma_star
             + (p1[0] * p2[2] + p2[0] * p1[1]) * a_star * c_star * cos_beta_star
             + (p1[1] * p2[2] + p2[1] * p1[2]) * b_star * c_star * cos_alpha_star
@@ -513,7 +513,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         for hkl, intensity in cell_intensity.items():
             dot = namedtuple("dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"])
             position = positions[hkl]
-            film_radius = 0.91 * (10 ** -3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
+            film_radius = 0.91 * (10**-3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
             d_spacing = interplanar_spacings[hkl]
             tem_dot = dot(position, hkl, intensity, film_radius, d_spacing)
             dots.append(tem_dot)
