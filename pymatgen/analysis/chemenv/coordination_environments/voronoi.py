@@ -696,7 +696,7 @@ class DetailedVoronoiContainer(MSONable):
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         elif plot_type["distance_parameter"][0] == "initial_inverse3_opposite":
-            ddinv = [1.0 / dist**3.0 for dist in dd]
+            ddinv = [1.0 / dist ** 3.0 for dist in dd]
             ddinv.append(0.0)
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
