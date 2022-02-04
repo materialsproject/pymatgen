@@ -256,7 +256,7 @@ class PackmolRunner:
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
-            net_volume += (length**3.0) * float(self.param_list[idx]["number"])
+            net_volume += (length ** 3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"

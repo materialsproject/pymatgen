@@ -1507,7 +1507,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                         recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)

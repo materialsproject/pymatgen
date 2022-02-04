@@ -2005,7 +2005,7 @@ class IStructure(SiteCollection, MSONable):
 
             for inv_m, m in zip(inv_ms[inds], ms[inds]):
                 new_m = np.dot(inv_m, self.lattice.matrix)
-                ftol = np.divide(tolerance, np.sqrt(np.sum(new_m**2, axis=1)))
+                ftol = np.divide(tolerance, np.sqrt(np.sum(new_m ** 2, axis=1)))
 
                 valid = True
                 new_coords = []

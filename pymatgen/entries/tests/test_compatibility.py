@@ -2407,7 +2407,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
         self.assertAlmostEqual(
             entry_fluoride_corrected.correction_uncertainty,
-            sqrt((3 * 0.0026) ** 2 + 0.0101**2),
+            sqrt((3 * 0.0026) ** 2 + 0.0101 ** 2),
         )
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)

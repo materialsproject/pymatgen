@@ -806,7 +806,7 @@ class StructureMatcherTest(PymatgenTest):
         sp = ["Si", "Si", "Al"]
         s1 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
-        self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
+        self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2), (0.32 ** 0.5 / 2, 0.4))
 
         self.assertEqual(sm.fit(s1, s2), False)
         self.assertEqual(sm.fit_anonymous(s1, s2), False)
