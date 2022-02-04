@@ -165,7 +165,7 @@ class GrandPotPDEntry(PDEntry):
 
     def __repr__(self):
         chempot_str = " ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
-        return "GrandPotPDEntry with original composition " + "{}, energy = {:.4f}, {}".format(
+        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
             self.original_entry.composition, self.original_entry.energy, chempot_str
         )
 

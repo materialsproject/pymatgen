@@ -139,7 +139,7 @@ class XYZ:
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]
-        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
+        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
         for site in frame_mol:
             output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
         return "\n".join(output)

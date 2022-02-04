@@ -513,7 +513,7 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
 
     with open("plot-fits", mode="a") as f:
         f.write('set title "' + name + " - " + extra + '"\n')
-        f.write("set output '" + name + "-" + idp + ".gif'" + "\n")
+        f.write("set output '" + name + "-" + idp + ".gif'\n")
         f.write("set yrange [" + str(popt[0] - 5 * tol) + ":" + str(popt[0] + 5 * tol) + "]\n")
         f.write(line + "\n")
         f.write("pause -1 \n")

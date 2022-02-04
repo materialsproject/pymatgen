@@ -64,8 +64,9 @@ class RotationTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Rotation Transformation about axis " + "{} with angle = {:.4f} {}".format(
-            self.axis, self.angle, "radians" if self.angle_in_radians else "degrees"
+        return (
+            f"Rotation Transformation about axis {self.axis} with angle = "
+            f"{self.angle:.4f} {'radians' if self.angle_in_radians else 'degrees'}"
         )
 
     def __repr__(self):

@@ -135,7 +135,7 @@ class CoordinationEnvironmentMorphing:
                 vector = bare_points[isite] - origin
                 coords[isite] += vector * (morphing_factor - 1.0)
             else:
-                raise ValueError('Key "site_type" is {} while it can only be neighbor'.format(morphing["site_type"]))
+                raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
         structure = Structure(lattice=lattice, species=myspecies, coords=coords, coords_are_cartesian=True)
         return structure
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     for ce_pair_dict in ce_pairs:
         ce1 = ce_pair_dict["initial_environment_symbol"]
         ce2 = ce_pair_dict["expected_final_environment_symbol"]
-        cn_pair = "{}_{}".format(ce2.split(":")[1], ce1.split(":")[1])
+        cn_pair = f"{ce2.split(':')[1]}_{ce1.split(':')[1]}"
         nb_indices = ce_pair_dict["neighbors_indices"]
         mindist = ce_pair_dict["dist_factor_min"]
         maxdist = ce_pair_dict["dist_factor_max"]

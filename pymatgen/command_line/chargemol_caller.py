@@ -164,7 +164,7 @@ class ChargemolAnalysis:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warning_msg = "Multiple files detected, using %s" % os.path.basename(paths[0]) if len(paths) > 1 else None
+            warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
             warnings.warn(warning_msg)
             fpath = paths[0]
         return fpath
@@ -208,7 +208,7 @@ class ChargemolAnalysis:
                 rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "Chargemol exited with return code %d. Please check your Chargemol installation." % rs.returncode
+                    f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
                 )
 
             self._from_data_dir()
