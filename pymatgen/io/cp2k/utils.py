@@ -6,10 +6,10 @@ import os
 import re
 from pathlib import Path
 
-from ruamel.yaml import YAML
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
 

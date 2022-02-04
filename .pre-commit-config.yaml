@@ -13,10 +13,16 @@ repos:
     hooks:
       - id: black
 
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
       - id: check-yaml
+        exclude: pymatgen/analysis/vesta_cutoffs.yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
 

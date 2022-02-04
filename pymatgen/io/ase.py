@@ -14,7 +14,9 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 import warnings
+
 import numpy as np
+
 from pymatgen.core.structure import Molecule, Structure
 
 try:
@@ -25,8 +27,8 @@ except ImportError:
     ase_loaded = False
 
 if ase_loaded:
-    from ase.constraints import FixAtoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
+    from ase.constraints import FixAtoms
 
 
 class AseAtomsAdaptor:

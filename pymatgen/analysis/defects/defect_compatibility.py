@@ -253,7 +253,7 @@ class DefectCompatibility(MSONable):
             try:
                 defect_entry = self.perform_kumagai(defect_entry)
             except Exception:
-                logger.info("Kumagai correction error occurred! Wont perform correction.")
+                logger.info("Kumagai correction error occurred! Won't perform correction.")
 
         # add potalign based on preferred correction setting if it does not already exist in defect entry
         if self.preferred_cc == "freysoldt":
@@ -424,11 +424,11 @@ class DefectCompatibility(MSONable):
             iv) if defect is not a vacancy type -> track to see how much the defect has moved
 
         calculations that fail delocalization get "is_compatibile" set to False in parameters
-        also parameters recieves a "delocalization_meta" with following dict:
+        also parameters receives a "delocalization_meta" with following dict:
             plnr_avg = {'is_compatible': True/False, 'metadata': metadata used for determining this}
             atomic_site = {'is_compatible': True/False, 'metadata': metadata used for determining this}
             structure_relax = {'is_compatible': True/False, 'metadata': metadata used for determining this}
-            defectsite_relax = {'is_compatible': True/False, 'metadata': metadata used for determing this}
+            defectsite_relax = {'is_compatible': True/False, 'metadata': metadata used for determining this}
         """
         defect_entry.parameters.update(
             {"is_compatible": True}

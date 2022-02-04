@@ -10,9 +10,9 @@ from plotly.graph_objects import Figure
 
 from pymatgen.analysis.chempot_diagram import (
     ChemicalPotentialDiagram,
-    simple_pca,
-    get_centroid_2d,
     get_2d_orthonormal_vector,
+    get_centroid_2d,
+    simple_pca,
 )
 from pymatgen.core.composition import Element
 from pymatgen.entries.entry_tools import EntrySet

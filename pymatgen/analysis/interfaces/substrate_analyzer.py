@@ -24,7 +24,7 @@ Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
 @dataclass
 class SubstrateMatch(ZSLMatch):
     """
-    A substrate match building on the Zur and McGill algorithm. This match class inlcudes the miller
+    A substrate match building on the Zur and McGill algorithm. This match class includes the miller
     planes of the film and substrate the full strain tensor, the Von Mises strain, the ground state
     energy if provided, and the elastic energy
     """

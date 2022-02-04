@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin

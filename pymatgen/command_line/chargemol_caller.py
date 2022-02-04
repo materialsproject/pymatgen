@@ -51,18 +51,18 @@ __date__ = "01/18/21"
 
 import glob
 import os
-import subprocess
 import shutil
+import subprocess
 import warnings
-import numpy as np
 
+import numpy as np
 from monty.io import zopen
 from monty.os.path import which
 from monty.tempfile import ScratchDir
+
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
-
 
 CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
@@ -373,7 +373,7 @@ class ChargemolAnalysis:
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
             periodicity (list[bool]): Periodicity of the system.
-                Defaut: [True, True, True].
+                Default: [True, True, True].
             method (str): Method to use for the analysis. Options include "ddec6"
             and "ddec3".
                 Default: "ddec6"

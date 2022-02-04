@@ -7,8 +7,8 @@ import os
 import unittest
 import warnings
 
-from monty.serialization import loadfn
 import numpy
+from monty.serialization import loadfn
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import (

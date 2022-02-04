@@ -8,8 +8,8 @@ import unittest
 
 from monty.tempfile import ScratchDir
 
-from pymatgen.core import SETTINGS
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
+from pymatgen.core import SETTINGS
 from pymatgen.util.testing import PymatgenTest
 
 config_file_dir = os.path.join(

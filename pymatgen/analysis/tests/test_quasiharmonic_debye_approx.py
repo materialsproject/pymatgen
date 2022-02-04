@@ -2,9 +2,9 @@ import unittest
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.eos import EOS
 from pymatgen.analysis.quasiharmonic import QuasiharmonicDebyeApprox
+from pymatgen.core.structure import Structure
 
 __author__ = "Kiran Mathew"
 

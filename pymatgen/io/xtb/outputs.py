@@ -8,6 +8,7 @@ import os
 import re
 
 from monty.json import MSONable
+
 from pymatgen.core import Molecule
 from pymatgen.io.xyz import XYZ
 

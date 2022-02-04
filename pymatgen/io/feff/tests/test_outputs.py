@@ -8,7 +8,6 @@ import unittest
 from pymatgen.io.feff.outputs import LDos, Xmu
 from pymatgen.util.testing import PymatgenTest
 
-
 test_dir_reci = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_reci_dos")
 
 
