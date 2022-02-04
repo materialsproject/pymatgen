@@ -1819,7 +1819,7 @@ class WavecarTest(PymatgenTest):
                 self.assertEqual(len(w.coeffs[k][b]), len(w.Gpoints[k]))
 
         # Test WAVECAR with fractional encut
-        self.assertEqual(w_frac_encut.encut, 100.5)
+        self.assertEqual(self.w_frac_encut.encut, 100.5)
 
         # Test malformed WAVECARs
         with self.assertRaises(ValueError):
