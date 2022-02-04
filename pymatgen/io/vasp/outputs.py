@@ -567,7 +567,7 @@ class Vasprun(MSONable):
                 equation
                 """
                 hbar = 6.582119514e-16  # eV/K
-                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hbar * freq
+                coeff = np.sqrt(np.sqrt(real ** 2 + imag ** 2) - real) * np.sqrt(2) / hbar * freq
                 return coeff
 
             absorption_coeff = [
@@ -5066,7 +5066,7 @@ class Wavecar:
                     G = np.array([k1, j2, i3])
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
-                    E = g**2 / self._C
+                    E = g ** 2 / self._C
                     if E < self.encut:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):
