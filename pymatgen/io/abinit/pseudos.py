@@ -1378,7 +1378,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         elif eq == "r=(i/n+a)^5/a-a^4":
             a, n = float(grid_params["a"]), float(grid_params["n"])
-            mesh = [(i / n + a) ** 5 / a - a ** 4 for i in indices]
+            mesh = [(i / n + a) ** 5 / a - a**4 for i in indices]
 
         else:
             raise ValueError(f"Unknown grid type: {eq}")

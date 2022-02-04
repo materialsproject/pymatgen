@@ -151,7 +151,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * (s ** 2))
+                dw_correction = np.exp(-dwfactors * (s**2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.

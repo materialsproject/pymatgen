@@ -1831,8 +1831,8 @@ class NanoscaleStability:
 
         else:
             # By approximating the particle as a perfect sphere
-            w_vol = (4 / 3) * np.pi * r ** 3
-            sphere_sa = 4 * np.pi * r ** 2
+            w_vol = (4 / 3) * np.pi * r**3
+            sphere_sa = 4 * np.pi * r**2
             tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
@@ -1840,7 +1840,7 @@ class NanoscaleStability:
         new_r = new_r / 10 if r_units == "nanometers" else new_r
         e = Ebulk + tot_wulff_se
         e = e / 1000 if e_units == "keV" else e
-        e = e / ((4 / 3) * np.pi * new_r ** 3) if normalize else e
+        e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
         density = len(bulk_struct) / bulk_struct.lattice.volume
         e = e / (density * w_vol) if scale_per_atom else e
