@@ -184,14 +184,14 @@ class CoordUtilsTest(PymatgenTest):
         )
 
         vectors = coord.pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
-        dists = np.sum(vectors**2, axis=-1) ** 0.5
+        dists = np.sum(vectors ** 2, axis=-1) ** 0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
 
         prev_threshold = coord.LOOP_THRESHOLD
         coord.LOOP_THRESHOLD = 0
 
         vectors = coord.pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
-        dists = np.sum(vectors**2, axis=-1) ** 0.5
+        dists = np.sum(vectors ** 2, axis=-1) ** 0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
 
         coord.LOOP_THRESHOLD = prev_threshold
