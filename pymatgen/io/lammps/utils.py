@@ -8,23 +8,22 @@ This module defines utility classes and functions.
 
 import os
 import tempfile
+from shutil import which
 from subprocess import PIPE, Popen
 
 import numpy as np
-
-try:
-    from openbabel import pybel as pb
-except ImportError:
-    pb = None
-
-from shutil import which
-
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.util.coord import get_angle
+
+try:
+    from openbabel import pybel as pb
+except ImportError:
+    pb = None
+
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"

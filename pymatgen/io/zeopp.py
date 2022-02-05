@@ -47,7 +47,7 @@ except ImportError:
     zeo_found = False
 
 __author__ = "Bharat Medasani"
-__copyright = "Copyright 2013, The Materials Project"
+__copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
