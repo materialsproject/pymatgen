@@ -4,7 +4,7 @@ import unittest
 import warnings
 
 import numpy as np
-from monty.serialization import MontyDecoder
+from monty.serialization import MontyDecoder, loadfn
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import (
@@ -13,7 +13,6 @@ from pymatgen.core.tensors import (
     TensorCollection,
     TensorMapping,
     itertools,
-    loadfn,
     symmetry_reduce,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

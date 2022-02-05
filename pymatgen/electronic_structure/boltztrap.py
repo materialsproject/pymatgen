@@ -23,12 +23,12 @@ import os
 import subprocess
 import tempfile
 import time
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
-from monty.os.path import which
 from scipy import constants
 from scipy.spatial import distance
 

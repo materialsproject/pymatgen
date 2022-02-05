@@ -7,4 +7,4 @@ This package contains classes to parse input files from the exciting
 code package.
 """
 
-from .inputs import *  # noqa
+from .inputs import ExcitingInput

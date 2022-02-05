@@ -43,11 +43,11 @@ import os
 import subprocess
 import warnings
 from enum import Enum
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
-from monty.os.path import which
 from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 from scipy.spatial import KDTree
