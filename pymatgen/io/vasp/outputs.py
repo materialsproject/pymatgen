@@ -1226,10 +1226,17 @@ class Vasprun(MSONable):
             else:
                 ptype = c.attrib.get("type")
                 val = c.text.strip() if c.text else ""
-                if c.tag == "i":
-                    params[name] = _parse_parameters(ptype, val)
-                else:
-                    params[name] = _parse_v_parameters(ptype, val, self.filename, name)
+                try:
+                    if c.tag == "i":
+                        params[name] = _parse_parameters(ptype, val)
+                    else:
+                        params[name] = _parse_v_parameters(ptype, val, self.filename, name)
+                except Exception as ex:
+                    if name == "RANDOM_SEED":
+                        # Handles the case where RANDOM SEED > 99999, which results in *****
+                        params[name] = None
+                    else:
+                        raise ex
         elem.clear()
         return Incar(params)
 
