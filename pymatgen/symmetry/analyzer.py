@@ -155,7 +155,8 @@ class SpacegroupAnalyzer:
         """
         n = self._space_group_data["number"]
 
-        if n < 1 or n > 230:
+        # not using isinstance(n, int) to allow 0-decimal floats
+        if not (n == int(n) and 0 < n < 231):
             raise ValueError(f"Received invalid space group {n}")
 
         if 0 < n < 3:
