@@ -20,6 +20,7 @@ import warnings
 from collections import defaultdict
 from fractions import Fraction
 from math import cos, sin
+from typing import Literal
 
 import numpy as np
 import spglib
@@ -139,15 +140,23 @@ class SpacegroupAnalyzer:
             return "1"
         return spglib.get_pointgroup(rotations)[0].strip()
 
-    def get_crystal_system(self):
+    def get_crystal_system(
+        self,
+    ) -> Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]:
         """
         Get the crystal system for the structure, e.g., (triclinic,
         orthorhombic, cubic, etc.).
 
+        Raises:
+            ValueError: on invalid space group numbers < 1 or > 230.
+
         Returns:
-            (str): Crystal system for structure or None if system cannot be detected.
+            (str): Crystal system for structure
         """
         n = self._space_group_data["number"]
+
+        if n < 1 or n > 230:
+            raise ValueError(f"Received invalid space group {n}")
 
         if 0 < n < 3:
             return "triclinic"
@@ -161,10 +170,7 @@ class SpacegroupAnalyzer:
             return "trigonal"
         if n < 195:
             return "hexagonal"
-        if n < 231:
-            return "cubic"
-
-        raise ValueError("Invalid space group")
+        return "cubic"
 
     def get_lattice_type(self):
         """
