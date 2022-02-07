@@ -132,6 +132,12 @@ def main():
         nargs="+",
         help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/psps",
     )
+    parser_config.add_argument(
+        "-b",
+        "--backup",
+        default=".bak",
+        help="Suffix to append to a backup of .pmgrc.yaml when changing this file. Defaults to '.bak'. Set to '' to disable.",
+    )
     parser_config.set_defaults(func=configure_pmg)
 
     parser_analyze = subparsers.add_parser("analyze", help="Vasp calculation analysis tools.")
