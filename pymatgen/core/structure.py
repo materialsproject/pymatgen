@@ -1376,18 +1376,18 @@ class IStructure(SiteCollection, MSONable):
         """
         Similar to 'get_neighbor_list' with sites=None, but the neighbors are
         grouped by symmetry. The returned values are a tuple of numpy arrays
-        (center_indices, points_indices, offset_vectors, distances, 
-         symmetry_indices). Atom `center_indices[i]` has neighbor atom 
-        `points_indices[i]` that is translated by `offset_vectors[i]` lattice 
-        vectors, and the distance is `distances[i]`. Symmetry_idx groups the bonds 
+        (center_indices, points_indices, offset_vectors, distances,
+         symmetry_indices). Atom `center_indices[i]` has neighbor atom
+        `points_indices[i]` that is translated by `offset_vectors[i]` lattice
+        vectors, and the distance is `distances[i]`. Symmetry_idx groups the bonds
         that are related by a symmetry of the provided space group and symmetry_op
         is the operation that relates the first bond of the same symmetry_idx to
         the respective atom. The first bond maps onto itself via the Identity. The
         output is sorted w.r.t. to symmetry_indices.
-        
+
         Args:
             r (float): Radius of sphere
-            sg (str/int): The spacegroup the symmetry operations of which will be 
+            sg (str/int): The spacegroup the symmetry operations of which will be
                 used to classify the neighbors. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
@@ -1404,7 +1404,6 @@ class IStructure(SiteCollection, MSONable):
         Returns: (center_indices, points_indices, offset_vectors, distances,
                   symmetry_indices, symmetry_ops)
         """
-
 
         from pymatgen.symmetry.groups import SpaceGroup
 
@@ -1439,8 +1438,7 @@ class IStructure(SiteCollection, MSONable):
                 symmetry_indices[it] = symmetry_index
                 symmetry_ops[it] = ops[0]
                 for it2 in np.arange(nbonds)[np.isnan(symmetry_indices)]:
-                    equal_distance = np.isclose(bonds[3][it],bonds[3][it2],
-                                                atol=numerical_tol)
+                    equal_distance = np.isclose(bonds[3][it], bonds[3][it2], atol=numerical_tol)
                     if equal_distance:
                         from_a = self[bonds[0][it]].frac_coords
                         to_a = self[bonds[1][it]].frac_coords
@@ -1449,26 +1447,37 @@ class IStructure(SiteCollection, MSONable):
                         to_b = self[bonds[1][it2]].frac_coords
                         R_b = bonds[2][it2]
                         for op in ops:
-                            if op.are_symmetrically_related_bond(from_a, to_a, R_a,
-                                                                 from_b, to_b, R_b):
+                            if op.are_symmetrically_related_bond(from_a, to_a, R_a, from_b, to_b, R_b):
                                 symmetry_indices[it2] = symmetry_index
                                 symmetry_ops[it2] = op
                                 pass
                 symmetry_index += 1
 
         idcs = np.argsort(symmetry_indices)
-        bonds = (bonds[0][idcs], bonds[1][idcs], bonds[2][idcs], bonds[3][idcs],
-                 symmetry_indices[idcs], symmetry_ops[idcs])
-        
+        bonds = (
+            bonds[0][idcs],
+            bonds[1][idcs],
+            bonds[2][idcs],
+            bonds[3][idcs],
+            symmetry_indices[idcs],
+            symmetry_ops[idcs],
+        )
+
         idcs = np.arange(len(bonds[0]))
         identity_idcs = np.where(bonds[5] == ops[0])[0]
         for _, symid in enumerate(np.unique(bonds[4])):
             idx = np.argmax(bonds[4] == symid)
             idcs[idx], idcs[identity_idcs[_]] = idcs[identity_idcs[_]], idcs[idx]
-            
-        return (bonds[0][idcs], bonds[1][idcs], bonds[2][idcs], bonds[3][idcs],
-                symmetry_indices[idcs], symmetry_ops[idcs])
-        
+
+        return (
+            bonds[0][idcs],
+            bonds[1][idcs],
+            bonds[2][idcs],
+            bonds[3][idcs],
+            symmetry_indices[idcs],
+            symmetry_ops[idcs],
+        )
+
     def get_all_neighbors(
         self,
         r: float,
