@@ -49,8 +49,7 @@ def _load_pmg_settings():
         warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
         pass
 
-    d = d or {}
-    return dict(d)
+    return d
 
 
 SETTINGS = _load_pmg_settings()
