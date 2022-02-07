@@ -7,6 +7,7 @@ operations on them.
 """
 
 import os
+import warnings
 
 from ruamel.yaml import YAML
 
@@ -42,9 +43,10 @@ def _load_pmg_settings():
         with open(SETTINGS_FILE) as f:
             d_yml = yaml.load(f)
         d.update(d_yml)
-    except (OSError, TypeError):
+    except Exception as ex:
         # If there are any errors, default to using environment variables
         # if present.
+        warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
         pass
 
     d = d or {}
