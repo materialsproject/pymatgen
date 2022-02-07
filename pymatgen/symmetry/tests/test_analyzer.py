@@ -126,6 +126,15 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual("orthorhombic", crystal_system)
         self.assertEqual("tetragonal", self.disordered_sg.get_crystal_system())
 
+        orig_spg = self.sg._space_group_data["number"]
+        self.sg._space_group_data["number"] = 0
+        try:
+            crystal_system = self.sg.get_crystal_system()
+        except ValueError as exc:
+            self.assertEqual(str(exc), "Received invalid space group 0")
+        finally:
+            self.sg._space_group_data["number"] = orig_spg
+
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
