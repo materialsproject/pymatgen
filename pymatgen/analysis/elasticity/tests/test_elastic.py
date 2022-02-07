@@ -263,11 +263,11 @@ class ElasticTensorExpansionTest(PymatgenTest):
         cijkl = Tensor.from_voigt(self.c2)
         cijklmn = Tensor.from_voigt(self.c3)
         exp = ElasticTensorExpansion([cijkl, cijklmn])
-        from_voigt = ElasticTensorExpansion.from_voigt([self.c2, self.c3])
+        ElasticTensorExpansion.from_voigt([self.c2, self.c3])
         self.assertEqual(exp.order, 3)
 
     def test_from_diff_fit(self):
-        exp = ElasticTensorExpansion.from_diff_fit(self.strains, self.pk_stresses)
+        ElasticTensorExpansion.from_diff_fit(self.strains, self.pk_stresses)
 
     def test_calculate_stress(self):
         calc_stress = self.exp.calculate_stress(self.strains[0])
@@ -333,7 +333,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.assertArrayAlmostEqual(strain, strain_revert4, decimal=2)
 
     def test_get_yield_stress(self):
-        ys = self.exp_cu_4.get_yield_stress([1, 0, 0])
+        self.exp_cu_4.get_yield_stress([1, 0, 0])
 
 
 class NthOrderElasticTensorTest(PymatgenTest):
@@ -366,7 +366,7 @@ class NthOrderElasticTensorTest(PymatgenTest):
         calc_stress = self.c2.calculate_stress(self.strains[0])
         self.assertArrayAlmostEqual(self.pk_stresses[0], calc_stress, decimal=0)
         # Test calculation from voigt strain
-        calc_stress_voigt = self.c2.calculate_stress(self.strains[0].voigt)
+        self.c2.calculate_stress(self.strains[0].voigt)
 
     def test_energy_density(self):
         self.c3.energy_density(self.strains[0])
@@ -455,7 +455,7 @@ class DiffFitTest(PymatgenTest):
         m4, abs = generate_pseudo(strain_states, order=4)
 
     def test_fit(self):
-        cdf = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])
+        diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])
         reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses) if not (abs(abs(e) - 0.05) < 1e-10).any()]
         # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced)
