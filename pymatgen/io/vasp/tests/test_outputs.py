@@ -56,6 +56,9 @@ class VasprunTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_bad_random_seed(self):
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
+
     def test_multiple_dielectric(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
         self.assertEqual(len(v.other_dielectric), 3)
