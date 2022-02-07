@@ -627,8 +627,7 @@ class DftSet(Cp2kInputSet):
             max_cutoff_radius = get_truncated_coulomb_cutoff(self.structure)
             if max_cutoff_radius < cutoff_radius:
                 warnings.warn("Provided cutoff radius exceeds half the minimum"
-                              " distance between atoms. Overriding cutoff radius.")
-                self.cutoff_radius = max_cutoff_radius
+                              " distance between atoms. I hope you know what you're doing.")
 
         ip_keywords = {}
         if hybrid_functional == "HSE06":
@@ -656,6 +655,16 @@ class DftSet(Cp2kInputSet):
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=0.75)
             xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+            xc_functional.insert(
+                Section(
+                    "PBE_HOLE_T_C_LR",
+                    subsections={},
+                    keywords={
+                        "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", self.cutoff_radius),
+                        "SCALE_X": Keyword("SCALE_X", scale_longrange),
+                    },
+                )
+            )
 
             if isinstance(self.structure, Molecule):
                 potential_type = 'COULOMB'
