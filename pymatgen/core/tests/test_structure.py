@@ -506,7 +506,6 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assertArrayAlmostEqual(sorted(c_distances), sorted(p_distances))
 
-
     # @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
     # def test_get_all_neighbors_crosscheck_old(self):
     #     warnings.simplefilter("ignore")
@@ -576,7 +575,6 @@ Direct
         R_b2 = offsets2[1]
         self.assertTrue(symops2[1].are_symmetrically_related_bond(from_a2, to_a2, R_a2, from_b2, to_b2, R_b2))
         self.assertTrue(symops2[1].are_symmetrically_related_bond(from_b2, to_b2, R_b2, from_a2, to_a2, R_a2))
-
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(
