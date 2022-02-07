@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.2.1 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.2.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.1
+                2022.2.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-2-7">v2022.2.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-2-1">v2022.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-24">v2022.1.24</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-1-20">v2022.1.20</a></li>
@@ -384,12 +385,20 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
+<section id="v2022-2-7">
+<h2>v2022.2.7<a class="headerlink" href="#v2022-2-7" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.</p></li>
+<li><p>Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (&#64;JaGeo)</p></li>
+<li><p>Return None for ISPIN=1 for <cite>Vasprun(‘vasprun.xml’).complete_dos.spin_polarization</cite>.</p></li>
+</ul>
+</section>
 <section id="v2022-2-1">
 <h2>v2022.2.1<a class="headerlink" href="#v2022-2-1" title="Permalink to this headline"></a></h2>
 <ul class="simple">
 <li><p>Chargemol caller for partial atomic charge analysis (&#64;arosen93)</p></li>
 <li><p>ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (&#64;arosen93)</p></li>
-<li><p>Cleanup of deprecated methods. (&#64;janosh) github-actions-setup-python-now-supports-dependency-caching</p></li>
+<li><p>Cleanup of deprecated methods. (&#64;janosh)</p></li>
 <li><p>Bigfix for gzipped DOSCAR (&#64;JaGeo)</p></li>
 <li><p>Updates for QChem Support (&#64;samblau)</p></li>
 <li><p>QuantumEspresso k-grid fix input fix. (&#64;vorwerkc)</p></li>

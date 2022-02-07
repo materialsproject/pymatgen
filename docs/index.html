@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.2.1 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.2.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="#" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.1
+                2022.2.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -105,7 +105,7 @@ diagrams, diffusion analyses, reactions, etc.</p></li>
 <li><p>Integration with the Materials Project REST API, Crystallography Open
 Database and other external data sources.</p></li>
 </ol>
-<p>As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule follows closely that of the Scientific
+<p>As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.</p>
@@ -207,19 +207,12 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h2>
-<section id="v2022-2-1">
-<h3>v2022.2.1<a class="headerlink" href="#v2022-2-1" title="Permalink to this headline"></a></h3>
+<section id="v2022-2-7">
+<h3>v2022.2.7<a class="headerlink" href="#v2022-2-7" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Chargemol caller for partial atomic charge analysis (&#64;arosen93)</p></li>
-<li><p>ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (&#64;arosen93)</p></li>
-<li><p>Cleanup of deprecated methods. (&#64;janosh) github-actions-setup-python-now-supports-dependency-caching</p></li>
-<li><p>Bigfix for gzipped DOSCAR (&#64;JaGeo)</p></li>
-<li><p>Updates for QChem Support (&#64;samblau)</p></li>
-<li><p>QuantumEspresso k-grid fix input fix. (&#64;vorwerkc)</p></li>
-<li><p><cite>Entry.__repr__()</cite> now ouputs name where available. (&#64;janosh)</p></li>
-<li><p>Fixes to Vasprun.final_energy to report <cite>e_0_energy</cite> (the desired energy quantity) for VASP 6+. (&#64;arosen93)</p></li>
-<li><p><cite>Outcar().final_energy</cite> now prints out <cite>e_0_energy</cite> (also called “energy(sigma-&gt;0)” in the OUTCAR) rather than <cite>energy_fr_energy</cite> (also called “free  energy   TOTEN” in the OUTCAR). This is to be consistent with <cite>Vasprun().final_energy</cite> and because it is generally the desired quantity. <cite>Outcar</cite> now has two new attributes: <cite>.final_energy_wo_entrp</cite> and <cite>final_fr_energy</cite>, which correspond to <cite>e_wo_entrp</cite> and <cite>e_fr_energy</cite>, respectively. (&#64;arosen93)</p></li>
-<li><p>Improved parsing of coupled cluster calculations in QChem (&#64;espottesmith).</p></li>
+<li><p>Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.</p></li>
+<li><p>Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (&#64;JaGeo)</p></li>
+<li><p>Return None for ISPIN=1 for <cite>Vasprun(‘vasprun.xml’).complete_dos.spin_polarization</cite>.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
