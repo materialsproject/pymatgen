@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module implements an interface to enumlib, Gus Hart"s excellent Fortran
+This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables enum.x and

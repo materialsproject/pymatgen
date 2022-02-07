@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides an interface to the MaterialsVirtualLab's MEGNet REST API
 for rapid property prediction.
