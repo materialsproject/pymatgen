@@ -25,12 +25,11 @@ from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from monty.serialization import dumpfn
+from ruamel.yaml import YAML
 from tqdm import tqdm
 
 from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core import __version__ as PMG_VERSION
-from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -195,6 +194,7 @@ class MPRester:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         if notify_db_version:
+            yaml = YAML()
             db_version = self.get_database_version()
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
@@ -228,7 +228,8 @@ class MPRester:
             # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                dumpfn(d, SETTINGS_FILE)
+                with open(SETTINGS_FILE, "wt") as f:
+                    yaml.dump(d, f)
             except Exception:
                 pass
 
