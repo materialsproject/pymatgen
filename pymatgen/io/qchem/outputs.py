@@ -222,6 +222,8 @@ class QCOutput(MSONable):
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*opt"}).get("key")
         if self.data.get("optimization", []):
+            # Determine if the calculation is using the new geometry optimizer
+            self.data["new_optimizer"] = read_pattern(self.text, {"key": r"(?i)\s*geom_opt2\s*(?:=)*\s*3"}).get("key")
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output
@@ -696,10 +698,14 @@ class QCOutput(MSONable):
         Parses all geometries from an optimization trajectory.
         """
         geoms = []
-        header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-        table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
-
+        if self.data.get("new_optimizer") is None:
+            header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
+        else:
+            header_pattern = r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         parsed_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         for ii, parsed_geometry in enumerate(parsed_geometries):
             if not parsed_geometry:
@@ -717,10 +723,16 @@ class QCOutput(MSONable):
             )
 
         # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-        header_pattern = r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-        table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Z-matrix Print:"
-
+        if self.data.get("new_optimizer") is None:
+            header_pattern = (
+                r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            )
+            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer_pattern = r"\s+Z-matrix Print:"
+        else:
+            header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
         if not parsed_optimized_geometries:
@@ -836,7 +848,15 @@ class QCOutput(MSONable):
             self.data["CDS_gradients"] = None
 
     def _read_optimization_data(self):
-        temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
+        if self.data.get("new_optimizer") is None:
+            temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
+        else:
+            temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
+                "key"
+            )
+            # Formatting of the new optimizer means we need to prepend the first energy
+            if temp_energy_trajectory is not None:
+                temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
         else:

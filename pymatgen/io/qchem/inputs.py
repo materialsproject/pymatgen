@@ -45,6 +45,7 @@ class QCInput(MSONable):
         vdw_mode: str = "atomic",
         plots: Optional[Dict] = None,
         nbo: Optional[Dict] = None,
+        geom_opt: Optional[Dict] = None,
     ):
         """
         Args:
@@ -89,6 +90,9 @@ class QCInput(MSONable):
                     A dictionary of all the input parameters for the plots section of QChem input file.
             nbo (dict):
                     A dictionary of all the input parameters for the nbo section of QChem input file.
+            geom_opt (dict):
+                    A dictionary of input parameters for the geom_opt section of the QChem input file.
+                    This section is required when using the new libopt3 geometry optimizer.
 
         """
         self.molecule = molecule
@@ -102,6 +106,7 @@ class QCInput(MSONable):
         self.vdw_mode = vdw_mode
         self.plots = lower_and_check_unique(plots)
         self.nbo = lower_and_check_unique(nbo)
+        self.geom_opt = lower_and_check_unique(geom_opt)
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -129,6 +134,12 @@ class QCInput(MSONable):
             raise ValueError("The rem dictionary must contain a 'job_type' entry")
         if self.rem.get("job_type").lower() not in valid_job_types:
             raise ValueError("The rem dictionary must contain a valid 'job_type' entry")
+        if self.rem.get("geom_opt2") == "3":
+            if self.geom_opt is None:
+                self.geom_opt = {}
+        if self.geom_opt is not None:
+            if self.rem.get("geom_opt2") != "3":
+                self.rem["geom_opt2"] = "3"
 
         # Still to do:
         #   - Check that the method or functional is valid
@@ -176,6 +187,10 @@ class QCInput(MSONable):
         if self.nbo is not None:
             combined_list.append(self.nbo_template(self.nbo))
             combined_list.append("")
+        # geom_opt section
+        if self.geom_opt is not None:
+            combined_list.append(self.geom_opt_template(self.geom_opt))
+            combined_list.append("")
         return "\n".join(combined_list)
 
     @staticmethod
@@ -219,6 +234,7 @@ class QCInput(MSONable):
         vdw_mode = "atomic"
         plots = None
         nbo = None
+        geom_opt = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -235,6 +251,8 @@ class QCInput(MSONable):
             plots = cls.read_plots(string)
         if "nbo" in sections:
             nbo = cls.read_nbo(string)
+        if "geom_opt" in sections:
+            geom_opt = cls.read_geom_opt(string)
         return cls(
             molecule,
             rem,
@@ -247,6 +265,7 @@ class QCInput(MSONable):
             vdw_mode=vdw_mode,
             plots=plots,
             nbo=nbo,
+            geom_opt=geom_opt,
         )
 
     def write_file(self, filename: str):
@@ -510,6 +529,22 @@ class QCInput(MSONable):
             nbo_list.append(f"   {key} = {value}")
         nbo_list.append("$end")
         return "\n".join(nbo_list)
+
+    @staticmethod
+    def geom_opt_template(geom_opt: Dict) -> str:
+        """
+        Args:
+            geom_opt ():
+
+        Returns:
+            (str)
+        """
+        geom_opt_list = []
+        geom_opt_list.append("$geom_opt")
+        for key, value in geom_opt.items():
+            geom_opt_list.append(f"   {key} = {value}")
+        geom_opt_list.append("$end")
+        return "\n".join(geom_opt_list)
 
     @staticmethod
     def find_sections(string: str) -> List:
@@ -825,3 +860,26 @@ class QCInput(MSONable):
         for key, val in nbo_table[0]:
             nbo[key] = val
         return nbo
+
+    @staticmethod
+    def read_geom_opt(string: str) -> Dict:
+        """
+        Read geom_opt parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) geom_opt parameters.
+        """
+        header = r"^\s*\$geom_opt"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        footer = r"^\s*\$end"
+        geom_opt_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if geom_opt_table == []:
+            print("No valid geom_opt inputs found.")
+            return {}
+        geom_opt = {}
+        for key, val in geom_opt_table[0]:
+            geom_opt[key] = val
+        return geom_opt
