@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.import string
 
-
 """
 function for calculating the convergence of an x, y data set
 main api:

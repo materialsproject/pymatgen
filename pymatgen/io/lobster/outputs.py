@@ -474,8 +474,6 @@ class Doscar:
 
     .. attribute:: is_spin_polarized
         Boolean. Tells if the system is spin polarized
-
-
     """
 
     def __init__(
@@ -758,7 +756,6 @@ class Lobsterout:
 
       .. attribute: warninglines
         string with all warnings
-
 
     """
 
@@ -1493,8 +1490,6 @@ class Wavefunction:
     .. attribute: distance
 
         list of distance to first point in wave function file
-
-
     """
 
     def __init__(self, filename, structure):

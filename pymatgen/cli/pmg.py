@@ -136,7 +136,8 @@ def main():
         "-b",
         "--backup",
         default=".bak",
-        help="Suffix to append to a backup of .pmgrc.yaml when changing this file. Defaults to '.bak'. Set to '' to disable.",
+        help="Suffix to append to a backup of .pmgrc.yaml when changing this file. "
+        "Defaults to '.bak'. Set to '' to disable.",
     )
     parser_config.set_defaults(func=configure_pmg)
 
