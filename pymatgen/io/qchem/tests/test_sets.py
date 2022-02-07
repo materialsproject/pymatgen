@@ -10,8 +10,8 @@ from pymatgen.io.qchem.sets import (
     FreqSet,
     OptSet,
     PESScanSet,
-    QCInput,
     QChemDictSet,
+    QCInput,
     SinglePointSet,
     TransitionStateSet,
 )

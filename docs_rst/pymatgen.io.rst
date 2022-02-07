@@ -26,7 +26,6 @@ Submodules
    :maxdepth: 7
 
    pymatgen.io.adf
-   pymatgen.io.aiida
    pymatgen.io.ase
    pymatgen.io.atat
    pymatgen.io.babel

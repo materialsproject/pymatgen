@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; pymatgen 2022.1.24 documentation</title>
+  <title>Installation &mdash; pymatgen 2022.2.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.1.24
+                2022.2.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -529,57 +529,8 @@ you may need to add the following into your .bash_profile:</p>
 </section>
 <section id="zeo">
 <h3>Zeo++<a class="headerlink" href="#zeo" title="Permalink to this headline"></a></h3>
-<p>If you use the defects analysis package, you will need to installZeo++/Voro++.
-Here are the steps you need to follow (thanks to Bharat)</p>
-<p>Download and install Voro++:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">Voro</span><span class="o">++</span>
-<span class="n">mkdir</span> <span class="n">Voro</span><span class="o">++/</span><span class="n">voro</span>
-<span class="n">cd</span> <span class="n">Voro</span><span class="o">++/</span><span class="n">voro</span>
-<span class="n">svn</span> <span class="n">checkout</span> <span class="o">--</span><span class="n">username</span> <span class="n">anonsvn</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">code</span><span class="o">.</span><span class="n">lbl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">svn</span><span class="o">/</span><span class="n">voro</span><span class="o">/</span><span class="n">trunk</span>  <span class="c1"># password is &#39;anonsvn&#39;</span>
-<span class="n">cd</span> <span class="n">trunk</span>
-</pre></div>
-</div>
-<p>Add -fPIC to the CFLAGS variable in config.mk, and then:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
-</pre></div>
-</div>
-<p>Download and install Zeo++:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">Zeo</span><span class="o">++</span>
-<span class="n">mkdir</span> <span class="n">Zeo</span><span class="o">++/</span><span class="n">zeo</span>
-<span class="n">cd</span> <span class="n">Zeo</span><span class="o">++/</span><span class="n">zeo</span>
-<span class="n">svn</span> <span class="n">checkout</span> <span class="o">--</span><span class="n">username</span> <span class="n">anonsvn</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">code</span><span class="o">.</span><span class="n">lbl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">svn</span><span class="o">/</span><span class="n">zeo</span><span class="o">/</span><span class="n">trunk</span>  <span class="c1"># password is &#39;anonsvn&#39;</span>
-<span class="n">cd</span> <span class="n">trunk</span>
-<span class="n">make</span> <span class="n">dylib</span>
-</pre></div>
-</div>
-<p>Create python bindings with Cython:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">cython</span>
-<span class="n">cd</span> <span class="n">cython_wrapper</span>
-<span class="n">python</span> <span class="n">setup_alt</span><span class="o">.</span><span class="n">py</span> <span class="n">develop</span>
-</pre></div>
-</div>
-<p>To test that the installation worked, here is an example series of things you
-can do using pymatgen:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">Interstitial</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;/path/to/file&#39;</span><span class="p">)</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">radii</span><span class="p">,</span> <span class="n">valences</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
-   <span class="o">...</span><span class="p">:</span>     <span class="n">radii</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">atomic_radius</span>
-   <span class="o">...</span><span class="p">:</span>     <span class="n">valence</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">group</span>  <span class="c1"># Just a first guess..</span>
-   <span class="o">...</span><span class="p">:</span>     <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">group</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
-   <span class="o">...</span><span class="p">:</span>         <span class="n">valence</span> <span class="o">-=</span> <span class="mi">10</span>
-   <span class="o">...</span><span class="p">:</span>     <span class="n">valences</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">valence</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">interstitial</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="n">radii</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="n">valences</span><span class="p">)</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">interstitial</span><span class="o">.</span><span class="n">_defect_sites</span>
-</pre></div>
-</div>
+<p>If you use the defects analysis package, you will need to install Zeo++.</p>
+<p>The download and installation instructions for Zeo++ can be found here: <a class="reference external" href="http://www.zeoplusplus.org/">http://www.zeoplusplus.org/</a></p>
 </section>
 </section>
 </section>

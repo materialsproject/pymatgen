@@ -8,6 +8,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
@@ -18,9 +19,9 @@ from pymatgen.io.lobster import (
     Fatband,
     Grosspop,
     Icohplist,
-    MadelungEnergies,
     Lobsterin,
     Lobsterout,
+    MadelungEnergies,
     SitePotential,
     Wavefunction,
 )
@@ -634,8 +635,8 @@ class DoscarTest(unittest.TestCase):
         # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
         poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
-        doscarzip = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin_zip.gz")
-        poscarzip = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS_zip.gz")
+        os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin_zip.gz")
+        os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS_zip.gz")
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 

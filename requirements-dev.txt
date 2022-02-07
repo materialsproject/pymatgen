@@ -1,7 +1,7 @@
 sphinx
 doc2dash==2.4.1
 sphinx_rtd_theme==1.0.0
-pytest==6.2.5
+pytest==7.0.0
 pytest-cov==3.0.0
 coverage==6.2
 coveralls==3.3.1
@@ -9,4 +9,5 @@ mypy==0.931
 pydocstyle==6.1.1
 flake8==4.0.1
 pylint==2.12.2
-black==21.12b0
+black==22.1.0
+pre-commit==2.17.0

@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
 Some strategies can favour larger or smaller environments. Some strategies uniquely identifies the environments while
@@ -1399,7 +1398,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of inverse power distances.
         """
-        return [1.0 / dist ** self.bb for dist in nb_set.normalized_distances]
+        return [1.0 / dist**self.bb for dist in nb_set.normalized_distances]
 
     @staticmethod
     def ang(nb_set):
@@ -1416,7 +1415,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of power angle weights.
         """
-        return [ang ** self.aa for ang in nb_set.normalized_angles]
+        return [ang**self.aa for ang in nb_set.normalized_angles]
 
     @staticmethod
     def anginvdist(nb_set):
@@ -1435,7 +1434,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :return: List of angle/power distance weights.
         """
         nangles = nb_set.normalized_angles
-        return [nangles[ii] / dist ** self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+        return [nangles[ii] / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
 
     def angninvdist(self, nb_set):
         """Power angle/distance weight.
@@ -1453,7 +1452,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :return: List of power angle/power distance weights.
         """
         nangles = nb_set.normalized_angles
-        return [nangles[ii] ** self.aa / dist ** self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+        return [nangles[ii] ** self.aa / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
 
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         """Get the weight of a given neighbors set.

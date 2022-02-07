@@ -4,10 +4,9 @@
 
 import unittest
 import warnings
+from shutil import which
 
 import requests
-
-from monty.os.path import which
 
 from pymatgen.ext.cod import COD
 

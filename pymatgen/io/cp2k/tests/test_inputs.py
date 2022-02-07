@@ -3,6 +3,7 @@
 
 import unittest
 from pathlib import Path
+
 import numpy as np
 
 from pymatgen.core.structure import Molecule, Structure

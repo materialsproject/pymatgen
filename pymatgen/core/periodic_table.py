@@ -598,17 +598,35 @@ class ElementBase(Enum):
     def from_row_and_group(row: int, group: int) -> "Element":
         """
         Returns an element from a row and group number.
+        Important Note: For lanthanoids and actinoids, the row number must
+        be 8 and 9, respectively, and the group number must be
+        between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
+        value for Element(symbol).row and Element(symbol).group for these
+        elements.
 
         Args:
-            row (int): Row number
-            group (int): Group number
+            row (int): (pseudo) row number. This is the
+                standard row number except for the lanthanoids
+                and actinoids for which it is 8 or 9, respectively.
+            group (int): (pseudo) group number. This is the
+                standard group number except for the lanthanoids
+                and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
         for sym in _pt_data.keys():
             el = Element(sym)
-            if el.row == row and el.group == group:
+            if 57 <= el.Z <= 71:
+                el_pseudorow = 8
+                el_pseudogroup = (el.Z - 54) % 32
+            elif 89 <= el.Z <= 103:
+                el_pseudorow = 9
+                el_pseudogroup = (el.Z - 54) % 32
+            else:
+                el_pseudorow = el.row
+                el_pseudogroup = el.group
+            if el_pseudorow == row and el_pseudogroup == group:
                 return el
         raise ValueError("No element with this row and group!")
 
@@ -630,13 +648,15 @@ class ElementBase(Enum):
     def row(self) -> int:
         """
         Returns the periodic table row of the element.
+        Note: For lanthanoids and actinoids, the row is always 6 or 7,
+        respectively.
         """
         z = self.Z
         total = 0
         if 57 <= z <= 71:
-            return 8
+            return 6
         if 89 <= z <= 103:
-            return 9
+            return 7
         for i, size in enumerate(_pt_row_sizes):
             total += size
             if total >= z:
@@ -647,12 +667,14 @@ class ElementBase(Enum):
     def group(self) -> int:
         """
         Returns the periodic table group of the element.
+        Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
         if z == 1:
             return 1
         if z == 2:
             return 18
+
         if 3 <= z <= 18:
             if (z - 2) % 8 == 0:
                 return 18
@@ -664,6 +686,9 @@ class ElementBase(Enum):
             if (z - 18) % 18 == 0:
                 return 18
             return (z - 18) % 18
+
+        if (57 <= z <= 71) or (89 <= z <= 103):
+            return 3
 
         if (z - 54) % 32 == 0:
             return 18
@@ -1058,7 +1083,7 @@ class Species(MSONable, Stringify):
     def __hash__(self):
         """
         Equal Species should have the same str representation, hence
-        should hash equally. Unequal Species will have differnt str
+        should hash equally. Unequal Species will have different str
         representations.
         """
         return self.__str__().__hash__()
@@ -1385,7 +1410,7 @@ class DummySpecies(Species):
                 raise ValueError(f"{k} is not a supported property")
 
     def __getattr__(self, a):
-        # overriding getattr doens't play nice with pickle, so we
+        # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         p = object.__getattribute__(self, "_properties")
         if a in p:
@@ -1473,7 +1498,7 @@ class DummySpecies(Species):
             A DummySpecies object.
 
         Raises:
-            ValueError if species_string cannot be intepreted.
+            ValueError if species_string cannot be interpreted.
         """
         m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:

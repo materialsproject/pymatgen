@@ -16,20 +16,19 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import List, Optional, Union, Dict, Any
+from typing import Any, Dict, List, Optional, Union
 
-from ruamel.yaml import YAML
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite, Site
-from pymatgen.core.structure import PeriodicNeighbor
+from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
 
 try:
     from openbabel import openbabel as ob
@@ -885,9 +884,9 @@ class VoronoiNN(NearNeighbors):
                 if compute_adj_neighbors:
                     results[other_site]["verts"] = vind
 
-        # all sites should have atleast two connected ridges in periodic system
+        # all sites should have at least two connected ridges in periodic system
         if not results:
-            raise ValueError("No Voronoi neighbours found for site - try increasing cutoff")
+            raise ValueError("No Voronoi neighbors found for site - try increasing cutoff")
 
         # Get only target elements
         resultweighted = {}
@@ -4049,13 +4048,13 @@ class CrystalNN(NearNeighbors):
         x2 = dist_bins[idx + 1]
 
         if dist_bins[idx] == 1:
-            area1 = 0.25 * math.pi * r ** 2
+            area1 = 0.25 * math.pi * r**2
         else:
-            area1 = 0.5 * ((x1 * math.sqrt(r ** 2 - x1 ** 2)) + (r ** 2 * math.atan(x1 / math.sqrt(r ** 2 - x1 ** 2))))
+            area1 = 0.5 * ((x1 * math.sqrt(r**2 - x1**2)) + (r**2 * math.atan(x1 / math.sqrt(r**2 - x1**2))))
 
-        area2 = 0.5 * ((x2 * math.sqrt(r ** 2 - x2 ** 2)) + (r ** 2 * math.atan(x2 / math.sqrt(r ** 2 - x2 ** 2))))
+        area2 = 0.5 * ((x2 * math.sqrt(r**2 - x2**2)) + (r**2 * math.atan(x2 / math.sqrt(r**2 - x2**2))))
 
-        return (area1 - area2) / (0.25 * math.pi * r ** 2)
+        return (area1 - area2) / (0.25 * math.pi * r**2)
 
     @staticmethod
     def transform_to_length(nndata, length):

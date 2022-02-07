@@ -10,16 +10,6 @@ import re
 
 import numpy as np
 
-from pymatgen.ext.matproj import MPRester
-from pymatgen.io.cif import CifParser
-
-try:
-    from pymatgen.vis.structure_vtk import StructureVis
-
-    no_vis = False
-except ImportError:
-    StructureVis = None  # type: ignore
-    no_vis = True
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -38,6 +28,16 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCo
 from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
+from pymatgen.ext.matproj import MPRester
+from pymatgen.io.cif import CifParser
+
+try:
+    from pymatgen.vis.structure_vtk import StructureVis
+
+    no_vis = False
+except ImportError:
+    StructureVis = None  # type: ignore
+    no_vis = True
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

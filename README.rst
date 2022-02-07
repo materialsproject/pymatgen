@@ -1,15 +1,18 @@
 .. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml/badge.svg
-      :alt: CI Status
-      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
+   :alt: CI Status
+   :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
 .. image:: https://img.shields.io/pypi/dm/pymatgen?style=flat&color=blue&label=PyPI%20Downloads
-      :alt: PyPI Downloads
-      :target: https://pypi.org/project/pymatgen
+   :alt: PyPI Downloads
+   :target: https://pypi.org/project/pymatgen
 .. image:: https://img.shields.io/conda/dn/conda-forge/pymatgen?style=flat&color=blue&label=Conda%20Downloads
-      :alt: Conda Downloads
-      :target: https://anaconda.org/conda-forge/pymatgen
+   :alt: Conda Downloads
+   :target: https://anaconda.org/conda-forge/pymatgen
 .. image:: https://img.shields.io/coveralls/github/materialsproject/pymatgen?style=flat&label=Coverage
-      :alt: Coveralls
-      :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
+   :alt: Coveralls
+   :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
+.. image:: https://results.pre-commit.ci/badge/github/materialsproject/pymatgen/master.svg
+   :alt: pre-commit.ci status
+   :target: https://results.pre-commit.ci/latest/github/materialsproject/pymatgen/master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
@@ -106,7 +109,7 @@ installation using conda, which will make things a lot easier, especially on Win
 
     conda install --channel conda-forge pymatgen
 
-In line with the Scientific Python stack, pymatgen will now support a minimum python version off 3.7 from v2021.1.1.
+In line with the Scientific Python stack, in particular :code:`numpy`, :code:`pymatgen` support a minimum Python version off 3.8 from v2022.01.08.
 
 The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_ is always the latest stable
 release that is relatively bug-free and can be installed via pip::

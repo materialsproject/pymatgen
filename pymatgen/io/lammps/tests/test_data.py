@@ -8,11 +8,11 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core import yaml
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import (
     CombinedData,
@@ -816,8 +816,8 @@ class FuncTest(unittest.TestCase):
             rotop.rotation_matrix,
             [
                 [1, 0, 0],
-                [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
-                [0, -(2 ** 0.5) / 2, 2 ** 0.5 / 2],
+                [0, 2**0.5 / 2, 2**0.5 / 2],
+                [0, -(2**0.5) / 2, 2**0.5 / 2],
             ],
         )
 

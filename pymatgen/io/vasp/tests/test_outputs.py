@@ -56,6 +56,9 @@ class VasprunTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_bad_random_seed(self):
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
+
     def test_multiple_dielectric(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
         self.assertEqual(len(v.other_dielectric), 3)
@@ -174,6 +177,9 @@ class VasprunTest(PymatgenTest):
         # Test NELM parsing.
         self.assertEqual(vasprun.parameters["NELM"], 60)
         # test pdos parsing
+
+        self.assertEqual(vasprun.complete_dos.spin_polarization, 1.0)
+        self.assertTrue(Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz").complete_dos.spin_polarization is None)
 
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
         self.assertAlmostEqual(pdos0[Orbital.s][Spin.up][16], 0.0026)

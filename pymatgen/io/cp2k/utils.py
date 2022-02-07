@@ -6,10 +6,10 @@ import os
 import re
 from pathlib import Path
 
-from ruamel.yaml import YAML
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
 
@@ -75,13 +75,13 @@ def _preprocessor(s, d="."):
         inc = inc[1].strip("'")
         inc = inc.strip('"')
         with zopen(os.path.join(d, inc)) as f:
-            s = re.sub(fr"{incl}", f.read(), s)
+            s = re.sub(rf"{incl}", f.read(), s)
     variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
-        s = re.sub(fr"{match}", "", s)
+        s = re.sub(rf"{match}", "", s)
         s = re.sub(r"\${?" + var + "}?", value, s)
 
     c1 = re.findall(r"@IF", s, re.IGNORECASE)

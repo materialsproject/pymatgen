@@ -2,9 +2,7 @@ import json
 import os
 import unittest
 
-from pymatgen.phonon.bandstructure import (
-    PhononBandStructureSymmLine,
-)
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
 

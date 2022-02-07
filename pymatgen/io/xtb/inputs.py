@@ -5,9 +5,10 @@ Classes for writing XTB input files
 """
 import logging
 import os
-from typing import Dict, Optional, Union, List
+from typing import Dict, List, Optional, Union
 
 from monty.json import MSONable
+
 from pymatgen.core import Molecule
 
 __author__ = "Alex Epstein"
