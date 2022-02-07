@@ -281,8 +281,7 @@ class SlabTest(PymatgenTest):
             slab.append("O", point2)
 
             # Check if slab is all symmetric
-            sg = SpacegroupAnalyzer(slab)
-            self.assertTrue(sg.is_laue())
+            self.assertTrue(slab.is_symmetric())
 
     def test_oriented_unit_cell(self):
 
