@@ -228,7 +228,7 @@ class QChemDictSet(QCInput):
             myrem["nbo"] = "true"
             if "version" in self.nbo_params:
                 if self.nbo_params["version"] == 7:
-                    myrem["run_nbo6"] = "true"
+                    myrem["nbo_external"] = "true"
                 else:
                     raise RuntimeError("nbo params version should only be set to 7! Exiting...")
             mynbo = {}
