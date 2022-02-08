@@ -43,6 +43,7 @@ class QChemDictSet(QCInput):
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
         nbo_params: Optional[Dict] = None,
+        new_geom_opt: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
@@ -92,8 +93,15 @@ class QChemDictSet(QCInput):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
-            nbo_params (list): A list of strings for the desired NBO params. If an empty list is passed,
-                default NBO analysis will be performed. (Default: False)
+            nbo_params (dict): A dict containing the desired NBO params. Note that a key:value pair of
+                "version":7 will trigger NBO7 analysis. Otherwise, NBO5 analysis will be performed,
+                including if an empty dict is passed. Besides a key of "version", all other key:value
+                pairs will be written into the $nbo section of the QChem input file. (Default: False)
+            new_geom_opt (dict): A dict containing parameters for the $geom_opt section of the QChem
+                input file, which control the new geometry optimizer available starting in version 5.4.2.
+                Note that the new optimizer remains under development and not officially released.
+                Further note that even passig an empty dictionary will trigger the new optimizer.
+                (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -129,6 +137,7 @@ class QChemDictSet(QCInput):
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
         self.nbo_params = nbo_params
+        self.new_geom_opt = new_geom_opt
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
 
@@ -227,6 +236,10 @@ class QChemDictSet(QCInput):
                 if key != "version":
                     mynbo[key] = self.nbo_params[key]
 
+        my_geom_opt = self.new_geom_opt
+        if self.new_geom_opt is not None:
+            myrem["geom_opt2"] = "3"
+
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
                 if sec == "rem":
@@ -265,6 +278,14 @@ class QChemDictSet(QCInput):
                     temp_nbo = lower_and_check_unique(sec_dict)
                     for k, v in temp_nbo.items():
                         mynbo[k] = v  # type: ignore
+                if sec == "geom_opt":
+                    if my_geom_opt is None:
+                        raise RuntimeError(
+                            "Can't overwrite geom_opt params when not using the new optimizer! Exiting..."
+                        )
+                    temp_geom_opt = lower_and_check_unique(sec_dict)
+                    for k, v in temp_geom_opt.items():
+                        my_geom_opt[k] = v
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -282,6 +303,7 @@ class QChemDictSet(QCInput):
             vdw_mode=self.vdw_mode,
             plots=myplots,
             nbo=mynbo,
+            geom_opt=my_geom_opt,
         )
 
     def write(self, input_file: str):
@@ -409,6 +431,7 @@ class OptSet(QChemDictSet):
         nbo_params: Optional[Dict] = None,
         opt_variables: Optional[Dict[str, List]] = None,
         geom_opt_max_cycles: int = 200,
+        new_geom_opt: Optional[Dict] = None,
         overwrite_inputs: Optional[Dict] = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
@@ -486,6 +509,7 @@ class OptSet(QChemDictSet):
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
+            new_geom_opt=new_geom_opt,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )

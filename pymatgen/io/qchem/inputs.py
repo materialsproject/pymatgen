@@ -134,12 +134,6 @@ class QCInput(MSONable):
             raise ValueError("The rem dictionary must contain a 'job_type' entry")
         if self.rem.get("job_type").lower() not in valid_job_types:
             raise ValueError("The rem dictionary must contain a valid 'job_type' entry")
-        if self.rem.get("geom_opt2") == "3":
-            if self.geom_opt is None:
-                self.geom_opt = {}
-        if self.geom_opt is not None:
-            if self.rem.get("geom_opt2") != "3":
-                self.rem["geom_opt2"] = "3"
 
         # Still to do:
         #   - Check that the method or functional is valid
