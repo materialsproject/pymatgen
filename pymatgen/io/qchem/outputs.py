@@ -1459,6 +1459,15 @@ class QCOutput(MSONable):
         elif (
             read_pattern(
                 self.text,
+                {"key": r"NBO_EXTERNAL \(rem variable\) is not correct"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["bad_new_nbo_external_rem"]
+        elif (
+            read_pattern(
+                self.text,
                 {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
                 terminate_on_match=True,
             ).get("key")
