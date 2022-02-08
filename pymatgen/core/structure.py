@@ -121,13 +121,14 @@ class PeriodicNeighbor(PeriodicSite):
         image: tuple = (0, 0, 0),
     ):
         """
-        :param species: Same as PeriodicSite
-        :param coords: Same as PeriodicSite, but must be fractional.
-        :param lattice: Same as PeriodicSite
-        :param properties: Same as PeriodicSite
-        :param nn_distance: Distance to some other Site.
-        :param index: Index within structure.
-        :param image: PeriodicImage
+        Args:
+            species (Composition): Same as PeriodicSite
+            coords (np.ndarray): Same as PeriodicSite, but must be fractional.
+            lattice (Lattice): Same as PeriodicSite
+            properties (dict, optional): Same as PeriodicSite. Defaults to None.
+            nn_distance (float, optional): Distance to some other Site.. Defaults to 0.0.
+            index (int, optional): Index within structure.. Defaults to 0.
+            image (tuple, optional): PeriodicImage. Defaults to (0, 0, 0).
         """
         self._lattice = lattice
         self._frac_coords = coords
