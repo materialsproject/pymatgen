@@ -23,6 +23,7 @@ from typing import Dict, Iterable, Union
 from pathlib import Path
 from ruamel import yaml
 import numpy as np
+from sklearn.preprocessing import scale
 
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
@@ -661,7 +662,7 @@ class DftSet(Cp2kInputSet):
                     subsections={},
                     keywords={
                         "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", self.cutoff_radius),
-                        "SCALE_X": Keyword("SCALE_X", scale_longrange),
+                        "SCALE_X": Keyword("SCALE_X", 0.25),
                     },
                 )
             )
