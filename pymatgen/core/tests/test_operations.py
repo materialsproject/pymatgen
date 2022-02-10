@@ -169,9 +169,11 @@ class SymmOpTestCase(PymatgenTest):
         R_b = self.op.apply_rotation_only(R_a) - floored[0] + floored[1]
         from_b = from_b % 1
         to_b = to_b % 1
-        self.assertTrue(self.op.are_symmetrically_related_bond(from_a, to_a, R_a, from_b, to_b, R_b))
-        self.assertTrue(self.op.are_symmetrically_related_bond(to_a, from_a, -R_a, from_b, to_b, R_b))
-
+        self.assertTrue(self.op.are_symmetrically_related_bond(from_a, to_a, R_a, from_b, to_b, R_b)[0])
+        self.assertFalse(self.op.are_symmetrically_related_bond(from_a, to_a, R_a, from_b, to_b, R_b)[1])
+        self.assertTrue(self.op.are_symmetrically_related_bond(to_a, from_a, -R_a, from_b, to_b, R_b)[0])
+        self.assertTrue(self.op.are_symmetrically_related_bond(to_a, from_a, -R_a, from_b, to_b, R_b)[1])
+        
     def test_to_from_dict(self):
         d = self.op.as_dict()
         op = SymmOp.from_dict(d)
