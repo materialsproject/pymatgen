@@ -242,8 +242,6 @@ class PhononDosPlotter:
 class PhononBSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
-
-
     """
 
     def __init__(self, bs):
@@ -798,8 +796,6 @@ class GruneisenPlotter:
 class GruneisenPhononBSPlotter(PhononBSPlotter):
     """
     Class to plot or get data to facilitate the plot of band structure objects.
-
-
     """
 
     def __init__(self, bs):

@@ -173,15 +173,18 @@ class SpacegroupAnalyzer:
             return "hexagonal"
         return "cubic"
 
-    def get_lattice_type(self):
+    def get_lattice_type(
+        self,
+    ) -> Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "rhombohedral", "hexagonal", "cubic"]:
         """
-        Get the lattice for the structure, e.g., (triclinic,
-        orthorhombic, cubic, etc.).This is the same than the
-        crystal system with the exception of the hexagonal/rhombohedral
-        lattice
+        Get the lattice for the structure, e.g., (triclinic, orthorhombic, cubic, etc.).This is
+        the same as the crystal system with the exception of the hexagonal/rhombohedral lattice.
+
+        Raises:
+            ValueError: on invalid space group numbers < 1 or > 230.
 
         Returns:
-            (str): Lattice type for structure or None if type cannot be detected.
+            (str): Lattice type for structure
         """
         n = self._space_group_data["number"]
         system = self.get_crystal_system()
@@ -197,16 +200,16 @@ class SpacegroupAnalyzer:
 
         Returns:
             (dict): With the following properties:
-            number: International space group number
-            international: International symbol
-            hall: Hall symbol
-            transformation_matrix: Transformation matrix from lattice of
-            input cell to Bravais lattice L^bravais = L^original * Tmat
-            origin shift: Origin shift in the setting of "Bravais lattice"
-            rotations, translations: Rotation matrices and translation
-            vectors. Space group operations are obtained by
-            [(r,t) for r, t in zip(rotations, translations)]
-            wyckoffs: Wyckoff letters
+                number: International space group number
+                international: International symbol
+                hall: Hall symbol
+                transformation_matrix: Transformation matrix from lattice of
+                input cell to Bravais lattice L^bravais = L^original * Tmat
+                origin shift: Origin shift in the setting of "Bravais lattice"
+                rotations, translations: Rotation matrices and translation
+                vectors. Space group operations are obtained by
+                [(r,t) for r, t in zip(rotations, translations)]
+                wyckoffs: Wyckoff letters
         """
         return self._space_group_data
 
