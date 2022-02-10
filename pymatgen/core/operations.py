@@ -9,6 +9,7 @@ import re
 import string
 import warnings
 from math import cos, pi, sin, sqrt
+from typing import Tuple
 
 import numpy as np
 from monty.json import MSONable
@@ -16,7 +17,6 @@ from monty.json import MSONable
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
 from pymatgen.util.typing import ArrayLike
-from typing import Tuple
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
