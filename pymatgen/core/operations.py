@@ -174,15 +174,21 @@ class SymmOp(MSONable):
             return True
         return False
 
-    def are_symmetrically_related_bond(self, from_a: ArrayLike, to_a: ArrayLike,
-                                       R_a: ArrayLike, from_b: ArrayLike,
-                                       to_b: ArrayLike, R_b: ArrayLike,
-                                       tol: float = 0.001) -> Tuple[bool, bool]:
+    def are_symmetrically_related_bond(
+        self,
+        from_a: ArrayLike,
+        to_a: ArrayLike,
+        R_a: ArrayLike,
+        from_b: ArrayLike,
+        to_b: ArrayLike,
+        R_b: ArrayLike,
+        tol: float = 0.001,
+    ) -> Tuple[bool, bool]:
         """
         Checks if two bonds, or rather two vectors that connect two points
-        each are symmetrically related. R_a and R_b give the change of unit 
+        each are symmetrically related. R_a and R_b give the change of unit
         cells. Two bonds are also considered symmetrically equivalent if starting
-        and end point are exchanged. 
+        and end point are exchanged.
 
         Args:
             from_a (3x1 array): Starting point of the first bond.
@@ -207,11 +213,9 @@ class SymmOp(MSONable):
         from_c = from_c % 1
         to_c = to_c % 1
 
-        if (np.allclose(from_b, from_c, atol=tol) and
-                np.allclose(to_b, to_c) and np.allclose(R_b, R_c, atol=tol)):
+        if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(R_b, R_c, atol=tol):
             return (True, False)
-        if (np.allclose(to_b, from_c, atol=tol) and
-                np.allclose(from_b, to_c) and np.allclose(R_b,-R_c, atol=tol)):
+        if np.allclose(to_b, from_c, atol=tol) and np.allclose(from_b, to_c) and np.allclose(R_b, -R_c, atol=tol):
             return (True, True)
         return (False, False)
 
