@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2022.2.10
+----------
+* Minor fix to require Cython during setup. (@jonringer)
+
+
 v2022.2.7
 ---------
 * Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.
