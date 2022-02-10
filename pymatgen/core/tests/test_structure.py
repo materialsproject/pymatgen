@@ -550,14 +550,14 @@ Direct
 
     def test_get_symmetric_neighbor_list(self):
         # tetragonal group with all bonds related by symmetry
-        s = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ['Fe'], [[0., 0., 0.]])
+        s = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
         c_indices, p_indices, offsets, distances, s_indices, symops = s.get_symmetric_neighbor_list(0.8, sg=100)
         self.assertTrue(len(np.unique(s_indices)) == 1)
         self.assertTrue(s_indices[0] == 0)
         self.assertTrue((~np.isnan(s_indices)).all())
         self.assertTrue((symops[0].affine_matrix == np.eye(4)).all())
         # now more complicated example with bonds of same length but with different symmetry
-        s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ['Cu'], [[0., 0., 0.]])
+        s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ["Cu"], [[0.0, 0.0, 0.0]])
         c_indices2, p_indices2, offsets2, distances2, s_indices2, symops2 = s2.get_symmetric_neighbor_list(7, sg=198)
         self.assertTrue(len(np.unique(s_indices2)) == 2)
         self.assertTrue(len(s_indices2) == 48)
@@ -575,7 +575,9 @@ Direct
         R_b2 = offsets2[1]
         self.assertTrue(symops2[1].are_symmetrically_related_bond(from_a2, to_a2, R_a2, from_b2, to_b2, R_b2))
         self.assertTrue(symops2[1].are_symmetrically_related_bond(from_b2, to_b2, R_b2, from_a2, to_a2, R_a2))
-        c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(7, sg=198, unique=True)
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(
+            7, sg=198, unique=True
+        )
         self.assertTrue((np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2)).all())
         self.assertTrue((np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2)).all())
 
