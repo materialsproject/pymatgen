@@ -3,8 +3,7 @@ Change log
 
 v2022.2.10
 ----------
-* Minor fix to require Cython during setup. (@jonringer)
-
+* Require Cython during setup. (@jonringer)
 
 v2022.2.7
 ---------
