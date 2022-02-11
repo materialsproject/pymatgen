@@ -234,8 +234,7 @@ class Lattice(MSONable):
         return Lattice([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]], pbc)
 
     @staticmethod
-    def tetragonal(a: float, c: float,
-                   pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
+    def tetragonal(a: float, c: float, pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
         """
         Convenience constructor for a tetragonal lattice.
 
@@ -249,8 +248,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 90, pbc=pbc)
 
     @staticmethod
-    def orthorhombic(a: float, b: float, c: float,
-                     pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
+    def orthorhombic(a: float, b: float, c: float, pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
         """
         Convenience constructor for an orthorhombic lattice.
 
@@ -265,8 +263,9 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, 90, 90, pbc=pbc)
 
     @staticmethod
-    def monoclinic(a: float, b: float, c: float, beta: float,
-                   pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
+    def monoclinic(
+        a: float, b: float, c: float, beta: float, pbc: Optional[Tuple[bool, bool, bool]] = None
+    ) -> "Lattice":
         """
         Convenience constructor for a monoclinic lattice.
 
@@ -284,8 +283,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, beta, 90, pbc=pbc)
 
     @staticmethod
-    def hexagonal(a: float, c: float,
-                  pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
+    def hexagonal(a: float, c: float, pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
         """
         Convenience constructor for a hexagonal lattice.
 
@@ -299,8 +297,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 120, pbc=pbc)
 
     @staticmethod
-    def rhombohedral(a: float, alpha: float,
-                     pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
+    def rhombohedral(a: float, alpha: float, pbc: Optional[Tuple[bool, bool, bool]] = None) -> "Lattice":
         """
         Convenience constructor for a rhombohedral lattice.
 
@@ -323,7 +320,7 @@ class Lattice(MSONable):
         beta: float,
         gamma: float,
         vesta: bool = False,
-        pbc: Optional[Tuple[bool, bool, bool]] = None
+        pbc: Optional[Tuple[bool, bool, bool]] = None,
     ):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
@@ -392,8 +389,7 @@ class Lattice(MSONable):
 
         if "matrix" in d:
             return cls(d["matrix"], d.get("pbc"))
-        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"],
-                                   pbc=d.get("pbc"))
+        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"], pbc=d.get("pbc"))
 
     @property
     def a(self) -> float:
@@ -1616,8 +1612,7 @@ class Lattice(MSONable):
                 fcoords, dists, inds, image
         """
         if self.pbc != (True, True, True):
-            raise RuntimeError("get_points_in_sphere_old does not support "
-                               "partial periodic boundary conditions")
+            raise RuntimeError("get_points_in_sphere_old does not support " "partial periodic boundary conditions")
         # TODO: refactor to use lll matrix (nmax will be smaller)
         # Determine the maximum number of supercells in each direction
         #  required to contain a sphere of radius n

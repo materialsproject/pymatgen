@@ -160,8 +160,7 @@ def all_distances(coords1, coords2):
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike,
-             pbc: Tuple[bool, bool, bool] = (True, True, True)):
+def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: Tuple[bool, bool, bool] = (True, True, True)):
     """
     Returns the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
@@ -182,8 +181,7 @@ def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike,
     return fdist - np.round(fdist) * pbc
 
 
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False,
-                         pbc=(True, True, True)):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, pbc=(True, True, True)):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
