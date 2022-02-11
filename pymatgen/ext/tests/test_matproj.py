@@ -6,12 +6,13 @@ import unittest
 import warnings
 
 import requests
+from ruamel.yaml import YAML
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition, Structure
 from pymatgen.electronic_structure.bandstructure import (
@@ -474,7 +475,7 @@ class MPResterTest(PymatgenTest):
             db_version = mpr.get_database_version()
 
         self.assertIsInstance(db_version, str)
-
+        yaml = YAML()
         with open(SETTINGS_FILE) as f:
             d = yaml.load(f)
 

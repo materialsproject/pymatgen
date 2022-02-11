@@ -75,8 +75,11 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.2.1",
+    version="2022.2.10",
     python_requires=">=3.8",
+    setup_requires=[
+        "Cython>=0.29.23",
+    ],
     install_requires=[
         "numpy>=1.20.1",
         "requests",
@@ -92,7 +95,6 @@ setup(
         "pandas",
         "plotly>=4.5.0",
         "uncertainties>=3.1.4",
-        "Cython>=0.29.23",
         "pybtex",
         "tqdm",
     ],

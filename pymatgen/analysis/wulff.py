@@ -405,7 +405,7 @@ class WulffShape:
         Args:
             color_set: default is 'PuBu'
             grid_off (bool): default is True
-            axis_off (bool): default is Ture
+            axis_off (bool): default is True
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
             off_color: Default color for facets not present on the Wulff shape.

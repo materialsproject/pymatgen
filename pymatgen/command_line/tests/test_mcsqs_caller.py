@@ -1,7 +1,7 @@
 import os
 import unittest
+from shutil import which
 
-from monty.os.path import which
 from monty.serialization import loadfn
 
 from pymatgen.command_line.mcsqs_caller import run_mcsqs

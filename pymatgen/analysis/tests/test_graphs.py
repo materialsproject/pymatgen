@@ -5,10 +5,17 @@
 import copy
 import os
 import unittest
+import warnings
+from shutil import which
 
-from monty.serialization import loadfn  # , dumpfn
+from monty.serialization import loadfn
 
-from pymatgen.analysis.graphs import *
+from pymatgen.analysis.graphs import (
+    MoleculeGraph,
+    MolGraphSplitError,
+    PeriodicSite,
+    StructureGraph,
+)
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
     CutOffDictNN,
@@ -18,7 +25,8 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
 )
 from pymatgen.command_line.critic2_caller import Critic2Analysis
-from pymatgen.core.structure import FunctionalGroups, Molecule, Site, Structure
+from pymatgen.core import Lattice, Molecule, Site, Structure
+from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.testing import PymatgenTest
 
 try:
@@ -256,12 +264,6 @@ class StructureGraphTest(PymatgenTest):
 
         sg = StructureGraph.with_empty_graph(self.structure)
         sg.add_edge(0, 0)
-
-        ref_edges = [
-            (0, 0, {"to_jimage": (1, 1, 0)}),
-            (0, 0, {"to_jimage": (0, 1, 0)}),
-            (0, 0, {"to_jimage": (1, 0, 0)}),
-        ]
 
         self.assertEqual(len(list(sg.graph.edges(data=True))), 3)
 

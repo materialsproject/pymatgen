@@ -54,10 +54,10 @@ import os
 import shutil
 import subprocess
 import warnings
+from shutil import which
 
 import numpy as np
 from monty.io import zopen
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import Element

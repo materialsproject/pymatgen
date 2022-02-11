@@ -13,12 +13,12 @@ import warnings
 from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
+from shutil import which
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
 from monty.json import MSONable
-from monty.os.path import which
 from networkx.drawing.nx_agraph import write_dot
 from networkx.readwrite import json_graph
 from scipy.spatial import KDTree

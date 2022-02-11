@@ -7,9 +7,9 @@ import os
 import random
 import unittest
 import warnings
+from shutil import which
 
 from monty.json import MontyDecoder
-from monty.os.path import which
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element

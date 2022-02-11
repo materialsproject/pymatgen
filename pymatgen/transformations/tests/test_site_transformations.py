@@ -3,9 +3,9 @@
 
 
 import unittest
+from shutil import which
 
 import numpy as np
-from monty.os.path import which
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure

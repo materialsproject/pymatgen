@@ -70,7 +70,7 @@ class Site(collections.abc.Hashable, MSONable):
         self.properties: dict = properties or {}
 
     def __getattr__(self, a):
-        # overriding getattr doens't play nice with pickle, so we
+        # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         p = object.__getattribute__(self, "properties")
         if a in p:
