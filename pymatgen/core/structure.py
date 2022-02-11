@@ -1130,6 +1130,18 @@ class IStructure(SiteCollection, MSONable):
         """
         return self._lattice.volume
 
+    @property
+    def pbc(self) -> Tuple[bool, bool, bool]:
+        """
+        Returns the periodicity of the structure.
+        """
+        return self._lattice.pbc
+
+    @property
+    def is_3d_periodic(self) -> bool:
+        """True if the Lattice is periodic in all directions."""
+        return all(self._lattice.is_3d_periodic)
+
     def get_distance(self, i: int, j: int, jimage=None) -> float:
         """
         Get distance between site i and j assuming periodic boundary
@@ -1349,7 +1361,7 @@ class IStructure(SiteCollection, MSONable):
                 cart_coords,
                 site_coords,
                 r=r,
-                pbc=np.array([1, 1, 1], dtype=int),
+                pbc=np.array(self.pbc, dtype=int),
                 lattice=lattice_matrix,
                 tol=numerical_tol,
             )
@@ -1507,7 +1519,7 @@ class IStructure(SiteCollection, MSONable):
             self.cart_coords,
             site_coords,
             r=r,
-            pbc=True,
+            pbc=self.pbc,
             numerical_tol=numerical_tol,
             lattice=self.lattice,
         )
@@ -1829,7 +1841,7 @@ class IStructure(SiteCollection, MSONable):
 
         vec = end_coords - start_coords
         if pbc:
-            vec -= np.round(vec)
+            vec[:, self.pbc] -= np.round(vec[:, self.pbc])
         sp = self.species_and_occu
         structs = []
 
@@ -2104,6 +2116,7 @@ class IStructure(SiteCollection, MSONable):
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("pbc   : " + " ".join([str(p).rjust(10) for p in self.lattice.pbc]))
         if self._charge:
             if self._charge >= 0:
                 outs.append(f"Overall Charge: +{self._charge}")
@@ -3630,7 +3643,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 fcoords = self._lattice.get_fractional_coords(site.coords + vector)
             if to_unit_cell:
-                fcoords = np.mod(fcoords, 1)
+                fcoords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, fcoords)]
             self._sites[i].frac_coords = fcoords
 
     def rotate_sites(
