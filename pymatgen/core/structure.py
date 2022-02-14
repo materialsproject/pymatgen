@@ -268,7 +268,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property  # type: ignore
     def atomic_numbers(self) -> Tuple[int]:
         """List of atomic numbers."""
-        return tuple(site.specie.Z for site in self)  # type: ignore
+        try:
+            return tuple(site.specie.Z for site in self)  # type: ignore
+        except AttributeError:
+            raise AttributeError("atomic_numbers available only for ordered Structures")
 
     @property
     def site_properties(self) -> Dict[str, List]:
