@@ -1465,9 +1465,9 @@ class IStructure(SiteCollection, MSONable):
 
         # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
         # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
-        # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two 
-        # neighbors 'SymmOp.are_symmetrically_related_bond' is used. It is also checked whether applying the connecting 
-        # symmetry operation generates the neighbor-pair itself, or the equivalent version with the sites exchanged 
+        # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two
+        # neighbors 'SymmOp.are_symmetrically_related_bond' is used. It is also checked whether applying the connecting
+        # symmetry operation generates the neighbor-pair itself, or the equivalent version with the sites exchanged
         # and R reversed. The output is always reordered such that the former case is true.
         for it in range(nbonds):
             if np.isnan(symmetry_indices[it]):
@@ -1510,7 +1510,7 @@ class IStructure(SiteCollection, MSONable):
         symmetry_indices = symmetry_indices[idcs_symid]
         symmetry_ops = symmetry_ops[idcs_symid]
 
-        # the groups of neighbors with the same symmetry index are ordered such that neighbors 
+        # the groups of neighbors with the same symmetry index are ordered such that neighbors
         # that are the first occurence of a new symmetry index in the ordered output are the ones
         # that are assigned the Identity as a symmetry operation.
         idcs_symop = np.arange(nbonds)
