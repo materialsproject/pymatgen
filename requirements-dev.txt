@@ -1,7 +1,7 @@
 sphinx
 doc2dash==2.4.1
 sphinx_rtd_theme==1.0.0
-pytest==7.0.0
+pytest==7.0.1
 pytest-cov==3.0.0
 coverage==6.2
 coveralls==3.3.1
