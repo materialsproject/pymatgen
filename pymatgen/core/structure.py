@@ -1435,7 +1435,7 @@ class IStructure(SiteCollection, MSONable):
 
         if unique:
             redundant = []
-            # compare all neighbors pairwise to find the pairs that connect the same 
+            # compare all neighbors pairwise to find the pairs that connect the same
             # two sites, but with an inverted vector (R=-R) that connects the two and add
             # one of each pair to the redundant list.
             for it, (i, j, R, d) in enumerate(zip(*bonds)):
@@ -1455,7 +1455,7 @@ class IStructure(SiteCollection, MSONable):
             idcs_dist = np.argsort(bonds[3][m])
             bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
 
-        # expand the output tuple by symmetry_indices and symmetry_ops. 
+        # expand the output tuple by symmetry_indices and symmetry_ops.
         nbonds = len(bonds[0])
         symmetry_indices = np.empty(nbonds)
         symmetry_indices[:] = np.NaN
@@ -1463,12 +1463,12 @@ class IStructure(SiteCollection, MSONable):
 
         symmetry_index = 0
 
-        # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided 
-        # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same 
+        # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
+        # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
         # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two neighbors
         # 'SymmOp.are_symmetrically_related_bond' is used. It is also checked whether applying the connecting symmetry operation
         # generates the neighbor-pair itself, or the equivalent version with the sites exchanged and R reversed. The output is always
-        # reordered such that the former case is true. 
+        # reordered such that the former case is true.
         for it in range(nbonds):
             if np.isnan(symmetry_indices[it]):
                 symmetry_indices[it] = symmetry_index
