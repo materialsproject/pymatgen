@@ -82,20 +82,15 @@ class Neighbor(Site):
         self.nn_distance = nn_distance
         self.index = index
 
-    def __len__(self):
+    def __len__(self) -> Literal[3]:
         """
         Make neighbor Tuple-like to retain backwards compatibility.
         """
         return 3
 
-    def __getitem__(self, i: int):  # type: ignore
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-
-        :param i:
-        :return:
-        """
-        return (self, self.nn_distance, self.index)[i]
+    def __getitem__(self, idx: int):
+        """Make neighbor Tuple-like to retain backwards compatibility."""
+        return (self, self.nn_distance, self.index)[idx]
 
 
 class PeriodicNeighbor(PeriodicSite):
@@ -150,12 +145,9 @@ class PeriodicNeighbor(PeriodicSite):
         """
         return 4
 
-    def __getitem__(self, i: int):  # type: ignore
+    def __getitem__(self, i: int):
         """
         Make neighbor Tuple-like to retain backwards compatibility.
-
-        :param i:
-        :return:
         """
         return (self, self.nn_distance, self.index, self.image)[i]
 
@@ -201,7 +193,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return all_distances(self.cart_coords, self.cart_coords)
 
     @property
-    def species(self) -> List[Composition]:
+    def species(self) -> List[Union[Element, Species]]:
         """
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
@@ -258,7 +250,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple((i for i, specie in enumerate(self.species) if specie.symbol == symbol))
 
     @property
-    def symbol_set(self) -> Tuple[str]:
+    def symbol_set(self) -> Tuple[str, ...]:
         """
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
@@ -266,7 +258,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
 
     @property  # type: ignore
-    def atomic_numbers(self) -> Tuple[int]:
+    def atomic_numbers(self) -> Tuple[int, ...]:
         """List of atomic numbers."""
         try:
             return tuple(site.specie.Z for site in self)  # type: ignore
@@ -288,19 +280,19 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             props[k] = [site.properties.get(k, None) for site in self]
         return props
 
-    def __contains__(self, site):
+    def __contains__(self, site: object) -> bool:
         return site in self.sites
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Site]:
         return self.sites.__iter__()
 
     def __getitem__(self, ind):
         return self.sites[ind]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.sites)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # for now, just use the composition hash code.
         return self.composition.__hash__()
 
@@ -312,9 +304,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return len(self)
 
     @property
-    def cart_coords(self):
+    def cart_coords(self) -> np.ndarray:
         """
-        Returns a np.array of the cartesian coordinates of sites in the
+        Returns an np.array of the Cartesian coordinates of sites in the
         structure.
         """
         return np.array([site.coords for site in self])
@@ -2636,17 +2628,17 @@ class IMolecule(SiteCollection, MSONable):
         return self._nelectrons
 
     @property
-    def center_of_mass(self) -> float:
+    def center_of_mass(self) -> np.ndarray:
         """
         Center of mass of molecule.
         """
         center = np.zeros(3)
-        total_weight = 0
+        total_weight: float = 0
         for site in self:
             wt = site.species.weight
             center += site.coords * wt
             total_weight += wt
-        return center / total_weight  # type: ignore
+        return center / total_weight
 
     @property
     def sites(self) -> Tuple[Site, ...]:
