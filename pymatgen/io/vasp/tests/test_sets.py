@@ -1691,6 +1691,7 @@ class LobsterSetTest(PymatgenTest):
         self.assertTrue(kpoints1.comment.split(" ")[6], 6138)
         self.assertEqual(lobsterset_new.potcar_functional, "PBE_54")
 
+
 class MPAbsorptionSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -1741,6 +1742,7 @@ class MPAbsorptionSetTest(PymatgenTest):
         self.assertEqual(absorptionrpa.incar["NOMEGA"], 1000)
         self.assertEqual(absorptionrpa.incar["NBANDS"], 48)
         self.assertEqual(absorptionrpa.incar["ALGO"], "CHI")
+
 
 _dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],

@@ -3153,7 +3153,7 @@ class MPAbsorptionSet(MPRelaxSet):
         self.reciprocal_density = reciprocal_density
         self.mode = mode.upper()
         if self.mode not in MPAbsorptionSet.SUPPORTED_MODES:
-            raise ValueError("%s not one of the support modes : %s" % (self.mode, MPAbsorptionSet.SUPPORTED_MODES))
+            raise ValueError(f"{self.mode} not one of the support modes : {MPAbsorptionSet.SUPPORTED_MODES}")
         self.copy_wavecar = copy_wavecar
         self.nbands_factor = nbands_factor
         self.nedos = nedos
