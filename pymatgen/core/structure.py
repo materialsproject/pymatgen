@@ -3525,7 +3525,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         self._sites = new_sites
 
-    def remove_sites(self, indices: Sequence[int]):
+    def remove_sites(self, indices: Sequence[int]) -> None:
         """
         Delete sites with at indices.
 
@@ -3534,10 +3534,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._sites = [s for i, s in enumerate(self._sites) if i not in indices]
 
-    def apply_operation(self, symmop: SymmOp, fractional: bool = False):
+    def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> "Structure":
         """
-        Apply a symmetry operation to the structure and return the new
-        structure. The lattice is operated by the rotation matrix only.
+        Apply a symmetry operation to the structure in place and return the modified
+        structure. The lattice is operated on by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
 
         Args:
@@ -3545,6 +3545,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             fractional (bool): Whether the symmetry operation is applied in
                 fractional space. Defaults to False, i.e., symmetry operation
                 is applied in cartesian coordinates.
+
+        Returns:
+            Structure: post-operation structure
         """
         if not fractional:
             self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
@@ -3575,7 +3578,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites = [operate_site(s) for s in self._sites]
 
-    def apply_strain(self, strain: ArrayLike):
+        return self
+
+    def apply_strain(self, strain: ArrayLike) -> None:
         """
         Apply a strain to the lattice.
 
@@ -3589,7 +3594,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
-    def sort(self, key: Callable = None, reverse: bool = False):
+    def sort(self, key: Callable = None, reverse: bool = False) -> None:
         """
         Sort a structure in place. The parameters have the same meaning as in
         list.sort. By default, sites are sorted by the electronegativity of
@@ -3609,7 +3614,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def translate_sites(
         self, indices: Union[int, Sequence[int]], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True
-    ):
+    ) -> None:
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -3643,7 +3648,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         axis: ArrayLike = None,
         anchor: ArrayLike = None,
         to_unit_cell: bool = True,
-    ):
+    ) -> None:
         """
         Rotate specific sites by some angle around vector at anchor.
 
@@ -3690,7 +3695,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             )
             self._sites[i] = new_site
 
-    def perturb(self, distance: float, min_distance: float = None):
+    def perturb(self, distance: float, min_distance: float = None) -> None:
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -3702,7 +3707,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 be equal amplitude. If int or float, perturb each site a
                 distance drawn from the uniform distribution between
                 'min_distance' and 'distance'.
-
         """
 
         def get_rand_vec():
@@ -3717,7 +3721,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True):
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True) -> None:
         """
         Create a supercell.
 
@@ -3744,7 +3748,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites = s.sites
         self._lattice = s.lattice
 
-    def scale_lattice(self, volume: float):
+    def scale_lattice(self, volume: float) -> None:
         """
         Performs a scaling of the lattice vectors so that length proportions
         and angles are preserved.
@@ -3754,7 +3758,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self.lattice = self._lattice.scale(volume)
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum"):
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> None:
         """
         Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
@@ -3799,7 +3803,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites = sites
 
-    def set_charge(self, new_charge: float = 0.0):
+    def set_charge(self, new_charge: float = 0.0) -> None:
         """
         Sets the overall structure charge
 
@@ -3825,7 +3829,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         spin_multiplicity: float = None,
         validate_proximity: bool = False,
         site_properties: dict = None,
-    ):
+    ) -> None:
         """
         Creates a MutableMolecule.
 
@@ -3859,7 +3863,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def __setitem__(  # type: ignore
         self, i: Union[int, slice, Sequence[int], SpeciesLike], site: Union[SpeciesLike, Site, Sequence]
-    ):
+    ) -> None:
         """
         Modify a site in the molecule.
 
@@ -3897,11 +3901,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     if len(site) > 2:
                         self._sites[ii].properties = site[2]  # type: ignore
 
-    def __delitem__(self, i):
+    def __delitem__(self, idx) -> None:
         """
         Deletes a site from the Structure.
         """
-        self._sites.__delitem__(i)
+        self._sites.__delitem__(idx)
 
     def append(  # type: ignore
         self,
