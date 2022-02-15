@@ -2,6 +2,7 @@ import os
 import unittest
 
 import numpy as np
+
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp

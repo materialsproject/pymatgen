@@ -3,7 +3,7 @@
 
 """
 This module implements an interface to Thomas Manz's
-Chargemol code (https://sourceforge.net/projects/ddec/files) for 
+Chargemol code (https://sourceforge.net/projects/ddec/files) for
 calculating DDEC3, DDEC6, and CM5 population analyses.
 This module depends on a compiled chargemol executable being available in the path.
 If you use this module, please cite the following based on which modules you use:
@@ -35,7 +35,7 @@ Bond Orders:
 (1) “Introducing DDEC6 atomic population analysis: part 3. Comprehensive method to compute
 bond orders,” RSC Adv., 7 (2017) 45552-45581.
 
-DDEC3 Charges: 
+DDEC3 Charges:
 (1) T. A. Manz and D. S. Sholl, “Improved Atoms-in-Molecule Charge Partitioning Functional
 for Simultaneously Reproducing the Electrostatic Potential and Chemical States in Periodic
 and Non-Periodic Materials,” J. Chem. Theory Comput. 8 (2012) 2844-2867.
@@ -51,18 +51,18 @@ __date__ = "01/18/21"
 
 import glob
 import os
-import subprocess
 import shutil
+import subprocess
 import warnings
-import numpy as np
+from shutil import which
 
+import numpy as np
 from monty.io import zopen
-from monty.os.path import which
 from monty.tempfile import ScratchDir
+
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
-
 
 CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
@@ -105,7 +105,7 @@ class ChargemolAnalysis:
             or which("Chargemol_09_26_2017_linux_serial")
             or which("chargemol"),
         ):
-            raise EnvironmentError(
+            raise OSError(
                 "ChargemolAnalysis requires the Chargemol executable to be in the path."
                 " Please download the library at https://sourceforge.net/projects/ddec/files"
                 "and follow the instructions."
@@ -164,7 +164,7 @@ class ChargemolAnalysis:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warning_msg = "Multiple files detected, using %s" % os.path.basename(paths[0]) if len(paths) > 1 else None
+            warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
             warnings.warn(warning_msg)
             fpath = paths[0]
         return fpath
@@ -208,7 +208,7 @@ class ChargemolAnalysis:
                 rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "Chargemol exited with return code %d. Please check your Chargemol installation." % rs.returncode
+                    f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
                 )
 
             self._from_data_dir()
@@ -373,7 +373,7 @@ class ChargemolAnalysis:
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
             periodicity (list[bool]): Periodicity of the system.
-                Defaut: [True, True, True].
+                Default: [True, True, True].
             method (str): Method to use for the analysis. Options include "ddec6"
             and "ddec3".
                 Default: "ddec6"
@@ -401,12 +401,12 @@ class ChargemolAnalysis:
         # atomic_densities dir
         atomic_densities_path = self._atomic_densities_path or os.environ.get("DDEC6_ATOMIC_DENSITIES_DIR", None)
         if atomic_densities_path is None:
-            raise EnvironmentError(
+            raise OSError(
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
                 " be specified"
             )
         if not os.path.exists(atomic_densities_path):
-            raise EnvironmentError(f"Cannot find the path to the atomic densities at {atomic_densities_path}")
+            raise OSError(f"Cannot find the path to the atomic densities at {atomic_densities_path}")
 
         # This is to fix a Chargemol filepath nuance
         if os.name == "nt":
@@ -443,7 +443,7 @@ class ChargemolAnalysis:
         i = 0
         start = False
         dipoles = []
-        with open(filepath, "r") as r:
+        with open(filepath) as r:
             for line in r:
                 if "The following XYZ" in line:
                     start = True
@@ -469,7 +469,7 @@ class ChargemolAnalysis:
         # Get where relevant info for each atom starts
         bond_order_info = {}
 
-        with open(filename, "r") as r:
+        with open(filename) as r:
             for line in r:
                 l = line.strip().split()
                 if "Printing BOs" in line:
@@ -579,7 +579,7 @@ class ChargemolAnalysis:
 
         props = []
         if os.path.exists(xyz_path):
-            with open(xyz_path, "r") as r:
+            with open(xyz_path) as r:
                 for i, line in enumerate(r):
                     if i <= 1:
                         continue
@@ -605,7 +605,7 @@ class ChargemolAnalysis:
         props = []
         if os.path.exists(ddec_analysis_path):
             start = False
-            with open(ddec_analysis_path, "r") as r:
+            with open(ddec_analysis_path) as r:
                 for line in r:
                     if "computed CM5" in line:
                         start = True

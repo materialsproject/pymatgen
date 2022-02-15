@@ -155,9 +155,7 @@ class SuperTransformation(AbstractTransformation):
         return structures
 
     def __str__(self):
-        return "Super Transformation : Transformations = " + "{}".format(
-            " ".join([str(t) for t in self._transformations])
-        )
+        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     def __repr__(self):
         return self.__str__()
@@ -393,8 +391,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if structure.is_ordered:
             warnings.warn(
-                "Enumeration skipped for structure with composition {} "
-                "because it is ordered".format(structure.composition)
+                f"Enumeration skipped for structure with composition {structure.composition} because it is ordered"
             )
             structures = [structure.copy()]
 
@@ -854,13 +851,10 @@ class MagOrderingTransformation(AbstractTransformation):
         if enum_kwargs.get("max_cell_size", None):
             if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
                 warnings.warn(
-                    "Specified max cell size ({}) is smaller "
-                    "than the minimum enumerable cell size ({}), "
-                    "changing max cell size to {}".format(
-                        enum_kwargs["max_cell_size"],
-                        enum_kwargs["min_cell_size"],
-                        enum_kwargs["min_cell_size"],
-                    )
+                    f"Specified max cell size ({enum_kwargs['max_cell_size']}) is "
+                    "smaller than the minimum enumerable cell size "
+                    f"({enum_kwargs['min_cell_size']}), changing max cell size to "
+                    f"{enum_kwargs['min_cell_size']}"
                 )
                 enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:

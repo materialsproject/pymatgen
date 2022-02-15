@@ -8,11 +8,11 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyDecoder, MontyEncoder
+from ruamel.yaml import YAML
 
-from pymatgen.core import yaml
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import (
     CombinedData,
@@ -756,6 +756,7 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
+        yaml = YAML()
         with open(filename) as f:
             d = yaml.load(f)
         # self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])

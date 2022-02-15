@@ -47,7 +47,7 @@ except ImportError:
     zeo_found = False
 
 __author__ = "Bharat Medasani"
-__copyright = "Copyright 2013, The Materials Project"
+__copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
@@ -216,7 +216,7 @@ class ZeoVoronoiXYZ(XYZ):
 
     def __str__(self):
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
-        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
+        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
         for site in self._mols[0]:
             output.append(
                 fmtstr.format(

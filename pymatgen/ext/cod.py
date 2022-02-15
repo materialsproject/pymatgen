@@ -31,10 +31,10 @@ stipulated by the COD developers)::
 
 import re
 import subprocess
+from shutil import which
 
 import requests
 from monty.dev import requires
-from monty.os.path import which
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure

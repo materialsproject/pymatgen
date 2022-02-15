@@ -255,8 +255,8 @@ class DftSet(Cp2kInputSet):
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
             preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
                 default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
-                only change from theses two when simulation cell gets to be VERY large,
-                in which case FULL_KINETIC might be preferred.
+                only change from these two when simulation cell gets to be VERY large, in which case FULL_KINETIC might
+                be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
             rel_cutoff (int): This cutoff decides how the Gaussians are mapped onto the different levels of the

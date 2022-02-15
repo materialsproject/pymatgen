@@ -1,8 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.ext.optimade import OptimadeRester
+from pymatgen.util.testing import PymatgenTest
 
 
 class OptimadeTest(PymatgenTest):

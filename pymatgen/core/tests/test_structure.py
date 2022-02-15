@@ -6,10 +6,10 @@ import random
 import unittest
 import warnings
 from pathlib import Path
+from shutil import which
 
 import numpy as np
 import pytest
-from monty.os.path import which
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice

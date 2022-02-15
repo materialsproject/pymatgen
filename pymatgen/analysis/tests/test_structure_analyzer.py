@@ -7,9 +7,6 @@ import unittest
 
 import numpy as np
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,
@@ -20,6 +17,9 @@ from pymatgen.analysis.structure_analyzer import (
     solid_angle,
     sulfide_type,
 )
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest

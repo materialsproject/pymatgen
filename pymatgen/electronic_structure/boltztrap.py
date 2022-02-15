@@ -23,12 +23,12 @@ import os
 import subprocess
 import tempfile
 import time
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
-from monty.os.path import which
 from scipy import constants
 from scipy.spatial import distance
 
@@ -382,14 +382,14 @@ class BoltztrapRunner(MSONable):
                 + "10,'boltztrap.energy"
                 + so
                 + "',         'old',    "
-                "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
-                "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
-                "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
-                "0\n" + "21,'boltztrap.trace',           'unknown',    "
-                "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
-                "'formatted',0\n" + "24,'boltztrap.halltens',           'unknown',    "
-                "'formatted',0\n" + "30,'boltztrap_BZ.cube',           'unknown',    "
+                "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
+                "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
+                "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "0\n51,'boltztrap.sigxxx',        'unknown',    'formatted',"
+                "0\n21,'boltztrap.trace',           'unknown',    "
+                "'formatted',0\n22,'boltztrap.condtens',           'unknown',    "
+                "'formatted',0\n24,'boltztrap.halltens',           'unknown',    "
+                "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
 
@@ -442,14 +442,14 @@ class BoltztrapRunner(MSONable):
                 + "10,'boltztrap.energy"
                 + so
                 + "',         'old',    "
-                "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
-                "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
-                "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
-                "0\n" + "21,'boltztrap.trace',           'unknown',    "
-                "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
-                "'formatted',0\n" + "24,'boltztrap.halltens',           'unknown',    "
-                "'formatted',0\n" + "30,'boltztrap_BZ.cube',           'unknown',    "
+                "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
+                "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
+                "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "0\n51,'boltztrap.sigxxx',        'unknown',    'formatted',"
+                "0\n21,'boltztrap.trace',           'unknown',    "
+                "'formatted',0\n22,'boltztrap.condtens',           'unknown',    "
+                "'formatted',0\n24,'boltztrap.halltens',           'unknown',    "
+                "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
             i = 1000
@@ -2454,7 +2454,7 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
         from fdint import fdk
     except ImportError:
         raise BoltztrapError(
-            "fdint module not found. Please, install it.\n" + "It is needed to calculate Fermi integral quickly."
+            "fdint module not found. Please, install it.\nIt is needed to calculate Fermi integral quickly."
         )
 
     return (2 * np.pi**2 * abs(n) * 10**6 / (fdk(0.5, eta))) ** (2.0 / 3) / (

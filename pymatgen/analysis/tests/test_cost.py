@@ -4,8 +4,8 @@
 import os
 import unittest
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
+from pymatgen.util.testing import PymatgenTest
 
 
 class CostAnalyzerTest(unittest.TestCase):

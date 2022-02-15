@@ -1,6 +1,17 @@
 Change log
 ==========
 
+v2022.2.10
+----------
+* Require Cython during setup. (@jonringer)
+
+v2022.2.7
+---------
+* Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.
+* Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (@JaGeo)
+* Return None for ISPIN=1 for `Vasprun('vasprun.xml').complete_dos.spin_polarization`.
+
+
 v2022.2.1
 ---------
 * Chargemol caller for partial atomic charge analysis (@arosen93)
@@ -10,7 +21,7 @@ v2022.2.1
 * Updates for QChem Support (@samblau)
 * QuantumEspresso k-grid fix input fix. (@vorwerkc)
 * `Entry.__repr__()` now ouputs name where available. (@janosh)
-* Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93) 
+* Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93)
 * `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
 * Improved parsing of coupled cluster calculations in QChem (@espottesmith).
 

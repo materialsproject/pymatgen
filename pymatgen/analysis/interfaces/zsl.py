@@ -5,10 +5,9 @@
 This module implements the Zur and McGill lattice matching algorithm
 """
 
-from typing import Iterator, List
-
 from dataclasses import dataclass
 from itertools import product
+from typing import Iterator, List
 
 import numpy as np
 from monty.json import MSONable
@@ -37,7 +36,7 @@ class ZSLMatch(MSONable):
 
     @property
     def match_transformation(self):
-        """The tranformation matrix to conver the film super lattice vectors to the substrate"""
+        """The transformation matrix to convert the film super lattice vectors to the substrate"""
         # Generate 3D lattice vectors for film super lattice
         film_matrix = list(self.film_sl_vectors)
         film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
@@ -83,7 +82,7 @@ class ZSLGenerator(MSONable):
         bidirectional=False,
     ):
         """
-        Intialize a Zur Super Lattice Generator for a specific film and
+        Initialize a Zur Super Lattice Generator for a specific film and
             substrate
         Args:
             max_area_ratio_tol(float): Max tolerance on ratio of
@@ -146,9 +145,9 @@ class ZSLGenerator(MSONable):
             substrate_area(int): the unit cell area for the substrate
         Returns:
             transformation_sets: a set of transformation_sets defined as:
-                1.) the transformation matricies for the film to create a
+                1.) the transformation matrices for the film to create a
                 super lattice of area i*film area
-                2.) the tranformation matricies for the substrate to create
+                2.) the transformation matrices for the substrate to create
                 a super lattice of area j*film area
         """
 
@@ -178,7 +177,7 @@ class ZSLGenerator(MSONable):
         Args:
             transformation_sets(array): an array of transformation sets:
                 each transformation set is an array with the (i,j)
-                indicating the area multipes of the film and subtrate it
+                indicating the area multiples of the film and substrate it
                 corresponds to, an array with all possible transformations
                 for the film area multiple i and another array for the
                 substrate area multiple j.
@@ -193,7 +192,7 @@ class ZSLGenerator(MSONable):
 
             substrates = [reduce_vectors(*np.dot(s, substrate_vectors)) for s in substrate_transformations]
 
-            # Check if equivalant super lattices
+            # Check if equivalent super lattices
             for (f_trans, s_trans), (f, s) in zip(
                 product(film_transformations, substrate_transformations),
                 product(films, substrates),
@@ -210,7 +209,7 @@ class ZSLGenerator(MSONable):
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)
 
-        # Generate all super lattice comnbinations for a given set of miller
+        # Generate all super lattice combinations for a given set of miller
         # indices
         transformation_sets = self.generate_sl_transformation_sets(film_area, substrate_area)
 
@@ -245,7 +244,7 @@ def gen_sl_transform_matricies(area_multiple):
         lattice area
 
     Returns:
-        matrix_list: transformation matricies to covert unit vectors to
+        matrix_list: transformation matricies to convert unit vectors to
         super lattice vectors
     """
     return [

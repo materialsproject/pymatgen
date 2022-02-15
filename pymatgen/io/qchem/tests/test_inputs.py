@@ -129,7 +129,7 @@ $end"""
 
         bad_scan = {"stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"], "bend": ["7 8 9 90 120 10"]}
         with self.assertRaises(ValueError):
-            bad_scan_test = QCInput.scan_template(bad_scan)
+            QCInput.scan_template(bad_scan)
 
     def test_van_der_waals_template(self):
         vdw_params = {1: 1.20, 12: 1.72}
@@ -737,7 +737,7 @@ $scan
 $end"""
 
         with self.assertRaises(ValueError):
-            scan_test_2 = QCInput.read_scan(str_scan_2)
+            QCInput.read_scan(str_scan_2)
 
     def test_read_negative(self):
         str_molecule = """$molecule

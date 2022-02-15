@@ -8,10 +8,10 @@ import unittest
 
 from monty.json import MontyDecoder
 
-from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
+from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest
 

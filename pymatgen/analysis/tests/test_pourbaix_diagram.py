@@ -7,10 +7,10 @@ import multiprocessing
 import os
 import unittest
 import warnings
-import pytest
 
 import numpy as np
-from monty.serialization import loadfn, dumpfn
+import pytest
+from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.pourbaix_diagram import (
