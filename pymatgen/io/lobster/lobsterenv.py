@@ -13,7 +13,6 @@ import math
 import os
 
 import numpy as np
-
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     LocalGeometryFinder,
@@ -54,6 +53,7 @@ class LobsterNeighbors(NearNeighbors):
         perc_strength_ICOHP=0.15,
         valences_from_charges=False,
         filename_CHARGE=None,
+        which_charge="Mulliken",
         adapt_extremum_to_add_cond=False,
     ):
         """
@@ -81,6 +81,7 @@ class LobsterNeighbors(NearNeighbors):
             valences_from_charges: if True and path to CHARGE.lobster is provided, will use Lobster charges (
             Mulliken) instead of valences
             filename_CHARGE: (str) Path to Charge.lobster
+            which_charge: (str) "Mulliken" or "Loewdin"
             adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
             additional condition
         """
@@ -106,7 +107,10 @@ class LobsterNeighbors(NearNeighbors):
         if valences is None:
             if valences_from_charges and filename_CHARGE is not None:
                 chg = Charge(filename=filename_CHARGE)
-                self.valences = chg.Mulliken
+                if which_charge == "Mulliken":
+                    self.valences = chg.Mulliken
+                elif which_charge == "Loewdin":
+                    self.valences = chg.Loewdin
             else:
                 bv_analyzer = BVAnalyzer()
                 try:
