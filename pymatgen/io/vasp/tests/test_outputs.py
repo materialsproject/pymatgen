@@ -57,7 +57,7 @@ class VasprunTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_bad_random_seed(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
+        _ = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
 
     def test_multiple_dielectric(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")

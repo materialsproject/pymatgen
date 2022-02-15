@@ -21,7 +21,6 @@ from pymatgen.io.lammps.data import (
     LammpsData,
     Topology,
     lattice_2_lmpbox,
-    structure_2_lmpdata,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -821,32 +820,6 @@ class FuncTest(unittest.TestCase):
                 [0, -(2**0.5) / 2, 2**0.5 / 2],
             ],
         )
-
-    @unittest.skip("The function is deprecated")
-    def test_structure_2_lmpdata(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
-        latt = Lattice(matrix)
-        frac_coords = np.random.rand(10, 3)
-        structure = Structure(latt, ["H"] * 10, frac_coords)
-        ld = structure_2_lmpdata(structure=structure)
-        box_tilt = [0.0, 0.0, 0.0] if not ld.box_tilt else ld.box_tilt
-        box_bounds = np.array(ld.box_bounds)
-        np.testing.assert_array_equal(box_bounds[:, 0], np.zeros(3))
-        new_matrix = np.diag(box_bounds[:, 1])
-        new_matrix[1, 0] = box_tilt[0]
-        new_matrix[2, 0] = box_tilt[1]
-        new_matrix[2, 1] = box_tilt[2]
-        new_latt = Lattice(new_matrix)
-        np.testing.assert_array_almost_equal(new_latt.abc, latt.abc)
-        np.testing.assert_array_almost_equal(new_latt.angles, latt.angles)
-        coords = ld.atoms[["x", "y", "z"]].values
-        new_structure = Structure(new_latt, ["H"] * 10, coords, coords_are_cartesian=True)
-        np.testing.assert_array_almost_equal(new_structure.frac_coords, frac_coords)
-        self.assertEqual(len(ld.masses), 1)
-        # test additional elements
-        ld_elements = structure_2_lmpdata(structure=structure, ff_elements=["C", "H"])
-        self.assertEqual(len(ld_elements.masses), 2)
-        np.testing.assert_array_almost_equal(ld_elements.masses["mass"], [1.00794, 12.01070])
 
 
 class CombinedDataTest(unittest.TestCase):

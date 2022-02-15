@@ -82,20 +82,15 @@ class Neighbor(Site):
         self.nn_distance = nn_distance
         self.index = index
 
-    def __len__(self):
+    def __len__(self) -> Literal[3]:
         """
         Make neighbor Tuple-like to retain backwards compatibility.
         """
         return 3
 
-    def __getitem__(self, i: int):  # type: ignore
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-
-        :param i:
-        :return:
-        """
-        return (self, self.nn_distance, self.index)[i]
+    def __getitem__(self, idx: int):
+        """Make neighbor Tuple-like to retain backwards compatibility."""
+        return (self, self.nn_distance, self.index)[idx]
 
 
 class PeriodicNeighbor(PeriodicSite):
@@ -121,13 +116,14 @@ class PeriodicNeighbor(PeriodicSite):
         image: tuple = (0, 0, 0),
     ):
         """
-        :param species: Same as PeriodicSite
-        :param coords: Same as PeriodicSite, but must be fractional.
-        :param lattice: Same as PeriodicSite
-        :param properties: Same as PeriodicSite
-        :param nn_distance: Distance to some other Site.
-        :param index: Index within structure.
-        :param image: PeriodicImage
+        Args:
+            species (Composition): Same as PeriodicSite
+            coords (np.ndarray): Same as PeriodicSite, but must be fractional.
+            lattice (Lattice): Same as PeriodicSite
+            properties (dict, optional): Same as PeriodicSite. Defaults to None.
+            nn_distance (float, optional): Distance to some other Site.. Defaults to 0.0.
+            index (int, optional): Index within structure.. Defaults to 0.
+            image (tuple, optional): PeriodicImage. Defaults to (0, 0, 0).
         """
         self._lattice = lattice
         self._frac_coords = coords
@@ -150,12 +146,9 @@ class PeriodicNeighbor(PeriodicSite):
         """
         return 4
 
-    def __getitem__(self, i: int):  # type: ignore
+    def __getitem__(self, i: int):
         """
         Make neighbor Tuple-like to retain backwards compatibility.
-
-        :param i:
-        :return:
         """
         return (self, self.nn_distance, self.index, self.image)[i]
 
@@ -173,7 +166,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def sites(self):
+    def sites(self) -> Tuple[Site, ...]:
         """
         Returns a tuple of sites.
         """
@@ -201,7 +194,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return all_distances(self.cart_coords, self.cart_coords)
 
     @property
-    def species(self) -> List[Composition]:
+    def species(self) -> List[Union[Element, Species]]:
         """
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
@@ -258,7 +251,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple((i for i, specie in enumerate(self.species) if specie.symbol == symbol))
 
     @property
-    def symbol_set(self) -> Tuple[str]:
+    def symbol_set(self) -> Tuple[str, ...]:
         """
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
@@ -266,7 +259,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
 
     @property  # type: ignore
-    def atomic_numbers(self) -> Tuple[int]:
+    def atomic_numbers(self) -> Tuple[int, ...]:
         """List of atomic numbers."""
         try:
             return tuple(site.specie.Z for site in self)  # type: ignore
@@ -288,19 +281,19 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             props[k] = [site.properties.get(k, None) for site in self]
         return props
 
-    def __contains__(self, site):
+    def __contains__(self, site: object) -> bool:
         return site in self.sites
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Site]:
         return self.sites.__iter__()
 
     def __getitem__(self, ind):
         return self.sites[ind]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.sites)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # for now, just use the composition hash code.
         return self.composition.__hash__()
 
@@ -312,9 +305,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return len(self)
 
     @property
-    def cart_coords(self):
+    def cart_coords(self) -> np.ndarray:
         """
-        Returns a np.array of the cartesian coordinates of sites in the
+        Returns an np.array of the Cartesian coordinates of sites in the
         structure.
         """
         return np.array([site.coords for site in self])
@@ -2636,17 +2629,17 @@ class IMolecule(SiteCollection, MSONable):
         return self._nelectrons
 
     @property
-    def center_of_mass(self) -> float:
+    def center_of_mass(self) -> np.ndarray:
         """
         Center of mass of molecule.
         """
         center = np.zeros(3)
-        total_weight = 0
+        total_weight: float = 0
         for site in self:
             wt = site.species.weight
             center += site.coords * wt
             total_weight += wt
-        return center / total_weight  # type: ignore
+        return center / total_weight
 
     @property
     def sites(self) -> Tuple[Site, ...]:
@@ -3525,7 +3518,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         self._sites = new_sites
 
-    def remove_sites(self, indices: Sequence[int]):
+    def remove_sites(self, indices: Sequence[int]) -> None:
         """
         Delete sites with at indices.
 
@@ -3534,10 +3527,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._sites = [s for i, s in enumerate(self._sites) if i not in indices]
 
-    def apply_operation(self, symmop: SymmOp, fractional: bool = False):
+    def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> "Structure":
         """
-        Apply a symmetry operation to the structure and return the new
-        structure. The lattice is operated by the rotation matrix only.
+        Apply a symmetry operation to the structure in place and return the modified
+        structure. The lattice is operated on by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
 
         Args:
@@ -3545,6 +3538,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             fractional (bool): Whether the symmetry operation is applied in
                 fractional space. Defaults to False, i.e., symmetry operation
                 is applied in cartesian coordinates.
+
+        Returns:
+            Structure: post-operation structure
         """
         if not fractional:
             self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
@@ -3575,7 +3571,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites = [operate_site(s) for s in self._sites]
 
-    def apply_strain(self, strain: ArrayLike):
+        return self
+
+    def apply_strain(self, strain: ArrayLike) -> None:
         """
         Apply a strain to the lattice.
 
@@ -3589,7 +3587,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
-    def sort(self, key: Callable = None, reverse: bool = False):
+    def sort(self, key: Callable = None, reverse: bool = False) -> None:
         """
         Sort a structure in place. The parameters have the same meaning as in
         list.sort. By default, sites are sorted by the electronegativity of
@@ -3609,7 +3607,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def translate_sites(
         self, indices: Union[int, Sequence[int]], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True
-    ):
+    ) -> None:
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -3643,7 +3641,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         axis: ArrayLike = None,
         anchor: ArrayLike = None,
         to_unit_cell: bool = True,
-    ):
+    ) -> None:
         """
         Rotate specific sites by some angle around vector at anchor.
 
@@ -3690,7 +3688,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             )
             self._sites[i] = new_site
 
-    def perturb(self, distance: float, min_distance: float = None):
+    def perturb(self, distance: float, min_distance: float = None) -> None:
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -3702,7 +3700,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 be equal amplitude. If int or float, perturb each site a
                 distance drawn from the uniform distribution between
                 'min_distance' and 'distance'.
-
         """
 
         def get_rand_vec():
@@ -3717,7 +3714,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True):
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True) -> None:
         """
         Create a supercell.
 
@@ -3744,7 +3741,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites = s.sites
         self._lattice = s.lattice
 
-    def scale_lattice(self, volume: float):
+    def scale_lattice(self, volume: float) -> None:
         """
         Performs a scaling of the lattice vectors so that length proportions
         and angles are preserved.
@@ -3754,7 +3751,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self.lattice = self._lattice.scale(volume)
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum"):
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> None:
         """
         Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
@@ -3799,7 +3796,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites = sites
 
-    def set_charge(self, new_charge: float = 0.0):
+    def set_charge(self, new_charge: float = 0.0) -> None:
         """
         Sets the overall structure charge
 
@@ -3825,7 +3822,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         spin_multiplicity: float = None,
         validate_proximity: bool = False,
         site_properties: dict = None,
-    ):
+    ) -> None:
         """
         Creates a MutableMolecule.
 
@@ -3859,7 +3856,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def __setitem__(  # type: ignore
         self, i: Union[int, slice, Sequence[int], SpeciesLike], site: Union[SpeciesLike, Site, Sequence]
-    ):
+    ) -> None:
         """
         Modify a site in the molecule.
 
@@ -3897,11 +3894,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     if len(site) > 2:
                         self._sites[ii].properties = site[2]  # type: ignore
 
-    def __delitem__(self, i):
+    def __delitem__(self, idx) -> None:
         """
         Deletes a site from the Structure.
         """
-        self._sites.__delitem__(i)
+        self._sites.__delitem__(idx)
 
     def append(  # type: ignore
         self,
