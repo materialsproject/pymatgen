@@ -293,7 +293,7 @@ class MPResterTest(PymatgenTest):
         # so4_two_minus = pbx_entries[9]
         # self.assertAlmostEqual(so4_two_minus.energy, 0.301511, places=3)
 
-        # Ensure entries are pourbaix compatible
+        # Ensure entries are Pourbaix compatible
         PourbaixDiagram(pbx_entries)
 
     def test_get_exp_entry(self):
@@ -485,13 +485,13 @@ class MPResterTest(PymatgenTest):
     def test_pourbaix_heavy(self):
 
         entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 
     def test_pourbaix_mpr_pipeline(self):
 

@@ -226,7 +226,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     __div__ = __truediv__
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         hash based on the chemical system
         """

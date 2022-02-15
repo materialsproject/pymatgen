@@ -135,7 +135,7 @@ class AbstractElectrode(Sequence, MSONable):
         framework_formula: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Tuple[AbstractVoltagePair]
+    voltage_pairs: Tuple[AbstractVoltagePair, ...]
     working_ion_entry: ComputedEntry
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
