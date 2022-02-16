@@ -11,7 +11,7 @@ box, which returns a PackmolSet object.
 For the run() method to work, you need to install the packmol package
 See http://m3g.iqm.unicamp.br/packmol or
 http://leandro.iqm.unicamp.br/m3g/packmol/home.shtml
-for download and setup instructions. Note that packmol versions prior to 20.3.0 
+for download and setup instructions. Note that packmol versions prior to 20.3.0
 do not support paths with spaces.
 After installation, you may need to manually add the path of the packmol
 executable to the PATH environment variable.
@@ -62,12 +62,11 @@ class PackmolSet(InputSet):
         try:
             os.chdir(path)
             p = subprocess.run(
-                "packmol < '{}'".format(self.inputfile),
+                f"packmol < '{self.inputfile}'",
                 check=True,
                 shell=True,
                 timeout=timeout,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
             )
             # this workaround is needed because packmol can fail to find
             # a solution but still return a zero exit code
@@ -81,7 +80,7 @@ class PackmolSet(InputSet):
                 msg = p.stdout.decode().split("ERROR")[-1]
                 raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
         except subprocess.CalledProcessError as e:
-            raise ValueError("Packmol failed with errorcode {} and stderr: {}".format(e.returncode, e.stderr)) from e
+            raise ValueError(f"Packmol failed with errorcode {e.returncode} and stderr: {e.stderr}") from e
         else:
             with open(Path(path, self.stdoutfile), "w") as out:
                 out.write(p.stdout.decode())
@@ -164,9 +163,9 @@ class PackmolBoxGen(InputGenerator):
             if isinstance(v, list):
                 file_contents += "{} {}\n".format(k, " ".join(str(x) for x in v))
             else:
-                file_contents += "{} {}\n".format(k, str(v))
-        file_contents += "seed {}\n".format(self.seed)
-        file_contents += "tolerance {}\n\n".format(self.tolerance)
+                file_contents += f"{k} {str(v)}\n"
+        file_contents += f"seed {self.seed}\n"
+        file_contents += f"tolerance {self.tolerance}\n\n"
 
         file_contents += "filetype xyz\n\n"
         if " " in str(self.outputfile):
@@ -190,13 +189,13 @@ class PackmolBoxGen(InputGenerator):
                 # pad the calculated length by an amount related to the tolerance parameter
                 # the amount to add was determined arbitrarily
                 length = (
-                    max([np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)])
+                    max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3))
                     + self.tolerance
                 )
-                net_volume += (length ** 3.0) * float(d["number"])
+                net_volume += (length**3.0) * float(d["number"])
             box_length = net_volume ** (1.0 / 3.0)
             print(f"Auto determined box size is {box_length:.1f} Å per side.")
-            box_list = "0.0 0.0 0.0 {:.1f} {:.1f} {:.1f}".format(box_length, box_length, box_length)
+            box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
         for d in molecules:
             if isinstance(d["coords"], str):
@@ -215,7 +214,7 @@ class PackmolBoxGen(InputGenerator):
             else:
                 file_contents += f"structure {fname}\n"
             file_contents += "  number {}\n".format(str(d["number"]))
-            file_contents += "  inside box {}\n".format(box_list)
+            file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 
         mapping.update({str(self.inputfile): file_contents})

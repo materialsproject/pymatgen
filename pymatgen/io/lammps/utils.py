@@ -11,10 +11,9 @@ from shutil import which
 from subprocess import PIPE, Popen
 
 import numpy as np
-
+from monty.dev import deprecated
 from monty.os.path import which
 from monty.tempfile import ScratchDir
-from monty.dev import deprecated
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule

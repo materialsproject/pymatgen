@@ -12,13 +12,13 @@ import shutil
 import warnings
 from pathlib import Path
 from string import Template
-from typing import Union, Optional, Dict
+from typing import Dict, Optional, Union
 
-from monty.json import MSONable
 from monty.dev import deprecated
+from monty.json import MSONable
 
+from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
-from pymatgen.io.lammps.data import LammpsData, CombinedData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
