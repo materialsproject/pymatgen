@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite the following:
@@ -23,7 +22,6 @@ __date__ = "Feb 20, 2016"
 import itertools
 import logging
 import time
-from collections import OrderedDict
 from random import shuffle
 
 import numpy as np
@@ -734,7 +732,7 @@ class LocalGeometryFinder:
             logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string})")
             t1 = time.process_time()
             if optimization > 0:
-                self.detailed_voronoi.local_planes[isite] = OrderedDict()
+                self.detailed_voronoi.local_planes[isite] = {}
                 self.detailed_voronoi.separations[isite] = {}
             se.init_neighbors_sets(
                 isite=isite,
@@ -875,7 +873,7 @@ class LocalGeometryFinder:
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
             logging.debug("Getting StructureEnvironments with optimized algorithm")
-            nb_set.local_planes = OrderedDict()
+            nb_set.local_planes = {}
             nb_set.separations = {}
             cncgsm = self.get_coordination_symmetry_measures_optim(nb_set=nb_set, optimization=optimization)
         else:

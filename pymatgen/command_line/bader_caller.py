@@ -20,11 +20,11 @@ import os
 import shutil
 import subprocess
 import warnings
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.io import zopen
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.io.cube import Cube
@@ -174,7 +174,7 @@ class BaderAnalysis:
                 stdout, _ = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "bader exited with return code %d. Please check your bader installation." % rs.returncode
+                    f"bader exited with return code {rs.returncode}. Please check your bader installation."
                 )
 
             try:

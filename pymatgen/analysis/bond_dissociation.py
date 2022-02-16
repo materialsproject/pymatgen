@@ -275,7 +275,7 @@ class BondDissociationEnergies(MSONable):
         """
         Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final molgraphs are isomorphic to the
-        given fragment (entries) vs those where only the intial molgraph is isomorphic to the given
+        given fragment (entries) vs those where only the initial molgraph is isomorphic to the given
         fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries)
 
         Args:
@@ -326,7 +326,7 @@ class BondDissociationEnergies(MSONable):
             entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["final_molecule"]), OpenBabelNN()
             )
-            # Classify any potential structural change that occured during optimization:
+            # Classify any potential structural change that occurred during optimization:
             if entry["initial_molgraph"].isomorphic_to(entry["final_molgraph"]):
                 entry["structure_change"] = "no_change"
             else:

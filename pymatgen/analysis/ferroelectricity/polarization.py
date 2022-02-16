@@ -31,7 +31,7 @@ the VASP source to see the differences. We are able to recover a smooth same
 branch polarization more frequently using the naive calculation in calc_ionic
 than using the ionic dipole moment reported in the OUTCAR.
 
-Some defintions of terms used in the comments below:
+Some definitions of terms used in the comments below:
 
 A polar structure belongs to a polar space group. A polar space group has a
 one of the 10 polar point group:

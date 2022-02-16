@@ -249,17 +249,17 @@ class DftSet(Cp2kInputSet):
                 reasonable results for most properties.
             max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
                 corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
-                while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+                while with diagonalization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
             preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
                 default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
-                only change from theses two when simulation cell gets to be VERY large,
-                in which case FULL_KINETIC might be preferred.
+                only change from these two when simulation cell gets to be VERY large, in which case FULL_KINETIC might
+                be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
-            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
+            rel_cutoff (int): This cutoff decides how the Gaussians are mapped onto the different levels of the
                 multigrid. From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
                     function will cover number of grid points greater than or equal to the number of grid points
                     will cover on a reference grid defined by REL_CUTOFF.

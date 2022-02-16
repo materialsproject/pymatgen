@@ -116,7 +116,7 @@ class CollinearMagneticStructureAnalyzer:
           no magmoms are defined in input structure, otherwise it will respect
           existing magmoms.
         * "normalize" will normalize magmoms to unity, but will respect sign
-          (used for comparing orderings), magmoms < theshold will be set to zero
+          (used for comparing orderings), magmoms < theshhold will be set to zero
 
         Args:
             structure: input Structure object
@@ -598,7 +598,7 @@ class CollinearMagneticStructureAnalyzer:
 
     def __str__(self):
         """
-        Sorts a Structure (by fractional co-ordinate), and
+        Sorts a Structure (by fractional coordinate), and
         prints sites with magnetic information. This is
         useful over Structure.__str__ because sites are in
         a consistent order, which makes visual comparison between

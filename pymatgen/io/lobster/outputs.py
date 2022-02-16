@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -473,8 +474,6 @@ class Doscar:
 
     .. attribute:: is_spin_polarized
         Boolean. Tells if the system is spin polarized
-
-
     """
 
     def __init__(
@@ -500,7 +499,7 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        with open(doscar) as f:
+        with zopen(doscar, "rt") as f:
             natoms = int(f.readline().split()[0])
             efermi = float([f.readline() for nn in range(4)][3].split()[17])
             dos = []
@@ -717,10 +716,10 @@ class Lobsterout:
         Boolean, indicates that DOSCAR.lobster is present
 
       .. attribute: has_Projection
-        Boolean, indcates that projectionData.lobster is present
+        Boolean, indicates that projectionData.lobster is present
 
       .. attribute: has_bandoverlaps
-        Boolean, indcates that bandOverlaps.lobster is present
+        Boolean, indicates that bandOverlaps.lobster is present
 
       .. attribute: has_density_of_energies
         Boolean, indicates that DensityOfEnergy.lobster is present
@@ -757,7 +756,6 @@ class Lobsterout:
 
       .. attribute: warninglines
         string with all warnings
-
 
     """
 
@@ -1492,8 +1490,6 @@ class Wavefunction:
     .. attribute: distance
 
         list of distance to first point in wave function file
-
-
     """
 
     def __init__(self, filename, structure):

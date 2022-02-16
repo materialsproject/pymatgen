@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module defines classes for parsing the FEFF output files.
 
@@ -10,7 +9,7 @@ Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 
 
 import re
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 
 import numpy as np
 from monty.io import zopen
@@ -164,7 +163,7 @@ class LDos(MSONable):
             dictionary of dictionaries in order of potential sites
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         """
-        cht = OrderedDict()
+        cht = {}
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:

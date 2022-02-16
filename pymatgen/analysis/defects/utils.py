@@ -586,7 +586,7 @@ class TopographyAnalyzer:
                 determine if something are actually periodic boundary images of
                 each other. Default is usually fine.
             max_cell_range (int): This is the range of periodic images to
-                construct the Voronoi tesselation. A value of 1 means that we
+                construct the Voronoi tessellation. A value of 1 means that we
                 include all points from (x +- 1, y +- 1, z+- 1) in the
                 voronoi construction. This is because the Voronoi poly
                 extends beyond the standard unit cell because of PBC.
@@ -1507,7 +1507,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                         recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)

@@ -1,31 +1,31 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module defines utility classes and functions.
 """
 
 import os
 import tempfile
+from shutil import which
 from subprocess import PIPE, Popen
 
 import numpy as np
-
-try:
-    from openbabel import pybel as pb
-except ImportError:
-    pb = None
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
 from monty.dev import deprecated
 
-from pymatgen.core.structure import Molecule
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
+
+try:
+    from openbabel import pybel as pb
+except ImportError:
+    pb = None
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
@@ -259,7 +259,7 @@ class PackmolRunner:
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
-            net_volume += (length ** 3.0) * float(self.param_list[idx]["number"])
+            net_volume += (length**3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"

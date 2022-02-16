@@ -12,25 +12,30 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
-
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import NormalizedAngleDistanceNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SelfCSMNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DeltaCSMNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import CNBiasNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DistanceAngleAreaNbSetWeight
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import AngleNbSetWeight
-
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
-
-import numpy as np
-import matplotlib.pyplot as plt
 import copy
 import json
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AngleNbSetWeight,
+    CNBiasNbSetWeight,
+    DeltaCSMNbSetWeight,
+    DistanceAngleAreaNbSetWeight,
+    MultiWeightsChemenvStrategy,
+    NormalizedAngleDistanceNbSetWeight,
+    SelfCSMNbSetWeight,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
+    LocalGeometryFinder,
+)
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 allcg = AllCoordinationGeometries()
 
@@ -105,14 +110,14 @@ class CoordinationEnvironmentMorphing:
             morphing_factors,
             fractions_initial_environment,
             "b-",
-            label=f"{self.initial_environment_symbol}",
+            label=self.initial_environment_symbol,
             linewidth=1.5,
         )
         subplot.plot(
             morphing_factors,
             fractions_final_environment,
             "g--",
-            label=f"{self.expected_final_environment_symbol}",
+            label=self.expected_final_environment_symbol,
             linewidth=1.5,
         )
 
@@ -135,7 +140,7 @@ class CoordinationEnvironmentMorphing:
                 vector = bare_points[isite] - origin
                 coords[isite] += vector * (morphing_factor - 1.0)
             else:
-                raise ValueError('Key "site_type" is {} while it can only be neighbor'.format(morphing["site_type"]))
+                raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
         structure = Structure(lattice=lattice, species=myspecies, coords=coords, coords_are_cartesian=True)
         return structure
@@ -265,7 +270,7 @@ if __name__ == "__main__":
     for ce_pair_dict in ce_pairs:
         ce1 = ce_pair_dict["initial_environment_symbol"]
         ce2 = ce_pair_dict["expected_final_environment_symbol"]
-        cn_pair = "{}_{}".format(ce2.split(":")[1], ce1.split(":")[1])
+        cn_pair = f"{ce2.split(':')[1]}_{ce1.split(':')[1]}"
         nb_indices = ce_pair_dict["neighbors_indices"]
         mindist = ce_pair_dict["dist_factor_min"]
         maxdist = ce_pair_dict["dist_factor_max"]

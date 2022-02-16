@@ -448,7 +448,7 @@ def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
     # copy bulk structure to make saturated interstitial structure out of
     # artificially lower distance_tolerance to allow for distinct interstitials
     # with lower symmetry to be replicated - This is OK because one would never
-    # actually use this structure for a practical calcualtion...
+    # actually use this structure for a practical calculation...
     saturated_defect_struct = interstitial_def.bulk_structure.copy()
     saturated_defect_struct.DISTANCE_TOLERANCE = dist_tol
 

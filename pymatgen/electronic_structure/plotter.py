@@ -9,7 +9,7 @@ import itertools
 import logging
 import math
 import warnings
-from collections import Counter, OrderedDict
+from collections import Counter
 
 import matplotlib.lines as mlines
 import numpy as np
@@ -71,7 +71,7 @@ class DosPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
-        self._doses = OrderedDict()
+        self._doses = {}
 
     def add_dos(self, label, dos):
         """
@@ -265,7 +265,7 @@ class BSPlotter:
 
     def _check_bs_kpath(self, bs_list):
         """
-        Helper method that chack the all the band objs in bs_list are
+        Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
 
@@ -2042,7 +2042,7 @@ class BSPlotterProjected(BSPlotter):
             label = ""
             for elem, v in divide.items():
                 if elem == "s":
-                    label += "s" + ","
+                    label += "s,"
                 else:
                     if len(v) == len(individual_orbs[elem]):
                         label += elem + ","
@@ -2612,7 +2612,7 @@ class BSDOSPlotter:
                             projs = projections[spin][band_idx][k_idx]
                             # note: squared color interpolations are smoother
                             # see: https://youtu.be/LKnqECcg6Gw
-                            projs = {k: v ** 2 for k, v in projs.items()}
+                            projs = {k: v**2 for k, v in projs.items()}
                             total = sum(projs.values())
                             if total > 0:
                                 for idx, e in enumerate(elements):
@@ -2654,9 +2654,9 @@ class BSDOSPlotter:
                         b1 = b / (r + g + b)
                         x.append(0.33 * (2.0 * g1 + r1) / (r1 + b1 + g1))
                         y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
-                        rc = math.sqrt(r ** 2 / (r ** 2 + g ** 2 + b ** 2))
-                        gc = math.sqrt(g ** 2 / (r ** 2 + g ** 2 + b ** 2))
-                        bc = math.sqrt(b ** 2 / (r ** 2 + g ** 2 + b ** 2))
+                        rc = math.sqrt(r**2 / (r**2 + g**2 + b**2))
+                        gc = math.sqrt(g**2 / (r**2 + g**2 + b**2))
+                        bc = math.sqrt(b**2 / (r**2 + g**2 + b**2))
                         color.append([rc, gc, bc])
 
         # x = [n + 0.25 for n in x]  # nudge x coordinates
@@ -3671,7 +3671,7 @@ class CohpPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self._cohps = OrderedDict()
+        self._cohps = {}
 
     def add_cohp(self, label, cohp):
         """

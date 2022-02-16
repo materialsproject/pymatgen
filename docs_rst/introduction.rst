@@ -32,7 +32,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API, Crystallography Open
    Database and other external data sources.
 
-As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule follows closely that of the Scientific
+As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.

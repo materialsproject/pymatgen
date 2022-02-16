@@ -2,6 +2,7 @@ import os
 import unittest
 
 import numpy as np
+
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp
@@ -128,6 +129,15 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=1,
+        )
+        self.chemenvlobster1_charges_loewdin = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
+            additional_condition=1,
+            which_charge="Loewdin",
         )
         self.chemenvlobster6_charges_additional_condition = LobsterNeighbors(
             are_coops=False,

@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module contains objects that are used to describe the environments in a structure. The most detailed object
 (StructureEnvironments) contains a very thorough analysis of the environments of a given atom but is difficult to
@@ -18,7 +17,6 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from collections import OrderedDict
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -294,7 +292,7 @@ class StructureEnvironments(MSONable):
             next_dists = [src["dp_dict"]["next"] for src in mysrc]
             next_angs = [src["ap_dict"]["next"] for src in mysrc]
 
-            points_dict = OrderedDict()
+            points_dict = {}
 
             pdists = []
             pangs = []

@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
 Some strategies can favour larger or smaller environments. Some strategies uniquely identifies the environments while
@@ -19,7 +18,6 @@ __date__ = "Feb 20, 2016"
 
 import abc
 import os
-from collections import OrderedDict
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -198,7 +196,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_DESCRIPTION = None  # type: str
     STRATEGY_INFO_FIELDS = []  # type: List
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -483,7 +481,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -873,7 +871,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",
@@ -1400,7 +1398,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of inverse power distances.
         """
-        return [1.0 / dist ** self.bb for dist in nb_set.normalized_distances]
+        return [1.0 / dist**self.bb for dist in nb_set.normalized_distances]
 
     @staticmethod
     def ang(nb_set):
@@ -1417,7 +1415,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of power angle weights.
         """
-        return [ang ** self.aa for ang in nb_set.normalized_angles]
+        return [ang**self.aa for ang in nb_set.normalized_angles]
 
     @staticmethod
     def anginvdist(nb_set):
@@ -1436,7 +1434,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :return: List of angle/power distance weights.
         """
         nangles = nb_set.normalized_angles
-        return [nangles[ii] / dist ** self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+        return [nangles[ii] / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
 
     def angninvdist(self, nb_set):
         """Power angle/distance weight.
@@ -1454,7 +1452,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :return: List of power angle/power distance weights.
         """
         nangles = nb_set.normalized_angles
-        return [nangles[ii] ** self.aa / dist ** self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+        return [nangles[ii] ** self.aa / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
 
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         """Get the weight of a given neighbors set.

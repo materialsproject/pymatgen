@@ -6,9 +6,10 @@ import unittest
 
 from pymatgen.core import Structure
 from pymatgen.util.string import (
+    Stringify,
+    charge_string,
     disordered_formula,
     formula_double_format,
-    charge_string,
     htmlify,
     latexify,
     latexify_spacegroup,
@@ -16,7 +17,6 @@ from pymatgen.util.string import (
     unicodeify,
     unicodeify_spacegroup,
     unicodeify_species,
-    Stringify,
 )
 
 

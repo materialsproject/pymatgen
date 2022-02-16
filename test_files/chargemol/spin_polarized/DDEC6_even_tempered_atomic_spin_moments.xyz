@@ -1,0 +1,23 @@
+    3
+Nonperiodic system
+O    0.000000  -0.000000   0.319088   0.201595
+O    0.000000   1.135186  -0.159544   0.399203
+O    0.000000  -1.135186  -0.159544   0.399203
+    
+Collinear spin population analysis was performed
+The total spin magnetic moment of the unit cell is    1.000000
+    
+ Chargemol version 3.5 September 26, 2017.
+See ddec.sourceforge.net for latest version.
+    
+Computational parameters:
+Spin_ref_fraction = 0.50
+Number of radial integration shells = 100
+Cutoff radius (pm) =  500
+Spin convergence tolerance = 0.000050
+Number of iterations to convergence =  7
+    
+    1 O    0.000000  -0.000000   0.319088   0.201595
+    2 O    0.000000   1.135186  -0.159544   0.399203
+    3 O    0.000000  -1.135186  -0.159544   0.399203
+ 2017/10/01  14:19:11

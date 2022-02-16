@@ -23,12 +23,12 @@ import os
 import subprocess
 import tempfile
 import time
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
-from monty.os.path import which
 from scipy import constants
 from scipy.spatial import distance
 
@@ -382,14 +382,14 @@ class BoltztrapRunner(MSONable):
                 + "10,'boltztrap.energy"
                 + so
                 + "',         'old',    "
-                "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
-                "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
-                "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
-                "0\n" + "21,'boltztrap.trace',           'unknown',    "
-                "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
-                "'formatted',0\n" + "24,'boltztrap.halltens',           'unknown',    "
-                "'formatted',0\n" + "30,'boltztrap_BZ.cube',           'unknown',    "
+                "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
+                "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
+                "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "0\n51,'boltztrap.sigxxx',        'unknown',    'formatted',"
+                "0\n21,'boltztrap.trace',           'unknown',    "
+                "'formatted',0\n22,'boltztrap.condtens',           'unknown',    "
+                "'formatted',0\n24,'boltztrap.halltens',           'unknown',    "
+                "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
 
@@ -442,14 +442,14 @@ class BoltztrapRunner(MSONable):
                 + "10,'boltztrap.energy"
                 + so
                 + "',         'old',    "
-                "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
-                "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
-                "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
-                "0\n" + "21,'boltztrap.trace',           'unknown',    "
-                "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
-                "'formatted',0\n" + "24,'boltztrap.halltens',           'unknown',    "
-                "'formatted',0\n" + "30,'boltztrap_BZ.cube',           'unknown',    "
+                "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
+                "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
+                "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "0\n51,'boltztrap.sigxxx',        'unknown',    'formatted',"
+                "0\n21,'boltztrap.trace',           'unknown',    "
+                "'formatted',0\n22,'boltztrap.condtens',           'unknown',    "
+                "'formatted',0\n24,'boltztrap.halltens',           'unknown',    "
+                "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
             i = 1000
@@ -492,7 +492,7 @@ class BoltztrapRunner(MSONable):
                     )
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write(f"{self.run_type}                     # run mode (only BOLTZ is supported)\n")
                 fout.write(".15                       # (efcut) energy range of chemical potential\n")
                 fout.write(f"{self.tmax} {self.tgrid}                  # Tmax, temperature grid\n")
@@ -516,7 +516,7 @@ class BoltztrapRunner(MSONable):
                     "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
                 fout.write(
                     str(1)
@@ -553,7 +553,7 @@ class BoltztrapRunner(MSONable):
                     )
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("BANDS                     # run mode (only BOLTZ is supported)\n")
                 fout.write("P " + str(len(self.kpt_line)) + "\n")
                 for kp in self.kpt_line:
@@ -997,7 +997,7 @@ class BoltztrapAnalyzer:
         - "avg_corr": average of correlation coefficient over the 8 bands
         - "avg_dist": average of energy distance over the 8 bands
         - "nb_list": list of indexes of the 8 compared bands
-        - "acc_thr": list of two float corresponing to the two warning
+        - "acc_thr": list of two float corresponding to the two warning
                      thresholds in input
         - "acc_err": list of two bools:
                      True if the avg_corr > warn_thr[0], and
@@ -1383,8 +1383,8 @@ class BoltztrapAnalyzer:
                             result_doping[doping][temp].append(
                                 np.linalg.inv(np.array(self._cond_doping[doping][temp][i]))
                                 * self.doping[doping][i]
-                                * 10 ** 6
-                                * constants.e ** 2
+                                * 10**6
+                                * constants.e**2
                                 / constants.m_e
                             )
                         except np.linalg.LinAlgError:
@@ -1397,7 +1397,7 @@ class BoltztrapAnalyzer:
                         cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
                     except np.linalg.LinAlgError:
                         pass
-                    result[temp].append(cond_inv * conc[temp][i] * 10 ** 6 * constants.e ** 2 / constants.m_e)
+                    result[temp].append(cond_inv * conc[temp][i] * 10**6 * constants.e**2 / constants.m_e)
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)
 
@@ -2454,10 +2454,10 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
         from fdint import fdk
     except ImportError:
         raise BoltztrapError(
-            "fdint module not found. Please, install it.\n" + "It is needed to calculate Fermi integral quickly."
+            "fdint module not found. Please, install it.\nIt is needed to calculate Fermi integral quickly."
         )
 
-    return (2 * np.pi ** 2 * abs(n) * 10 ** 6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
+    return (2 * np.pi**2 * abs(n) * 10**6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
         2 * constants.m_e * constants.k * T / (constants.h / 2 / np.pi) ** 2
     )
 

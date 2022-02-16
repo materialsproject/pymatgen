@@ -129,7 +129,7 @@ $end"""
 
         bad_scan = {"stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"], "bend": ["7 8 9 90 120 10"]}
         with self.assertRaises(ValueError):
-            bad_scan_test = QCInput.scan_template(bad_scan)
+            QCInput.scan_template(bad_scan)
 
     def test_van_der_waals_template(self):
         vdw_params = {1: 1.20, 12: 1.72}
@@ -737,7 +737,7 @@ $scan
 $end"""
 
         with self.assertRaises(ValueError):
-            scan_test_2 = QCInput.read_scan(str_scan_2)
+            QCInput.read_scan(str_scan_2)
 
     def test_read_negative(self):
         str_molecule = """$molecule
@@ -943,6 +943,20 @@ $end
         test_file.close()
         ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
+
+    def test_read_write_nbo7(self):
+        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
+        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            # By default, if this statement fails the offending line will be printed
+            assert l_test == l_ref
+
+        test_file.close()
+        ref_file.close()
+        os.remove(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2022.1.24
+v2022.2.10
 ----------
-* Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.
+* Require Cython during setup. (@jonringer)

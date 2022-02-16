@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module contains the class describing the coordination geometries that can exist in a given structure. These
 "model" coordination geometries are described in the following articles :
@@ -590,7 +589,7 @@ class CoordinationGeometry:
             algorithms: Algorithms used to identify this coordination geometry.
             equivalent_indices: The equivalent sets of indices in this coordination geometry (can be used to skip
                 equivalent permutations that have already been performed).
-            neighbors_sets_hints: Neighors sets hints for this coordination geometry.
+            neighbors_sets_hints: Neighbors sets hints for this coordination geometry.
         """
         self._mp_symbol = mp_symbol
         self.name = name

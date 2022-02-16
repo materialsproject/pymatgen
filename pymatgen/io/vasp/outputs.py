@@ -567,7 +567,7 @@ class Vasprun(MSONable):
                 equation
                 """
                 hbar = 6.582119514e-16  # eV/K
-                coeff = np.sqrt(np.sqrt(real ** 2 + imag ** 2) - real) * np.sqrt(2) / hbar * freq
+                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hbar * freq
                 return coeff
 
             absorption_coeff = [
@@ -1226,10 +1226,17 @@ class Vasprun(MSONable):
             else:
                 ptype = c.attrib.get("type")
                 val = c.text.strip() if c.text else ""
-                if c.tag == "i":
-                    params[name] = _parse_parameters(ptype, val)
-                else:
-                    params[name] = _parse_v_parameters(ptype, val, self.filename, name)
+                try:
+                    if c.tag == "i":
+                        params[name] = _parse_parameters(ptype, val)
+                    else:
+                        params[name] = _parse_v_parameters(ptype, val, self.filename, name)
+                except Exception as ex:
+                    if name == "RANDOM_SEED":
+                        # Handles the case where RANDOM SEED > 99999, which results in *****
+                        params[name] = None
+                    else:
+                        raise ex
         elem.clear()
         return Incar(params)
 
@@ -3671,8 +3678,8 @@ class VolumetricData(MSONable):
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
             if not vasp4_compatible:
-                lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
-            lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
+            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
@@ -5065,7 +5072,7 @@ class Wavecar:
                     G = np.array([k1, j2, i3])
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
-                    E = g ** 2 / self._C
+                    E = g**2 / self._C
                     if E < self.encut:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):

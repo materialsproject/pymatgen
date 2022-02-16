@@ -145,7 +145,7 @@ class DefectCompatibilityTest(PymatgenTest):
 
     def test_perform_all_corrections(self):
 
-        # return entry even if insufficent values are provided
+        # return entry even if insufficient values are provided
         # for freysoldt, kumagai, bandfilling, or band edge shifting
         de = DefectEntry(self.vac, 0.0, corrections={}, parameters={}, entry_id=None)
         dc = DefectCompatibility()
@@ -210,7 +210,7 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertEqual(val["bandedgeshifting_correction"], 1.5)
 
     def test_delocalization_analysis(self):
-        # return entry even if insufficent values are provided
+        # return entry even if insufficient values are provided
         # for delocalization analysis with freysoldt, kumagai,
         # bandfilling, or band edge shifting
         de = DefectEntry(self.vac, 0.0, corrections={}, parameters={}, entry_id=None)

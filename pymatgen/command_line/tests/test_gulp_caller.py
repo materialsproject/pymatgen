@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 Created on Jan 22, 2013
 
@@ -10,8 +9,7 @@ Created on Jan 22, 2013
 import os
 import sys
 import unittest
-
-from monty.os.path import which
+from shutil import which
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -62,7 +60,7 @@ class GulpCallerTest(unittest.TestCase):
 
         """Some inherent checks are in the run_gulp function itself.
         They should be suffcient for raising errors."""
-        gout = gc.run(gin)
+        gc.run(gin)
 
     def test_decimal(self):
         struct = Structure.from_str(
@@ -91,11 +89,11 @@ class GulpCallerTest(unittest.TestCase):
             fmt="poscar",
         )
 
-        bp = BuckinghamPotential(bush_lewis_flag="bush")
+        _ = BuckinghamPotential(bush_lewis_flag="bush")
         gio = GulpIO()
         input = gio.buckingham_input(struct, ["relax conp"])
         caller = GulpCaller()
-        gout = caller.run(input)
+        caller.run(input)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -139,7 +137,7 @@ class GulpIOTest(unittest.TestCase):
 
     def test_library_line_wrong_file(self):
         with self.assertRaises(GulpError):
-            gin = self.gio.library_line("temp_to_fail.lib")
+            self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -260,7 +258,7 @@ class GulpIOTest(unittest.TestCase):
 
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
-        gin = self.gio.tersoff_input(self.structure)
+        self.gio.tersoff_input(self.structure)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")

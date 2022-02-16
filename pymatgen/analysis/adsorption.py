@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides classes used to enumerate surface sites
 and to find adsorption sites on slabs
@@ -17,10 +16,10 @@ from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
 from pymatgen import vis
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
@@ -572,7 +571,7 @@ class AdsorbateSiteFinder:
 
         target_species = target_species or []
 
-        # Get symmetrized structure in case we want to substitue both sides
+        # Get symmetrized structure in case we want to substitute both sides
         sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
 
         # Define a function for substituting a site

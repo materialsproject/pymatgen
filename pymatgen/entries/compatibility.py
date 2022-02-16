@@ -9,30 +9,26 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import Optional, Sequence, Union, List, Type
+from typing import List, Optional, Sequence, Type, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
-from uncertainties import ufloat
 from tqdm import tqdm
+from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import (
-    EnergyAdjustment,
     CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
+    EnergyAdjustment,
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
@@ -40,6 +36,11 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "April 2020"
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
+
+AnyCompEntry = Union[ComputedEntry, ComputedStructureEntry]
 
 
 class CompatibilityError(Exception):
@@ -516,7 +517,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]) -> List[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyCompEntry) -> List[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -536,7 +537,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             CompatibilityError if the entry is not compatible
         """
 
-    def process_entry(self, entry):
+    def process_entry(self, entry: ComputedEntry) -> Optional[ComputedEntry]:
         """
         Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
@@ -547,13 +548,14 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
-        if self.process_entries(entry):
+        try:
             return self.process_entries(entry)[0]
-        return None
+        except IndexError:
+            return None
 
     def process_entries(
-        self, entries: Union[ComputedEntry, ComputedStructureEntry, list], clean: bool = True, verbose: bool = False
-    ):
+        self, entries: Union[AnyCompEntry, List[AnyCompEntry]], clean: bool = True, verbose: bool = False
+    ) -> List[ComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
@@ -908,7 +910,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]):
+    def get_adjustments(self, entry: AnyCompEntry):
         """
         Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
@@ -1297,7 +1299,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
         # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
-        # (MU_H2O from pourbaix module)
+        # (MU_H2O from Pourbaix module)
 
         # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
         # for this calculation ONLY, we need the (corrected) DFT energy of water
@@ -1387,7 +1389,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False, verbose: bool = False):
+    def process_entries(
+        self, entries: Union[ComputedEntry, List[ComputedEntry]], clean: bool = False, verbose: bool = False
+    ):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -1419,7 +1423,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 "being assigned the same energy. This should not cause problems "
                 "with Pourbaix diagram construction, but may be confusing. "
                 "Pass all entries to process_entries() at once in if you want to "
-                "preserve H2 polymorph energy differnces."
+                "preserve H2 polymorph energy differences."
             )
 
         # extract the DFT energies of oxygen and water from the list of entries, if present
@@ -1441,6 +1445,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
         if h2_entries:
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
-            self.h2_energy = h2_entries[0].energy_per_atom
+            self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore
 
         return super().process_entries(entries, clean=clean, verbose=verbose)

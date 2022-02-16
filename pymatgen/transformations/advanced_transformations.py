@@ -155,9 +155,7 @@ class SuperTransformation(AbstractTransformation):
         return structures
 
     def __str__(self):
-        return "Super Transformation : Transformations = " + "{}".format(
-            " ".join([str(t) for t in self._transformations])
-        )
+        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     def __repr__(self):
         return self.__str__()
@@ -393,8 +391,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if structure.is_ordered:
             warnings.warn(
-                "Enumeration skipped for structure with composition {} "
-                "because it is ordered".format(structure.composition)
+                f"Enumeration skipped for structure with composition {structure.composition} because it is ordered"
             )
             structures = [structure.copy()]
 
@@ -854,13 +851,10 @@ class MagOrderingTransformation(AbstractTransformation):
         if enum_kwargs.get("max_cell_size", None):
             if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
                 warnings.warn(
-                    "Specified max cell size ({}) is smaller "
-                    "than the minimum enumerable cell size ({}), "
-                    "changing max cell size to {}".format(
-                        enum_kwargs["max_cell_size"],
-                        enum_kwargs["min_cell_size"],
-                        enum_kwargs["min_cell_size"],
-                    )
+                    f"Specified max cell size ({enum_kwargs['max_cell_size']}) is "
+                    "smaller than the minimum enumerable cell size "
+                    f"({enum_kwargs['min_cell_size']}), changing max cell size to "
+                    f"{enum_kwargs['min_cell_size']}"
                 )
                 enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:
@@ -1084,7 +1078,7 @@ class DopingTransformation(AbstractTransformation):
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
                     ndopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)
-                    logger.info("Doping %d %s with %d %s." % (nsp_to_remove, sp, ndopant, self.dopant))
+                    logger.info(f"Doping {nsp_to_remove} {sp} with {ndopant} {self.dopant}.")
                     supercell.replace_species(
                         {
                             sp: {
@@ -1126,9 +1120,7 @@ class DopingTransformation(AbstractTransformation):
                 common_charge = lcm(anion_ox, ox_diff)
                 ndopant = common_charge / ox_diff
                 nx_to_remove = common_charge / anion_ox
-                logger.info(
-                    "Doping %d %s with %s and removing %d %s." % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
-                )
+                logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                 supercell.replace_species(
                     {
                         sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},
