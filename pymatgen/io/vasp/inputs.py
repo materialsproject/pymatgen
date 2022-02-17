@@ -2315,7 +2315,9 @@ class VaspInput(dict, MSONable):
     Class to contain a set of vasp input objects corresponding to a run.
     """
 
-    def __init__(self, incar: Incar, kpoints: Kpoints, poscar: Poscar, potcar: Potcar, optional_files: dict = None, **kwargs):
+    def __init__(
+        self, incar: Incar, kpoints: Kpoints, poscar: Poscar, potcar: Potcar, optional_files: dict = None, **kwargs
+    ):
         """
         Args:
             incar: Incar object.
