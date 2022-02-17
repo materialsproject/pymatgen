@@ -18,7 +18,7 @@ import warnings
 from collections import namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Any, Dict, Literal, Sequence, Tuple, Union
+from typing import Any, Dict, List, Literal, Sequence, Tuple, Union
 
 import numpy as np
 import scipy.constants as const
@@ -88,14 +88,14 @@ class Poscar(MSONable):
     .. attribute:: temperature
 
         Temperature of velocity Maxwell-Boltzmann initialization. Initialized
-        to -1 (MB hasn"t been performed).
+        to -1 (MB has not been performed).
     """
 
     def __init__(
         self,
         structure: Structure,
         comment: str = None,
-        selective_dynamics=None,
+        selective_dynamics: List[List[bool]] = None,
         true_names: bool = True,
         velocities: ArrayLike = None,
         predictor_corrector: ArrayLike = None,
@@ -201,7 +201,7 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @staticmethod
-    def from_file(filename, check_for_POTCAR=True, read_velocities=True):
+    def from_file(filename: str, check_for_POTCAR: bool = True, read_velocities: bool = True) -> "Poscar":
         """
         Reads a Poscar from a file.
 
@@ -248,7 +248,7 @@ class Poscar(MSONable):
             return Poscar.from_string(f.read(), names, read_velocities=read_velocities)
 
     @staticmethod
-    def from_string(data, default_names=None, read_velocities=True):
+    def from_string(data: str, default_names: List[str] = None, read_velocities: bool = True) -> "Poscar":
         """
         Reads a Poscar from a string.
 
@@ -533,7 +533,7 @@ class Poscar(MSONable):
         """
         return self.get_string()
 
-    def write_file(self, filename: PathLike, **kwargs):
+    def write_file(self, filename: PathLike, **kwargs) -> None:
         """
         Writes POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_string method and are passed through directly.
@@ -682,7 +682,7 @@ class Incar(dict, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "Incar":
+    def from_dict(cls, d: dict) -> "Incar":
         """
         :param d: Dict representation.
         :return: Incar
@@ -735,7 +735,7 @@ class Incar(dict, MSONable):
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
 
-    def write_file(self, filename: PathLike):
+    def write_file(self, filename: PathLike) -> None:
         """
         Write Incar to a file.
 
@@ -848,7 +848,7 @@ class Incar(dict, MSONable):
             "IVDW",
         )
 
-        def smart_int_or_float(numstr):
+        def smart_int_or_float(numstr: str):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
             return int(numstr)
@@ -1031,9 +1031,9 @@ class Kpoints(MSONable):
         style: Kpoints_supported_modes = supported_modes.Gamma,
         kpts: Sequence[Union[float, int, Sequence]] = ((1, 1, 1),),
         kpts_shift: Tuple[float, float, float] = (0, 0, 0),
-        kpts_weights=None,
-        coord_type=None,
-        labels=None,
+        kpts_weights: List[int] = None,
+        coord_type: Literal["Reciprocal", "Cartesian"] = None,
+        labels: List[str] = None,
         tet_number: int = 0,
         tet_weight: float = 0,
         tet_connections=None,
@@ -1235,7 +1235,7 @@ class Kpoints(MSONable):
         return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_gamma_density(structure: Structure, kppa: float):
+    def automatic_gamma_density(structure: Structure, kppa: float) -> "Kpoints":
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
@@ -1249,6 +1249,9 @@ class Kpoints(MSONable):
                 Input structure
             kppa:
                 Grid density
+
+        Returns:
+            Kpoints
         """
 
         latt = structure.lattice
@@ -1372,7 +1375,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str) -> "Kpoints":
         """
         Reads a Kpoints object from a KPOINTS file.
 
@@ -1386,7 +1389,7 @@ class Kpoints(MSONable):
             return Kpoints.from_string(f.read())
 
     @staticmethod
-    def from_string(string):
+    def from_string(string: str) -> "Kpoints":
         """
         Reads a Kpoints object from a KPOINTS string.
 
@@ -1500,7 +1503,7 @@ class Kpoints(MSONable):
             labels=labels,
         )
 
-    def write_file(self, filename):
+    def write_file(self, filename: PathLike) -> None:
         """
         Write Kpoints to a file.
 
@@ -1543,7 +1546,7 @@ class Kpoints(MSONable):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
         return "\n".join(lines) + "\n"
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
@@ -1570,7 +1573,7 @@ class Kpoints(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> "Kpoints":
         """
         :param d: Dict representation.
         :return: Kpoints
@@ -1851,7 +1854,7 @@ class PotcarSingle:
             nelect -= e[-1]
         return config
 
-    def write_file(self, filename: str) -> None:
+    def write_file(self, filename: PathLike) -> None:
         """
         Writes PotcarSingle to a file.
         :param filename: Filename
@@ -2179,7 +2182,7 @@ class Potcar(list, MSONable):
 
     FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
 
-    def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
+    def __init__(self, symbols: List[str] = None, functional: str = None, sym_potcar_map: dict = None):
         """
         Args:
             symbols ([str]): Element symbols for POTCAR. This should correspond
@@ -2202,7 +2205,7 @@ class Potcar(list, MSONable):
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONable dict representation
         """
@@ -2214,7 +2217,7 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> "Potcar":
         """
         :param d: Dict representation
         :return: Potcar
@@ -2222,7 +2225,7 @@ class Potcar(list, MSONable):
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @staticmethod
-    def from_file(filename: str):
+    def from_file(filename: str) -> "Potcar":
         """
         Reads Potcar from file.
 
@@ -2254,7 +2257,7 @@ class Potcar(list, MSONable):
     def __str__(self):
         return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
 
-    def write_file(self, filename):
+    def write_file(self, filename: PathLike) -> None:
         """
         Write Potcar to a file.
 
@@ -2282,7 +2285,7 @@ class Potcar(list, MSONable):
         """
         return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
-    def set_symbols(self, symbols, functional=None, sym_potcar_map=None):
+    def set_symbols(self, symbols: List[str], functional: str = None, sym_potcar_map: dict = None):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
         be fetched from a location specified in .pmgrc.yaml. Use pmg config
@@ -2312,7 +2315,7 @@ class VaspInput(dict, MSONable):
     Class to contain a set of vasp input objects corresponding to a run.
     """
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
+    def __init__(self, incar: Incar, kpoints: Kpoints, poscar: Poscar, potcar: Potcar, optional_files: dict = None, **kwargs):
         """
         Args:
             incar: Incar object.
@@ -2336,7 +2339,7 @@ class VaspInput(dict, MSONable):
             output.append("")
         return "\n".join(output)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
@@ -2346,7 +2349,7 @@ class VaspInput(dict, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> "VaspInput":
         """
         :param d: Dict representation.
         :return: VaspInput
@@ -2360,7 +2363,7 @@ class VaspInput(dict, MSONable):
                 sub_d["optional_files"][k] = dec.process_decoded(v)
         return cls(**sub_d)
 
-    def write_input(self, output_dir=".", make_dir_if_not_present=True):
+    def write_input(self, output_dir: str = ".", make_dir_if_not_present: bool = True):
         """
         Write VASP input to a directory.
 
@@ -2378,7 +2381,7 @@ class VaspInput(dict, MSONable):
                     f.write(v.__str__())
 
     @staticmethod
-    def from_directory(input_dir, optional_files=None):
+    def from_directory(input_dir: str, optional_files: dict = None) -> "VaspInput":
         """
         Read in a set of VASP input from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
