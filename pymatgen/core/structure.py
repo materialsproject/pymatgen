@@ -2490,7 +2490,7 @@ class IStructure(SiteCollection, MSONable):
                 sort=sort,
                 merge_tol=merge_tol,
             )
-        elif fnmatch(fname, "*.yaml*"):
+        elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
             return cls.from_str(
                 contents,
                 fmt="yaml",
