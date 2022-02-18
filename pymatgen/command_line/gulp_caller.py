@@ -244,7 +244,7 @@ class GulpIO:
 
     @staticmethod
     def keyword_line(*args):
-        r"""
+        """
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
@@ -320,7 +320,7 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        r"""
+        """
         Generates GULP input specie and potential string for pymatgen
         structure.
 

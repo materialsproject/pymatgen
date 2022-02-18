@@ -9,7 +9,7 @@ import numpy as np
 
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
-    r"""
+    """
     General pattern reading on an input string
 
     Args:
@@ -48,7 +48,7 @@ def read_table_pattern(
     attribute_name=None,
     last_one_only=False,
 ):
-    r"""
+    """
     Parse table-like data. A table composes of three parts: header,
     main body, footer. All the data matches "row pattern" in the main body
     will be returned.

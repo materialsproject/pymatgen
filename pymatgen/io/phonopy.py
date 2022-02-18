@@ -105,7 +105,7 @@ def get_structure_from_dict(d):
 
 
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
-    r"""
+    """
     Converts a single eigenvector to an eigendisplacement in the primitive cell
     according to the formula::
 
@@ -127,7 +127,7 @@ def eigvec_to_eigdispl(v, q, frac_coords, mass):
 
 
 def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
-    r"""
+    """
     Creates a pymatgen PhononBandStructure object from the dictionary
     extracted by the band.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
@@ -204,7 +204,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
-    r"""
+    """
     Creates a pymatgen PhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector'  key is found the eigendisplacements will be
@@ -259,7 +259,7 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
 
 @requires(Phonopy, "phonopy not installed!")
 def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=None, yaml_fname=None, **kwargs):
-    r"""
+    """
     Generate a set of symmetrically inequivalent displaced structures for
     phonon calculations.
 
@@ -504,7 +504,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
 def get_gs_ph_bs_symm_line_from_dict(
     gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
 ) -> GruneisenPhononBandStructureSymmLine:
-    r"""
+    """
     Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
     extracted by the gruneisen.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
@@ -659,7 +659,7 @@ def _extrapolate_grun(b, distance, gruneisenparameter, gruneisenband, i, pa):
 
 
 def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path=None, labels_dict=None, fit=False):
-    r"""
+    """
     Creates a pymatgen GruneisenPhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector' key is found the eigendisplacements will be

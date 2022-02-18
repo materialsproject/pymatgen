@@ -306,7 +306,7 @@ class PhononBandStructure(MSONable):
 
 
 class PhononBandStructureSymmLine(PhononBandStructure):
-    r"""
+    """
     This object stores phonon band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
@@ -450,7 +450,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return list_index_qpoints
 
     def get_branch(self, index):
-        r"""
+        """
         Returns in what branch(es) is the qpoint. There can be several
         branches.
 

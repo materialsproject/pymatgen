@@ -1087,7 +1087,7 @@ class Cp2kOutput:
         return d
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
-        r"""
+        """
         This function originally comes from pymatgen.io.vasp.outputs Outcar class
 
         General pattern reading. Uses monty's regrep method. Takes the same
@@ -1130,7 +1130,7 @@ class Cp2kOutput:
         attribute_name=None,
         last_one_only=True,
     ):
-        r"""
+        """
         This function originally comes from pymatgen.io.vasp.outputs Outcar class
 
         Parse table-like data. A table composes of three parts: header,

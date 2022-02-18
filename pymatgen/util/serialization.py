@@ -88,7 +88,7 @@ class PmgUnpickler(pickle.Unpickler):
 
 
 def pmg_pickle_load(filobj, **kwargs):
-    r"""
+    """
     Loads a pickle file and deserialize it with PmgUnpickler.
 
     Args:
@@ -102,7 +102,7 @@ def pmg_pickle_load(filobj, **kwargs):
 
 
 def pmg_pickle_dump(obj, filobj, **kwargs):
-    r"""
+    """
     Dump an object to a pickle file using PmgPickler.
 
     Args:

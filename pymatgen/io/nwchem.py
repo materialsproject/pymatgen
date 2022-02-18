@@ -302,7 +302,7 @@ $theory_spec
 
     @classmethod
     def dft_task(cls, mol, xc="b3lyp", **kwargs):
-        r"""
+        """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
 
@@ -318,7 +318,7 @@ $theory_spec
 
     @classmethod
     def esp_task(cls, mol, **kwargs):
-        r"""
+        """
         A class method for quickly creating ESP tasks with RESP
         charge fitting.
 

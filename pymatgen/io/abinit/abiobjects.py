@@ -1602,7 +1602,7 @@ class ExcHamiltonian(AbivarAble):
         zcut=None,
         **kwargs,
     ):
-        r"""
+        """
         Args:
             bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set.
                 Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband

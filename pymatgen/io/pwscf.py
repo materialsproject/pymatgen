@@ -541,7 +541,7 @@ class PWOutput:
                 self.data[k] = float(v[0][0][0])
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
-        r"""
+        """
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.
 

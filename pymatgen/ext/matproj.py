@@ -928,7 +928,7 @@ class MPRester:
         max_tries_per_chunk=5,
         mp_decode=True,
     ):
-        r"""
+        """
 
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform

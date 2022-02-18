@@ -599,7 +599,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             site.species = new_sp
 
     def extract_cluster(self, target_sites: List[Site], **kwargs):
-        r"""
+        """
         Extracts a cluster of atoms based on bond lengths
 
         Args:
@@ -2124,7 +2124,7 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def get_orderings(self, mode: Literal["enum", "sqs"] = "enum", **kwargs) -> List["Structure"]:
-        r"""
+        """
         Returns list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
@@ -2259,7 +2259,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(sites, charge=charge)
 
     def to(self, fmt: str = None, filename=None, **kwargs) -> Optional[str]:
-        r"""
+        """
         Outputs the structure to a file or string.
 
         Args:

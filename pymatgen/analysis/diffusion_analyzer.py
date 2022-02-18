@@ -565,7 +565,7 @@ class DiffusionAnalyzer(MSONable):
     def from_structures(
         cls, structures, specie, temperature, time_step, step_skip, initial_disp=None, initial_structure=None, **kwargs
     ):
-        r"""
+        """
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
 
@@ -627,7 +627,7 @@ class DiffusionAnalyzer(MSONable):
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, initial_disp=None, initial_structure=None, **kwargs):
-        r"""
+        """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
 
@@ -687,7 +687,7 @@ class DiffusionAnalyzer(MSONable):
     def from_files(
         cls, filepaths, specie, step_skip=10, ncores=None, initial_disp=None, initial_structure=None, **kwargs
     ):
-        r"""
+        """
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
 
@@ -884,7 +884,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, spe
 
 
 def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
-    r"""
+    """
     Returns an Arrhenius plot.
 
     Args:

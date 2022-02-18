@@ -39,7 +39,7 @@ def is_numeric(s):
 
 
 def iterlines(s):
-    r"""
+    """
     A generator form of s.split('\n') for reducing memory overhead.
 
     Parameters

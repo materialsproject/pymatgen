@@ -219,7 +219,7 @@ def unicodeify(formula):
 
 
 def latexify_spacegroup(spacegroup_symbol):
-    r"""
+    """
     Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
@@ -237,7 +237,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
-    r"""
+    """
     Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
 
@@ -272,7 +272,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_species(specie_string):
-    r"""
+    """
     Generates a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 
