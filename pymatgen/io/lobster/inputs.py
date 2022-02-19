@@ -688,7 +688,7 @@ class Lobsterin(dict, MSONable):
         # this basis set covers most elements
         Lobsterindict["basisSet"] = "pbeVaspFit2015"
         # energies around e-fermi
-        Lobsterindict["COHPstartEnergy"] = -15.0
+        Lobsterindict["COHPstartEnergy"] = -35.0
         Lobsterindict["COHPendEnergy"] = 5.0
 
         if option in [

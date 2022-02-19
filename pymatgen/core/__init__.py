@@ -49,7 +49,6 @@ def _load_pmg_settings():
             # If there are any errors, default to using environment variables
             # if present.
             warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
-            pass
 
     return d
 
