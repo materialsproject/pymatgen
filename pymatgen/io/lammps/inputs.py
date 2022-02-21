@@ -78,7 +78,7 @@ class LammpsRun(MSONable):
 
     @classmethod
     def md(cls, data, force_field, temperature, nsteps, other_settings=None):
-        """
+        r"""
         Example for a simple MD run based on template md.txt.
 
         Args:
@@ -90,7 +90,6 @@ class LammpsRun(MSONable):
             nsteps (int): No. of steps to run.
             other_settings (dict): other settings to be filled into
                 placeholders.
-
         """
         template_path = os.path.join(cls.template_dir, "md.txt")
         with open(template_path) as f:

@@ -479,7 +479,7 @@ class BandStructure:
         }
 
     def get_band_gap(self):
-        """
+        r"""
         Returns band gap data.
 
         Returns:
@@ -735,7 +735,7 @@ class BandStructure:
 
 
 class BandStructureSymmLine(BandStructure, MSONable):
-    """
+    r"""
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
@@ -855,7 +855,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         return list_index_kpoints
 
     def get_branch(self, index):
-        """
+        r"""
         Returns in what branch(es) is the kpoint. There can be several
         branches.
 

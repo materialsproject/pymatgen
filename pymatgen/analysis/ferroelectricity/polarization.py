@@ -232,7 +232,7 @@ class Polarization:
         return None
 
     def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
+        r"""
         Get same branch dipole moment (convert_to_muC_per_cm2=False)
         or polarization for given polarization data (convert_to_muC_per_cm2=True).
 

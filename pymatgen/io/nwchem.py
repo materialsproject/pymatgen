@@ -309,7 +309,7 @@ $theory_spec
         Args:
             mol: Input molecule
             xc: Exchange correlation to use.
-            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
@@ -324,7 +324,7 @@ $theory_spec
 
         Args:
             mol: Input molecule
-            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         return NwTask.from_molecule(mol, theory="esp", **kwargs)

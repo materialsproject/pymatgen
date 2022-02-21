@@ -2138,7 +2138,7 @@ class SQSTransformation(AbstractTransformation):
 
 
 class MonteCarloRattleTransformation(AbstractTransformation):
-    """
+    r"""
     Uses a Monte Carlo rattle procedure to randomly perturb the sites in a
     structure.
 
