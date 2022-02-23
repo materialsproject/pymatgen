@@ -1733,6 +1733,7 @@ class BrokenSymmetry(Section):
             l_alpha=l_alpha, l_beta=l_beta, nel_alpha=nel_alpha, nel_beta=nel_beta, n_beta=n_beta, n_alpha=n_alpha
         )
 
+
 class XC_FUNCTIONAL(Section):
 
     """

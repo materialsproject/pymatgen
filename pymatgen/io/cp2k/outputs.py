@@ -467,14 +467,22 @@ class Cp2kOutput:
 
     def parse_energies(self):
         """
-        Get the total energy from the output file
+        Get the total energy from a CP2K calculation. Presently, the energy reported in the trajectory (pos.xyz) file
+        takes presidence over the energy reported in the main output file. This is because the trajectory file keeps
+        track of energies in between restarts, while the main output file may or may not depending on whether 
+        a particular machine overwrites or appends it.
         """
-        toten_pattern = re.compile(r"Total FORCE_EVAL.*\s(-?\d+.\d+)")
-        self.read_pattern(
-            {"total_energy": toten_pattern}, terminate_on_match=False, postprocess=float, reverse=False,
-        )
-        self.data["total_energy"] = np.multiply(self.data.get("total_energy", []), Ha_to_eV)
-        self.final_energy = self.data.get("total_energy", [])[-1][-1]
+        if self.filenames.get('trajectory'):
+            toten_pattern = ".*E\s+\=\s+(-?\d+.\d+)"
+            matches = regrep(self.filenames['trajectory'][-1], {'total_energy': toten_pattern}, postprocess=float)
+            self.data['total_energy'] = list(chain.from_iterable(np.multiply([i[0] for i in matches.get('total_energy', [[]])], Ha_to_eV)))
+        else:
+            toten_pattern = re.compile(r"Total FORCE_EVAL.*\s(-?\d+.\d+)")
+            self.read_pattern(
+                {"total_energy": toten_pattern}, terminate_on_match=False, postprocess=float, reverse=False,
+            )
+            self.data["total_energy"] = chain.from_iterable(np.multiply(self.data.get("total_energy", []), Ha_to_eV))
+        self.final_energy = self.data.get("total_energy", [])[-1]
 
     def parse_forces(self):
         """
@@ -499,6 +507,8 @@ class Cp2kOutput:
                 last_one_only=False,
             )
 
+    # TODO stress file still parses correctly, but the stress tensor seems to have changed 
+    # from the old version of CP2K. Need to figure out how to parse it correctly.
     def parse_stresses(self):
         """
         Get the stresses from the output file.
@@ -527,33 +537,22 @@ class Cp2kOutput:
 
     def parse_ionic_steps(self):
         """
-        Parse the ionic step info
+        Parse the ionic step info. If already parsed, this will just assimilate.
         """
-        self.ionic_steps = []
+        if not self.structures:
+            self.parse_structures()
+        if not self.data.get('total_energies'):
+            self.parse_energies()
+        if not self.data.get("forces"):
+            self.parse_forces()
+        if not self.data.get("stress_tensor"):
+            self.parse_stresses()
 
-        # TODO: find a better workaround. Currently when optimization is done there
-        # is an extra scf step before the optimization starts causing size difference
-        if len(self.structures) + 1 == len(self.data["total_energy"]):
-            self.data["total_energy"] = self.data["total_energy"][1:]
-
-        for i in range(len(self.data["total_energy"])):
-            self.ionic_steps.append({})
-            try:
-                self.ionic_steps[i]["E"] = self.data["total_energy"][i][0]
-            except (TypeError, IndexError):
-                warnings.warn("No total energies identified! Check output file")
-            try:
-                self.ionic_steps[i]["forces"] = self.data["forces"][i]
-            except (TypeError, IndexError):
-                pass
-            try:
-                self.ionic_steps[i]["stress_tensor"] = self.data["stress_tensor"][i][0]
-            except (TypeError, IndexError):
-                pass
-            try:
-                self.ionic_steps[i]["structure"] = self.structures[i]
-            except (TypeError, IndexError):
-                warnings.warn("Structure corresponding to this ionic step was not found!")
+        self.ionic_steps = [
+            {'structure': structure, 'E': energy, 'stress_tensor': stress, 'forces': forces}
+            for structure, energy, stress, forces in 
+            zip(self.structures, self.data.get('total_energies'), self.data.get['stress_tensor'], self.data.get['forces'])
+        ]
 
     def parse_cp2k_params(self):
         """
@@ -1217,7 +1216,7 @@ class Cp2kOutput:
 
         self.data["pdos"] = jsanitize(pdoss, strict=True)
         self.data["ldos"] = jsanitize(ldoss, strict=True)
-        self.data["tdos"] = tdos  # jsanitize(tdos, strict=True)
+        self.data["tdos"] = tdos 
 
         if self.data.get('tdos'):
             self.band_gap = tdos.get_gap()
@@ -1228,8 +1227,12 @@ class Cp2kOutput:
         _ldoss = {}
 
         if self.initial_structure and len(ldoss) == len(self.initial_structure):
-            for k in self.data["ldos"]:
-                _ldoss[self.initial_structure[int(k) - 1]] = self.data["ldos"][k]
+            for k in ldoss:
+                _ldoss[self.initial_structure[int(k) - 1]] = {
+                    Orbital(orb): ldoss[k][orb].densities
+                    for orb in ldoss[k]
+                }
+
             self.data["cdos"] = CompleteDos(self.final_structure, total_dos=tdos, pdoss=_ldoss)
 
     @staticmethod
@@ -1517,37 +1520,15 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
         energies = np.insert(energies, vbmtop+1, np.linspace(energies[vbmtop]+1e-6, energies[vbmtop + 1]-1e-6, 2))
         data = np.insert(data, vbmtop+1, np.zeros((2, data.shape[1])), axis=0)
 
-        data = gauss_smear(data, sigma)
-
+   
         pdos = {
             kind: {
-                getattr(Orbital, h): Dos(efermi=efermi, energies=energies, densities={spin: data[:, i]})
+                getattr(Orbital, h): Dos(efermi=efermi, energies=energies, densities={spin: data[:, i+1]})
                 for i, h in enumerate(header)
             }
         }
         if total:
-            tdos = Dos(efermi=efermi, energies=energies, densities={spin: np.sum(data[:, 2:], axis=1)})
+            tdos = Dos(efermi=efermi, energies=energies, densities={spin: np.sum(data[:, 1:], axis=1)})
             return pdos, tdos
         else:
             return pdos
-
-
-def gauss_smear(data, width):
-    """
-    Return a gaussian smeared DOS
-    """
-
-    if not width:
-        return data
-
-    npts, nOrbitals = data.shape
-
-    e_s = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), data.shape[0])
-    grid = np.multiply(np.ones((npts, npts)), e_s).T
-
-    def summation(d):
-        return np.sum(
-            np.multiply(np.exp(-((np.subtract(grid, data[:, 0]) / width) ** 2)) / (np.sqrt(np.pi) * width), d), axis=1
-        )
-
-    return np.array([summation(data[:, i]) for i in range(1, nOrbitals)]).T
