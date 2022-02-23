@@ -1789,6 +1789,7 @@ class WavecarTest(PymatgenTest):
         self.wH2 = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2_low_symm")
         self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2_low_symm.gamma")
         self.w_ncl = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2.ncl")
+        self.w_frac_encut = Wavecar(self.TEST_FILES_DIR / "WAVECAR.frac_encut")
 
     def test_standard(self):
         w = self.w
@@ -1805,7 +1806,7 @@ class WavecarTest(PymatgenTest):
 
         self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2")
         self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.encut, 25.0)
         self.assertEqual(w.nb, 9)
         self.assertEqual(w.nk, 1)
         self.assertTrue(np.allclose(w.a, a))
@@ -1821,6 +1822,10 @@ class WavecarTest(PymatgenTest):
             for b in range(w.nb):
                 self.assertEqual(len(w.coeffs[k][b]), len(w.Gpoints[k]))
 
+        # Test WAVECAR with fractional encut
+        self.assertEqual(self.w_frac_encut.encut, 100.5)
+
+        # Test malformed WAVECARs
         with self.assertRaises(ValueError):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.malformed")
 
@@ -1849,7 +1854,7 @@ class WavecarTest(PymatgenTest):
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.encut, 25.0)
         self.assertEqual(w.nb, 9)
         self.assertEqual(w.nk, 1)
         self.assertTrue(np.allclose(w.a, self.a))
