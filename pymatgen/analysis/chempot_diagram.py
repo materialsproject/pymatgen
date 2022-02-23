@@ -26,6 +26,7 @@ import json
 import os
 from itertools import groupby
 from typing import Dict, List, Optional, Tuple, Union
+from functools import lru_cache
 
 import numpy as np
 import plotly.express as px
@@ -122,7 +123,7 @@ class ChemicalPotentialDiagram(MSONable):
         In 3D, this method also allows for plotting of lower-dimensional "slices" of
         hyperdimensional polytopes (e.g., the LiMnO2 domain within a Y-Mn-O diagram).
         This allows for visualization of some of the phase boundaries that can only
-        be seen fully in high dimensional space.
+        be seen fully in high dimensional space; see the "formulas_to_draw" argument.
 
         Args:
             elements: list of elements to use as axes in the diagram. If None,
@@ -179,8 +180,8 @@ class ChemicalPotentialDiagram(MSONable):
         entries = self._hyperplane_entries
 
         hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
-        interior_point = np.average(self.lims, axis=1).tolist()
-        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
+        interior_point = np.min(self.lims, axis=1) + 1e-1
+        hs_int = HalfspaceIntersection(hs_hyperplanes, interior_point)
 
         domains = {entry.composition.reduced_formula: [] for entry in entries}  # type: ignore
 
@@ -505,11 +506,10 @@ class ChemicalPotentialDiagram(MSONable):
 
         return axes_layout
 
-    @property
+    @property  # type: ignore
+    @lru_cache(maxsize=1)
     def domains(self) -> Dict[str, np.ndarray]:
-        """
-        Mapping of formulas to array of domain boundary points
-        """
+        """Mapping of formulas to array of domain boundary points"""
         return self._get_domains()
 
     @property
