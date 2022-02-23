@@ -8,16 +8,18 @@ phase diagram.
 
 For more information, please cite/reference the paper below:
 
-Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
-synthesis via local chemical potentials in hyperdimensional phase space.”
-ArXiv:2104.05986 [Cond-Mat], Aug. 2021. arXiv.org, http://arxiv.org/abs/2104.05986.
+    Todd, P. K., McDermott, M. J., Rom, C. L., Corrao, A. A., Denney, J. J., Dwaraknath,
+    S. S.,  Khalifah, P. G., Persson, K. A., & Neilson, J. R. (2021). Selectivity in
+    Yttrium Manganese Oxide Synthesis via Local Chemical Potentials in Hyperdimensional
+    Phase Space. Journal of the American Chemical Society, 143(37), 15185–15194.
+    https://doi.org/10.1021/jacs.1c06229
 
 Please also consider referencing the original 1999 paper by H. Yokokawa,
 who outlined many of its possible uses:
 
-Yokokawa, H. "Generalized chemical potential diagram and its applications to
-chemical reactions at interfaces between dissimilar materials." JPE 20,
-258 (1999). https://doi.org/10.1361/105497199770335794
+    Yokokawa, H. "Generalized chemical potential diagram and its applications to
+    chemical reactions at interfaces between dissimilar materials." JPE 20,
+    258 (1999). https://doi.org/10.1361/105497199770335794
 """
 
 import json
@@ -43,7 +45,7 @@ with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_
 
 class ChemicalPotentialDiagram(MSONable):
     """
-    The chemical potential diagram is the mathematical dual to the  compositional
+    The chemical potential diagram is the mathematical dual to the compositional
     phase diagram. To create the diagram, convex minimization is
     performed in energy (E) vs. chemical potential (μ) space by taking the lower convex
     envelope of hyperplanes. Accordingly, "points" on the compositional phase diagram
@@ -52,9 +54,11 @@ class ChemicalPotentialDiagram(MSONable):
     For more information on this specific implementation of the algorithm,
     please cite/reference the paper below:
 
-    Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
-    synthesis via local chemical potentials in hyperdimensional phase space.”
-    ArXiv:2104.05986 [Cond-Mat], Apr. 2021. arXiv.org, http://arxiv.org/abs/2104.05986
+        Todd, P. K., McDermott, M. J., Rom, C. L., Corrao, A. A., Denney, J. J., Dwaraknath,
+        S. S.,  Khalifah, P. G., Persson, K. A., & Neilson, J. R. (2021). Selectivity in
+        Yttrium Manganese Oxide Synthesis via Local Chemical Potentials in Hyperdimensional
+        Phase Space. Journal of the American Chemical Society, 143(37), 15185–15194.
+        https://doi.org/10.1021/jacs.1c06229
     """
 
     def __init__(
