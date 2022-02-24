@@ -587,14 +587,18 @@ Direct
         self.assertTrue(os.path.exists("Si_testing.yaml"))
         s = Structure.from_file("Si_testing.yaml")
         self.assertEqual(s, self.struct)
-
-        self.assertRaises(ValueError, self.struct.to, filename="whatever")
-        self.assertRaises(ValueError, self.struct.to, fmt="badformat")
-
         # Test Path support.
         s = Structure.from_file(Path("Si_testing.yaml"))
         self.assertEqual(s, self.struct)
-        os.remove("Si_testing.yaml")
+
+        # Test .yml extension works too.
+        os.replace("Si_testing.yaml", "Si_testing.yml")
+        s = Structure.from_file("Si_testing.yml")
+        self.assertEqual(s, self.struct)
+        os.remove("Si_testing.yml")
+
+        self.assertRaises(ValueError, self.struct.to, filename="whatever")
+        self.assertRaises(ValueError, self.struct.to, fmt="badformat")
 
         self.struct.to(filename="POSCAR.testing.gz")
         s = Structure.from_file("POSCAR.testing.gz")
