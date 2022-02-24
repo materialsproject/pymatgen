@@ -25,7 +25,7 @@
     "legend": {
       "orientation": "v",
       "x": 0.1,
-      "y": 0.99,
+      "y": 0.95,
       "traceorder": "reversed",
       "xanchor": "left",
       "yanchor": "top"

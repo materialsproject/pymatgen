@@ -129,19 +129,20 @@ class ChemicalPotentialDiagram(MSONable):
             elements: list of elements to use as axes in the diagram. If None,
                 automatically defaults to the first 2 or elements within the
                 object's "elements" attribute.
-            label_stable: whether or not to label stable phases by their reduced
+            label_stable: whether to label stable phases by their reduced
                 formulas. Defaults to True.
             formulas_to_draw: for 3-dimensional diagrams, an optional list of
                 formulas to plot on the diagram; if these are from a different
-                chemical system a 3-d polyhedron "slice" will be plotted.
-            draw_formula_meshes: whether or not to draw a colored mesh for the
+                chemical system a 3-d polyhedron "slice" will be plotted. Defaults to None.
+            draw_formula_meshes: whether to draw a colored mesh for the
                 optionally specified formulas_to_draw. Defaults to True.
-            draw_formula_lines: whether or not to draw bounding lines for the
+            draw_formula_lines: whether to draw bounding lines for the
                 optionally specified formulas_to_draw. Defaults to True.
             formula_colors: a list of colors to use in the plotting of the optionally
-                specified formulas_to-draw. Defaults to a Plotly color scheme.
-            element_padding: If provided, automatically adjusts mu limits of the plot
-                and adds specified amount as padding (in eV/atom) to the elemental domains.
+                specified formulas_to-draw. Defaults to the Plotly Dark2 color scheme.
+            element_padding: if provided, automatically adjusts chemical potential axis
+                limits of the plot such that elemental domains have the specified padding
+                (in eV/atom), helping provide visual clarity. Defaults to 1.0.
 
         Returns:
             A Plotly Figure object
@@ -263,7 +264,7 @@ class ChemicalPotentialDiagram(MSONable):
             ann_loc = center + 0.25 * normal  # offset annotation location by arb. amount
             annotation = self._get_annotation(ann_loc, ann_formula)
             annotations.append(annotation)
-            
+
             draw_domains[formula] = pts_2d
 
         layout = plotly_layouts["default_layout_2d"].copy()
@@ -346,7 +347,8 @@ class ChemicalPotentialDiagram(MSONable):
         layout["scene_camera"] = dict(
             eye=dict(x=5, y=5, z=5),  # zoomed out
             projection=dict(type="orthographic"),
-            center=dict(x=-0.2, y=-0.2, z=0.1))
+            center=dict(x=-0.2, y=-0.2, z=0.1),
+        )
 
         data = self._get_3d_domain_lines(domains)
 
@@ -533,7 +535,7 @@ class ChemicalPotentialDiagram(MSONable):
             layout_name = "default_3d_axis_layout"
 
         def get_chempot_axis_title(element) -> str:
-            return f"ㅤ<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV) <br>ㅤ"
+            return f"<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
 
         axes_layout = {}
         for ax, el in zip(axes, elements):
