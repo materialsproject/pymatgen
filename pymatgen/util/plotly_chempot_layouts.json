@@ -50,12 +50,12 @@
   },
   "default_2d_axis_layout": {
     "titlefont": {
-      "size": 30
+      "size": 20
     },
     "gridcolor": "#dbdbdb",
     "gridwidth": 1.0,
     "tickfont": {
-      "size": 16
+      "size": 12
     },
     "ticks": "inside",
     "ticklen": 14,
