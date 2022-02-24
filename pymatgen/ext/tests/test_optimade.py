@@ -1,10 +1,24 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import unittest
+
+import requests
+
 from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core import SETTINGS
+
+try:
+    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+except:
+    website_is_up = False
 
 
+@unittest.skipIf(
+    (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
+    "PMG_MAPI_KEY environment variable not set or MP is down.",
+)
 class OptimadeTest(PymatgenTest):
     def test_get_structures_mp(self):
 
