@@ -66,23 +66,22 @@ class ChemicalPotentialDiagram(MSONable):
         self,
         entries: List[PDEntry],
         limits: Optional[Dict[Element, float]] = None,
-        default_min_limit: Optional[float] = -20.0,
+        default_min_limit: Optional[float] = -50.0,
     ):
         """
         Args:
             entries: List of PDEntry-like objects containing a composition and
                 energy. Must contain elemental references and be suitable for typical
                 phase diagram construction. Entries must be within a chemical system
-                of with 2+ elements
+                of with 2+ elements.
             limits: Bounds of elemental chemical potentials (min, max), which are
                 used to construct the border hyperplanes used in the
                 HalfSpaceIntersection algorithm; these constrain the space over which the
                 domains are calculated and also determine the size of the plotted
                 diagram. Any elemental limits not specified are covered in the
-                default_min_limit argument
-            default_min_limit (float): Default minimum chemical potential limit for
-                unspecified elements within the "limits" argument. This results in
-                default limits of (default_min_limit, 0)
+                default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
+            default_min_limit (float): Default minimum chemical potential limit (i.e.,
+                lower bound) for unspecified elements within the "limits" argument.
         """
         self.entries = list(sorted(entries, key=lambda e: e.composition.reduced_composition))
         self.limits = limits
@@ -112,6 +111,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_formula_meshes: Optional[bool] = True,
         draw_formula_lines: Optional[bool] = True,
         formula_colors: List[str] = px.colors.qualitative.Dark2,
+        element_padding: Optional[float] = 1.0,
     ) -> Figure:
         """
         Plot the 2-dimensional or 3-dimensional chemical potential diagram using an
@@ -140,6 +140,8 @@ class ChemicalPotentialDiagram(MSONable):
                 optionally specified formulas_to_draw. Defaults to True.
             formula_colors: a list of colors to use in the plotting of the optionally
                 specified formulas_to-draw. Defaults to a Plotly color scheme.
+            element_padding: If provided, automatically adjusts mu limits of the plot
+                and adds specified amount as padding (in eV/atom) to the elemental domains.
 
         Returns:
             A Plotly Figure object
@@ -169,6 +171,7 @@ class ChemicalPotentialDiagram(MSONable):
                 draw_formula_meshes=draw_formula_meshes,
                 draw_formula_lines=draw_formula_lines,
                 formula_colors=formula_colors,
+                element_padding=element_padding,
             )
 
         return fig
@@ -268,7 +271,8 @@ class ChemicalPotentialDiagram(MSONable):
         formulas_to_draw: Optional[List[str]],
         draw_formula_meshes: Optional[bool],
         draw_formula_lines: Optional[bool],
-        formula_colors: Optional[List[str]] = px.colors.qualitative.Dark2,
+        formula_colors: Optional[List[str]],
+        element_padding,
     ) -> Figure:
         """Returns a Plotly figure for a 3-dimensional chemical potential diagram"""
         if not formulas_to_draw:
@@ -281,9 +285,23 @@ class ChemicalPotentialDiagram(MSONable):
         draw_comps = [Composition(formula).reduced_composition for formula in formulas_to_draw]
         annotations = []
 
+        if element_padding:
+            all_pts = np.vstack(list(domains.values()))
+            new_lims = []
+            for el in elem_indices:
+                pts = all_pts[:, el]
+                new_lim = pts[~np.isclose(pts, self.default_min_limit)].min() - element_padding
+                new_lims.append(new_lim)
+
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]
+                
             pts_3d = np.array(pts[:, elem_indices])
+            if element_padding:
+                for idx, new_lim in enumerate(new_lims):
+                    col = pts_3d[:, idx]
+                    pts_3d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
+
             contains_target_elems = set(entry.composition.elements).issubset(elements)
 
             if formulas_to_draw:
