@@ -9,6 +9,10 @@ Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and G
 "Statistical analysis of coordination environments in oxides",
 Chem. Mater., 2017, 29 (19), pp 8346–8360,
 DOI: 10.1021/acs.chemmater.7b02766
+D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier
+"ChemEnv: a fast and robust coordination environment identification tool",
+Acta Cryst. B 2020, 76, pp 683–695,
+DOI: 10.1107/S2052520620007994
 """
 
 __author__ = "David Waroquiers"
@@ -376,7 +380,7 @@ class LocalGeometryFinder:
         debug_level=None,
         plane_safe_permutations=False,
         only_symbols=None,
-        print_citation=True,
+        print_citation=False,
     ):
         """
 

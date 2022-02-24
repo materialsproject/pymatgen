@@ -32,7 +32,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             centering_type="standard",
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
-        self.lgf2 = LocalGeometryFinder(print_citation=False)
+        self.lgf2 = LocalGeometryFinder(print_citation=True)
 
     #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
