@@ -376,12 +376,18 @@ class LocalGeometryFinder:
         debug_level=None,
         plane_safe_permutations=False,
         only_symbols=None,
+        print_citation=True,
     ):
         """
-        Constructor for the LocalGeometryFinder, initializes the list of coordination geometries
-        :param permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large
+
+        Args:
+            permutations_safe_override:  If set to True, all permutations are tested (very time-consuming for large
             coordination numbers!)
-        :param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
+            plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
+            debug_level: decides the level of debugging
+            permutations_safe_override: Whether to use safe permutations.
+            only_symbols: Whether to restrict the list of environments to be identified.
+            print_citation: If True, the ChemEnv citation will be printed
         """
         self.allcg = AllCoordinationGeometries(
             permutations_safe_override=permutations_safe_override,
@@ -396,7 +402,8 @@ class LocalGeometryFinder:
             bva_distance_scale_factor=None,
             structure_refinement=self.STRUCTURE_REFINEMENT_NONE,
         )
-        print(chemenv_citations())
+        if not print_citation:
+            print(chemenv_citations())
 
     def setup_parameters(
         self,
