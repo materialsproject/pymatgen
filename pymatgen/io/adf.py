@@ -4,6 +4,7 @@ IO for ADF files.
 
 import os
 import re
+from typing import Generator
 
 from monty.io import reverse_readline
 from monty.itertools import chunks
@@ -38,20 +39,14 @@ def is_numeric(s):
         return True
 
 
-def iterlines(s):
-    r"""
-    A generator form of s.split('\n') for reducing memory overhead.
+def iterlines(s: str) -> Generator[str, None, None]:
+    r"""A generator form of s.split('\n') for reducing memory overhead.
 
-    Parameters
-    ----------
-    s : str
-        A multi-line string.
+    Args:
+        s (str): A multi-line string.
 
-    Yields
-    ------
-    line : str
-        A string.
-
+    Yields:
+        str: line
     """
     prevnl = -1
     while True:

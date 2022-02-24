@@ -90,7 +90,6 @@ class LammpsRun(MSONable):
             nsteps (int): No. of steps to run.
             other_settings (dict): other settings to be filled into
                 placeholders.
-
         """
         template_path = os.path.join(cls.template_dir, "md.txt")
         with open(template_path) as f:

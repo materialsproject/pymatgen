@@ -44,7 +44,7 @@ class Spectrum(MSONable):
     YLABEL = "y"
 
     def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs):
-        r"""
+        """
         Args:
             x (ndarray): A ndarray of N values.
             y (ndarray): A ndarray of N x k values. The first dimension must be

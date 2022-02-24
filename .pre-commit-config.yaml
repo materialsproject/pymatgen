@@ -52,3 +52,9 @@ repos:
     rev: v0.931
     hooks:
       - id: mypy
+
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        exclude: (test_|tests/|tasks.py)

@@ -827,7 +827,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             )
 
     def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        r"""
+        """
         String representation.
 
         Args:

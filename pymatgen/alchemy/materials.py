@@ -185,7 +185,7 @@ class TransformedStructure(MSONable):
         return d
 
     def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs):
-        r"""
+        """
         Writes VASP input to an output_dir.
 
         Args:
