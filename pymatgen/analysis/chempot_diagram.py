@@ -154,7 +154,7 @@ class ChemicalPotentialDiagram(MSONable):
                 elems = elems[:3]  # default to first three elements
 
         if len(elems) == 2 and self.dim == 2:
-            fig = self._get_2d_plot(elements=elems, label_stable=label_stable)
+            fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
         elif len(elems) == 2 and self.dim > 2:
             entries = [e for e in self.entries if set(e.composition.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
@@ -231,17 +231,28 @@ class ChemicalPotentialDiagram(MSONable):
 
         return hyperplanes, hyperplane_entries
 
-    def _get_2d_plot(self, elements: List[Element], label_stable: Optional[bool]) -> Figure:
+    def _get_2d_plot(self, elements: List[Element], label_stable: Optional[bool], element_padding) -> Figure:
         """Returns a Plotly figure for a 2-dimensional chemical potential diagram"""
         domains = self.domains.copy()
         elem_indices = [self.elements.index(e) for e in elements]
 
         annotations = []
+        draw_domains = {}
+
+        if element_padding and element_padding > 0:
+            new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+
         for formula, pts in domains.items():
             formula_elems = set(Composition(formula).elements)
             if not formula_elems.issubset(elements):
                 continue
+
             pts_2d = np.array(pts[:, elem_indices])
+            if element_padding and element_padding > 0:
+                for idx, new_lim in enumerate(new_lims):
+                    col = pts_2d[:, idx]
+                    pts_2d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
+
             entry = self.entry_dict[formula]
             ann_formula = formula
             if hasattr(entry, "original_entry"):
@@ -249,16 +260,18 @@ class ChemicalPotentialDiagram(MSONable):
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
-            ann_loc = center + 0.8 * normal
+            ann_loc = center + 0.25 * normal  # offset annotation location by arb. amount
             annotation = self._get_annotation(ann_loc, ann_formula)
             annotations.append(annotation)
+            
+            draw_domains[formula] = pts_2d
 
         layout = plotly_layouts["default_layout_2d"].copy()
         layout.update(self._get_axis_layout_dict(elements))
         if label_stable:
             layout.update({"annotations": annotations})
 
-        data = self._get_2d_domain_lines(domains, elements)
+        data = self._get_2d_domain_lines(draw_domains)
 
         fig = Figure(data, layout)
 
@@ -286,12 +299,7 @@ class ChemicalPotentialDiagram(MSONable):
         annotations = []
 
         if element_padding and element_padding > 0:
-            all_pts = np.vstack(list(domains.values()))
-            new_lims = []
-            for el in elem_indices:
-                pts = all_pts[:, el]
-                new_lim = pts[~np.isclose(pts, self.default_min_limit)].min() - element_padding
-                new_lims.append(new_lim)
+            new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
 
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]
@@ -352,16 +360,24 @@ class ChemicalPotentialDiagram(MSONable):
         return fig
 
     @staticmethod
-    def _get_2d_domain_lines(domains: Dict[str, np.ndarray], elements: List[Element]) -> List[Scatter]:
+    def _get_new_limits_from_padding(domains, elem_indices, element_padding, default_min_limit):
+        all_pts = np.vstack(list(domains.values()))
+        new_lims = []
+
+        for el in elem_indices:
+            pts = all_pts[:, el]
+            new_lim = pts[~np.isclose(pts, default_min_limit)].min() - element_padding
+            new_lims.append(new_lim)
+
+        return new_lims
+
+    @staticmethod
+    def _get_2d_domain_lines(draw_domains) -> List[Scatter]:
         """Returns a list of Scatter objects tracing the domain lines on a
         2-dimensional chemical potential diagram"""
         x, y = [], []
-        elems = set(elements)
-        for formula, pts in domains.items():
-            formula_elems = set(Composition(formula).elements)
-            if not formula_elems.issubset(elems):
-                continue
 
+        for pts in draw_domains.values():
             x.extend(pts[:, 0].tolist() + [None])
             y.extend(pts[:, 1].tolist() + [None])
 
