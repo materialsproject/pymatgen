@@ -400,7 +400,7 @@ class HeisenbergMapper:
             return ex_params
 
         # Solve eigenvalue problem for more than 1 NN interaction
-        H = ex_mat.loc[:, ex_mat.columns != "E"].values
+        H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype("float64")
         H_inv = np.linalg.inv(H)
         j_ij = np.dot(H_inv, E)
 
