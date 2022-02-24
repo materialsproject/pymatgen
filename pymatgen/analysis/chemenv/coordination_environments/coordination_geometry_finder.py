@@ -406,7 +406,7 @@ class LocalGeometryFinder:
             bva_distance_scale_factor=None,
             structure_refinement=self.STRUCTURE_REFINEMENT_NONE,
         )
-        if not print_citation:
+        if print_citation:
             print(chemenv_citations())
 
     def setup_parameters(
