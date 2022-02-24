@@ -285,7 +285,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_comps = [Composition(formula).reduced_composition for formula in formulas_to_draw]
         annotations = []
 
-        if element_padding:
+        if element_padding and element_padding > 0:
             all_pts = np.vstack(list(domains.values()))
             new_lims = []
             for el in elem_indices:
@@ -297,7 +297,7 @@ class ChemicalPotentialDiagram(MSONable):
             entry = self.entry_dict[formula]
 
             pts_3d = np.array(pts[:, elem_indices])
-            if element_padding:
+            if element_padding and element_padding > 0:
                 for idx, new_lim in enumerate(new_lims):
                     col = pts_3d[:, idx]
                     pts_3d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
@@ -335,7 +335,10 @@ class ChemicalPotentialDiagram(MSONable):
 
         if label_stable:
             layout["scene"].update({"annotations": annotations})
-        layout["scene_camera"] = dict(eye=dict(x=0, y=0, z=2.0), projection=dict(type="orthographic"))
+        layout["scene_camera"] = dict(
+            eye=dict(x=5, y=5, z=5),  # zoomed out
+            projection=dict(type="orthographic"),
+            center=dict(x=-0.2, y=-0.2, z=0.1))
 
         data = self._get_3d_domain_lines(domains)
 
@@ -514,7 +517,7 @@ class ChemicalPotentialDiagram(MSONable):
             layout_name = "default_3d_axis_layout"
 
         def get_chempot_axis_title(element) -> str:
-            return f"μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
+            return f"ㅤ<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV) <br>ㅤ"
 
         axes_layout = {}
         for ax, el in zip(axes, elements):
