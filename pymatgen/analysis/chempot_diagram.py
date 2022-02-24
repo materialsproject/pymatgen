@@ -24,9 +24,9 @@ who outlined many of its possible uses:
 
 import json
 import os
+from functools import lru_cache
 from itertools import groupby
 from typing import Dict, List, Optional, Tuple, Union
-from functools import lru_cache
 
 import numpy as np
 import plotly.express as px
@@ -295,7 +295,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]
-                
+
             pts_3d = np.array(pts[:, elem_indices])
             if element_padding:
                 for idx, new_lim in enumerate(new_lims):
