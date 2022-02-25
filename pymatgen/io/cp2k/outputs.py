@@ -519,7 +519,7 @@ class Cp2kOutput:
             self.data["stress_tensor"] = [[list(d[2:5]), list(d[5:8]), list(d[8:11])] for d in dat]
         else:
             header_pattern = r"STRESS\|\s+x\s+y\s+z"
-            row_pattern = r"STRESS\|\s+[?:x|y|z]\s+(-?\d+\.\d+E?-?\d+)\s+(-?\d+\.\d+E?-?\d+)\s+(-?\d+\.\d+E?-?\d+).*$"
+            row_pattern = r"STRESS\|\s+[?:x|y|z]\s+(-?\d+\.\d+E?[-|\+]?\d+)\s+(-?\d+\.\d+E?[-|\+]?\d+)\s+(-?\d+\.\d+E?[-|\+]?\d+).*$"
             footer_pattern = r"^$"
             d = self.read_table_pattern(header_pattern=header_pattern, row_pattern=row_pattern, footer_pattern=footer_pattern, postprocess=_postprocessor, last_one_only=False)
 
