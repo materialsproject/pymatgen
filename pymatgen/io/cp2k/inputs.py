@@ -1550,11 +1550,12 @@ class E_Density_Cube(Section):
     Controls printing of the electron density cube file
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, keywords=None, **kwargs):
         """
         Initialize the E_DENSITY_CUBE Section
         """
 
+        self.keywords = keywords if keywords else {}
         self.kwargs = kwargs
 
         description = (
@@ -1563,11 +1564,7 @@ class E_Density_Cube(Section):
         )
 
         super().__init__(
-            "E_DENSITY_CUBE",
-            subsections={},
-            description=description,
-            keywords={"STRIDE": Keyword("STRIDE", *kwargs.get("stride", [1, 1, 1]))},
-            **kwargs,
+            "E_DENSITY_CUBE", subsections={}, description=description, keywords=keywords, **kwargs,
         )
 
 
