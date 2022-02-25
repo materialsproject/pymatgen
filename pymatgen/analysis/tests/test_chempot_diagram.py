@@ -70,7 +70,6 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
                 [-3.93161519, -6.5961471, -7.11535414],
             ]
         )
-
         points_2d_desired = np.array(
             [
                 [10.49782722, 0.10320265],
