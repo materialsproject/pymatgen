@@ -5,9 +5,9 @@ import unittest
 
 import requests
 
+from pymatgen.core import SETTINGS
 from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core import SETTINGS
 
 try:
     website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
