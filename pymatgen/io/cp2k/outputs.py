@@ -481,7 +481,7 @@ class Cp2kOutput:
             self.read_pattern(
                 {"total_energy": toten_pattern}, terminate_on_match=False, postprocess=float, reverse=False,
             )
-            self.data["total_energy"] = chain.from_iterable(np.multiply(self.data.get("total_energy", []), Ha_to_eV))
+            self.data["total_energy"] = list(chain.from_iterable(np.multiply(self.data.get("total_energy", []), Ha_to_eV)))
         self.final_energy = self.data.get("total_energy", [])[-1]
 
     def parse_forces(self):
