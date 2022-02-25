@@ -507,33 +507,28 @@ class Cp2kOutput:
                 last_one_only=False,
             )
 
-    # TODO stress file still parses correctly, but the stress tensor seems to have changed 
-    # from the old version of CP2K. Need to figure out how to parse it correctly.
+    # TODO stress file still parses correctly, but the other is not rigorously tested
     def parse_stresses(self):
         """
         Get the stresses from the output file.
         """
+
         if len(self.filenames["stress"]) == 1:
             dat = np.genfromtxt(self.filenames["stress"][0], skip_header=1)
             dat = [dat] if len(np.shape(dat)) == 1 else dat
             self.data["stress_tensor"] = [[list(d[2:5]), list(d[5:8]), list(d[8:11])] for d in dat]
         else:
-            header_pattern = r"STRESS TENSOR.+Z"
-            row_pattern = r"\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+            header_pattern = r"STRESS\|\s+x\s+y\s+z"
+            row_pattern = r"STRESS\|\s+[?:x|y|z]\s+(-?\d+\.\d+E?-?\d+)\s+(-?\d+\.\d+E?-?\d+)\s+(-?\d+\.\d+E?-?\d+).*$"
             footer_pattern = r"^$"
+            d = self.read_table_pattern(header_pattern=header_pattern, row_pattern=row_pattern, footer_pattern=footer_pattern, postprocess=_postprocessor, last_one_only=False)
 
-            self.data["stress_tensor"] = self.read_table_pattern(
-                header_pattern=header_pattern,
-                row_pattern=row_pattern,
-                footer_pattern=footer_pattern,
-                postprocess=_postprocessor,
-                last_one_only=False,
-            )
-
-            trace_pattern = re.compile(r"Trace\(stress tensor.+(-?\d+\.\d+E?-?\d+)")
-            self.read_pattern(
-                {"stress": trace_pattern}, terminate_on_match=False, postprocess=_postprocessor, reverse=False,
-            )
+            def chunks(lst, n):
+                """Yield successive n-sized chunks from lst."""
+                for i in range(0, len(lst), n):
+                    if i % 2 == 0:
+                        yield lst[i:i + n]
+            self.data['stress_tensor'] = list(chunks(d[0], 3))
 
     def parse_ionic_steps(self):
         """
@@ -541,7 +536,7 @@ class Cp2kOutput:
         """
         if not self.structures:
             self.parse_structures()
-        if not self.data.get('total_energies'):
+        if not self.data.get('total_energy'):
             self.parse_energies()
         if not self.data.get("forces"):
             self.parse_forces()
@@ -551,7 +546,7 @@ class Cp2kOutput:
         self.ionic_steps = [
             {'structure': structure, 'E': energy, 'stress_tensor': stress, 'forces': forces}
             for structure, energy, stress, forces in 
-            zip(self.structures, self.data.get('total_energies'), self.data.get['stress_tensor'], self.data.get['forces'])
+            zip(self.structures, self.data.get('total_energy', []), self.data.get('stress_tensor', []), self.data.get('forces', []))
         ]
 
     def parse_cp2k_params(self):
