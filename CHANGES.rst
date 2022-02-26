@@ -12,7 +12,7 @@ v2022.2.25
 * Update of linter configuration, PR #2440 from @janosh
 * Update to ChemEnv citation, PR #2448 from @JaGeo
 * Type annotation fix, PR #2432 from @janosh
-* Documentation fix for Structure.apply_operation, PR #2433 from @janosh 
+* Documentation fix for Structure.apply_operation, PR #2433 from @janosh
 
 v2022.2.10
 ----------
