@@ -354,7 +354,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout["scene_camera"] = dict(
             eye=dict(x=5, y=5, z=5),  # zoomed out
             projection=dict(type="orthographic"),
-            center=dict(x=-0.2, y=-0.2, z=0.1),
+            center=dict(x=0, y=0, z=0),
         )
 
         data = self._get_3d_domain_lines(domain_simplexes)
