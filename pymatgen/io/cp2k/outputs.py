@@ -528,7 +528,8 @@ class Cp2kOutput:
                 for i in range(0, len(lst), n):
                     if i % 2 == 0:
                         yield lst[i:i + n]
-            self.data['stress_tensor'] = list(chunks(d[0], 3))
+            if d:
+                self.data['stress_tensor'] = list(chunks(d[0], 3))
 
     def parse_ionic_steps(self):
         """

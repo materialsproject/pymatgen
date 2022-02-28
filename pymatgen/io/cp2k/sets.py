@@ -17,13 +17,15 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
+from ast import keyword
+import itertools
 import os
+from re import S
 import warnings
 from typing import Dict, Iterable, Union
 from pathlib import Path
 from ruamel import yaml
 import numpy as np
-from sklearn.preprocessing import scale
 
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
@@ -36,6 +38,7 @@ from pymatgen.io.cp2k.inputs import (
     MO_Cubes,
     OrbitalTransformation,
     XC_FUNCTIONAL,
+    SectionList,
     V_Hartree_Cube,
     Dft,
     E_Density_Cube,
@@ -141,8 +144,6 @@ class Cp2kInputSet(Cp2kInput):
 
         if self.kwargs.get("print_forces", True):
             self.print_forces()
-        if self.kwargs.get("print_motion", True):
-            self.print_motion()
 
         self.update(override_default_params)
 
@@ -231,19 +232,6 @@ class Cp2kInputSet(Cp2kInput):
         self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
-
-    def print_motion(self):
-        """
-        Print the motion info (trajectory, cell, forces, stress
-        """
-        if not self.check("MOTION"):
-            self.insert(Section("MOTION", subsections={}))
-        self["MOTION"].insert(Section("PRINT", subsections={}))
-        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
-        self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
-        self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
-        self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
-
 
 class DftSet(Cp2kInputSet):
     """
@@ -768,6 +756,51 @@ class DftSet(Cp2kInputSet):
 
         self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
 
+    def activate_motion(self):
+        if not self.check("MOTION"):
+            self.insert(Section("MOTION", subsections={}))
+
+        self["MOTION"].insert(Section("PRINT", subsections={}))
+        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
+        self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
+        self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
+        self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
+
+        if 'fix' in self.structure.site_properties:
+            self['motion'].insert(Section('CONSTRAINT'))
+
+            i = 0
+            components = []
+            tuples = []
+            while i < len(s):
+                end = i + sum(
+                    1 for j in 
+                    itertools.takewhile(
+                        lambda x: x == self.structure.site_properties['fix'][i], 
+                        self.structure.site_properties['fix'][i:]
+                    )
+                )
+                components.append(self.structure.site_properties['fix'][i])
+                tuples.append((i+1, end))
+                i = end
+            print(tuples)
+            print(components)
+            for t, c in zip(tuples, components):
+                self['motion']['constraint'].insert(
+                    SectionList(sections=[
+                                Section(
+                                "FIXED_ATOMS", 
+                                keywords={
+                                    "COMPONENTS_TO_FIX": Keyword("COMPONENTS_TO_FIX", c),
+                                    "LIST": Keyword("LIST", "{}..{}".format(t[0], t[1]))
+                                    }
+                            )    
+                                for t,c in zip(tuples, components) if c  
+                            ]
+                    )
+                )
+            print(self['motion']['constraint'])
+    
     def activate_fast_minimization(self, on):
         """
         Method to modify the set to use fast SCF minimization.
@@ -954,8 +987,7 @@ class RelaxSet(DftSet):
             cg = Section("CG", subsections={"LINE_SEARCH": ls}, keywords={})
             geo_opt.insert(cg)
 
-        if not self.check("MOTION"):
-            self.insert(Section("MOTION", subsections={}))
+        self.activate_motion()
         self["MOTION"].insert(geo_opt)
         self.insert(global_section)
         self.modify_dft_print_iters(0, add_last="numeric")
@@ -1009,6 +1041,7 @@ class CellOptSet(DftSet):
         self.kwargs = kwargs
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
+        self.activate_motion()
         self.modify_dft_print_iters(0, add_last="numeric")
         self.update(override_default_params)
 
@@ -1269,3 +1302,12 @@ class HybridCellOptSet(CellOptSet):
             screen_p_forces=self.screen_p_forces,
         )
         self.update(override_default_params)
+
+from pymatgen.ext.matproj import MPRester
+
+with MPRester() as mp:
+    s = mp.get_structure_by_material_id('mp-149')
+s.make_supercell(3)
+nonfix = s.get_sites_in_sphere(s[0].coords, 4, include_index=True, include_image=True)
+s.add_site_property("fix", [None if site in nonfix else "xyz" for i, site in enumerate(s.sites)])
+ss = RelaxSet(s)

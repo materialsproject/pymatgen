@@ -631,6 +631,7 @@ class SectionList(MSONable):
         """
         assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
         self.name = sections[0].name if sections else None
+        self.alias = sections[0].alias if sections else None
         self.sections = sections
 
     def __str__(self):
@@ -647,6 +648,16 @@ class SectionList(MSONable):
 
     def __getitem__(self, item):
         return self.sections[item]
+
+    def __deepcopy__(self, memodict={}):
+        return SectionList(sections=[d.__deepcopy__() for d in self.sections])
+
+    @staticmethod
+    def _get_string(d, indent=0):
+        return " \n".join([s._get_string(s, indent) for s in d])
+    
+    def get_string(self):
+        return SectionList._get_string(self.sections)
 
     def append(self, item):
         """
