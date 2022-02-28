@@ -14,6 +14,10 @@ v2022.2.25
 * Type annotation fix, PR #2432 from @janosh
 * Documentation fix for Structure.apply_operation, PR #2433 from @janosh
 
+Important note: an update to a library that pymatgen depends upon has led to the 
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected, 
+you may need to re-generate this file. This issue should now be fixed and not re-occur.
+
 v2022.2.10
 ----------
 * Require Cython during setup. (@jonringer)
