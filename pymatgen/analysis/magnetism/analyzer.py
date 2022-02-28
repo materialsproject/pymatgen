@@ -93,7 +93,7 @@ class CollinearMagneticStructureAnalyzer:
         threshold: float = 0.00,
         threshold_nonmag: float = 0.1,
     ):
-        r"""
+        """
         If magnetic moments are not defined, moments will be
         taken either from default_magmoms.yaml (similar to the
         default magmoms in MPRelaxSet, with a few extra definitions)

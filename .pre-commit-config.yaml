@@ -5,7 +5,7 @@ default_language_version:
 
 ci:
   autoupdate_schedule: monthly
-  skip: [flake8, autoflake, mypy]
+  skip: [flake8, mypy]
 
 repos:
   - repo: https://github.com/psf/black
@@ -49,6 +49,12 @@ repos:
           - --ignore-init-module-imports
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.930
+    rev: v0.931
     hooks:
       - id: mypy
+
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        exclude: (test_|tests/|tasks.py)

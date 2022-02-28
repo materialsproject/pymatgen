@@ -2023,7 +2023,7 @@ class MVLGWSet(DictSet):
         ncores=16,
         **kwargs,
     ):
-        r"""
+        """
         Args:
             structure (Structure): Input structure.
             prev_incar (Incar/string): Incar file from previous run.
@@ -2268,7 +2268,7 @@ class MVLGBSet(MPRelaxSet):
     """
 
     def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
-        r"""
+        """
 
         Args:
             structure(Structure): provide the structure
@@ -2515,7 +2515,7 @@ class MITMDSet(MITRelaxSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
-        r"""
+        """
 
         Args:
             structure (Structure): Input structure.
@@ -2596,7 +2596,7 @@ class MPMDSet(MPRelaxSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): Input structure.
             start_temp (int): Starting temperature.
@@ -2676,7 +2676,7 @@ class MVLNPTMDSet(MITMDSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): input structure.
             start_temp (int): Starting temperature.
@@ -2733,7 +2733,7 @@ class MVLScanRelaxSet(MPRelaxSet):
     """
 
     def __init__(self, structure, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): input structure.
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile

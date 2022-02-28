@@ -1299,7 +1299,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
         # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
-        # (MU_H2O from pourbaix module)
+        # (MU_H2O from Pourbaix module)
 
         # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
         # for this calculation ONLY, we need the (corrected) DFT energy of water

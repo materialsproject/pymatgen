@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.2.7 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.2.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="#" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.7
+                2022.2.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -207,12 +207,10 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h2>
-<section id="v2022-2-7">
-<h3>v2022.2.7<a class="headerlink" href="#v2022-2-7" title="Permalink to this headline"></a></h3>
+<section id="v2022-2-10">
+<h3>v2022.2.10<a class="headerlink" href="#v2022-2-10" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.</p></li>
-<li><p>Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (&#64;JaGeo)</p></li>
-<li><p>Return None for ISPIN=1 for <cite>Vasprun(‘vasprun.xml’).complete_dos.spin_polarization</cite>.</p></li>
+<li><p>Require Cython during setup. (&#64;jonringer)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>

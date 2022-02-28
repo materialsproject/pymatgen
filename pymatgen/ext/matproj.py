@@ -583,7 +583,7 @@ class MPRester:
     def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
-        a pourbaix diagram from the rest interface.
+        a Pourbaix diagram from the rest interface.
 
         Args:
             chemsys (str or [str]): Chemical system string comprising element
@@ -665,7 +665,7 @@ class MPRester:
             ion_entry = IonEntry(ion, energy)
             pbx_entries.append(PourbaixEntry(ion_entry, f"ion-{n}"))
 
-        # Construct the solid pourbaix entries from filtered ion_ref entries
+        # Construct the solid Pourbaix entries from filtered ion_ref entries
 
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
@@ -929,7 +929,6 @@ class MPRester:
         mp_decode=True,
     ):
         r"""
-
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard

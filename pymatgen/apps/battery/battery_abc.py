@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
@@ -136,7 +135,7 @@ class AbstractElectrode(Sequence, MSONable):
         framework_formula: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Tuple[AbstractVoltagePair]
+    voltage_pairs: Tuple[AbstractVoltagePair, ...]
     working_ion_entry: ComputedEntry
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 

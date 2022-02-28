@@ -10,11 +10,11 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 import plotly.graph_objects as go
 from monty.serialization import loadfn
+from ruamel import yaml
 from scipy.optimize import curve_fit
 
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
-from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 

@@ -91,7 +91,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
     def __init__(self, *args, strict: bool = False, **kwargs):
-        r"""
+        """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
 
@@ -226,7 +226,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     __div__ = __truediv__
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         hash based on the chemical system
         """

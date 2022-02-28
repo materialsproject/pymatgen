@@ -109,7 +109,6 @@ class CohpcarTest(PymatgenTest):
         self.assertFalse(self.cobi.are_coops)
         self.assertTrue(self.cobi.are_cobis)
         self.assertFalse(self.cobi.is_spin_polarized)
-        print(self.cobi.orb_res_cohp)
 
     def test_energies(self):
         efermi_bise = 5.90043
@@ -1861,7 +1860,7 @@ class LobsterinTest(unittest.TestCase):
                 os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
                 option=option,
             )
-            self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -15.0)
+            self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -35.0)
             self.assertAlmostEqual(lobsterin1["cohpendenergy"], 5.0)
             self.assertAlmostEqual(lobsterin1["basisset"], "pbeVaspFit2015")
             self.assertAlmostEqual(lobsterin1["gaussiansmearingwidth"], 0.1)

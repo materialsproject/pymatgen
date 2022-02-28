@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
@@ -102,7 +101,7 @@ class InsertionElectrode(AbstractElectrode):
         _unstable_entries = tuple(sorted((e for e in pd.unstable_entries if e in entries), key=lifrac))
 
         # create voltage pairs
-        _vpairs: Tuple[AbstractVoltagePair] = tuple(  # type: ignore
+        _vpairs: Tuple[AbstractVoltagePair, ...] = tuple(
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],

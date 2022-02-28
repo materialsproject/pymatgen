@@ -24,7 +24,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
@@ -1509,54 +1508,3 @@ class CombinedData(LammpsData):
         if self.topology:
             items["topology"] = {k: v.copy() for k, v in self.topology.items() if k in SECTION_KEYWORDS["topology"]}
         return LammpsData(**items)
-
-
-@deprecated(
-    LammpsData.from_structure,
-    "structure_2_lmpdata has been deprecated in favor of LammpsData.from_structure",
-)
-def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge", is_sort=False):
-    """
-    Converts a structure to a LammpsData object with no force field
-    parameters and topologies.
-
-    Args:
-        structure (Structure): Input structure.
-        ff_elements ([str]): List of strings of elements that must be
-            present due to force field settings but not necessarily in
-            the structure. Default to None.
-        atom_style (str): Choose between "atomic" (neutral) and
-            "charge" (charged). Default to "charge".
-        is_sort (bool): whether to sort the structure sites
-    Returns:
-        LammpsData
-
-    """
-    if is_sort:
-        s = structure.get_sorted_structure()
-    else:
-        s = structure.copy()
-
-    a, b, c = s.lattice.abc
-    m = s.lattice.matrix
-    xhi = a
-    xy = np.dot(m[1], m[0] / xhi)
-    yhi = np.sqrt(b**2 - xy**2)
-    xz = np.dot(m[2], m[0] / xhi)
-    yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
-    zhi = np.sqrt(c**2 - xz**2 - yz**2)
-    box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
-    box_tilt = [xy, xz, yz]
-    box_tilt = None if not any(box_tilt) else box_tilt
-    box = LammpsBox(box_bounds, box_tilt)
-    new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-    s.lattice = new_latt
-
-    symbols = list(s.symbol_set)
-    if ff_elements:
-        symbols.extend(ff_elements)
-    elements = sorted(Element(el) for el in set(symbols))
-    mass_info = [tuple([i.symbol] * 2) for i in elements]
-    ff = ForceField(mass_info)
-    topo = Topology(s)
-    return LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)

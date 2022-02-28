@@ -56,9 +56,6 @@ class XAS(Spectrum):
 
     .. attribute: absorbing_index
         The absorbing_index of the spectrum
-
-
-
     """
 
     XLABEL = "Energy"

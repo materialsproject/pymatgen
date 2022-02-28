@@ -8,7 +8,10 @@ import requests
 from pymatgen.ext.crystalsai import CrystalAIRester
 from pymatgen.util.testing import PymatgenTest
 
-website_is_up = requests.get("http://megnet.crystals.ai").status_code == 200
+try:
+    website_is_up = requests.get("http://megnet.crystals.ai").status_code == 200
+except:
+    website_is_up = False
 
 
 @unittest.skipIf(not website_is_up, "megnet.crystals.ai is down.")

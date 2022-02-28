@@ -176,7 +176,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag_te_n, 10, -2), 3.756840056890625)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1), 0)
 
-        # Test invocation of pourbaix diagram from ternary data
+        # Test invocation of Pourbaix diagram from ternary data
         new_ternary = PourbaixDiagram(pd_ternary.all_entries)
         self.assertEqual(len(new_ternary.stable_entries), 49)
         self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag_te_n, 2, -1), 2.767822855765)
