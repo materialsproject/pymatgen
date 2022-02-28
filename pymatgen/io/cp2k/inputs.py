@@ -1431,7 +1431,6 @@ class Coord(Section):
                 ss: KeywordList([Keyword(s.specie.symbol, *s.coords) for s in structure.sites if s.specie.symbol == ss])
                 for ss in structure.symbol_set
             }
-
         super().__init__(
             name="COORD",
             description=description,

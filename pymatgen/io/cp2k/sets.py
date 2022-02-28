@@ -772,7 +772,7 @@ class DftSet(Cp2kInputSet):
             i = 0
             components = []
             tuples = []
-            while i < len(s):
+            while i < len(self.structure):
                 end = i + sum(
                     1 for j in 
                     itertools.takewhile(
@@ -783,8 +783,6 @@ class DftSet(Cp2kInputSet):
                 components.append(self.structure.site_properties['fix'][i])
                 tuples.append((i+1, end))
                 i = end
-            print(tuples)
-            print(components)
             for t, c in zip(tuples, components):
                 self['motion']['constraint'].insert(
                     SectionList(sections=[
@@ -799,7 +797,6 @@ class DftSet(Cp2kInputSet):
                             ]
                     )
                 )
-            print(self['motion']['constraint'])
     
     def activate_fast_minimization(self, on):
         """
@@ -1302,12 +1299,3 @@ class HybridCellOptSet(CellOptSet):
             screen_p_forces=self.screen_p_forces,
         )
         self.update(override_default_params)
-
-from pymatgen.ext.matproj import MPRester
-
-with MPRester() as mp:
-    s = mp.get_structure_by_material_id('mp-149')
-s.make_supercell(3)
-nonfix = s.get_sites_in_sphere(s[0].coords, 4, include_index=True, include_image=True)
-s.add_site_property("fix", [None if site in nonfix else "xyz" for i, site in enumerate(s.sites)])
-ss = RelaxSet(s)
