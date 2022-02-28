@@ -15,7 +15,7 @@ import itertools
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
-from scipy.optimize import bisect
+from scipy.optimize import bisect, brentq
 from scipy.constants.codata import value as _cd
 from scipy.interpolate import interp1d
 from itertools import chain
@@ -457,8 +457,11 @@ class DefectPhaseDiagram(MSONable):
             * fermi_dos.de[: fermi_dos.idx_vbm + 1],
             axis=0,
         )
-
-        return cb_integral, vb_integral
+        p = vb_integral / (fd.volume * fd.A_to_cm ** 3)
+        n = cb_integral / (fd.volume * fd.A_to_cm ** 3)
+        
+        
+        return p - n
 
     def solve_for_fermi_energy(self, temperature, chemical_potentials, bulk_dos):
         """
@@ -487,10 +490,12 @@ class DefectPhaseDiagram(MSONable):
                     )
                 ]
             )
-            qd_tot += self.get_doping(fermi_dos=fdos, fermi_level=ef + fdos_vbm, temperature=temperature)
+
+            qd_tot += fdos.get_doping(ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
+
 
     def solve_for_non_equilibrium_fermi_energy(self, temperature, quench_temperature, chemical_potentials, bulk_dos):
         """
@@ -528,6 +533,7 @@ class DefectPhaseDiagram(MSONable):
             return qd_tot
 
         return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
+    
 
     def get_dopability_limits(self, chemical_potentials):
         """
@@ -784,6 +790,10 @@ class DefectPredominanceDiagram(MSONable):
         self.limits = {e: self.pd.get_transition_chempots(e) for e in self.pd.elements}
         self.els = {e.defect.defect_composition for e in self.defect_phase_diagram.entries}
 
+    def _get_new_defect_phase_diagram(temperature):
+        pass
+
+
     def _get_pd_and_cp(self, temperature: Union[int, float]):
         """
         Helper function to get the finite temperature phase diagram and chemical potentials at
@@ -804,18 +814,27 @@ class DefectPredominanceDiagram(MSONable):
                 )
 
         gentries = GibbsComputedStructureEntry.from_entries(cpt_entrs, temp=temperature)
-
         return PhaseDiagram(gentries), chempots
 
     def _get_adjusted_chempots(self, chempots, element, chempot_of_element, bulk_energy):
+        reduced_comp = self.bulk.composition.reduced_composition
         mycopy = chempots.copy()
         mycopy.update({element: chempot_of_element})
         mycopy.update(
-            {c: bulk_energy - sum([v for k, v in mycopy.items() if k != c]) for c in mycopy if c != element}
+            {
+                c:
+                    (bulk_energy - sum(
+                        [
+                            v*reduced_comp[k] for k, v in mycopy.items() if k != c
+                        ]
+                    )) / reduced_comp[c] for c in mycopy if c != element
+            }
         )
         return mycopy
 
-    def solve_along_chempot_line(self, temperature: Union[int, float], element: Element, combine_charges: bool = True):
+    def solve_along_chempot_line(
+            self, temperature: Union[int, float], element: Element, fixed_chempots={},
+            combine_charges: bool = True, num_points=50):
         """
         Solve for the defect concentration with respect to the chemical potential of one element, e.g. oxygen,
         going from the minimum to maximum value of that element's chempot as determined from the phase
@@ -840,27 +859,41 @@ class DefectPredominanceDiagram(MSONable):
         else:
             raise ValueError("Illegal temperature. Only T > 0K are permitted.")
 
-        bulk_energy = pd.get_hull_energy(self.bulk.composition.reduced_composition)
+        critical_chempots = []
+        for facet in pd.facets:
+            chempots = pd._get_facet_chempots(facet)
+            critical_chempots.append(chempots)
+        critical_chempots.sort(key=lambda x: x[element])
 
-        _min, _max = sorted(pd.get_transition_chempots(element))
-        mus = np.linspace(_min, _max, 50)
+        mus = {
+            el: np.linspace(lims[0], lims[1], num_points)
+            for el, lims in pd.get_chempot_range_stability_phase(self.bulk.composition, element).items()
+        }
+        mus.update({el: [fixed_chempots[el]]*num_points for el in fixed_chempots})
 
         _results = [
-            self.solve(temperature, self._get_adjusted_chempots(chempots, element, cp, bulk_energy))
-            for cp in mus
+            self.solve(temperature, {el: mus[el][i] for el in mus})
+            for i in range(num_points)
         ]
 
         def _name(x):
             return '_'.join([_ for _ in x['name'].split('_') if 'Voronoi' not in _ and "mult" not in _])
 
         results: Dict = {
-            _name(d) if combine_charges else f"{d['name']}_{d['charge']}": np.zeros(len(mus)) for d in _results[0]
+            _name(d) if combine_charges else f"{d['name']}_{d['charge']}": np.zeros(num_points) for d in _results[0]
         }
-        for i, r in enumerate(_results):
-            for d in r:
-                results[_name(d) if combine_charges else f"{d['name']}_{d['charge']}"][i] += d["conc"]
 
-        return mus, results
+        transitions = {name: {} for name in results}
+        for i, defect_data_at_mu in enumerate(_results):
+            for single_defect_data in defect_data_at_mu:
+                results[_name(single_defect_data) if combine_charges else f"{single_defect_data['name']}_{single_defect_data['charge']}"][i] += single_defect_data["conc"]
+
+        #import itertools
+        #for i, concentrations_at_mu in enumerate(_results):
+        #    for key, group in itertools.groupby(sorted(concentrations_at_mu, key=lambda x: _name(x)), key=lambda x: _name(x)):
+        #        results[key][i] = np.maximum.reduce([d["conc"] for d in group])
+
+        return mus[element], results
 
     def solve(self, temperature: Union[int, float], chempots: Dict):
         """
@@ -876,7 +909,24 @@ class DefectPredominanceDiagram(MSONable):
         if self.defect_phase_diagram.band_gap:
             ef_scf = self.defect_phase_diagram.solve_for_fermi_energy(temperature, chempots, self.bulk_dos)
             fd = FermiDos(self.bulk_dos, bandgap=self.defect_phase_diagram.band_gap)
-            n, p = self.defect_phase_diagram.get_doping(fd, temperature=temperature, fermi_level=ef_scf)
+
+            cb_integral = np.sum(
+                fd.tdos[fd.idx_cbm:]
+                * f0(fd.energies[fd.idx_cbm:], ef_scf + fd.get_cbm_vbm()[1], temperature)
+                * fd.de[fd.idx_cbm:],
+                axis=0,
+            )
+            vb_integral = np.sum(
+                fd.tdos[: fd.idx_vbm + 1]
+                * f0(-fd.energies[: fd.idx_vbm + 1], -(ef_scf + fd.get_cbm_vbm()[1]),
+                     temperature)
+                * fd.de[: fd.idx_vbm + 1],
+                axis=0,
+            )
+            p = vb_integral / (fd.volume * fd.A_to_cm ** 3)
+            n = cb_integral / (fd.volume * fd.A_to_cm ** 3)
+
+            #n, p = self.defect_phase_diagram.get_doping(fd, temperature=temperature, fermi_level=ef_scf)
         else:
             ef_scf = 0
 
@@ -892,7 +942,9 @@ class DefectPredominanceDiagram(MSONable):
         partial_pressure: bool = False,
         concentration_threshold: Union[int, float] = 1e-9,
         combine_charges: bool = True,
-        units: str = 'f.u.'
+        units: str = 'f.u.',
+        num_points: int = 30,
+        fixed_chempots = {},
     ):
         """
         Plot the defect predomenance diagram along the chempot line of the specified element.
@@ -913,19 +965,21 @@ class DefectPredominanceDiagram(MSONable):
         """
 
         if units == 'f.u.':
-            factor = 1
+            factor = 1e-24 * self.bulk.volume
+            label = "log(C) $\\frac{1}{f.u.}$"
+            concentration_threshold = concentration_threshold if concentration_threshold else 1e-9
         elif units == 'cm-3':
-            factor = 1e24 / self.bulk.volume
-        elif units == 'm-3':
-            factor = 1e30 / self.bulk.volume
+            factor = 1
+            label = "log(C) $\\frac{1}{cm^3}$"
+            concentration_threshold = concentration_threshold if concentration_threshold else 0
         else:
             raise ValueError("Unrecognized units!")
 
-        fig, ax1 = plt.subplots(figsize=(12, 8))
+        fig, ax1 = plt.subplots(figsize=(8, 8))
         colors = itertools.cycle(sns.color_palette())
 
         ax1.minorticks_on()
-        ax1.set_ylabel("log(C) $\\frac{1}{cm^3}$", size=30)
+        ax1.set_ylabel(label, size=30)
         ax1.set_xlabel(
             "$log \\left( p_{}{}{} \\right)$".format("{", element.symbol, "}"), size=30
         ) if partial_pressure else ax1.set_xlabel("$\\mu_{}{}{}$".format("{", element.symbol, "}"), size=30)
@@ -936,9 +990,11 @@ class DefectPredominanceDiagram(MSONable):
         mx, mn, left, right = 0, 0, 0, 0
         for t, temp in enumerate(temperature):
             mus, results = self.solve_along_chempot_line(
-                temperature=temp, element=element, combine_charges=combine_charges
+                temperature=temp, element=element, combine_charges=combine_charges,
+                num_points=num_points, fixed_chempots=fixed_chempots
             )
-            px2 = ((mus[:-1]) / (boltzmann_eV * temp)) * np.log(2.71828)
+
+            px2 = ((mus[:-1]) / (boltzmann_eV * temp)) * 2.71828
 
             for i, r in enumerate(results):
                 if all([_ < concentration_threshold for _ in results[r]]):
@@ -947,15 +1003,15 @@ class DefectPredominanceDiagram(MSONable):
                 cs = np.log10(np.multiply(factor, results[r]))
 
                 mx, mn = max((mx, max(cs))), min((mn, min(cs)))
-                free_carrier = r == "n" or r == "p"
+                free_carrier = r.split('_')[0] == "n" or r.split('_')[0]  == "p"
                 ax1.plot(
                     px2 if partial_pressure else mus,
                     cs[:-1] if partial_pressure else cs,
-                    "--" if free_carrier else "-",
+                    "--" if r.split('_')[0] == 'n' else '.' if r.split('_')[0] == 'p' else "-",
                     linewidth=3 if free_carrier else 5,
                     alpha=0.8 - t*.1,
                     label=r if t == 0 else None,
-                    color=next(colors)
+                    color='k' if free_carrier else next(colors)
                 )
 
             left = min(px2) if partial_pressure else min(mus)
@@ -967,6 +1023,6 @@ class DefectPredominanceDiagram(MSONable):
         ax1.axvspan(right, right + buffer_width, alpha=0.2, color="red")
 
         ax1.set_xlim(left=left - buffer_width, right=right + buffer_width)
-        ax1.set_ylim(bottom=concentration_threshold, top=mx)
+        #ax1.set_ylim(bottom=np.log10(concentration_threshold), top=mx)
         plt.legend(loc="best", fontsize=12)
         return ax1
