@@ -659,6 +659,9 @@ class SectionList(MSONable):
     def get_string(self):
         return SectionList._get_string(self.sections)
 
+    def get(self, d, index=-1):
+        return self.sections[index].get(d)
+
     def append(self, item):
         """
         append the keyword list
@@ -779,18 +782,31 @@ class Cp2kInput(Section):
                     name, section_parameters=subsection_params, alias=alias, subsections={}, description=description,
                 )
                 description = ""
-                self.by_path(current).insert(s)
+                tmp = self.by_path(current).get(s.alias or s.name)
+                if tmp:
+                    if isinstance(tmp, SectionList):
+                        self.by_path(current)[s.alias or s.name].append(s)
+                    else:
+                        self.by_path(current)[s.alias or s.name] = SectionList([tmp, s]) 
+                else:
+                    self.by_path(current).insert(s)
                 current = current + "/" + alias if alias else current + "/" + name
             else:
                 kwd = Keyword.from_string(line)
                 tmp = self.by_path(current).get(kwd.name)
                 if tmp:
                     if isinstance(tmp, KeywordList):
-                        self.by_path(current)[kwd.name].append(kwd)
+                        self.by_path(current).get(kwd.name).append(kwd)
                     else:
-                        self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
+                        if isinstance(self.by_path(current), SectionList):
+                            self.by_path(current)[-1][kwd.name] = KeywordList(keywords=[tmp, kwd])
+                        else:
+                            self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
                 else:
-                    self.by_path(current).keywords[kwd.name] = kwd
+                    if isinstance(self.by_path(current), SectionList):
+                        self.by_path(current)[-1].keywords[kwd.name] = kwd
+                    else:
+                        self.by_path(current).keywords[kwd.name] = kwd
 
     def write_file(
         self, input_filename: str = "cp2k.inp", output_dir: str = ".", make_dir_if_not_present: bool = True,
