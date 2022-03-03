@@ -783,20 +783,19 @@ class DftSet(Cp2kInputSet):
                 components.append(self.structure.site_properties['fix'][i])
                 tuples.append((i+1, end))
                 i = end
-            for t, c in zip(tuples, components):
-                self['motion']['constraint'].insert(
-                    SectionList(sections=[
-                                Section(
-                                "FIXED_ATOMS", 
-                                keywords={
-                                    "COMPONENTS_TO_FIX": Keyword("COMPONENTS_TO_FIX", c),
-                                    "LIST": Keyword("LIST", "{}..{}".format(t[0], t[1]))
-                                    }
-                            )    
-                                for t,c in zip(tuples, components) if c  
-                            ]
-                    )
+            self['motion']['constraint'].insert(
+                SectionList(sections=[
+                            Section(
+                            "FIXED_ATOMS", 
+                            keywords={
+                                "COMPONENTS_TO_FIX": Keyword("COMPONENTS_TO_FIX", c),
+                                "LIST": Keyword("LIST", "{}..{}".format(t[0], t[1]))
+                                }
+                        )    
+                            for t, c in zip(tuples, components) if c  
+                        ]
                 )
+            )
     
     def activate_fast_minimization(self, on):
         """
