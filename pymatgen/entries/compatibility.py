@@ -818,6 +818,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
+@cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """
     This class implements the Materials Project 2020 energy correction scheme,
@@ -1178,6 +1179,7 @@ class MITAqueousCompatibility(CorrectionsList):
         )
 
 
+@cached_class
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the Aqueous energy referencing scheme for constructing
