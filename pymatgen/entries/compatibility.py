@@ -817,6 +817,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
             ]
         )
 
+
 @cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """
@@ -1176,6 +1177,7 @@ class MITAqueousCompatibility(CorrectionsList):
                 AqueousCorrection(fp),
             ]
         )
+
 
 @cached_class
 class MaterialsProjectAqueousCompatibility(Compatibility):
