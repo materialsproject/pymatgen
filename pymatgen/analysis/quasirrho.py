@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -17,14 +16,16 @@ __email__ = "aepstein@lbl.gov"
 __date__ = "January 5, 2021"
 __credits__ = "Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
 
+from math import isclose
 from typing import Union
 
 import numpy as np
+import scipy.constants as const
+
+from pymatgen.core.units import amu_to_kg
+from pymatgen.core.units import kb as kb_ev
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
-from math import isclose
-from pymatgen.core.units import amu_to_kg, kb as kb_ev
-import scipy.constants as const
 
 # Define useful constants
 kb = kb_ev * const.eV  # pymatgen kb from ev/K to J/K
@@ -177,11 +178,11 @@ class QuasiRRHO:
         # Rotational component of Entropy and Energy
         if linear:
             i = np.amax(i_eigen)
-            qr = 8 * np.pi ** 2 * i * kb * self.temp / (sigma_r * (h * h))
+            qr = 8 * np.pi**2 * i * kb * self.temp / (sigma_r * (h * h))
             sr = R * (np.log(qr) + 1)
             er = R * self.temp
         else:
-            rot_temps = [h ** 2 / (np.pi ** 2 * kb * 8 * i) for i in i_eigen]
+            rot_temps = [h**2 / (np.pi**2 * kb * 8 * i) for i in i_eigen]
             qr = np.sqrt(np.pi) / sigma_r * self.temp ** (3 / 2) / np.sqrt(rot_temps[0] * rot_temps[1] * rot_temps[2])
             sr = R * (np.log(qr) + 3 / 2)
             er = 3 * R * self.temp / 2
@@ -196,9 +197,9 @@ class QuasiRRHO:
             sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
             sv += sv_temp
 
-            mu = h / (8 * np.pi ** 2 * vt * c)
+            mu = h / (8 * np.pi**2 * vt * c)
             mu_prime = mu * Bav / (mu + Bav)
-            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi ** 3 * mu_prime * kb * self.temp / h ** 2))
+            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi**3 * mu_prime * kb * self.temp / h**2))
             weight = 1 / (1 + (self.v0 / vt) ** 4)
             sv_quasiRRHO += weight * sv_temp + (1 - weight) * srotor
 
