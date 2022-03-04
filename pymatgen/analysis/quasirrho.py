@@ -107,7 +107,7 @@ class QuasiRRHO:
                 elec_energy=output["elec_energy"],
             )
 
-    def get_avg_mom_inertia(self, mol):
+    def _get_avg_mom_inertia(self, mol):
         """
         Caclulate the average moment of inertia of a molecule
         :param mol: Molecule
@@ -163,7 +163,7 @@ class QuasiRRHO:
         se = R * np.log(mult)
 
         # Get properties related to rotational symmetry. Bav is average moment of inertia
-        Bav, i_eigen = self.get_avg_mom_inertia(mol)
+        Bav, i_eigen = self._get_avg_mom_inertia(mol)
 
         # Check if linear
         coords = mol.cart_coords
