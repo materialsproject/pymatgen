@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides classes for the Piezoelectric tensor
@@ -40,7 +38,7 @@ class PiezoTensor(Tensor):
         """
         obj = super().__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
-            warnings.warn("Input piezo tensor does " "not satisfy standard symmetries")
+            warnings.warn("Input piezo tensor does not satisfy standard symmetries")
         return obj.view(cls)
 
     @classmethod

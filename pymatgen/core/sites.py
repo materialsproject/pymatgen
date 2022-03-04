@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -11,14 +10,13 @@ import json
 from typing import Optional, Tuple, Union
 
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.util.coord import pbc_diff
-from pymatgen.util.typing import ArrayLike, SpeciesLike, CompositionLike
+from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -72,7 +70,7 @@ class Site(collections.abc.Hashable, MSONable):
         self.properties: dict = properties or {}
 
     def __getattr__(self, a):
-        # overriding getattr doens't play nice with pickle, so we
+        # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         p = object.__getattribute__(self, "properties")
         if a in p:
@@ -163,16 +161,7 @@ class Site(collections.abc.Hashable, MSONable):
         if self.is_ordered:
             return list(self.species.keys())[0].__str__()
         sorted_species = sorted(self.species.keys())
-        return ", ".join(["{}:{:.3f}".format(sp, self.species[sp]) for sp in sorted_species])
-
-    @property  # type: ignore
-    @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
-    def species_and_occu(self):
-        """
-        The species at the site, i.e., a Composition mapping type of
-        element/species to occupancy.
-        """
-        return self.species
+        return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
 
     @property
     def specie(self) -> Union[Element, Species, DummySpecies]:
@@ -187,7 +176,7 @@ class Site(collections.abc.Hashable, MSONable):
             AttributeError if Site is not ordered.
         """
         if not self.is_ordered:
-            raise AttributeError("specie property only works for ordered " "sites!")
+            raise AttributeError("specie property only works for ordered sites!")
         return list(self.species.keys())[0]
 
     @property
@@ -227,7 +216,7 @@ class Site(collections.abc.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum([el.Z for el in self.species.keys()])
+        return sum(el.Z for el in self.species.keys())
 
     def __contains__(self, el):
         return el in self.species
@@ -252,7 +241,7 @@ class Site(collections.abc.Hashable, MSONable):
         return False
 
     def __str__(self):
-        return "{} {}".format(self.coords, self.species_string)
+        return f"{self.coords} {self.species_string}"
 
     def as_dict(self) -> dict:
         """
@@ -370,7 +359,7 @@ class PeriodicSite(Site, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum([el.Z for el in self.species.keys()])
+        return sum(el.Z for el in self.species.keys())
 
     @property
     def lattice(self) -> Lattice:
@@ -597,7 +586,7 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " "{:.4f}]".format(
+        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, {:.4f}]".format(
             self.species_string, self.coords[0], self.coords[1], self.coords[2], *self._frac_coords
         )
 

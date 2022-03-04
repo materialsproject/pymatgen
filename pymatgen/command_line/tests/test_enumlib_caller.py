@@ -1,16 +1,14 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 import os
 import unittest
 import warnings
+from shutil import which
 
-from monty.os.path import which
-
+from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
-from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import RemoveSitesTransformation
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
@@ -127,7 +125,7 @@ class EnumlibAdaptorTest(PymatgenTest):
     @unittest.skip("Fails seemingly at random.")
     def test_timeout(self):
         s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
-        a = SpacegroupAnalyzer(s, 0.1)
+        SpacegroupAnalyzer(s, 0.1)
         s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
         adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
         self.assertRaises(TimeoutError, adaptor._run_multienum)

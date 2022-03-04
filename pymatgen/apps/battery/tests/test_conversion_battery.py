@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,11 +8,11 @@ import unittest
 
 from monty.json import MontyDecoder
 
-from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
     ConversionVoltagePair,
 )
+from pymatgen.core.composition import Composition
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -24,7 +23,7 @@ class ConversionElectrodeTest(unittest.TestCase):
         self.conversion_eletrodes = {}
         for f in self.formulas:
 
-            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json"), "r") as fid:
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json")) as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"

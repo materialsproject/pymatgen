@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module implements DefectCompatibility analysis for consideration of
@@ -254,7 +252,7 @@ class DefectCompatibility(MSONable):
             try:
                 defect_entry = self.perform_kumagai(defect_entry)
             except Exception:
-                logger.info("Kumagai correction error occured! Wont perform correction.")
+                logger.info("Kumagai correction error occurred! Won't perform correction.")
 
         # add potalign based on preferred correction setting if it does not already exist in defect entry
         if self.preferred_cc == "freysoldt":
@@ -425,11 +423,11 @@ class DefectCompatibility(MSONable):
             iv) if defect is not a vacancy type -> track to see how much the defect has moved
 
         calculations that fail delocalization get "is_compatibile" set to False in parameters
-        also parameters recieves a "delocalization_meta" with following dict:
+        also parameters receives a "delocalization_meta" with following dict:
             plnr_avg = {'is_compatible': True/False, 'metadata': metadata used for determining this}
             atomic_site = {'is_compatible': True/False, 'metadata': metadata used for determining this}
             structure_relax = {'is_compatible': True/False, 'metadata': metadata used for determining this}
-            defectsite_relax = {'is_compatible': True/False, 'metadata': metadata used for determing this}
+            defectsite_relax = {'is_compatible': True/False, 'metadata': metadata used for determining this}
         """
         defect_entry.parameters.update(
             {"is_compatible": True}
@@ -605,7 +603,7 @@ class DefectCompatibility(MSONable):
             distdata.append([distance_to_defect, distmatrix[ind, ind], int(ind)])
 
         if defindex is None and not isinstance(defect_entry.defect, Vacancy):
-            raise ValueError("fractional coordinate for defect could not be " "identified in initial_defect_structure")
+            raise ValueError("fractional coordinate for defect could not be identified in initial_defect_structure")
 
         distdata.sort()
         tot_relax_outside_rad = 0.0

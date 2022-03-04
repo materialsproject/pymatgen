@@ -499,6 +499,13 @@ class TrajectoryTest(PymatgenTest):
             all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
         )
 
+        # Check if the file is written correctly when lattice is not constant.
+        traj.write_Xdatcar(filename="traj_test_XDATCAR")
+        # Load trajectory from written xdatcar and compare to original
+        written_traj = Trajectory.from_file("traj_test_XDATCAR", constant_lattice=False)
+        self._check_traj_equality(traj, written_traj)
+        os.remove("traj_test_XDATCAR")
+
     def test_to_from_dict(self):
         d = self.traj.as_dict()
         traj = Trajectory.from_dict(d)

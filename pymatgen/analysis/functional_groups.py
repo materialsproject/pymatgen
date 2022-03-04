@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -18,7 +17,7 @@ try:
     import networkx as nx
     import networkx.algorithms.isomorphism as iso
 except ImportError:
-    raise ImportError("pymatgen.analysis.functional_groups requires the " "NetworkX graph library to be installed.")
+    raise ImportError("pymatgen.analysis.functional_groups requires the NetworkX graph library to be installed.")
 
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
@@ -62,9 +61,7 @@ class FunctionalGroupExtractor:
                 else:
                     self.molecule = Molecule.from_file(molecule)
             except OSError:
-                raise ValueError(
-                    "Input must be a valid molecule file, a " "Molecule object, or a MoleculeGraph object."
-                )
+                raise ValueError("Input must be a valid molecule file, a Molecule object, or a MoleculeGraph object.")
 
         elif isinstance(molecule, Molecule):
             if optimize:
@@ -91,7 +88,7 @@ class FunctionalGroupExtractor:
                 self.molgraph = molecule
 
         else:
-            raise ValueError("Input to FunctionalGroupExtractor must be" "str, Molecule, or MoleculeGraph.")
+            raise ValueError("Input to FunctionalGroupExtractor must be str, Molecule, or MoleculeGraph.")
 
         if self.molgraph is None:
             self.molgraph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
@@ -185,7 +182,7 @@ class FunctionalGroupExtractor:
         rings_indices = [set(sum(ring, ())) for ring in rings]
 
         for ring in rings_indices:
-            ring_spec = sorted([str(self.species[node]) for node in ring])
+            ring_spec = sorted(str(self.species[node]) for node in ring)
             # All rings of interest are three-member rings
             if len(ring) == 3 and ring_spec in [
                 ["C", "C", "O"],
@@ -276,7 +273,7 @@ class FunctionalGroupExtractor:
                 num_deviants = 0
                 for node in ring:
                     neighbors = strat.get_nn_info(self.molecule, node)
-                    neighbor_spec = sorted([str(self.species[n["site_index"]]) for n in neighbors])
+                    neighbor_spec = sorted(str(self.species[n["site_index"]]) for n in neighbors)
                     if neighbor_spec != ["C", "C", "H"]:
                         num_deviants += 1
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -57,8 +56,8 @@ class SubstitutionGeneratorTest(PymatgenTest):
         sub_gen = SubstitutionGenerator(struc, "S")
         subs = list(sub_gen)
         self.assertEqual(len(subs), 2)
-        name_sets = set([s.name for s in subs])
-        true_name_sets = set(["Sub_S_on_O_mult4", "Sub_S_on_V_mult2"])
+        name_sets = {s.name for s in subs}
+        true_name_sets = {"Sub_S_on_O_mult4", "Sub_S_on_V_mult2"}
         self.assertEqual(true_name_sets, name_sets)
 
 

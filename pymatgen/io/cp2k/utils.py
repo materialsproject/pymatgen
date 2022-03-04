@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
-from ruamel import yaml
+from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
 
@@ -34,17 +34,17 @@ def _postprocessor(s):
         try:
             return int(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K file.")
+            raise OSError("Error in parsing CP2K file.")
     if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
         try:
             return float(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K file.")
+            raise OSError("Error in parsing CP2K file.")
     if re.match(r"\*+", s):
         try:
             return np.NaN
         except ValueError:
-            raise IOError("Error in parsing CP2K file.")
+            raise OSError("Error in parsing CP2K file.")
     return s
 
 
@@ -75,19 +75,19 @@ def _preprocessor(s, d="."):
         inc = inc[1].strip("'")
         inc = inc.strip('"')
         with zopen(os.path.join(d, inc)) as f:
-            s = re.sub(r"{}".format(incl), f.read(), s)
+            s = re.sub(rf"{incl}", f.read(), s)
     variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
-        s = re.sub(r"{}".format(match), "", s)
+        s = re.sub(rf"{match}", "", s)
         s = re.sub(r"\${?" + var + "}?", value, s)
 
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError("This cp2k input processer does not currently " "support conditional blocks.")
+        raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
     return s
 
 
@@ -138,10 +138,11 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
         if "cardinality" not in d[s]:
             d[s]["cardinality"] = cardinality
 
-    with open(os.path.join(MODULE_DIR, "basis_molopt.yaml"), "rt") as f:
-        data_b = yaml.load(f, Loader=yaml.Loader)
-    with open(os.path.join(MODULE_DIR, "gth_potentials.yaml"), "rt") as f:
-        data_p = yaml.load(f, Loader=yaml.Loader)
+    yaml = YAML()
+    with open(os.path.join(MODULE_DIR, "basis_molopt.yaml")) as f:
+        data_b = yaml.load(f)
+    with open(os.path.join(MODULE_DIR, "gth_potentials.yaml")) as f:
+        data_p = yaml.load(f)
 
     for s in species:
         basis_and_potential[s] = {}

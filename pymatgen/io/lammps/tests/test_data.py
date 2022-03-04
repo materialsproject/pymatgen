@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import gzip
@@ -6,14 +5,14 @@ import json
 import os
 import random
 import unittest
-from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
+from monty.json import MontyDecoder, MontyEncoder
+from ruamel.yaml import YAML
 
-from pymatgen.core import yaml
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import (
     CombinedData,
@@ -22,7 +21,6 @@ from pymatgen.io.lammps.data import (
     LammpsData,
     Topology,
     lattice_2_lmpbox,
-    structure_2_lmpdata,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -188,7 +186,7 @@ class LammpsDataTest(unittest.TestCase):
         pep_atom = pep_lines[kw_inds["Atoms"] + 2]
         self.assertEqual(
             pep_atom,
-            "1       1   1  0.5100 43.9999300 " "58.5267800 36.7855000  0  0  0",
+            "1       1   1  0.5100 43.9999300 58.5267800 36.7855000  0  0  0",
         )
         # velocity
         pep_velo = pep_lines[kw_inds["Velocities"] + 2]
@@ -346,7 +344,7 @@ class LammpsDataTest(unittest.TestCase):
             np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
             sample_topo = random.sample(list(topo_df.itertuples(False, None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
-            topo_type = tuple([atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"]])
+            topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
@@ -456,7 +454,7 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(self.tatb.atoms.loc[atom_id].name, atom_id)
 
     def test_from_ff_and_topologies(self):
-        mass = OrderedDict()
+        mass = {}
         mass["H"] = 1.0079401
         mass["O"] = 15.999400
         nonbond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
@@ -516,19 +514,22 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
 
     def test_json_dict(self):
-        encoded = json.dumps(self.ethane.as_dict())
-        decoded = json.loads(encoded)
-        c2h6 = LammpsData.from_dict(decoded)
+        encoded = json.dumps(self.ethane.as_dict(), cls=MontyEncoder)
+        c2h6 = json.loads(encoded, cls=MontyDecoder)
+        c2h6.masses.index = c2h6.masses.index.map(int)
+        c2h6.atoms.index = c2h6.atoms.index.map(int)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
         ff = self.ethane.force_field
         key, target_df = random.sample(ff.items(), 1)[0]
+        c2h6.force_field[key].index = c2h6.force_field[key].index.map(int)
         self.assertIsNone(
             pd.testing.assert_frame_equal(c2h6.force_field[key], target_df, check_dtype=False),
             key,
         )
         topo = self.ethane.topology
         key, target_df = random.sample(topo.items(), 1)[0]
+        c2h6.topology[key].index = c2h6.topology[key].index.map(int)
         self.assertIsNone(pd.testing.assert_frame_equal(c2h6.topology[key], target_df), key)
 
     @classmethod
@@ -754,7 +755,8 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
-        with open(filename, "r") as f:
+        yaml = YAML()
+        with open(filename) as f:
             d = yaml.load(f)
         # self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
         self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)
@@ -814,36 +816,10 @@ class FuncTest(unittest.TestCase):
             rotop.rotation_matrix,
             [
                 [1, 0, 0],
-                [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
-                [0, -(2 ** 0.5) / 2, 2 ** 0.5 / 2],
+                [0, 2**0.5 / 2, 2**0.5 / 2],
+                [0, -(2**0.5) / 2, 2**0.5 / 2],
             ],
         )
-
-    @unittest.skip("The function is deprecated")
-    def test_structure_2_lmpdata(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
-        latt = Lattice(matrix)
-        frac_coords = np.random.rand(10, 3)
-        structure = Structure(latt, ["H"] * 10, frac_coords)
-        ld = structure_2_lmpdata(structure=structure)
-        box_tilt = [0.0, 0.0, 0.0] if not ld.box_tilt else ld.box_tilt
-        box_bounds = np.array(ld.box_bounds)
-        np.testing.assert_array_equal(box_bounds[:, 0], np.zeros(3))
-        new_matrix = np.diag(box_bounds[:, 1])
-        new_matrix[1, 0] = box_tilt[0]
-        new_matrix[2, 0] = box_tilt[1]
-        new_matrix[2, 1] = box_tilt[2]
-        new_latt = Lattice(new_matrix)
-        np.testing.assert_array_almost_equal(new_latt.abc, latt.abc)
-        np.testing.assert_array_almost_equal(new_latt.angles, latt.angles)
-        coords = ld.atoms[["x", "y", "z"]].values
-        new_structure = Structure(new_latt, ["H"] * 10, coords, coords_are_cartesian=True)
-        np.testing.assert_array_almost_equal(new_structure.frac_coords, frac_coords)
-        self.assertEqual(len(ld.masses), 1)
-        # test additional elements
-        ld_elements = structure_2_lmpdata(structure=structure, ff_elements=["C", "H"])
-        self.assertEqual(len(ld_elements.masses), 2)
-        np.testing.assert_array_almost_equal(ld_elements.masses["mass"], [1.00794, 12.01070])
 
 
 class CombinedDataTest(unittest.TestCase):
@@ -1057,6 +1033,93 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ec_fec_double_lines[141], "1  10.5 -1  2")
         self.assertEqual(len(ec_fec_lines), 99159)
         self.assertEqual(len(ec_fec_double_lines), 198159)
+
+    def test_structure(self):
+        li_ec_structure = self.li_ec.structure
+        np.testing.assert_array_almost_equal(
+            li_ec_structure.lattice.matrix,
+            [[38.698274, 0, 0], [0, 38.698274, 0], [0, 0, 38.698274]],
+        )
+        np.testing.assert_array_almost_equal(
+            li_ec_structure.lattice.angles,
+            (90.0, 90.0, 90.0),
+        )
+        self.assertEqual(li_ec_structure.formula, "Li1 H4 C3 O3")
+        lbounds = np.array(self.li_ec.box.bounds)[:, 0]
+        coords = self.li_ec.atoms[["x", "y", "z"]].values - lbounds
+        np.testing.assert_array_almost_equal(li_ec_structure.cart_coords, coords)
+        np.testing.assert_array_almost_equal(li_ec_structure.site_properties["charge"], self.li_ec.atoms["q"])
+        frac_coords = li_ec_structure.frac_coords[0]
+        real_frac_coords = frac_coords - np.floor(frac_coords)
+        np.testing.assert_array_almost_equal(real_frac_coords, [0.01292047, 0.01292047, 0.01292047])
+
+    def test_from_ff_and_topologies(self):
+        with self.assertRaises(AttributeError):
+            CombinedData.from_ff_and_topologies()
+
+    def test_from_structure(self):
+        with self.assertRaises(AttributeError):
+            CombinedData.from_structure()
+
+    def test_disassemble(self):
+        # general tests
+        ld = self.li
+        cd = self.li_2
+        _, cd_ff, topos = cd.disassemble()[0]
+        mass_info = [
+            ("Li1", 6.94),
+        ]
+        self.assertListEqual(cd_ff.mass_info, mass_info)
+        np.testing.assert_array_equal(cd_ff.nonbond_coeffs, cd.force_field["Pair Coeffs"].values)
+
+        topo = topos[-1]
+        atoms = ld.atoms[ld.atoms["molecule-ID"] == 1]
+        np.testing.assert_array_almost_equal(topo.sites.cart_coords, atoms[["x", "y", "z"]])
+        np.testing.assert_array_equal(topo.charges, atoms["q"])
+        atom_labels = [m[0] for m in mass_info]
+        self.assertListEqual(
+            topo.sites.site_properties["ff_map"],
+            [atom_labels[i - 1] for i in atoms["type"]],
+        )
+
+        # test no guessing element
+        v = self.li_2
+        _, v_ff, _ = v.disassemble(guess_element=False)[0]
+        self.assertDictEqual(v_ff.maps["Atoms"], dict(Qa1=1))
+
+    def test_json_dict(self):
+        encoded = json.dumps(self.li_ec.as_dict(), cls=MontyEncoder)
+        lic3o3h4 = json.loads(encoded, cls=MontyDecoder)
+        self.assertEqual(lic3o3h4.nums, self.li_ec.nums)
+        self.assertEqual(lic3o3h4.names, self.li_ec.names)
+        self.assertEqual(lic3o3h4.atom_style, self.li_ec.atom_style)
+        pd.testing.assert_frame_equal(lic3o3h4.masses, self.li_ec.masses)
+        pd.testing.assert_frame_equal(lic3o3h4.atoms, self.li_ec.atoms)
+        ff = self.li_ec.force_field
+        key, target_df = random.sample(ff.items(), 1)[0]
+        lic3o3h4.force_field[key].index = lic3o3h4.force_field[key].index.map(int)
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(lic3o3h4.force_field[key], target_df, check_dtype=False),
+            key,
+        )
+        topo = self.li_ec.topology
+        key, target_df = random.sample(topo.items(), 1)[0]
+        self.assertIsNone(pd.testing.assert_frame_equal(lic3o3h4.topology[key], target_df), key)
+        lic3o3h4.mols[1].masses.index = lic3o3h4.mols[1].masses.index.map(int)
+        lic3o3h4.mols[1].atoms.index = lic3o3h4.mols[1].atoms.index.map(int)
+        pd.testing.assert_frame_equal(lic3o3h4.mols[1].masses, self.li_ec.mols[1].masses)
+        pd.testing.assert_frame_equal(lic3o3h4.mols[1].atoms, self.li_ec.mols[1].atoms)
+        ff_1 = self.li_ec.mols[1].force_field
+        key, target_df = random.sample(ff_1.items(), 1)[0]
+        lic3o3h4.mols[1].force_field[key].index = lic3o3h4.mols[1].force_field[key].index.map(int)
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False),
+            key,
+        )
+        topo_1 = self.li_ec.mols[1].topology
+        key, target_df = random.sample(topo_1.items(), 1)[0]
+        lic3o3h4.mols[1].topology[key].index = lic3o3h4.mols[1].topology[key].index.map(int)
+        self.assertIsNone(pd.testing.assert_frame_equal(lic3o3h4.mols[1].topology[key], target_df), key)
 
     def test_as_lammpsdata(self):
         ec_fec = self.ec_fec_ld

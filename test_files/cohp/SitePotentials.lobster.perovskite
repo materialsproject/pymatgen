@@ -1,0 +1,12 @@
+Electrostatic site potentials (in V) using Ewald splitting parameter 3.14
+This first parameter is a default value that was determined by LOBSTER
+
+  atom#    atom      Potential       Potential
+                    (Mulliken)       (Loewdin)
+      1      La         -11.38           -8.77 
+      2      Ta         -19.62          -17.08 
+      3       N          11.18            9.57 
+      4       N          11.18            9.57 
+      5       O          10.09            8.45 
+
+Madelung Energy (eV)    -40.02          -28.64 

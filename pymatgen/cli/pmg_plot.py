@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,10 +6,9 @@
 Implementation for `pmg plot` CLI.
 """
 
-from collections import OrderedDict
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Chgcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -26,7 +24,7 @@ def get_dos_plot(args):
     v = Vasprun(args.dos_file)
     dos = v.complete_dos
 
-    all_dos = OrderedDict()
+    all_dos = {}
     all_dos["Total"] = dos
 
     structure = v.final_structure
@@ -71,7 +69,7 @@ def get_chgint_plot(args):
     plt = pretty_plot(12, 8)
     for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
-        plt.plot(d[:, 0], d[:, 1], label="Atom {} - {}".format(i, s[i].species_string))
+        plt.plot(d[:, 0], d[:, 1], label=f"Atom {i} - {s[i].species_string}")
     plt.legend(loc="upper left")
     plt.xlabel("Radius (A)")
     plt.ylabel("Integrated charge (e)")

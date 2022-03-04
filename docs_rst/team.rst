@@ -71,7 +71,7 @@ List of Developers (A–Z)
 4+ years active
 ---------------
 
-| **Alex Ganose** |utf| |0000-0002-4486-3321| 
+| **Alex Ganose** |utf| |0000-0002-4486-3321|
 | Lawrence Berkeley National Laboratory
 .. |utf| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:utf
@@ -280,7 +280,7 @@ List of Developers (A–Z)
 1–4 years active
 ----------------
 
-| **Benjamin J. Morgan** |bjmorgan| |0000-0002-3056-8233| 
+| **Benjamin J. Morgan** |bjmorgan| |0000-0002-3056-8233|
 | University of Bath
 .. |bjmorgan| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:bjmorgan

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -10,7 +9,6 @@ from monty.serialization import loadfn
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
@@ -60,7 +58,7 @@ class HighSymmKpathTest(PymatgenTest):
 
             # Throws error if something doesn't work, causing test to fail.
             kpath = HighSymmKpath(struct, path_type="all")
-            kpoints = kpath.get_kpoints()
+            _ = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
         bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))

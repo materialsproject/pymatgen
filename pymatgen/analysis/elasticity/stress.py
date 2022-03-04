@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides the Stress class used to create, manipulate, and
@@ -62,7 +60,7 @@ class Stress(SquareTensor):
         """
         if not self.is_symmetric():
             raise ValueError(
-                "The stress tensor is not symmetric, Von Mises " "stress is based on a symmetric stress tensor."
+                "The stress tensor is not symmetric, Von Mises stress is based on a symmetric stress tensor."
             )
         return math.sqrt(3 * self.dev_principal_invariants[1])
 

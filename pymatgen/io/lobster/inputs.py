@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
@@ -10,7 +9,6 @@ on LOBSTER see www.cohp.de.
 import itertools
 import os
 import warnings
-from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -41,48 +39,7 @@ class Lobsterin(dict, MSONable):
     There are also several standard lobsterin files that can be easily generated.
     """
 
-    # all keywords known to this class so far
     # reminder: lobster is not case sensitive
-    AVAILABLEKEYWORDS = [
-        "COHPstartEnergy",
-        "COHPendEnergy",
-        "basisSet",
-        "cohpGenerator",
-        "gaussianSmearingWidth",
-        "saveProjectionToFile",
-        "basisfunctions",
-        "skipdos",
-        "skipcohp",
-        "skipcoop",
-        "skipPopulationAnalysis",
-        "skipGrossPopulation",
-        "userecommendedbasisfunctions",
-        "loadProjectionFromFile",
-        "forceEnergyRange",
-        "DensityOfEnergy",
-        "BWDF",
-        "BWDFCOHP",
-        "skipProjection",
-        "createFatband",
-        "writeBasisFunctions",
-        "writeMatricesToFile",
-        "realspaceHamiltonian",
-        "realspaceOverlap",
-        "printPAWRealSpaceWavefunction",
-        "printLCAORealSpaceWavefunction",
-        "noFFTforVisualization",
-        "RMSp",
-        "onlyReadVasprun.xml",
-        "noMemoryMappedFiles",
-        "skipPAWOrthonormalityTest",
-        "doNotIgnoreExcessiveBands",
-        "doNotUseAbsoluteSpilling",
-        "skipReOrthonormalization",
-        "forceV1HMatrix",
-        "useOriginalTetrahedronMethod",
-        "useDecimalPlaces",
-        "kSpaceCOHP",
-    ]
 
     # keyword + one float can be used in file
     FLOATKEYWORDS = [
@@ -101,6 +58,7 @@ class Lobsterin(dict, MSONable):
         "printPAWRealSpaceWavefunction",
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
+        "EwaldSum",
     ]
     # the keyword alone will turn on or off a function
     BOOLEANKEYWORDS = [
@@ -108,6 +66,8 @@ class Lobsterin(dict, MSONable):
         "skipdos",
         "skipcohp",
         "skipcoop",
+        "skipcobi",
+        "skipMadelungEnergy",
         "loadProjectionFromFile",
         "forceEnergyRange",
         "DensityOfEnergy",
@@ -136,6 +96,9 @@ class Lobsterin(dict, MSONable):
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
 
+    # all keywords known to this class so far
+    AVAILABLEKEYWORDS = FLOATKEYWORDS + STRINGKEYWORDS + BOOLEANKEYWORDS + LISTKEYWORDS
+
     def __init__(self, settingsdict: dict):
         """
         Args:
@@ -145,16 +108,16 @@ class Lobsterin(dict, MSONable):
         # check for duplicates
         listkey = [key.lower() for key in settingsdict.keys()]
         if len(listkey) != len(list(set(listkey))):
-            raise IOError("There are duplicates for the keywords! The program will stop here.")
+            raise OSError("There are duplicates for the keywords! The program will stop here.")
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
         """
-        Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of
+        Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
         valid lobsterintags. Also cleans the parameter and val by stripping
         leading and trailing white spaces. Similar to INCAR class.
         """
-        # due to the missing case sensitivity of lobster, the following code is neccessary
+        # due to the missing case sensitivity of lobster, the following code is necessary
         found = False
         for key_here in self.keys():
             if key.strip().lower() == key_here.lower():
@@ -246,7 +209,7 @@ class Lobsterin(dict, MSONable):
         get number of nbands
         """
         if self.get("basisfunctions") is None:
-            raise IOError("No basis functions are provided. The program cannot calculate nbands.")
+            raise OSError("No basis functions are provided. The program cannot calculate nbands.")
 
         basis_functions = []  # type: List[str]
         for string_basis in self["basisfunctions"]:
@@ -385,7 +348,7 @@ class Lobsterin(dict, MSONable):
         AtomTypes = structure.symbol_set
 
         if set(AtomTypes) != set(AtomTypes_Potcar):
-            raise IOError("Your POSCAR does not correspond to your POTCAR!")
+            raise OSError("Your POSCAR does not correspond to your POTCAR!")
         BASIS = loadfn(address_basis_file)["BASIS"]
 
         basis_functions = []
@@ -415,7 +378,7 @@ class Lobsterin(dict, MSONable):
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols
-            address_basis_file_min: path to file with the minium required basis by the POTCAR
+            address_basis_file_min: path to file with the minimum required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in
@@ -602,11 +565,11 @@ class Lobsterin(dict, MSONable):
         with zopen(lobsterin, "rt") as f:
             data = f.read().split("\n")
         if len(data) == 0:
-            raise IOError("lobsterin file contains no data.")
+            raise OSError("lobsterin file contains no data.")
         Lobsterindict = {}  # type: Dict
 
         for datum in data:
-            # will remove all commments to avoid complications
+            # will remove all comments to avoid complications
             raw_datum = datum.split("!")[0]
             raw_datum = raw_datum.split("//")[0]
             raw_datum = raw_datum.split("#")[0]
@@ -648,10 +611,24 @@ class Lobsterin(dict, MSONable):
         potcar = Potcar.from_file(POTCAR_input)
         for pot in potcar:
             if pot.potential_type != "PAW":
-                raise IOError("Lobster only works with PAW! Use different POTCARs")
+                raise OSError("Lobster only works with PAW! Use different POTCARs")
+
+        # Warning about a bug in lobster-4.1.0
+        with zopen(POTCAR_input, "r") as f:
+            data = f.read()
+        if isinstance(data, bytes):
+            data = data.decode("utf-8")
+        if "SHA256" in data or "COPYR" in data:
+            warnings.warn(
+                "These POTCARs are not compatible with "
+                "Lobster up to version 4.1.0."
+                "\n The keywords SHA256 and COPYR "
+                "cannot be handled by Lobster"
+                " \n and will lead to wrong results."
+            )
 
         if potcar.functional != "PBE":
-            raise IOError("We only have BASIS options for PBE so far")
+            raise OSError("We only have BASIS options for PBE so far")
 
         Potcar_names = [name["symbol"] for name in potcar.spec]
         return Potcar_names
@@ -700,7 +677,10 @@ class Lobsterin(dict, MSONable):
             "onlydos",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
+            "onlymadelung",
         ]:
             raise ValueError("The option is not valid!")
 
@@ -708,14 +688,16 @@ class Lobsterin(dict, MSONable):
         # this basis set covers most elements
         Lobsterindict["basisSet"] = "pbeVaspFit2015"
         # energies around e-fermi
-        Lobsterindict["COHPstartEnergy"] = -15.0
+        Lobsterindict["COHPstartEnergy"] = -35.0
         Lobsterindict["COHPendEnergy"] = 5.0
 
         if option in [
             "standard",
             "onlycohp",
             "onlycoop",
+            "onlycobi",
             "onlycohpcoop",
+            "onlycohpcoopcobi",
             "standard_with_fatband",
         ]:
             # every interaction with a distance of 6.0 is checked
@@ -727,28 +709,47 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             Lobsterindict["loadProjectionFromFile"] = True
 
+        # TODO: add cobi here! might be relevant lobster version
         if option == "onlycohp":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlycoop":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlycohpcoop":
             Lobsterindict["skipdos"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlycohpcoopcobi":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlydos":
             Lobsterindict["skipcohp"] = True
             Lobsterindict["skipcoop"] = True
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
 
         if option == "onlyprojection":
             Lobsterindict["skipdos"] = True
@@ -757,6 +758,28 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["skipPopulationAnalysis"] = True
             Lobsterindict["skipGrossPopulation"] = True
             Lobsterindict["saveProjectionToFile"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlycobi":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipcohp"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
+            Lobsterindict["skipMadelungEnergy"] = True
+
+        if option == "onlymadelung":
+            Lobsterindict["skipdos"] = True
+            Lobsterindict["skipcohp"] = True
+            Lobsterindict["skipcoop"] = True
+            Lobsterindict["skipPopulationAnalysis"] = True
+            Lobsterindict["skipGrossPopulation"] = True
+            Lobsterindict["saveProjectionToFile"] = True
+            # lobster-4.1.0
+            Lobsterindict["skipcobi"] = True
 
         incar = Incar.from_file(INCAR_input)
         if incar["ISMEAR"] == 0:
@@ -789,13 +812,12 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         max_basis: list of basis entries: e.g., ['Si 3p 3s ']
 
     Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
-
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict = OrderedDict({})  # type:  Dict[Any, Any]
+    basis_dict: Dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:

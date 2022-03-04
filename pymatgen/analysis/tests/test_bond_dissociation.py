@@ -1,15 +1,14 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 
 import os
 import unittest
+
 import pytest
-
 from monty.serialization import loadfn
-from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
+from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 

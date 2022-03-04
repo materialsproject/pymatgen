@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -198,7 +197,7 @@ class BVAnalyzer:
                 sigma = data["std"]
                 # Calculate posterior probability. Note that constant
                 # factors are ignored. They have no effect on the results.
-                prob[sp.oxi_state] = exp(-((bv_sum - u) ** 2) / 2 / (sigma ** 2)) / sigma * PRIOR_PROB[sp]
+                prob[sp.oxi_state] = exp(-((bv_sum - u) ** 2) / 2 / (sigma**2)) / sigma * PRIOR_PROB[sp]
         # Normalize the probabilities
         try:
             prob = {k: v / sum(prob.values()) for k, v in prob.items()}
@@ -219,7 +218,7 @@ class BVAnalyzer:
                     sigma = data["std"]
                     # Calculate posterior probability. Note that constant
                     # factors are ignored. They have no effect on the results.
-                    prob[el][sp.oxi_state] = exp(-((bv_sum - u) ** 2) / 2 / (sigma ** 2)) / sigma * PRIOR_PROB[sp]
+                    prob[el][sp.oxi_state] = exp(-((bv_sum - u) ** 2) / 2 / (sigma**2)) / sigma * PRIOR_PROB[sp]
             # Normalize the probabilities
             try:
                 prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
@@ -315,7 +314,7 @@ class BVAnalyzer:
                 el_oxi = collections.defaultdict(list)
                 for i, sites in enumerate(equi_sites):
                     el_oxi[sites[0].specie.symbol].append(v_set[i])
-                max_diff = max([max(v) - min(v) for v in el_oxi.values()])
+                max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
                 score = functools.reduce(operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
@@ -387,7 +386,7 @@ class BVAnalyzer:
                     for specie, occu in get_z_ordered_elmap(sites[0].species):
                         el_oxi[specie.symbol].append(v_set[jj])
                         jj += 1
-                max_diff = max([max(v) - min(v) for v in el_oxi.values()])
+                max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 2:
                     return
 
@@ -446,7 +445,7 @@ class BVAnalyzer:
             assigned = {}
             new_best_vset = []
             for ii in range(len(equi_sites)):
-                new_best_vset.append(list())
+                new_best_vset.append([])
             for ival, val in enumerate(self._best_vset):
                 new_best_vset[attrib[ival]].append(val)
             for val, sites in zip(new_best_vset, equi_sites):
@@ -493,7 +492,7 @@ def get_z_ordered_elmap(comp):
     Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
     Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
     """
-    return sorted([(elsp, comp[elsp]) for elsp in comp.keys()])
+    return sorted((elsp, comp[elsp]) for elsp in comp.keys())
 
 
 def add_oxidation_state_by_site_fraction(structure, oxidation_states):
@@ -514,4 +513,4 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
             structure[i] = new_sp
         return structure
     except IndexError:
-        raise ValueError("Oxidation state of all sites must be " "specified in the list.")
+        raise ValueError("Oxidation state of all sites must be specified in the list.")

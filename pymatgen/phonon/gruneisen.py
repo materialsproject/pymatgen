@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -14,7 +13,10 @@ from monty.json import MSONable
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import amu_to_kg
-from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
+from pymatgen.phonon.bandstructure import (
+    PhononBandStructure,
+    PhononBandStructureSymmLine,
+)
 from pymatgen.phonon.dos import PhononDos
 
 try:
@@ -95,13 +97,13 @@ class GruneisenParameter(MSONable):
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(
-            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2)
         )  # in eV
 
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma ** 2
+            gamma = gamma**2
 
         if limit_frequencies == "debye":
             adt = self.acoustic_debye_temp
@@ -112,7 +114,7 @@ class GruneisenParameter(MSONable):
         elif limit_frequencies is None:
             ind = np.where(w >= 0)
         else:
-            raise ValueError("{} is not an accepted value for limit_frequencies".format(limit_frequencies))
+            raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies")
 
         weights = self.multiplicities
         g = np.dot(weights[ind[0]], np.multiply(cv, gamma)[ind]).sum() / np.dot(weights[ind[0]], cv[ind]).sum()
@@ -150,9 +152,9 @@ class GruneisenParameter(MSONable):
             theta_d = self.acoustic_debye_temp
         mean_g = self.average_gruneisen(t=theta_d, squared=squared, limit_frequencies=limit_frequencies)
 
-        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi ** 3 * (1 - 0.514 * mean_g ** -1 + 0.228 * mean_g ** -2))
+        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi**3 * (1 - 0.514 * mean_g**-1 + 0.228 * mean_g**-2))
         f2 = (const.k * theta_d / const.hbar) ** 2
-        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g ** 2)
+        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g**2)
         k = f1 * f2 * f3
 
         if t is not None:
@@ -201,7 +203,7 @@ class GruneisenParameter(MSONable):
         f_mesh = self.tdos.frequency_points * const.tera
         dos = self.tdos.dos
 
-        i_a = UnivariateSpline(f_mesh, dos * f_mesh ** 2, s=0).integral(f_mesh[0], f_mesh[-1])
+        i_a = UnivariateSpline(f_mesh, dos * f_mesh**2, s=0).integral(f_mesh[0], f_mesh[-1])
         i_b = UnivariateSpline(f_mesh, dos, s=0).integral(f_mesh[0], f_mesh[-1])
 
         integrals = i_a / i_b

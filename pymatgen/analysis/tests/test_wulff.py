@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import json
 import os
 import unittest
@@ -112,7 +110,7 @@ class WulffShapeTest(PymatgenTest):
 
         # For a set of given values, these tests will
         # ensure that the general result given by the
-        # algorithm does not change as the code is editted
+        # algorithm does not change as the code is edited
 
         # For fcc Ir, make sure the (111) direction
         # is the most dominant facet on the Wulff shape

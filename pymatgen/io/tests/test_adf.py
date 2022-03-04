@@ -84,7 +84,7 @@ def readfile(file_object):
     if hasattr(file_object, "read"):
         return file_object.read()
     elif isinstance(file_object, str):
-        f = open(file_object, "r")
+        f = open(file_object)
         content = f.read()
         f.close()
         return content

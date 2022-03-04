@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -43,7 +42,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         cls.pd_ls_fcFalse = DefectPhaseDiagram(ls_entries, cls.vbm_val, cls.gap, filter_compatible=False)
 
         # load complete dos for fermi energy solving
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             dos_dict = json.load(f)
         cls.dos = CompleteDos.from_dict(dos_dict)
 
@@ -64,7 +63,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         ]:
             self.assertTrue(
                 len(suggested_charges[k]) > 0,
-                "Could not find any suggested charges for {} with band_gap of {}".format(k, self.pd.band_gap),
+                f"Could not find any suggested charges for {k} with band_gap of {self.pd.band_gap}",
             )
 
         pd = DefectPhaseDiagram(self.entries, 2.6682, 1.0)
@@ -72,12 +71,12 @@ class DefectsThermodynamicsTest(PymatgenTest):
         for k in ["Vac_As_mult4@0-1-2-3-4-5", "Vac_Ga_mult4@12-13-14-15"]:
             self.assertTrue(
                 len(suggested_charges[k]) > 0,
-                "Could not find any suggested charges for {} with band_gap of {}".format(k, pd.band_gap),
+                f"Could not find any suggested charges for {k} with band_gap of {pd.band_gap}",
             )
 
         # test again but with only one charge state stable for Vac_As
         suggested_charges = self.sep_pd.suggest_charges()
-        self.assertEqual(set(suggested_charges["Vac_As_mult4@0-43"]), set([-4]))
+        self.assertEqual(set(suggested_charges["Vac_As_mult4@0-43"]), {-4})
 
     def test_suggest_larger_supercells(self):
         suggested_larger_cells = self.pd_ls_fcFalse.suggest_larger_supercells()
@@ -92,7 +91,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         self.assertEqual(len(self.pd.defect_types), 8)
         self.assertEqual(
             len(all_stable_entries),
-            sum([len(v) for v in self.pd.stable_charges.values()]),
+            sum(len(v) for v in self.pd.stable_charges.values()),
         )
 
         # test again but with only one charge state stable for Vac_As

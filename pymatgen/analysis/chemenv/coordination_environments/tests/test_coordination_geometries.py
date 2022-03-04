@@ -56,7 +56,7 @@ class CoordinationGeometriesTest(PymatgenTest):
 
         self.assertEqual(
             sepplane_algos_oct[0].__str__(),
-            "Separation plane algorithm with the following reference separation :\n" "[[4]] | [[0, 2, 1, 3]] | [[5]]",
+            "Separation plane algorithm with the following reference separation :\n[[4]] | [[0, 2, 1, 3]] | [[5]]",
         )
 
     def test_hints(self):

@@ -34,7 +34,7 @@ class StructureConnectivityTest(PymatgenTest):
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath, "r") as f:
+        with open(BaTiO3_se_fpath) as f:
             dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
         lse = LightStructureEnvironments.from_structure_environments(

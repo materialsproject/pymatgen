@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,13 +7,12 @@ import multiprocessing
 import os
 import unittest
 import warnings
-import pytest
 
 import numpy as np
-from monty.serialization import loadfn, dumpfn
+import pytest
+from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
-from pymatgen.core import SETTINGS
 from pymatgen.analysis.pourbaix_diagram import (
     IonEntry,
     MultiEntry,
@@ -46,7 +44,7 @@ class PourbaixEntryTest(unittest.TestCase):
 
     def test_pourbaix_entry(self):
         self.assertEqual(self.PxIon.entry.energy, 25, "Wrong Energy!")
-        self.assertEqual(self.PxIon.entry.name, "MnO4[-]", "Wrong Entry!")
+        self.assertEqual(self.PxIon.entry.name, "MnO4[-1]", "Wrong Entry!")
         self.assertEqual(self.PxSol.entry.energy, 49, "Wrong Energy!")
         self.assertEqual(self.PxSol.entry.name, "Mn2O3", "Wrong Entry!")
         # self.assertEqual(self.PxIon.energy, 25, "Wrong Energy!")
@@ -65,7 +63,7 @@ class PourbaixEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.PxIon.as_dict()
         ion_entry = self.PxIon.from_dict(d)
-        self.assertEqual(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
+        self.assertEqual(ion_entry.entry.name, "MnO4[-1]", "Wrong Entry!")
 
         d = self.PxSol.as_dict()
         sol_entry = self.PxSol.from_dict(d)
@@ -124,20 +122,20 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     def test_pourbaix_diagram(self):
         self.assertEqual(
-            set([e.name for e in self.pbx.stable_entries]),
+            {e.name for e in self.pbx.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
             "List of stable entries does not match",
         )
 
         self.assertEqual(
-            set([e.name for e in self.pbx_nofilter.stable_entries]),
+            {e.name for e in self.pbx_nofilter.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)", "ZnO2(s)", "ZnH(s)"},
             "List of stable entries for unfiltered pbx does not match",
         )
 
         pbx_lowconc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
         self.assertEqual(
-            set([e.name for e in pbx_lowconc.stable_entries]),
+            {e.name for e in pbx_lowconc.stable_entries},
             {"Zn(HO)2(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
         )
 
@@ -178,7 +176,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag_te_n, 10, -2), 3.756840056890625)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1), 0)
 
-        # Test invocation of pourbaix diagram from ternary data
+        # Test invocation of Pourbaix diagram from ternary data
         new_ternary = PourbaixDiagram(pd_ternary.all_entries)
         self.assertEqual(len(new_ternary.stable_entries), 49)
         self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag_te_n, 2, -1), 2.767822855765)
@@ -254,7 +252,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         d = self.pbx.as_dict()
         new = PourbaixDiagram.from_dict(d)
         self.assertEqual(
-            set([e.name for e in new.stable_entries]),
+            {e.name for e in new.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
             "List of stable entries does not match",
         )
@@ -265,7 +263,7 @@ class PourbaixDiagramTest(unittest.TestCase):
             d = self.pbx_nofilter.as_dict(include_unprocessed_entries=True)
         new = PourbaixDiagram.from_dict(d)
         self.assertEqual(
-            set([e.name for e in new.stable_entries]),
+            {e.name for e in new.stable_entries},
             {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)", "ZnO2(s)", "ZnH(s)"},
             "List of stable entries for unfiltered pbx does not match",
         )

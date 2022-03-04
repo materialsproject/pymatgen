@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -20,12 +19,7 @@ def get_table():
     default lambda table.
     """
     data_dir = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "..",
-        "..",
-        "..",
-        "test_files",
+        PymatgenTest.TEST_FILES_DIR,
         "struct_predictor",
     )
     json_file = os.path.join(data_dir, "test_lambda.json")

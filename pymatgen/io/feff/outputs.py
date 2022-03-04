@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module defines classes for parsing the FEFF output files.
@@ -11,7 +9,7 @@ Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 
 
 import re
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 
 import numpy as np
 from monty.io import zopen
@@ -65,7 +63,7 @@ class LDos(MSONable):
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:
-            pot_dict = dict()
+            pot_dict = {}
             pot_readstart = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
             pot_readend = re.compile(".*ExternalPot.*switch.*")
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
@@ -106,9 +104,9 @@ class LDos(MSONable):
 
         for i in range(1, len(pot_dict) + 1):
             if len(str(i)) == 1:
-                ldos[i] = np.loadtxt("{}0{}.dat".format(ldos_file, i))
+                ldos[i] = np.loadtxt(f"{ldos_file}0{i}.dat")
             else:
-                ldos[i] = np.loadtxt("{}{}.dat".format(ldos_file, i))
+                ldos[i] = np.loadtxt(f"{ldos_file}{i}.dat")
 
         for i in range(0, len(ldos[1])):
             dos_energies.append(ldos[1][i][0])
@@ -158,19 +156,19 @@ class LDos(MSONable):
 
         Args:
             feff_inp_file (str): name of feff.inp file for run
-            ldos_file (str): ldos filename for run, assume consequetive order,
+            ldos_file (str): ldos filename for run, assume consecutive order,
                 i.e., ldos01.dat, ldos02.dat....
 
         Returns:
             dictionary of dictionaries in order of potential sites
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         """
-        cht = OrderedDict()
+        cht = {}
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:
-            dicts = [dict()]
-            pot_dict = dict()
+            dicts = [{}]
+            pot_dict = {}
             dos_index = 1
             begin = 0
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
@@ -207,7 +205,7 @@ class LDos(MSONable):
 
         for i in range(0, len(dicts[0]) + 1):
             if len(str(i)) == 1:
-                with zopen("{}0{}.dat".format(ldos_file, i), "rt") as fobject:
+                with zopen(f"{ldos_file}0{i}.dat", "rt") as fobject:
                     f = fobject.readlines()
                     s = float(f[3].split()[2])
                     p = float(f[4].split()[2])
@@ -334,7 +332,7 @@ class Xmu(MSONable):
     @property
     def wavenumber(self):
         r"""
-        Returns The wave number in units of \\AA^-1. k=\\sqrt(E −E_f) where E is
+        Returns The wave number in units of \\AA^-1. k=\\sqrt(E - E_f) where E is
         the energy and E_f is the Fermi level computed from electron gas theory
         at the average interstitial charge density.
         """

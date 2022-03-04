@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 Test for the piezo tensor class
@@ -14,7 +12,6 @@ __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "4/1/16"
 
-import os
 import unittest
 
 import numpy as np

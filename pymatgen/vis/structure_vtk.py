@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
@@ -40,7 +38,7 @@ class StructureVis:
     Provides Structure object visualization using VTK.
     """
 
-    @requires(vtk, "Visualization requires the installation of VTK with " "Python bindings.")
+    @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
         self,
         element_color_mapping=None,
@@ -198,13 +196,13 @@ class StructureVis:
         """
         helptxt = [
             "h : Toggle help",
-            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor " "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-            "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
-            "Left/right: Rotate view along camera direction by " "90 clockwise/anticlockwise",
+            "[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise",
             "s: Save view to image.png",
             "o: Orthogonalize structure",
         ]
@@ -567,7 +565,7 @@ class StructureVis:
         if color == "element":
             if center is None:
                 raise ValueError(
-                    "Color should be chosen according to the central atom, " "and central atom is not provided"
+                    "Color should be chosen according to the central atom, and central atom is not provided"
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
@@ -742,9 +740,9 @@ class StructureVis:
                     output = []
                     for site in self.mapper_map[mapper]:
                         row = [
-                            "{} - ".format(site.species_string),
-                            ", ".join(["{:.3f}".format(c) for c in site.frac_coords]),
-                            "[" + ", ".join(["{:.3f}".format(c) for c in site.coords]) + "]",
+                            f"{site.species_string} - ",
+                            ", ".join([f"{c:.3f}" for c in site.frac_coords]),
+                            "[" + ", ".join([f"{c:.3f}" for c in site.coords]) + "]",
                         ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
@@ -784,7 +782,7 @@ class StructureVis:
                     site = self.mapper_map[mapper]
                     output = [
                         site.species_string,
-                        "Frac. coords: " + " ".join(["{:.4f}".format(c) for c in site.frac_coords]),
+                        "Frac. coords: " + " ".join([f"{c:.4f}" for c in site.frac_coords]),
                     ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
@@ -900,7 +898,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
 
 
 def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate="10000k", quality=1, **kwargs):
-    r"""
+    """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
     Args:
@@ -912,7 +910,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         bitrate (str): Video bitate.  Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
-        \\*\\*kwargs: Any kwargs supported by StructureVis to modify the images
+        kwargs: Any kwargs supported by StructureVis to modify the images
             generated.
     """
     vis = StructureVis(**kwargs)
@@ -1132,13 +1130,13 @@ class MultiStructuresVis(StructureVis):
         """
         helptxt = [
             "h : Toggle help",
-            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor " "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-            "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
-            "Left/right: Rotate view along camera direction by " "90 clockwise/anticlockwise",
+            "[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise",
             "s: Save view to image.png",
             "o: Orthogonalize structure",
             "n: Move to next structure",
@@ -1161,7 +1159,7 @@ class MultiStructuresVis(StructureVis):
         tprops.SetColor(1, 0, 0)
         tprops.BoldOn()
         tprops.SetJustificationToRight()
-        self.warningtxt = "WARNING : {}".format(warning)
+        self.warningtxt = f"WARNING : {warning}"
         self.warningtxt_actor = vtk.vtkActor2D()
         self.warningtxt_actor.VisibilityOn()
         self.warningtxt_actor.SetMapper(self.warningtxt_mapper)
@@ -1189,7 +1187,7 @@ class MultiStructuresVis(StructureVis):
         tprops.SetColor(0, 0, 1)
         tprops.BoldOn()
         tprops.SetVerticalJustificationToTop()
-        self.infotxt = "INFO : {}".format(info)
+        self.infotxt = f"INFO : {info}"
         self.infotxt_actor = vtk.vtkActor2D()
         self.infotxt_actor.VisibilityOn()
         self.infotxt_actor.SetMapper(self.infotxt_mapper)

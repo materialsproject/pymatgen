@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -15,14 +14,12 @@ from math import acos, pi
 from warnings import warn
 
 import numpy as np
-from monty.dev import deprecated
 from scipy.spatial import Voronoi
 
+from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.local_env import JmolNN, VoronoiNN
-from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
 
@@ -127,7 +124,7 @@ class VoronoiAnalyzer:
             step_freq (int): perform analysis every step_freq steps
             qhull_options (str): options to pass to qhull
             most_frequent_polyhedra (int): this many unique polyhedra with
-                highest frequences is stored.
+                highest frequencies is stored.
 
         Returns:
             A list of tuples in the form (voronoi_index,frequency)
@@ -192,7 +189,7 @@ class RelaxationAnalyzer:
                 calculation.
         """
         if final_structure.formula != initial_structure.formula:
-            raise ValueError("Initial and final structures have different " + "formulas!")
+            raise ValueError("Initial and final structures have different formulas!")
         self.initial = initial_structure
         self.final = final_structure
 
@@ -311,7 +308,7 @@ class VoronoiConnectivity:
                 connectivity[atomj, atomi, imagei] = val
 
             if -10.101 in vts[v]:
-                warn("Found connectivity with infinite vertex. " "Cutoff is too low, and results may be " "incorrect")
+                warn("Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect")
         return connectivity
 
     @property
@@ -401,79 +398,6 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
             bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
 
     return bonds_lens
-
-
-@deprecated(
-    message=(
-        "find_dimension has been moved to"
-        "pymatgen.analysis.dimensionality.get_dimensionality_gorai"
-        " this method will be removed in pymatgen v2019.1.1."
-    )
-)
-def get_dimensionality(
-    structure,
-    max_hkl=2,
-    el_radius_updates=None,
-    min_slab_size=5,
-    min_vacuum_size=5,
-    standardize=True,
-    bonds=None,
-):
-    """
-    This method returns whether a structure is 3D, 2D (layered), or 1D (linear
-    chains or molecules) according to the algorithm published in Gorai, P.,
-    Toberer, E. & Stevanovic, V. Computational Identification of Promising
-    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater.
-    Chem. A 2, 4136 (2016).
-
-    Note that a 1D structure detection might indicate problems in the bonding
-    algorithm, particularly for ionic crystals (e.g., NaCl)
-
-    Users can change the behavior of bonds detection by passing either
-    el_radius_updates to update atomic radii for auto-detection of max bond
-    distances, or bonds to explicitly specify max bond distances for atom pairs.
-    Note that if you pass both, el_radius_updates are ignored.
-
-    Args:
-        structure: (Structure) structure to analyze dimensionality for
-        max_hkl: (int) max index of planes to look for layers
-        el_radius_updates: (dict) symbol->float to update atomic radii
-        min_slab_size: (float) internal surface construction parameter
-        min_vacuum_size: (float) internal surface construction parameter
-        standardize (bool): whether to standardize the structure before
-            analysis. Set to False only if you already have the structure in a
-            convention where layers / chains will be along low <hkl> indexes.
-        bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
-
-    Returns: (int) the dimensionality of the structure - 1 (molecules/chains),
-        2 (layered), or 3 (3D)
-
-    """
-    if standardize:
-        structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
-
-    if not bonds:
-        bonds = get_max_bond_lengths(structure, el_radius_updates)
-
-    num_surfaces = 0
-    for h in range(max_hkl):
-        for k in range(max_hkl):
-            for l in range(max_hkl):
-                if max([h, k, l]) > 0 and num_surfaces < 2:
-                    sg = SlabGenerator(
-                        structure,
-                        (h, k, l),
-                        min_slab_size=min_slab_size,
-                        min_vacuum_size=min_vacuum_size,
-                    )
-                    slabs = sg.get_slabs(bonds)
-                    for _ in slabs:
-                        num_surfaces += 1
-
-    return 3 - min(num_surfaces, 2)
 
 
 def contains_peroxide(structure, relative_cutoff=1.1):

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -112,7 +111,7 @@ class CovalentBond:
         raise ValueError("No bond data for elements {} - {}".format(*syms))
 
     def __repr__(self):
-        return "Covalent bond between {} and {}".format(self.site1, self.site2)
+        return f"Covalent bond between {self.site1} and {self.site2}"
 
     def __str__(self):
         return self.__repr__()
@@ -181,7 +180,7 @@ def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: Optional
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
     if dist < lengths_list[-1] * (1 - tol):  # too short
-        warnings.warn("%.2f angstrom distance is too short for %s and %s" % (dist, sp1, sp2))
+        warnings.warn(f"{dist:.2f} angstrom distance is too short for {sp1} and {sp2}")
     # return the highest bond order
     return trial_bond_order - 1
 
