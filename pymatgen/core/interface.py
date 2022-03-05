@@ -194,13 +194,10 @@ class Interface(Structure):
         """
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> "Interface":  # type:ignore
+    def copy(self):
         """
-        Convenience method to get a copy of the structure, with options to add
-        site properties.
-
         Returns:
-            A copy of the Interface.
+            Interface: A copy of the Interface.
         """
 
         return Interface.from_dict(self.as_dict())
