@@ -49,15 +49,12 @@ def get_avg_mom_inertia(mol):
         c = site.coords
         wt = site.specie.atomic_mass
         for i in range(3):
-            inertia_tensor[i, i] += wt * (
-                        c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
+            inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
         for i, j in [(0, 1), (1, 2), (0, 2)]:
             inertia_tensor[i, j] += -wt * c[i] * c[j]
             inertia_tensor[j, i] += -wt * c[j] * c[i]
 
-    inertia_eigenvals = np.multiply(
-        np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20
-    ).tolist()  # amuangs^2 to kg m^2
+    inertia_eigenvals = np.multiply(np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20).tolist()  # amuangs^2 to kg m^2
 
     iav = np.average(inertia_eigenvals)
 
@@ -134,7 +131,6 @@ class QuasiRRHO:
                 frequencies=output["frequencies"],
                 elec_energy=output["elec_energy"],
             )
-
 
     def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
         """
