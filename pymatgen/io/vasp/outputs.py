@@ -4,6 +4,8 @@
 """
 Classes for reading/manipulating/writing VASP output files.
 """
+from __future__ import annotations
+
 import datetime
 import glob
 import itertools
@@ -18,7 +20,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import DefaultDict, List, Optional, Tuple, Union
+from typing import DefaultDict, Literal
 
 import numpy as np
 from monty.dev import deprecated
@@ -808,8 +810,8 @@ class Vasprun(MSONable):
 
     def get_band_structure(
         self,
-        kpoints_filename: Optional[str] = None,
-        efermi: Optional[Union[float, str]] = None,
+        kpoints_filename: str | None = None,
+        efermi: float | Literal["smart"] | None = None,
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
@@ -855,9 +857,11 @@ class Vasprun(MSONable):
                 raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
-            efermi = self.calculate_efermi()
+            e_fermi = self.calculate_efermi()
         elif efermi is None:
-            efermi = self.efermi
+            e_fermi = self.efermi
+        else:
+            e_fermi = efermi
 
         kpoint_file = None
         if kpoints_filename and os.path.exists(kpoints_filename):
@@ -940,7 +944,7 @@ class Vasprun(MSONable):
                 kpoints,
                 eigenvals,
                 lattice_new,
-                efermi,
+                e_fermi,
                 labels_dict,
                 structure=self.final_structure,
                 projections=p_eigenvals,
@@ -949,7 +953,7 @@ class Vasprun(MSONable):
             kpoints,
             eigenvals,
             lattice_new,
-            efermi,
+            e_fermi,
             structure=self.final_structure,
             projections=p_eigenvals,
         )
@@ -1491,8 +1495,8 @@ class BSVasprun(Vasprun):
     def __init__(
         self,
         filename: str,
-        parse_projected_eigen: Union[bool, str] = False,
-        parse_potcar_file: Union[bool, str] = False,
+        parse_projected_eigen: bool | str = False,
+        parse_potcar_file: bool | str = False,
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
     ):
@@ -5035,7 +5039,7 @@ class Wavecar:
 
         self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(int)
 
-    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
+    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> tuple[list, list, list]:
         """
         Helper function to generate G-points based on nbmax.
 
@@ -5169,8 +5173,8 @@ class Wavecar:
         poscar: Poscar,
         kpoint: int,
         band: int,
-        spin: Optional[int] = None,
-        spinor: Optional[int] = None,
+        spin: int | None = None,
+        spinor: int | None = None,
         phase: bool = False,
         scale: int = 2,
     ) -> Chgcar:

@@ -4,6 +4,7 @@
 """
 This module provides classes to define everything related to band structures.
 """
+from __future__ import annotations
 
 import collections
 import itertools
@@ -201,15 +202,15 @@ class BandStructure:
 
     def __init__(
         self,
-        kpoints,
-        eigenvals,
-        lattice,
-        efermi,
+        kpoints: np.ndarray,
+        eigenvals: dict[Spin, np.ndarray],
+        lattice: Lattice,
+        efermi: float,
         labels_dict=None,
-        coords_are_cartesian=False,
-        structure=None,
-        projections=None,
-    ):
+        coords_are_cartesian: bool = False,
+        structure: Structure = None,
+        projections: dict[Spin, np.ndarray] = None,
+    ) -> None:
         """
         Args:
             kpoints: list of kpoint as numpy arrays, in frac_coords of the
@@ -223,7 +224,7 @@ class BandStructure:
             lattice: The reciprocal lattice as a pymatgen Lattice object.
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
-            efermi: fermi energy
+            efermi (float): fermi energy
             labels_dict: (dict) of {} this links a kpoint (in frac coords or
                 cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether coordinates are cartesian.
