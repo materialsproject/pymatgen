@@ -6,6 +6,7 @@ This module provides classes to perform analyses of
 the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures.
 """
+from __future__ import annotations
 
 import json
 import math
@@ -16,7 +17,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 from monty.dev import requires
@@ -1011,7 +1012,7 @@ class IsayevNN(VoronoiNN):
     def __init__(
         self,
         tol: float = 0.25,
-        targets: Optional[Union[Element, List[Element]]] = None,
+        targets: Element | list[Element] | None = None,
         cutoff: float = 13.0,
         allow_pathological: bool = False,
         extra_nn_info: bool = True,
@@ -1036,7 +1037,7 @@ class IsayevNN(VoronoiNN):
         self.extra_nn_info = extra_nn_info
         self.compute_adj_neighbors = compute_adj_neighbors
 
-    def get_nn_info(self, structure: Structure, n: int) -> List[Dict[str, Any]]:
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict[str, Any]]:
         """
         Get all near-neighbor site information.
 
@@ -1060,7 +1061,7 @@ class IsayevNN(VoronoiNN):
         nns = self.get_voronoi_polyhedra(structure, n)
         return self._filter_nns(structure, n, nns)
 
-    def get_all_nn_info(self, structure: Structure) -> List[List[Dict[str, Any]]]:
+    def get_all_nn_info(self, structure: Structure) -> list[list[dict[str, Any]]]:
         """
         Args:
             structure (Structure): input structure.
@@ -1072,7 +1073,7 @@ class IsayevNN(VoronoiNN):
         all_nns = self.get_all_voronoi_polyhedra(structure)
         return [self._filter_nns(structure, n, nns) for n, nns in enumerate(all_nns)]
 
-    def _filter_nns(self, structure: Structure, n: int, nns: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _filter_nns(self, structure: Structure, n: int, nns: dict[str, Any]) -> list[dict[str, Any]]:
         """Extract and filter the NN info into the format needed by NearestNeighbors.
 
         Args:
@@ -1172,7 +1173,7 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
+        bonds_file = os.path.join(os.path.dirname(__file__), "bonds_jmol_ob.yaml")
         with open(bonds_file) as f:
             yaml = YAML()
             self.el_radius = yaml.load(f)
@@ -1860,7 +1861,7 @@ class MinimumVIRENN(NearNeighbors):
         return siw
 
 
-def _get_vire(structure: Union[Structure, IStructure]):
+def _get_vire(structure: Structure | IStructure):
     """Get the ValenceIonicRadiusEvaluator object for an structure taking
     advantage of caching.
 
@@ -3714,8 +3715,8 @@ def _get_fictive_ionic_radius(site: Site, neighbor: PeriodicNeighbor) -> float:
 
 
 def _get_mean_fictive_ionic_radius(
-    fictive_ionic_radii: List[float],
-    minimum_fir: Optional[float] = None,
+    fictive_ionic_radii: list[float],
+    minimum_fir: float | None = None,
 ) -> float:
     """
     Returns the mean fictive ionic radius.
