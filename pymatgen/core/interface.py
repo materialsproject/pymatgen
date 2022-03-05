@@ -4,8 +4,9 @@
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 from itertools import chain, combinations, product
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -33,10 +34,10 @@ class Interface(Structure):
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=False,
-        in_plane_offset: Tuple[float, float] = (0, 0),
+        in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 0,
         vacuum_over_film: float = 0.0,
-        interface_properties: Optional[Dict] = None,
+        interface_properties: dict | None = None,
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -149,7 +150,7 @@ class Interface(Structure):
         self.__update_c(self.lattice.c + delta)
 
     @property
-    def substrate_indices(self) -> List[int]:
+    def substrate_indices(self) -> list[int]:
         """
         Site indices for the substrate atoms
         """
@@ -157,7 +158,7 @@ class Interface(Structure):
         return sub_indices
 
     @property
-    def substrate_sites(self) -> List[Site]:
+    def substrate_sites(self) -> list[Site]:
         """
         The site objects in the substrate
         """
@@ -172,7 +173,7 @@ class Interface(Structure):
         return Structure.from_sites(self.substrate_sites)
 
     @property
-    def film_indices(self) -> List[int]:
+    def film_indices(self) -> list[int]:
         """
         Site indices of the film sites
         """
@@ -180,7 +181,7 @@ class Interface(Structure):
         return f_indices
 
     @property
-    def film_sites(self) -> List[Site]:
+    def film_sites(self) -> list[Site]:
         """
         Return the film sites of the interface.
         """
@@ -219,7 +220,7 @@ class Interface(Structure):
         struct_copy.sort(key=key, reverse=reverse)
         return struct_copy
 
-    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> List[Tuple[float, float]]:
+    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
         """
         Computes possible in-plane shifts based on an adsorbate site  algorithm
 
@@ -340,12 +341,12 @@ class Interface(Structure):
         cls,
         substrate_slab: Slab,
         film_slab: Slab,
-        in_plane_offset: Tuple[float, float] = (0, 0),
+        in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
         vacuum_over_film: float = 0.0,
-        interface_properties: Optional[Dict] = None,
+        interface_properties: dict | None = None,
         center_slab: bool = True,
-    ) -> "Interface":
+    ) -> Interface:
         """
         Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
@@ -476,7 +477,7 @@ def label_termination(slab: Structure) -> str:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(slab[i])
 
@@ -518,7 +519,7 @@ def count_layers(struc: Structure, el=None) -> int:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(struc[i])
 
