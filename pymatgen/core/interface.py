@@ -64,7 +64,7 @@ class Interface(Structure):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -117,7 +117,7 @@ class Interface(Structure):
     @property
     def gap(self) -> float:
         """
-        The gap in cartesian units between the film and the substrate
+        The gap in Cartesian units between the film and the substrate
         """
         return self._gap
 
@@ -135,7 +135,7 @@ class Interface(Structure):
     @property
     def vacuum_over_film(self) -> float:
         """
-        The vacuum space over the film in cartesian units
+        The vacuum space over the film in Cartesian units
         """
         return self._vacuum_over_film
 
@@ -287,7 +287,7 @@ class Interface(Structure):
 
     def __update_c(self, new_c: float) -> None:
         """
-        Modifies the c-direction of the lattice without changing the site cartesian coordinates
+        Modifies the c-direction of the lattice without changing the site Cartesian coordinates
         Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites
         """
         if new_c <= 0:
@@ -299,7 +299,7 @@ class Interface(Structure):
 
         for site, c_coords in zip(self, self.cart_coords):
             site._lattice = new_latice  # Update the lattice
-            site.coords = c_coords  # Put back into original cartesian space
+            site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):
         """

@@ -4162,9 +4162,9 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
 
     Args:
         line: list of coordinates.
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
@@ -4200,9 +4200,9 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwa
 
     Args:
         labels: dict containing the label as a key and the coordinates as value.
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing.
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
@@ -4240,12 +4240,12 @@ def fold_point(p, lattice, coords_are_cartesian=False):
 
     Args:
         p: coordinates of one point
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
 
     Returns:
-        The cartesian coordinates folded inside the first Brillouin zone
+        The Cartesian coordinates folded inside the first Brillouin zone
     """
 
     if coords_are_cartesian:
@@ -4279,9 +4279,9 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
     Args:
         points: list of coordinates
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
@@ -4360,7 +4360,7 @@ def plot_brillouin_zone(
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         kwargs: provided by add_fig_kwargs decorator
 
@@ -4425,7 +4425,7 @@ def plot_ellipsoid(
         rescale: factor for size scaling of the ellipsoid
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
-                              cartesian coordinates. Defaults to False.
+                              Cartesian coordinates. Defaults to False.
         kwargs: kwargs passed to the matplotlib function 'plot_wireframe'.
                 Color defaults to blue, rstride and cstride
                 default to 4, alpha defaults to 0.2.

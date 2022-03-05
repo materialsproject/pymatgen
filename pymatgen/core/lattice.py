@@ -148,7 +148,7 @@ class Lattice(MSONable):
 
     def get_cartesian_coords(self, fractional_coords: ArrayLike) -> np.ndarray:
         """
-        Returns the cartesian coordinates given fractional coordinates.
+        Returns the Cartesian coordinates given fractional coordinates.
 
         Args:
             fractional_coords (3x1 array): Fractional coords.
@@ -160,7 +160,7 @@ class Lattice(MSONable):
 
     def get_fractional_coords(self, cart_coords: ArrayLike) -> np.ndarray:
         """
-        Returns the fractional coordinates given cartesian coordinates.
+        Returns the fractional coordinates given Cartesian coordinates.
 
         Args:
             cart_coords (3x1 array): Cartesian coords.
@@ -172,9 +172,9 @@ class Lattice(MSONable):
 
     def get_vector_along_lattice_directions(self, cart_coords: ArrayLike) -> np.ndarray:
         """
-        Returns the coordinates along lattice directions given cartesian coordinates.
+        Returns the coordinates along lattice directions given Cartesian coordinates.
 
-        Note, this is different than a projection of the cartesian vector along the
+        Note, this is different than a projection of the Cartesian vector along the
         lattice parameters. It is simply the fractional coordinates multiplied by the
         lattice vector magnitudes.
 
@@ -1376,7 +1376,7 @@ class Lattice(MSONable):
         Args:
             coords_a, coords_b: Array-like objects with the coordinates.
             frac_coords (bool): Boolean stating whether the vector
-                corresponds to fractional or cartesian coordinates.
+                corresponds to fractional or Cartesian coordinates.
 
         Returns:
             one-dimensional `numpy` array.
@@ -1409,7 +1409,7 @@ class Lattice(MSONable):
                 Array-like object with the coordinates.
             frac_coords:
                 Boolean stating whether the vector corresponds to fractional or
-                cartesian coordinates.
+                Cartesian coordinates.
 
         Returns:
             one-dimensional `numpy` array.
@@ -1669,7 +1669,7 @@ class Lattice(MSONable):
             fcoords2: Second set of fractional coordinates.
 
         Returns:
-            2d array of cartesian distances. E.g the distance between
+            2d array of Cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
         v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
@@ -1749,11 +1749,11 @@ class Lattice(MSONable):
 
         Args:
             coords (iterable): A list or numpy array of coordinates. Can be
-                cartesian or fractional coordinates. If more than three sets of
+                Cartesian or fractional coordinates. If more than three sets of
                 coordinates are provided, the best plane that minimises the
                 distance to all sites will be calculated.
             coords_are_cartesian (bool, optional): Whether the coordinates are
-                in cartesian space. If using fractional coordinates set to
+                in Cartesian space. If using fractional coordinates set to
                 False.
             round_dp (int, optional): The number of decimal places to round the
                 miller index to.
@@ -1868,8 +1868,8 @@ def get_points_in_spheres(
     cutoff radius `r`.
 
     Args:
-        all_coords: (list of cartesian coordinates) all available points
-        center_coords: (list of cartesian coordinates) all centering points
+        all_coords: (list of Cartesian coordinates) all available points
+        center_coords: (list of Cartesian coordinates) all centering points
         r: (float) cutoff radius
         pbc: (bool or a list of bool) whether to set periodic boundaries
         numerical_tol: (float) numerical tolerance

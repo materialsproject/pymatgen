@@ -677,7 +677,7 @@ class IStructure(SiteCollection, MSONable):
             to_unit_cell (bool): Whether to map all sites into the unit cell,
                 i.e., fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -805,7 +805,7 @@ class IStructure(SiteCollection, MSONable):
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -904,7 +904,7 @@ class IStructure(SiteCollection, MSONable):
                 magnetic moment relative to the crystal is important, even if
                 the resulting structure is used for collinear calculations.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             tol (float): A fractional tolerance to deal with numerical
                 precision issues in determining if orbits are the same.
         """
@@ -1171,7 +1171,7 @@ class IStructure(SiteCollection, MSONable):
         2. keep points falling within r.
 
         Args:
-            pt (3x1 array): cartesian coordinates of center of sphere.
+            pt (3x1 array): Cartesian coordinates of center of sphere.
             r (float): Radius of sphere.
             include_index (bool): Whether the non-supercell site index
                 is included in the returned data
@@ -2170,7 +2170,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             verbosity (int): Verbosity level. Default of 1 includes both
-                direct and cartesian coordinates for all sites, lattice
+                direct and Cartesian coordinates for all sites, lattice
                 parameters, etc. Useful for reading and for insertion into a
                 database. Set to 0 for an extremely lightweight version
                 that only includes sufficient information to reconstruct the
@@ -2552,7 +2552,7 @@ class IMolecule(SiteCollection, MSONable):
                 list of dict of elements/species and occupancies, a List of
                 elements/specie specified as actual Element/Species, Strings
                 ("Fe", "Fe2+") or atomic numbers (1,56).
-            coords (3x1 array): list of cartesian coordinates of each species.
+            coords (3x1 array): list of Cartesian coordinates of each species.
             charge (float): Charge for the molecule. Defaults to 0.
             spin_multiplicity (int): Spin multiplicity for molecule.
                 Defaults to None, which means that the spin multiplicity is
@@ -3186,7 +3186,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell (bool): Whether to map all sites into the unit cell,
                 i.e., fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -3533,7 +3533,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             symmop (SymmOp): Symmetry operation to apply.
             fractional (bool): Whether the symmetry operation is applied in
                 fractional space. Defaults to False, i.e., symmetry operation
-                is applied in cartesian coordinates.
+                is applied in Cartesian coordinates.
 
         Returns:
             Structure: post-operation structure
@@ -3613,7 +3613,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 translation.
             vector: Translation vector for sites.
             frac_coords (bool): Whether the vector corresponds to fractional or
-                cartesian coordinates.
+                Cartesian coordinates.
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
         """
@@ -3827,7 +3827,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 list of dict of elements/species and occupancies, a List of
                 elements/specie specified as actual Element/Species, Strings
                 ("Fe", "Fe2+") or atomic numbers (1,56).
-            coords (3x1 array): list of cartesian coordinates of each species.
+            coords (3x1 array): list of Cartesian coordinates of each species.
             charge (float): Charge for the molecule. Defaults to 0.
             spin_multiplicity (int): Spin multiplicity for molecule.
                 Defaults to None, which means that the spin multiplicity is

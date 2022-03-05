@@ -321,7 +321,7 @@ class PeriodicSite(Site, MSONable):
             basic unit cell, i.e. all fractional coordinates satisfy 0
             <= a < 1. Defaults to False.
         :param coords_are_cartesian: Set to True if you are providing
-            cartesian coordinates. Defaults to False.
+            Cartesian coordinates. Defaults to False.
         :param properties: Properties associated with the site as a dict, e.g.
             {"magmom": 5}. Defaults to None.
         :param skip_checks: Whether to ignore all the usual checks and just
@@ -598,7 +598,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details such as
-                cartesian coordinates, etc.
+                Cartesian coordinates, etc.
         """
         species_list = []
         for spec, occu in self._species.items():

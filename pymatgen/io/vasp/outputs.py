@@ -204,7 +204,7 @@ class Vasprun(MSONable):
 
         Final projected magnetisation as a numpy array with the shape (nkpoints, nbands,
         natoms, norbitals, 3). Where the last axis is the contribution in the 3
-        cartesian directions. This attribute is only set if spin-orbit coupling
+        Cartesian directions. This attribute is only set if spin-orbit coupling
         (LSORBIT = True) or non-collinear magnetism (LNONCOLLINEAR = True) is turned
         on in the INCAR.
 
@@ -1456,7 +1456,7 @@ class Vasprun(MSONable):
         if len(proj_eigen) > 2:
             # non-collinear magentism (also spin-orbit coupling) enabled, last three
             # "spin channels" are the projected magnetisation of the orbitals in the
-            # x, y, and z cartesian coordinates
+            # x, y, and z Cartesian coordinates
             proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)
             proj_eigen = {Spin.up: proj_eigen[1]}
         else:
@@ -5611,13 +5611,13 @@ class Waveder:
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
         Method returning a value
-        between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
+        between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
         Args:
             band_i (Integer): Index of band i
             band_j (Integer): Index of band j
             kpoint (Integer): Index of k-point
             spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of cartesian direction (0,1,2)
+            cart_dir (Integer): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value

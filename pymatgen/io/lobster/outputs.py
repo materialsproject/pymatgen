@@ -1065,7 +1065,7 @@ class Fatband:
 
     .. attribute: label_dict
 
-         (dict) of {} this link a kpoint (in frac coords or cartesian coordinates depending on the coords).
+         (dict) of {} this link a kpoint (in frac coords or Cartesian coordinates depending on the coords).
 
     .. attribute: lattice
 
