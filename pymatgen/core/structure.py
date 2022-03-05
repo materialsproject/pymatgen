@@ -47,6 +47,8 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
+from pymatgen.electronic_structure.core import Magmom
+from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
 
@@ -908,9 +910,6 @@ class IStructure(SiteCollection, MSONable):
             tol (float): A fractional tolerance to deal with numerical
                 precision issues in determining if orbits are the same.
         """
-        from pymatgen.electronic_structure.core import Magmom
-        from pymatgen.symmetry.maggroups import MagneticSpaceGroup
-
         if "magmom" not in site_properties:
             raise ValueError("Magnetic moments have to be defined.")
 
