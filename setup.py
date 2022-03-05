@@ -3,14 +3,15 @@
 
 """Setup.py for pymatgen."""
 
+from __future__ import annotations
+
 import platform
 import sys
-from typing import List
 
 import numpy
 from setuptools import Extension, find_namespace_packages, setup
 
-extra_link_args: List[str] = []
+extra_link_args: list[str] = []
 if sys.platform.startswith("win") and platform.machine().endswith("64"):
     extra_link_args.append("-Wl,--allow-multiple-definition")
 
