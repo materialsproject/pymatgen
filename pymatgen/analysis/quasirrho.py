@@ -37,6 +37,33 @@ R = const.R / const.calorie  # Ideal gas constant cal/mol
 kcal2hartree = 0.0015936  # kcal/mol to hartree/mol
 
 
+def get_avg_mom_inertia(mol):
+    """
+    Caclulate the average moment of inertia of a molecule
+    :param mol: Molecule
+    :return: average moment of inertia, eigenvalues of inertia tensor
+    """
+    centered_mol = mol.get_centered_molecule()
+    inertia_tensor = np.zeros((3, 3))
+    for site in centered_mol:
+        c = site.coords
+        wt = site.specie.atomic_mass
+        for i in range(3):
+            inertia_tensor[i, i] += wt * (
+                        c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
+        for i, j in [(0, 1), (1, 2), (0, 2)]:
+            inertia_tensor[i, j] += -wt * c[i] * c[j]
+            inertia_tensor[j, i] += -wt * c[j] * c[i]
+
+    inertia_eigenvals = np.multiply(
+        np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20
+    ).tolist()  # amuangs^2 to kg m^2
+
+    iav = np.average(inertia_eigenvals)
+
+    return iav, inertia_eigenvals
+
+
 class QuasiRRHO:
     """
     Class to calculate thermochemistry using Grimme's Quasi-RRHO approximation.
@@ -108,30 +135,6 @@ class QuasiRRHO:
                 elec_energy=output["elec_energy"],
             )
 
-    def _get_avg_mom_inertia(self, mol):
-        """
-        Caclulate the average moment of inertia of a molecule
-        :param mol: Molecule
-        :return: average moment of inertia, eigenvalues of inertia tensor
-        """
-        centered_mol = mol.get_centered_molecule()
-        inertia_tensor = np.zeros((3, 3))
-        for site in centered_mol:
-            c = site.coords
-            wt = site.specie.atomic_mass
-            for i in range(3):
-                inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
-            for i, j in [(0, 1), (1, 2), (0, 2)]:
-                inertia_tensor[i, j] += -wt * c[i] * c[j]
-                inertia_tensor[j, i] += -wt * c[j] * c[i]
-
-        inertia_eigenvals = np.multiply(
-            np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20
-        ).tolist()  # amuangs^2 to kg m^2
-
-        iav = np.average(inertia_eigenvals)
-
-        return iav, inertia_eigenvals
 
     def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
         """
@@ -164,7 +167,7 @@ class QuasiRRHO:
         se = R * np.log(mult)
 
         # Get properties related to rotational symmetry. Bav is average moment of inertia
-        Bav, i_eigen = self._get_avg_mom_inertia(mol)
+        Bav, i_eigen = get_avg_mom_inertia(mol)
 
         # Check if linear
         coords = mol.cart_coords
