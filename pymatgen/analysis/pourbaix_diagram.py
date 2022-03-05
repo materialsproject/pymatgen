@@ -12,6 +12,7 @@ Decomposition maps, or Pourbaix hull diagrams
 Fast computation of many-element Pourbaix diagrams:
     Patel et al., https://arxiv.org/abs/1909.00035 (submitted)
 """
+
 from __future__ import annotations
 
 import itertools

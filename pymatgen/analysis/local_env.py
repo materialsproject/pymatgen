@@ -6,6 +6,7 @@ This module provides classes to perform analyses of
 the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures.
 """
+
 from __future__ import annotations
 
 import json
