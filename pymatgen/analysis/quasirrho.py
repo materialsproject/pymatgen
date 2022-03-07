@@ -49,15 +49,12 @@ def get_avg_mom_inertia(mol):
         c = site.coords
         wt = site.specie.atomic_mass
         for i in range(3):
-            inertia_tensor[i, i] += wt * (
-                        c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
+            inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
         for i, j in [(0, 1), (1, 2), (0, 2)]:
             inertia_tensor[i, j] += -wt * c[i] * c[j]
             inertia_tensor[j, i] += -wt * c[j] * c[i]
 
-    inertia_eigenvals = np.multiply(
-        np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20
-    ).tolist()  # amuangs^2 to kg m^2
+    inertia_eigenvals = np.multiply(np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20).tolist()  # amuangs^2 to kg m^2
 
     iav = np.average(inertia_eigenvals)
 
@@ -135,7 +132,6 @@ class QuasiRRHO:
                 elec_energy=output["elec_energy"],
             )
 
-
     def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
         """
         Caclulate Quasi-RRHO thermochemistry
@@ -181,11 +177,11 @@ class QuasiRRHO:
         # Rotational component of Entropy and Energy
         if linear:
             i = np.amax(i_eigen)
-            qr = 8 * np.pi**2 * i * kb * self.temp / (sigma_r * (h * h))
+            qr = 8 * np.pi ** 2 * i * kb * self.temp / (sigma_r * (h * h))
             sr = R * (np.log(qr) + 1)
             er = R * self.temp
         else:
-            rot_temps = [h**2 / (np.pi**2 * kb * 8 * i) for i in i_eigen]
+            rot_temps = [h ** 2 / (np.pi ** 2 * kb * 8 * i) for i in i_eigen]
             qr = np.sqrt(np.pi) / sigma_r * self.temp ** (3 / 2) / np.sqrt(rot_temps[0] * rot_temps[1] * rot_temps[2])
             sr = R * (np.log(qr) + 3 / 2)
             er = 3 * R * self.temp / 2
@@ -200,9 +196,9 @@ class QuasiRRHO:
             sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
             sv += sv_temp
 
-            mu = h / (8 * np.pi**2 * vt * c)
+            mu = h / (8 * np.pi ** 2 * vt * c)
             mu_prime = mu * Bav / (mu + Bav)
-            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi**3 * mu_prime * kb * self.temp / h**2))
+            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi ** 3 * mu_prime * kb * self.temp / h ** 2))
             weight = 1 / (1 + (self.v0 / vt) ** 4)
             sv_quasiRRHO += weight * sv_temp + (1 - weight) * srotor
 
