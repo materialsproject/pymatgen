@@ -231,7 +231,7 @@ class DefectCompatibility(MSONable):
         run_freysoldt = len(set(defect_entry.parameters.keys()).intersection(required_frey_params)) == len(
             required_frey_params
         )
-        if any(
+        if run_freysoldt and any(
                 len(defect_entry.parameters['defect_planar_averages'][i]) !=
                 len(defect_entry.parameters['bulk_planar_averages'][i])
                 for i in range(3)
