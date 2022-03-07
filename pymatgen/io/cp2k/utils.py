@@ -129,7 +129,8 @@ def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
     }
 
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
-        settings = yaml.load(f, Loader=yaml.Loader)
+        yaml=YAML(typ='unsafe', pure=True)
+        settings = yaml.load(f)
 
     if basis_and_potential_map == "best":
         basis_and_potential.update({
@@ -174,7 +175,8 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
 
     """
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
-        settings = yaml.load(f, Loader=yaml.Loader)
+        yaml = YAML(typ='unsafe', pure=True)
+        settings = yaml.load(f)
         aux_bases = {
             s: [settings[s]['basis_sets']['preferred_aux_basis']]
             if 'preferred_aux_basis' in settings[s]['basis_sets'] 
@@ -265,7 +267,8 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
         Ideal cutoff for calculation.
     """
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
-        _exponents = yaml.load(f, Loader=yaml.Loader)
+        yaml=YAML(typ='unsafe', pure=True)
+        _exponents = yaml.load(f)
         _exponents = {
             k: v['basis_sets'].get('basis_set_largest_exponents')
             for k, v in _exponents.items()
