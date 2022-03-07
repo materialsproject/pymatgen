@@ -877,7 +877,7 @@ class CompleteDos(Dos):
             sqrt(int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE)
         where E_center is the orbital-projected band center, the limits of the integration can be
         modified by erange, and E is the set of energies taken with respect to the Fermi level.
-        Note that the band width is often highly sensitive to the selected erange.
+        Note that the bandwidth is often highly sensitive to the selected erange.
 
         Args:
             el: Element to get the band center of (cannot be used in conjunction with site)
@@ -893,6 +893,77 @@ class CompleteDos(Dos):
         bandwidth = np.sqrt(self.get_n_moment(2, el=el, site=site, band=band, spin=spin, erange=erange))
 
         return bandwidth
+
+    def get_band_skewness(
+        self,
+        el: SpeciesLike = None,
+        site: PeriodicSite = None,
+        band: OrbitalType = OrbitalType.d,
+        spin: Spin = None,
+        erange: List[float] = None,
+    ) -> float:
+        """
+        Get the orbital-projected skewness given by the following expression:
+            int_{-inf}^{+inf} rho(E)*(E-E_center)^3 dE/int_{-inf}^{+inf} rho(E) dE)
+            /
+            (int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE))^(3/2)
+        where E_center is the orbital-projected band center, the limits of the integration can be
+        modified by erange, and E is the set of energies taken with respect to the Fermi level.
+        Note that the skewness is often highly sensitive to the selected erange.
+
+        Args:
+            el: Element to get the band center of (cannot be used in conjunction with site)
+            site: Site to get the band center of (cannot be used in conjunction with el)
+            band: Orbital to get the band center of (default is d-band)
+            spin: Spin channel to use. By default, the spin channels will be combined.
+            erange: [min, max] energy range to consider, with respect to the Fermi level.
+                Default is None, which means all energies are considered.
+
+        Returns:
+            Orbital-projected bandwidth in eV
+        """
+
+        skewness = self.get_n_moment(3, el=el, site=site, band=band, spin=spin, erange=erange) / self.get_n_moment(
+            2, el=el, site=site, band=band, spin=spin, erange=erange
+        ) ** (3 / 2)
+
+        return skewness
+
+    def get_band_skewness(
+        self,
+        el: SpeciesLike = None,
+        site: PeriodicSite = None,
+        band: OrbitalType = OrbitalType.d,
+        spin: Spin = None,
+        erange: List[float] = None,
+    ) -> float:
+        """
+        Get the orbital-projected skewness given by the following expression:
+            int_{-inf}^{+inf} rho(E)*(E-E_center)^4 dE/int_{-inf}^{+inf} rho(E) dE)
+            /
+            (int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE))^2
+        where E_center is the orbital-projected band center, the limits of the integration can be
+        modified by erange, and E is the set of energies taken with respect to the Fermi level.
+        Note that the skewness is often highly sensitive to the selected erange.
+
+        Args:
+            el: Element to get the band center of (cannot be used in conjunction with site)
+            site: Site to get the band center of (cannot be used in conjunction with el)
+            band: Orbital to get the band center of (default is d-band)
+            spin: Spin channel to use. By default, the spin channels will be combined.
+            erange: [min, max] energy range to consider, with respect to the Fermi level.
+                Default is None, which means all energies are considered.
+
+        Returns:
+            Orbital-projected bandwidth in eV
+        """
+
+        kurtosis = (
+            self.get_n_moment(4, el=el, site=site, band=band, spin=spin, erange=erange)
+            / self.get_n_moment(2, el=el, site=site, band=band, spin=spin, erange=erange) ** 2
+        )
+
+        return kurtosis
 
     def get_n_moment(
         self,
