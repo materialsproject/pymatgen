@@ -754,20 +754,20 @@ class DefectPhaseDiagram(MSONable):
             return plt
 
 
-class DefectPredominanceDiagram(MSONable):
+class BrouwerDiagram(MSONable):
     """
-    Module for constructing defect predominance diagrams (DPDs). DPDs show the concentration of each
+    Module for constructing Brouwer Diagrams (BDs). BDs show the concentration of each
     defect type at a given chemical potential. Traditionally, this is for binary oxides, with the
-    independent variable being the oxygen partial pressure. Defect predominance diagrams are related
-    to Brouwer Diagrams, but where Brouwer diagrams are constructed by assuming a single dominant
-    point defect in each region of interest, DPDs make no such assumption.
+    independent variable being the oxygen partial pressure. The original usage of "Brouwer diagrams"
+    comes from the "Brouwer approximation", where one assumes a single dominant
+    point defect in each region of interest, this class makes no such assumption.
     """
 
     def __init__(
         self, defect_phase_diagram: DefectPhaseDiagram, bulk_dos: CompleteDos, entries: List[ComputedStructureEntry]
     ):
         """
-        Initialize the DPD.
+        Initialize the BD.
 
         Args:
             defect_phase_diagram (DefectPhaseDiagram): A defect phase diagram for the system of interest.
@@ -947,7 +947,7 @@ class DefectPredominanceDiagram(MSONable):
         fixed_chempots = {},
     ):
         """
-        Plot the defect predomenance diagram along the chempot line of the specified element.
+        Plot the brouwer diagram along the chempot line of the specified element.
 
         Args:
             temperature: temperature of interest
