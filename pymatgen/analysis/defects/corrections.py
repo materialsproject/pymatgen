@@ -6,9 +6,14 @@
 Implementation of defect correction methods.
 """
 
+from collections import deque
 import logging
 import numpy as np
 import scipy
+import subprocess
+from monty.tempfile import ScratchDir
+from monty.os.path import which
+
 from scipy import stats
 from pymatgen.analysis.defects.core import DefectCorrection
 from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, \
@@ -26,138 +31,6 @@ __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
 logger = logging.getLogger(__name__)
-
-
-class PointChargeCorrection(DefectCorrection):
-    """
-    The simplest correction for defect image interactions.
-
-    Correction is based on assuming point charges for all ions in the cell
-    and does not take into account potential corrections beyond the defect
-    site itself.
-    """
-
-    def __init__(self, dielectric):
-        """
-        Args:
-            dielectric: dielectric constant for the bulk material
-        """
-        self.dielectric = dielectric
-
-    def get_correction(self, entry):
-        """
-        Get the PC correction, also called the Madelung correction in some papers.
-
-        Args:
-            entry (DefectEntry): defect entry for which calculate the correction.
-
-                Requires following keys to exist in DefectEntry.parameters dict:
-
-                    defect_frac_sc_coords: the fractional coordinates of the
-                        defect in the supercell.
-
-                    defect_structure: the defect structure, for which the
-                        Madelung constant will be determined.
-        """
-        frac_coord = entry.parameters['defect_frac_sc_coords']
-        struc = entry.parameters['defect_structure'].copy()
-        struc.sites.sort(
-            key=lambda x: x.distance_and_image_from_frac_coords(fcoords=frac_coord)
-        )
-        alpha = get_madelung_constant(structure=struc, site_index=0)
-        ecorr = hart_to_ev * alpha * entry.defect.charge ** 2 \
-            / 2 / ang_to_bohr / (struc.volume ** (1/3)) / self.dielectric
-        return {'point_charge_correction': ecorr}
-
-
-# TODO Need to write the shape factor to make this usable.
-class LanyZungerCorrection(DefectCorrection):
-    """
-    Correction of Lany and Zunger from https://doi.org/10.1103/PhysRevB.78.235104
-    """
-
-    def __init__(self, dielectric_const):
-        """
-        Args:
-            dielectric_const: dielectric constant of bulk material
-        """
-        self.dielectric_const = dielectric_const
-        raise NotImplementedError
-
-    def get_correction(self, entry):
-        """
-        Get the PC correction, also called the Madelung correction in some papers.
-
-        Args:
-            entry (DefectEntry): defect entry for which calculate the correction.
-
-                Requires following keys to exist in DefectEntry.parameters dict:
-
-                    defect_frac_sc_coords: the fractional coordinates of the
-                        defect in the supercell.
-
-                    defect_structure: the defect structure, for which the
-                        Madelung constant will be determined.
-        """
-        frac_coord = entry.parameters['defect_frac_sc_coords']
-        struc = entry.parameters['defect_structure'].copy()
-        struc.sites.sort(
-            key=lambda x: x.distance_and_image_from_frac_coords(fcoords=frac_coord)
-        )
-        alpha = get_madelung_constant(structure=struc, site_index=0)
-        ecorr = hart_to_ev * alpha * entry.defect.charge ** 2 / 2 / ang_to_bohr / (struc.volume ** (1/3))
-
-        # TODO apply shape factor here
-
-        return {'point_charge_correction': ecorr}
-
-
-class MakovPayneCorrection(DefectCorrection):
-    """
-    Correction method of Makov and Payne
-    """
-
-    def __init__(self, dielectric_const):
-        """
-        Args:
-            dielectric_const: bulk material's dielectric constant
-        """
-        self.dielectric_const = dielectric_const
-        raise NotImplementedError
-
-    def get_correction(self, entry):
-        """
-        Get the MP electrostatic correction for a defect entry
-
-        Args:
-            entry (DefectEntry): defect entry of interest
-        """
-        pcc = PointChargeCorrection()
-        E_PC = pcc.get_correction(entry)['point_charge_correction']
-        L = entry.parameters['defect_structure'].volume ** (1/3)
-        q = entry.defect.charge
-        Q = self.get_second_radial_moment()
-        p = self.get_dipole_moment()
-
-        E_1 = -2*np.pi*q*Q / 3 / self.dielectric_const / L**3
-        E_2 = 2*np.pi*np.dot(p, p) / 3 / self.dielectric_const / L**3
-
-        ecorr = E_PC + E_1 + E_2
-
-        return {'makov_payne_correction': ecorr}
-
-    def get_dipole_moment(self):
-        """
-        Get the dipole moment
-        """
-        raise NotImplementedError
-
-    def get_second_radial_moment(self, d):
-        """
-        get the second radial moment
-        """
-        raise NotImplementedError
-
 
 class FreysoldtCorrection(DefectCorrection):
     """
@@ -461,109 +334,180 @@ class FreysoldtCorrection(DefectCorrection):
             return plt
 
 
-# TODO Needs testing
-class FreysoldtVerticalCorrection(FreysoldtCorrection):
-    """
-    Modified version of the Freysoldt correction for vertical (optical) charge transitions
-    as described in https://doi.org/10.1103/PhysRevB.101.020102
+# TODO Currently requires using the implementation in sxdefectalign2d 
+# TODO Should be done natively
+class FreysoldtCorrection2d(DefectCorrection):
 
-    Uses potential alignment contributions from both the (defect - bulk) and the (excited - relaxed)
-    """
+    def __init__(self, dielectric_const, vref, vdef, encut=520, buffer=2):
+        """
+        """
+        self.dielectric_const = dielectric_const
+        self.vref = vref
+        self.vdef = vdef
+        self.encut = encut
+        self.buffer = buffer
 
-    def __init__(self, dielectric_electronic, dielectric_static, q_model=None, energy_cutoff=520, madetol=0.0001):
-        """
-        Args:
-            dielectric_electronic (float): Electronic contribution to the dielectric constant. If anisotropic
-                dielectric tensor, provide the average of the trace.
-            dielectric_static (float): Static dielectric constant (ionic+electronic contributions). If anisotropic
-                dielectric tensor, provide the average of the trace.
-            q_model (QModel): instantiated QModel object or None.
-                Uses default parameters to instantiate QModel if None supplied
-            energy_cutoff (int): Maximum energy in eV in reciprocal space to perform
-                integration for potential correction.
-            madeltol(float): Convergence criteria for the Madelung energy for potential correction
-        """
-        super().__init__(dielectric_const=dielectric_electronic,
-                         q_model=q_model, energy_cutoff=energy_cutoff,
-                         madetol=madetol, axis=None)
-        self.dielectric_electronic = dielectric_electronic
-        self.dielectric_static = dielectric_static
-        self.q_model = QModel() if not q_model else q_model
-        self.energy_cutoff = energy_cutoff
-        self.madetol = madetol
+        self.sxdefectalign2d = which('sxdefectalign2d') or which('sxdefectalign2d.exe')
+
+        if not self.sxdefectalign2d:
+            raise RuntimeError('sxdefectalign2d is not in PATH')
+
+        self.metadata = {"pot_plot_data": {}}
 
     def get_correction(self, entry):
-        """
-        Args:
-            entry (DefectEntry): defect entry to compute Freysoldt correction on.
+        structure = entry.parameters["initial_defect_structure"] 
+        defect_cart_coords = structure.lattice.get_cartesian_coords(entry.parameters["defect_frac_sc_coords"])
+        self.write_sphinx_input(structure, defect_sc_coords=defect_cart_coords, q=entry.defect.charge)
+        out = self.optimize(q=entry.defect.charge)
+        es_corr = self.parse_output(out)
+        return {"2d_electrostatic": es_corr}
 
-                Requires following keys to exist in DefectEntry.parameters dict:
+    def write_sphinx_input(self, structure, defect_sc_coords, q):
+        lines = [] 
+        lines.append("structure {\n")
+        m = [list(l) for l in np.multiply(1.88973, structure.lattice.matrix)]
+        lines.append("\t cell = {};\n".format(str(m)))
+        lines.append("}\n\n")
 
-                    axis_grid (3 x NGX where NGX is the length of the NGX grid
-                    in the x,y and z axis directions. Same length as planar
-                    average lists):
-                        A list of 3 numpy arrays which contain the cartesian axis
-                        values (in angstroms) that correspond to each planar avg
-                        potential supplied.
+        lines.append("slab {\n")
+        lines.append("\t fromZ = {};\n".format(np.multiply(1.88973, structure.cart_coords[:, 2].min())))
+        lines.append("\t toZ = {};\n".format(np.multiply(1.88973, structure.cart_coords[:, 2].max())))
+        lines.append("\t epsilon = {};\n".format(self.dielectric_const))
+        lines.append("}\n\n")
 
-                    bulk_planar_averages (3 x NGX where NGX is the length of
-                    the NGX grid in the x,y and z axis directions.):
-                        A list of 3 numpy arrays which contain the planar averaged
-                        electrostatic potential for the bulk supercell.
+        lines.append("charge {\n")
+        lines.append("\t posZ = {};\n".format(np.multiply(1.88973, defect_sc_coords[2])))
+        lines.append("\t Q = {};\n".format(-q))
+        lines.append("}\n\n")
 
-                    defect_planar_averages (3 x NGX where NGX is the length of
-                    the NGX grid in the x,y and z axis directions.):
-                        A list of 3 numpy arrays which contain the planar averaged
-                        electrostatic potential for the defective supercell.
+        lines.append("isolated { \n")
+        lines.append("\t fromZ = {};\n".format(np.multiply(1.88973, structure.cart_coords[:, 2].min()) - self.buffer))
+        lines.append("\t toZ = {};\n".format(np.multiply(1.88973, structure.cart_coords[:, 2].max()) + self.buffer))
+        lines.append("}\n\n")
 
-                    initial_defect_structure (Structure) structure corresponding to
-                        initial defect supercell structure (uses Lattice for charge correction)
+        with open('system.sx', 'w') as f:
+            f.writelines(lines)
 
-                    defect_frac_sc_coords (3 x 1 array) Fractional co-ordinates of
-                        defect location in supercell structure
+    def run_sxdefectalign2d(self, shift=0, C=0, only_profile=False):
 
-                    vertical_charge_difference (float): Change in the charge from the relaxed, initial
-                        defect state to the final state. e.g. 0 to +1 optical transition would be +1
-        """
+        command = [
+            self.sxdefectalign2d, '--vasp', 
+            '--ecut', str(self.encut/13.6057), ## convert eV to Ry
+            '--vref', self.vref,
+            '--vdef', self.vdef,
+            '--shift', str(shift),
+            "-C", str(C),
+            "--onlyProfile" if only_profile else ''
+        ]
 
-        list_axis_grid = np.array(entry.parameters["axis_grid"])
-        list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
-        list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
-        list_defect_opt_plnr_avg_esp = np.array(entry.parameters["defect_optical_planar_averages"])
-        list_axes = range(len(list_axis_grid))
+        with subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+            stdout, stderr = rs.communicate()
+            if rs.returncode != 0:
+                raise RuntimeError(
+                    "exited with return code %d. " "Please check your installation." % rs.returncode
+                )
+            
+            return stdout.decode('utf-8')
 
-        deltaQ = entry.parameters['vertical_charge_difference']
-        alpha = get_madelung_constant(entry.parameters['initial_defect_structure'])
-        L = entry.parameters['initial_defect_structure'].volume ** (1 / 3)
+    def optimize(self, q, max_iter=100, threshold_slope=1e-3, threshold_C=1e-3):
+        ## initialize the range of shift values bracketing the optimal shift
+        smin, smax = -np.inf, np.inf
+        shift = 0.0
+        shifting = 'right'
+        done = False
+        counter = -1
 
-        lattice = entry.parameters["initial_defect_structure"].lattice.copy()
-        defect_frac_coords = entry.parameters["defect_frac_sc_coords"]
-        q = entry.defect.charge
-        pot_corr_tracker = []
-        for x, pureavg, defavg, axis in zip(list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp,
-                                            list_axes):
-            tmp_pot_corr = self.perform_pot_corr(
-                x, pureavg, defavg, lattice, q, defect_frac_coords,
-                axis, widthsample=1.0)
-            pot_corr_tracker.append(tmp_pot_corr)
-        CQ = np.mean(pot_corr_tracker) / -q if q else 0.
 
-        pot_corr_tracker = []
-        for x, pureavg, defavg, axis in zip(list_axis_grid, list_defect_plnr_avg_esp, list_defect_opt_plnr_avg_esp,
-                                            list_axes):
-            tmp_pot_corr = self.perform_pot_corr(
-                x, pureavg, defavg, lattice, q+deltaQ, defect_frac_coords,
-                axis, widthsample=1.0)
-            pot_corr_tracker.append(tmp_pot_corr)
+        while not done and counter < max_iter:
+            counter += 1
+            ## run sxdefectalign2d with --shift <shift>
+            self.run_sxdefectalign2d(shift=shift, C=0, only_profile=True)
+            
+            ## read in the potential profiles from vline-eV.dat
+            ## z  V^{model}  \DeltaV^{DFT}  V^{sr}
+            data = np.loadtxt("vline-eV.dat")
+            
+            ## assumes that the slab is in the center of the cell vertically!
+            ## select datapoints corresponding to 2 bohrs at the top and bottom of the supercell 
+            ## (i.e. a total of 4 bohrs in the middle of vacuum)
+            z1 = np.min([i for i,z in enumerate(data[:,0]) if z > 2.])
+            z2 = np.min([i for i,z in enumerate(data[:,0]) if z > (data[-1,0]-2.)])
+            
+            ## fit straight lines through each subset of datapoints
+            m1,C1 = np.polyfit(data[:z1,0],data[:z1,-1],1)
+            m2,C2 = np.polyfit(data[z2:,0],data[z2:,-1],1)
+            logger.debug("Slopes: %.8f %.8f; Intercepts: %.8f %.8f"%(m1,m2,C1,C2))
+            
+            ## check the slopes and intercepts of the lines
+            ## and shift the charge along z until the lines are flat
+            if (abs(m1) < threshold_slope and abs(m2) < threshold_slope
+                and abs(C1-C2) < threshold_C):
+                done = True
+                break
+            elif m1*m2 < 0:
+                logger.info("undetermined...make a tiny shift and try again")
+                if shifting == 'right':
+                    shift += 0.01
+                else: 
+                    shift -= 0.01
+                logger.info("try shift = %.8f"%shift)
+            elif (m1+m2)*np.sign(q) > 0:
+                smin = shift
+                if smax == np.inf:
+                    shift += 1.0
+                else:
+                    shift = (smin+smax)/2.0
+                shifting = 'right'
+                logger.debug("optimal shift is in [%.8f, %.8f]"%(smin,smax))
+                logger.info("shift charge in +z direction; try shift = %.8f"%shift)
+            elif (m1+m2)*np.sign(q) < 0:
+                smax = shift
+                if smin == -np.inf:
+                    shift -= 1.0
+                else:
+                    shift = (smin+smax)/2.0
+                shifting = 'left'
+                logger.debug("optimal shift is in [%.8f, %.8f]"%(smin,smax))
+                logger.info("shift charge in -z direction; try shift = %.8f"%shift)
+        
+                        
+        if done:
+            C_ave = (C1+C2)/2
+            logger.info("DONE! shift = %.8f & alignment correction = %.8f"%(shift,C_ave))
+            ## run sxdefectalign2d with --shift <shift> -C <C_ave> > correction
+            output = self.run_sxdefectalign2d(shift=shift, C=str(C_ave), only_profile=True)
+        else:
+            logger.info("Could not find optimal shift after %d tries :("%max_iter)
 
-        CdeltaQ = np.mean(pot_corr_tracker) / -(q+deltaQ) if q else 0.
+        return output
 
-        es_corr = (alpha * q * deltaQ / self.dielectric_static / L) + \
-                  (alpha * deltaQ ** 2 / 2 / self.dielectric_electronic / L) - \
-                  (deltaQ * CdeltaQ + deltaQ * CQ + (self.dielectric_electronic / self.dielectric_static) * q * CdeltaQ)
+    def parse_output(self, output):
+        ## read in the potential profiles from vline-eV.dat and 
+        ## save to metadata
+        ## z  V^{model}  \DeltaV^{DFT}  V^{sr}
+        data = np.loadtxt("vline-eV.dat")
 
-        return {"freysoldt_vertical_electrostatic": es_corr, "freysoldt_potential_alignment": np.mean(pot_corr_tracker)}
+        self.metadata['pot_plot_data'] = {
+            'Vdiff': data[:, 2],
+            'Vmodel': data[:, 1],
+            'z': data[:, 0],
+            'Vsr': data[:, 3]
+        }
 
+        return float(deque(output, 1)[0].split()[-2])
+
+    def plot(self, savefig=False):
+        ## plot potential profiles
+        plt.figure()
+        plt.plot(self.metadata['pot_plot_data']['z'], self.metadata['pot_plot_data']['Vdiff'], 'r', label=r'$V_{def}-V_{bulk}$')
+        plt.plot(self.metadata['pot_plot_data']['z'], self.metadata['pot_plot_data']['Vmodel'], 'g', label=r'$V_{model}$')
+        plt.plot(self.metadata['pot_plot_data']['z'], self.metadata['pot_plot_data']['Vsr'], 'b', label=r'$V_{def}-V_{bulk}-V_{model}$')
+        plt.xlabel("distance along z axis (bohr)")
+        plt.ylabel("potential (eV)")
+        plt.xlim(self.metadata['pot_plot_data']['z'].min(), self.metadata['pot_plot_data']['z'].max())
+        plt.legend() 
+        if savefig:
+            plt.savefig('alignment.png')
 
 class KumagaiCorrection(DefectCorrection):
     """
