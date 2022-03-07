@@ -41,7 +41,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Development"
 __date__ = "Feb 2017"
 
-MODULE_DIR = os.path.dirname(__file__)
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
     DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "default_magmoms.yaml"))

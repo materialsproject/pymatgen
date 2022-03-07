@@ -4204,5 +4204,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "func_groups.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:
     FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(f).items()}

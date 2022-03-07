@@ -1174,7 +1174,7 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = os.path.join(os.path.dirname(__file__), "bonds_jmol_ob.yaml")
+        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
         with open(bonds_file) as f:
             yaml = YAML()
             self.el_radius = yaml.load(f)
