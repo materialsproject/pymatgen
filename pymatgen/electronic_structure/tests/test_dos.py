@@ -247,7 +247,7 @@ class CompleteDosTest(unittest.TestCase):
 
         moment = dos.get_n_moment(4, erange=[-4, 0.5])
         moment_2 = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_bandwidth(erange=[-4, 0.5]), moment/moment_2**2)
+        self.assertAlmostEqual(dos.get_bandwidth(erange=[-4, 0.5]), moment / moment_2**2)
 
 
 class DOSTest(PymatgenTest):
