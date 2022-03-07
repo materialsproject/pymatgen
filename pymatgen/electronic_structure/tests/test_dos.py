@@ -7,6 +7,7 @@ import os
 import unittest
 
 import numpy as np
+from monty.io import zopen
 from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import Element
@@ -110,6 +111,8 @@ class CompleteDosTest(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "pdag3_complete_dos.json.gz")) as f:
+            self.dos_pdag3 = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
         dos = self.dos
@@ -183,6 +186,27 @@ class CompleteDosTest(unittest.TestCase):
         self.assertIsInstance(dos_dict["densities"]["1"], list)
         self.assertIsInstance(dos_dict["densities"]["1"][0], float)
         self.assertNotIsInstance(dos_dict["densities"]["1"][0], np.float64)
+
+    def test_get_band_center(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+        band_center = dos.get_band_center()
+        self.assertAlmostEqual(band_center, -3.078841005723767)
+
+        band_center = dos.get_band_center(el=Element("Pd"))
+        self.assertAlmostEqual(band_center, -1.476449501704171)
+
+        band_center = dos.get_band_center(site=struct[-3])
+        self.assertAlmostEqual(band_center, -1.4144921311083436)
+
+        band_center = dos.get_band_center(band=OrbitalType.p)
+        self.assertAlmostEqual(band_center, 0.9430322204760462)
+
+        band_center = dos.get_band_center(el=Element("Pd"), band=OrbitalType.p)
+        self.assertAlmostEqual(band_center, 0.7825770239165218)
+
+        band_center = dos.get_band_center(el=Element("Pd"), erange=[-4, -2])
+        self.assertAlmostEqual(band_center, -2.8754000116714065)
 
 
 class DOSTest(PymatgenTest):

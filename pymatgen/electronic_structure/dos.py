@@ -825,7 +825,8 @@ class CompleteDos(Dos):
         """
         Computes the orbital-projected band center, defined as
             int_{-inf}^{+inf} rho(E)*E dE/int_{-inf}^{+inf} rho(E) dE
-        where the limits of the integration can be modified by erange and E is the set
+        based on the work of Hammer and Norskov, Surf. Sci,, 343 (1995) where the
+        limits of the integration can be modified by erange and E is the set
         of energies taken with respect to the Fermi level. Note that the band center
         is often highly sensitive to the selected erange.
 
@@ -847,6 +848,8 @@ class CompleteDos(Dos):
             dos = self.get_element_spd_dos(el)[band]
         elif site:
             dos = self.get_site_spd_dos(site)[band]
+        else:
+            dos = self.get_spd_dos()[band]
 
         energies = dos.energies - dos.efermi
         densities = dos.get_densities(spin=spin)
@@ -925,6 +928,8 @@ class CompleteDos(Dos):
             dos = self.get_element_spd_dos(el)[band]
         elif site:
             dos = self.get_site_spd_dos(site)[band]
+        else:
+            dos = self.get_spd_dos()[band]
 
         energies = dos.energies - dos.efermi
         densities = dos.get_densities(spin=spin)
@@ -935,7 +940,7 @@ class CompleteDos(Dos):
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
         # Get the orbital-projected band center
-        band_center = self.get_band_center(self, el=el, site=site, band=band, spin=spin, erange=erange)
+        band_center = self.get_band_center(el=el, site=site, band=band, spin=spin, erange=erange)
 
         # Take the nth moment with respect to the band center
         nth_moment = np.trapz((energies - band_center) ** n * densities, x=energies) / np.trapz(densities, x=energies)
@@ -963,6 +968,8 @@ class CompleteDos(Dos):
             dos = self.get_element_spd_dos(el)[band]
         elif site:
             dos = self.get_site_spd_dos(site)[band]
+        else:
+            dos = self.get_spd_dos()[band]
 
         densities = dos.get_densities()
 
