@@ -819,6 +819,7 @@ class CompleteDos(Dos):
         el: SpeciesLike = None,
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -832,6 +833,7 @@ class CompleteDos(Dos):
             el: Element to get the band center of (cannot be used in conjunction with site)
             site: Site to get the band center of (cannot be used in conjunction with el)
             band: Orbital to get the band center of (default is d-band)
+            spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
 
@@ -847,7 +849,7 @@ class CompleteDos(Dos):
             dos = self.get_site_spd_dos(site)[band]
 
         energies = dos.energies - dos.efermi
-        densities = dos.get_densities()
+        densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
         if erange:
@@ -859,15 +861,16 @@ class CompleteDos(Dos):
 
         return band_center
 
-    def get_band_width(
+    def get_bandwidth(
         self,
         el: SpeciesLike = None,
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
-        Get the orbital-projected band width given by the following expression:
+        Get the orbital-projected bandwidth given by the following expression:
             sqrt(int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE)
         where E_center is the orbital-projected band center, the limits of the integration can be
         modified by erange, and E is the set of energies taken with respect to the Fermi level.
@@ -877,9 +880,43 @@ class CompleteDos(Dos):
             el: Element to get the band center of (cannot be used in conjunction with site)
             site: Site to get the band center of (cannot be used in conjunction with el)
             band: Orbital to get the band center of (default is d-band)
+            spin: Spin channel to use. By default, the spin channels will be combined.
+            erange: [min, max] energy range to consider, with respect to the Fermi level.
+                Default is None, which means all energies are considered.
 
         Returns:
-            Band width, often denoted W_d for the d-band width
+            Orbital-projected bandwidth in eV
+        """
+        bandwidth = np.sqrt(self.get_n_moment(2, el=el, site=site, band=band, spin=spin, erange=erange))
+
+        return bandwidth
+
+    def get_n_moment(
+        self,
+        n: int,
+        el: SpeciesLike = None,
+        site: PeriodicSite = None,
+        band: OrbitalType = OrbitalType.d,
+        spin: Spin = None,
+        erange: List[float] = None,
+    ):
+        """
+        Get the nth moment of the DOS centered around the orbital-projected band center, defined as
+            int_{-inf}^{+inf} rho(E)*(E-E_center)^n dE/int_{-inf}^{+inf} rho(E) dE
+        where n is the order, E_center is the orbital-projected band center, the limits of the integration can be
+        modified by erange, and E is the set of energies taken with respect to the Fermi level.
+
+        Args:
+            n: The order for the moment
+            el: Element to get the band center of (cannot be used in conjunction with site)
+            site: Site to get the band center of (cannot be used in conjunction with el)
+            band: Orbital to get the band center of (default is d-band)
+            spin: Spin channel to use. By default, the spin channels will be combined.
+            erange: [min, max] energy range to consider, with respect to the Fermi level.
+                Default is None, which means all energies are considered.
+
+        Returns:
+            Orbital-projected nth moment in eV
         """
         # Get the projected DOS
         if el and site:
@@ -890,7 +927,7 @@ class CompleteDos(Dos):
             dos = self.get_site_spd_dos(site)[band]
 
         energies = dos.energies - dos.efermi
-        densities = dos.get_densities()
+        densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
         if erange:
@@ -898,21 +935,14 @@ class CompleteDos(Dos):
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
         # Get the orbital-projected band center
-        band_center = self.get_band_center(self, el=el, site=site, band=band, erange=erange)
+        band_center = self.get_band_center(self, el=el, site=site, band=band, spin=spin, erange=erange)
 
-        # Take the second moment with respect to the band center
-        second_moment = np.trapz((energies - band_center) ** 2 * densities, x=energies) / np.trapz(
-            densities, x=energies
-        )
-        band_width = np.sqrt(second_moment)
-
-        return band_width
+        # Take the nth moment with respect to the band center
+        nth_moment = np.trapz((energies - band_center) ** n * densities, x=energies) / np.trapz(densities, x=energies)
+        return nth_moment
 
     def get_hilbert_transform(
-        self,
-        el: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        self, el: SpeciesLike = None, site: PeriodicSite = None, band: OrbitalType = OrbitalType.d
     ) -> Dos:
         """
         Returns the Hilbert transform of the orbital-projected density of states,
@@ -924,7 +954,7 @@ class CompleteDos(Dos):
             band: Orbital to get the band center of (default is d-band)
 
         Returns:
-            Hilbert transformation of the DOS.
+            Hilbert transformation of the projected DOS.
         """
         # Get the projected DOS
         if el and site:
@@ -937,7 +967,9 @@ class CompleteDos(Dos):
         densities = dos.get_densities()
 
         # Get Hilbert-transformed densities
-        densities_transformed = np.imag(hilbert(densities))
+        densities_transformed = {Spin.up: np.imag(hilbert(densities[Spin.up]))}
+        if Spin.down in self.densities:
+            densities_transformed[Spin.down] = np.imag(hilbert(densities[Spin.down]))
 
         return Dos(self.efermi, self.energies, densities_transformed)
 
@@ -946,55 +978,43 @@ class CompleteDos(Dos):
         el: SpeciesLike = None,
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
+        spin: Spin = None,
         erange: List[float] = None,
-        hilbert: bool = True,
     ) -> float:
         """
-        Get the orbital-projected upper band edge. By default, the definition by Xin et al.
+        Get the orbital-projected upper band edge. The definition by Xin et al.
         Phys. Rev. B, 89, 115114 (2014) is used, which is the highest peak position of the
-        Hilbert transform of the orbital-projected DOS. If hilbert is set to False, the simpler
-        descriptor from Vojvodic et al., Top. Catal., 57, 25-32 (2014) is used, which is given by
-        eps_d + W_d/2, where eps_d is the orbital-projected band center and W_d is the orbital-projected
-        band width.
+        Hilbert transform of the orbital-projected DOS.
 
         Args:
             el: Element to get the band center of (cannot be used in conjunction with site)
             site: Site to get the band center of (cannot be used in conjunction with el)
             band: Orbital to get the band center of (default is d-band)
+            spin: Spin channel to use. By default, the spin channels will be combined.
+            erange: [min, max] energy range to consider, with respect to the Fermi level.
+                Default is None, which means all energies are considered.
 
         Returns:
-            Upper band edge, often denoted epsilon_u when hilbert is True or epsilon_d^W when hilbert is False.
+            Upper band edge in eV, often denoted epsilon_u
 
         """
         # Get the projected DOS
         if el and site:
             raise ValueError("Both el and site cannot be specified.")
-        if el:
-            dos = self.get_element_spd_dos(el)[band]
-        elif site:
-            dos = self.get_site_spd_dos(site)[band]
 
-        # If hilbert is True, take the Hilbert transform of the DOS
-        if hilbert:
-            dos = self.get_hilbert_transform(el=el, site=site, band=band)
+        # Get the Hilbert-transformed DOS
+        transformed_dos = self.get_hilbert_transform(el=el, site=site, band=band)
 
-        energies = dos.energies - dos.efermi
-        densities = dos.get_densities()
+        energies = transformed_dos.energies - transformed_dos.efermi
+        densities = transformed_dos.get_densities(spin=spin)
 
         # Only consider a given erange, if specified
         if erange:
             densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
-        # Get the upper band edge
-        if hilbert:
-            # Xin et al. method
-            upper_band_edge = energies[np.argmax(densities)]
-        else:
-            # Vojvodic et al. method
-            upper_band_edge = self.get_band_center(
-                self, el=el, site=site, band=band, erange=erange
-            ) + 0.5 * self.get_band_width(self, el=el, site=site, band=band, erange=erange)
+        # Calculate the upper band edge
+        upper_band_edge = energies[np.argmax(densities)]
         return upper_band_edge
 
     @classmethod
