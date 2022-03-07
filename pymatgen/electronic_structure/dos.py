@@ -683,7 +683,7 @@ class CompleteDos(Dos):
         site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
-    def get_site_spd_dos(self, site: PeriodicSite) -> Dict[Orbital, Dos]:
+    def get_site_spd_dos(self, site: PeriodicSite) -> Dict[OrbitalType, Dos]:
         """
         Get orbital projected Dos of a particular site
 
@@ -691,7 +691,7 @@ class CompleteDos(Dos):
             site: Site in Structure associated with CompleteDos.
 
         Returns:
-            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
+            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
         """
         spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = {}
         for orb, pdos in self.pdos[site].items():
