@@ -727,12 +727,12 @@ class CompleteDos(Dos):
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
-    def get_spd_dos(self) -> Dict[Orbital, Dos]:
+    def get_spd_dos(self) -> Dict[OrbitalType, Dos]:
         """
         Get orbital projected Dos.
 
         Returns:
-            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
+            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
         """
         spd_dos = {}
         for atom_dos in self.pdos.values():
