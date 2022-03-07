@@ -223,6 +223,16 @@ class CompleteDosTest(unittest.TestCase):
         band_edge = dos.get_upper_band_edge(el=Element("Pd"), erange=[-4, 0.5])
         self.assertAlmostEqual(band_edge, -1.01246969)
 
+    def test_get_n_moment(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+
+        moment = dos.get_n_moment(1)
+        self.assertAlmostEqual(moment, 0)
+
+        moment = dos.get_n_moment(2)
+        self.assertAlmostEqual(np.sqrt(moment), dos.get_bandwidth())
+
 
 class DOSTest(PymatgenTest):
     def setUp(self):
