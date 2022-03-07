@@ -640,13 +640,13 @@ class CompleteDos(Dos):
     """
 
     def __init__(
-        self, structure: Structure, total_dos: Dos, pdoss: Dict[PeriodicSite, Dict[Orbital, Dict[Spin, ArrayLike]]]
+        self, structure: Structure, total_dos: Dos, pdoss: Dict[PeriodicSite, Dict[OrbitalType, Dict[Spin, ArrayLike]]]
     ):
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site:{Orbital:{
+            pdoss: The pdoss are supplied as an {Site:{OrbitalType:{
                 Spin:Densities}}}
         """
         super().__init__(
@@ -693,7 +693,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
         """
-        spd_dos: Dict[Orbital, Dict[Spin, ArrayLike]] = {}
+        spd_dos: Dict[OrbitalType, Dict[Spin, ArrayLike]] = {}
         for orb, pdos in self.pdos[site].items():
             orbital_type = _get_orb_type(orb)
             if orbital_type in spd_dos:
@@ -762,7 +762,7 @@ class CompleteDos(Dos):
                     el_dos[el] = add_densities(el_dos[el], pdos)
         return {el: Dos(self.efermi, self.energies, densities) for el, densities in el_dos.items()}
 
-    def get_element_spd_dos(self, el: SpeciesLike) -> Dict[Orbital, Dos]:
+    def get_element_spd_dos(self, el: SpeciesLike) -> Dict[OrbitalType, Dos]:
         """
         Get element and spd projected Dos
 
@@ -770,7 +770,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
+            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}
@@ -1166,7 +1166,7 @@ class LobsterCompleteDos(CompleteDos):
             el: Element in Structure.composition associated with LobsterCompleteDos
 
         Returns:
-            dict of {"S": densities, "P": densities, "D": densities}
+            dict of {OrbitalType.s: densities, OrbitalType.p: densities, OrbitalType.d: densities}
         """
         el = get_el_sp(el)
         el_dos = {}
