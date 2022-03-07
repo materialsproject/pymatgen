@@ -819,7 +819,7 @@ class CompleteDos(Dos):
         el: SpeciesLike = None,
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
-        erange: List[float, float] = None,
+        erange: List[float] = None,
     ) -> float:
         """
         Computes the orbital-projected band center, defined as
@@ -864,11 +864,12 @@ class CompleteDos(Dos):
         el: SpeciesLike = None,
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
-        erange: List[float, float] = None,
+        erange: List[float] = None,
     ) -> float:
         """
-        Get the orbital-projected band width, defined as
-            int_{-inf}^{+inf} rho(E)*(E-E_center) dE/int_{-inf}^{+inf} rho(E) dE
+        Get the orbital-projected band width, defined in Vojvodic et al., Top. Catal., 57, 25-32 (2014)
+        and given by the following expression:
+            4*sqrt(int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE)
         where E_center is the orbital-projected band center, the limits of the integration can be
         modified by erange, and E is the set of energies taken with respect to the Fermi level.
         Note that the band width is often highly sensitive to the selected erange.
@@ -901,7 +902,10 @@ class CompleteDos(Dos):
         band_center = self.get_band_center(self, el=el, site=site, band=band, erange=erange)
 
         # Take the second moment with respect to the band center
-        band_width = np.trapz((energies - band_center) ** 2 * densities, x=energies) / np.trapz(densities, x=energies)
+        second_moment = np.trapz((energies - band_center) ** 2 * densities, x=energies) / np.trapz(
+            densities, x=energies
+        )
+        band_width = 4 * np.sqrt(second_moment)
 
         return band_width
 
@@ -943,7 +947,7 @@ class CompleteDos(Dos):
         el: SpeciesLike = None,
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
-        erange: List[float, float] = None,
+        erange: List[float] = None,
         hilbert: bool = True,
     ) -> float:
         """
