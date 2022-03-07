@@ -12,7 +12,6 @@ from subprocess import PIPE, Popen
 
 import numpy as np
 from monty.dev import deprecated
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.operations import SymmOp
