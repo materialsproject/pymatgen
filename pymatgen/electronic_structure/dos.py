@@ -929,7 +929,7 @@ class CompleteDos(Dos):
 
         return skewness
 
-    def get_band_skewness(
+    def get_band_kurtosis(
         self,
         el: SpeciesLike = None,
         site: PeriodicSite = None,
@@ -938,7 +938,7 @@ class CompleteDos(Dos):
         erange: List[float] = None,
     ) -> float:
         """
-        Get the orbital-projected skewness given by the following expression:
+        Get the orbital-projected kurtosis given by the following expression:
             int_{-inf}^{+inf} rho(E)*(E-E_center)^4 dE/int_{-inf}^{+inf} rho(E) dE)
             /
             (int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE))^2
