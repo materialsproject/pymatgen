@@ -8,20 +8,24 @@ phase diagram.
 
 For more information, please cite/reference the paper below:
 
-Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
-synthesis via local chemical potentials in hyperdimensional phase space.”
-ArXiv:2104.05986 [Cond-Mat], Aug. 2021. arXiv.org, http://arxiv.org/abs/2104.05986.
+    Todd, P. K., McDermott, M. J., Rom, C. L., Corrao, A. A., Denney, J. J., Dwaraknath,
+    S. S.,  Khalifah, P. G., Persson, K. A., & Neilson, J. R. (2021). Selectivity in
+    Yttrium Manganese Oxide Synthesis via Local Chemical Potentials in Hyperdimensional
+    Phase Space. Journal of the American Chemical Society, 143(37), 15185–15194.
+    https://doi.org/10.1021/jacs.1c06229
 
 Please also consider referencing the original 1999 paper by H. Yokokawa,
 who outlined many of its possible uses:
 
-Yokokawa, H. "Generalized chemical potential diagram and its applications to
-chemical reactions at interfaces between dissimilar materials." JPE 20,
-258 (1999). https://doi.org/10.1361/105497199770335794
+    Yokokawa, H. "Generalized chemical potential diagram and its applications to
+    chemical reactions at interfaces between dissimilar materials." JPE 20,
+    258 (1999). https://doi.org/10.1361/105497199770335794
 """
 
 import json
 import os
+import warnings
+from functools import lru_cache
 from itertools import groupby
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -43,7 +47,7 @@ with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_
 
 class ChemicalPotentialDiagram(MSONable):
     """
-    The chemical potential diagram is the mathematical dual to the  compositional
+    The chemical potential diagram is the mathematical dual to the compositional
     phase diagram. To create the diagram, convex minimization is
     performed in energy (E) vs. chemical potential (μ) space by taking the lower convex
     envelope of hyperplanes. Accordingly, "points" on the compositional phase diagram
@@ -52,32 +56,33 @@ class ChemicalPotentialDiagram(MSONable):
     For more information on this specific implementation of the algorithm,
     please cite/reference the paper below:
 
-    Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
-    synthesis via local chemical potentials in hyperdimensional phase space.”
-    ArXiv:2104.05986 [Cond-Mat], Apr. 2021. arXiv.org, http://arxiv.org/abs/2104.05986
+        Todd, P. K., McDermott, M. J., Rom, C. L., Corrao, A. A., Denney, J. J., Dwaraknath,
+        S. S.,  Khalifah, P. G., Persson, K. A., & Neilson, J. R. (2021). Selectivity in
+        Yttrium Manganese Oxide Synthesis via Local Chemical Potentials in Hyperdimensional
+        Phase Space. Journal of the American Chemical Society, 143(37), 15185–15194.
+        https://doi.org/10.1021/jacs.1c06229
     """
 
     def __init__(
         self,
         entries: List[PDEntry],
         limits: Optional[Dict[Element, float]] = None,
-        default_min_limit: Optional[float] = -20.0,
+        default_min_limit: float = -50.0,
     ):
         """
         Args:
             entries: List of PDEntry-like objects containing a composition and
                 energy. Must contain elemental references and be suitable for typical
                 phase diagram construction. Entries must be within a chemical system
-                of with 2+ elements
+                of with 2+ elements.
             limits: Bounds of elemental chemical potentials (min, max), which are
                 used to construct the border hyperplanes used in the
                 HalfSpaceIntersection algorithm; these constrain the space over which the
                 domains are calculated and also determine the size of the plotted
                 diagram. Any elemental limits not specified are covered in the
-                default_min_limit argument
-            default_min_limit (float): Default minimum chemical potential limit for
-                unspecified elements within the "limits" argument. This results in
-                default limits of (default_min_limit, 0)
+                default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
+            default_min_limit (float): Default minimum chemical potential limit (i.e.,
+                lower bound) for unspecified elements within the "limits" argument.
         """
         self.entries = list(sorted(entries, key=lambda e: e.composition.reduced_composition))
         self.limits = limits
@@ -107,6 +112,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_formula_meshes: Optional[bool] = True,
         draw_formula_lines: Optional[bool] = True,
         formula_colors: List[str] = px.colors.qualitative.Dark2,
+        element_padding: Optional[float] = 1.0,
     ) -> Figure:
         """
         Plot the 2-dimensional or 3-dimensional chemical potential diagram using an
@@ -118,23 +124,26 @@ class ChemicalPotentialDiagram(MSONable):
         In 3D, this method also allows for plotting of lower-dimensional "slices" of
         hyperdimensional polytopes (e.g., the LiMnO2 domain within a Y-Mn-O diagram).
         This allows for visualization of some of the phase boundaries that can only
-        be seen fully in high dimensional space.
+        be seen fully in high dimensional space; see the "formulas_to_draw" argument.
 
         Args:
             elements: list of elements to use as axes in the diagram. If None,
                 automatically defaults to the first 2 or elements within the
                 object's "elements" attribute.
-            label_stable: whether or not to label stable phases by their reduced
+            label_stable: whether to label stable phases by their reduced
                 formulas. Defaults to True.
             formulas_to_draw: for 3-dimensional diagrams, an optional list of
                 formulas to plot on the diagram; if these are from a different
-                chemical system a 3-d polyhedron "slice" will be plotted.
-            draw_formula_meshes: whether or not to draw a colored mesh for the
+                chemical system a 3-d polyhedron "slice" will be plotted. Defaults to None.
+            draw_formula_meshes: whether to draw a colored mesh for the
                 optionally specified formulas_to_draw. Defaults to True.
-            draw_formula_lines: whether or not to draw bounding lines for the
+            draw_formula_lines: whether to draw bounding lines for the
                 optionally specified formulas_to_draw. Defaults to True.
             formula_colors: a list of colors to use in the plotting of the optionally
-                specified formulas_to-draw. Defaults to a Plotly color scheme.
+                specified formulas_to-draw. Defaults to the Plotly Dark2 color scheme.
+            element_padding: if provided, automatically adjusts chemical potential axis
+                limits of the plot such that elemental domains have the specified padding
+                (in eV/atom), helping provide visual clarity. Defaults to 1.0.
 
         Returns:
             A Plotly Figure object
@@ -147,7 +156,7 @@ class ChemicalPotentialDiagram(MSONable):
                 elems = elems[:3]  # default to first three elements
 
         if len(elems) == 2 and self.dim == 2:
-            fig = self._get_2d_plot(elements=elems, label_stable=label_stable)
+            fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
         elif len(elems) == 2 and self.dim > 2:
             entries = [e for e in self.entries if set(e.composition.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
@@ -164,6 +173,7 @@ class ChemicalPotentialDiagram(MSONable):
                 draw_formula_meshes=draw_formula_meshes,
                 draw_formula_lines=draw_formula_lines,
                 formula_colors=formula_colors,
+                element_padding=element_padding,
             )
 
         return fig
@@ -175,8 +185,8 @@ class ChemicalPotentialDiagram(MSONable):
         entries = self._hyperplane_entries
 
         hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
-        interior_point = np.average(self.lims, axis=1).tolist()
-        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
+        interior_point = np.min(self.lims, axis=1) + 1e-1
+        hs_int = HalfspaceIntersection(hs_hyperplanes, interior_point)
 
         domains = {entry.composition.reduced_formula: [] for entry in entries}  # type: ignore
 
@@ -202,8 +212,10 @@ class ChemicalPotentialDiagram(MSONable):
         return border_hyperplanes
 
     def _get_hyperplanes_and_entries(self) -> Tuple[np.ndarray, List[PDEntry]]:
-        """Returns both the array of hyperplanes, as well as a list of the minimum
-        entries"""
+        """
+        Returns both the array of hyperplanes, as well as a list of the minimum
+        entries.
+        """
         data = np.array(
             [
                 [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
@@ -223,17 +235,30 @@ class ChemicalPotentialDiagram(MSONable):
 
         return hyperplanes, hyperplane_entries
 
-    def _get_2d_plot(self, elements: List[Element], label_stable: Optional[bool]) -> Figure:
+    def _get_2d_plot(
+        self, elements: List[Element], label_stable: Optional[bool], element_padding: Optional[float]
+    ) -> Figure:
         """Returns a Plotly figure for a 2-dimensional chemical potential diagram"""
         domains = self.domains.copy()
         elem_indices = [self.elements.index(e) for e in elements]
 
         annotations = []
+        draw_domains = {}
+
+        if element_padding is not None and element_padding > 0:
+            new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+
         for formula, pts in domains.items():
             formula_elems = set(Composition(formula).elements)
             if not formula_elems.issubset(elements):
                 continue
+
             pts_2d = np.array(pts[:, elem_indices])
+            if element_padding is not None and element_padding > 0:
+                for idx, new_lim in enumerate(new_lims):
+                    col = pts_2d[:, idx]
+                    pts_2d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
+
             entry = self.entry_dict[formula]
             ann_formula = formula
             if hasattr(entry, "original_entry"):
@@ -241,16 +266,18 @@ class ChemicalPotentialDiagram(MSONable):
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
-            ann_loc = center + 0.8 * normal
+            ann_loc = center + 0.25 * normal  # offset annotation location by arb. amount
             annotation = self._get_annotation(ann_loc, ann_formula)
             annotations.append(annotation)
+
+            draw_domains[formula] = pts_2d
 
         layout = plotly_layouts["default_layout_2d"].copy()
         layout.update(self._get_axis_layout_dict(elements))
         if label_stable:
             layout.update({"annotations": annotations})
 
-        data = self._get_2d_domain_lines(domains, elements)
+        data = self._get_2d_domain_lines(draw_domains)
 
         fig = Figure(data, layout)
 
@@ -263,27 +290,39 @@ class ChemicalPotentialDiagram(MSONable):
         formulas_to_draw: Optional[List[str]],
         draw_formula_meshes: Optional[bool],
         draw_formula_lines: Optional[bool],
-        formula_colors: Optional[List[str]] = px.colors.qualitative.Dark2,
+        formula_colors: Optional[List[str]],
+        element_padding: Optional[float],
     ) -> Figure:
-        """Returns a Plotly figure for a 3-dimensional chemical potential diagram"""
+        """Returns a Plotly figure for a 3-dimensional chemical potential diagram."""
+
         if not formulas_to_draw:
             formulas_to_draw = []
 
         elem_indices = [self.elements.index(e) for e in elements]
 
         domains = self.domains.copy()
-        draw_domains = {}
+        domain_simplexes: Dict[str, Optional[List[Simplex]]] = {}
+        draw_domains: Dict[str, np.ndarray] = {}
         draw_comps = [Composition(formula).reduced_composition for formula in formulas_to_draw]
         annotations = []
 
+        if element_padding and element_padding > 0:
+            new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]
+
             pts_3d = np.array(pts[:, elem_indices])
+            if element_padding and element_padding > 0:
+                for idx, new_lim in enumerate(new_lims):
+                    col = pts_3d[:, idx]
+                    pts_3d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
+
             contains_target_elems = set(entry.composition.elements).issubset(elements)
 
             if formulas_to_draw:
                 if entry.composition.reduced_composition in draw_comps:
-                    domains[formula] = None
+                    domain_simplexes[formula] = None
                     draw_domains[formula] = pts_3d
 
                     if contains_target_elems:
@@ -292,7 +331,7 @@ class ChemicalPotentialDiagram(MSONable):
                         continue
 
             if not contains_target_elems:
-                domains[formula] = None
+                domain_simplexes[formula] = None
                 continue
 
             simplexes, ann_loc = self._get_3d_domain_simplexes_and_ann_loc(pts_3d)
@@ -304,7 +343,7 @@ class ChemicalPotentialDiagram(MSONable):
             annotation = self._get_annotation(ann_loc, ann_formula)
             annotations.append(annotation)
 
-            domains[formula] = simplexes
+            domain_simplexes[formula] = simplexes
 
         layout = plotly_layouts["default_layout_3d"].copy()
         layout["scene"].update(self._get_axis_layout_dict(elements))
@@ -312,9 +351,18 @@ class ChemicalPotentialDiagram(MSONable):
 
         if label_stable:
             layout["scene"].update({"annotations": annotations})
-        layout["scene_camera"] = dict(eye=dict(x=0, y=0, z=2.0), projection=dict(type="orthographic"))
+        layout["scene_camera"] = dict(
+            eye=dict(x=5, y=5, z=5),  # zoomed out
+            projection=dict(type="orthographic"),
+            center=dict(x=0, y=0, z=0),
+        )
 
-        data = self._get_3d_domain_lines(domains)
+        data = self._get_3d_domain_lines(domain_simplexes)
+
+        if formulas_to_draw:
+            for f in formulas_to_draw:
+                if f not in domain_simplexes:
+                    warnings.warn(f"Specified formula to draw, {f}, not found!")
 
         if draw_formula_lines:
             data.extend(self._get_3d_formula_lines(draw_domains, formula_colors))
@@ -326,16 +374,35 @@ class ChemicalPotentialDiagram(MSONable):
         return fig
 
     @staticmethod
-    def _get_2d_domain_lines(domains: Dict[str, np.ndarray], elements: List[Element]) -> List[Scatter]:
-        """Returns a list of Scatter objects tracing the domain lines on a
-        2-dimensional chemical potential diagram"""
-        x, y = [], []
-        elems = set(elements)
-        for formula, pts in domains.items():
-            formula_elems = set(Composition(formula).elements)
-            if not formula_elems.issubset(elems):
-                continue
+    def _get_new_limits_from_padding(
+        domains: Dict[str, np.ndarray],
+        elem_indices: List[int],
+        element_padding: float,
+        default_min_limit: float,
+    ):
+        """
+        Gets new minimum limits for each element by subtracting specified padding
+        from the minimum for each axis found in any of the domains.
+        """
+        all_pts = np.vstack(list(domains.values()))
+        new_lims = []
 
+        for el in elem_indices:
+            pts = all_pts[:, el]
+            new_lim = pts[~np.isclose(pts, default_min_limit)].min() - element_padding
+            new_lims.append(new_lim)
+
+        return new_lims
+
+    @staticmethod
+    def _get_2d_domain_lines(draw_domains) -> List[Scatter]:
+        """
+        Returns a list of Scatter objects tracing the domain lines on a
+        2-dimensional chemical potential diagram.
+        """
+        x, y = [], []
+
+        for pts in draw_domains.values():
             x.extend(pts[:, 0].tolist() + [None])
             y.extend(pts[:, 1].tolist() + [None])
 
@@ -351,9 +418,11 @@ class ChemicalPotentialDiagram(MSONable):
         return lines
 
     @staticmethod
-    def _get_3d_domain_lines(domains: Dict[str, List[Simplex]]) -> List[Scatter3d]:
-        """Returns a list of Scatter3d objects tracing the domain lines on a
-        3-dimensional chemical potential diagram"""
+    def _get_3d_domain_lines(domains: Dict[str, Optional[List[Simplex]]]) -> List[Scatter3d]:
+        """
+        Returns a list of Scatter3d objects tracing the domain lines on a
+        3-dimensional chemical potential diagram.
+        """
         x, y, z = [], [], []
         for phase, simplexes in domains.items():
             if simplexes:
@@ -378,10 +447,12 @@ class ChemicalPotentialDiagram(MSONable):
     def _get_3d_domain_simplexes_and_ann_loc(
         points_3d: np.ndarray,
     ) -> Tuple[List[Simplex], np.ndarray]:
-        """Returns a list of Simplex objects and coordinates of annotation for one
+        """
+        Returns a list of Simplex objects and coordinates of annotation for one
         domain in a 3-d chemical potential diagram. Uses PCA to project domain
         into 2-dimensional space so that ConvexHull can be used to identify the
-        bounding polygon"""
+        bounding polygon.
+        """
         points_2d, v, w = simple_pca(points_3d, k=2)
         domain = ConvexHull(points_2d)
         centroid_2d = get_centroid_2d(points_2d[domain.vertices])
@@ -396,8 +467,10 @@ class ChemicalPotentialDiagram(MSONable):
         draw_domains: Dict[str, np.ndarray],
         formula_colors: Optional[List[str]],
     ) -> List[Mesh3d]:
-        """Returns a list of Mesh3d objects for the domains specified by the
-        user (i.e., draw_domains)"""
+        """
+        Returns a list of Mesh3d objects for the domains specified by the
+        user (i.e., draw_domains).
+        """
         meshes = []
         if formula_colors is None:
             formula_colors = px.colors.qualitative.Dark2
@@ -455,8 +528,10 @@ class ChemicalPotentialDiagram(MSONable):
     def _get_min_entries_and_el_refs(
         entries: List[PDEntry],
     ) -> Tuple[List[PDEntry], Dict[Element, PDEntry]]:
-        """Returns a list of the minimum-energy entries at each composition and the
-        entries corresponding to the elemental references"""
+        """
+        Returns a list of the minimum-energy entries at each composition and the
+        entries corresponding to the elemental references.
+        """
         el_refs = {}
         min_entries = []
 
@@ -491,7 +566,7 @@ class ChemicalPotentialDiagram(MSONable):
             layout_name = "default_3d_axis_layout"
 
         def get_chempot_axis_title(element) -> str:
-            return f"μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
+            return f"<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
 
         axes_layout = {}
         for ax, el in zip(axes, elements):
@@ -501,11 +576,10 @@ class ChemicalPotentialDiagram(MSONable):
 
         return axes_layout
 
-    @property
+    @property  # type: ignore
+    @lru_cache(maxsize=1)
     def domains(self) -> Dict[str, np.ndarray]:
-        """
-        Mapping of formulas to array of domain boundary points
-        """
+        """Mapping of formulas to array of domain boundary points"""
         return self._get_domains()
 
     @property

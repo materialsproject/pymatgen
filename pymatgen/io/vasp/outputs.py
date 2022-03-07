@@ -4,7 +4,6 @@
 """
 Classes for reading/manipulating/writing VASP output files.
 """
-
 import datetime
 import glob
 import itertools
@@ -16,6 +15,7 @@ import re
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from typing import DefaultDict, List, Optional, Tuple, Union
@@ -68,7 +68,7 @@ def _parse_parameters(val_type, val):
 
 
 def _parse_v_parameters(val_type, val, filename, param_name):
-    r"""
+    """
     Helper function to convert a Vasprun array-type parameter into the proper
     type. Boolean, int and float types are converted.
 
@@ -4856,7 +4856,8 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(int)
+            self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
+            self.encut = np.fromfile(f, dtype=np.float64, count=1)[0]
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -5626,6 +5627,70 @@ class Waveder:
             raise ValueError("cart_dir index out of bounds")
 
         return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
+
+
+@dataclass
+class WSWQ(MSONable):
+    r"""
+    Class for reading a WSWQ file.
+    The WSWQ file is used to calculation the wave function overlaps betweeen
+        - W: Wavefunctions in the currenct directory's WAVECAR file
+        - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq
+
+    The overlap is computed using the overlap operator S
+    which make the PAW wavefunctions orthogonormal:
+        <W_k,m| S | W_k,n> = \delta_{mn}
+
+    The WSWQ file contains matrix elements of the overlap operator S evaluated
+    between the planewave wavefunctions W and WQ:
+        COVL_k,mn = < W_s,k,m | S | WQ_s,k,n >
+
+    The indices of WSWQ.data are:
+        [spin][kpoint][band_i][band_j]
+
+    """
+
+    nspin: int
+    nkpoints: int
+    nbands: int
+    data: np.ndarray
+
+    @classmethod
+    def from_file(cls, filename):
+        """
+        Search for lines containing "spin"
+        """
+        spin_res = regrep(
+            filename,
+            {"spin": r"spin\s*=\s*(\d+)\s?\,\s?kpoint\s*=\s*(\d+)"},
+            reverse=True,
+            terminate_on_match=True,
+            postprocess=int,
+        )["spin"]
+        (nspin, nkpoints), _ = spin_res[0]
+        ij_res = regrep(
+            filename,
+            {"ij": r"i\s*=\s*(\d+)\s?\,\s?j\s*=\s*(\d+)"},
+            reverse=True,
+            terminate_on_match=True,
+            postprocess=int,
+        )["ij"]
+        (nbands, _), _ = ij_res[0]
+        data_res = regrep(
+            filename,
+            {"data": r"\:\s*([-+]?\d*\.\d+)\s+([-+]?\d*\.\d+)"},
+            reverse=False,
+            terminate_on_match=False,
+            postprocess=float,
+        )["data"]
+        assert len(data_res) == nspin * nkpoints * nbands * nbands
+
+        data = np.array([complex(real_part, img_part) for (real_part, img_part), _ in data_res])
+
+        # NOTE: loop order (slow->fast) spin -> kpoint -> j -> i
+        data = data.reshape((nspin, nkpoints, nbands, nbands))
+        data = np.swapaxes(data, 2, 3)  # swap i and j
+        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, data=data)
 
 
 class UnconvergedVASPWarning(Warning):

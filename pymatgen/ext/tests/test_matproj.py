@@ -28,7 +28,10 @@ from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
-website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+try:
+    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+except:
+    website_is_up = False
 
 
 @unittest.skipIf(

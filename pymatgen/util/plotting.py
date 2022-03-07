@@ -148,7 +148,7 @@ def pretty_plot_two_axis(
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    r"""
+    """
     Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -157,7 +157,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
         deg (int): Degree of polynomial. Defaults to 1.
         xlabel (str): Label for x-axis.
         ylabel (str): Label for y-axis.
-        \\*\\*kwargs: Keyword args passed to pretty_plot.
+        kwargs: Keyword args passed to pretty_plot.
 
     Returns:
         matplotlib.pyplot object.

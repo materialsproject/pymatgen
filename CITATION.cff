@@ -1,0 +1,42 @@
+
+cff-version: 1.2.0
+message: |
+  If you use pymatgen in your research, please consider citing the following:
+
+  In addition, some of pymatgen's functionality is based on scientific advances
+  / principles developed by the computational materials scientists in our team.
+  Please refer to pymatgen's docs at http://pymatgen.org on how to cite them.
+authors:
+- family-names: Jain
+  given-names: Anubhav
+- family-names: Ong
+  given-names: Shyue Ping
+- family-names: Hautier
+  given-names: Geoffroy
+- family-names: Chen
+  given-names: Wei
+- family-names: Richards
+  given-names: William Davidson
+- family-names: Dacek
+  given-names: Stephen
+- family-names: Cholia
+  given-names: Shreyas
+- family-names: Gunter
+  given-names: Dan
+- family-names: Skinner
+  given-names: David
+- family-names: Ceder
+  given-names: Gerbrand
+- family-names: Persson
+  given-names: Kristin
+title: 'The Materials Project: A materials genome approach to accelerating materials innovation'
+version: 2022.1.24 # replace with whatever version you use
+doi: 10.1063/1.4812323
+date-released: 2013-06-04
+url: https://github.com/materialsproject/pymatgen
+issn: 2166532X
+journal: APL Materials
+month: 9
+issue: 1
+volume: 1
+year: 2013

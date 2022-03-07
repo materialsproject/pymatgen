@@ -200,7 +200,7 @@ class MPRester:
 
             try:
                 with open(SETTINGS_FILE) as f:
-                    d = yaml.load(f)
+                    d = dict(yaml.load(f))
             except OSError:
                 d = {}
 
@@ -208,6 +208,13 @@ class MPRester:
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            else:
+                # ensure data is parsed as dict, rather than ordered dict,
+                # due to change in YAML parsing behavior
+                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+
+            if "LOG" in d["MAPI_DB_VERSION"]:
+                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
             if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
@@ -929,7 +936,6 @@ class MPRester:
         mp_decode=True,
     ):
         r"""
-
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard

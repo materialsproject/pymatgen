@@ -485,7 +485,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     """
 
     def __init__(self, threshold=1e-2, scale_volumes=True, **kwargs):
-        r"""
+        """
         Args:
             threshold: Threshold for substitution.
             scale_volumes: Whether to scale volumes after substitution.
@@ -964,7 +964,7 @@ class DopingTransformation(AbstractTransformation):
         allowed_doping_species=None,
         **kwargs,
     ):
-        r"""
+        """
         Args:
             dopant (Species-like): E.g., Al3+. Must have oxidation state.
             ionic_radius_tol (float): E.g., Fractional allowable ionic radii

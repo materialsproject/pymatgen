@@ -244,12 +244,12 @@ class GulpIO:
 
     @staticmethod
     def keyword_line(*args):
-        r"""
+        """
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
-            \\*args: 1st line keywords
+            args: 1st line keywords
         """
         # if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
         #    raise GulpError("Wrong keywords given")
@@ -320,14 +320,14 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        r"""
+        """
         Generates GULP input specie and potential string for pymatgen
         structure.
 
         Args:
             structure: pymatgen.core.structure.Structure object
             potential: String specifying the type of potential used
-            \\*\\*kwargs: Additional parameters related to potential. For
+            kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
                 anion_shell_flg (default = False):
                 If True, anions are considered polarizable.

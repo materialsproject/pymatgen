@@ -1,6 +1,23 @@
 Change log
 ==========
 
+v2022.2.25
+----------
+
+* Add VASP WSWQ file parsing, PR #2439 from @jmmshn
+* Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
+* Update to Lobster calculation settings, PR #2434 from @JaGeo master
+* Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from @arosen93
+* Fix for Structure.from_file when file is in YAML format from @janosh fix-structure-from-yml
+* Update of linter configuration, PR #2440 from @janosh
+* Update to ChemEnv citation, PR #2448 from @JaGeo
+* Type annotation fix, PR #2432 from @janosh
+* Documentation fix for Structure.apply_operation, PR #2433 from @janosh
+
+Important note: an update to a library that pymatgen depends upon has led to the
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
+you may need to re-generate this file. This issue should now be fixed and not re-occur.
+
 v2022.2.10
 ----------
 * Require Cython during setup. (@jonringer)

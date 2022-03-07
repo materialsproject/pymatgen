@@ -10,7 +10,10 @@ import requests
 
 from pymatgen.ext.cod import COD
 
-website_is_up = requests.get("https://www.crystallography.net").status_code == 200
+try:
+    website_is_up = requests.get("https://www.crystallography.net").status_code == 200
+except:
+    website_is_up = False
 
 
 @unittest.skipIf(not website_is_up, "www.crystallography.net is down.")

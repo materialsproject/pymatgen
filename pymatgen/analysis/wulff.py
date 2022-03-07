@@ -348,7 +348,7 @@ class WulffShape:
         )
 
     def show(self, *args, **kwargs):
-        r"""
+        """
         Show the Wulff plot.
 
         Args:
