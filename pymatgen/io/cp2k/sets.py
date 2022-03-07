@@ -17,18 +17,14 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
-from ast import keyword
 import itertools
 import os
-from re import S
 import warnings
-from typing import Dict, Iterable, Union
+from typing import Dict, Union
 from pathlib import Path
 from ruamel import yaml
-import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
@@ -40,7 +36,7 @@ from pymatgen.io.cp2k.inputs import (
     Mgrid,
     MO_Cubes,
     OrbitalTransformation,
-    XC_FUNCTIONAL,
+    Xc_Functional,
     SectionList,
     V_Hartree_Cube,
     Dft,
@@ -66,13 +62,11 @@ from pymatgen.io.cp2k.utils import (
     get_xc_functionals,
     get_truncated_coulomb_cutoff,
 )
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.lattice import Lattice
 
 __author__ = "Nicholas Winner"
-__version__ = "0.9"
+__version__ = "1.0"
 __email__ = "nwinner@berkeley.edu"
-__date__ = "April 2021"
+__date__ = "March 2022"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -220,6 +214,7 @@ class Cp2kInputSet(Cp2kInput):
         self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
+
 
 class DftSet(Cp2kInputSet):
     """
@@ -373,7 +368,12 @@ class DftSet(Cp2kInputSet):
                 bases=[basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
                 rel_cutoff=rel_cutoff,
             )
-        mgrid = Mgrid(cutoff=cutoff, rel_cutoff=rel_cutoff, ngrids=ngrids, progression_factor=progression_factor,)
+        mgrid = Mgrid(
+            cutoff=cutoff,
+            rel_cutoff=rel_cutoff,
+            ngrids=ngrids,
+            progression_factor=progression_factor,
+        )
 
         # Set the DFT calculation with global parameters
         dft = Dft(
@@ -396,7 +396,7 @@ class DftSet(Cp2kInputSet):
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
         xc_functionals = get_xc_functionals(kwargs.get("xc_functional", "PBE"))
-        xc_functional = XC_FUNCTIONAL(functionals=xc_functionals)
+        xc_functional = Xc_Functional(functionals=xc_functionals)
         xc = Section("XC", subsections={"XC_FUNCTIONAL": xc_functional})
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
@@ -573,7 +573,7 @@ class DftSet(Cp2kInputSet):
                         "AUX_FIT" in k.values for k in v.keywords["BASIS_SET"]
                     ):
                         continue
-                    elif any(k.upper() == "AUX_FIT" for k in v.keywords["BASIS_SET"].values):
+                    if any(k.upper() == "AUX_FIT" for k in v.keywords["BASIS_SET"].values):
                         continue
                     kind = v["ELEMENT"].values[0]
                     v.keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
@@ -584,7 +584,11 @@ class DftSet(Cp2kInputSet):
                 "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),
                 "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),
             }
-            aux_matrix = Section("AUXILIARY_DENSITY_MATRIX_METHOD", keywords=aux_matrix_params, subsections={},)
+            aux_matrix = Section(
+                "AUXILIARY_DENSITY_MATRIX_METHOD",
+                keywords=aux_matrix_params,
+                subsections={},
+            )
             self.subsections["FORCE_EVAL"]["DFT"].insert(aux_matrix)
 
         # Define the GGA functional as PBE
@@ -603,13 +607,15 @@ class DftSet(Cp2kInputSet):
         if isinstance(self.structure, Structure):
             max_cutoff_radius = get_truncated_coulomb_cutoff(self.structure)
             if max_cutoff_radius < cutoff_radius:
-                warnings.warn("Provided cutoff radius exceeds half the minimum"
-                              " distance between atoms. I hope you know what you're doing.")
+                warnings.warn(
+                    "Provided cutoff radius exceeds half the minimum"
+                    " distance between atoms. I hope you know what you're doing."
+                )
 
         ip_keywords = {}
         if hybrid_functional == "HSE06":
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
-            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+            xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
             potential_type = potential_type if potential_type else "SHORTRANGE"
             xc_functional.insert(
@@ -623,15 +629,16 @@ class DftSet(Cp2kInputSet):
                     },
                 )
             )
-            ip_keywords.update({
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type), 
+            ip_keywords.update(
+                {
+                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
                     "OMEGA": Keyword("OMEGA", 0.11),
                     "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
                 }
             )
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=0.75)
-            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+            xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
             xc_functional.insert(
                 Section(
                     "PBE_HOLE_T_C_LR",
@@ -644,9 +651,9 @@ class DftSet(Cp2kInputSet):
             )
 
             if isinstance(self.structure, Molecule):
-                potential_type = 'COULOMB'
+                potential_type = "COULOMB"
             else:
-                potential_type = 'TRUNCATED'
+                potential_type = "TRUNCATED"
             ip_keywords.update(
                 {
                     "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
@@ -658,10 +665,10 @@ class DftSet(Cp2kInputSet):
             """
             Activates range separated functional using mixing of the truncated
             coulomb operator and the long range operator using scale_longrange,
-            scale_coulomb, cutoff_radius, and omega.            
+            scale_coulomb, cutoff_radius, and omega.
             """
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
-            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+            xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
             potential_type = potential_type if potential_type else "MIX_CL_TRUNC"
             hf_fraction = 1
@@ -697,11 +704,13 @@ class DftSet(Cp2kInputSet):
                 )
             )
         else:
-            warnings.warn("Uknown hybrid functional. Using PBE base functional"
-                          " and overriding all settings manually. Proceed with"
-                          " caution.")
+            warnings.warn(
+                "Uknown hybrid functional. Using PBE base functional"
+                " and overriding all settings manually. Proceed with"
+                " caution."
+            )
             pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
-            xc_functional = XC_FUNCTIONAL(functionals=[], subsections={"PBE": pbe})
+            xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
             ip_keywords.update(
                 {
@@ -718,7 +727,11 @@ class DftSet(Cp2kInputSet):
         interaction_potential = Section("INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords)
 
         # Unlikely for users to override
-        load_balance = Section("LOAD_BALANCE", keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)}, subsections={},)
+        load_balance = Section(
+            "LOAD_BALANCE",
+            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
+            subsections={},
+        )
 
         # EPS_STORAGE_SCALING squashes the integrals for efficient storage
         # Unlikely for users to override.
@@ -745,6 +758,11 @@ class DftSet(Cp2kInputSet):
         self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
 
     def activate_motion(self):
+        """
+        Turns on the motion section for GEO_OPT, CELL_OPT, etc. calculations.
+        Will turn on the printing subsections and also bind any constraints
+        to their respective atoms.
+        """
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
 
@@ -754,44 +772,49 @@ class DftSet(Cp2kInputSet):
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
 
-        if 'fix' in self.structure.site_properties:
-            self['motion'].insert(Section('CONSTRAINT'))
+        if "fix" in self.structure.site_properties:
+            self["motion"].insert(Section("CONSTRAINT"))
 
             i = 0
             components = []
             tuples = []
             while i < len(self.structure):
                 end = i + sum(
-                    1 for j in 
-                    itertools.takewhile(
-                        lambda x: x == self.structure.site_properties['fix'][i], 
-                        self.structure.site_properties['fix'][i:]
+                    1
+                    for j in itertools.takewhile(
+                        lambda x: x == self.structure.site_properties["fix"][i],
+                        self.structure.site_properties["fix"][i:],
                     )
                 )
-                components.append(self.structure.site_properties['fix'][i])
-                tuples.append((i+1, end))
+                components.append(self.structure.site_properties["fix"][i])
+                tuples.append((i + 1, end))
                 i = end
-            self['motion']['constraint'].insert(
-                SectionList(sections=[
-                            Section(
-                            "FIXED_ATOMS", 
+            self["motion"]["constraint"].insert(
+                SectionList(
+                    sections=[
+                        Section(
+                            "FIXED_ATOMS",
                             keywords={
                                 "COMPONENTS_TO_FIX": Keyword("COMPONENTS_TO_FIX", c),
-                                "LIST": Keyword("LIST", "{}..{}".format(t[0], t[1]))
-                                }
-                        )    
-                            for t, c in zip(tuples, components) if c  
-                        ]
+                                "LIST": Keyword("LIST", "{}..{}".format(t[0], t[1])),
+                            },
+                        )
+                        for t, c in zip(tuples, components)
+                        if c
+                    ]
                 )
             )
-    
+
     def activate_fast_minimization(self, on):
         """
         Method to modify the set to use fast SCF minimization.
         """
         if on:
             ot = OrbitalTransformation(
-                minimizer="DIIS", preconditioner="FULL_ALL", algorithm="IRAC", linesearch="2PNT",
+                minimizer="DIIS",
+                preconditioner="FULL_ALL",
+                algorithm="IRAC",
+                linesearch="2PNT",
             )
             self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
@@ -800,7 +823,10 @@ class DftSet(Cp2kInputSet):
         Method to modify the set to use more robust SCF minimization technique
         """
         ot = OrbitalTransformation(
-            minimizer="CG", preconditioner="FULL_ALL", algorithm="STRICT", linesearch="3PNT",
+            minimizer="CG",
+            preconditioner="FULL_ALL",
+            algorithm="STRICT",
+            linesearch="3PNT",
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
@@ -810,11 +836,14 @@ class DftSet(Cp2kInputSet):
         :return:
         """
         ot = OrbitalTransformation(
-            minimizer="CG", preconditioner="FULL_ALL", algorithm="STRICT", linesearch="GOLD",
+            minimizer="CG",
+            preconditioner="FULL_ALL",
+            algorithm="STRICT",
+            linesearch="GOLD",
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
-    def activate_nonperiodic(self):
+    def activate_nonperiodic(self, solver="MT"):
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
         changing the poisson solver. Still requires a CELL to put the atoms
