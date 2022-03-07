@@ -229,25 +229,25 @@ class CompleteDosTest(unittest.TestCase):
         moment = dos.get_n_moment(1)
         self.assertAlmostEqual(moment, 0)
 
-    def test_bandwidth(self):
+    def test_band_width(self):
         dos = self.dos_pdag3
 
         moment = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_bandwidth(erange=[-4, 0.5]), np.sqrt(moment))
+        self.assertAlmostEqual(dos.get_band_width(erange=[-4, 0.5]), np.sqrt(moment))
 
     def test_skewness(self):
         dos = self.dos_pdag3
 
         moment = dos.get_n_moment(3, erange=[-4, 0.5])
         moment_2 = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_skewness(erange=[-4, 0.5]), moment / moment_2 ** (3 / 2))
+        self.assertAlmostEqual(dos.get_band_skewness(erange=[-4, 0.5]), moment / moment_2 ** (3 / 2))
 
     def test_kurtosis(self):
         dos = self.dos_pdag3
 
         moment = dos.get_n_moment(4, erange=[-4, 0.5])
         moment_2 = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_bandwidth(erange=[-4, 0.5]), moment / moment_2**2)
+        self.assertAlmostEqual(dos.get_band_kurtosis(erange=[-4, 0.5]), moment / moment_2**2)
 
 
 class DOSTest(PymatgenTest):
