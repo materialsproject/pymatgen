@@ -20,7 +20,7 @@ import textwrap
 import warnings
 import itertools
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Tuple, Union, Sequence
+from typing import Dict, Iterable, List, Tuple, Union, Sequence, Literal
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -441,8 +441,8 @@ class Section(MSONable):
 
                 Example: {'SUBSECTION1': {'SUBSEC2': {'NEW_KEYWORD', 'NEW_VAL'},{'NEW_SUBSEC': {'NEW_KWD': 'NEW_VAL'}}}
 
-            strict (bool): If true, only update existing sections and keywords. If false, allow new sections and keywords.
-                Default: False
+            strict (bool): If true, only update existing sections and keywords. If false, allow new sections 
+                and keywords. Default: False
         """
         Section._update(self, d, strict=strict)
 
@@ -672,12 +672,6 @@ class SectionList(MSONable):
         extend the keyword list
         """
         self.sections.extend(l)
-
-    def get_string(self, indent=0):
-        """
-        String representation of Keyword
-        """
-        return " \n".join(["\t" * indent + k.__str__() for k in self.sections])
 
     def verbosity(self, verbosity):
         """
