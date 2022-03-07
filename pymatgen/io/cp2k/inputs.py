@@ -782,12 +782,12 @@ class Cp2kInput(Section):
                     name, section_parameters=subsection_params, alias=alias, subsections={}, description=description,
                 )
                 description = ""
-                tmp = self.by_path(current).get(s.alias or s.name)
+                tmp = self.by_path(current).get_section(s.alias or s.name)
                 if tmp:
                     if isinstance(tmp, SectionList):
                         self.by_path(current)[s.alias or s.name].append(s)
                     else:
-                        self.by_path(current)[s.alias or s.name] = SectionList([tmp, s]) 
+                        self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s]) 
                 else:
                     self.by_path(current).insert(s)
                 current = current + "/" + alias if alias else current + "/" + name
