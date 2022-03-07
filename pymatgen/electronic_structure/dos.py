@@ -7,11 +7,12 @@ This module defines classes to represent the density of states, etc.
 
 import functools
 import warnings
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
 from monty.json import MSONable
 from scipy.constants.codata import value as _cd
+from scipy.signal import hilbert
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.sites import PeriodicSite
@@ -359,6 +360,75 @@ class Dos(MSONable):
         """
         (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
+
+    def get_nstates(self, erange: List[float, float] = None):
+
+        energies = self.energies - self.efermi
+        rho = self.get_densities()
+        if erange:
+            energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
+            rho = rho[(energies >= erange[0]) & (energies <= erange[1])]
+        nstates = np.trapz(rho, x=energies)
+
+        return nstates
+
+    def get_band_center(self, erange: List[float, float] = None) -> float:
+        """
+        Returns the band center. This only works properly if the Dos object is a orbital-projected
+        DOS.
+
+        Args:
+            erange: [min, max] energy range to consider, with respect to the Fermi level.
+
+        Returns:
+            band center in eV.
+        """
+        energies = self.energies - self.efermi
+        densities = self.get_densities()
+        if erange:
+            energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
+            densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
+        band_center = np.trapz(energies * densities, x=energies) / self.get_nstates(erange=erange)
+        return band_center
+
+    def get_hilbert_transform(self, erange: List[float, float] = None):
+        """
+        Returns the Hilbert transform of the density of states.
+
+        Returns:
+
+        """
+        energies = self.energies - self.efermi
+        densities = self.get_densities()
+        if erange:
+            densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
+        densities_transform = np.imag(hilbert(densities))
+        return densities_transform
+
+    def get_band_width(self, erange: List[float, float] = None):
+        energies = self.energies - self.efermi
+        densities = self.get_densities()
+        if erange:
+            energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
+            densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
+        band_center = self.get_band_center(self, erange=erange)
+        band_width = np.trapz((energies - band_center) ** 2 * densities, x=energies) / self.get_nstates(
+            self, erange=erange
+        )
+        return band_width
+
+    def get_upper_band_edge(self, erange: List[float, float] = None, hilbert: bool = True):
+        energies = self.energies - self.efermi
+        densities = self.get_densities()
+        if erange:
+            energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
+            densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
+        if hilbert:
+            transform = self.get_hilbert_transform(self, erange=erange)
+            upper_band_edge = energies[np.argmax(transform)]
+        else:
+            upper_band_edge = self.get_band_center(self, erange=erange) + 0.5 * self.get_band_width(self, erange=erange)
+        return upper_band_edge
 
     def __str__(self):
         """
