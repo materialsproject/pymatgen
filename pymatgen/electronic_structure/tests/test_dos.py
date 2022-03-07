@@ -225,7 +225,6 @@ class CompleteDosTest(unittest.TestCase):
 
     def test_get_n_moment(self):
         dos = self.dos_pdag3
-        dos.structure
 
         moment = dos.get_n_moment(1)
         self.assertAlmostEqual(moment, 0)
