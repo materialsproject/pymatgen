@@ -865,7 +865,7 @@ class CompleteDos(Dos):
         site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
         erange: List[float, float] = None,
-    ):
+    ) -> float:
         """
         Get the orbital-projected band width, defined as
             int_{-inf}^{+inf} rho(E)*(E-E_center) dE/int_{-inf}^{+inf} rho(E) dE
@@ -945,7 +945,7 @@ class CompleteDos(Dos):
         band: OrbitalType = OrbitalType.d,
         erange: List[float, float] = None,
         hilbert: bool = True,
-    ):
+    ) -> float:
         """
         Get the orbital-projected upper band edge. By default, the definition by Xin et al.
         Phys. Rev. B, 89, 115114 (2014) is used, which is the highest peak position of the
