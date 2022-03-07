@@ -971,12 +971,10 @@ class CompleteDos(Dos):
         else:
             dos = self.get_spd_dos()[band]
 
-        densities = dos.get_densities()
-
         # Get Hilbert-transformed densities
-        densities_transformed = {Spin.up: np.imag(hilbert(densities[Spin.up]))}
+        densities_transformed = {Spin.up: np.imag(hilbert(dos.get_densities(spin=Spin.up)))}
         if Spin.down in self.densities:
-            densities_transformed[Spin.down] = np.imag(hilbert(densities[Spin.down]))
+            densities_transformed[Spin.down] = np.imag(hilbert(dos.get_densities(spin=Spin.down)))
 
         return Dos(self.efermi, self.energies, densities_transformed)
 

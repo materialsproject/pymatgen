@@ -208,6 +208,21 @@ class CompleteDosTest(unittest.TestCase):
         band_center = dos.get_band_center(el=Element("Pd"), erange=[-4, -2])
         self.assertAlmostEqual(band_center, -2.8754000116714065)
 
+    def test_get_upper_band_edge(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+        band_edge = dos.get_upper_band_edge()
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(el=Element("Pd"))
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(site=struct[-3])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(el=Element("Pd"), erange=[-4, 0.5])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
 
 class DOSTest(PymatgenTest):
     def setUp(self):
