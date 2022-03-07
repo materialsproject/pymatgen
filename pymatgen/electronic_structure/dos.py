@@ -640,13 +640,13 @@ class CompleteDos(Dos):
     """
 
     def __init__(
-        self, structure: Structure, total_dos: Dos, pdoss: Dict[PeriodicSite, Dict[OrbitalType, Dict[Spin, ArrayLike]]]
+        self, structure: Structure, total_dos: Dos, pdoss: Dict[PeriodicSite, Dict[Orbital, Dict[Spin, ArrayLike]]]
     ):
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site:{OrbitalType:{
+            pdoss: The pdoss are supplied as an {Site:{Orbital:{
                 Spin:Densities}}}
         """
         super().__init__(
