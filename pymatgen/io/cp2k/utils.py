@@ -7,8 +7,9 @@ import re
 from pathlib import Path
 import warnings
 import numpy as np
-from ruamel import yaml
 from monty.io import zopen
+from monty.serialization import loadfn
+from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
 
@@ -33,19 +34,18 @@ def _postprocessor(s):
         try:
             return int(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K file.")
-    elif re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
+            raise OSError("Error in parsing CP2K file.")
+    if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
         try:
             return float(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K file.")
-    elif re.match(r"\*+", s):
+            raise OSError("Error in parsing CP2K file.")
+    if re.match(r"\*+", s):
         try:
             return np.NaN
         except ValueError:
-            raise IOError("Error in parsing CP2K file.")
-    else:
-        return s
+            raise OSError("Error in parsing CP2K file.")
+    return s
 
 
 def _preprocessor(s, d="."):
@@ -75,19 +75,19 @@ def _preprocessor(s, d="."):
         inc = inc[1].strip("'")
         inc = inc.strip('"')
         with zopen(os.path.join(d, inc)) as f:
-            s = re.sub(r"{}".format(incl), f.read(), s)
+            s = re.sub(rf"{incl}", f.read(), s)
     variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
-        s = re.sub(r"{}".format(match), "", s)
+        s = re.sub(rf"{match}", "", s)
         s = re.sub(r"\${?" + var + "}?", value, s)
 
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError("This cp2k input processer does not currently " "support conditional blocks.")
+        raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
     return s
 
 

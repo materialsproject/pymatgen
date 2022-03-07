@@ -27,6 +27,9 @@ from pathlib import Path
 from ruamel import yaml
 import numpy as np
 
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
     Section,
@@ -160,7 +163,7 @@ class Cp2kInputSet(Cp2kInput):
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
-        for k in unique_kinds.keys():
+        for k, v in unique_kinds.items():
             kind = k.split("_")[0]
             kwargs = {}
 
@@ -181,15 +184,15 @@ class Cp2kInputSet(Cp2kInput):
                 kwargs["magnetization"] = self.structure.site_properties["magmom"][unique_kinds[k][0]]
 
             if "ghost" in self.structure.site_properties:
-                kwargs["ghost"] = self.structure.site_properties["ghost"][unique_kinds[k][0]]
+                kwargs["ghost"] = self.structure.site_properties["ghost"][v[0]]
 
             if "basis_set" in self.structure.site_properties:
-                basis_set = self.structure.site_properties["basis_set"][unique_kinds[k][0]]
+                basis_set = self.structure.site_properties["basis_set"][v[0]]
             else:
                 basis_set = basis_and_potential[kind]["basis"]
 
             if "potential" in self.structure.site_properties:
-                potential = self.structure.site_properties["potential"][unique_kinds[k][0]]
+                potential = self.structure.site_properties["potential"][v[0]]
             else:
                 potential = basis_and_potential[kind]["potential"]
 
@@ -283,14 +286,14 @@ class DftSet(Cp2kInputSet):
                     diagonalization, it is the largest change in the density matrix from the last step.
             max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
                 corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
-                while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+                while with diagonalization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
             preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
                 default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
-                only change from theses two when simulation cell gets to be VERY large,
-                in which case FULL_KINETIC might be preferred.
+                only change from these two when simulation cell gets to be VERY large, in which case FULL_KINETIC might
+                be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate. By default cutoff is set to 0,
                 which will assign it to be the largest exponent of your basis times the rel_cutoff.
@@ -451,7 +454,7 @@ class DftSet(Cp2kInputSet):
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias="LDOS {}".format(i + 1), verbose=False))
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
 
     def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
@@ -832,11 +835,10 @@ class DftSet(Cp2kInputSet):
         changing the poisson solver. Still requires a CELL to put the atoms
         """
         if not self.check("FORCE_EVAL/SUBSYS/CELL"):
-            a = self.structure.distance_matrix
-            maxval = np.max(a)
-            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[maxval, 0, 0], [0, maxval, 0], [0, 0, maxval]])))
-            solver = "WAVELET"
-
+            x = max(s.coords[0] for s in self.structure.sites)
+            y = max(s.coords[1] for s in self.structure.sites)
+            z = max(s.coords[2] for s in self.structure.sites)
+            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[x, 0, 0], [0, y, 0], [0, 0, z]])))
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
         kwds = {"POISSON_SOLVER": Keyword("POISSON_SOLVER", solver), "PERIODIC": Keyword("PERIODIC", "NONE")}
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
@@ -948,7 +950,7 @@ class RelaxSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
@@ -1025,7 +1027,7 @@ class CellOptSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
