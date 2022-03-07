@@ -8,7 +8,6 @@ from pathlib import Path
 import warnings
 import numpy as np
 from monty.io import zopen
-from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
@@ -26,11 +25,11 @@ def _postprocessor(s):
 
     if s.lower() == "no":
         return False
-    elif s.lower() == "none":
+    if s.lower() == "none":
         return None
-    elif s.lower() == "yes" or s.lower() == "true":
+    if s.lower() == "yes" or s.lower() == "true":
         return True
-    elif re.match(r"^-?\d+$", s):
+    if re.match(r"^-?\d+$", s):
         try:
             return int(s)
         except ValueError:
@@ -129,25 +128,29 @@ def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
     }
 
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
-        yaml=YAML(typ='unsafe', pure=True)
+        yaml = YAML(typ="unsafe", pure=True)
         settings = yaml.load(f)
 
     if basis_and_potential_map == "best":
-        basis_and_potential.update({
-            s: {
-                'basis': settings[s]['basis_sets']['best_basis'],
-                'potential': [p for p in settings[s]['potentials']['gth_potentials'] if functional in p][0]
+        basis_and_potential.update(
+            {
+                s: {
+                    "basis": settings[s]["basis_sets"]["best_basis"],
+                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
+                }
+                for s in species
             }
-            for s in species
-        })
+        )
     elif basis_and_potential_map == "preferred":
-        basis_and_potential.update({
-            s: {
-                'basis': settings[s]['basis_sets']['preferred_basis'],
-                'potential': [p for p in settings[s]['potentials']['gth_potentials'] if functional in p][0]
+        basis_and_potential.update(
+            {
+                s: {
+                    "basis": settings[s]["basis_sets"]["preferred_basis"],
+                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
+                }
+                for s in species
             }
-            for s in species
-        })
+        )
     else:
         basis_and_potential.update(basis_and_potential_map)
 
@@ -175,12 +178,12 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
 
     """
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
-        yaml = YAML(typ='unsafe', pure=True)
+        yaml = YAML(typ="unsafe", pure=True)
         settings = yaml.load(f)
         aux_bases = {
-            s: [settings[s]['basis_sets']['preferred_aux_basis']]
-            if 'preferred_aux_basis' in settings[s]['basis_sets'] 
-            else settings[s]['basis_sets']['aux_basis'] 
+            s: [settings[s]["basis_sets"]["preferred_aux_basis"]]
+            if "preferred_aux_basis" in settings[s]["basis_sets"]
+            else settings[s]["basis_sets"]["aux_basis"]
             for s in settings
         }
 
@@ -267,12 +270,12 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
         Ideal cutoff for calculation.
     """
     with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
-        yaml=YAML(typ='unsafe', pure=True)
+        yaml = YAML(typ="unsafe", pure=True)
         _exponents = yaml.load(f)
         _exponents = {
-            k: v['basis_sets'].get('basis_set_largest_exponents')
+            k: v["basis_sets"].get("basis_set_largest_exponents")
             for k, v in _exponents.items()
-            if v['basis_sets'].get('basis_set_largest_exponents')
+            if v["basis_sets"].get("basis_set_largest_exponents")
         }
         exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
         return max([np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases)])
@@ -285,38 +288,38 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
 # and the sets will get more streamlined.
 def get_xc_functionals(name):
     """
-    Get the XC functionals for a given functional name. This utility does 
+    Get the XC functionals for a given functional name. This utility does
     not deal with defining hybrid functionals since those may or may not
     require ADMM, which is not supported by LibXC and so needs to be manually
     defined.
-    
+
     Args:
         name: Name of the functional.
     """
     name = name.upper()
-    if name == 'PBE':
-        return ['PBE']
-    if name == 'LDA' or name == 'PADE':
-        return ['PADE']
-    if name == 'B3LYP':
-        return ['B3LYP']
-    if name == 'BLYP':
-        return ['BLYP']
-    if name == 'SCAN':
-        return ['MGGA_X_SCAN', 'MGGA_C_SCAN']
-    if name == 'SCANL':
-        return ['MGGA_X_SCANL', 'MGGA_C_SCANL']
-    if name == 'R2SCAN':
-        return ['MGGA_X_R2SCAN', 'MGGA_C_R2SCAN']
-    if name == 'R2SCANL':
-        return ['MGGA_X_R2SCANL', 'MGGA_C_R2SCANL']
+    if name == "PBE":
+        return ["PBE"]
+    if name in ("LDA", "PADE"):
+        return ["PADE"]
+    if name == "B3LYP":
+        return ["B3LYP"]
+    if name == "BLYP":
+        return ["BLYP"]
+    if name == "SCAN":
+        return ["MGGA_X_SCAN", "MGGA_C_SCAN"]
+    if name == "SCANL":
+        return ["MGGA_X_SCANL", "MGGA_C_SCANL"]
+    if name == "R2SCAN":
+        return ["MGGA_X_R2SCAN", "MGGA_C_R2SCAN"]
+    if name == "R2SCANL":
+        return ["MGGA_X_R2SCANL", "MGGA_C_R2SCANL"]
     warnings.warn("Unknown XC functionals: {}".format(name))
     return [name]
 
 
 def get_truncated_coulomb_cutoff(inp_struct):
     """
-        Get the truncated Coulomb cutoff for a given structure.
+    Get the truncated Coulomb cutoff for a given structure.
     """
 
     m = inp_struct.lattice.matrix
@@ -325,4 +328,4 @@ def get_truncated_coulomb_cutoff(inp_struct):
     x = abs(np.dot(a, np.cross(b, c)) / np.linalg.norm(np.cross(b, c)))
     y = abs(np.dot(b, np.cross(a, c)) / np.linalg.norm(np.cross(a, c)))
     z = abs(np.dot(c, np.cross(a, b)) / np.linalg.norm(np.cross(a, b)))
-    return np.floor(100*min([x, y, z]) / 2) / 100
+    return np.floor(100 * min([x, y, z]) / 2) / 100
