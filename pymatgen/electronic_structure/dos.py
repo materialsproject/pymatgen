@@ -864,7 +864,7 @@ class CompleteDos(Dos):
 
         return band_center
 
-    def get_bandwidth(
+    def get_band_width(
         self,
         el: SpeciesLike = None,
         site: PeriodicSite = None,
