@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -63,7 +62,7 @@ class TransformedStructure(MSONable):
         if len(self.history) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
         if "input_structure" not in self.history[-1]:
-            raise IndexError("Can't undo. Latest history has no " "input_structure")
+            raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
         s = h["input_structure"]
@@ -152,9 +151,8 @@ class TransformedStructure(MSONable):
         Adds a filter.
 
         Args:
-            structure_filter (StructureFilter): A filter implementating the
-                AbstractStructureFilter API. Tells transmuter waht structures
-                to retain.
+            structure_filter (StructureFilter): A filter implementing the
+                AbstractStructureFilter API. Tells transmuter what structures to retain.
         """
         hdict = structure_filter.as_dict()
         hdict["input_structure"] = self.final_structure.as_dict()
@@ -187,7 +185,7 @@ class TransformedStructure(MSONable):
         return d
 
     def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs):
-        r"""
+        """
         Writes VASP input to an output_dir.
 
         Args:
@@ -301,7 +299,7 @@ class TransformedStructure(MSONable):
         p = Poscar.from_string(poscar_string)
         if not p.true_names:
             raise ValueError(
-                "Transformation can be craeted only from POSCAR " "strings with proper VASP5 element symbols."
+                "Transformation can be created only from POSCAR strings with proper VASP5 element symbols."
             )
         raw_string = re.sub(r"'", '"', poscar_string)
         s = p.structure
@@ -341,7 +339,7 @@ class TransformedStructure(MSONable):
         :return: StructureNL
         """
         if self.other_parameters:
-            warn("Data in TransformedStructure.other_parameters discarded " "during type conversion to SNL")
+            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
         hist = []
         for h in self.history:
             snl_metadata = h.pop("_snl", {})

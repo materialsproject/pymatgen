@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides an interface to the MaterialsVirtualLab's MEGNet REST API
@@ -24,7 +22,7 @@ class CrystalAIRester:
     For the details of MEGNet and benchmarks, please refer to the following work:
     Chen, C.; Ye, W.; Zuo, Y.; Zheng, C.; Ong, S. P. <i>Graph Networks as a Universal Machine Learning Framework
         for Molecules and Crystals.</i> Chemistry of Materials 2019, acs.chemmater.9b01294.
-     DOI: <a href="http://dx.doi.org/10.1021/acs.chemmater.9b01294">10.1021/acs.chemmater.9b01294</a>.</p>
+     DOI: <a href="https://doi.org/10.1021/acs.chemmater.9b01294">10.1021/acs.chemmater.9b01294</a>.</p>
     """
 
     def __init__(self):
@@ -68,14 +66,14 @@ class CrystalAIRester:
             10 ** prediction to get the actual value.
         """
         response = None
-        url = self.url + "/predict_mp/%s/%s" % (model_name, mp_id)
+        url = self.url + f"/predict_mp/{model_name}/{mp_id}"
         try:
             response = self.session.get(url)
             if response.status_code in [200, 400]:
                 return response.json()
-            raise ValueError("REST query returned with error status code {}".format(response.status_code))
+            raise ValueError(f"REST query returned with error status code {response.status_code}")
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise ValueError(msg)
 
     def predict_structure(self, model_name, structure):
@@ -91,13 +89,13 @@ class CrystalAIRester:
             10 ** prediction to get the actual value.
         """
         response = None
-        url = self.url + "/predict_structure/%s" % model_name
+        url = self.url + f"/predict_structure/{model_name}"
         try:
             data = {"structure": structure.to(fmt="POSCAR"), "fmt": "POSCAR"}
             response = self.session.post(url, data=data)
             if response.status_code in [200, 400]:
                 return response.json()
-            raise ValueError("REST query returned with error status code {}".format(response.status_code))
+            raise ValueError(f"REST query returned with error status code {response.status_code}")
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise ValueError(msg)

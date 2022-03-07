@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -173,7 +172,7 @@ class SlabEntry(ComputedStructureEntry):
         n = self.get_unit_primitive_area
         Nads = self.Nads_in_slab
 
-        BE = (self.energy - n * self.clean_entry.energy) / Nads - sum([ads.energy_per_atom for ads in self.adsorbates])
+        BE = (self.energy - n * self.clean_entry.energy) / Nads - sum(ads.energy_per_atom for ads in self.adsorbates)
         return BE * Nads if eads else BE
 
     def surface_energy(self, ucell_entry, ref_entries=None):
@@ -269,7 +268,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         Returns the TOTAL number of adsorbates in the slab on BOTH sides
         """
-        return sum([self.composition.as_dict()[a] for a in self.ads_entries_dict.keys()])
+        return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict.keys())
 
     @property
     def Nsurfs_ads_in_slab(self):
@@ -353,7 +352,7 @@ class SlabEntry(ComputedStructureEntry):
         ads_strs = list(self.ads_entries_dict.keys())
 
         cleaned = self.cleaned_up_slab
-        label += " %s" % (cleaned.composition.reduced_composition)
+        label += f" {cleaned.composition.reduced_composition}"
 
         if self.adsorbates:
             for ads in ads_strs:
@@ -479,10 +478,10 @@ class SurfaceEnergyPlotter:
         self.as_coeffs_dict = as_coeffs_dict
 
         list_of_chempots = []
-        for k in self.as_coeffs_dict.keys():
-            if type(self.as_coeffs_dict[k]).__name__ == "float":
+        for k, v in self.as_coeffs_dict.items():
+            if type(v).__name__ == "float":
                 continue
-            for du in self.as_coeffs_dict[k].keys():
+            for du in v.keys():
                 if du not in list_of_chempots:
                     list_of_chempots.append(du)
         self.list_of_chempots = list_of_chempots
@@ -821,21 +820,21 @@ class SurfaceEnergyPlotter:
                 se_dict[entry].append(gamma)
 
         if dmu_at_0:
-            for entry in se_dict.keys():
+            for entry, v in se_dict.items():
                 # if se are of opposite sign, determine chempot when se=0.
                 # Useful for finding a chempot range where se is unphysical
                 if not stable_urange_dict[entry]:
                     continue
-                if se_dict[entry][0] * se_dict[entry][1] < 0:
+                if v[0] * v[1] < 0:
                     # solve for gamma=0
                     se = self.as_coeffs_dict[entry]
-                    se_dict[entry].append(0)
+                    v.append(0)
                     stable_urange_dict[entry].append(solve(sub_chempots(se, delu_dict), ref_delu)[0])
 
         # sort the chempot ranges for each facet
-        for entry in stable_urange_dict.keys():
-            se_dict[entry] = [se for i, se in sorted(zip(stable_urange_dict[entry], se_dict[entry]))]
-            stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
+        for entry, v in stable_urange_dict.items():
+            se_dict[entry] = [se for i, se in sorted(zip(v, se_dict[entry]))]
+            stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
             return stable_urange_dict, se_dict
@@ -1140,9 +1139,9 @@ class SurfaceEnergyPlotter:
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
         plt.plot([xrange[1], xrange[1]], ylim, "--k")
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-rich", xy=xy, xytext=xy, rotation=90, fontsize=17)
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-poor", xy=xy, xytext=xy, rotation=90, fontsize=17)
 
         return plt
 
@@ -1188,7 +1187,7 @@ class SurfaceEnergyPlotter:
                         # Now plot the surface energy vs binding energy
                         plt.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate("%.2f" % (ml), xy=[se, be], xytext=[se, be])
+                            plt.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
         plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
@@ -1244,8 +1243,8 @@ class SurfaceEnergyPlotter:
         delu_dict = delu_dict if delu_dict else {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol("delu_%s" % (str(elements[0])))
-        delu2 = Symbol("delu_%s" % (str(elements[1])))
+        delu1 = Symbol(f"delu_{str(elements[0])}")
+        delu2 = Symbol(f"delu_{str(elements[1])}")
         range1 = ranges[0]
         range2 = ranges[1]
 
@@ -1268,22 +1267,22 @@ class SurfaceEnergyPlotter:
             )
 
             # Save the chempot range for dmu1 and dmu2
-            for entry in range_dict.keys():
-                if not range_dict[entry]:
+            for entry, v in range_dict.items():
+                if not v:
                     continue
                 if entry not in vertices_dict.keys():
                     vertices_dict[entry] = []
 
                 selist = se_dict[entry]
-                vertices_dict[entry].append({delu1: dmu1, delu2: [range_dict[entry], selist]})
+                vertices_dict[entry].append({delu1: dmu1, delu2: [v, selist]})
 
         # Plot the edges of the phases
-        for entry in vertices_dict.keys():
+        for entry, v in vertices_dict.items():
 
             xvals, yvals = [], []
 
             # Plot each edge of a phase within the borders
-            for ii, pt1 in enumerate(vertices_dict[entry]):
+            for ii, pt1 in enumerate(v):
 
                 # Determine if the surface energy at this lower range
                 # of dmu2 is negative. If so, shade this region.
@@ -1300,9 +1299,9 @@ class SurfaceEnergyPlotter:
                     if not show_unphyiscal_only:
                         plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
-                if ii == len(vertices_dict[entry]) - 1:
+                if ii == len(v) - 1:
                     break
-                pt2 = vertices_dict[entry][ii + 1]
+                pt2 = v[ii + 1]
                 if not show_unphyiscal_only:
                     plt.plot(
                         [pt1[delu1], pt2[delu1]],
@@ -1315,7 +1314,7 @@ class SurfaceEnergyPlotter:
                 yvals.extend([pt1[delu2][0][0], pt2[delu2][0][0]])
 
             # Plot the edge along the max x value
-            pt = vertices_dict[entry][-1]
+            pt = v[-1]
             delu1, delu2 = pt.keys()
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
@@ -1825,15 +1824,15 @@ class NanoscaleStability:
             # By approximating the particle as a Wulff shape
             w_vol = new_wulff.volume
             tot_wulff_se = 0
-            for hkl in new_wulff_area.keys():
-                tot_wulff_se += miller_se_dict[hkl] * new_wulff_area[hkl]
+            for hkl, v in new_wulff_area.items():
+                tot_wulff_se += miller_se_dict[hkl] * v
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = new_wulff.effective_radius
 
         else:
             # By approximating the particle as a perfect sphere
-            w_vol = (4 / 3) * np.pi * r ** 3
-            sphere_sa = 4 * np.pi * r ** 2
+            w_vol = (4 / 3) * np.pi * r**3
+            sphere_sa = 4 * np.pi * r**2
             tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
@@ -1841,7 +1840,7 @@ class NanoscaleStability:
         new_r = new_r / 10 if r_units == "nanometers" else new_r
         e = Ebulk + tot_wulff_se
         e = e / 1000 if e_units == "keV" else e
-        e = e / ((4 / 3) * np.pi * new_r ** 3) if normalize else e
+        e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
         density = len(bulk_struct) / bulk_struct.lattice.volume
         e = e / (density * w_vol) if scale_per_atom else e
@@ -1860,7 +1859,7 @@ class NanoscaleStability:
     def scaled_wulff(self, wulffshape, r):
         """
         Scales the Wulff shape with an effective radius r. Note that the resulting
-            Wulff does not neccesarily have the same effective radius as the one
+            Wulff does not necessarily have the same effective radius as the one
             provided. The Wulff shape is scaled by its surface energies where first
             the surface energies are scale by the minimum surface energy and then
             multiplied by the given effective radius.
@@ -1943,7 +1942,7 @@ class NanoscaleStability:
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
         plt.xlabel(r"Particle radius ($%s$)" % (ru))
-        eu = "$%s/%s^3$" % (e_units, ru)
+        eu = f"${e_units}/{ru}^3$"
         plt.ylabel(r"$G_{form}$ (%s)" % (eu))
 
         plt.plot(r_list, gform_list, label=label)

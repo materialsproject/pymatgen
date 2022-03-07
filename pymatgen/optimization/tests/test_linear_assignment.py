@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -260,7 +259,7 @@ class LinearAssignmentTest(unittest.TestCase):
         self.assertAlmostEqual(LinearAssignment(x).min_cost, 48)
 
     def test_boolean_inputs(self):
-        w = np.ones((135, 135), dtype=np.bool)
+        w = np.ones((135, 135), dtype=bool)
         np.fill_diagonal(w, False)
         la = LinearAssignment(w)
         # if the input doesn't get converted to a float, the masking

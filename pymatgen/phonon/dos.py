@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -108,9 +107,9 @@ class PhononDos(MSONable):
         """
         Returns a string which can be easily plotted (using gnuplot).
         """
-        stringarray = ["#{:30s} {:30s}".format("Frequency", "Density")]
+        stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
-            stringarray.append("{:.5f} {:.5f}".format(frequency, self.densities[i]))
+            stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
         return "\n".join(stringarray)
 
     @classmethod
@@ -134,7 +133,7 @@ class PhononDos(MSONable):
     @lazy_property
     def ind_zero_freq(self):
         """
-        Index of the first point for which the freqencies are equal or greater than zero.
+        Index of the first point for which the frequencies are equal or greater than zero.
         """
         ind = np.searchsorted(self.frequencies, 0)
         if ind >= len(self.frequencies):
@@ -166,7 +165,7 @@ class PhononDos(MSONable):
 
         Args:
             t: a temperature in K
-            structure: the structure of the system. If not None it will be used to determine the numer of
+            structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
         Returns:
             Constant volume specific heat C_v
@@ -182,7 +181,7 @@ class PhononDos(MSONable):
             return 1.0 / (np.sinh(x) ** 2)
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        cv = np.trapz(wd2kt ** 2 * csch2(wd2kt) * dens, x=freqs)
+        cv = np.trapz(wd2kt**2 * csch2(wd2kt) * dens, x=freqs)
         cv *= const.Boltzmann * const.Avogadro
 
         if structure:
@@ -202,7 +201,7 @@ class PhononDos(MSONable):
 
         Args:
             t: a temperature in K
-            structure: the structure of the system. If not None it will be used to determine the numer of
+            structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
         Returns:
             Vibrational entropy
@@ -236,7 +235,7 @@ class PhononDos(MSONable):
 
         Args:
             t: a temperature in K
-            structure: the structure of the system. If not None it will be used to determine the numer of
+            structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
         Returns:
             Phonon contribution to the internal energy
@@ -270,7 +269,7 @@ class PhononDos(MSONable):
 
         Args:
             t: a temperature in K
-            structure: the structure of the system. If not None it will be used to determine the numer of
+            structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
         Returns:
             Phonon contribution to the Helmholtz free energy
@@ -302,8 +301,7 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/mol
 
         Args:
-            t: a temperature in K
-            structure: the structure of the system. If not None it will be used to determine the numer of
+            structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
         Returns:
             Phonon contribution to the internal energy

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -152,7 +151,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * (s ** 2))
+                dw_correction = np.exp(-dwfactors * (s**2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
@@ -184,7 +183,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
-        max_intensity = max([v[0] for v in peaks.values()])
+        max_intensity = max(v[0] for v in peaks.values())
         x = []
         y = []
         hkls = []

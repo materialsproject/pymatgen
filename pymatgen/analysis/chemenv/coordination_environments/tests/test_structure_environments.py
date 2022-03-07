@@ -5,7 +5,6 @@ __author__ = "waroquiers"
 
 import json
 import os
-import shutil
 import unittest
 
 import numpy as np
@@ -23,13 +22,7 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.util.testing import PymatgenTest
 
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )
@@ -38,7 +31,7 @@ se_files_dir = os.path.join(
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
         with ScratchDir("."):
-            f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
+            f = open(f"{se_files_dir}/se_mp-7000.json")
             dd = json.load(f)
             f.close()
 
@@ -166,7 +159,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
     def test_light_structure_environments(self):
         with ScratchDir("."):
-            f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
+            f = open(f"{se_files_dir}/se_mp-7000.json")
             dd = json.load(f)
             f.close()
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,12 +6,13 @@ import json
 import os
 import unittest
 
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,
 )
+from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Species
+from pymatgen.util.testing import PymatgenTest
 
 
 def get_table():
@@ -22,12 +22,7 @@ def get_table():
     default lambda table.
     """
     data_dir = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "..",
-        "..",
-        "..",
-        "test_files",
+        PymatgenTest.TEST_FILES_DIR,
         "struct_predictor",
     )
 
@@ -75,12 +70,12 @@ class SubstitutionPredictorTest(unittest.TestCase):
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=True)[5]
         cprob = sp.p.cond_prob_list(result["substitutions"].keys(), result["substitutions"].values())
         self.assertAlmostEqual(result["probability"], cprob)
-        self.assertEqual(set(result["substitutions"].values()), set(["Na+", "Cl-"]))
+        self.assertEqual(set(result["substitutions"].values()), {"Na+", "Cl-"})
 
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=False)[5]
         cprob = sp.p.cond_prob_list(result["substitutions"].keys(), result["substitutions"].values())
         self.assertAlmostEqual(result["probability"], cprob)
-        self.assertNotEqual(set(result["substitutions"].values()), set(["Na+", "Cl-"]))
+        self.assertNotEqual(set(result["substitutions"].values()), {"Na+", "Cl-"})
 
         c = Composition({"Ag2+": 1, "Cl-": 2})
         result = sp.composition_prediction(c, to_this_composition=True)[2]

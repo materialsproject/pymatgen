@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import unittest
 
@@ -57,7 +55,7 @@ class FiestaInputTest(PymatgenTest):
             "# number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D\n    0   V       0       0.500\n"
             "# number of GW corrected occp and unoccp bands\n   10   10\n# number of GW iterations\n    3\n"
             "# dumping for BSE and TDDFT\n    1    0\n"
-            "# number of occp. and virtual bands fo BSE: nocore and up to 40 eVs\n    21   382\n"
+            "# number of occp. and virtual bands of BSE: nocore and up to 40 eVs\n    21   382\n"
             "# number of excitations needed and number of iterations\n    1   50\n"
             "# list of symbols in order\nC\nH\n"
             "# scaling factor\n    1.000\n# atoms x,y,z cartesian .. will be multiplied by scale\n 0.0 0.0 0.0 1\n"

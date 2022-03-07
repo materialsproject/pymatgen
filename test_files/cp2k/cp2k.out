@@ -861,90 +861,90 @@
  Schuett, Ole; Messmer, Peter; Hutter, Juerg; VandeVondele, Joost. 
  Electronic Structure Calculations on Graphics Processing Units, John Wiley & Sons, Ltd, 173-190 (2016). 
  GPU-Accelerated Sparse Matrix-Matrix Multiplication for Linear Scaling Density Functional Theory.
- http://dx.doi.org/10.1002/9781118670712.ch8
+ https://doi.org/10.1002/9781118670712.ch8
 
 
  Borstnik, U; VandeVondele, J; Weber, V; Hutter, J. 
  PARALLEL COMPUTING, 40 (5-6), 47-58 (2014). 
  Sparse matrix multiplication: The distributed block-compressed sparse
  row library.
- http://dx.doi.org/10.1016/j.parco.2014.03.012
+ https://doi.org/10.1016/j.parco.2014.03.012
 
 
  Hutter, J; Iannuzzi, M; Schiffmann, F; VandeVondele, J. 
  WILEY INTERDISCIPLINARY REVIEWS-COMPUTATIONAL MOLECULAR SCIENCE, 4 (1), 15-25 (2014). 
  CP2K: atomistic simulations of condensed matter systems.
- http://dx.doi.org/10.1002/wcms.1159
+ https://doi.org/10.1002/wcms.1159
 
 
  Grimme, S; Ehrlich, S; Goerigk, L. 
  JOURNAL OF COMPUTATIONAL CHEMISTRY, 32, 1456 (2011). 
  Effect of the damping function in dispersion corrected density functional theory.
- http://dx.doi.org/10.1002/jcc.21759
+ https://doi.org/10.1002/jcc.21759
 
 
  Grimme, S; Antony, J; Ehrlich, S; Krieg, H. 
  JOURNAL OF CHEMICAL PHYSICS, 132 (15), 154104 (2010). 
  A consistent and accurate ab initio parametrization of density
  functional dispersion correction (DFT-D) for the 94 elements H-Pu.
- http://dx.doi.org/10.1063/1.3382344
+ https://doi.org/10.1063/1.3382344
 
 
  Krack, M. 
  THEORETICAL CHEMISTRY ACCOUNTS, 114 (1-3), 145-152 (2005). 
  Pseudopotentials for H to Kr optimized for gradient-corrected
  exchange-correlation functionals.
- http://dx.doi.org/10.1007/s00214-005-0655-y
+ https://doi.org/10.1007/s00214-005-0655-y
 
 
  VandeVondele, J; Krack, M; Mohamed, F; Parrinello, M; Chassaing, T;
  Hutter, J. COMPUTER PHYSICS COMMUNICATIONS, 167 (2), 103-128 (2005). 
  QUICKSTEP: Fast and accurate density functional calculations using a
  mixed Gaussian and plane waves approach.
- http://dx.doi.org/10.1016/j.cpc.2004.12.014
+ https://doi.org/10.1016/j.cpc.2004.12.014
 
 
  Frigo, M; Johnson, SG. 
  PROCEEDINGS OF THE IEEE, 93 (2), 216-231 (2005). 
  The design and implementation of FFTW3.
- http://dx.doi.org/10.1109/JPROC.2004.840301
+ https://doi.org/10.1109/JPROC.2004.840301
 
 
  Kolafa, J. 
  JOURNAL OF COMPUTATIONAL CHEMISTRY, 25 (3), 335-342 (2004). 
  Time-reversible always stable predictor-corrector method for molecular dynamics of polarizable molecules.
- http://dx.doi.org/10.1002/jcc.10385
+ https://doi.org/10.1002/jcc.10385
 
 
  VandeVondele, J; Hutter, J. 
  JOURNAL OF CHEMICAL PHYSICS, 118 (10), 4365-4369 (2003). 
  An efficient orbital transformation method for electronic structure
  calculations.
- http://dx.doi.org/10.1063/1.1543154
+ https://doi.org/10.1063/1.1543154
 
 
  Hartwigsen, C; Goedecker, S; Hutter, J. 
  PHYSICAL REVIEW B, 58 (7), 3641-3662 (1998). 
  Relativistic separable dual-space Gaussian pseudopotentials from H to Rn.
- http://dx.doi.org/10.1103/PhysRevB.58.3641
+ https://doi.org/10.1103/PhysRevB.58.3641
 
 
  Lippert, G; Hutter, J; Parrinello, M. 
  MOLECULAR PHYSICS, 92 (3), 477-487 (1997). 
  A hybrid Gaussian and plane wave density functional scheme.
- http://dx.doi.org/10.1080/002689797170220
+ https://doi.org/10.1080/002689797170220
 
 
  Perdew, JP; Burke, K; Ernzerhof, M. 
  PHYSICAL REVIEW LETTERS, 77 (18), 3865-3868 (1996). 
  Generalized gradient approximation made simple.
- http://dx.doi.org/10.1103/PhysRevLett.77.3865
+ https://doi.org/10.1103/PhysRevLett.77.3865
 
 
  Goedecker, S; Teter, M; Hutter, J. 
  PHYSICAL REVIEW B, 54 (3), 1703-1710 (1996). 
  Separable dual-space Gaussian pseudopotentials.
- http://dx.doi.org/10.1103/PhysRevB.54.1703
+ https://doi.org/10.1103/PhysRevB.54.1703
 
 
  -------------------------------------------------------------------------------

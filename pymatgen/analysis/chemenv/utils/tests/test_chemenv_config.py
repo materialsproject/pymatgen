@@ -4,22 +4,16 @@
 __author__ = "waroquiers"
 
 import os
-import shutil
 import unittest
 
 from monty.tempfile import ScratchDir
 
-from pymatgen.core import SETTINGS
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
+from pymatgen.core import SETTINGS
+from pymatgen.util.testing import PymatgenTest
 
 config_file_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "config",
 )

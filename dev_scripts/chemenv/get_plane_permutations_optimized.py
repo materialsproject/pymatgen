@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -14,21 +13,25 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-from math import factorial
-
-import numpy as np
 import itertools
-from random import shuffle
 import json
 import os
-import tabulate
 import time
-
+from math import factorial
 from optparse import OptionParser
+from random import shuffle
+
+import numpy as np
+import tabulate
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
+    LocalGeometryFinder,
+)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 
 
 # Printing functions depending on the printing volume option
@@ -152,7 +155,7 @@ if __name__ == "__main__":
 
         cg = allcg[cg_symbol]
 
-        print('Getting explicit permutations for geometry "{}" (symbol : "{}")\n'.format(cg.name, cg_symbol))
+        print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
 
         # Setup of the local geometry finder
         lgf = LocalGeometryFinder()
@@ -178,20 +181,15 @@ if __name__ == "__main__":
             else:
                 eop = str(len(algo.explicit_optimized_permutations))
             print(
-                "For ialgo {:d}, plane_points are {}, "
-                "side_0 is {} and "
-                "side_1 is {}.".format(
-                    ialgo,
-                    "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[1]])),
-                )
+                f"For ialgo {ialgo,:d}, plane_points are "
+                f"[{', '.join([str(pp) for pp in algo.plane_points])}], "
+                f"side_0 is [{', '.join([str(pp) for pp in algo.point_groups[0]])}] and "
+                f"side_1 is [{', '.join([str(pp) for pp in algo.point_groups[1]])}]."
             )
             original_nexplicit_perms.append(len(algo.explicit_permutations))
             original_nexplicit_optimized_perms.append(eop)
             print(
-                "  For this algorithm, there are {} optimized permutations and "
-                "{:d} explicit permutations".format(eop, len(algo.explicit_permutations))
+                f"  For this algorithm, there are {eop} optimized permutations and {len(algo.explicit_permutations):d} explicit permutations"
             )
             if algo.other_plane_points is None:
                 input("Multiplicity and other plane points is not defined for this algorithm !")
@@ -201,7 +199,7 @@ if __name__ == "__main__":
                 ordered_plane=algo.ordered_plane, ordered_point_groups=algo.ordered_point_groups
             )
             algo._permutations = permutations
-            print("Safe permutations found ({:d})".format(len(permutations)))
+            print(f"Safe permutations found ({len(permutations):d})")
 
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
@@ -212,7 +210,7 @@ if __name__ == "__main__":
             explicit_permutations_per_plane = []
             for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                 prt1(
-                    string="In plane {:d} ({})".format(iplane, "-".join(str(pp) for pp in plane_point_indices)),
+                    string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                     printing_volume=printing_volume,
                 )
 
@@ -267,7 +265,7 @@ if __name__ == "__main__":
             algo.explicit_permutations = [list(perm) for perm in list(explicit_permutations_per_plane[0])]
             algo.explicit_permutations.sort()
             algo.explicit_permutations = np.array(algo.explicit_permutations)
-            print("Explicit permutations found ({:d})".format(len(algo.explicit_permutations)))
+            print(f"Explicit permutations found ({len(algo.explicit_permutations):d})")
             print(algo.explicit_permutations)
             print("")
             # Setup the permutations for the next optimization
@@ -275,8 +273,7 @@ if __name__ == "__main__":
 
         while True:
             test = input(
-                'Get the explicit optimized permutations for geometry "{}" (symbol : "{}") ? '
-                '("y" to confirm, "q" to quit)\n'.format(cg.name, cg_symbol)
+                f'Get the explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}") ? ("y" to confirm, "q" to quit)\n'
             )
             if test not in ["y", "q"]:
                 print("Wrong key, try again")
@@ -286,21 +283,17 @@ if __name__ == "__main__":
             elif test == "q":
                 exit()
         # 2. Optimization of the permutations
-        print('Getting explicit optimized permutations for geometry "{}" (symbol : "{}")\n'.format(cg.name, cg_symbol))
+        print(f'Getting explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
         perms_used_algos = [dict() for algo in cg.algorithms]
 
         # Loop on algorithms
         for ialgo, algo in enumerate(cg.algorithms):
             perms_used = {}
             print(
-                "In ialgo {:d} (plane_points : {}, "
-                "side_0 : {} and "
-                "side_1 : {})".format(
-                    ialgo,
-                    "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[1]])),
-                )
+                f"In ialgo {ialgo:d} (plane_points : "
+                f"[{', '.join([str(pp) for pp in algo.plane_points])}], "
+                f"side_0 : [{', '.join([str(pp) for pp in algo.point_groups[0]])}] and "
+                f"side_1 : [{', '.join([str(pp) for pp in algo.point_groups[1]])}])"
             )
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
                 raise ValueError("Do something for the explicit ones ... (these should anyway be by far ok!)")
@@ -343,9 +336,9 @@ if __name__ == "__main__":
             for indices_perm in perms_iterator:
 
                 prt1(
-                    string="Perm # {:d}/{:d} : {} (est. rem. time : {} sec)".format(
-                        iperm, npermutations, "-".join([str(ii) for ii in indices_perm]), timeleft
-                    ),
+                    string=f"Perm # {iperm:d}/{npermutations:d} : "
+                    f"{'-'.join([str(ii) for ii in indices_perm])} "
+                    f"(est. rem. time : {timeleft} sec)",
                     printing_volume=printing_volume,
                 )
                 # Setup of the local and perfect geometries
@@ -359,7 +352,7 @@ if __name__ == "__main__":
                 separation_permutations = list()
                 for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(
-                        string="In plane {:d} ({})".format(iplane, "-".join(str(pp) for pp in plane_point_indices)),
+                        string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                         printing_volume=printing_volume,
                     )
 
@@ -406,7 +399,7 @@ if __name__ == "__main__":
                         perms_used[some_perm] = 1
                 tcurrent = time.process_time()
                 timeleft = (npermutations - iperm) * (tcurrent - t0) / iperm
-                timeleft = "{:.1f}".format(timeleft)
+                timeleft = f"{timeleft:.1f}"
                 iperm += 1
             print(
                 "Optimized permutations {:d}/{:d}"
@@ -418,7 +411,7 @@ if __name__ == "__main__":
                 )
             )
             for perm, number in perms_used.items():
-                print(" - permutation {} : {:d}".format("-".join([str(pp) for pp in perm]), number))
+                print(f" - permutation {'-'.join([str(pp) for pp in perm])} : {number:d}")
             print(
                 "For ialgo {:d} (plane_points : {}, "
                 "side_0 : {} and "
@@ -428,7 +421,7 @@ if __name__ == "__main__":
                     ialgo,
                     "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
                     "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[1]])),
+                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
                     len(perms_used),
                     len(algo.permutations),
                     str(original_nexplicit_optimized_perms[ialgo]),
@@ -440,7 +433,7 @@ if __name__ == "__main__":
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
             print("")
-            test = input('Set optimized permutations for algorithm {:d} ? ("y" to confirm)'.format(ialgo))
+            test = input(f'Set optimized permutations for algorithm {ialgo:d} ? ("y" to confirm)')
             if test == "y":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 
@@ -452,6 +445,6 @@ if __name__ == "__main__":
             newgeom_dir = "new_geometry_files"
             if not os.path.exists(newgeom_dir):
                 os.makedirs(newgeom_dir)
-            f = open("{}/{}.json".format(newgeom_dir, cg_symbol), "w")
+            f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
             json.dump(cg.as_dict(), f)
             f.close()

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,19 +8,18 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
-import math
 import itertools
 import logging
+import math
 import time
 
 import numpy as np
-
 from monty.json import MSONable
 
+from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
+from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.analysis.local_env import MinimumDistanceNN
 
 
 class InsertSitesTransformation(AbstractTransformation):
@@ -70,7 +68,7 @@ class InsertSitesTransformation(AbstractTransformation):
         return s.get_sorted_structure()
 
     def __str__(self):
-        return "InsertSiteTransformation : " + "species {}, coords {}".format(self.species, self.coords)
+        return "InsertSiteTransformation : " + f"species {self.species}, coords {self.coords}"
 
     def __repr__(self):
         return self.__str__()
@@ -121,7 +119,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
-            ["{}->{}".format(k, v) + v for k, v in self.indices_species_map.items()]
+            [f"{k}->{v}" + v for k, v in self.indices_species_map.items()]
         )
 
     def __repr__(self):
@@ -224,8 +222,10 @@ class TranslateSitesTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "TranslateSitesTransformation for indices " + "{}, vect {} and vect_in_frac_coords = {}".format(
-            self.indices_to_move, self.translation_vector, self.vector_in_frac_coords
+        return (
+            f"TranslateSitesTransformation for indices {self.indices_to_move}, "
+            f"vect {self.translation_vector} and "
+            f"vect_in_frac_coords = {self.vector_in_frac_coords}"
         )
 
     def __repr__(self):
@@ -235,7 +235,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def inverse(self):
         """
         Returns:
-            TranslateSitesTranformation with the reverse translation.
+            TranslateSitesTransformation with the reverse translation.
         """
         return TranslateSitesTransformation(self.indices_to_move, -self.translation_vector, self.vector_in_frac_coords)
 
@@ -321,7 +321,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         starttime = time.time()
         self.logger.debug("Performing initial ewald sum...")
         ewaldsum = EwaldSummation(structure)
-        self.logger.debug("Ewald sum took {} seconds.".format(time.time() - starttime))
+        self.logger.debug(f"Ewald sum took {time.time() - starttime} seconds.")
         starttime = time.time()
 
         ematrix = ewaldsum.total_energy_matrix
@@ -348,7 +348,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             ematrix[maxindex, :] = 0
         s = structure.copy()
         s.remove_sites(to_delete)
-        self.logger.debug("Minimizing Ewald took {} seconds.".format(time.time() - starttime))
+        self.logger.debug(f"Minimizing Ewald took {time.time() - starttime} seconds.")
         return [{"energy": sum(sum(ematrix)), "structure": s.get_sorted_structure()}]
 
     def _complete_ordering(self, structure, num_remove_dict):
@@ -356,13 +356,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         all_structures = []
         symprec = 0.2
         s = SpacegroupAnalyzer(structure, symprec=symprec)
-        self.logger.debug("Symmetry of structure is determined to be {}.".format(s.get_space_group_symbol()))
+        self.logger.debug(f"Symmetry of structure is determined to be {s.get_space_group_symbol()}.")
         sg = s.get_space_group_operations()
         tested_sites = []
         starttime = time.time()
         self.logger.debug("Performing initial ewald sum...")
         ewaldsum = EwaldSummation(structure)
-        self.logger.debug("Ewald sum took {} seconds.".format(time.time() - starttime))
+        self.logger.debug(f"Ewald sum took {time.time() - starttime} seconds.")
         starttime = time.time()
 
         allcombis = []
@@ -394,11 +394,11 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             count += 1
             if count % 10 == 0:
                 timenow = time.time()
-                self.logger.debug("{} structures, {:.2f} seconds.".format(count, timenow - starttime))
-                self.logger.debug("Average time per combi = {} seconds".format((timenow - starttime) / count))
-                self.logger.debug("{} symmetrically distinct structures found.".format(len(all_structures)))
+                self.logger.debug(f"{count} structures, {timenow - starttime:.2f} seconds.")
+                self.logger.debug(f"Average time per combi = {(timenow - starttime) / count} seconds")
+                self.logger.debug(f"{len(all_structures)} symmetrically distinct structures found.")
 
-        self.logger.debug("Total symmetrically distinct structures found = {}".format(len(all_structures)))
+        self.logger.debug(f"Total symmetrically distinct structures found = {len(all_structures)}")
         all_structures = sorted(all_structures, key=lambda s: s["energy"])
         return all_structures
 
@@ -408,7 +408,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter
-        search of permutations for example), but this wont make a difference
+        search of permutations for example), but this won't make a difference
         until the number of permutations is on the order of 30,000.
         """
         self.logger.debug("Performing fast ordering")
@@ -416,7 +416,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Performing initial ewald sum...")
 
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
-        self.logger.debug("Ewald sum took {} seconds.".format(time.time() - starttime))
+        self.logger.debug(f"Ewald sum took {time.time() - starttime} seconds.")
         starttime = time.time()
         m_list = []
         for indices, num in num_remove_dict.items():
@@ -424,7 +424,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         self.logger.debug("Calling EwaldMinimizer...")
         minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
-        self.logger.debug("Minimizing Ewald took {} seconds.".format(time.time() - starttime))
+        self.logger.debug(f"Minimizing Ewald took {time.time() - starttime} seconds.")
 
         all_structures = []
 
@@ -460,7 +460,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
-        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
+        from pymatgen.transformations.advanced_transformations import (
+            EnumerateStructureTransformation,
+        )
 
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)
@@ -491,7 +493,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         for indices, frac in zip(self.indices, self.fractions):
             num_to_remove = len(indices) * frac
             if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
-                raise ValueError("Fraction to remove must be consistent with " "integer amounts in structure.")
+                raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
             num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
             n = len(indices)
@@ -499,7 +501,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 round(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
             )
 
-        self.logger.debug("Total combinations = {}".format(total_combis))
+        self.logger.debug(f"Total combinations = {total_combis}")
 
         try:
             num_to_return = int(return_ranked_list)
@@ -507,7 +509,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             num_to_return = 1
 
         num_to_return = max(1, num_to_return)
-        self.logger.debug("Will return {} best structures.".format(num_to_return))
+        self.logger.debug(f"Will return {num_to_return} best structures.")
 
         if self.algo == PartialRemoveSitesTransformation.ALGO_FAST:
             all_structures = self._fast_ordering(structure, num_remove_dict, num_to_return)
@@ -524,9 +526,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
-        return "PartialRemoveSitesTransformation : Indices and fraction" + " to remove = {}, ALGO = {}".format(
-            self.indices, self.algo
-        )
+        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     def __repr__(self):
         return self.__str__()
@@ -621,7 +621,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         def f(x, r, r0):
             return x * r0 / r
 
-        r0 = max([site.distance(_["site"]) for _ in MinimumDistanceNN().get_nn_info(structure, self.site_index)])
+        r0 = max(site.distance(_["site"]) for _ in MinimumDistanceNN().get_nn_info(structure, self.site_index))
         if hasattr(structure, "lattice"):
             m = structure.lattice.matrix
             m = (abs(m) > 1e-5) * m

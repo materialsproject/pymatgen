@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -21,7 +20,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -42,8 +41,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
-from pymatgen.util.sequence import PBar
-
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -66,13 +63,13 @@ PREFAC = 0.0591
 class PourbaixEntry(MSONable, Stringify):
     """
     An object encompassing all data relevant to a solid or ion
-    in a pourbaix diagram.  Each bulk solid/ion has an energy
+    in a Pourbaix diagram.  Each bulk solid/ion has an energy
     g of the form: e = e0 + 0.0591 log10(conc) - nO mu_H2O
     + (nH - 2nO) pH + phi (-nH + 2nO + q)
 
     Note that the energies corresponding to the input entries
     should be formation energies with respect to hydrogen and
-    oxygen gas in order for the pourbaix diagram formalism to
+    oxygen gas in order for the Pourbaix diagram formalism to
     work. This may be changed to be more flexible in the future.
     """
 
@@ -137,7 +134,7 @@ class PourbaixEntry(MSONable, Stringify):
         """
         returns energy
 
-        Returns (float): total energy of the pourbaix
+        Returns (float): total energy of the Pourbaix
             entry (at pH, V = 0 vs. SHE)
         """
         # Note: this implicitly depends on formation energies as input
@@ -146,7 +143,7 @@ class PourbaixEntry(MSONable, Stringify):
     @property
     def energy_per_atom(self):
         """
-        energy per atom of the pourbaix entry
+        energy per atom of the Pourbaix entry
 
         Returns (float): energy per atom
         """
@@ -305,7 +302,7 @@ class MultiEntry(PourbaixEntry):
             self.weights = weights
         self.entry_list = entry_list
 
-    @lru_cache()
+    @lru_cache
     def __getattr__(self, item):
         """
         Because most of the attributes here are just weighted
@@ -328,7 +325,7 @@ class MultiEntry(PourbaixEntry):
             else:
                 start = 0
             return sum(
-                [getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)],
+                (getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)),
                 start,
             )
 
@@ -423,7 +420,7 @@ class IonEntry(PDEntry):
         return d
 
     def __repr__(self):
-        return "IonEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
+        return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
@@ -479,9 +476,9 @@ class PourbaixDiagram(MSONable):
         Args:
             entries ([PourbaixEntry] or [MultiEntry]): Entries list
                 containing Solids and Ions or a list of MultiEntries
-            comp_dict ({str: float}): Dictionary of compositions,
+            comp_dict (dict[str, float]): Dictionary of compositions,
                 defaults to equal parts of each elements
-            conc_dict ({str: float}): Dictionary of ion concentrations,
+            conc_dict (dict[str, float]): Dictionary of ion concentrations,
                 defaults to 1e-6 for each element
             filter_solids (bool): applying this filter to a Pourbaix
                 diagram ensures all included solid phases are filtered by
@@ -538,7 +535,7 @@ class PourbaixDiagram(MSONable):
                 if len(ion_elts) == 1:
                     entry.concentration = conc_dict[ion_elts[0].symbol] * entry.normalization_factor
                 elif len(ion_elts) > 1 and not entry.concentration:
-                    raise ValueError("Elemental concentration not compatible " "with multi-element ions")
+                    raise ValueError("Elemental concentration not compatible with multi-element ions")
 
             self._unprocessed_entries = solid_entries + ion_entries
 
@@ -564,7 +561,7 @@ class PourbaixDiagram(MSONable):
     def _convert_entries_to_points(self, pourbaix_entries):
         """
         Args:
-            pourbaix_entries ([PourbaixEntry]): list of pourbaix entries
+            pourbaix_entries ([PourbaixEntry]): list of Pourbaix entries
                 to process into vectors in nph-nphi-composition space
 
         Returns:
@@ -583,7 +580,7 @@ class PourbaixDiagram(MSONable):
 
     def _get_hull_in_nph_nphi_space(self, entries):
         """
-        Generates convex hull of pourbaix diagram entries in composition,
+        Generates convex hull of Pourbaix diagram entries in composition,
         npH, and nphi space.  This enables filtering of multi-entries
         such that only compositionally stable combinations of entries
         are included.
@@ -626,7 +623,7 @@ class PourbaixDiagram(MSONable):
         facets = [facet for facet in hull.simplices if not len(points) - 1 in facet]
 
         if self.dim > 1:
-            logger.debug("Filtering facets by pourbaix composition")
+            logger.debug("Filtering facets by Pourbaix composition")
             valid_facets = []
             for facet in facets:
                 comps = vecs[facet][:, 3:]
@@ -641,7 +638,7 @@ class PourbaixDiagram(MSONable):
 
     def _preprocess_pourbaix_entries(self, entries, nproc=None):
         """
-        Generates multi-entries for pourbaix diagram
+        Generates multi-entries for Pourbaix diagram
 
         Args:
             entries ([PourbaixEntry]): list of PourbaixEntries to preprocess
@@ -661,7 +658,7 @@ class PourbaixDiagram(MSONable):
         combos = []
         for facet in valid_facets:
             for i in range(1, self.dim + 2):
-                these_combos = list()
+                these_combos = []
                 for combo in itertools.combinations(facet, i):
                     these_entries = [min_entries[i] for i in combo]
                     these_combos.append(frozenset(these_entries))
@@ -680,11 +677,11 @@ class PourbaixDiagram(MSONable):
         if nproc is not None:
             f = partial(self.process_multientry, prod_comp=tot_comp)
             with Pool(nproc) as p:
-                multi_entries = list(PBar(p.imap(f, all_combos), total=len(all_combos)))
+                multi_entries = list(p.imap(f, all_combos))
             multi_entries = list(filter(bool, multi_entries))
         else:
             # Serial processing of multi-entry generation
-            for combo in PBar(all_combos):
+            for combo in all_combos:
                 multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
                 if multi_entry:
                     multi_entries.append(multi_entry)
@@ -700,7 +697,7 @@ class PourbaixDiagram(MSONable):
         from the initialized comp_dict.
 
         Args:
-            entries ([PourbaixEntries]): list of pourbaix entries
+            entries ([PourbaixEntries]): list of Pourbaix entries
                 to process into MultiEntries
             nproc (int): number of processes to be used in parallel
                 treatment of entry combos
@@ -717,17 +714,15 @@ class PourbaixDiagram(MSONable):
 
         # Generate and filter entries
         processed_entries = []
-        total = sum([comb(len(entries), j + 1) for j in range(N)])
+        total = sum(comb(len(entries), j + 1) for j in range(N))
         if total > 1e6:
-            warnings.warn(
-                "Your pourbaix diagram includes {} entries and may " "take a long time to generate.".format(total)
-            )
+            warnings.warn(f"Your Pourbaix diagram includes {total} entries and may take a long time to generate.")
 
         # Parallel processing of multi-entry generation
         if nproc is not None:
             f = partial(self.process_multientry, prod_comp=total_comp)
             with Pool(nproc) as p:
-                processed_entries = list(PBar(p.imap(f, entry_combos), total=total))
+                processed_entries = list(p.imap(f, entry_combos))
             processed_entries = list(filter(bool, processed_entries))
         # Serial processing of multi-entry generation
         else:
@@ -768,7 +763,7 @@ class PourbaixDiagram(MSONable):
             react_coeffs = [-rxn.get_coeff(comp) for comp in entry_comps]
             all_coeffs = react_coeffs + [rxn.get_coeff(prod_comp)]
 
-            # Check if reaction coeff threshold met for pourbaix compounds
+            # Check if reaction coeff threshold met for Pourbaix compounds
             # All reactant/product coefficients must be positive nonzero
             if all(coeff > coeff_threshold for coeff in all_coeffs):
                 return MultiEntry(entry_list, weights=react_coeffs)
@@ -780,7 +775,7 @@ class PourbaixDiagram(MSONable):
     @staticmethod
     def get_pourbaix_domains(pourbaix_entries, limits=None):
         """
-        Returns a set of pourbaix stable domains (i. e. polygons) in
+        Returns a set of Pourbaix stable domains (i. e. polygons) in
         pH-V space from a list of pourbaix_entries
 
         This function works by using scipy's HalfspaceIntersection
@@ -789,12 +784,12 @@ class PourbaixDiagram(MSONable):
         gibbs free energies as a function of pH and V. Hyperplanes
         of the form a*pH + b*V + 1 - g(0, 0) are constructed and
         supplied to HalfspaceIntersection, which then finds the
-        boundaries of each pourbaix region using the intersection
+        boundaries of each Pourbaix region using the intersection
         points.
 
         Args:
             pourbaix_entries ([PourbaixEntry]): Pourbaix entries
-                with which to construct stable pourbaix domains
+                with which to construct stable Pourbaix domains
             limits ([[float]]): limits in which to do the pourbaix
                 analysis
 
@@ -837,7 +832,7 @@ class PourbaixDiagram(MSONable):
                     this_entry = pourbaix_entries[v]
                     pourbaix_domains[this_entry].append(intersection)
 
-        # Remove entries with no pourbaix region
+        # Remove entries with no Pourbaix region
         pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
         pourbaix_domain_vertices = {}
 
@@ -853,7 +848,7 @@ class PourbaixDiagram(MSONable):
             points_centered = sorted(points_centered, key=cmp_to_key(lambda x, y: x[0] * y[1] - x[1] * y[0]))
             points = points_centered + center
 
-            # Create simplices corresponding to pourbaix boundary
+            # Create simplices corresponding to Pourbaix boundary
             simplices = [Simplex(points[indices]) for indices in ConvexHull(points).simplices]
             pourbaix_domains[entry] = simplices
             pourbaix_domain_vertices[entry] = points
@@ -886,7 +881,7 @@ class PourbaixDiagram(MSONable):
 
         Returns:
             Decomposition energy for the entry, i. e. the energy above
-                the "pourbaix hull" in eV/atom at the given conditions
+                the "Pourbaix hull" in eV/atom at the given conditions
         """
 
         # Check composition consistency between entry and Pourbaix diagram:
@@ -895,7 +890,7 @@ class PourbaixDiagram(MSONable):
             {elt: coeff for elt, coeff in entry.composition.items() if elt not in ELEMENTS_HO}
         ).fractional_composition
         if entry_pbx_comp != pbx_comp:
-            raise ValueError("Composition of stability entry does not match " "Pourbaix Diagram")
+            raise ValueError("Composition of stability entry does not match Pourbaix Diagram")
         entry_normalized_energy = entry.normalized_energy_at_conditions(pH, V)
         hull_energy = self.get_hull_energy(pH, V)
         decomposition_energy = entry_normalized_energy - hull_energy
@@ -907,15 +902,15 @@ class PourbaixDiagram(MSONable):
 
     def get_hull_energy(self, pH, V):
         """
-        Gets the minimum energy of the pourbaix "basin" that is formed
-        from the stable pourbaix planes.  Vectorized.
+        Gets the minimum energy of the Pourbaix "basin" that is formed
+        from the stable Pourbaix planes.  Vectorized.
 
         Args:
             pH (float or [float]): pH at which to find the hull energy
             V (float or [float]): V at which to find the hull energy
 
         Returns:
-            (float or [float]) minimum pourbaix energy at conditions
+            (float or [float]) minimum Pourbaix energy at conditions
 
         """
         all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
@@ -931,7 +926,7 @@ class PourbaixDiagram(MSONable):
             V (float): V at a given condition
 
         Returns:
-            (PourbaixEntry or MultiEntry): pourbaix or multi-entry
+            (PourbaixEntry or MultiEntry): Pourbaix or multi-entry
                 corresponding ot the minimum energy entry at a given
                 pH, V condition
 
@@ -956,7 +951,7 @@ class PourbaixDiagram(MSONable):
     @property
     def all_entries(self):
         """
-        Return all entries used to generate the pourbaix diagram
+        Return all entries used to generate the Pourbaix diagram
         """
         return self._processed_entries
 
@@ -1022,7 +1017,7 @@ class PourbaixPlotter:
 
     def show(self, *args, **kwargs):
         """
-        Shows the pourbaix plot
+        Shows the Pourbaix plot
 
         Args:
             *args: args to get_pourbaix_plot
@@ -1034,7 +1029,16 @@ class PourbaixPlotter:
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
 
-    def get_pourbaix_plot(self, limits=None, title="", label_domains=True, plt=None):
+    def get_pourbaix_plot(
+        self,
+        limits=None,
+        title="",
+        label_domains=True,
+        label_fontsize=20,
+        show_water_lines=True,
+        show_neutral_axes=True,
+        plt=None,
+    ):
         """
         Plot Pourbaix diagram.
 
@@ -1042,11 +1046,16 @@ class PourbaixPlotter:
             limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
             title (str): Title to display on plot
-            label_domains (bool): whether to label pourbaix domains
+            label_domains (bool): whether to label Pourbaix domains
+            label_fontsize: font size for domain labels
+            show_water_lines: whether to show dashed lines indicating the region
+                of water stability.
+            show_neutral_axes; whether to show dashed horizontal and vertical lines
+                at 0 V and pH 7, respectively.
             plt (pyplot): Pyplot instance for plotting
 
         Returns:
-            plt (pyplot) - matplotlib plot object with pourbaix diagram
+            plt (pyplot) - matplotlib plot object with Pourbaix diagram
         """
         if limits is None:
             limits = [[-2, 16], [-3, 3]]
@@ -1056,19 +1065,22 @@ class PourbaixPlotter:
         xlim = limits[0]
         ylim = limits[1]
 
-        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
-        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
-        neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
-        V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
-
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
         lw = 3
-        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
-        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
-        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
-        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
+
+        if show_water_lines:
+            h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
+            o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
+            plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
+            plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
+
+        if show_neutral_axes:
+            neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
+            V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
+            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
+            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
         for entry, vertices in self._pbx._stable_domain_vertices.items():
             center = np.average(vertices, axis=0)
@@ -1081,7 +1093,7 @@ class PourbaixPlotter:
                     center,
                     ha="center",
                     va="center",
-                    fontsize=20,
+                    fontsize=label_fontsize,
                     color="b",
                 ).draggable()
 
@@ -1132,7 +1144,7 @@ class PourbaixPlotter:
         # Plot stability map
         plt.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = plt.colorbar()
-        cbar.set_label("Stability of {} (eV/atom)".format(generate_entry_label(entry)))
+        cbar.set_label(f"Stability of {generate_entry_label(entry)} (eV/atom)")
 
         # Set ticklabels
         # ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
@@ -1156,7 +1168,7 @@ class PourbaixPlotter:
 
 def generate_entry_label(entry):
     """
-    Generates a label for the pourbaix plotter
+    Generates a label for the Pourbaix plotter
 
     Args:
         entry (PourbaixEntry or MultiEntry): entry to get a label for

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 # Credit to Dr. Shyue Ping Ong for the template of the calculator
@@ -12,7 +11,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import Dict, List, Tuple, cast, Union
+from typing import Dict, List, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -90,9 +89,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         wavelength_rel = (
             sc.h
             / np.sqrt(
-                2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c ** 2))
+                2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
             )
-            * (10 ** 10)
+            * (10**10)
         )
         return wavelength_rel
 
@@ -108,7 +107,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
-        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)
+        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
         points_matrix = (np.ravel(points[i]) for i in range(0, 3))
         result = np.vstack(list(points_matrix)).transpose()
         return result
@@ -129,7 +128,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if len(points) == 0:
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
-        result = points[filtered]
+        result = points[filtered]  # type: ignore
         result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
         return result_tuples
 
@@ -201,7 +200,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
             for plane in bragg_angles:
                 scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(
-                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None
+                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None  # type: ignore
                 )
                 scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom
@@ -398,25 +397,25 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         cos_beta_star = (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (np.sin(alpha) * np.sin(gamma))
         cos_gamma_star = (np.cos(alpha) * np.cos(beta) - np.cos(gamma)) / (np.sin(alpha) * np.sin(beta))
         r1_norm = np.sqrt(
-            p1[0] ** 2 * a_star ** 2
-            + p1[1] ** 2 * b_star ** 2
-            + p1[2] ** 2 * c_star ** 2
+            p1[0] ** 2 * a_star**2
+            + p1[1] ** 2 * b_star**2
+            + p1[2] ** 2 * c_star**2
             + 2 * p1[0] * p1[1] * a_star * b_star * cos_gamma_star
             + 2 * p1[0] * p1[2] * a_star * c_star * cos_beta_star
             + 2 * p1[1] * p1[2] * b_star * c_star * cos_gamma_star
         )
         r2_norm = np.sqrt(
-            p2[0] ** 2 * a_star ** 2
-            + p2[1] ** 2 * b_star ** 2
-            + p2[2] ** 2 * c_star ** 2
+            p2[0] ** 2 * a_star**2
+            + p2[1] ** 2 * b_star**2
+            + p2[2] ** 2 * c_star**2
             + 2 * p2[0] * p2[1] * a_star * b_star * cos_gamma_star
             + 2 * p2[0] * p2[2] * a_star * c_star * cos_beta_star
             + 2 * p2[1] * p2[2] * b_star * c_star * cos_gamma_star
         )
         r1_dot_r2 = (
-            p1[0] * p2[0] * a_star ** 2
-            + p1[1] * p2[1] * b_star ** 2
-            + p1[2] * p2[2] * c_star ** 2
+            p1[0] * p2[0] * a_star**2
+            + p1[1] * p2[1] * b_star**2
+            + p1[2] * p2[2] * c_star**2
             + (p1[0] * p2[1] + p2[0] * p1[1]) * a_star * b_star * cos_gamma_star
             + (p1[0] * p2[2] + p2[0] * p1[1]) * a_star * c_star * cos_beta_star
             + (p1[1] * p2[2] + p2[1] * p1[2]) * b_star * c_star * cos_alpha_star
@@ -460,9 +459,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points = self.zone_axis_filter(points)
         # first is the max_d, min_r
         first_point_dict = self.get_first_point(structure, points)
-        for point in first_point_dict:
+        for point, v in first_point_dict.items():
             first_point = point
-            first_d = first_point_dict[point]
+            first_d = v
         spacings = self.get_interplanar_spacings(structure, points)
         # second is the first non-parallel-to-first-point vector when sorted.
         # note 000 is "parallel" to every plane vector.
@@ -511,13 +510,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         bragg_angles = self.bragg_angles(interplanar_spacings)
         cell_intensity = self.normalized_cell_intensity(structure, bragg_angles)
         positions = self.get_positions(structure, points)
-        for plane in cell_intensity.keys():
+        for hkl, intensity in cell_intensity.items():
             dot = namedtuple("dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"])
-            position = positions[plane]
-            hkl = plane
-            intensity = cell_intensity[plane]
-            film_radius = 0.91 * (10 ** -3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
-            d_spacing = interplanar_spacings[plane]
+            position = positions[hkl]
+            film_radius = 0.91 * (10**-3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
+            d_spacing = interplanar_spacings[hkl]
             tem_dot = dot(position, hkl, intensity, film_radius, d_spacing)
             dots.append(tem_dot)
         return dots

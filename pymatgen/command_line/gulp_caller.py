@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 Interface with command line GULP.
@@ -246,12 +244,12 @@ class GulpIO:
 
     @staticmethod
     def keyword_line(*args):
-        r"""
+        """
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
-            \\*args: 1st line keywords
+            args: 1st line keywords
         """
         # if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
         #    raise GulpError("Wrong keywords given")
@@ -275,7 +273,7 @@ class GulpIO:
             structure: pymatgen Structure object
             cell_flg (default = True): Option to use lattice parameters.
             fractional_flg (default = True): If True, fractional coordinates
-                are used. Else, cartesian coodinates in Angstroms are used.
+                are used. Else, cartesian coordinates in Angstroms are used.
                 ******
                 GULP convention is to use fractional coordinates for periodic
                 structures and cartesian coordinates for non-periodic
@@ -295,7 +293,7 @@ class GulpIO:
         if cell_flg:
             gin += "cell\n"
             l = structure.lattice
-            lat_str = "{0:6f} {1:6f} {2:6f} {3:6f} {4:6f} {5:6f}".format(l.a, l.b, l.c, l.alpha, l.beta, l.gamma)
+            lat_str = f"{l.a:6f} {l.b:6f} {l.c:6f} {l.alpha:6f} {l.beta:6f} {l.gamma:6f}"
             gin += lat_str + "\n"
 
         if frac_flg:
@@ -322,14 +320,14 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        r"""
+        """
         Generates GULP input specie and potential string for pymatgen
         structure.
 
         Args:
             structure: pymatgen.core.structure.Structure object
             potential: String specifying the type of potential used
-            \\*\\*kwargs: Additional parameters related to potential. For
+            kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
                 anion_shell_flg (default = False):
                 If True, anions are considered polarizable.
@@ -344,7 +342,7 @@ class GulpIO:
             string containing specie and potential specification for gulp
             input.
         """
-        raise NotImplementedError("gulp_specie_potential not yet implemented." "\nUse library_line instead")
+        raise NotImplementedError("gulp_specie_potential not yet implemented.\nUse library_line instead")
 
     @staticmethod
     def library_line(file_name):
@@ -456,7 +454,7 @@ class GulpIO:
                 k = el + "_" + str(int(val_dict[key])) + "+"
                 if k not in bpl.species_dict.keys():
                     # use_lewis = False
-                    raise GulpError("Element {} not in library".format(k))
+                    raise GulpError(f"Element {k} not in library")
                 gin += "species\n"
                 gin += bpl.species_dict[k]
                 gin += "buckingham\n"
@@ -514,18 +512,18 @@ class GulpIO:
         gin = "species \n"
         qerfstring = "qerfc\n"
 
-        for key in el_val_dict.keys():
-            if key != "O" and el_val_dict[key] % 1 != 0:
+        for key, value in el_val_dict.items():
+            if key != "O" and value % 1 != 0:
                 raise SystemError("Oxide has mixed valence on metal")
-            specie_string = key + " core " + str(el_val_dict[key]) + "\n"
+            specie_string = key + " core " + str(value) + "\n"
             gin += specie_string
             qerfstring += key + " " + key + " 0.6000 10.0000 \n"
 
         gin += "# noelectrostatics \n Morse \n"
         met_oxi_ters = TersoffPotential().data
-        for key in el_val_dict.keys():
+        for key, value in el_val_dict.items():
             if key != "O":
-                metal = key + "(" + str(int(el_val_dict[key])) + ")"
+                metal = key + "(" + str(int(value)) + ")"
                 ters_pot_str = met_oxi_ters[metal]
                 gin += ters_pot_str
 
@@ -629,7 +627,7 @@ class GulpIO:
                     sp.append(fields[1])
                     coords.append(list(float(x) for x in fields[3:6]))
         else:
-            raise IOError("No structure found")
+            raise OSError("No structure found")
 
         if cell_param_lines:
             a = float(cell_param_lines[0].split()[1])
@@ -826,7 +824,7 @@ class BuckinghamPotential:
         """
         assert bush_lewis_flag in {"bush", "lewis"}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
-        with open(os.path.join(os.environ["GULP_LIB"], pot_file), "rt") as f:
+        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as f:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
@@ -898,8 +896,8 @@ class TersoffPotential:
         Init TersoffPotential
         """
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "OxideTersoffPotentials"), "r") as f:
-            data = dict()
+        with open(os.path.join(module_dir, "OxideTersoffPotentials")) as f:
+            data = {}
             for row in f:
                 metaloxi = row.split()[0]
                 line = row.split(")")

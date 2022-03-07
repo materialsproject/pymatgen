@@ -1,15 +1,13 @@
 #!/bin/bash
 #
-# An example hook script to verify what is about to be committed.
-# Called by "git commit" with no arguments.  The hook should
-# exit with non-zero status after issuing an appropriate message if
-# it wants to stop the commit.
-#
-# To enable this hook, rename this file to "pre-commit".
+# To use this pre-commit hook, copy this file to your .git/hooks directory.
+# It is always better to run the linters BEFORE you push to Github rather
+# than wait for Github to run the linters slowly.
+# You will need to install all the linters, which can be done using:
+# pip install -r requirements-dev.txt
 
-status=0
 files=$(git diff --diff-filter=d --cached --name-only | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | sed '/tests/d')
-files=`echo $files | tr '\n' ' '`
+files=$(echo "$files" | tr '\n' ' ')
 if [ "$files" != " " ]; then
     for cmd in mypy pydocstyle pylint black flake8
     do

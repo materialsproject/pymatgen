@@ -1,10 +1,12 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
-# cython: cdivision=True
+# cython: cdivision=False
 # cython: profile=True
 # cython: language_level=3
 # distutils: language = c
+# distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
+
 from __future__ import print_function
 
 import numpy as np
@@ -36,7 +38,9 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
     return ptr
 
 
-def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):
+def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
+                           float r, long[:] pbc, double[:, ::1] lattice,
+                           double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
     cutoff radius `r`. All the coordinates should be in cartesian.
@@ -48,11 +52,23 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         r: (float) cutoff radius
         pbc: (list of bool) whether to set periodic boundaries
         lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix
-        numerical_tol: (float) numerical tolerance
+        tol: (float) numerical tolerance
+        min_r: (float) minimal cutoff to calculate the neighbor list
+            directly. If the cutoff is less than this value, the algorithm
+            will calculate neighbor list using min_r as cutoff and discard
+            those that have larger distances.
     Returns:
         index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair
             offset_vectors are the periodic image offsets for the all_coords.
     """
+    if r < min_r:
+        findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
+            all_coords=all_coords, center_coords=center_coords,
+            r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+        mask = fdistances <= r
+        return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
+            mask]
+
     cdef int i, j, k, l, m, n
     cdef double maxr[3]
     # valid boundary, that is the minimum in center_coords - r
@@ -202,7 +218,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                 continue
             cube_index_temp = j
             link_index = head[cube_index_temp]
-            while (link_index != -1):
+            while link_index != -1:
                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
                 if d_temp2 < r2 + tol:
                     index_1[count] = i
@@ -375,7 +391,7 @@ cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):
     cdef int i, j
     for i in range(3):
         for j in range(3):
-            inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \
+            inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] -
                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
 
 cdef double matrix_det(double[:, ::1] matrix):

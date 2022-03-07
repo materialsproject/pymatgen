@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -18,10 +17,10 @@ import pandas as pd
 from monty.json import MSONable, jsanitize
 from monty.serialization import dumpfn
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "ncfrey"
@@ -200,7 +199,7 @@ class HeisenbergMapper:
         all_dists = []
 
         # Loop over unique sites and get neighbor distances up to NNNN
-        for k in unique_site_ids:
+        for k in unique_site_ids:  # pylint: disable=C0206
             i = k[0]
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
@@ -227,7 +226,7 @@ class HeisenbergMapper:
         dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
-        for k in unique_site_ids:
+        for k in unique_site_ids:  # pylint: disable=C0206
             i = k[0]
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
@@ -237,9 +236,9 @@ class HeisenbergMapper:
                 dist = round(cs[-1], 2)  # i_j distance
 
                 j = cs[2]  # j index
-                for key in unique_site_ids.keys():
+                for key, value in unique_site_ids.items():
                     if j in key:
-                        j_key = unique_site_ids[key]
+                        j_key = value
                 if abs(dist - dists["nn"]) <= tol:
                     nn_dict[i_key] = j_key
                 elif abs(dist - dists["nnn"]) <= tol:
@@ -313,9 +312,9 @@ class HeisenbergMapper:
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
                     s_i = sgraph.structure.site_properties["magmom"][i]
 
-                    for k in unique_site_ids.keys():
+                    for k, v in unique_site_ids.items():
                         if i in k:
-                            i_index = unique_site_ids[k]
+                            i_index = v
 
                     # Get all connections for ith site and compute |S_i . S_j|
                     connections = sgraph.get_connected_sites(i)
@@ -329,9 +328,9 @@ class HeisenbergMapper:
                         # s_j_sign = np.sign(sgraph.structure.site_properties['magmom'][j_site])
                         s_j = sgraph.structure.site_properties["magmom"][j_site]
 
-                        for k in unique_site_ids.keys():
+                        for k, v in unique_site_ids.items():
                             if j_site in k:
-                                j_index = unique_site_ids[k]
+                                j_index = v
 
                         # Determine order of connection
                         if abs(dist - dists["nn"]) <= tol:
@@ -401,7 +400,7 @@ class HeisenbergMapper:
             return ex_params
 
         # Solve eigenvalue problem for more than 1 NN interaction
-        H = ex_mat.loc[:, ex_mat.columns != "E"].values
+        H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype("float64")
         H_inv = np.linalg.inv(H)
         j_ij = np.dot(H_inv, E)
 
@@ -510,7 +509,7 @@ class HeisenbergMapper:
         # fm_e = fm_e / len(magmoms)
         # afm_e = afm_e / len(afm_magmoms)
 
-        m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
+        m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
 
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
@@ -522,7 +521,7 @@ class HeisenbergMapper:
             logging.warning(iamthedanger)
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        j_avg = delta_e / (m_avg ** 2)  # eV / magnetic ion
+        j_avg = delta_e / (m_avg**2)  # eV / magnetic ion
         j_avg *= 1000  # meV / ion
 
         return j_avg
@@ -635,11 +634,11 @@ class HeisenbergMapper:
         """
 
         # Get unique site identifiers
-        for k in self.unique_site_ids.keys():
+        for k, v in self.unique_site_ids.items():
             if i in k:
-                i_index = self.unique_site_ids[k]
+                i_index = v
             if j in k:
-                j_index = self.unique_site_ids[k]
+                j_index = v
 
         order = ""
 

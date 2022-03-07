@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,9 +7,6 @@ import unittest
 
 import numpy as np
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,
@@ -21,6 +17,9 @@ from pymatgen.analysis.structure_analyzer import (
     solid_angle,
     sulfide_type,
 )
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
@@ -132,7 +131,7 @@ class MiscFunctionTest(PymatgenTest):
         el_o = Element("O")
         latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
         elts = [el_li, el_li, el_o, el_o, el_o, el_o]
-        coords = list()
+        coords = []
         coords.append([0.500000, 0.500000, 0.500000])
         coords.append([0.0, 0.0, 0.0])
         coords.append([0.632568, 0.085090, 0.500000])

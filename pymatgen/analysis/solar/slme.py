@@ -5,7 +5,7 @@ Forked and adjusted from :
 https://github.com/usnistgov/jarvis
 
 References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
-            2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
+            2) https://doi.org/10.1103/PhysRevLett.108.068701
 """
 
 import os
@@ -13,7 +13,7 @@ from math import pi
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.constants as constants
+from scipy import constants
 from scipy.constants import physical_constants, speed_of_light
 from scipy.integrate import simps
 from scipy.interpolate import interp1d
@@ -107,7 +107,7 @@ def absorption_coefficient(dielectric):
             * pi
             * eV_to_recip_cm
             * energies_in_eV
-            * np.sqrt(-epsilon_1 + np.sqrt(epsilon_1 ** 2 + epsilon_2 ** 2))
+            * np.sqrt(-epsilon_1 + np.sqrt(epsilon_1**2 + epsilon_2**2))
         ),
     )
 
@@ -194,7 +194,7 @@ def slme(
     # calculation of blackbody irradiance spectra
     # units of W/(m**3), different than solar_spectra_irradiance!!! (This
     # is intentional, it is for convenience)
-    blackbody_irradiance = (2.0 * h * c ** 2 / (solar_spectra_wavelength_meters ** 5)) * (
+    blackbody_irradiance = (2.0 * h * c**2 / (solar_spectra_wavelength_meters**5)) * (
         1.0 / ((np.exp(h * c / (solar_spectra_wavelength_meters * k * temperature))) - 1.0)
     )
 
@@ -202,7 +202,7 @@ def slme(
     blackbody_photon_flux = blackbody_irradiance * (solar_spectra_wavelength_meters / (h * c))
 
     # units of nm
-    material_wavelength_for_absorbance_data = ((c * h_e) / (material_energy_for_absorbance_data + 0.00000001)) * 10 ** 9
+    material_wavelength_for_absorbance_data = ((c * h_e) / (material_energy_for_absorbance_data + 0.00000001)) * 10**9
 
     # absorbance interpolation onto each solar spectrum wavelength
 

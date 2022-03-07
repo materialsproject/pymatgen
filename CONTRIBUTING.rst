@@ -76,9 +76,9 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    pymatgen maintainers. They will pull your commits and run their own tests
    before releasing.
 
-"Work-in-progress" pull requests are encouraged, especially if this is your 
-first time contributing to pymatgen, and the maintainers will be happy to 
-help or provide code review as necessary. Put "[WIP]" in the title of your 
+"Work-in-progress" pull requests are encouraged, especially if this is your
+first time contributing to pymatgen, and the maintainers will be happy to
+help or provide code review as necessary. Put "[WIP]" in the title of your
 pull request to indicate it's not ready to be merged.
 
 Coding Guidelines
@@ -88,7 +88,7 @@ Given that pymatgen is intended to be long-term code base, we adopt very strict
 quality control and coding guidelines for all contributions to pymatgen. The
 following must be satisfied for your contributions to be accepted into pymatgen.
 
-1. **Unittests** are required for all new modules and methods. The only way to
+1. **Unit tests** are required for all new modules and methods. The only way to
    minimize code regression is to ensure that all code are well-tested. If the
    maintainer cannot test your code, the contribution will be rejected.
 2. **Python PEP 8** `code style <http://www.python.org/dev/peps/pep-0008/>`_.
@@ -99,11 +99,11 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    To aid you, you can copy the example pre-commit hook into your .git/hooks
    directly. This will automatically run pycodestyle and other linting services
    prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.
-3. **Python 3**. We only support Python 3.7+.
+3. **Python 3**. We only support Python 3.8+.
 4. **Documentation** required for all modules, classes and methods. In
-   particular, the method docstrings should make clear the arguments expected
+   particular, the method doc strings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
-   summary of the alogirthm should be provided, and preferably with a link to a
+   summary of the algorithm should be provided, and preferably with a link to a
    publication outlining the method in detail.
 5. **IDE**. We highly recommend the use of Pycharm. You should also set up
    pycodestyle and turn those on within the IDE setup. This will warn of any
@@ -116,10 +116,10 @@ examples of what is expected.
 A word on coding for Python 2 compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As of 2019, pymatgen no longer requires code to be Python 2 compatible, and 
-current versions of the code are not supported with Python 2. If you need a 
-version of pymatgen that works with Python 2, please use a version before 
-2018, but note this will be missing the latest bug fixes. This change follows 
+As of 2019, pymatgen no longer requires code to be Python 2 compatible, and
+current versions of the code are not supported with Python 2. If you need a
+version of pymatgen that works with Python 2, please use a version before
+2018, but note this will be missing the latest bug fixes. This change follows
 the broader Python community no longer supporting Python 2, including numpy.
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/

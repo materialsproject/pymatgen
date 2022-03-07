@@ -31,26 +31,15 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
 from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )
@@ -64,7 +53,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         os.makedirs("tmp_dir")
 
     def test_read_write_structure_environments(self):
-        f = open("{}/{}".format(json_files_dir, "test_T--4_FePO4_icsd_4266.json"), "r")
+        f = open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json")
         dd = json.load(f)
         f.close()
 
@@ -80,7 +69,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         json.dump(se.as_dict(), f)
         f.close()
 
-        f = open("tmp_dir/se.json", "r")
+        f = open("tmp_dir/se.json")
         dd = json.load(f)
         f.close()
 
@@ -97,7 +86,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         json.dump(lse.as_dict(), f)
         f.close()
 
-        f = open("tmp_dir/lse.json", "r")
+        f = open("tmp_dir/lse.json")
         dd = json.load(f)
         f.close()
 
@@ -106,7 +95,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertEqual(lse, lse2)
 
     def test_structure_environments_neighbors_sets(self):
-        f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
+        f = open(f"{se_files_dir}/se_mp-7000.json")
         dd = json.load(f)
         f.close()
 
@@ -191,7 +180,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         self.assertEqual(
             nb_set.__str__(),
-            "Neighbors Set for site #6 :\n" " - Coordination number : 4\n" " - Voronoi indices : 1, 4, 5, 6\n",
+            "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n",
         )
 
         self.assertFalse(nb_set.__ne__(nb_set))
@@ -284,7 +273,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertFalse(multi_weights_strategy_2 == multi_weights_strategy_3)
 
     def test_read_write_voronoi(self):
-        f = open("{}/{}".format(json_files_dir, "test_T--4_FePO4_icsd_4266.json"), "r")
+        f = open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json")
         dd = json.load(f)
         f.close()
 
@@ -298,7 +287,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         json.dump(detailed_voronoi_container.as_dict(), f)
         f.close()
 
-        f = open("tmp_dir/se.json", "r")
+        f = open("tmp_dir/se.json")
         dd = json.load(f)
         f.close()
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -31,117 +30,135 @@ class BatteryAnalyzer:
     A suite of methods for starting with an oxidized structure and determining its potential as a battery
     """
 
-    def __init__(self, struc_oxid, cation="Li"):
+    def __init__(self, struc_oxid, working_ion="Li", oxi_override={}):
         """
         Pass in a structure for analysis
 
         Arguments:
             struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
                 structures should be OK
-            cation: a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
+            working_ion: a String symbol or Element for the working ion.
+            oxy_override: a dict of String element symbol, Integer oxidation state pairs.
+                by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.
         """
         for site in struc_oxid:
             if not hasattr(site.specie, "oxi_state"):
                 raise ValueError("BatteryAnalyzer requires oxidation states assigned to structure!")
-
         self.struc_oxid = struc_oxid
+        self.oxi_override = oxi_override
         self.comp = self.struc_oxid.composition  # shortcut for later
 
-        if not isinstance(cation, Element):
-            self.cation = Element(cation)
-
-        self.cation_charge = self.cation.max_oxidation_state
-
-    @property
-    def max_cation_removal(self):
-        """
-        Maximum number of cation A that can be removed while maintaining charge-balance.
-
-        Returns:
-            integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
-        """
-
-        # how much 'spare charge' is left in the redox metals for oxidation?
-        oxid_pot = sum(
-            [
-                (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
-                for spec in self.comp
-                if is_redox_active_intercalation(Element(spec.symbol))
-            ]
-        )
-
-        oxid_limit = oxid_pot / self.cation_charge
-
-        # the number of A that exist in the structure for removal
-        num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
-
-        return min(oxid_limit, num_cation)
+        if not isinstance(working_ion, Element):
+            self.working_ion = Element(working_ion)
+        if self.working_ion.symbol in oxi_override:
+            self.working_ion_charge = oxi_override[self.working_ion.symbol]
+        elif self.working_ion.symbol in ["H", "C", "N", "O", "F", "S", "Cl", "Se", "Br", "Te", "I"]:
+            self.working_ion_charge = self.working_ion.min_oxidation_state
+        else:
+            self.working_ion_charge = self.working_ion.max_oxidation_state
 
     @property
-    def max_cation_insertion(self):
+    def max_ion_removal(self):
         """
-        Maximum number of cation A that can be inserted while maintaining charge-balance.
-        No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the
-        extra Li.
+        Maximum number of ion A that can be removed while maintaining charge-balance.
 
         Returns:
-            integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
+            integer amount of ion. Depends on cell size (this is an 'extrinsic' function!)
         """
 
-        # how much 'spare charge' is left in the redox metals for reduction?
-        lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
-        oxid_pot = sum(
-            [
+        # how much 'spare charge' is left in the redox metals for oxidation or reduction?
+        if self.working_ion_charge < 0:
+            lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
+            pot_sum = sum(
                 (
-                    spec.oxi_state
-                    - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])
+                    min(os for os in Element(spec.symbol).oxidation_states if os >= lowest_oxid[spec.symbol])
+                    - spec.oxi_state
                 )
                 * self.comp[spec]
                 for spec in self.comp
                 if is_redox_active_intercalation(Element(spec.symbol))
-            ]
-        )
+            )  # lowest oxidation state minus current state gives negative sum
+        else:
+            pot_sum = sum(
+                (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
+                for spec in self.comp
+                if is_redox_active_intercalation(Element(spec.symbol))
+            )  # highest oxidation state minus current state gives positive sum
+        redox_limit = pot_sum / self.working_ion_charge
 
-        return oxid_pot / self.cation_charge
+        # the number of A that exist in the structure for removal
+        num_working_ion = self.comp[Species(self.working_ion.symbol, self.working_ion_charge)]
+
+        return min(redox_limit, num_working_ion)
+
+    @property
+    def max_ion_insertion(self):
+        """
+        Maximum number of ion A that can be inserted while maintaining charge-balance.
+        No consideration is given to whether there (geometrically speaking) are ion sites to actually accommodate the
+        extra ions.
+
+        Returns:
+            integer amount of ion. Depends on cell size (this is an 'extrinsic' function!)
+        """
+        # how much 'spare charge' is left in the redox metals for oxidation or reduction?
+
+        if self.working_ion_charge < 0:
+            pot_sum = sum(
+                (spec.oxi_state - Element(spec.symbol).max_oxidation_state) * self.comp[spec]
+                for spec in self.comp
+                if is_redox_active_intercalation(Element(spec.symbol))
+            )  # current state minus highest state gives negative sum
+        else:
+            lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
+            pot_sum = sum(
+                (
+                    spec.oxi_state
+                    - min(os for os in Element(spec.symbol).oxidation_states if os >= lowest_oxid[spec.symbol])
+                )
+                * self.comp[spec]
+                for spec in self.comp
+                if is_redox_active_intercalation(Element(spec.symbol))
+            )  # current state minus lowest state gives positive sum
+        return pot_sum / self.working_ion_charge
 
     def _get_max_cap_ah(self, remove, insert):
         """
-        Give max capacity in mAh for inserting and removing a charged cation
+        Give max capacity in mAh for inserting and removing a charged ion
         This method does not normalize the capacity and intended as a helper method
         """
-        num_cations = 0
+        num_working_ions = 0
         if remove:
-            num_cations += self.max_cation_removal
+            num_working_ions += self.max_ion_removal
         if insert:
-            num_cations += self.max_cation_insertion
-
-        return num_cations * self.cation_charge * ELECTRON_TO_AMPERE_HOURS
+            num_working_ions += self.max_ion_insertion
+        return num_working_ions * abs(self.working_ion_charge) * ELECTRON_TO_AMPERE_HOURS
 
     def get_max_capgrav(self, remove=True, insert=True):
         """
-        Give max capacity in mAh/g for inserting and removing a charged cation
-        Note that the weight is normalized to the most lithiated state,
+        Give max capacity in mAh/g for inserting and removing a charged ion
+        Note that the weight is normalized to the most ion-packed state,
         thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.
 
         Args:
-            remove: (bool) whether to allow cation removal
-            insert: (bool) whether to allow cation insertion
+            remove: (bool) whether to allow ion removal
+            insert: (bool) whether to allow ion insertion
 
         Returns:
             max grav capacity in mAh/g
         """
         weight = self.comp.weight
         if insert:
-            weight += self.max_cation_insertion * self.cation.atomic_mass
+            weight += self.max_ion_insertion * self.working_ion.atomic_mass
         return self._get_max_cap_ah(remove, insert) / (weight / 1000)
 
     def get_max_capvol(self, remove=True, insert=True, volume=None):
         """
-        Give max capacity in mAh/cc for inserting and removing a charged cation into base structure.
+        Give max capacity in mAh/cc for inserting and removing a charged ion into base structure.
 
         Args:
-            remove: (bool) whether to allow cation removal
-            insert: (bool) whether to allow cation insertion
+            remove: (bool) whether to allow ion removal
+            insert: (bool) whether to allow ion insertion
             volume: (float) volume to use for normalization (default=volume of initial structure)
 
         Returns:
@@ -153,7 +170,7 @@ class BatteryAnalyzer:
 
     def get_removals_int_oxid(self):
         """
-        Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. in order to
+        Returns a set of ion removal steps, e.g. set([1.0 2.0 4.0]) etc. in order to
         produce integer oxidation states of the redox metals.
         If multiple redox metals are present, all combinations of reduction/oxidation are tested.
         Note that having more than 3 redox metals will likely slow down the algorithm.
@@ -164,61 +181,69 @@ class BatteryAnalyzer:
             Li6V4(PO4)6 will return [4.0, 6.0])  *note that this example is not normalized*
 
         Returns:
-            array of integer cation removals. If you double the unit cell, your answers will be twice as large!
+            array of integer ion removals. If you double the unit cell, your answers will be twice as large!
         """
 
-        # the elements that can possibly be oxidized
+        # the elements that can possibly be oxidized or reduced
         oxid_els = [Element(spec.symbol) for spec in self.comp if is_redox_active_intercalation(spec)]
 
         numa = set()
         for oxid_el in oxid_els:
             numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
-
         # convert from num A in structure to num A removed
-        num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
-        return {num_cation - a for a in numa}
+        num_working_ion = self.comp[Species(self.working_ion.symbol, self.working_ion_charge)]
+        return {num_working_ion - a for a in numa}
 
-    def _get_int_removals_helper(self, spec_amts_oxi, oxid_el, oxid_els, numa):
+    def _get_int_removals_helper(self, spec_amts_oxi, redox_el, redox_els, numa):
         """
         This is a helper method for get_removals_int_oxid!
 
         Args:
             spec_amts_oxi - a dict of species to their amounts in the structure
-            oxid_el - the element to oxidize
-            oxid_els - the full list of elements that might be oxidized
-            numa - a running set of numbers of A cation at integer oxidation steps
+            redox_el - the element to oxidize or reduce
+            redox_els - the full list of elements that might be oxidized or reduced
+            numa - a running set of numbers of A ion at integer oxidation steps
         Returns:
             a set of numbers A; steps for for oxidizing oxid_el first, then the other oxid_els in this list
         """
 
-        # If Mn is the oxid_el, we have a mixture of Mn2+, Mn3+, determine the minimum oxidation state for Mn
-        # this is the state we want to oxidize!
-        oxid_old = min([spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol])
-        oxid_new = math.floor(oxid_old + 1)
-        # if this is not a valid solution, break out of here and don't add anything to the list
-        if oxid_new > oxid_el.max_oxidation_state:
-            return numa
-
-        # update the spec_amts_oxi map to reflect that the oxidation took place
-        spec_old = Species(oxid_el.symbol, oxid_old)
-        spec_new = Species(oxid_el.symbol, oxid_new)
+        # If a given redox_el has multiple oxidation states present in the structure, we want
+        # to oxidize the lowest state or reduce the highest state
+        if self.working_ion_charge < 0:
+            oxid_old = max(spec.oxi_state for spec in spec_amts_oxi if spec.symbol == redox_el.symbol)
+            oxid_new = math.ceil(oxid_old - 1)
+            lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})
+            # if this is not a valid solution, break out of here and don't add anything to the list
+            if oxid_new < min(
+                os for os in Element(redox_el.symbol).oxidation_states if os >= lowest_oxid[redox_el.symbol]
+            ):
+                return numa
+        else:
+            oxid_old = min(spec.oxi_state for spec in spec_amts_oxi if spec.symbol == redox_el.symbol)
+            oxid_new = math.floor(oxid_old + 1)
+            # if this is not a valid solution, break out of here and don't add anything to the list
+            if oxid_new > redox_el.max_oxidation_state:
+                return numa
+        # update the spec_amts_oxi map to reflect that the redox took place
+        spec_old = Species(redox_el.symbol, oxid_old)
+        spec_new = Species(redox_el.symbol, oxid_new)
         specamt = spec_amts_oxi[spec_old]
         spec_amts_oxi = {sp: amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
         spec_amts_oxi[spec_new] = specamt
         spec_amts_oxi = Composition(spec_amts_oxi)
 
-        # determine the amount of cation A in the structure needed for charge balance and add it to the list
+        # determine the amount of ion A in the structure needed for charge balance and add it to the list
         oxi_noA = sum(
-            [spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol]
+            spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.working_ion.symbol
         )
-        a = max(0, -oxi_noA / self.cation_charge)
+        a = max(0, -oxi_noA / self.working_ion_charge)
         numa = numa.union({a})
 
         # recursively try the other oxidation states
         if a == 0:
             return numa
-        for ox in oxid_els:
-            numa = numa.union(self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa))
+        for red in redox_els:
+            numa = numa.union(self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, numa))
         return numa
 
 

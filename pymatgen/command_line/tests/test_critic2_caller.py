@@ -1,12 +1,11 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import os
 import unittest
+from shutil import which
 
-from monty.os.path import which
-
-from pymatgen.command_line.critic2_caller import *
+from pymatgen.command_line.critic2_caller import Critic2Analysis, Critic2Caller
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
@@ -62,11 +61,8 @@ class Critic2CallerTest(unittest.TestCase):
         # uses promolecular density
         structure = Structure.from_file(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/critic2/MoS2.cif",
+                PymatgenTest.TEST_FILES_DIR,
+                "critic2/MoS2.cif",
             )
         )
 
@@ -82,9 +78,9 @@ class Critic2AnalysisTest(unittest.TestCase):
     def setUp(self):
         stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
         stdout_file_new_format = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout_new_format.txt")
-        with open(stdout_file, "r") as f:
+        with open(stdout_file) as f:
             reference_stdout = f.read()
-        with open(stdout_file_new_format, "r") as f:
+        with open(stdout_file_new_format) as f:
             reference_stdout_new_format = f.read()
 
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif"))

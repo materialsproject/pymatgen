@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module contains the definition of some objects used in the chemenv package.
@@ -20,11 +18,16 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
 )
 
 STATS_ENV_PAPER = (
-    "David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,\n"
-    "Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,\n"
+    "D. Waroquiers, X. Gonze, G.-M. Rignanese, C. Welker-Nieuwoudt, F. Rosowski,\n"
+    "M. Goebel, S. Schenk, P. Degelmann, R. Andre, R. Glaum, and G. Hautier,\n"
     '"Statistical analysis of coordination environments in oxides",\n'
     "Chem. Mater., 2017, 29 (19), pp 8346-8360,\n"
     "DOI: 10.1021/acs.chemmater.7b02766\n"
+    "\n"
+    "D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier,\n"
+    '"ChemEnv: a fast and robust coordination environment identification tool",\n'
+    "Acta Cryst. B 2020, 76, pp 683–695\n."
+    "DOI: 10.1107/S2052520620007994\n"
 )
 
 

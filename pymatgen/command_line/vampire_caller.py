@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -19,11 +18,11 @@ and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 
 import logging
 import subprocess
+from shutil import which
 
 import pandas as pd
 from monty.dev import requires
 from monty.json import MSONable
-from monty.os.path import which
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
@@ -147,7 +146,7 @@ class VampireCaller:
                 logging.warning(vanhelsing)
 
         if process.returncode != 0:
-            raise RuntimeError("Vampire exited with return code {}.".format(process.returncode))
+            raise RuntimeError(f"Vampire exited with return code {process.returncode}.")
 
         self._stdout = stdout
         self._stderr = stderr
@@ -203,7 +202,7 @@ class VampireCaller:
             if spin_up and spin_down:
                 nmats += 1
 
-        mat_file = ["material:num-materials=%d" % (nmats)]
+        mat_file = [f"material:num-materials={nmats}"]
 
         for key in self.unique_site_ids:
             i = self.unique_site_ids[key]  # unique site id
@@ -221,12 +220,12 @@ class VampireCaller:
 
                 atom = structure[i].species.reduced_formula
 
-                mat_file += ["material[%d]:material-element=%s" % (mat_id, atom)]
+                mat_file += [f"material[{mat_id}]:material-element={atom}"]
                 mat_file += [
-                    "material[%d]:damping-constant=1.0" % (mat_id),
-                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24" % (mat_id),  # xx - do we need this?
-                    "material[%d]:atomic-spin-moment=%.2f !muB" % (mat_id, m_magnitude),
-                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin),
+                    f"material[{mat_id}]:damping-constant=1.0",
+                    f"material[{mat_id}]:uniaxial-anisotropy-constant=1.0e-24",  # xx - do we need this?
+                    f"material[{mat_id}]:atomic-spin-moment={m_magnitude:.2f} !muB",
+                    f"material[{mat_id}]:initial-spin-direction=0,0,{spin}",
                 ]
 
         mat_file = "\n".join(mat_file)
@@ -245,8 +244,8 @@ class VampireCaller:
         mc_timesteps = self.mc_timesteps
         mat_name = self.mat_name
 
-        input_script = ["material:unit-cell-file=%s.ucf" % (mat_name)]
-        input_script += ["material:file=%s.mat" % (mat_name)]
+        input_script = [f"material:unit-cell-file={mat_name}.ucf"]
+        input_script += [f"material:file={mat_name}.mat"]
 
         # Specify periodic boundary conditions
         input_script += [
@@ -259,15 +258,15 @@ class VampireCaller:
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
 
-        input_script += ["dimensions:unit-cell-size-x = %.10f !A" % (ucx)]
-        input_script += ["dimensions:unit-cell-size-y = %.10f !A" % (ucy)]
-        input_script += ["dimensions:unit-cell-size-z = %.10f !A" % (ucz)]
+        input_script += [f"dimensions:unit-cell-size-x = {ucx:.10f} !A"]
+        input_script += [f"dimensions:unit-cell-size-y = {ucy:.10f} !A"]
+        input_script += [f"dimensions:unit-cell-size-z = {ucz:.10f} !A"]
 
         # System size in nm
         input_script += [
-            "dimensions:system-size-x = %.1f !nm" % (mcbs),
-            "dimensions:system-size-y = %.1f !nm" % (mcbs),
-            "dimensions:system-size-z = %.1f !nm" % (mcbs),
+            f"dimensions:system-size-x = {mcbs:.1f} !nm",
+            f"dimensions:system-size-y = {mcbs:.1f} !nm",
+            f"dimensions:system-size-z = {mcbs:.1f} !nm",
         ]
 
         # Critical temperature Monte Carlo calculation
@@ -278,8 +277,8 @@ class VampireCaller:
 
         # Default Monte Carlo params
         input_script += [
-            "sim:equilibration-time-steps = %d" % (equil_timesteps),
-            "sim:loop-time-steps = %d" % (mc_timesteps),
+            f"sim:equilibration-time-steps = {equil_timesteps}",
+            f"sim:loop-time-steps = {mc_timesteps}",
             "sim:time-steps-increment = 1",
         ]
 
@@ -300,9 +299,9 @@ class VampireCaller:
             temp_increment = 25
 
         input_script += [
-            "sim:minimum-temperature = %d" % (start_t),
-            "sim:maximum-temperature = %d" % (end_t),
-            "sim:temperature-increment = %d" % (temp_increment),
+            f"sim:minimum-temperature = {start_t}",
+            f"sim:maximum-temperature = {end_t}",
+            f"sim:temperature-increment = {temp_increment}",
         ]
 
         # Output to save
@@ -327,26 +326,26 @@ class VampireCaller:
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
 
         ucf = ["# Unit cell size:"]
-        ucf += ["%.10f %.10f %.10f" % (ucx, ucy, ucz)]
+        ucf += [f"{ucx:.10f} {ucy:.10f} {ucz:.10f}"]
 
         ucf += ["# Unit cell lattice vectors:"]
         a1 = list(structure.lattice.matrix[0])
-        ucf += ["%.10f %.10f %.10f" % (a1[0], a1[1], a1[2])]
+        ucf += [f"{a1[0]:.10f} {a1[1]:.10f} {a1[2]:.10f}"]
         a2 = list(structure.lattice.matrix[1])
-        ucf += ["%.10f %.10f %.10f" % (a2[0], a2[1], a2[2])]
+        ucf += [f"{a2[0]:.10f} {a2[1]:.10f} {a2[2]:.10f}"]
         a3 = list(structure.lattice.matrix[2])
-        ucf += ["%.10f %.10f %.10f" % (a3[0], a3[1], a3[2])]
+        ucf += [f"{a3[0]:.10f} {a3[1]:.10f} {a3[2]:.10f}"]
 
         nmats = max(self.mat_id_dict.values())
 
         ucf += ["# Atoms num_materials; id cx cy cz mat cat hcat"]
-        ucf += ["%d %d" % (len(structure), nmats)]
+        ucf += [f"{len(structure)} {nmats}"]
 
         # Fractional coordinates of atoms
         for site, r in enumerate(structure.frac_coords):
             # Back to 0 indexing for some reason...
             mat_id = self.mat_id_dict[site] - 1
-            ucf += ["%d %.10f %.10f %.10f %d 0 0" % (site, r[0], r[1], r[2], mat_id)]
+            ucf += [f"{site} {r[0]:.10f} {r[1]:.10f} {r[2]:.10f} {mat_id} 0 0"]
 
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
@@ -355,7 +354,7 @@ class VampireCaller:
             ninter += sgraph.get_coordination_of_site(i)
 
         ucf += ["# Interactions"]
-        ucf += ["%d isotropic" % (ninter)]
+        ucf += [f"{ninter} isotropic"]
 
         iid = 0  # counts number of interaction
         for i, node in enumerate(sgraph.graph.nodes):
@@ -379,7 +378,7 @@ class VampireCaller:
 
                 j_exc = str(j_exc)  # otherwise this rounds to 0
 
-                ucf += ["%d %d %d %d %d %d %s" % (iid, i, j, dx, dy, dz, j_exc)]
+                ucf += [f"{iid} {i} {j} {dx} {dy} {dz} {j_exc}"]
                 iid += 1
 
         ucf = "\n".join(ucf)

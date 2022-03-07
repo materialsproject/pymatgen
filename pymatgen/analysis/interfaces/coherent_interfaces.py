@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -16,7 +15,6 @@ from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
 from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
-
 
 Vector3D = Tuple[float, float, float]
 Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]

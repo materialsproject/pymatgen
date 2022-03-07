@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -173,7 +172,7 @@ class BondDissociationEnergies(MSONable):
                     if len(good_entries) == 0:
                         bb = BabelMolAdaptor.from_molecule_graph(RO_frag)
                         pbmol = bb.pybel_mol
-                        smiles = pbmol.write(str("smi")).split()[0]
+                        smiles = pbmol.write("smi").split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
                         print(
                             "Missing ring opening fragment resulting from the breakage of "
@@ -188,7 +187,7 @@ class BondDissociationEnergies(MSONable):
                             + smiles
                         )
                     elif len(good_entries) == 1:
-                        # If we have only one good entry, format it and addd it to the list that will eventually return:
+                        # If we have only one good entry, format it and add it to the list that will eventually return:
                         self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
                     else:
                         # We shouldn't ever encounter more than one good entry.
@@ -231,14 +230,14 @@ class BondDissociationEnergies(MSONable):
                 if len(frag1_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[0].molecule)
                     pbmol = bb.pybel_mol
-                    smiles = pbmol.write(str("smi")).split()[0]
+                    smiles = pbmol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
                             print("Missing charge " + str(charge) + " for fragment " + smiles)
                 if len(frag2_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[1].molecule)
                     pbmol = bb.pybel_mol
-                    smiles = pbmol.write(str("smi")).split()[0]
+                    smiles = pbmol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
                             print("Missing charge " + str(charge) + " for fragment " + smiles)
@@ -276,7 +275,7 @@ class BondDissociationEnergies(MSONable):
         """
         Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final molgraphs are isomorphic to the
-        given fragment (entries) vs those where only the intial molgraph is isomorphic to the given
+        given fragment (entries) vs those where only the initial molgraph is isomorphic to the given
         fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries)
 
         Args:
@@ -327,7 +326,7 @@ class BondDissociationEnergies(MSONable):
             entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["final_molecule"]), OpenBabelNN()
             )
-            # Classify any potential structural change that occured during optimization:
+            # Classify any potential structural change that occurred during optimization:
             if entry["initial_molgraph"].isomorphic_to(entry["final_molgraph"]):
                 entry["structure_change"] = "no_change"
             else:
