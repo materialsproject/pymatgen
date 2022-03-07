@@ -205,21 +205,6 @@ class Cp2kInputSet(Cp2kInput):
                 kind, alias=k, basis_set=basis_set, potential=potential, subsections={"BS": bs} if bs else {}, **kwargs
             )
 
-            if SETTINGS.get(kind, {}).get("dft_plus_u"):
-                # TODO this could be improved...
-                if "O" in self.structure.composition.get_el_amt_dict().keys():
-                    if SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"] > 0:
-                        dft_plus_u = Section(
-                            "DFT_PLUS_U",
-                            keywords={
-                                "U_MINUS_J": Keyword(
-                                    "U_MINUS_J", SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"], units="eV"
-                                ),
-                                "L": Keyword("L", SETTINGS[kind]["dft_plus_u"]["L"]),
-                            },
-                        )
-                        _kind.insert(dft_plus_u)
-
             subsys.insert(_kind)
 
         coord = Coord(structure, aliases=unique_kinds)
