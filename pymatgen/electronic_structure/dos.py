@@ -242,7 +242,7 @@ class Dos(MSONable):
             smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
         return smeared_dens
 
-    def get_convolved_densities(self, window_width: float):
+    def get_convolved_densities(self, window_width: int):
         """
         Returns the Dict representation of the densities, {Spin: densities},
         but with a convolution applied such that the data within window_width is
@@ -835,7 +835,7 @@ class CompleteDos(Dos):
     def get_band_filling(
         self,
         element: SpeciesLike = None,
-        site: List[PeriodicSite] = None,
+        site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin = None,
     ) -> float:
@@ -853,7 +853,7 @@ class CompleteDos(Dos):
             band filling in eV, often denoted f_d for the d-band
         """
         band_filling = self.get_n_moment(
-            0, el=element, site=site, band=band, spin=spin, erange=[-np.inf, self.efermi], center=False
+            0, element=element, site=site, band=band, spin=spin, erange=[-np.inf, self.efermi], center=False
         )
 
         return band_filling
@@ -861,7 +861,7 @@ class CompleteDos(Dos):
     def get_band_center(
         self,
         element: SpeciesLike = None,
-        site: List[PeriodicSite] = None,
+        site: PeriodicSite = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
@@ -886,7 +886,9 @@ class CompleteDos(Dos):
         Returns:
             band center in eV, often denoted epsilon_d for the d-band center
         """
-        band_center = self.get_n_moment(1, el=element, site=site, band=band, spin=spin, erange=erange, center=False)
+        band_center = self.get_n_moment(
+            1, element=element, site=site, band=band, spin=spin, erange=erange, center=False
+        )
 
         return band_center
 
@@ -916,7 +918,7 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected bandwidth in eV
         """
-        bandwidth = np.sqrt(self.get_n_moment(2, el=element, site=site, band=band, spin=spin, erange=erange))
+        bandwidth = np.sqrt(self.get_n_moment(2, element=element, site=site, band=band, spin=spin, erange=erange))
 
         return bandwidth
 
@@ -949,9 +951,9 @@ class CompleteDos(Dos):
             Orbital-projected bandwidth in eV
         """
 
-        skewness = self.get_n_moment(3, el=element, site=site, band=band, spin=spin, erange=erange) / self.get_n_moment(
-            2, el=element, site=site, band=band, spin=spin, erange=erange
-        ) ** (3 / 2)
+        skewness = self.get_n_moment(
+            3, element=element, site=site, band=band, spin=spin, erange=erange
+        ) / self.get_n_moment(2, element=element, site=site, band=band, spin=spin, erange=erange) ** (3 / 2)
 
         return skewness
 
@@ -985,8 +987,8 @@ class CompleteDos(Dos):
         """
 
         kurtosis = (
-            self.get_n_moment(4, el=element, site=site, band=band, spin=spin, erange=erange)
-            / self.get_n_moment(2, el=element, site=site, band=band, spin=spin, erange=erange) ** 2
+            self.get_n_moment(4, element=element, site=site, band=band, spin=spin, erange=erange)
+            / self.get_n_moment(2, element=element, site=site, band=band, spin=spin, erange=erange) ** 2
         )
 
         return kurtosis
@@ -1040,7 +1042,7 @@ class CompleteDos(Dos):
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
         # Get the orbital-projected band center
-        band_center = self.get_band_center(el=element, site=site, band=band, spin=spin, erange=erange)
+        band_center = self.get_band_center(element=element, site=site, band=band, spin=spin, erange=erange)
 
         # Center the energies about the band center if requested
         if center:
@@ -1115,7 +1117,7 @@ class CompleteDos(Dos):
             raise ValueError("Both element and site cannot be specified.")
 
         # Get the Hilbert-transformed DOS
-        transformed_dos = self.get_hilbert_transform(el=element, site=site, band=band)
+        transformed_dos = self.get_hilbert_transform(element=element, site=site, band=band)
 
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
