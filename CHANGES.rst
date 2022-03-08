@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v2022.2.25
-----------
+v2022.3.7
+---------
 
 * Add VASP WSWQ file parsing, PR #2439 from @jmmshn
 * Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
@@ -13,6 +13,9 @@ v2022.2.25
 * Update to ChemEnv citation, PR #2448 from @JaGeo
 * Type annotation fix, PR #2432 from @janosh
 * Documentation fix for Structure.apply_operation, PR #2433 from @janosh
+* Add caching to compatibility classes as speed optimization, PR #2450 from @munrojm
+
+This release was previously intended for v2022.2.25. 
 
 Important note: an update to a library that pymatgen depends upon has led to the
 ~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
