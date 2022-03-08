@@ -834,9 +834,9 @@ class CompleteDos(Dos):
 
     def get_band_filling(
         self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
     ) -> float:
         """
@@ -844,25 +844,25 @@ class CompleteDos(Dos):
         up to the Fermi level
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
 
         Returns:
             band filling in eV, often denoted f_d for the d-band
         """
         band_filling = self.get_n_moment(
-            0, element=element, site=site, band=band, spin=spin, erange=[-np.inf, self.efermi], center=False
+            0, elements=elements, sites=sites, band=band, spin=spin, erange=[-np.inf, self.efermi], center=False
         )
 
         return band_filling
 
     def get_band_center(
         self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
@@ -876,9 +876,9 @@ class CompleteDos(Dos):
         is often highly sensitive to the selected erange.
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -887,16 +887,16 @@ class CompleteDos(Dos):
             band center in eV, often denoted epsilon_d for the d-band center
         """
         band_center = self.get_n_moment(
-            1, element=element, site=site, band=band, spin=spin, erange=erange, center=False
+            1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False
         )
 
         return band_center
 
     def get_band_width(
         self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
@@ -908,9 +908,9 @@ class CompleteDos(Dos):
         Note that the bandwidth is often highly sensitive to the selected erange.
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -918,15 +918,15 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected bandwidth in eV
         """
-        bandwidth = np.sqrt(self.get_n_moment(2, element=element, site=site, band=band, spin=spin, erange=erange))
+        bandwidth = np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
         return bandwidth
 
     def get_band_skewness(
         self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
@@ -940,9 +940,9 @@ class CompleteDos(Dos):
         Note that the skewness is often highly sensitive to the selected erange.
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbitals to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -952,16 +952,16 @@ class CompleteDos(Dos):
         """
 
         skewness = self.get_n_moment(
-            3, element=element, site=site, band=band, spin=spin, erange=erange
-        ) / self.get_n_moment(2, element=element, site=site, band=band, spin=spin, erange=erange) ** (3 / 2)
+            3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
+        ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
 
         return skewness
 
     def get_band_kurtosis(
         self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
@@ -975,9 +975,9 @@ class CompleteDos(Dos):
         Note that the skewness is often highly sensitive to the selected erange.
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -987,8 +987,8 @@ class CompleteDos(Dos):
         """
 
         kurtosis = (
-            self.get_n_moment(4, element=element, site=site, band=band, spin=spin, erange=erange)
-            / self.get_n_moment(2, element=element, site=site, band=band, spin=spin, erange=erange) ** 2
+            self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+            / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
         )
 
         return kurtosis
@@ -996,9 +996,9 @@ class CompleteDos(Dos):
     def get_n_moment(
         self,
         n: int,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
         center: bool = True,
@@ -1012,9 +1012,9 @@ class CompleteDos(Dos):
 
         Args:
             n: The order for the moment
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -1024,12 +1024,24 @@ class CompleteDos(Dos):
             Orbital-projected nth moment in eV
         """
         # Get the projected DOS
-        if element and site:
+        if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
-        if element:
-            dos = self.get_element_spd_dos(element)[band]
-        elif site:
-            dos = self.get_site_spd_dos(site)[band]
+
+        densities = None
+        if elements:
+            if not isinstance(elements, list):
+                elements = [elements]
+            for el in elements:
+                spd_dos = self.get_element_spd_dos(el)[band]
+                densities = add_densities(densities, spd_dos.densities) if densities else spd_dos.densities
+            dos = Dos(self.efermi, self.energies, densities)
+        elif sites:
+            if not isinstance(sites, list):
+                sites = [sites]
+            for site in sites:
+                spd_dos = self.get_site_spd_dos(site)[band]
+                densities = add_densities(densities, dos.densities) if densities else spd_dos.densities
+            dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
 
@@ -1037,15 +1049,14 @@ class CompleteDos(Dos):
         densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
+        energies = dos.energies - dos.efermi
         if erange:
             densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
-        # Get the orbital-projected band center
-        band_center = self.get_band_center(element=element, site=site, band=band, spin=spin, erange=erange)
-
         # Center the energies about the band center if requested
         if center:
+            band_center = self.get_band_center(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
             p = energies - band_center
         else:
             p = energies
@@ -1056,27 +1067,42 @@ class CompleteDos(Dos):
         return nth_moment
 
     def get_hilbert_transform(
-        self, element: SpeciesLike = None, site: PeriodicSite = None, band: OrbitalType = OrbitalType.d
+        self,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
     ) -> Dos:
         """
         Returns the Hilbert transform of the orbital-projected density of states,
         often plotted for a Newns-Anderson analysis.
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbitals to get the band center of (default is d-band)
 
         Returns:
             Hilbert transformation of the projected DOS.
         """
         # Get the projected DOS
-        if element and site:
-            raise ValueError("Both el and site cannot be specified.")
-        if element:
-            dos = self.get_element_spd_dos(element)[band]
-        elif site:
-            dos = self.get_site_spd_dos(site)[band]
+        if elements and sites:
+            raise ValueError("Both element and site cannot be specified.")
+
+        densities = None
+        if elements:
+            if not isinstance(elements, list):
+                elements = [elements]
+            for el in elements:
+                spd_dos = self.get_element_spd_dos(el)[band]
+                densities = add_densities(densities, spd_dos.densities) if densities else spd_dos.densities
+            dos = Dos(self.efermi, self.energies, densities)
+        elif sites:
+            if not isinstance(sites, list):
+                sites = [sites]
+            for site in sites:
+                spd_dos = self.get_site_spd_dos(site)[band]
+                densities = add_densities(densities, dos.densities) if densities else spd_dos.densities
+            dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
 
@@ -1089,9 +1115,9 @@ class CompleteDos(Dos):
 
     def get_upper_band_edge(
         self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
+        elements: SpeciesLike | List[SpeciesLike] = None,
+        sites: PeriodicSite | List[PeriodicSite] = None,
+        band: OrbitalType | List[OrbitalType] = OrbitalType.d,
         spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
@@ -1101,9 +1127,9 @@ class CompleteDos(Dos):
         Hilbert transform of the orbital-projected DOS.
 
         Args:
-            element: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
+            elements: Elements to get the band center of (cannot be used in conjunction with site)
+            sites: Sites to get the band center of (cannot be used in conjunction with el)
+            band: Orbitals to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -1112,12 +1138,8 @@ class CompleteDos(Dos):
             Upper band edge in eV, often denoted epsilon_u
 
         """
-        # Get the projected DOS
-        if element and site:
-            raise ValueError("Both element and site cannot be specified.")
-
         # Get the Hilbert-transformed DOS
-        transformed_dos = self.get_hilbert_transform(element=element, site=site, band=band)
+        transformed_dos = self.get_hilbert_transform(elements=elements, sites=sites, band=band)
 
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
