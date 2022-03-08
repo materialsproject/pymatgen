@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v2022.2.25
-----------
+v2022.3.7
+---------
 
 * Add VASP WSWQ file parsing, PR #2439 from @jmmshn
 * Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
