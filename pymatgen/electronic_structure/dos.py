@@ -832,53 +832,6 @@ class CompleteDos(Dos):
 
         return abs(spin_polarization)
 
-    def get_num_states(
-        self,
-        element: SpeciesLike = None,
-        site: PeriodicSite = None,
-        band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
-        erange: List[float] = None,
-    ) -> float:
-        """
-        Get the number of states defined as:
-            int_{-inf}^{+inf} rho(E) dE
-        where the limits of the integration can be modified by erange, and E is the set of
-        energies taken with respect to the Fermi level.
-
-        Args:
-            el: Element to get the band center of (cannot be used in conjunction with site)
-            site: Site to get the band center of (cannot be used in conjunction with el)
-            band: Orbital to get the band center of (default is d-band)
-            spin: Spin channel to use. By default, the spin channels will be combined.
-            erange: [min, max] energy range to consider, with respect to the Fermi level.
-                Default is None, which means all energies are considered.
-
-        Returns:
-            Number of states
-        """
-        # Get the projected DOS
-        if element and site:
-            raise ValueError("Both element and site cannot be specified.")
-        if element:
-            dos = self.get_element_spd_dos(element)[band]
-        elif site:
-            dos = self.get_site_spd_dos(site)[band]
-        else:
-            dos = self.get_spd_dos()[band]
-
-        energies = dos.energies - dos.efermi
-        densities = dos.get_densities(spin=spin)
-
-        # Only consider a given erange, if desired
-        if erange:
-            densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
-            energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
-
-        num_states = np.trapz(densities, x=energies)
-
-        return num_states
-
     def get_band_filling(
         self,
         element: SpeciesLike = None,
@@ -1063,7 +1016,7 @@ class CompleteDos(Dos):
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
-            center: Take moments with respect to the d-band center
+            center: Take moments with respect to the band center
 
         Returns:
             Orbital-projected nth moment in eV
@@ -1089,6 +1042,7 @@ class CompleteDos(Dos):
         # Get the orbital-projected band center
         band_center = self.get_band_center(el=element, site=site, band=band, spin=spin, erange=erange)
 
+        # Center the energies about the band center if requested
         if center:
             p = energies - band_center
         else:
