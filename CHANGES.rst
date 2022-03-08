@@ -15,7 +15,7 @@ v2022.3.7
 * Documentation fix for Structure.apply_operation, PR #2433 from @janosh
 * Add caching to compatibility classes as speed optimization, PR #2450 from @munrojm
 
-This release was previously intended for v2022.2.25. 
+This release was previously intended for v2022.2.25.
 
 Important note: an update to a library that pymatgen depends upon has led to the
 ~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
