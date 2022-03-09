@@ -1007,7 +1007,7 @@ class CompleteDos(Dos):
         elements: List[SpeciesLike] | None = None,
         sites: List[PeriodicSite] | None = None,
         spin: Spin | None = None,
-        erange: List[float] | None = None,
+        erange: List[float] = None,
         center: bool = True,
     ) -> float:
         """
@@ -1128,7 +1128,7 @@ class CompleteDos(Dos):
         elements: List[SpeciesLike] | None = None,
         sites: List[PeriodicSite] | None = None,
         spin: Spin | None = None,
-        erange: List[float] | None = None,
+        erange: List[float] = None,
     ) -> float:
         """
         Get the orbital-projected upper band edge. The definition by Xin et al.
