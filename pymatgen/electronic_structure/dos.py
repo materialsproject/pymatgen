@@ -1033,7 +1033,10 @@ class CompleteDos(Dos):
                 elements = [elements]
             for el in elements:
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = add_densities(densities, spd_dos.densities) if densities else spd_dos.densities
+                if densities:
+                    densities = add_densities(densities, spd_dos.densities)
+                else:
+                    densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             if not isinstance(sites, list):
@@ -1094,7 +1097,10 @@ class CompleteDos(Dos):
                 elements = [elements]
             for el in elements:
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = add_densities(densities, spd_dos.densities) if densities else spd_dos.densities
+                if densities:
+                    densities = add_densities(densities, spd_dos.densities)
+                else:
+                    densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             if not isinstance(sites, list):
