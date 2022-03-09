@@ -908,11 +908,11 @@ class CompleteDos(Dos):
         erange: List[float] = None,
     ) -> float:
         """
-        Get the orbital-projected bandwidth, defined as the square root of the second moment
+        Get the orbital-projected band width, defined as the square root of the second moment
             sqrt(int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE)
         where E_center is the orbital-projected band center, the limits of the integration can be
         modified by erange, and E is the set of energies taken with respect to the Fermi level.
-        Note that the bandwidth is often highly sensitive to the selected erange.
+        Note that the band width is often highly sensitive to the selected erange.
 
         Args:
             elements: Elements to get the band center of (cannot be used in conjunction with site)
@@ -923,11 +923,11 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected band width in eV
         """
-        bandwidth = np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
+        band_width = np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
-        return bandwidth
+        return band_width
 
     def get_band_skewness(
         self,
