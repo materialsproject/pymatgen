@@ -864,7 +864,7 @@ class CompleteDos(Dos):
         energies = dos.energies - dos.efermi
         densities = dos.get_densities(spin=spin)
 
-        # Only consider a given erange, if desired
+        # Only consider up to Fermi level in numerator
         energies = dos.energies - dos.efermi
         band_filling = np.trapz(densities[energies < 0], x=energies[energies < 0]) / np.trapz(densities, x=energies)
 
@@ -1014,7 +1014,7 @@ class CompleteDos(Dos):
         spin: Spin | None = None,
         erange: List[float] | None = None,
         center: bool = True,
-    ):
+    ) -> float:
         """
         Get the nth moment of the DOS centered around the orbital-projected band center, defined as
             int_{-inf}^{+inf} rho(E)*(E-E_center)^n dE/int_{-inf}^{+inf} rho(E) dE
