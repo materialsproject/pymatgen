@@ -242,25 +242,6 @@ class Dos(MSONable):
             smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
         return smeared_dens
 
-    def get_convolved_densities(self, window_width: int):
-        """
-        Returns the Dict representation of the densities, {Spin: densities},
-        but with a convolution applied such that the data within window_width is
-        averaged. Adapted from https://stackoverflow.com/a/34387987/13448802
-
-        Args:
-            window_width: Window width for the convolution operator. Note that
-                this is a number of indices to group together and not in eV
-
-        Returns:
-            Dict of Gaussian-smeared densities.
-        """
-        smeared_dens = {}
-        for spin, dens in self.densities.items():
-            cumsum_vec = np.cumsum(np.insert(dens, 0, 0))
-            smeared_dens[spin] = (cumsum_vec[window_width:] - cumsum_vec[:-window_width]) / window_width
-        return smeared_dens
-
     def __add__(self, other):
         """
         Adds two DOS together. Checks that energy scales are the same.
@@ -852,9 +833,40 @@ class CompleteDos(Dos):
         Returns:
             band filling in eV, often denoted f_d for the d-band
         """
-        band_filling = self.get_n_moment(
-            0, elements=elements, sites=sites, band=band, spin=spin, erange=[-np.inf, self.efermi], center=False
-        )
+        # Get the projected DOS
+        if elements and sites:
+            raise ValueError("Both element and site cannot be specified.")
+
+        densities = None
+        if elements:
+            if not isinstance(elements, list):
+                elements = [elements]
+            for el in elements:
+                spd_dos = self.get_element_spd_dos(el)[band]
+                if densities:
+                    densities = add_densities(densities, spd_dos.densities)
+                else:
+                    densities = spd_dos.densities
+            dos = Dos(self.efermi, self.energies, densities)
+        elif sites:
+            if not isinstance(sites, list):
+                sites = [sites]
+            for site in sites:
+                spd_dos = self.get_site_spd_dos(site)[band]
+                if densities:
+                    densities = add_densities(densities, spd_dos.densities)
+                else:
+                    densities = spd_dos.densities
+            dos = Dos(self.efermi, self.energies, densities)
+        else:
+            dos = self.get_spd_dos()[band]
+
+        energies = dos.energies - dos.efermi
+        densities = dos.get_densities(spin=spin)
+
+        # Only consider a given erange, if desired
+        energies = dos.energies - dos.efermi
+        band_filling = np.trapz(densities[energies < 0], x=energies[energies < 0]) / np.trapz(densities, x=energies)
 
         return band_filling
 
@@ -1043,7 +1055,10 @@ class CompleteDos(Dos):
                 sites = [sites]
             for site in sites:
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = add_densities(densities, dos.densities) if densities else spd_dos.densities
+                if densities:
+                    densities = add_densities(densities, spd_dos.densities)
+                else:
+                    densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1107,7 +1122,10 @@ class CompleteDos(Dos):
                 sites = [sites]
             for site in sites:
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = add_densities(densities, dos.densities) if densities else spd_dos.densities
+                if densities:
+                    densities = add_densities(densities, spd_dos.densities)
+                else:
+                    densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]

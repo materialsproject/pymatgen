@@ -193,7 +193,13 @@ class CompleteDosTest(unittest.TestCase):
         band_center = dos.get_band_center()
         self.assertAlmostEqual(band_center, -3.078841005723767)
 
+        band_center = dos.get_band_center(elements=[Element("Ag"), Element("Pd")])
+        self.assertAlmostEqual(band_center, -3.078841005723767)
+
         band_center = dos.get_band_center(elements=Element("Pd"))
+        self.assertAlmostEqual(band_center, -1.476449501704171)
+
+        band_center = dos.get_band_center(sites=[s for s in struct if s.species_string == "Pd"])
         self.assertAlmostEqual(band_center, -1.476449501704171)
 
         band_center = dos.get_band_center(sites=struct[-3])
@@ -225,29 +231,31 @@ class CompleteDosTest(unittest.TestCase):
 
     def test_get_n_moment(self):
         dos = self.dos_pdag3
-
         moment = dos.get_n_moment(1)
         self.assertAlmostEqual(moment, 0)
 
+        moment = dos.get_n_moment(1, center=False)
+        self.assertAlmostEqual(moment, -3.078841005723767)
+
+    def test_band_filling(self):
+        dos = self.dos_pdag3
+        filling = dos.get_band_filling()
+        self.assertAlmostEqual(filling, 0.9583552024357637)
+
     def test_band_width(self):
         dos = self.dos_pdag3
-
-        moment = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_band_width(erange=[-4, 0.5]), np.sqrt(moment))
+        width = dos.get_band_width()
+        self.assertAlmostEqual(width, 1.7831724662185575)
 
     def test_skewness(self):
         dos = self.dos_pdag3
-
-        moment = dos.get_n_moment(3, erange=[-4, 0.5])
-        moment_2 = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_band_skewness(erange=[-4, 0.5]), moment / moment_2 ** (3 / 2))
+        skewness = dos.get_band_skewness()
+        self.assertAlmostEqual(skewness, 1.7422716340493507)
 
     def test_kurtosis(self):
         dos = self.dos_pdag3
-
-        moment = dos.get_n_moment(4, erange=[-4, 0.5])
-        moment_2 = dos.get_n_moment(2, erange=[-4, 0.5])
-        self.assertAlmostEqual(dos.get_band_kurtosis(erange=[-4, 0.5]), moment / moment_2**2)
+        kurtosis = dos.get_band_kurtosis()
+        self.assertAlmostEqual(kurtosis, 7.764506941340621)
 
 
 class DOSTest(PymatgenTest):
