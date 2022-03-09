@@ -818,7 +818,7 @@ class CompleteDos(Dos):
         elements: SpeciesLike | List[SpeciesLike] | None = None,
         sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
+        spin: Spin | None = None,
     ) -> float:
         """
         Computes the orbital-projected band filling, defined as the zeroth moment
@@ -875,7 +875,7 @@ class CompleteDos(Dos):
         elements: SpeciesLike | List[SpeciesLike] | None = None,
         sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
+        spin: Spin | None = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -909,7 +909,7 @@ class CompleteDos(Dos):
         elements: SpeciesLike | List[SpeciesLike] | None = None,
         sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
+        spin: Spin | None = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -939,7 +939,7 @@ class CompleteDos(Dos):
         elements: SpeciesLike | List[SpeciesLike] | None = None,
         sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
+        spin: Spin | None = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -974,7 +974,7 @@ class CompleteDos(Dos):
         elements: SpeciesLike | List[SpeciesLike] | None = None,
         sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
+        spin: Spin | None = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -1011,8 +1011,8 @@ class CompleteDos(Dos):
         elements: SpeciesLike | List[SpeciesLike] | None = None,
         sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
-        erange: List[float] = None,
+        spin: Spin | None = None,
+        erange: List[float] | None = None,
         center: bool = True,
     ):
         """
@@ -1086,8 +1086,8 @@ class CompleteDos(Dos):
 
     def get_hilbert_transform(
         self,
-        elements: SpeciesLike | List[SpeciesLike] = None,
-        sites: PeriodicSite | List[PeriodicSite] = None,
+        elements: SpeciesLike | List[SpeciesLike] | None = None,
+        sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
     ) -> Dos:
         """
@@ -1139,11 +1139,11 @@ class CompleteDos(Dos):
 
     def get_upper_band_edge(
         self,
-        elements: SpeciesLike | List[SpeciesLike] = None,
-        sites: PeriodicSite | List[PeriodicSite] = None,
+        elements: SpeciesLike | List[SpeciesLike] | None = None,
+        sites: PeriodicSite | List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
-        spin: Spin = None,
-        erange: List[float] = None,
+        spin: Spin | None = None,
+        erange: List[float] | None = None,
     ) -> float:
         """
         Get the orbital-projected upper band edge. The definition by Xin et al.
