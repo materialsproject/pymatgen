@@ -815,8 +815,8 @@ class CompleteDos(Dos):
 
     def get_band_filling(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
     ) -> float:
@@ -839,8 +839,6 @@ class CompleteDos(Dos):
 
         densities = None
         if elements:
-            if not isinstance(elements, list):
-                elements = [elements]
             for el in elements:
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if densities:
@@ -849,8 +847,6 @@ class CompleteDos(Dos):
                     densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            if not isinstance(sites, list):
-                sites = [sites]
             for site in sites:
                 spd_dos = self.get_site_spd_dos(site)[band]
                 if densities:
@@ -872,8 +868,8 @@ class CompleteDos(Dos):
 
     def get_band_center(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
         erange: List[float] = None,
@@ -906,8 +902,8 @@ class CompleteDos(Dos):
 
     def get_band_width(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
         erange: List[float] = None,
@@ -936,8 +932,8 @@ class CompleteDos(Dos):
 
     def get_band_skewness(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
         erange: List[float] = None,
@@ -971,8 +967,8 @@ class CompleteDos(Dos):
 
     def get_band_kurtosis(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
         erange: List[float] = None,
@@ -1008,8 +1004,8 @@ class CompleteDos(Dos):
     def get_n_moment(
         self,
         n: int,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
         erange: List[float] | None = None,
@@ -1041,8 +1037,6 @@ class CompleteDos(Dos):
 
         densities = None
         if elements:
-            if not isinstance(elements, list):
-                elements = [elements]
             for el in elements:
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if densities:
@@ -1051,8 +1045,6 @@ class CompleteDos(Dos):
                     densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            if not isinstance(sites, list):
-                sites = [sites]
             for site in sites:
                 spd_dos = self.get_site_spd_dos(site)[band]
                 if densities:
@@ -1086,8 +1078,8 @@ class CompleteDos(Dos):
 
     def get_hilbert_transform(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
     ) -> Dos:
         """
@@ -1108,8 +1100,6 @@ class CompleteDos(Dos):
 
         densities = None
         if elements:
-            if not isinstance(elements, list):
-                elements = [elements]
             for el in elements:
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if densities:
@@ -1118,8 +1108,6 @@ class CompleteDos(Dos):
                     densities = spd_dos.densities
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            if not isinstance(sites, list):
-                sites = [sites]
             for site in sites:
                 spd_dos = self.get_site_spd_dos(site)[band]
                 if densities:
@@ -1139,8 +1127,8 @@ class CompleteDos(Dos):
 
     def get_upper_band_edge(
         self,
-        elements: SpeciesLike | List[SpeciesLike] | None = None,
-        sites: PeriodicSite | List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] | None = None,
+        sites: List[PeriodicSite] | None = None,
         band: OrbitalType = OrbitalType.d,
         spin: Spin | None = None,
         erange: List[float] | None = None,
