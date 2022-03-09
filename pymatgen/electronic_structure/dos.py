@@ -816,9 +816,9 @@ class CompleteDos(Dos):
     def get_band_filling(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
     ) -> float:
         """
         Computes the orbital-projected band filling, defined as the zeroth moment
@@ -868,9 +868,9 @@ class CompleteDos(Dos):
     def get_band_center(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -902,9 +902,9 @@ class CompleteDos(Dos):
     def get_band_width(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -932,9 +932,9 @@ class CompleteDos(Dos):
     def get_band_skewness(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -967,9 +967,9 @@ class CompleteDos(Dos):
     def get_band_kurtosis(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
@@ -1004,9 +1004,9 @@ class CompleteDos(Dos):
         self,
         n: int,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
         erange: List[float] = None,
         center: bool = True,
     ) -> float:
@@ -1077,8 +1077,8 @@ class CompleteDos(Dos):
     def get_hilbert_transform(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
     ) -> Dos:
         """
         Returns the Hilbert transform of the orbital-projected density of states,
@@ -1125,9 +1125,9 @@ class CompleteDos(Dos):
     def get_upper_band_edge(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] | None = None,
-        sites: List[PeriodicSite] | None = None,
-        spin: Spin | None = None,
+        elements: List[SpeciesLike] = None,
+        sites: List[PeriodicSite] = None,
+        spin: Spin = None,
         erange: List[float] = None,
     ) -> float:
         """
