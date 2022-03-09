@@ -841,9 +841,9 @@ class CompleteDos(Dos):
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if i == 0:
-                    densities = add_densities(densities, spd_dos.densities)
-                else:
                     densities = spd_dos.densities
+                else:
+                    densities = add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             for i, site in enumerate(sites):
@@ -1038,9 +1038,9 @@ class CompleteDos(Dos):
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if i == 0:
-                    densities = add_densities(densities, spd_dos.densities)
-                else:
                     densities = spd_dos.densities
+                else:
+                    densities = add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             for i, site in enumerate(sites):
@@ -1100,9 +1100,9 @@ class CompleteDos(Dos):
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if i == 0:
-                    densities = add_densities(densities, spd_dos.densities)
-                else:
                     densities = spd_dos.densities
+                else:
+                    densities = add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             for i, site in enumerate(sites):
