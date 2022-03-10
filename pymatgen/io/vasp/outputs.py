@@ -21,7 +21,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import DefaultDict
+from typing import DefaultDict, Literal
 
 import numpy as np
 from monty.dev import deprecated
@@ -812,7 +812,7 @@ class Vasprun(MSONable):
     def get_band_structure(
         self,
         kpoints_filename: str | None = None,
-        efermi: float | str | None = None,
+        efermi: float | Literal["smart"] | None = None,
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
@@ -858,9 +858,11 @@ class Vasprun(MSONable):
                 raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
-            efermi = self.calculate_efermi()
+            e_fermi = self.calculate_efermi()
         elif efermi is None:
-            efermi = self.efermi
+            e_fermi = self.efermi
+        else:
+            e_fermi = efermi
 
         kpoint_file = None
         if kpoints_filename and os.path.exists(kpoints_filename):
@@ -943,7 +945,7 @@ class Vasprun(MSONable):
                 kpoints,
                 eigenvals,
                 lattice_new,
-                efermi,
+                e_fermi,
                 labels_dict,
                 structure=self.final_structure,
                 projections=p_eigenvals,
@@ -952,7 +954,7 @@ class Vasprun(MSONable):
             kpoints,
             eigenvals,
             lattice_new,
-            efermi,
+            e_fermi,
             structure=self.final_structure,
             projections=p_eigenvals,
         )
