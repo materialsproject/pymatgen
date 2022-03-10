@@ -3,13 +3,15 @@
 """
 This module implements plotter for DOS and band structure.
 """
+from __future__ import annotations
 
 import copy
 import itertools
 import logging
 import math
 import warnings
-from collections import Counter, OrderedDict
+from collections import Counter
+from typing import Literal, cast
 
 import matplotlib.lines as mlines
 import numpy as np
@@ -26,7 +28,9 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
+from pymatgen.util.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -57,23 +61,24 @@ class DosPlotter:
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
 
-    def __init__(self, zero_at_efermi=True, stack=False, sigma=None):
+    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float = None) -> None:
         """
         Args:
-            zero_at_efermi: Whether to shift all Dos to have zero energy at the
+            zero_at_efermi (bool): Whether to shift all Dos to have zero energy at the
                 fermi energy. Defaults to True.
-            stack: Whether to plot the DOS as a stacked area graph
-            key_sort_func: function used to sort the dos_dict keys.
-            sigma: A float specifying a standard deviation for Gaussian smearing
+            stack (bool): Whether to plot the DOS as a stacked area graph
+            sigma (float): Specify a standard deviation for Gaussian smearing
                 the DOS for nicer looking plots. Defaults to None for no
                 smearing.
         """
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
-        self._doses = OrderedDict()
+        self._doses: dict[
+            str, dict[Literal["energies", "densities", "efermi"], float | ArrayLike | dict[Spin, ArrayLike]]
+        ] = {}
 
-    def add_dos(self, label, dos):
+    def add_dos(self, label: str, dos: Dos) -> None:
         """
         Adds a dos for plotting.
 
@@ -252,23 +257,22 @@ class BSPlotter:
     Class to plot or get data to facilitate the plot of band structure objects.
     """
 
-    def __init__(self, bs):
+    def __init__(self, bs: BandStructureSymmLine) -> None:
         """
         Args:
             bs: A BandStructureSymmLine object.
         """
 
-        self._bs = []
-        self._nb_bands = []
+        self._bs: list[BandStructureSymmLine] = []
+        self._nb_bands: list[int] = []
 
         self.add_bs(bs)
 
-    def _check_bs_kpath(self, bs_list):
+    def _check_bs_kpath(self, bs_list: list[BandStructureSymmLine]) -> Literal[True]:
         """
-        Helper method that chack the all the band objs in bs_list are
+        Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
-
         # check obj type
         for bs in bs_list:
             if not isinstance(bs, BandStructureSymmLine):
@@ -297,7 +301,7 @@ class BSPlotter:
 
         return True
 
-    def add_bs(self, bs):
+    def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
         """
         Method to add bands objects to the BSPlotter
         """
@@ -2042,7 +2046,7 @@ class BSPlotterProjected(BSPlotter):
             label = ""
             for elem, v in divide.items():
                 if elem == "s":
-                    label += "s" + ","
+                    label += "s,"
                 else:
                     if len(v) == len(individual_orbs[elem]):
                         label += elem + ","
@@ -2238,26 +2242,26 @@ class BSDOSPlotter:
 
     def __init__(
         self,
-        bs_projection="elements",
-        dos_projection="elements",
-        vb_energy_range=4,
-        cb_energy_range=4,
-        fixed_cb_energy=False,
-        egrid_interval=1,
-        font="Times New Roman",
-        axis_fontsize=20,
-        tick_fontsize=15,
-        legend_fontsize=14,
-        bs_legend="best",
-        dos_legend="best",
-        rgb_legend=True,
-        fig_size=(11, 8.5),
-    ):
+        bs_projection: Literal["elements"] | None = "elements",
+        dos_projection: str = "elements",
+        vb_energy_range: float = 4,
+        cb_energy_range: float = 4,
+        fixed_cb_energy: bool = False,
+        egrid_interval: float = 1,
+        font: str = "Times New Roman",
+        axis_fontsize: float = 20,
+        tick_fontsize: float = 15,
+        legend_fontsize: float = 14,
+        bs_legend: str = "best",
+        dos_legend: str = "best",
+        rgb_legend: bool = True,
+        fig_size: tuple[float, float] = (11, 8.5),
+    ) -> None:
         """
         Instantiate plotter settings.
 
         Args:
-            bs_projection (str): "elements" or None
+            bs_projection ('elements' | None): Whether to project the bands onto elements.
             dos_projection (str): "elements", "orbitals", or None
             vb_energy_range (float): energy in eV to show of valence bands
             cb_energy_range (float): energy in eV to show of conduction bands
@@ -2288,7 +2292,7 @@ class BSDOSPlotter:
         self.rgb_legend = rgb_legend
         self.fig_size = fig_size
 
-    def get_plot(self, bs, dos=None):
+    def get_plot(self, bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None):
         """
         Get a matplotlib plot object.
         Args:
@@ -2411,12 +2415,13 @@ class BSDOSPlotter:
             dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
 
         # renormalize the band energy to the Fermi level
-        band_energies = {}
+        band_energies: dict[Spin, list[float]] = {}
         for spin in (Spin.up, Spin.down):
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band_energies[spin].append([e - bs.efermi for e in band])
+                    band = cast(list[float], band)
+                    band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
         if dos:
@@ -2485,8 +2490,8 @@ class BSDOSPlotter:
                         spd_dos = dos.get_spd_dos()
                         for idx, orb in enumerate([OrbitalType.s, OrbitalType.p, OrbitalType.d, OrbitalType.f]):
                             if orb in spd_dos:
-                                dos_densities = spd_dos[orb].densities[spin] * int(spin)
-                                label = orb if spin == Spin.up else None
+                                dos_densities = spd_dos[orb].densities[spin] * int(spin)  # type: ignore
+                                label = orb if spin == Spin.up else None  # type: ignore
                                 dos_ax.plot(
                                     dos_densities,
                                     dos_energies,
@@ -2612,7 +2617,7 @@ class BSDOSPlotter:
                             projs = projections[spin][band_idx][k_idx]
                             # note: squared color interpolations are smoother
                             # see: https://youtu.be/LKnqECcg6Gw
-                            projs = {k: v ** 2 for k, v in projs.items()}
+                            projs = {k: v**2 for k, v in projs.items()}
                             total = sum(projs.values())
                             if total > 0:
                                 for idx, e in enumerate(elements):
@@ -2654,9 +2659,9 @@ class BSDOSPlotter:
                         b1 = b / (r + g + b)
                         x.append(0.33 * (2.0 * g1 + r1) / (r1 + b1 + g1))
                         y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
-                        rc = math.sqrt(r ** 2 / (r ** 2 + g ** 2 + b ** 2))
-                        gc = math.sqrt(g ** 2 / (r ** 2 + g ** 2 + b ** 2))
-                        bc = math.sqrt(b ** 2 / (r ** 2 + g ** 2 + b ** 2))
+                        rc = math.sqrt(r**2 / (r**2 + g**2 + b**2))
+                        gc = math.sqrt(g**2 / (r**2 + g**2 + b**2))
+                        bc = math.sqrt(b**2 / (r**2 + g**2 + b**2))
                         color.append([rc, gc, bc])
 
         # x = [n + 0.25 for n in x]  # nudge x coordinates
@@ -3671,7 +3676,7 @@ class CohpPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self._cohps = OrderedDict()
+        self._cohps = {}
 
     def add_cohp(self, label, cohp):
         """

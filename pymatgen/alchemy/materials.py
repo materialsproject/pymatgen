@@ -151,9 +151,8 @@ class TransformedStructure(MSONable):
         Adds a filter.
 
         Args:
-            structure_filter (StructureFilter): A filter implementating the
-                AbstractStructureFilter API. Tells transmuter waht structures
-                to retain.
+            structure_filter (StructureFilter): A filter implementing the
+                AbstractStructureFilter API. Tells transmuter what structures to retain.
         """
         hdict = structure_filter.as_dict()
         hdict["input_structure"] = self.final_structure.as_dict()
@@ -186,7 +185,7 @@ class TransformedStructure(MSONable):
         return d
 
     def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs):
-        r"""
+        """
         Writes VASP input to an output_dir.
 
         Args:

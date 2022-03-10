@@ -12,6 +12,8 @@ import os
 import shutil
 import subprocess
 import sys
+from argparse import Namespace
+from typing import List, Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
@@ -19,13 +21,9 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import SETTINGS_FILE
 
 
-def setup_potcars(args):
-    """
-    Setup POTCAR directirt,
-
-    :param args: args from command.
-    """
-    pspdir, targetdir = (os.path.abspath(d) for d in args.potcar_dirs)
+def setup_potcars(potcar_dirs: List[str]):
+    """Setup POTCAR directories."""
+    pspdir, targetdir = (os.path.abspath(d) for d in potcar_dirs)
     try:
         os.makedirs(targetdir)
     except OSError:
@@ -145,12 +143,8 @@ def build_bader(fortran_command="gfortran"):
     return state
 
 
-def install_software(args):
-    """
-    Install all optional external software.
-
-    :param args:
-    """
+def install_software(install: Literal["enumlib", "bader"]):
+    """Install all optional external software."""
     try:
         subprocess.call(["ifort", "--version"])
         print("Found ifort")
@@ -167,11 +161,11 @@ def install_software(args):
 
     enum = None
     bader = None
-    if args.install == "enumlib":
+    if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
         print("")
-    elif args.install == "bader":
+    elif install == "bader":
         print("Building bader")
         bader = build_bader(fortran_command)
         print("")
@@ -183,36 +177,27 @@ def install_software(args):
         print("")
 
 
-def add_config_var(args):
-    """
-    Add configuration args.
-
-    :param args:
-    """
+def add_config_var(tokens: List[str], backup_suffix: str) -> None:
+    """Add/update keys in .pmgrc.yaml config file."""
     d = {}
     if os.path.exists(SETTINGS_FILE):
-        shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
-        print(f"Existing {SETTINGS_FILE} backed up to {SETTINGS_FILE + '.bak'}")
+        if backup_suffix:
+            shutil.copy(SETTINGS_FILE, SETTINGS_FILE + backup_suffix)
+            print(f"Existing {SETTINGS_FILE} backed up to {SETTINGS_FILE}{backup_suffix}")
         d = loadfn(SETTINGS_FILE)
-    toks = args.var_spec
-    if len(toks) % 2 != 0:
-        print("Bad variable specification!")
-        sys.exit(-1)
-    for i in range(int(len(toks) / 2)):
-        d[toks[2 * i]] = toks[2 * i + 1]
+    if len(tokens) % 2 != 0:
+        raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
+    for key, val in zip(tokens[0::2], tokens[1::2]):
+        d[key] = val
     dumpfn(d, SETTINGS_FILE)
     print(f"New {SETTINGS_FILE} written!")
 
 
-def configure_pmg(args):
-    """
-    Handle configure command.
-
-    :param args:
-    """
+def configure_pmg(args: Namespace):
+    """Handle configure command."""
     if args.potcar_dirs:
-        setup_potcars(args)
+        setup_potcars(args.potcar_dirs)
     elif args.install:
-        install_software(args)
+        install_software(args.install)
     elif args.var_spec:
-        add_config_var(args)
+        add_config_var(args.var_spec, args.backup)

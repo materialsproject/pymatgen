@@ -2,9 +2,9 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-from pathlib import Path
 import os
+import unittest
+
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
@@ -19,7 +19,6 @@ from pymatgen.symmetry.analyzer import (
     iterative_symmetrize,
 )
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
@@ -126,6 +125,15 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         crystal_system = self.sg.get_crystal_system()
         self.assertEqual("orthorhombic", crystal_system)
         self.assertEqual("tetragonal", self.disordered_sg.get_crystal_system())
+
+        orig_spg = self.sg._space_group_data["number"]
+        self.sg._space_group_data["number"] = 0
+        try:
+            crystal_system = self.sg.get_crystal_system()
+        except ValueError as exc:
+            self.assertEqual(str(exc), "Received invalid space group 0")
+        finally:
+            self.sg._space_group_data["number"] = orig_spg
 
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
@@ -628,7 +636,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
             for j in eq_set:
-                rotated = np.dot(ops[i][j], coords[i])
+                _ = np.dot(ops[i][j], coords[i])
                 self.assertTrue(np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
 
     def test_symmetrize_molecule2(self):

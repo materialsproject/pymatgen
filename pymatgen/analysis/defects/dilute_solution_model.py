@@ -39,7 +39,7 @@ def _check_input(def_list):
     return flag
 
 
-@deprecated(message="Refactoring of the defects module will eventualy remove this function")
+@deprecated(message="Refactoring of the defects module will eventually remove this function")
 def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_pot=None, generate="plot"):
     """
     Compute the defect densities using dilute solution model.
@@ -193,7 +193,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
-    c = Matrix(n, n, [0] * n ** 2)
+    c = Matrix(n, n, [0] * n**2)
     for i in range(n):
         for p in range(n):
             c[i, p] = Integer(c0[i, p])
@@ -506,7 +506,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         res.append(res1)
 
     res = np.array(res)
-    dtype = [("x", np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n) for j in range(n)]
+    dtype = [("x", np.float64)] + [(f"y{i}{j}", np.float64) for i in range(n) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
     conc_data = {}
@@ -772,7 +772,7 @@ def solute_site_preference_finder(
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         solute_defs: List of solute defect parameters in the dictionary
-            format. Similary to that of antisite defs, wtih solute specie
+            format. Similarly to that of antisite defs, with solute specie
             specified in substitution_specie
         solute_concen: Solute concentration (in fractional value)
         trial_chem_pot: Trial chemical potentials to speedup the plot
@@ -1165,7 +1165,7 @@ def solute_site_preference_finder(
         res.append(res1)
 
     res = np.array(res)
-    dtype = [("x", np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n + 1) for j in range(n)]
+    dtype = [("x", np.float64)] + [(f"y{i}{j}", np.float64) for i in range(n + 1) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
     conc = []
@@ -1283,7 +1283,7 @@ def solute_defect_density(
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         solute_defs: List of solute defect parameters in the dictionary
-            format. Similary to that of antisite defs, wtih solute specie
+            format. Similarly to that of antisite defs, with solute specie
             specified in substitution_specie
         solute_concen: Solute concentration (in fractional value)
         T: Temperature in Kelvin

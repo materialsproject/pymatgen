@@ -7,11 +7,9 @@ and update the enum values declared in LibxcFunc.
 The script must be executed inside pymatgen/dev_scripts.
 """
 
-import sys
-import os
 import json
-
-from collections import OrderedDict
+import os
+import sys
 
 
 def parse_libxc_docs(path):
@@ -29,7 +27,7 @@ def parse_libxc_docs(path):
 
         return int(d["Number"]), d
 
-    d = OrderedDict()
+    d = {}
     with open(path) as fh:
         section = []
         for line in fh:

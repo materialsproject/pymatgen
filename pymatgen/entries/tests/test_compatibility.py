@@ -17,16 +17,16 @@ __date__ = "Mar 19, 2012"
 
 import os
 import unittest
-import pytest  # type: ignore
-
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
+
+import pytest  # type: ignore
 from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import (
     MU_H2O,
@@ -2407,7 +2407,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
         self.assertAlmostEqual(
             entry_fluoride_corrected.correction_uncertainty,
-            sqrt((3 * 0.0026) ** 2 + 0.0101 ** 2),
+            sqrt((3 * 0.0026) ** 2 + 0.0101**2),
         )
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)

@@ -1,6 +1,50 @@
 Change log
 ==========
 
+v2022.3.7
+---------
+
+* Add VASP WSWQ file parsing, PR #2439 from @jmmshn
+* Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
+* Update to Lobster calculation settings, PR #2434 from @JaGeo master
+* Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from @arosen93
+* Fix for Structure.from_file when file is in YAML format from @janosh fix-structure-from-yml
+* Update of linter configuration, PR #2440 from @janosh
+* Update to ChemEnv citation, PR #2448 from @JaGeo
+* Type annotation fix, PR #2432 from @janosh
+* Documentation fix for Structure.apply_operation, PR #2433 from @janosh
+* Add caching to compatibility classes as speed optimization, PR #2450 from @munrojm
+
+This release was previously intended for v2022.2.25.
+
+Important note: an update to a library that pymatgen depends upon has led to the
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
+you may need to re-generate this file. This issue should now be fixed and not re-occur.
+
+v2022.2.10
+----------
+* Require Cython during setup. (@jonringer)
+
+v2022.2.7
+---------
+* Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.
+* Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (@JaGeo)
+* Return None for ISPIN=1 for `Vasprun('vasprun.xml').complete_dos.spin_polarization`.
+
+
+v2022.2.1
+---------
+* Chargemol caller for partial atomic charge analysis (@arosen93)
+* ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (@arosen93)
+* Cleanup of deprecated methods. (@janosh)
+* Bigfix for gzipped DOSCAR (@JaGeo)
+* Updates for QChem Support (@samblau)
+* QuantumEspresso k-grid fix input fix. (@vorwerkc)
+* `Entry.__repr__()` now ouputs name where available. (@janosh)
+* Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93)
+* `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
+* Improved parsing of coupled cluster calculations in QChem (@espottesmith).
+
 v2022.1.24
 ----------
 * Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.
@@ -11,7 +55,7 @@ v2022.1.20
 * YAML deprecation fixes. (@janosh)
 * ASE adaptor support for charge, spin multiiciplity and site properties of molecules. (@arosen93).
 * New keyword option (`keep_site_properties`) in various `structure.symmetry.analyzer` functions to keep the site properties on the sites after a transformation. (@arosen93)
-* Bug fixes for Lobster module (@JaGeo). 
+* Bug fixes for Lobster module (@JaGeo).
 * SCAN / GGA(+U) mixing scheme (@rkingsbury). Mixing scheme code lives in the new file `mixing_scheme.py` and is implemented as a `Compatibility` class.
 * Fix for parsing of QuantumExpresso files due to new format (@vorwerkc)
 
@@ -781,7 +825,7 @@ v2018.9.30
 * Fix: Outcar parsing issues with certain values of electrostatic potential (@sivonxay)
 * Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
   stoichiometries in some instances (#1286) (@shyuep)
-* Fix: fractional co-ordinate finite precision errors in CifParser, now
+* Fix: fractional coordinate finite precision errors in CifParser, now
   also includes additional warnings for implicit hydrogens (@mkhorton)
 * New features and improvements to GBGenerator (@ucsdlxg, @shyuep)
 * New analysis options in StructureGraph, speed up tests (@mkhorton)

@@ -37,7 +37,7 @@ def rotate(mol, seed):
     """Performs a random rotation of the sites in a structure.
 
     Args:
-        mol (Molecule): The Molecule object which will be tranformed.
+        mol (Molecule): The Molecule object which will be transformed.
         seed (int): The seed value for the random generator.
     """
     rng = np.random.default_rng(seed=seed)
@@ -674,7 +674,7 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
     def test_missmatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         with self.assertRaises(ValueError):
-            res = self.mm.fit(mol2)
+            self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
@@ -801,7 +801,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
     def test_missmatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
         with self.assertRaises(ValueError):
-            res = self.mm.fit(mol2)
+            self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))

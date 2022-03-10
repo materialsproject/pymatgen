@@ -86,7 +86,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
     def to_latex_string(self) -> str:
-        r"""
+        """
         Returns:
             A latex formatted group symbol with proper subscripts and overlines.
         """

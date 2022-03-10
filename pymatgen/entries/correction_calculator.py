@@ -5,17 +5,16 @@ entries given to the CorrectionCalculator constructor.
 
 import os
 import warnings
-from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import plotly.graph_objects as go
 from monty.serialization import loadfn
+from ruamel import yaml
 from scipy.optimize import curve_fit
 
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
-from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 
@@ -438,13 +437,13 @@ class CorrectionCalculator:
         # elements with U values
         ggaucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
-        comp_corr: "OrderedDict[str, float]" = OrderedDict()
-        o: "OrderedDict[str, float]" = OrderedDict()
-        f: "OrderedDict[str, float]" = OrderedDict()
+        comp_corr: Dict[str, float] = {}
+        o: Dict[str, float] = {}
+        f: Dict[str, float] = {}
 
-        comp_corr_error: "OrderedDict[str, float]" = OrderedDict()
-        o_error: "OrderedDict[str, float]" = OrderedDict()
-        f_error: "OrderedDict[str, float]" = OrderedDict()
+        comp_corr_error: Dict[str, float] = {}
+        o_error: Dict[str, float] = {}
+        f_error: Dict[str, float] = {}
 
         for specie in list(self.species) + ["ozonide"]:
             if specie in ggaucorrection_species:
@@ -478,7 +477,6 @@ class CorrectionCalculator:
             path = fn
 
         yml = yaml.YAML()
-        yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
         yml.default_flow_style = False
         contents = yml.load(outline)
 

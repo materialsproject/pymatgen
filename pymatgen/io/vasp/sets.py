@@ -52,10 +52,10 @@ from typing import List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
@@ -134,22 +134,6 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 )
 
         return potcar
-
-    @property  # type: ignore
-    @deprecated(message="Use the get_vasp_input() method instead.")
-    def all_input(self):
-        """
-        Returns all input files as a dict of {filename: vasp object}
-
-        Returns:
-            dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
-        """
-        return {
-            "INCAR": self.incar,
-            "KPOINTS": self.kpoints,
-            "POSCAR": self.poscar,
-            "POTCAR": self.potcar,
-        }
 
     def get_vasp_input(self) -> VaspInput:
         """
@@ -792,7 +776,7 @@ class DictSet(VaspInputSet):
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max(i_species.enmax for i_species in self.all_input["POTCAR"])
+            encut = max(i_species.enmax for i_species in self.get_vasp_input().potcar)
         #
 
         _CUTOF = [
@@ -2039,7 +2023,7 @@ class MVLGWSet(DictSet):
         ncores=16,
         **kwargs,
     ):
-        r"""
+        """
         Args:
             structure (Structure): Input structure.
             prev_incar (Incar/string): Incar file from previous run.
@@ -2284,7 +2268,7 @@ class MVLGBSet(MPRelaxSet):
     """
 
     def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
-        r"""
+        """
 
         Args:
             structure(Structure): provide the structure
@@ -2531,7 +2515,7 @@ class MITMDSet(MITRelaxSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
-        r"""
+        """
 
         Args:
             structure (Structure): Input structure.
@@ -2612,7 +2596,7 @@ class MPMDSet(MPRelaxSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): Input structure.
             start_temp (int): Starting temperature.
@@ -2692,7 +2676,7 @@ class MVLNPTMDSet(MITMDSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): input structure.
             start_temp (int): Starting temperature.
@@ -2749,7 +2733,7 @@ class MVLScanRelaxSet(MPRelaxSet):
     """
 
     def __init__(self, structure, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): input structure.
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
@@ -3059,7 +3043,7 @@ _dummy_structure = Structure(
 
 def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     """
-    Make sure that the structure has valid magmoms based on the kind of caculation
+    Make sure that the structure has valid magmoms based on the kind of calculation
     Fill in missing Magmom values
 
     Args:

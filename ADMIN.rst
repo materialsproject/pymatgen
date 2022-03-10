@@ -28,11 +28,9 @@ also need sphinx and doc2dash. Install these using::
 
 	pip install --upgrade invoke sphinx doc2dash
 
-For 2018, we will release both py27 and py37 versions of pymatgen. Create
-environments for py27 and py37 using conda::
+Create environment for py38 using conda::
 
-	conda create --yes -n py37 python=3.7
-	conda create --yes -n py27 python=2.7
+	conda create --yes -n py38 python=3.8
 
 For each env, install some packages using conda followed by dev install for
 pymatgen::

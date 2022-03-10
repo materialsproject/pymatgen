@@ -6,12 +6,13 @@ import unittest
 import warnings
 
 import requests
+from ruamel.yaml import YAML
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition, Structure
 from pymatgen.electronic_structure.bandstructure import (
@@ -27,8 +28,10 @@ from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
-
-website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+try:
+    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+except:
+    website_is_up = False
 
 
 @unittest.skipIf(
@@ -293,7 +296,7 @@ class MPResterTest(PymatgenTest):
         # so4_two_minus = pbx_entries[9]
         # self.assertAlmostEqual(so4_two_minus.energy, 0.301511, places=3)
 
-        # Ensure entries are pourbaix compatible
+        # Ensure entries are Pourbaix compatible
         PourbaixDiagram(pbx_entries)
 
     def test_get_exp_entry(self):
@@ -475,7 +478,7 @@ class MPResterTest(PymatgenTest):
             db_version = mpr.get_database_version()
 
         self.assertIsInstance(db_version, str)
-
+        yaml = YAML()
         with open(SETTINGS_FILE) as f:
             d = yaml.load(f)
 
@@ -485,13 +488,13 @@ class MPResterTest(PymatgenTest):
     def test_pourbaix_heavy(self):
 
         entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 
     def test_pourbaix_mpr_pipeline(self):
 

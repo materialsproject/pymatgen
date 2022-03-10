@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
@@ -10,11 +9,9 @@ stress-strain data
 
 import itertools
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 import sympy as sp
-from monty.dev import deprecated
 from scipy.integrate import quad
 from scipy.optimize import root
 from scipy.special import factorial
@@ -370,7 +367,7 @@ class ElasticTensor(NthOrderElasticTensor):
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
-        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod ** 0.5
+        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod**0.5
 
     @raise_error_if_unphysical
     def cahill_thermalcond(self, structure):
@@ -402,20 +399,9 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
-        vm = 3 ** (1.0 / 3.0) * (1 / vl ** 3 + 2 / vt ** 3) ** (-1.0 / 3.0)
-        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi ** 2 / v0) ** (1.0 / 3.0)
+        vm = 3 ** (1.0 / 3.0) * (1 / vl**3 + 2 / vt**3) ** (-1.0 / 3.0)
+        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1.0 / 3.0)
         return td
-
-    @deprecated(
-        "debye_temperature_from_sound_velocities is now the default"
-        "debye_temperature function, this one will be removed."
-    )
-    @raise_error_if_unphysical
-    def debye_temperature_from_sound_velocities(self, structure):
-        """
-        Estimates Debye temperature from sound velocities
-        """
-        return self.debye_temperature(structure)
 
     @property
     def universal_anisotropy(self):
@@ -747,9 +733,9 @@ class ElasticTensorExpansion(TensorCollection):
             t_ratio = temperature / td
 
             def integrand(x):
-                return (x ** 4 * np.exp(x)) / (np.exp(x) - 1) ** 2
+                return (x**4 * np.exp(x)) / (np.exp(x) - 1) ** 2
 
-            cv = 9 * 8.314 * t_ratio ** 3 * quad(integrand, 0, t_ratio ** -1)[0]
+            cv = 9 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
@@ -982,15 +968,14 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
         sort (bool): flag for whether to sort strain states
 
     Returns:
-        OrderedDict with strain state keys and dictionaries
-        with stress-strain data corresponding to strain state
+        dict: strain state keys and dictionaries with stress-strain data corresponding to strain state
     """
     # Recast stress/strains
     vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])  # pylint: disable=E1101
     vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])  # pylint: disable=E1101
     # Collect independent strain states:
     independent = {tuple(np.nonzero(vstrain)[0].tolist()) for vstrain in vstrains}
-    strain_state_dict = OrderedDict()
+    strain_state_dict = {}
     if add_eq:
         if eq_stress is not None:
             veq_stress = Stress(eq_stress).voigt

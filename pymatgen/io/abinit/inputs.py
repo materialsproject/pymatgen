@@ -9,7 +9,7 @@ import copy
 import json
 import logging
 import os
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from collections.abc import Mapping, MutableMapping
 from enum import Enum
 
@@ -752,7 +752,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         args = list(abi_args)[:]
         args.extend(list(abi_kwargs.items()))
 
-        self._vars = OrderedDict(args)
+        self._vars = dict(args)
         self.set_structure(structure)
 
         if pseudo_dir is not None:
@@ -774,7 +774,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         JSON interface used in pymatgen for easier serialization.
         """
-        # Use a list of (key, value) to serialize the OrderedDict
+        # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
             if isinstance(value, np.ndarray):
@@ -827,7 +827,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             )
 
     def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        r"""
+        """
         String representation.
 
         Args:
@@ -1031,7 +1031,7 @@ class BasicMultiDataset:
         for i in range(multi.ndtset):
             multi[i].set_vars(ecut=1)
 
-    BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:
+    BasicMultiDataset provides its own implementation of __getattr__ so that one can simply use:
 
         multi.set_vars(ecut=1)
 
@@ -1116,7 +1116,7 @@ class BasicMultiDataset:
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError("ndtset %d cannot be <=0" % ndtset)
+            raise ValueError(f"ndtset {ndtset} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
@@ -1247,7 +1247,7 @@ class BasicMultiDataset:
         """
         if self.ndtset > 1:
             # Multi dataset mode.
-            lines = ["ndtset %d" % self.ndtset]
+            lines = [f"ndtset {int(self.ndtset)}"]
 
             def has_same_variable(kref, vref, other_inp):
                 """True if variable kref is present in other_inp with the same value."""
@@ -1289,7 +1289,7 @@ class BasicMultiDataset:
                     lines.append(str(InputVariable(vname, value)))
 
             for i, inp in enumerate(self):
-                header = "### DATASET %d ###" % (i + 1)
+                header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
                 s = inp.to_string(
                     post=str(i + 1),
@@ -1298,8 +1298,7 @@ class BasicMultiDataset:
                     exclude=global_vars,
                 )
                 if s:
-                    header = len(header) * "#" + "\n" + header + "\n" + len(header) * "#" + "\n"
-                    s = "\n" + header + s + "\n"
+                    s = f"\n{len(header) * '#'}\n{header}\n{len(header) * '#'}\n{s}\n"
 
                 lines.append(s)
 
@@ -1319,5 +1318,5 @@ class BasicMultiDataset:
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):
-            p = root + "DS%d" % i + ext
+            p = root + f"DS{i}" + ext
             inp.write(filepath=p)

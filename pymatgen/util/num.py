@@ -1,12 +1,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides utilities for basic math operations.
 """
-
-import collections
 
 import numpy as np
 
@@ -25,32 +22,6 @@ def abs_cap(val, max_abs_val=1):
         val if abs(val) < 1 else sign of val * max_abs_val.
     """
     return max(min(val, max_abs_val), -max_abs_val)
-
-
-def sort_dict(d, key=None, reverse=False):
-    """
-    Sorts a dict by value.
-
-    Args:
-        d: Input dictionary
-        key: Function which takes an tuple (key, object) and returns a value to
-            compare and sort by. By default, the function compares the values
-            of the dict i.e. key = lambda t : t[1]
-        reverse: Allows to reverse sort order.
-
-    Returns:
-        OrderedDict object whose keys are ordered according to their value.
-    """
-    kv_items = list(d.items())
-
-    # Sort kv_items according to key.
-    if key is None:
-        kv_items.sort(key=lambda t: t[1], reverse=reverse)
-    else:
-        kv_items.sort(key=key, reverse=reverse)
-
-    # Build ordered dict.
-    return collections.OrderedDict(kv_items)
 
 
 def minloc(seq):

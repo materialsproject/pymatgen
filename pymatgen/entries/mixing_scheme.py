@@ -74,7 +74,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
                 The list of run_type_1 entries provided to process_entries MUST form a complete
                 Phase Diagram in order for the mixing scheme to work. If this condition is not
-                satisifed, processing the entries will fail.
+                satisfied, processing the entries will fail.
 
                 Note that the special string "GGA(+U)" (default) will treat both GGA and GGA+U
                 calculations as a single type. This option exists because GGA/GGA+U mixing is
@@ -90,7 +90,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             fuzzy_matching: Whether to use less strict structure matching logic for
                 diatomic elements O2, N2, F2, H2, and Cl2 as well as I and Br. Outputs of DFT
                 relaxations using
-                different functionals frequently fail to struture match for these elements
+                different functionals frequently fail to structure match for these elements
                 even though they come from the same original material. Fuzzy structure matching
                 considers the materials equivalent if the formula, number of sites, and
                 space group are all identical. If there are multiple materials of run_type_2
@@ -446,7 +446,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"because there are no {self.run_type_2} ground states at this composition."
             )
 
-        # this statement is here to make pylint happy by gauranteeing a return or raise
+        # this statement is here to make pylint happy by guaranteeing a return or raise
         else:
             raise CompatibilityError(
                 "WARNING! If you see this Exception it means you have encountered"

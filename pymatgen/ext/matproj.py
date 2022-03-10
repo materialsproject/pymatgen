@@ -25,12 +25,11 @@ from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from monty.serialization import dumpfn
+from ruamel.yaml import YAML
 from tqdm import tqdm
 
 from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core import __version__ as PMG_VERSION
-from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -195,12 +194,13 @@ class MPRester:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         if notify_db_version:
+            yaml = YAML()
             db_version = self.get_database_version()
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
                 with open(SETTINGS_FILE) as f:
-                    d = yaml.load(f)
+                    d = dict(yaml.load(f))
             except OSError:
                 d = {}
 
@@ -208,6 +208,13 @@ class MPRester:
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            else:
+                # ensure data is parsed as dict, rather than ordered dict,
+                # due to change in YAML parsing behavior
+                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+
+            if "LOG" in d["MAPI_DB_VERSION"]:
+                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
             if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
@@ -228,7 +235,8 @@ class MPRester:
             # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                dumpfn(d, SETTINGS_FILE)
+                with open(SETTINGS_FILE, "wt") as f:
+                    yaml.dump(d, f)
             except Exception:
                 pass
 
@@ -582,7 +590,7 @@ class MPRester:
     def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
-        a pourbaix diagram from the rest interface.
+        a Pourbaix diagram from the rest interface.
 
         Args:
             chemsys (str or [str]): Chemical system string comprising element
@@ -664,7 +672,7 @@ class MPRester:
             ion_entry = IonEntry(ion, energy)
             pbx_entries.append(PourbaixEntry(ion_entry, f"ion-{n}"))
 
-        # Construct the solid pourbaix entries from filtered ion_ref entries
+        # Construct the solid Pourbaix entries from filtered ion_ref entries
 
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
@@ -928,7 +936,6 @@ class MPRester:
         mp_decode=True,
     ):
         r"""
-
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard

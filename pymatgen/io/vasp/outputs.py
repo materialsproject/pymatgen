@@ -4,6 +4,7 @@
 """
 Classes for reading/manipulating/writing VASP output files.
 """
+from __future__ import annotations
 
 import datetime
 import glob
@@ -16,9 +17,10 @@ import re
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import DefaultDict, List, Optional, Tuple, Union
+from typing import DefaultDict, Literal
 
 import numpy as np
 from monty.dev import deprecated
@@ -68,7 +70,7 @@ def _parse_parameters(val_type, val):
 
 
 def _parse_v_parameters(val_type, val, filename, param_name):
-    r"""
+    """
     Helper function to convert a Vasprun array-type parameter into the proper
     type. Boolean, int and float types are converted.
 
@@ -567,7 +569,7 @@ class Vasprun(MSONable):
                 equation
                 """
                 hbar = 6.582119514e-16  # eV/K
-                coeff = np.sqrt(np.sqrt(real ** 2 + imag ** 2) - real) * np.sqrt(2) / hbar * freq
+                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hbar * freq
                 return coeff
 
             absorption_coeff = [
@@ -808,8 +810,8 @@ class Vasprun(MSONable):
 
     def get_band_structure(
         self,
-        kpoints_filename: Optional[str] = None,
-        efermi: Optional[Union[float, str]] = None,
+        kpoints_filename: str | None = None,
+        efermi: float | Literal["smart"] | None = None,
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
@@ -855,9 +857,11 @@ class Vasprun(MSONable):
                 raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
-            efermi = self.calculate_efermi()
+            e_fermi = self.calculate_efermi()
         elif efermi is None:
-            efermi = self.efermi
+            e_fermi = self.efermi
+        else:
+            e_fermi = efermi
 
         kpoint_file = None
         if kpoints_filename and os.path.exists(kpoints_filename):
@@ -940,7 +944,7 @@ class Vasprun(MSONable):
                 kpoints,
                 eigenvals,
                 lattice_new,
-                efermi,
+                e_fermi,
                 labels_dict,
                 structure=self.final_structure,
                 projections=p_eigenvals,
@@ -949,7 +953,7 @@ class Vasprun(MSONable):
             kpoints,
             eigenvals,
             lattice_new,
-            efermi,
+            e_fermi,
             structure=self.final_structure,
             projections=p_eigenvals,
         )
@@ -1226,10 +1230,17 @@ class Vasprun(MSONable):
             else:
                 ptype = c.attrib.get("type")
                 val = c.text.strip() if c.text else ""
-                if c.tag == "i":
-                    params[name] = _parse_parameters(ptype, val)
-                else:
-                    params[name] = _parse_v_parameters(ptype, val, self.filename, name)
+                try:
+                    if c.tag == "i":
+                        params[name] = _parse_parameters(ptype, val)
+                    else:
+                        params[name] = _parse_v_parameters(ptype, val, self.filename, name)
+                except Exception as ex:
+                    if name == "RANDOM_SEED":
+                        # Handles the case where RANDOM SEED > 99999, which results in *****
+                        params[name] = None
+                    else:
+                        raise ex
         elem.clear()
         return Incar(params)
 
@@ -1484,8 +1495,8 @@ class BSVasprun(Vasprun):
     def __init__(
         self,
         filename: str,
-        parse_projected_eigen: Union[bool, str] = False,
-        parse_potcar_file: Union[bool, str] = False,
+        parse_projected_eigen: bool | str = False,
+        parse_potcar_file: bool | str = False,
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
     ):
@@ -3671,8 +3682,8 @@ class VolumetricData(MSONable):
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
             lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
             if not vasp4_compatible:
-                lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
-            lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
+            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
@@ -4849,7 +4860,8 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(int)
+            self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
+            self.encut = np.fromfile(f, dtype=np.float64, count=1)[0]
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -5027,7 +5039,7 @@ class Wavecar:
 
         self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(int)
 
-    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
+    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> tuple[list, list, list]:
         """
         Helper function to generate G-points based on nbmax.
 
@@ -5065,7 +5077,7 @@ class Wavecar:
                     G = np.array([k1, j2, i3])
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
-                    E = g ** 2 / self._C
+                    E = g**2 / self._C
                     if E < self.encut:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):
@@ -5161,8 +5173,8 @@ class Wavecar:
         poscar: Poscar,
         kpoint: int,
         band: int,
-        spin: Optional[int] = None,
-        spinor: Optional[int] = None,
+        spin: int | None = None,
+        spinor: int | None = None,
         phase: bool = False,
         scale: int = 2,
     ) -> Chgcar:
@@ -5619,6 +5631,70 @@ class Waveder:
             raise ValueError("cart_dir index out of bounds")
 
         return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
+
+
+@dataclass
+class WSWQ(MSONable):
+    r"""
+    Class for reading a WSWQ file.
+    The WSWQ file is used to calculation the wave function overlaps betweeen
+        - W: Wavefunctions in the currenct directory's WAVECAR file
+        - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq
+
+    The overlap is computed using the overlap operator S
+    which make the PAW wavefunctions orthogonormal:
+        <W_k,m| S | W_k,n> = \delta_{mn}
+
+    The WSWQ file contains matrix elements of the overlap operator S evaluated
+    between the planewave wavefunctions W and WQ:
+        COVL_k,mn = < W_s,k,m | S | WQ_s,k,n >
+
+    The indices of WSWQ.data are:
+        [spin][kpoint][band_i][band_j]
+
+    """
+
+    nspin: int
+    nkpoints: int
+    nbands: int
+    data: np.ndarray
+
+    @classmethod
+    def from_file(cls, filename):
+        """
+        Search for lines containing "spin"
+        """
+        spin_res = regrep(
+            filename,
+            {"spin": r"spin\s*=\s*(\d+)\s?\,\s?kpoint\s*=\s*(\d+)"},
+            reverse=True,
+            terminate_on_match=True,
+            postprocess=int,
+        )["spin"]
+        (nspin, nkpoints), _ = spin_res[0]
+        ij_res = regrep(
+            filename,
+            {"ij": r"i\s*=\s*(\d+)\s?\,\s?j\s*=\s*(\d+)"},
+            reverse=True,
+            terminate_on_match=True,
+            postprocess=int,
+        )["ij"]
+        (nbands, _), _ = ij_res[0]
+        data_res = regrep(
+            filename,
+            {"data": r"\:\s*([-+]?\d*\.\d+)\s+([-+]?\d*\.\d+)"},
+            reverse=False,
+            terminate_on_match=False,
+            postprocess=float,
+        )["data"]
+        assert len(data_res) == nspin * nkpoints * nbands * nbands
+
+        data = np.array([complex(real_part, img_part) for (real_part, img_part), _ in data_res])
+
+        # NOTE: loop order (slow->fast) spin -> kpoint -> j -> i
+        data = data.reshape((nspin, nkpoints, nbands, nbands))
+        data = np.swapaxes(data, 2, 3)  # swap i and j
+        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, data=data)
 
 
 class UnconvergedVASPWarning(Warning):

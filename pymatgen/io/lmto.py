@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
-
 """
 Module for implementing a CTRL file object class for the Stuttgart
 LMTO-ASA code. It will primarily be used to generate a pymatgen
@@ -386,10 +385,10 @@ class LMTOCopl:
             # This takes care of duplicate labels
             if label in cohp_data:
                 i = 1
-                lab = "%s-%d" % (label, i)
+                lab = f"{label}-{i}"
                 while lab in cohp_data:
                     i += 1
-                    lab = "%s-%d" % (label, i)
+                    lab = f"{label}-{i}"
                 label = lab
 
             cohp_data[label] = {

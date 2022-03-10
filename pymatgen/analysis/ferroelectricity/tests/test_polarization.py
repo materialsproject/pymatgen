@@ -1,7 +1,14 @@
 import os
 import unittest
 
-from pymatgen.analysis.ferroelectricity.polarization import *
+import numpy as np
+
+from pymatgen.analysis.ferroelectricity.polarization import (
+    EnergyTrend,
+    Polarization,
+    get_total_ionic_dipole,
+    zval_dict_from_potcar,
+)
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
