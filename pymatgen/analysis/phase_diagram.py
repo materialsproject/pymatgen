@@ -366,7 +366,7 @@ class PhaseDiagram(MSONable):
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = tuple(computed_data["qhull_entries"])
         self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
-        self._stable_entries = tuple(set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets))))
+        self._stable_entries = tuple({self.qhull_entries[i] for i in set(itertools.chain(*self.facets))})
         self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
 
     def as_dict(self):
@@ -857,11 +857,9 @@ class PhaseDiagram(MSONable):
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
-                (
                     f"There are {len(competing_entries)} competing entries "
                     f"for {entry.composition} - Calculating inner hull to discard "
                     "additional unstable entries"
-                )
             )
 
             reduced_space = (
@@ -878,11 +876,9 @@ class PhaseDiagram(MSONable):
 
         if len(competing_entries) > space_limit:
             warnings.warn(
-                (
                     f"There are {len(competing_entries)} competing entries "
                     f"for {entry.composition} - Using SLSQP to find "
                     "decomposition likely to be slow"
-                )
             )
 
         decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
@@ -1525,11 +1521,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
 
         # Get all unique chemical spaces
-        spaces = set(s for s in self._qhull_spaces if len(s) > 1)
+        spaces = {s for s in self._qhull_spaces if len(s) > 1}
 
         # Remove redundant chemical spaces
         if not keep_all_spaces:
-            max_size = max([len(s) for s in spaces])
+            max_size = max(len(s) for s in spaces)
 
             systems = []
             # NOTE reduce the number of comparisons by only comparing to larger sets
@@ -1555,7 +1551,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         # Add terminal elements as we may not have PD patches including them
         # NOTE add el_refs incase no multielement entries are present for el
-        _stable_entries = set(se for pd in pds.values() for se in pd._stable_entries)
+        _stable_entries = {se for pd in pds.values() for se in pd._stable_entries}
         self._stable_entries = tuple(_stable_entries.union(self.el_refs.values()))
         self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
 
