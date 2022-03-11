@@ -6,13 +6,15 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
+from __future__ import annotations
+
 import collections
 import fnmatch
 import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 from monty.io import zopen
@@ -412,7 +414,7 @@ class Icohplist:
         )
 
     @property
-    def icohplist(self) -> Dict[Any, Dict[str, Any]]:
+    def icohplist(self) -> dict[Any, dict[str, Any]]:
         """
         Returns: icohplist compatible with older version of this class
         """
@@ -1063,7 +1065,7 @@ class Fatband:
 
     .. attribute: label_dict
 
-         (dict) of {} this link a kpoint (in frac coords or cartesian coordinates depending on the coords).
+         (dict) of {} this link a kpoint (in frac coords or Cartesian coordinates depending on the coords).
 
     .. attribute: lattice
 
@@ -1360,7 +1362,7 @@ class Bandoverlaps:
     def has_good_quality_check_occupied_bands(
         self,
         number_occ_bands_spin_up: int,
-        number_occ_bands_spin_down: Optional[int] = None,
+        number_occ_bands_spin_down: int | None = None,
         spin_polarized: bool = False,
         limit_deviation: float = 0.1,
     ) -> bool:

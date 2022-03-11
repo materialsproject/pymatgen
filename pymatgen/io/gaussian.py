@@ -413,7 +413,7 @@ class GaussianInput:
 
     def get_cart_coords(self):
         """
-        Return the cartesian coordinates of the molecule
+        Return the Cartesian coordinates of the molecule
         """
 
         def to_s(x):
@@ -431,7 +431,7 @@ class GaussianInput:
         """
         Return GaussianInput string
 
-        Option: when cart_coords is set to True return the cartesian coordinates
+        Option: when cart_coords is set to True return the Cartesian coordinates
                 instead of the z-matrix
 
         """
@@ -575,7 +575,7 @@ class GaussianOutput:
 
     .. attribute:: cart_forces
 
-        All cartesian forces from the calculation.
+        All Cartesian forces from the calculation.
 
     .. attribute:: frequencies
 

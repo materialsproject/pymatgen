@@ -6,13 +6,11 @@ This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-__author__ = "Anubhav Jain, Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-
+from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Tuple, Union
+from typing import Iterable
 
 from scipy.constants import N_A
 
@@ -22,6 +20,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
+__author__ = "Anubhav Jain, Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
 
 
 @dataclass
@@ -38,8 +39,8 @@ class InsertionElectrode(AbstractElectrode):
     @classmethod
     def from_entries(
         cls,
-        entries: Iterable[Union[ComputedEntry, ComputedStructureEntry]],
-        working_ion_entry: Union[ComputedEntry, ComputedStructureEntry, PDEntry],
+        entries: Iterable[ComputedEntry | ComputedStructureEntry],
+        working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
     ):
         """
@@ -81,7 +82,7 @@ class InsertionElectrode(AbstractElectrode):
         # Set an artificial high energy for each element for convex hull generation
         element_energy = max(entry.energy_per_atom for entry in entries) + 10
 
-        pdentries: List[Union[ComputedEntry, ComputedStructureEntry, PDEntry]] = []
+        pdentries: list[ComputedEntry | ComputedStructureEntry | PDEntry] = []
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
@@ -101,7 +102,7 @@ class InsertionElectrode(AbstractElectrode):
         _unstable_entries = tuple(sorted((e for e in pd.unstable_entries if e in entries), key=lifrac))
 
         # create voltage pairs
-        _vpairs: Tuple[AbstractVoltagePair, ...] = tuple(
+        _vpairs: tuple[AbstractVoltagePair, ...] = tuple(
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],
@@ -316,7 +317,7 @@ class InsertionElectrode(AbstractElectrode):
                 battery_list.append(self.__class__.from_entries(all_entries, self.working_ion_entry))
         return battery_list
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.

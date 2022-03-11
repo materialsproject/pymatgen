@@ -322,7 +322,7 @@ class StructureMatcher(MSONable):
             structure within a fractional tolerance.
             ii. If true:
 
-                ia. Convert both lattices to cartesian and place
+                ia. Convert both lattices to Cartesian and place
                 both structures on an average lattice
                 ib. Compute and return the average and max rms
                 displacement between the two structures normalized
@@ -513,7 +513,7 @@ class StructureMatcher(MSONable):
     @classmethod
     def _cart_dists(cls, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
         """
-        Finds a matching in cartesian space. Finds an additional
+        Finds a matching in Cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
 
         Args:
@@ -1195,7 +1195,7 @@ class StructureMatcher(MSONable):
 class PointDefectComparator(MSONable):
     """
     A class that matches pymatgen Point Defect objects even if their
-    cartesian coordinates are different (compares sublattices for the defect)
+    Cartesian coordinates are different (compares sublattices for the defect)
 
     NOTE: for defect complexes (more than a single defect),
     this comparator will break.

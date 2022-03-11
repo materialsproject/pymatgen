@@ -6,6 +6,8 @@ This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.
 """
 
+from __future__ import annotations
+
 import collections
 import numbers
 import os
@@ -14,7 +16,7 @@ import string
 import warnings
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import Dict, Generator, List, Tuple, Union
+from typing import Generator, Union
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -246,7 +248,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
-    def almost_equals(self, other: "Composition", rtol: float = 0.1, atol: float = 1e-8) -> bool:
+    def almost_equals(self, other: Composition, rtol: float = 0.1, atol: float = 1e-8) -> bool:
         """
         Returns true if compositions are equal within a tolerance.
 
@@ -271,7 +273,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return len(self) == 1
 
-    def copy(self) -> "Composition":
+    def copy(self) -> Composition:
         """
         :return: A copy of the composition.
         """
@@ -313,7 +315,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return " ".join(formula)
 
     @property
-    def element_composition(self) -> "Composition":
+    def element_composition(self) -> Composition:
         """
         Returns the composition replacing any species by the corresponding
         element.
@@ -321,7 +323,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
-    def fractional_composition(self) -> "Composition":
+    def fractional_composition(self) -> Composition:
         """
         Returns the normalized composition which the number of species sum to
         1.
@@ -332,7 +334,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return self / self._natoms
 
     @property
-    def reduced_composition(self) -> "Composition":
+    def reduced_composition(self) -> Composition:
         """
         Returns the reduced composition,i.e. amounts normalized by greatest
         common denominator. e.g., Composition("FePO4") for
@@ -340,7 +342,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return self.get_reduced_composition_and_factor()[0]
 
-    def get_reduced_composition_and_factor(self) -> Tuple["Composition", float]:
+    def get_reduced_composition_and_factor(self) -> tuple[Composition, float]:
         """
         Calculates a reduced composition and factor.
 
@@ -351,7 +353,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         factor = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> Tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, float]:
         """
         Calculates a reduced formula and factor.
 
@@ -383,7 +385,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def get_integer_formula_and_factor(
         self, max_denominator: int = 10000, iupac_ordering: bool = False
-    ) -> Tuple[str, float]:
+    ) -> tuple[str, float]:
         """
         Calculates an integer formula and factor.
 
@@ -442,7 +444,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return " ".join(formula)
 
     @property
-    def elements(self) -> List[Union[Element, Species, DummySpecies]]:
+    def elements(self) -> list[Element | Species | DummySpecies]:
         """
         Returns view of elements in Composition.
         """
@@ -538,7 +540,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return any(category[0] in el.block for el in self.elements)
         return any(getattr(el, f"is_{category}") for el in self.elements)
 
-    def _parse_formula(self, formula: str) -> Dict[str, float]:
+    def _parse_formula(self, formula: str) -> dict[str, float]:
         """
         Args:
             formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
@@ -553,8 +555,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
 
-        def get_sym_dict(form: str, factor: Union[int, float]) -> Dict[str, float]:
-            sym_dict: Dict[str, float] = collections.defaultdict(float)
+        def get_sym_dict(form: str, factor: int | float) -> dict[str, float]:
+            sym_dict: dict[str, float] = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
                 amt = 1.0
@@ -622,7 +624,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return "Comp: " + self.formula
 
     @classmethod
-    def from_dict(cls, d) -> "Composition":
+    def from_dict(cls, d) -> Composition:
         """
         Creates a composition from a dict generated by as_dict(). Strictly not
         necessary given that the standard constructor already takes in such an
@@ -635,24 +637,24 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return cls(d)
 
-    def get_el_amt_dict(self) -> Dict[str, float]:
+    def get_el_amt_dict(self) -> dict[str, float]:
         """
         Returns:
             Dict with element symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d: Dict[str, float] = collections.defaultdict(float)
+        d: dict[str, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[e.symbol] += a
         return d
 
-    def as_dict(self) -> Dict[str, float]:
+    def as_dict(self) -> dict[str, float]:
         """
         Returns:
             dict with species symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d: Dict[str, float] = collections.defaultdict(float)
+        d: dict[str, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[str(e)] += a
         return d
@@ -688,7 +690,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         target_charge: float = 0,
         all_oxi_states: bool = False,
         max_sites: int = None,
-    ) -> List[Dict[str, float]]:
+    ) -> list[dict[str, float]]:
         """
         Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
@@ -724,7 +726,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
-    def replace(self, elem_map: Dict[str, Union[str, Dict[str, Union[int, float]]]]) -> "Composition":
+    def replace(self, elem_map: dict[str, str | dict[str, int | float]]) -> Composition:
         """
         Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
 
@@ -766,7 +768,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         target_charge: float = 0,
         all_oxi_states: bool = False,
         max_sites: int = None,
-    ) -> "Composition":
+    ) -> Composition:
         """
         Assign oxidation states based on guessed oxidation states.
 
@@ -815,7 +817,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Return the new object
         return Composition(collections.Counter(species))
 
-    def remove_charges(self) -> "Composition":
+    def remove_charges(self) -> Composition:
         """
         Removes the charges from any species in a Composition object.
 
@@ -823,7 +825,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Composition object without charge decoration, for example
             {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
         """
-        d: Dict[Element, float] = collections.defaultdict(float)
+        d: dict[Element, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[Element(e.symbol)] += a
         return Composition(d)
@@ -965,7 +967,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(
         fuzzy_formula: str, lock_if_strict: bool = True
-    ) -> List["Composition"]:
+    ) -> list[Composition]:
         """
         Takes in a formula where capitalization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
@@ -1005,10 +1007,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @staticmethod
     def _comps_from_fuzzy_formula(
         fuzzy_formula: str,
-        m_dict: Dict[str, float] = None,
+        m_dict: dict[str, float] = None,
         m_points: int = 0,
-        factor: Union[int, float] = 1,
-    ) -> Generator[Tuple["Composition", int], None, None]:
+        factor: int | float = 1,
+    ) -> Generator[tuple[Composition, int], None, None]:
         """
         A recursive helper method for formula parsing that helps in
         interpreting and ranking indeterminate formulas.
@@ -1146,7 +1148,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                         yield match
 
 
-def reduce_formula(sym_amt, iupac_ordering: bool = False) -> Tuple[str, float]:
+def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
     """
     Helper method to reduce a sym_amt dict to a reduced formula and factor.
 

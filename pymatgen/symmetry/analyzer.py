@@ -242,7 +242,7 @@ class SpacegroupAnalyzer:
         """
         Return symmetry operations as a list of SymmOp objects.
         By default returns fractional coord symmops.
-        But cartesian can be returned too.
+        But Cartesian can be returned too.
 
         Returns:
             ([SymmOp]): List of symmetry operations.
@@ -263,10 +263,10 @@ class SpacegroupAnalyzer:
         """
         Return symmetry operations as a list of SymmOp objects.
         By default returns fractional coord symmops.
-        But cartesian can be returned too.
+        But Cartesian can be returned too.
 
         Args:
-            cartesian (bool): Whether to return SymmOps as cartesian or
+            cartesian (bool): Whether to return SymmOps as Cartesian or
                 direct coordinate operations.
 
         Returns:

@@ -113,7 +113,7 @@ class PolarizationLattice(Structure):
         """
         Given coords and a site, find closet site to coords.
         Args:
-            coords (3x1 array): cartesian coords of center of sphere
+            coords (3x1 array): Cartesian coords of center of sphere
             site: site to find closest to coords
             r: radius of sphere. Defaults to diagonal of unit cell
 
