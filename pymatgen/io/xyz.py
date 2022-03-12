@@ -21,7 +21,7 @@ class XYZ:
 
     .. note::
         Exporting periodic structures in the XYZ format will lose information
-        about the periodicity. Essentially, only cartesian coordinates are
+        about the periodicity. Essentially, only Cartesian coordinates are
         written in this format and no information is retained about the
         lattice.
     """

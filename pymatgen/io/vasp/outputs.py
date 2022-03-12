@@ -4,6 +4,9 @@
 """
 Classes for reading/manipulating/writing VASP output files.
 """
+
+from __future__ import annotations
+
 import datetime
 import glob
 import itertools
@@ -18,7 +21,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import DefaultDict, List, Optional, Tuple, Union
+from typing import DefaultDict, Literal
 
 import numpy as np
 from monty.dev import deprecated
@@ -201,7 +204,7 @@ class Vasprun(MSONable):
 
         Final projected magnetisation as a numpy array with the shape (nkpoints, nbands,
         natoms, norbitals, 3). Where the last axis is the contribution in the 3
-        cartesian directions. This attribute is only set if spin-orbit coupling
+        Cartesian directions. This attribute is only set if spin-orbit coupling
         (LSORBIT = True) or non-collinear magnetism (LNONCOLLINEAR = True) is turned
         on in the INCAR.
 
@@ -808,8 +811,8 @@ class Vasprun(MSONable):
 
     def get_band_structure(
         self,
-        kpoints_filename: Optional[str] = None,
-        efermi: Optional[Union[float, str]] = None,
+        kpoints_filename: str | None = None,
+        efermi: float | Literal["smart"] | None = None,
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
@@ -855,9 +858,11 @@ class Vasprun(MSONable):
                 raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
-            efermi = self.calculate_efermi()
+            e_fermi = self.calculate_efermi()
         elif efermi is None:
-            efermi = self.efermi
+            e_fermi = self.efermi
+        else:
+            e_fermi = efermi
 
         kpoint_file = None
         if kpoints_filename and os.path.exists(kpoints_filename):
@@ -940,7 +945,7 @@ class Vasprun(MSONable):
                 kpoints,
                 eigenvals,
                 lattice_new,
-                efermi,
+                e_fermi,
                 labels_dict,
                 structure=self.final_structure,
                 projections=p_eigenvals,
@@ -949,7 +954,7 @@ class Vasprun(MSONable):
             kpoints,
             eigenvals,
             lattice_new,
-            efermi,
+            e_fermi,
             structure=self.final_structure,
             projections=p_eigenvals,
         )
@@ -1453,7 +1458,7 @@ class Vasprun(MSONable):
         if len(proj_eigen) > 2:
             # non-collinear magentism (also spin-orbit coupling) enabled, last three
             # "spin channels" are the projected magnetisation of the orbitals in the
-            # x, y, and z cartesian coordinates
+            # x, y, and z Cartesian coordinates
             proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)
             proj_eigen = {Spin.up: proj_eigen[1]}
         else:
@@ -1491,8 +1496,8 @@ class BSVasprun(Vasprun):
     def __init__(
         self,
         filename: str,
-        parse_projected_eigen: Union[bool, str] = False,
-        parse_potcar_file: Union[bool, str] = False,
+        parse_projected_eigen: bool | str = False,
+        parse_potcar_file: bool | str = False,
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
     ):
@@ -5035,7 +5040,7 @@ class Wavecar:
 
         self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(int)
 
-    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
+    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> tuple[list, list, list]:
         """
         Helper function to generate G-points based on nbmax.
 
@@ -5169,8 +5174,8 @@ class Wavecar:
         poscar: Poscar,
         kpoint: int,
         band: int,
-        spin: Optional[int] = None,
-        spinor: Optional[int] = None,
+        spin: int | None = None,
+        spinor: int | None = None,
         phase: bool = False,
         scale: int = 2,
     ) -> Chgcar:
@@ -5608,13 +5613,13 @@ class Waveder:
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
         Method returning a value
-        between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
+        between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
         Args:
             band_i (Integer): Index of band i
             band_j (Integer): Index of band j
             kpoint (Integer): Index of k-point
             spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of cartesian direction (0,1,2)
+            cart_dir (Integer): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value

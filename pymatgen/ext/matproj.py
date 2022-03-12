@@ -11,6 +11,8 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import logging
@@ -21,7 +23,6 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -1620,8 +1621,8 @@ class MPRester:
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
 
-    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
-        nomad_exist_task_ids: List[str] = []
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> list[str]:
+        nomad_exist_task_ids: list[str] = []
         prefix = prefix.replace("/raw/query", "/repo/")
         for task_id in task_ids:
             url = prefix + task_id

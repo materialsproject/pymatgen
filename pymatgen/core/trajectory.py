@@ -5,11 +5,13 @@
 This module provides classes used to define a MD trajectory.
 """
 
+from __future__ import annotations
+
 import itertools
 import os
 import warnings
 from fnmatch import fnmatch
-from typing import List, Sequence, Union
+from typing import Sequence
 
 import numpy as np
 from monty.io import zopen
@@ -38,9 +40,9 @@ class Trajectory(MSONable):
 
     def __init__(
         self,
-        lattice: Union[Sequence[float], Sequence[Sequence[float]], np.ndarray, Lattice],
-        species: List[Union[str, Element, Species, DummySpecies, Composition]],
-        frac_coords: Union[List[Sequence[Sequence[float]]], np.ndarray],
+        lattice: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Lattice,
+        species: list[str | Element | Species | DummySpecies | Composition],
+        frac_coords: list[Sequence[Sequence[float]]] | np.ndarray,
         time_step: float = 2,
         site_properties: dict = None,
         frame_properties: dict = None,

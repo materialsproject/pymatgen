@@ -13,12 +13,14 @@ A quick overview of the module:
 -- The rest of the classes are children of Section intended to make initialization of common sections easier.
 """
 
+from __future__ import annotations
+
 import copy
 import os
 import re
 import textwrap
 import warnings
-from typing import Dict, List, Literal, Sequence, Tuple, Union
+from typing import Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -231,9 +233,9 @@ class Section(MSONable):
         name: str,
         subsections: dict = None,
         repeats: bool = False,
-        description: Union[str, None] = None,
-        keywords: Dict = {},
-        section_parameters: Union[List, Tuple] = [],
+        description: str | None = None,
+        keywords: dict = {},
+        section_parameters: list | tuple = [],
         location: str = None,
         verbose: bool = True,
         alias: str = None,
@@ -631,7 +633,7 @@ class Cp2kInput(Section):
         return Cp2kInput.from_lines(lines)
 
     @classmethod
-    def from_lines(cls, lines: Union[List, tuple]):
+    def from_lines(cls, lines: list | tuple):
         """
         Helper method to read lines of file
         """
@@ -954,8 +956,8 @@ class Mgrid(Section):
 
     def __init__(
         self,
-        cutoff: Union[int, float] = 1200,
-        rel_cutoff: Union[int, float] = 80,
+        cutoff: int | float = 1200,
+        rel_cutoff: int | float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
         subsections: dict = None,
@@ -1224,7 +1226,7 @@ class Kind(Section):
     def __init__(
         self,
         specie: str,
-        alias: Union[str, None] = None,
+        alias: str | None = None,
         magnetization: float = 0.0,
         subsections: dict = None,
         basis_set: str = "GTH_BASIS",
@@ -1350,8 +1352,8 @@ class Coord(Section):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
-        aliases: Union[dict, None] = None,
+        structure: Structure | Molecule,
+        aliases: dict | None = None,
         subsections: dict = None,
         **kwargs,
     ):
@@ -1424,7 +1426,7 @@ class LDOS(Section):
     Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.
     """
 
-    def __init__(self, index: int = 1, alias: Union[str, None] = None, **kwargs):
+    def __init__(self, index: int = 1, alias: str | None = None, **kwargs):
         """
         Initialize the LDOS section
 
@@ -1551,7 +1553,7 @@ class Smear(Section):
 
     def __init__(
         self,
-        elec_temp: Union[int, float] = 300,
+        elec_temp: int | float = 300,
         method: str = "FERMI_DIRAC",
         fixed_magnetic_moment: float = -1e2,
         **kwargs,
@@ -1716,8 +1718,8 @@ class PBE(Section):
     def __init__(
         self,
         parameterization: str = "ORIG",
-        scale_c: Union[float, int] = 1,
-        scale_x: Union[float, int] = 1,
+        scale_c: float | int = 1,
+        scale_x: float | int = 1,
     ):
         """
         Args:
@@ -1759,8 +1761,8 @@ class Kpoints(Section):
 
     def __init__(
         self,
-        kpts: Union[Sequence, Sequence[Sequence[int]]],
-        weights: Union[Sequence, None] = None,
+        kpts: Sequence | Sequence[Sequence[int]],
+        weights: Sequence | None = None,
         eps_geo: float = 1e-6,
         full_grid: bool = False,
         parallel_group_size: int = -1,

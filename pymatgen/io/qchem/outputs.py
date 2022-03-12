@@ -5,13 +5,15 @@
 Parsers for Qchem output files.
 """
 
+from __future__ import annotations
+
 import copy
 import logging
 import math
 import os
 import re
 import warnings
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 
 import networkx as nx
 import numpy as np
@@ -1416,7 +1418,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
             )
             special_elements = []
 
-    special_sites: List[List] = [[], []]
+    special_sites: list[list] = [[], []]
     for ii, mol in enumerate(mol_list):
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
@@ -1444,7 +1446,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     return "bond_change"
 
 
-def jump_to_header(lines: List[str], header: str) -> List[str]:
+def jump_to_header(lines: list[str], header: str) -> list[str]:
     """
     Given a list of lines, truncate the start of the list so that the first line
     of the new list contains the header.
@@ -1516,7 +1518,7 @@ def z_int(string: str) -> int:
         return -1
 
 
-def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
+def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the natural populations section of NBO output.
 
@@ -1579,7 +1581,7 @@ def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
     return pop_dfs
 
 
-def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
+def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the hybridization character section of NBO output.
 
@@ -1725,7 +1727,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
     return lp_and_bd_dfs
 
 
-def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
+def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the perturbation energy section of NBO output.
 
@@ -1826,7 +1828,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
     return e2_dfs
 
 
-def nbo_parser(filename: str) -> Dict[str, List[pd.DataFrame]]:
+def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     """
     Parse all the important sections of NBO output.
 

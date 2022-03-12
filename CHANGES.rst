@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v2022.2.25
-----------
+v2022.3.7
+---------
 
 * Add VASP WSWQ file parsing, PR #2439 from @jmmshn
 * Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
@@ -13,9 +13,12 @@ v2022.2.25
 * Update to ChemEnv citation, PR #2448 from @JaGeo
 * Type annotation fix, PR #2432 from @janosh
 * Documentation fix for Structure.apply_operation, PR #2433 from @janosh
+* Add caching to compatibility classes as speed optimization, PR #2450 from @munrojm
 
-Important note: an update to a library that pymatgen depends upon has led to the 
-~/.pmgrc.yml configuration file being corrupted for many users. If you are affected, 
+This release was previously intended for v2022.2.25.
+
+Important note: an update to a library that pymatgen depends upon has led to the
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
 you may need to re-generate this file. This issue should now be fixed and not re-occur.
 
 v2022.2.10
@@ -1587,7 +1590,7 @@ v3.2.5
 v3.2.4
 ------
 
-* GaussianOutput can now parse frequencies, normal modes and cartesian forces
+* GaussianOutput can now parse frequencies, normal modes and Cartesian forces
   (Xin Chen).
 * Support for Aiida<->pymatgen conversion by the Aiida development team (Andrius
   Merkys).
@@ -1710,7 +1713,7 @@ v3.0.11
 v3.0.10
 ------
 
-* Fix cartesian coord parsing in Poscar class.
+* Fix Cartesian coord parsing in Poscar class.
 * Vasprun now works with non-GGA PBE runs
 * Misc bug fixes
 
@@ -2119,7 +2122,7 @@ v2.6.3
   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
 * Improvements to StructureMatcher: stol (site - tolerance) redefined as
   a fraction of the average length per atom. Structures matched in fractional
-  space are now also matched in cartesian space and a rms displacement
+  space are now also matched in Cartesian space and a rms displacement
   normalized by length per atom can be returned using the rms_dist method.
 
 v2.6.2

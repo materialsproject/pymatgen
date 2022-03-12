@@ -9,6 +9,8 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Literal, Union
 
@@ -37,7 +39,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     def __init__(
         self,
-        composition: Union[Composition, str, Dict[str, float]],
+        composition: Composition | str | dict[str, float],
         energy: float,
     ):
         """
@@ -90,7 +92,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> "Entry":
+    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> Entry:
         """
         Normalize the entry's composition and energy.
 

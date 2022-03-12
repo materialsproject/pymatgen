@@ -5,9 +5,10 @@
 This module provides classes for non-standard space-group settings
 """
 
+from __future__ import annotations
+
 import re
 from fractions import Fraction
-from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -86,7 +87,7 @@ class JonesFaithfulTransformation:
     @staticmethod
     def parse_transformation_string(
         transformation_string: str = "a,b,c;0,0,0",
-    ) -> Tuple[Union[List[List[float]], np.ndarray], List[float]]:
+    ) -> tuple[list[list[float]] | np.ndarray, list[float]]:
         """
         Args:
             transformation_string (str, optional): Defaults to "a,b,c;0,0,0".
@@ -126,14 +127,14 @@ class JonesFaithfulTransformation:
             raise ValueError("Failed to parse transformation string.")
 
     @property
-    def P(self) -> List[List[float]]:
+    def P(self) -> list[list[float]]:
         """
         :return: transformation matrix
         """
         return self._P
 
     @property
-    def p(self) -> List[float]:
+    def p(self) -> list[float]:
         """
 
         :return: translation vector
@@ -141,7 +142,7 @@ class JonesFaithfulTransformation:
         return self._p
 
     @property
-    def inverse(self) -> "JonesFaithfulTransformation":
+    def inverse(self) -> JonesFaithfulTransformation:
         """
 
         :return: JonesFaithfulTransformation
@@ -157,13 +158,13 @@ class JonesFaithfulTransformation:
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod
-    def _get_transformation_string_from_Pp(P: Union[List[List[float]], np.ndarray], p: List[float]) -> str:
+    def _get_transformation_string_from_Pp(P: list[list[float]] | np.ndarray, p: list[float]) -> str:
         P = np.array(P).transpose()
         P_string = transformation_to_string(P, components=("a", "b", "c"))
         p_string = transformation_to_string(np.zeros((3, 3)), p)
         return P_string + ";" + p_string
 
-    def transform_symmop(self, symmop: Union[SymmOp, MagSymmOp]) -> Union[SymmOp, MagSymmOp]:
+    def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
         """
         Takes a symmetry operation and transforms it.
         :param symmop: SymmOp or MagSymmOp
@@ -187,7 +188,7 @@ class JonesFaithfulTransformation:
             return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
         raise RuntimeError
 
-    def transform_coords(self, coords: Union[List[List[float]], np.ndarray]) -> List[List[float]]:
+    def transform_coords(self, coords: list[list[float]] | np.ndarray) -> list[list[float]]:
         """
         Takes a list of coordinates and transforms them.
         :param coords: List of coords
