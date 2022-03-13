@@ -1,8 +1,8 @@
 import os
 import tempfile
 from pathlib import Path
-from subprocess import TimeoutExpired
 from shutil import which
+from subprocess import TimeoutExpired
 
 import pytest
 
