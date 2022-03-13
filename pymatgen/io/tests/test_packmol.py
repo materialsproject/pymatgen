@@ -13,6 +13,9 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
 
+if which("packmol") is None:
+    pytest.skip("packmol executable not present", allow_module_level=True)
+
 
 @pytest.fixture
 def ethanol():
@@ -50,7 +53,6 @@ def water():
     return Molecule(water_atoms, water_coords)
 
 
-@pytest.mark.skipif(which("packmol") is not None, reason="packmol executable not present")
 class TestPackmolSet:
     def test_packmol_with_molecule(self, water, ethanol):
         """
