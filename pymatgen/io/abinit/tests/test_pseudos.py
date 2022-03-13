@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,7 @@
 import collections
 import os.path
 
-from pymatgen.io.abinit.pseudos import *
+from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import PymatgenTest
 
 _test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")
@@ -37,7 +36,7 @@ class PseudoTestCase(PymatgenTest):
                 # is constructed with the rule: symbol_ppformat
                 attr_name = symbol + "_" + ext[1:]
                 if hasattr(self, attr_name):
-                    raise RuntimeError("self has already the attribute %s" % attr_name)
+                    raise RuntimeError(f"self has already the attribute {attr_name}")
 
                 setattr(self, attr_name, pseudo)
 

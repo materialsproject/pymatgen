@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -278,7 +277,7 @@ class DiffusionAnalyzer(MSONable):
                     dcomponents = dc[:, n:, :] - dc[:, :-n, :]
 
                 # Get msd
-                sq_disp = dx ** 2
+                sq_disp = dx**2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][indices])
 
@@ -344,7 +343,7 @@ class DiffusionAnalyzer(MSONable):
             # Drift and displacement information.
             self.drift = drift
             self.corrected_displacements = dc
-            self.max_ion_displacements = np.max(np.sum(dc ** 2, axis=-1) ** 0.5, axis=1)
+            self.max_ion_displacements = np.max(np.sum(dc**2, axis=-1) ** 0.5, axis=1)
             self.max_framework_displacement = np.max(self.max_ion_displacements[framework_indices])
             self.msd = msd
             self.mscd = mscd
@@ -471,7 +470,7 @@ class DiffusionAnalyzer(MSONable):
         plt.plot(plot_dt, rms[:, 0], label="RMS")
         plt.plot(plot_dt, rms[:, 1], label="max")
         plt.legend(loc="best")
-        plt.xlabel("Timestep ({})".format(unit))
+        plt.xlabel(f"Timestep ({unit})")
         plt.ylabel("normalized distance")
         plt.tight_layout()
         return plt
@@ -507,7 +506,7 @@ class DiffusionAnalyzer(MSONable):
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label="%s - %d" % (site.specie.__str__(), i))
+                plt.plot(plot_dt, sd, label=f"{site.specie.__str__()} - {i}")
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
             plt.plot(plot_dt, self.mscd, "r")
@@ -520,7 +519,7 @@ class DiffusionAnalyzer(MSONable):
             plt.plot(plot_dt, self.msd_components[:, 2], "b")
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
 
-        plt.xlabel("Timestep ({})".format(unit))
+        plt.xlabel(f"Timestep ({unit})")
         if mode == "mscd":
             plt.ylabel("MSCD ($\\AA^2$)")
         else:
@@ -559,14 +558,14 @@ class DiffusionAnalyzer(MSONable):
             f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))
             f.write("\n")
             for dt, msd, msdc, mscd in zip(self.dt, self.msd, self.msd_components, self.mscd):
-                f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(msdc) + [mscd]]))
+                f.write(delimiter.join([f"{v}" for v in [dt, msd] + list(msdc) + [mscd]]))
                 f.write("\n")
 
     @classmethod
     def from_structures(
         cls, structures, specie, temperature, time_step, step_skip, initial_disp=None, initial_structure=None, **kwargs
     ):
-        r"""
+        """
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
 
@@ -591,7 +590,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
+            kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         p, l = [], []
@@ -628,7 +627,7 @@ class DiffusionAnalyzer(MSONable):
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, initial_disp=None, initial_structure=None, **kwargs):
-        r"""
+        """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
 
@@ -648,7 +647,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial stricture from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
+            kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
 
@@ -688,7 +687,7 @@ class DiffusionAnalyzer(MSONable):
     def from_files(
         cls, filepaths, specie, step_skip=10, ncores=None, initial_disp=None, initial_structure=None, **kwargs
     ):
-        r"""
+        """
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
 
@@ -720,7 +719,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
+            kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
@@ -813,7 +812,7 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z**2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
 
 
 def _get_vasprun(args):
@@ -885,7 +884,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, spe
 
 
 def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
-    r"""
+    """
     Returns an Arrhenius plot.
 
     Args:
@@ -894,7 +893,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
             from DiffusionAnalyzer.diffusivity).
         diffusivity_errors ([float]): A sequence of errors for the
             diffusivities. If None, no error bar is plotted.
-        \\*\\*kwargs:
+        kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:
@@ -928,7 +927,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
     plt.text(
         0.6,
         0.85,
-        "E$_a$ = {:.0f} meV".format(Ea * 1000),
+        f"E$_a$ = {Ea * 1000:.0f} meV",
         fontsize=30,
         transform=plt.axes().transAxes,
     )

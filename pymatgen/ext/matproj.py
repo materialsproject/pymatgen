@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -15,19 +14,22 @@ https://www.materialsproject.org/dashboard.
 import itertools
 import json
 import logging
+import math
 import platform
 import re
 import sys
 import warnings
-from typing import List
 from enum import Enum, unique
 from time import sleep
+from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from monty.serialization import dumpfn
+from ruamel.yaml import YAML
+from tqdm import tqdm
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -35,11 +37,20 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import PBar, get_chunks
-from pymatgen.core import __version__ as PMG_VERSION
-
 
 logger = logging.getLogger(__name__)
+
+
+def get_chunks(sequence, size=1):
+    """
+    Args:
+        sequence ():
+        size ():
+
+    Returns:
+    """
+    chunks = int(math.ceil(len(sequence) / float(size)))
+    return [sequence[i * size : (i + 1) * size] for i in range(chunks)]
 
 
 @unique
@@ -170,7 +181,7 @@ class MPRester:
             self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://materialsproject.org/rest/v2")
 
         if self.preamble != "https://materialsproject.org/rest/v2":
-            warnings.warn("Non-default endpoint used: {}".format(self.preamble))
+            warnings.warn(f"Non-default endpoint used: {self.preamble}")
 
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
@@ -179,23 +190,31 @@ class MPRester:
             python_info = "Python/{}.{}.{}".format(
                 sys.version_info.major, sys.version_info.minor, sys.version_info.micro
             )
-            platform_info = "{}/{}".format(platform.system(), platform.release())
-            self.session.headers["user-agent"] = "{} ({} {})".format(pymatgen_info, python_info, platform_info)
+            platform_info = f"{platform.system()}/{platform.release()}"
+            self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         if notify_db_version:
+            yaml = YAML()
             db_version = self.get_database_version()
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
-                with open(SETTINGS_FILE, "rt") as f:
-                    d = yaml.safe_load(f)
-            except IOError:
+                with open(SETTINGS_FILE) as f:
+                    d = dict(yaml.load(f))
+            except OSError:
                 d = {}
 
             d = d if d else {}
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            else:
+                # ensure data is parsed as dict, rather than ordered dict,
+                # due to change in YAML parsing behavior
+                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+
+            if "LOG" in d["MAPI_DB_VERSION"]:
+                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
             if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
@@ -216,7 +235,8 @@ class MPRester:
             # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                dumpfn(d, SETTINGS_FILE)
+                with open(SETTINGS_FILE, "wt") as f:
+                    yaml.dump(d, f)
             except Exception:
                 pass
 
@@ -251,10 +271,10 @@ class MPRester:
                     return data["response"]
                 raise MPRestError(data["error"])
 
-            raise MPRestError("REST query returned with error status code {}".format(response.status_code))
+            raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
     def get_database_version(self):
@@ -285,7 +305,7 @@ class MPRester:
         Returns:
             materials_id (str)
         """
-        return self._make_request("/materials/mid_from_tid/%s" % task_id)
+        return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
     def get_materials_id_references(self, material_id):
         """
@@ -297,7 +317,7 @@ class MPRester:
         Returns:
             BibTeX (str)
         """
-        return self._make_request("/materials/%s/refs" % material_id)
+        return self._make_request(f"/materials/{material_id}/refs")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -322,7 +342,7 @@ class MPRester:
                 MPRester.supported_task_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        sub_url = "/materials/%s/%s" % (chemsys_formula_id, data_type)
+        sub_url = f"/materials/{chemsys_formula_id}/{data_type}"
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
@@ -338,7 +358,7 @@ class MPRester:
         Returns:
             ([str]) List of all materials ids.
         """
-        return self._make_request("/materials/%s/mids" % chemsys_formula, mp_decode=False)
+        return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
 
     def get_doc(self, materials_id):
         """
@@ -353,7 +373,7 @@ class MPRester:
             Dict of json document of all data that is displayed on a materials
             details page.
         """
-        return self._make_request("/materials/%s/doc" % materials_id, mp_decode=False)
+        return self._make_request(f"/materials/{materials_id}/doc", mp_decode=False)
 
     def get_xas_data(self, material_id, absorbing_element):
         """
@@ -376,7 +396,7 @@ class MPRester:
                 "mp_id: {}".format(absorbing_element, material_id)
             )
         data = self._make_request(
-            "/materials/{}/xas/{}".format(material_id, absorbing_element),
+            f"/materials/{material_id}/xas/{absorbing_element}",
             mp_decode=False,
         )
         return data[0]
@@ -400,7 +420,7 @@ class MPRester:
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        sub_url = "/tasks/%s" % chemsys_formula_id
+        sub_url = f"/tasks/{chemsys_formula_id}"
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
@@ -444,13 +464,13 @@ class MPRester:
             else:
                 raise MPRestError("Provide filename or Structure object.")
             payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
-            response = self.session.post("{}/find_structure".format(self.preamble), data=payload)
+            response = self.session.post(f"{self.preamble}/find_structure", data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     return resp["response"]
                 raise MPRestError(resp["error"])
-            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
+            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -526,7 +546,7 @@ class MPRester:
         entries = []
         for d in data:
             d["potcar_symbols"] = [
-                "%s %s" % (d["pseudo_potential"]["functional"], l) for l in d["pseudo_potential"]["labels"]
+                f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
@@ -570,13 +590,13 @@ class MPRester:
     def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
-        a pourbaix diagram from the rest interface.
+        a Pourbaix diagram from the rest interface.
 
         Args:
             chemsys (str or [str]): Chemical system string comprising element
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
-            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+            solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProject2020Compatibility
@@ -588,8 +608,8 @@ class MPRester:
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
             Compatibility,
-            MaterialsProjectAqueousCompatibility,
             MaterialsProject2020Compatibility,
+            MaterialsProjectAqueousCompatibility,
             MaterialsProjectCompatibility,
         )
 
@@ -602,7 +622,7 @@ class MPRester:
         else:
             raise ValueError(
                 "Solid compatibility can only be 'MaterialsProjectCompatibility', "
-                "'MaterialsProject2020Compatibility', or an instance of a Compatability class"
+                "'MaterialsProject2020Compatibility', or an instance of a Compatibility class"
             )
 
         pbx_entries = []
@@ -650,9 +670,9 @@ class MPRester:
             correction_factor = ion.composition[elt] / stable_ref.composition[elt]
             energy = i_d["Energy"] + solid_diff * correction_factor
             ion_entry = IonEntry(ion, energy)
-            pbx_entries.append(PourbaixEntry(ion_entry, "ion-{}".format(n)))
+            pbx_entries.append(PourbaixEntry(ion_entry, f"ion-{n}"))
 
-        # Construct the solid pourbaix entries from filtered ion_ref entries
+        # Construct the solid Pourbaix entries from filtered ion_ref entries
 
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
@@ -797,7 +817,7 @@ class MPRester:
         Returns:
             CompletePhononDos: A phonon DOS object.
         """
-        return self._make_request("/materials/{}/phonondos".format(material_id))
+        return self._make_request(f"/materials/{material_id}/phonondos")
 
     def get_phonon_bandstructure_by_material_id(self, material_id):
         """
@@ -809,7 +829,7 @@ class MPRester:
         Returns:
             PhononBandStructureSymmLine: A phonon band structure.
         """
-        return self._make_request("/materials/{}/phononbs".format(material_id))
+        return self._make_request(f"/materials/{material_id}/phononbs")
 
     def get_phonon_ddb_by_material_id(self, material_id):
         """
@@ -821,7 +841,7 @@ class MPRester:
         Returns:
             str: ABINIT DDB file as a string.
         """
-        return self._make_request("/materials/{}/abinit_ddb".format(material_id))
+        return self._make_request(f"/materials/{material_id}/abinit_ddb")
 
     def get_entries_in_chemsys(
         self,
@@ -916,7 +936,6 @@ class MPRester:
         mp_decode=True,
     ):
         r"""
-
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
@@ -999,7 +1018,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        progress_bar = PBar(total=len(mids))
+        progress_bar = tqdm(total=len(mids))
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
@@ -1113,7 +1132,7 @@ class MPRester:
             snl = snl if isinstance(snl, list) else [snl]
             jsondata = [s.as_dict() for s in snl]
             payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
-            response = self.session.post("{}/snl/submit".format(self.preamble), data=payload)
+            response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
@@ -1122,7 +1141,7 @@ class MPRester:
                     return resp["inserted_ids"]
                 raise MPRestError(resp["error"])
 
-            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
+            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -1145,7 +1164,7 @@ class MPRester:
         """
         try:
             payload = {"ids": json.dumps(snl_ids)}
-            response = self.session.post("{}/snl/delete".format(self.preamble), data=payload)
+            response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
 
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
@@ -1155,7 +1174,7 @@ class MPRester:
                     return resp
                 raise MPRestError(resp["error"])
 
-            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
+            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -1181,7 +1200,7 @@ class MPRester:
         """
         try:
             payload = {"criteria": json.dumps(criteria)}
-            response = self.session.post("{}/snl/query".format(self.preamble), data=payload)
+            response = self.session.post(f"{self.preamble}/snl/query", data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text)
                 if resp["valid_response"]:
@@ -1190,7 +1209,7 @@ class MPRester:
                     return resp["response"]
                 raise MPRestError(resp["error"])
 
-            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
+            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -1286,7 +1305,7 @@ class MPRester:
         try:
             payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
             response = self.session.post(
-                "{}/phase_diagram/calculate_stability".format(self.preamble),
+                f"{self.preamble}/phase_diagram/calculate_stability",
                 data=payload,
             )
             if response.status_code in [200, 400]:
@@ -1296,7 +1315,7 @@ class MPRester:
                         warnings.warn(resp["warning"])
                     return resp["response"]
                 raise MPRestError(resp["error"])
-            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
+            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -1317,7 +1336,7 @@ class MPRester:
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
-            e = self._make_request("/element/%s/tasks/isolated_atom" % (el), mp_decode=False)[0]
+            e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
@@ -1355,9 +1374,9 @@ class MPRester:
         Returns:
             list of dicts with substrate matches
         """
-        req = "/materials/{}/substrates?n={}".format(material_id, number)
+        req = f"/materials/{material_id}/substrates?n={number}"
         if orient:
-            req += "&orient={}".format(" ".join(map(str, orient)))
+            req += f"&orient={' '.join(map(str, orient))}"
         return self._make_request(req)
 
     def get_all_substrates(self):
@@ -1392,7 +1411,7 @@ class MPRester:
         Returns:
             Surface data for material. Energies are given in SI units (J/m^2).
         """
-        req = "/materials/{}/surfaces".format(material_id)
+        req = f"/materials/{material_id}/surfaces"
         if inc_structures:
             req += "?include_structures=true"
 
@@ -1697,5 +1716,3 @@ class MPRestError(Exception):
     Exception class for MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
-
-    pass

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -164,7 +163,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                     time_reversal=time_reversal,
                 )
                 # store string representation, e.g. (2x|1/2,1/2,1/2)'
-                seitz = "({0}|{1},{2},{3})".format(
+                seitz = "({}|{},{},{})".format(
                     point_operator["symbol"],
                     Fraction(translation_vec[0]),
                     Fraction(translation_vec[1]),
@@ -242,7 +241,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                 lattice.append(
                     {
                         "vector": [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
-                        "str": "({0},{1},{2})+".format(
+                        "str": "({},{},{})+".format(
                             Fraction(r[0] / r[3]).limit_denominator(),
                             Fraction(r[1] / r[3]).limit_denominator(),
                             Fraction(r[2] / r[3]).limit_denominator(),
@@ -485,13 +484,11 @@ class MagneticSpaceGroup(SymmetryGroup):
         )
 
         desc["og_bns_transformation"] = (
-            "OG-BNS Transform: ({})\n".format(self._data["og_bns_transform"])
-            if desc["magtype"] == 4 and include_og
-            else ""
+            f"OG-BNS Transform: ({self._data['og_bns_transform']})\n" if desc["magtype"] == 4 and include_og else ""
         )
 
-        bns_operators_prefix = "Operators{}: ".format(" (BNS)" if desc["magtype"] == 4 and include_og else "")
-        bns_wyckoff_prefix = "Wyckoff Positions{}: ".format(" (BNS)" if desc["magtype"] == 4 and include_og else "")
+        bns_operators_prefix = f"Operators{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "
+        bns_wyckoff_prefix = f"Wyckoff Positions{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "
 
         # apply textwrap on long lines
         desc["bns_operators"] = textwrap.fill(
@@ -577,6 +574,6 @@ def _write_all_magnetic_space_groups_to_file(filename):
     for i in range(1, 1652):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
-        s += "\n{}\n\n--------\n".format(msg.data_str())
+        s += f"\n{msg.data_str()}\n\n--------\n"
     with open(filename, "w") as f:
         f.write(s)

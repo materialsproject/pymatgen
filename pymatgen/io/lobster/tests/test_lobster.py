@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,6 +8,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
@@ -19,9 +19,9 @@ from pymatgen.io.lobster import (
     Fatband,
     Grosspop,
     Icohplist,
-    MadelungEnergies,
     Lobsterin,
     Lobsterout,
+    MadelungEnergies,
     SitePotential,
     Wavefunction,
 )
@@ -109,7 +109,6 @@ class CohpcarTest(PymatgenTest):
         self.assertFalse(self.cobi.are_coops)
         self.assertTrue(self.cobi.are_cobis)
         self.assertFalse(self.cobi.is_spin_polarized)
-        print(self.cobi.orb_res_cohp)
 
     def test_energies(self):
         efermi_bise = 5.90043
@@ -635,10 +634,15 @@ class DoscarTest(unittest.TestCase):
         # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
         poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
+        os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin_zip.gz")
+        os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS_zip.gz")
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        with open(os.path.join(test_dir_doscar, "structure_KF.json"), "r") as f:
+        self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
+        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
+
+        with open(os.path.join(test_dir_doscar, "structure_KF.json")) as f:
             data = json.load(f)
 
         self.structure = Structure.from_dict(data)
@@ -1856,7 +1860,7 @@ class LobsterinTest(unittest.TestCase):
                 os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
                 option=option,
             )
-            self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -15.0)
+            self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -35.0)
             self.assertAlmostEqual(lobsterin1["cohpendenergy"], 5.0)
             self.assertAlmostEqual(lobsterin1["basisset"], "pbeVaspFit2015")
             self.assertAlmostEqual(lobsterin1["gaussiansmearingwidth"], 0.1)

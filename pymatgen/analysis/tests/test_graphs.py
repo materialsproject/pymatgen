@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,10 +5,17 @@
 import copy
 import os
 import unittest
+import warnings
+from shutil import which
 
-from monty.serialization import loadfn  # , dumpfn
+from monty.serialization import loadfn
 
-from pymatgen.analysis.graphs import *
+from pymatgen.analysis.graphs import (
+    MoleculeGraph,
+    MolGraphSplitError,
+    PeriodicSite,
+    StructureGraph,
+)
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
     CutOffDictNN,
@@ -19,7 +25,8 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
 )
 from pymatgen.command_line.critic2_caller import Critic2Analysis
-from pymatgen.core.structure import FunctionalGroups, Molecule, Site, Structure
+from pymatgen.core import Lattice, Molecule, Site, Structure
+from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.testing import PymatgenTest
 
 try:
@@ -86,7 +93,7 @@ class StructureGraphTest(PymatgenTest):
             PymatgenTest.TEST_FILES_DIR,
             "critic2/MoS2_critic2_stdout.txt",
         )
-        with open(stdout_file, "r") as f:
+        with open(stdout_file) as f:
             reference_stdout = f.read()
         self.structure = Structure.from_file(
             os.path.join(
@@ -257,12 +264,6 @@ class StructureGraphTest(PymatgenTest):
 
         sg = StructureGraph.with_empty_graph(self.structure)
         sg.add_edge(0, 0)
-
-        ref_edges = [
-            (0, 0, {"to_jimage": (1, 1, 0)}),
-            (0, 0, {"to_jimage": (0, 1, 0)}),
-            (0, 0, {"to_jimage": (1, 0, 0)}),
-        ]
 
         self.assertEqual(len(list(sg.graph.edges(data=True))), 3)
 
@@ -801,7 +802,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertTrue(isinstance(reactants, list))
 
         reactants = sorted(reactants, key=len)
-        # After alterations, reactants sholuld be ethylene and butadiene
+        # After alterations, reactants should be ethylene and butadiene
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
 
@@ -951,7 +952,7 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_replace(self):
         eth_copy_sub = copy.deepcopy(self.ethylene)
         eth_copy_repl = copy.deepcopy(self.ethylene)
-        # First, perform a substiution as above
+        # First, perform a substitution as above
         eth_copy_sub.substitute_group(5, "methyl", MinimumDistanceNN)
         eth_copy_repl.replace_group(5, "methyl", MinimumDistanceNN)
         # Test that replacement on a terminal atom is equivalent to substitution

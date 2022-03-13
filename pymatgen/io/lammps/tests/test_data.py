@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import gzip
@@ -6,15 +5,14 @@ import json
 import os
 import random
 import unittest
-from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyDecoder, MontyEncoder
+from ruamel.yaml import YAML
 
-from pymatgen.core import yaml
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import (
     CombinedData,
@@ -23,7 +21,6 @@ from pymatgen.io.lammps.data import (
     LammpsData,
     Topology,
     lattice_2_lmpbox,
-    structure_2_lmpdata,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -347,7 +344,7 @@ class LammpsDataTest(unittest.TestCase):
             np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
             sample_topo = random.sample(list(topo_df.itertuples(False, None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
-            topo_type = tuple([atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"]])
+            topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
@@ -457,7 +454,7 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(self.tatb.atoms.loc[atom_id].name, atom_id)
 
     def test_from_ff_and_topologies(self):
-        mass = OrderedDict()
+        mass = {}
         mass["H"] = 1.0079401
         mass["O"] = 15.999400
         nonbond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
@@ -758,7 +755,8 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
-        with open(filename, "r") as f:
+        yaml = YAML()
+        with open(filename) as f:
             d = yaml.load(f)
         # self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
         self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)
@@ -818,36 +816,10 @@ class FuncTest(unittest.TestCase):
             rotop.rotation_matrix,
             [
                 [1, 0, 0],
-                [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
-                [0, -(2 ** 0.5) / 2, 2 ** 0.5 / 2],
+                [0, 2**0.5 / 2, 2**0.5 / 2],
+                [0, -(2**0.5) / 2, 2**0.5 / 2],
             ],
         )
-
-    @unittest.skip("The function is deprecated")
-    def test_structure_2_lmpdata(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
-        latt = Lattice(matrix)
-        frac_coords = np.random.rand(10, 3)
-        structure = Structure(latt, ["H"] * 10, frac_coords)
-        ld = structure_2_lmpdata(structure=structure)
-        box_tilt = [0.0, 0.0, 0.0] if not ld.box_tilt else ld.box_tilt
-        box_bounds = np.array(ld.box_bounds)
-        np.testing.assert_array_equal(box_bounds[:, 0], np.zeros(3))
-        new_matrix = np.diag(box_bounds[:, 1])
-        new_matrix[1, 0] = box_tilt[0]
-        new_matrix[2, 0] = box_tilt[1]
-        new_matrix[2, 1] = box_tilt[2]
-        new_latt = Lattice(new_matrix)
-        np.testing.assert_array_almost_equal(new_latt.abc, latt.abc)
-        np.testing.assert_array_almost_equal(new_latt.angles, latt.angles)
-        coords = ld.atoms[["x", "y", "z"]].values
-        new_structure = Structure(new_latt, ["H"] * 10, coords, coords_are_cartesian=True)
-        np.testing.assert_array_almost_equal(new_structure.frac_coords, frac_coords)
-        self.assertEqual(len(ld.masses), 1)
-        # test additional elements
-        ld_elements = structure_2_lmpdata(structure=structure, ff_elements=["C", "H"])
-        self.assertEqual(len(ld_elements.masses), 2)
-        np.testing.assert_array_almost_equal(ld_elements.masses["mass"], [1.00794, 12.01070])
 
 
 class CombinedDataTest(unittest.TestCase):

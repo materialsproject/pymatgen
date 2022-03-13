@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -66,7 +65,7 @@ class ChemicalShielding(SquareTensor):
     def principal_axis_system(self):
         """
         Returns a chemical shielding tensor aligned to the principle axis system
-        so that only the 3 diagnol components are non-zero
+        so that only the 3 diagonal components are non-zero
         """
         return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self.symmetrized))))
 
@@ -161,7 +160,7 @@ class ElectricFieldGradient(SquareTensor):
     @property
     def principal_axis_system(self):
         """
-        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol
+        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagonal
         components are non-zero
         """
         return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
@@ -202,13 +201,13 @@ class ElectricFieldGradient(SquareTensor):
 
     def coupling_constant(self, specie):
         """
-        Computes the couplling constant C_q as defined in:
+        Computes the coupling constant C_q as defined in:
             Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
             in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2)
 
         C_q for a specific atom type for this electric field tensor:
                 C_q=e*Q*V_zz/h
-            h: planck's constant
+            h: Planck's constant
             Q: nuclear electric quadrupole moment in mb (millibarn
             e: elementary proton charge
 
@@ -241,6 +240,6 @@ class ElectricFieldGradient(SquareTensor):
         elif isinstance(specie, Species):
             Q = specie.get_nmr_quadrupole_moment()
         else:
-            raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")
+            raise ValueError("Invalid species provided for quadrupolar coupling constant calculations")
 
         return (e * Q * Vzz / planks_constant).to("MHz")

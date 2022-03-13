@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -21,20 +20,20 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp")
 
 class CohpTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "cohp.json"), "r") as f:
+        with open(os.path.join(test_dir, "cohp.json")) as f:
             self.cohp = Cohp.from_dict(json.load(f))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
-        with open(os.path.join(test_dir, "coop.json"), "r") as f:
+        with open(os.path.join(test_dir, "coop.json")) as f:
             self.coop = Cohp.from_dict(json.load(f))
-        with open(os.path.join(test_dir, "cobi.json"), "r") as f:
+        with open(os.path.join(test_dir, "cobi.json")) as f:
             self.cobi = Cohp.from_dict(json.load(f))
 
     def test_as_from_dict(self):
-        with open(os.path.join(test_dir, "cohp.json"), "r") as f:
+        with open(os.path.join(test_dir, "cohp.json")) as f:
             cohp_dict = json.load(f)
         self.assertEqual(self.cohp.as_dict(), cohp_dict)
 
-        with open(os.path.join(test_dir, "cobi.json"), "r") as f:
+        with open(os.path.join(test_dir, "cobi.json")) as f:
             cobi_dict = json.load(f)
         self.assertEqual(self.cobi.as_dict(), cobi_dict)
 
@@ -65,9 +64,9 @@ class CohpTest(unittest.TestCase):
             self.cohp_only.get_interpolated_value(5.0, integrated=True)
 
     def test_str(self):
-        with open(os.path.join(test_dir, "cohp.str"), "rt") as f:
+        with open(os.path.join(test_dir, "cohp.str")) as f:
             str_cohp = f.read()
-        with open(os.path.join(test_dir, "coop.str"), "rt") as f:
+        with open(os.path.join(test_dir, "coop.str")) as f:
             str_coop = f.read()
         self.assertEqual(self.cohp.__str__(), str_cohp)
         self.assertEqual(self.coop.__str__(), str_coop)
@@ -756,20 +755,20 @@ class CombinedIcohpTest(unittest.TestCase):
 class CompleteCohpTest(PymatgenTest):
     def setUp(self):
         filepath = os.path.join(test_dir, "complete_cohp_lobster.json")
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(f))
         filepath = os.path.join(test_dir, "complete_coop_lobster.json")
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             self.coop_lobster_dict = CompleteCohp.from_dict(json.load(f))
         filepath = os.path.join(test_dir, "complete_cohp_lmto.json")
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             self.cohp_lmto_dict = CompleteCohp.from_dict(json.load(f))
         filepath = os.path.join(test_dir, "complete_cohp_orbitalwise.json")
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             self.cohp_orb_dict = CompleteCohp.from_dict(json.load(f))
         # Lobster 3.0
         filepath = os.path.join(test_dir, "complete_cohp_forb.json")
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             self.cohp_lobster_forb_dict = CompleteCohp.from_dict(json.load(f))
 
             # Lobster 2.0
@@ -796,7 +795,7 @@ class CompleteCohpTest(PymatgenTest):
 
         # spinpolarized case:
         filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190")
+        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
@@ -1213,7 +1212,7 @@ class MethodTest(unittest.TestCase):
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
         filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190")
+        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )

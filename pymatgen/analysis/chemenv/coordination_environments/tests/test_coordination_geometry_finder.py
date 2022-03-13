@@ -32,6 +32,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             centering_type="standard",
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
+        self.lgf2 = LocalGeometryFinder(print_citation=True)
 
     #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
@@ -208,7 +209,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                     se.get_csm(0, mp_symbol)["symmetry_measure"],
                     0.0,
                     delta=1e-8,
-                    msg="Failed to get perfect environment with mp_symbol {}".format(mp_symbol),
+                    msg=f"Failed to get perfect environment with mp_symbol {mp_symbol}",
                 )
 
     def test_disable_hints(self):

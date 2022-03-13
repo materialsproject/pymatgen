@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -15,6 +14,7 @@ import warnings
 import numpy as np
 from monty.json import MSONable
 from scipy.interpolate import InterpolatedUnivariateSpline
+
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -81,7 +81,7 @@ class Cohp(MSONable):
         formatdata = " ".join(["{:.5f}" for __ in header])
         stringarray = [formatheader.format(*header)]
         for i, __ in enumerate(self.energies):
-            stringarray.append(formatdata.format(*[d[i] for d in data]))
+            stringarray.append(formatdata.format(*(d[i] for d in data)))
         return "\n".join(stringarray)
 
     def as_dict(self):
@@ -264,7 +264,7 @@ class CompleteCohp(Cohp):
     ):
         """
         Args:
-            structure: Structure assosciated with this COHP.
+            structure: Structure associated with this COHP.
             avg_cohp: The average cohp as a COHP object.
             cohps: A dict of COHP objects for individual bonds of the form
                 {label: COHP}
@@ -274,9 +274,9 @@ class CompleteCohp(Cohp):
                 the bond length, and the number of bonds. If nothing is
                 supplied, it will default to an empty dict.
             are_coops: indicates whether the Cohp objects are COOPs.
-                Defauls to False for COHPs.
+                Defaults to False for COHPs.
             are_cobis: indicates whether the Cohp objects are COBIs.
-                Defauls to False for COHPs.
+                Defaults to False for COHPs.
             orb_res_cohp: Orbital-resolved COHPs.
         """
         if are_coops and are_cobis:
@@ -746,7 +746,7 @@ class CompleteCohp(Cohp):
             cohp_file = Cohpcar(filename=filename, are_coops=are_coops, are_cobis=are_cobis)
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
-            raise ValueError("Unknown format %s. Valid formats are LMTO and LOBSTER." % fmt)
+            raise ValueError(f"Unknown format {fmt}. Valid formats are LMTO and LOBSTER.")
 
         structure = Structure.from_file(structure_file)
         efermi = cohp_file.efermi

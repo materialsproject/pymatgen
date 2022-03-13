@@ -5,10 +5,11 @@ used to facilitate writing large numbers of input files based on a template.
 
 from pathlib import Path
 from string import Template
-from typing import Union, Optional, Dict
-from monty.io import zopen
-from pymatgen.io.core import InputSet, InputGenerator
+from typing import Dict, Optional, Union
 
+from monty.io import zopen
+
+from pymatgen.io.core import InputGenerator, InputSet
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"

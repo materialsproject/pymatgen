@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -12,8 +11,9 @@ from pymatgen.io.xtb.outputs import CRESTOutput
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
 
+    openbabel  # reference openbabel so it's not unused import
     have_babel = True
 except ImportError:
     have_babel = False

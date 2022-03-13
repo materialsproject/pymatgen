@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,6 @@
 This module provides classes to define a phonon band structure.
 """
 
-import collections
 
 import numpy as np
 from monty.json import MSONable
@@ -526,7 +524,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         d["qpoints"] = qpoints
 
         # get labels
-        hsq_dict = collections.OrderedDict()
+        hsq_dict = {}
         for nq, q in enumerate(self.qpoints):
             if q.label is not None:
                 hsq_dict[nq] = q.label

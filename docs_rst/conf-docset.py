@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # pymatgen documentation build configuration file, created by
 # sphinx-quickstart on Tue Nov 15 00:13:52 2011.

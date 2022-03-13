@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -13,8 +12,8 @@ import logging
 import math
 import os
 import re
-import sys
 from functools import lru_cache
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objs as go
@@ -29,11 +28,6 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +68,12 @@ class PDEntry(Entry):
         super().__init__(composition, energy)
         self.name = name if name else self.composition.reduced_formula
         self.attribute = attribute
+
+    def __repr__(self):
+        name = ""
+        if self.name != self.composition.reduced_formula:
+            name = f" ({self.name})"
+        return f"{self.__class__.__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
 
     @property
     def energy(self) -> float:
@@ -153,7 +153,7 @@ class GrandPotPDEntry(PDEntry):
         Returns:
             The chemical energy term mu*N in the grand potential
         """
-        return sum([self._composition[el] * pot for el, pot in self.chempots.items()])
+        return sum(self._composition[el] * pot for el, pot in self.chempots.items())
 
     @property
     def energy(self):
@@ -164,8 +164,8 @@ class GrandPotPDEntry(PDEntry):
         return self._energy - self.chemical_energy
 
     def __repr__(self):
-        chempot_str = " ".join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()])
-        return "GrandPotPDEntry with original composition " + "{}, energy = {:.4f}, {}".format(
+        chempot_str = " ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
+        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
             self.original_entry.composition, self.original_entry.energy, chempot_str
         )
 
@@ -198,7 +198,7 @@ class GrandPotPDEntry(PDEntry):
 
 class TransformedPDEntry(PDEntry):
     """
-    This class repesents a TransformedPDEntry, which allows for a PDEntry to be
+    This class represents a TransformedPDEntry, which allows for a PDEntry to be
     transformed to a different composition coordinate space. It is used in the
     construction of phase diagrams that do not have elements as the terminal
     compositions.
@@ -238,7 +238,7 @@ class TransformedPDEntry(PDEntry):
         Returns:
             Composition
         """
-        # NOTE this is not infallable as the original entry is mutable and an
+        # NOTE this is not infallible as the original entry is mutable and an
         # end user could choose to normalize or change the original entry.
         # However, the risk of this seems low.
         factor = self._composition.num_atoms / self.original_entry.composition.num_atoms
@@ -251,9 +251,9 @@ class TransformedPDEntry(PDEntry):
 
     def __repr__(self):
         output = [
-            "TransformedPDEntry {}".format(self.composition),
-            " with original composition {}".format(self.original_entry.composition),
-            ", E = {:.4f}".format(self.original_entry.energy),
+            f"TransformedPDEntry {self.composition}",
+            f" with original composition {self.original_entry.composition}",
+            f", E = {self.original_entry.energy:.4f}",
         ]
         return "".join(output)
 
@@ -289,8 +289,6 @@ class TransformedPDEntryError(Exception):
     """
     An exception class for TransformedPDEntry.
     """
-
-    pass
 
 
 class PhaseDiagram(MSONable):
@@ -368,7 +366,7 @@ class PhaseDiagram(MSONable):
         self.dim = computed_data["dim"]
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = computed_data["qhull_entries"]
-        self.stable_entries = set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets)))
+        self.stable_entries = {self.qhull_entries[i] for i in set(itertools.chain(*self.facets))}
 
     def as_dict(self):
         """
@@ -513,7 +511,7 @@ class PhaseDiagram(MSONable):
         Returns:
             Reference energy of the terminal species at a given composition.
         """
-        return sum([comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements]) / comp.num_atoms
+        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements) / comp.num_atoms
 
     def get_form_energy(self, entry):
         """
@@ -527,7 +525,7 @@ class PhaseDiagram(MSONable):
             Formation energy from the elemental references.
         """
         c = entry.composition
-        return entry.energy - sum([c[el] * self.el_refs[el].energy_per_atom for el in c.elements])
+        return entry.energy - sum(c[el] * self.el_refs[el].energy_per_atom for el in c.elements)
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -545,8 +543,8 @@ class PhaseDiagram(MSONable):
     def __repr__(self):
         symbols = [el.symbol for el in self.elements]
         output = [
-            "{} phase diagram".format("-".join(symbols)),
-            "{} stable phases: ".format(len(self.stable_entries)),
+            f"{'-'.join(symbols)} phase diagram",
+            f"{len(self.stable_entries)} stable phases: ",
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
         return "\n".join(output)
@@ -566,7 +564,7 @@ class PhaseDiagram(MSONable):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
                 return f, s
 
-        raise RuntimeError("No facet found for comp = {}".format(comp))
+        raise RuntimeError(f"No facet found for comp = {comp}")
 
     def _get_all_facets_and_simplexes(self, comp):
         """
@@ -583,7 +581,7 @@ class PhaseDiagram(MSONable):
         ]
 
         if not len(all_facets):
-            raise RuntimeError("No facets found for comp = {}".format(comp))
+            raise RuntimeError(f"No facets found for comp = {comp}")
 
         return all_facets
 
@@ -606,12 +604,12 @@ class PhaseDiagram(MSONable):
 
     def _get_simplex_intersections(self, c1, c2):
         """
-        Returns co-ordinates of the itersection of the tie line between two compositions
+        Returns coordinates of the itersection of the tie line between two compositions
         and the simplexes of the PhaseDiagram.
 
         Args:
-            c1: Reduced dimension co-ordinates of first composition
-            c2: Reduced dimension co-ordinates of second composition
+            c1: Reduced dimension coordinates of first composition
+            c2: Reduced dimension coordinates of second composition
 
         Returns:
             Array of the intersections between the tie line and the simplexes of
@@ -650,7 +648,7 @@ class PhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition per atom
         """
         decomp = self.get_decomposition(comp)
-        return decomp, sum([e.energy_per_atom * n for e, n in decomp.items()])
+        return decomp, sum(e.energy_per_atom * n for e, n in decomp.items())
 
     def get_hull_energy_per_atom(self, comp):
         """
@@ -706,7 +704,7 @@ class PhaseDiagram(MSONable):
         if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
             return decomp, e_above_hull
 
-        raise ValueError("No valid decomp found for {}! (e {})".format(entry, e_above_hull))
+        raise ValueError(f"No valid decomp found for {entry}! (e {e_above_hull})")
 
     def get_e_above_hull(self, entry, **kwargs):
         """
@@ -777,7 +775,7 @@ class PhaseDiagram(MSONable):
 
         For stable entries setting `stable_only` to `True` returns the same energy
         as `get_equilibrium_reaction_energy`. This function is based on a constrained
-        optimisation rather than recalculation of the convex hull making it
+        optimization rather than recalculation of the convex hull making it
         algorithmically cheaper. However, if `tol` is too loose there is potential
         for this algorithm to converge to a different solution.
 
@@ -787,13 +785,13 @@ class PhaseDiagram(MSONable):
                 before calculating a second convex hull to reducing the complexity
                 of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
-            tol (list): Tolerences for convergence of the SLSQP optimization
-                when finding the equilibrium reaction. Tighter tolerences tested first.
+            tol (list): Tolerances for convergence of the SLSQP optimization
+                when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
 
         Returns:
-            (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
+            (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The phase separation energy is given per atom.
         """
@@ -857,7 +855,7 @@ class PhaseDiagram(MSONable):
         """
         Provides the energy to the convex hull for the given entry. For stable entries
         already in the phase diagram the algorithm provides the phase separation energy
-        which is refered to as the decomposition enthalpy in:
+        which is referred to as the decomposition enthalpy in:
 
         1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
             A critical examination of compound stability predictions from
@@ -868,7 +866,7 @@ class PhaseDiagram(MSONable):
             **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
                 space_limit (int): The maximum number of competing entries to consider.
                 stable_only (bool): Only use stable materials as competing entries
-                tol (float): The tolerence for convergence of the SLSQP optimization
+                tol (float): The tolerance for convergence of the SLSQP optimization
                     when finding the equilibrium reaction.
                 maxiter (int): The maximum number of iterations of the SLSQP optimizer
                     when finding the equilibrium reaction.
@@ -877,7 +875,7 @@ class PhaseDiagram(MSONable):
             phase separation energy per atom of entry. Stable entries should have
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0. Entries that have the same
-            composition as a stable energy may have postive or negative phase
+            composition as a stable energy may have positive or negative phase
             separation energies depending on their own energy.
         """
         return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
@@ -978,7 +976,7 @@ class PhaseDiagram(MSONable):
 
         # find position along line
         l = c2 - c1
-        l /= np.sum(l ** 2) ** 0.5
+        l /= np.sum(l**2) ** 0.5
         proj = np.dot(intersections - c1, l)
 
         # only take compositions between endpoints
@@ -1266,11 +1264,11 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
 
     def __repr__(self):
         chemsys = "-".join([el.symbol for el in self.elements])
-        chempots = ", ".join(["u{}={}".format(el, v) for el, v in self.chempots.items()])
+        chempots = ", ".join([f"u{el}={v}" for el, v in self.chempots.items()])
 
         output = [
-            "{} grand potential phase diagram with {}".format(chemsys, chempots),
-            "{} stable phases: ".format(len(self.stable_entries)),
+            f"{chemsys} grand potential phase diagram with {chempots}",
+            f"{len(self.stable_entries)} stable phases: ",
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
         return "\n".join(output)
@@ -1351,7 +1349,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             terminal_compositions = [c.fractional_composition for c in terminal_compositions]
 
         # Map terminal compositions to unique dummy species.
-        sp_mapping = collections.OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
@@ -1438,7 +1436,7 @@ class ReactionDiagram:
         r1 = entry1.composition.reduced_composition
         r2 = entry2.composition.reduced_composition
 
-        logger.debug("%d total entries." % len(all_entries))
+        logger.debug(f"{len(all_entries)} total entries.")
 
         pd = PhaseDiagram(all_entries + [entry1, entry2])
         terminal_formulas = [
@@ -1446,9 +1444,9 @@ class ReactionDiagram:
             entry2.composition.reduced_formula,
         ]
 
-        logger.debug("%d stable entries" % len(pd.stable_entries))
-        logger.debug("%d facets" % len(pd.facets))
-        logger.debug("%d qhull_entries" % len(pd.qhull_entries))
+        logger.debug(f"{len(pd.stable_entries)} stable entries")
+        logger.debug(f"{len(pd.facets)} facets")
+        logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
         done = []
@@ -1489,7 +1487,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "%s %s + %s %s -> " % (
+                        rxn_str = "{} {} + {} {} -> ".format(
                             fmt(c1),
                             r1.reduced_formula,
                             fmt(c2),
@@ -1503,7 +1501,7 @@ class ReactionDiagram:
                         for c, e in zip(coeffs[:-1], face_entries):
                             if c > tol:
                                 r = e.composition.reduced_composition
-                                products.append("%s %s" % (fmt(c / r.num_atoms * factor), r.reduced_formula))
+                                products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
                                 product_entries.append((c, e))
                                 energy += c * e.energy_per_atom
 
@@ -1528,14 +1526,14 @@ class ReactionDiagram:
                             )
                         )
                     )
-                    logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
+                    logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
 
         self.entry1 = entry1
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
-        self.labels = collections.OrderedDict()
+        self.labels = {}
         for i, e in enumerate(rxn_entries):
             self.labels[str(i + 1)] = e.attribute
             e.name = str(i + 1)
@@ -1571,8 +1569,6 @@ class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
     """
-
-    pass
 
 
 def get_facets(qhull_data, joggle=False):
@@ -1613,7 +1609,7 @@ def _get_slsqp_decomp(
     Args:
         comp (Composition): A Composition to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
-        tols (list): tolerences to try for SLSQP convergence. Issues observed for
+        tols (list): tolerances to try for SLSQP convergence. Issues observed for
             tol > 1e-7 in the fractional composition (default 1e-8)
         maxiter (int): maximum number of SLSQP iterations
 
@@ -1650,7 +1646,7 @@ def _get_slsqp_decomp(
     bounds = [(0, max_bound)] * len(competing_entries)
     x0 = [1 / len(competing_entries)] * len(competing_entries)
 
-    # NOTE the tolerence needs to be tight to stop the optimization
+    # NOTE the tolerance needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
     # tol > 1e-7 in the fractional composition (default 1e-8).
     for tol in sorted(tols):
@@ -1673,7 +1669,7 @@ def _get_slsqp_decomp(
                 if amt > PhaseDiagram.numerical_tol
             }
 
-    raise ValueError("No valid decomp found for {}!".format(comp))
+    raise ValueError(f"No valid decomp found for {comp}!")
 
 
 class PDPlotter:
@@ -1713,7 +1709,7 @@ class PDPlotter:
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
         self.backend = backend
-        self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries])
+        self._min_energy = min(self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries)
         colors = Set1_3.mpl_colors
         self.plotkwargs = plotkwargs or {
             "markerfacecolor": colors[2],
@@ -1916,7 +1912,7 @@ class PDPlotter:
         return plt
 
     def show(self, *args, **kwargs):
-        r"""
+        """
         Draw the phase diagram using Plotly (or Matplotlib) and show it.
 
         Args:
@@ -2021,7 +2017,7 @@ class PDPlotter:
             center = (0.5, math.sqrt(3) / 6)
         else:
             all_coords = labels.keys()
-            miny = min([c[1] for c in all_coords])
+            miny = min(c[1] for c in all_coords)
             ybuffer = max(abs(miny) * 0.1, 0.1)
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
@@ -2162,7 +2158,7 @@ class PDPlotter:
                     ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
                     ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)
-                    newlabels.append("{} : {}".format(count, latexify(label)))
+                    newlabels.append(f"{count} : {latexify(label)}")
                     count += 1
         plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
@@ -2172,7 +2168,7 @@ class PDPlotter:
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
-        r"""
+        """
         Writes the phase diagram to an image in a stream.
 
         Args:
@@ -2181,7 +2177,7 @@ class PDPlotter:
             image_format
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
-            **kwargs: Pass through to get_plot functino.
+            **kwargs: Pass through to get_plot function.
         """
         plt = self.get_plot(**kwargs)
 
@@ -2232,7 +2228,7 @@ class PDPlotter:
             center_y = 0
             coords = []
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
-            is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
+            is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-")
@@ -2266,8 +2262,8 @@ class PDPlotter:
         el0 = elements[0]
         el1 = elements[1]
         for entry, coords in missing_lines.items():
-            center_x = sum([c[0] for c in coords])
-            center_y = sum([c[1] for c in coords])
+            center_x = sum(c[0] for c in coords)
+            center_y = sum(c[1] for c in coords)
             comp = entry.composition
             is_x = comp.get_atomic_fraction(el0) < 0.01
             is_y = comp.get_atomic_fraction(el1) < 0.01
@@ -2303,8 +2299,8 @@ class PDPlotter:
                 fontsize=22,
             )
 
-        plt.xlabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)".format(el0.symbol))
-        plt.ylabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)".format(el1.symbol))
+        plt.xlabel(f"$\\mu_{{{el0.symbol}}} - \\mu_{{{el0.symbol}}}^0$ (eV)")
+        plt.ylabel(f"$\\mu_{{{el1.symbol}}} - \\mu_{{{el1.symbol}}}^0$ (eV)")
         plt.tight_layout()
         return plt
 
@@ -2593,7 +2589,7 @@ class PDPlotter:
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
-                label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
+                label = f"{clean_formula} ({entry_id}) <br> {energy} eV/atom"
 
                 if not stable:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)

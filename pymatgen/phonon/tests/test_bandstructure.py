@@ -1,12 +1,8 @@
 import json
 import os
 import unittest
-from io import open
 
-from pymatgen.phonon.bandstructure import (
-    PhononBandStructure,
-    PhononBandStructureSymmLine,
-)
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -14,7 +10,6 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
     def setUp(self):
         with open(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"),
-            "r",
             encoding="utf-8",
         ) as f:
             d = json.load(f)
@@ -22,7 +17,6 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
 
         with open(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "Si_phonon_bandstructure.json"),
-            "r",
             encoding="utf-8",
         ) as f:
             d = json.load(f)

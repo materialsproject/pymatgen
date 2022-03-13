@@ -1,20 +1,31 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 import os
-import warnings
+
+import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
-from pymatgen.io.abinit.abiobjects import *
+from pymatgen.io.abinit.abiobjects import (
+    Electrons,
+    ElectronsAlgorithm,
+    KSampling,
+    PPModel,
+    RelaxationMethod,
+    Smearing,
+    SpinMode,
+    lattice_from_abivars,
+    species_by_znucl,
+    structure_to_abivars,
+)
 from pymatgen.util.testing import PymatgenTest
 
 
 class LatticeFromAbivarsTest(PymatgenTest):
     def test_rprim_acell(self):
         l1 = lattice_from_abivars(acell=3 * [10], rprim=np.eye(3))
-        self.assertAlmostEqual(l1.volume, bohr_to_ang ** 3 * 1000)
+        self.assertAlmostEqual(l1.volume, bohr_to_ang**3 * 1000)
         assert l1.angles == (90, 90, 90)
         l2 = lattice_from_abivars(acell=3 * [10], angdeg=(90, 90, 90))
         assert l1 == l2
@@ -148,7 +159,7 @@ class SmearingTest(PymatgenTest):
 class ElectronsAlgorithmTest(PymatgenTest):
     def test_base(self):
         algo = ElectronsAlgorithm(nstep=70)
-        abivars = algo.to_abivars()
+        _ = algo.to_abivars()
 
         # Test pickle
         self.serialize_with_pickle(algo)
@@ -164,7 +175,7 @@ class ElectronsTest(PymatgenTest):
         self.assertTrue(default_electrons.nspinor == 1)
         self.assertTrue(default_electrons.nspden == 2)
 
-        abivars = default_electrons.to_abivars()
+        _ = default_electrons.to_abivars()
 
         # new = Electron.from_dict(default_electrons.as_dict())
 

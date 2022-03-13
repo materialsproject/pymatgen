@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -122,7 +121,7 @@ class Kpoint(MSONable):
         """
         Returns a string with fractional, cartesian coordinates and label
         """
-        return "{} {} {}".format(self.frac_coords, self.cart_coords, self.label)
+        return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
     def as_dict(self):
         """
@@ -362,7 +361,7 @@ class BandStructure:
             - "energy": The energy of the VBM
             - "projections": The projections along sites and orbitals of the
             VBM if any projection data is available (else it is an empty
-            dictionnary). The format is similar to the projections field in
+            dictionary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
         """
@@ -428,7 +427,7 @@ class BandStructure:
             - "energy": The energy of the CBM
             - "projections": The projections along sites and orbitals of the
             CBM if any projection data is available (else it is an empty
-            dictionnary). The format is similar to the projections field in
+            dictionary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
         """
@@ -506,7 +505,7 @@ class BandStructure:
             [
                 str(c.label)
                 if c.label is not None
-                else str("(") + ",".join(["{0:.3f}".format(c.frac_coords[i]) for i in range(3)]) + str(")")
+                else "(" + ",".join([f"{c.frac_coords[i]:.3f}" for i in range(3)]) + ")"
                 for c in [vbm["kpoint"], cbm["kpoint"]]
             ]
         )
@@ -633,7 +632,7 @@ class BandStructure:
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
 
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+        # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
@@ -993,7 +992,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         d["band_gap"] = self.get_band_gap()
         d["labels_dict"] = {}
         d["is_spin_polarized"] = self.is_spin_polarized
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+        # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
@@ -1154,12 +1153,12 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
         the type of the list_bs objects)
     """
     if efermi is None:
-        efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
+        efermi = sum(b.efermi for b in list_bs) / len(list_bs)
 
     kpoints = []
     labels_dict = {}
     rec_lattice = list_bs[0].lattice_rec
-    nb_bands = min([list_bs[i].nb_bands for i in range(len(list_bs))])
+    nb_bands = min(list_bs[i].nb_bands for i in range(len(list_bs)))
 
     kpoints = np.concatenate([[k.frac_coords for k in bs.kpoints] for bs in list_bs])
     dicts = [bs.labels_dict for bs in list_bs]

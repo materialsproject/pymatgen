@@ -1,8 +1,8 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 import unittest
+
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure

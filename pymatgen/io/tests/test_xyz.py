@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -109,7 +108,7 @@ C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
         # self.assertTrue(abs(mol[1].z) < 1e-5)
 
         mol_str = """    5
-C32-C2-1                                                                        
+C32-C2-1
  C     2.70450   1.16090  -0.14630     1     3    23     2
  C     1.61930   1.72490  -0.79330     2     1     5    26
  C     2.34210   1.02670   1.14620     3     1     8     6

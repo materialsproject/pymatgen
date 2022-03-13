@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module contains objects that are used to describe the environments in a structure. The most detailed object
@@ -19,7 +17,6 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from collections import OrderedDict
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -202,7 +199,7 @@ class StructureEnvironments(MSONable):
             Returns the distances plateau's for this NeighborsSet.
             """
             all_nbs_normalized_distances_sorted = sorted(
-                [nb["normalized_distance"] for nb in self.voronoi], reverse=True
+                (nb["normalized_distance"] for nb in self.voronoi), reverse=True
             )
             maxdist = np.max(self.normalized_distances)
             plateau = None
@@ -226,7 +223,7 @@ class StructureEnvironments(MSONable):
             """
             Returns the angles plateau's for this NeighborsSet.
             """
-            all_nbs_normalized_angles_sorted = sorted([nb["normalized_angle"] for nb in self.voronoi])
+            all_nbs_normalized_angles_sorted = sorted(nb["normalized_angle"] for nb in self.voronoi)
             minang = np.min(self.normalized_angles)
             # print('minang', minang)
             # print('all_nbs_normalized_angles_sorted', all_nbs_normalized_angles_sorted)
@@ -295,7 +292,7 @@ class StructureEnvironments(MSONable):
             next_dists = [src["dp_dict"]["next"] for src in mysrc]
             next_angs = [src["ap_dict"]["next"] for src in mysrc]
 
-            points_dict = OrderedDict()
+            points_dict = {}
 
             pdists = []
             pangs = []
@@ -396,10 +393,10 @@ class StructureEnvironments(MSONable):
             return not self == other
 
         def __str__(self):
-            out = "Neighbors Set for site #{:d} :\n".format(self.isite)
-            out += " - Coordination number : {:d}\n".format(len(self))
+            out = f"Neighbors Set for site #{self.isite:d} :\n"
+            out += f" - Coordination number : {len(self):d}\n"
             out += " - Voronoi indices : {}\n".format(
-                ", ".join(["{:d}".format(site_voronoi_index) for site_voronoi_index in self.site_voronoi_indices])
+                ", ".join([f"{site_voronoi_index:d}" for site_voronoi_index in self.site_voronoi_indices])
             )
             return out
 
@@ -655,7 +652,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                "Number of csms for site #{} with " 'mp_symbol "{}" = {}'.format(str(isite), mp_symbol, str(len(csms))),
+                f'Number of csms for site #{str(isite)} with mp_symbol "{mp_symbol}" = {str(len(csms))}',
             )
         return csms[0]
 
@@ -912,7 +909,7 @@ class StructureEnvironments(MSONable):
                 exponent = 3
             else:
                 exponent = plot_type["distance_parameter"][1]["exponent"]
-            xlabel = "Distance parameter : $1.0-\\frac{{1.0}}{{\\alpha^{{{:d}}}}}$".format(exponent)
+            xlabel = f"Distance parameter : $1.0-\\frac{{1.0}}{{\\alpha^{{{exponent:d}}}}}$"
 
             def dp_func(dp):
                 return 1.0 - 1.0 / np.power(dp, exponent)
@@ -924,9 +921,7 @@ class StructureEnvironments(MSONable):
                 return dp
 
         else:
-            raise ValueError(
-                'Wrong value for distance parameter plot type "{}"'.format(plot_type["distance_parameter"][0])
-            )
+            raise ValueError(f"Wrong value for distance parameter plot type \"{plot_type['distance_parameter'][0]}\"")
 
         if plot_type["angle_parameter"][0] == "one_minus_gamma":
             ylabel = "Angle parameter : $1.0-\\gamma$"
@@ -944,7 +939,7 @@ class StructureEnvironments(MSONable):
                 return ap
 
         else:
-            raise ValueError('Wrong value for angle parameter plot type "{}"'.format(plot_type["angle_parameter"][0]))
+            raise ValueError(f"Wrong value for angle parameter plot type \"{plot_type['angle_parameter'][0]}\"")
         dist_limits = [dp_func(dp) for dp in dist_limits]
         ang_limits = [ap_func(ap) for ap in ang_limits]
 
@@ -957,7 +952,7 @@ class StructureEnvironments(MSONable):
                 if ce is None:
                     mycolor = "w"
                     myinvcolor = "k"
-                    mytext = "{:d}".format(cn)
+                    mytext = f"{cn:d}"
                 else:
                     mingeom = ce.minimum_geometry()
                     if mingeom is not None:
@@ -970,11 +965,11 @@ class StructureEnvironments(MSONable):
                             1.0 - mycolor[2],
                             1.0,
                         ]
-                        mytext = "{}".format(mp_symbol)
+                        mytext = f"{mp_symbol}"
                     else:
                         mycolor = "w"
                         myinvcolor = "k"
-                        mytext = "{:d}".format(cn)
+                        mytext = f"{cn:d}"
                 nb_set_surface_pts = [(dp_func(pt[0]), ap_func(pt[1])) for pt in nb_set_surface_pts]
                 polygon = Polygon(
                     nb_set_surface_pts,
@@ -1201,7 +1196,7 @@ class StructureEnvironments(MSONable):
                     continue
                 differences.append(
                     {
-                        "difference": "neighbors_sets[isite={:d}]".format(isite),
+                        "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "has_neighbors",
                         "self": "None",
                         "other": set(other_site_nb_sets.keys()),
@@ -1211,7 +1206,7 @@ class StructureEnvironments(MSONable):
             if other_site_nb_sets is None:
                 differences.append(
                     {
-                        "difference": "neighbors_sets[isite={:d}]".format(isite),
+                        "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "has_neighbors",
                         "self": set(self_site_nb_sets.keys()),
                         "other": "None",
@@ -1223,7 +1218,7 @@ class StructureEnvironments(MSONable):
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
-                        "difference": "neighbors_sets[isite={:d}]".format(isite),
+                        "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "coordination_numbers",
                         "self": self_site_cns,
                         "other": other_site_cns,
@@ -1238,7 +1233,7 @@ class StructureEnvironments(MSONable):
                 if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append(
                         {
-                            "difference": "neighbors_sets[isite={:d}][cn={:d}]".format(isite, cn),
+                            "difference": f"neighbors_sets[isite={isite:d}][cn={cn:d}]",
                             "comparison": "neighbors_sets",
                             "self": self_site_cn_nb_sets,
                             "other": other_site_cn_nb_sets,
@@ -1512,10 +1507,10 @@ class LightStructureEnvironments(MSONable):
             return not self == other
 
         def __str__(self):
-            out = "Neighbors Set for site #{:d} :\n".format(self.isite)
-            out += " - Coordination number : {:d}\n".format(len(self))
+            out = f"Neighbors Set for site #{self.isite:d} :\n"
+            out += f" - Coordination number : {len(self):d}\n"
             out += " - Neighbors sites indices : {}\n".format(
-                ", ".join(["{:d}".format(nb_list_index) for nb_list_index in self.all_nbs_sites_indices])
+                ", ".join([f"{nb_list_index:d}" for nb_list_index in self.all_nbs_sites_indices])
             )
             return out
 
@@ -1649,7 +1644,7 @@ class LightStructureEnvironments(MSONable):
                             raise ValueError(
                                 "Weird, differences between one site in a periodic image cell is not integer ..."
                             )
-                        nb_image_cell = np.array(rounddiff, np.int_)
+                        nb_image_cell = np.array(rounddiff, int)
                         nb_allnbs_sites_index = len(_all_nbs_sites)
                         _all_nbs_sites.append(
                             {
@@ -1958,7 +1953,7 @@ class LightStructureEnvironments(MSONable):
         Returns: True if the site has a clear environment.
         """
         if self.coordination_environments[isite] is None:
-            raise ValueError("Coordination environments have not been determined for site {:d}".format(isite))
+            raise ValueError(f"Coordination environments have not been determined for site {isite:d}")
         if conditions is None:
             return len(self.coordination_environments[isite]) == 1
         ce = max(self.coordination_environments[isite], key=lambda x: x["ce_fraction"])
@@ -1974,7 +1969,7 @@ class LightStructureEnvironments(MSONable):
                 if ce[target] > condition["maxnumber"]:
                     return False
             else:
-                raise ValueError('Target "{}" for condition of clear environment is not allowed'.format(target))
+                raise ValueError(f'Target "{target}" for condition of clear environment is not allowed')
         return True
 
     def structure_has_clear_environments(self, conditions=None, skip_none=True, skip_empty=False):
@@ -2047,7 +2042,7 @@ class LightStructureEnvironments(MSONable):
 
         Returns: Set of environments identified in this structure.
         """
-        return set(ce["ce_symbol"] for celist in self.coordination_environments if celist is not None for ce in celist)
+        return {ce["ce_symbol"] for celist in self.coordination_environments if celist is not None for ce in celist}
 
     @property
     def uniquely_determines_coordination_environments(self):
@@ -2130,13 +2125,13 @@ class LightStructureEnvironments(MSONable):
         for nb_site in d["all_nbs_sites"]:
             site = dec.process_decoded(nb_site["site"])
             if "image_cell" in nb_site:
-                image_cell = np.array(nb_site["image_cell"], np.int_)
+                image_cell = np.array(nb_site["image_cell"], int)
             else:
                 diff = site.frac_coords - structure[nb_site["index"]].frac_coords
                 rounddiff = np.round(diff)
                 if not np.allclose(diff, rounddiff):
                     raise ValueError("Weird, differences between one site in a periodic image cell is not integer ...")
-                image_cell = np.array(rounddiff, np.int_)
+                image_cell = np.array(rounddiff, int)
             all_nbs_sites.append({"site": site, "index": nb_site["index"], "image_cell": image_cell})
         neighbors_sets = [
             [
@@ -2191,8 +2186,7 @@ class ChemicalEnvironments(MSONable):
         return len(self.coord_geoms)
 
     def __iter__(self):
-        for cg, cg_dict in self.coord_geoms.items():
-            yield (cg, cg_dict)
+        yield from self.coord_geoms.items()
 
     def minimum_geometry(self, symmetry_measure_type=None, max_csm=None):
         """
@@ -2287,7 +2281,7 @@ class ChemicalEnvironments(MSONable):
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
-                'Coordination geometry with mp_symbol "{mp}" is not valid'.format(mp=mp_symbol),
+                f'Coordination geometry with mp_symbol "{mp_symbol}" is not valid',
             )
         if mp_symbol in list(self.coord_geoms.keys()) and not override:
             raise ChemenvError(
@@ -2323,7 +2317,7 @@ class ChemicalEnvironments(MSONable):
             mp_symbol = key
             break
         cn = symbol_cn_mapping[mp_symbol]
-        out += " => Coordination {} <=\n".format(cn)
+        out += f" => Coordination {cn} <=\n"
         mp_symbols = list(self.coord_geoms.keys())
         csms_wcs = [self.coord_geoms[mp_symbol]["other_symmetry_measures"]["csm_wcs_ctwcc"] for mp_symbol in mp_symbols]
         icsms_sorted = np.argsort(csms_wcs)
@@ -2331,13 +2325,13 @@ class ChemicalEnvironments(MSONable):
         for mp_symbol in mp_symbols:
             csm_wcs = self.coord_geoms[mp_symbol]["other_symmetry_measures"]["csm_wcs_ctwcc"]
             csm_wocs = self.coord_geoms[mp_symbol]["other_symmetry_measures"]["csm_wocs_ctwocc"]
-            out += "   - {}\n".format(mp_symbol)
-            out += "      csm1 (with central site) : {}".format(csm_wcs)
-            out += "      csm2 (without central site) : {}".format(csm_wocs)
-            out += "     algo : {}".format(self.coord_geoms[mp_symbol]["algo"])
-            out += "     perm : {}\n".format(self.coord_geoms[mp_symbol]["permutation"])
-            out += "       local2perfect : {}\n".format(str(self.coord_geoms[mp_symbol]["local2perfect_map"]))
-            out += "       perfect2local : {}\n".format(str(self.coord_geoms[mp_symbol]["perfect2local_map"]))
+            out += f"   - {mp_symbol}\n"
+            out += f"      csm1 (with central site) : {csm_wcs}"
+            out += f"      csm2 (without central site) : {csm_wocs}"
+            out += f"     algo : {self.coord_geoms[mp_symbol]['algo']}"
+            out += f"     perm : {self.coord_geoms[mp_symbol]['permutation']}\n"
+            out += f"       local2perfect : {str(self.coord_geoms[mp_symbol]['local2perfect_map'])}\n"
+            out += f"       perfect2local : {str(self.coord_geoms[mp_symbol]['perfect2local_map'])}\n"
         return out
 
     def is_close_to(self, other, rtol=0.0, atol=1e-8):

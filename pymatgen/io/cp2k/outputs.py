@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -724,7 +723,7 @@ class Cp2kOutput:
         """
         Parse the geometry optimization information
         """
-        # "Informations at step =" Summary block (floating point terms)
+        # "Information at step =" Summary block (floating point terms)
         total_energy = re.compile(r"\s+Total Energy\s+=\s+(-?\d+.\d+)")
         real_energy_change = re.compile(r"\s+Real energy change\s+=\s+(-?\d+.\d+)")
         prediced_change_in_energy = re.compile(r"\s+Predicted change in energy\s+=\s+(-?\d+.\d+)")
@@ -753,7 +752,7 @@ class Cp2kOutput:
             postprocess=float,
         )
 
-        # "Informations at step =" Summary block (bool terms)
+        # "Information at step =" Summary block (bool terms)
         decrease_in_energy = re.compile(r"\s+Decrease in energy\s+=\s+(\w+)")
         converged_step_size = re.compile(r"\s+Convergence in step size\s+=\s+(\w+)")
         converged_rms_step = re.compile(r"\s+Convergence in RMS step\s+=\s+(\w+)")
@@ -960,7 +959,7 @@ class Cp2kOutput:
             return
 
         # self.data will always contained the eigenvalues resolved by spin channel. The average vbm, cbm, gap,
-        # and fermi are saved as class attributes, as there is (usually) no assymmetry in these values for
+        # and fermi are saved as class attributes, as there is (usually) no asymmetry in these values for
         # common materials
         if self.spin_polarized:
             self.data["vbm"] = {

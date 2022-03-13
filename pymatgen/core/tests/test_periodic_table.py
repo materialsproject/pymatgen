@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -12,7 +11,13 @@ from copy import deepcopy
 
 import numpy as np
 
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import (
+    DummySpecies,
+    Element,
+    ElementBase,
+    Species,
+    get_el_sp,
+)
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -95,6 +100,57 @@ class ElementTestCase(PymatgenTest):
             self.assertEqual(Element(k).full_electronic_structure, v)
 
         self.assertEqual(Element.Ac.electronic_structure, "[Rn].6d1.7s2")
+
+    def test_group(self):
+        testsets = {
+            "H": 1,
+            "He": 18,
+            "Li": 1,
+            "O": 16,
+            "Fe": 8,
+            "La": 3,
+            "Ce": 3,
+            "Lu": 3,
+            "U": 3,
+            "Lr": 3,
+            "Og": 18,
+        }
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).group, v)
+
+    def test_row(self):
+        testsets = {
+            "H": 1,
+            "He": 1,
+            "Li": 2,
+            "O": 2,
+            "Fe": 4,
+            "La": 6,
+            "Ce": 6,
+            "Lu": 6,
+            "U": 7,
+            "Lr": 7,
+            "Og": 7,
+        }
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).row, v)
+
+    def test_from_row_and_group(self):
+        testsets = {
+            "H": (1, 1),
+            "He": (1, 18),
+            "Li": (2, 1),
+            "O": (2, 16),
+            "Fe": (4, 8),
+            "La": (8, 3),
+            "Ce": (8, 4),
+            "Lu": (8, 17),
+            "U": (9, 6),
+            "Lr": (9, 17),
+            "Og": (7, 18),
+        }
+        for k, v in testsets.items():
+            self.assertEqual(ElementBase.from_row_and_group(v[0], v[1]), Element(k))
 
     def test_valence(self):
         testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
@@ -230,7 +286,7 @@ class ElementTestCase(PymatgenTest):
                 self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
 
             if el.symbol not in ["He", "Ne", "Ar"]:
-                self.assertTrue(el.X > 0, "No electroneg for %s" % el)
+                self.assertTrue(el.X > 0, f"No electroneg for {el}")
 
         self.assertRaises(ValueError, Element.from_Z, 1000)
 
@@ -330,7 +386,7 @@ class SpecieTestCase(PymatgenTest):
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
         for i in range(1, 5):
-            self.serialize_with_pickle(getattr(self, "specie%d" % i), test_eq=True)
+            self.serialize_with_pickle(getattr(self, f"specie{i}"), test_eq=True)
         cs = Species("Cs", 1)
         cl = Species("Cl", 1)
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -166,7 +165,7 @@ class IonTest(unittest.TestCase):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. " + "%s should be equal to %s" % (comp1.formula, comp2.formula),
+            "Composition equality test failed. " + f"{comp1.formula} should be equal to {comp2.formula}",
         )
         self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
 

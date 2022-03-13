@@ -11,8 +11,8 @@ following work::
 
 import logging
 import math
-from abc import ABCMeta
 import warnings
+from abc import ABCMeta
 
 import numpy as np
 import numpy.linalg as la
@@ -80,7 +80,7 @@ class NEBPathfinder:
         The final number of images will still be n_images.
         """
         if self.__mid is not None:
-            # to make arithmatic easier we will do the interpolation in two parts with n images each
+            # to make arithmetic easier we will do the interpolation in two parts with n images each
             # then just take every other image at the end, this results in exactly n images
             images_0 = self.__s1.interpolate(self.__mid, nimages=self.__n_images, interpolate_lattices=False)[:-1]
             images_1 = self.__mid.interpolate(self.__s2, nimages=self.__n_images, interpolate_lattices=False)
@@ -272,11 +272,11 @@ class NEBPathfinder:
                 raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
-                logger.debug("Converged at step {}".format(step))
+                logger.debug(f"Converged at step {step}")
                 break
 
             if step % 100 == 0:
-                logger.debug("Step {} - ds = {}".format(step, tol))
+                logger.debug(f"Step {step} - ds = {tol}")
         return s
 
     @staticmethod
@@ -297,7 +297,7 @@ class NEBPathfinder:
     @staticmethod
     def __d2f(disc_coords, v):
         """
-        Converts a point given in discrete coordinates withe respect to the
+        Converts a point given in discrete coordinates with respect to the
         grid in v to fractional coordinates.
         """
         return np.array(

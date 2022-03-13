@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
@@ -10,7 +9,6 @@ on LOBSTER see www.cohp.de.
 import itertools
 import os
 import warnings
-from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -110,16 +108,16 @@ class Lobsterin(dict, MSONable):
         # check for duplicates
         listkey = [key.lower() for key in settingsdict.keys()]
         if len(listkey) != len(list(set(listkey))):
-            raise IOError("There are duplicates for the keywords! The program will stop here.")
+            raise OSError("There are duplicates for the keywords! The program will stop here.")
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
         """
-        Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of
+        Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
         valid lobsterintags. Also cleans the parameter and val by stripping
         leading and trailing white spaces. Similar to INCAR class.
         """
-        # due to the missing case sensitivity of lobster, the following code is neccessary
+        # due to the missing case sensitivity of lobster, the following code is necessary
         found = False
         for key_here in self.keys():
             if key.strip().lower() == key_here.lower():
@@ -211,7 +209,7 @@ class Lobsterin(dict, MSONable):
         get number of nbands
         """
         if self.get("basisfunctions") is None:
-            raise IOError("No basis functions are provided. The program cannot calculate nbands.")
+            raise OSError("No basis functions are provided. The program cannot calculate nbands.")
 
         basis_functions = []  # type: List[str]
         for string_basis in self["basisfunctions"]:
@@ -350,7 +348,7 @@ class Lobsterin(dict, MSONable):
         AtomTypes = structure.symbol_set
 
         if set(AtomTypes) != set(AtomTypes_Potcar):
-            raise IOError("Your POSCAR does not correspond to your POTCAR!")
+            raise OSError("Your POSCAR does not correspond to your POTCAR!")
         BASIS = loadfn(address_basis_file)["BASIS"]
 
         basis_functions = []
@@ -380,7 +378,7 @@ class Lobsterin(dict, MSONable):
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols
-            address_basis_file_min: path to file with the minium required basis by the POTCAR
+            address_basis_file_min: path to file with the minimum required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in
@@ -567,11 +565,11 @@ class Lobsterin(dict, MSONable):
         with zopen(lobsterin, "rt") as f:
             data = f.read().split("\n")
         if len(data) == 0:
-            raise IOError("lobsterin file contains no data.")
+            raise OSError("lobsterin file contains no data.")
         Lobsterindict = {}  # type: Dict
 
         for datum in data:
-            # will remove all commments to avoid complications
+            # will remove all comments to avoid complications
             raw_datum = datum.split("!")[0]
             raw_datum = raw_datum.split("//")[0]
             raw_datum = raw_datum.split("#")[0]
@@ -613,11 +611,13 @@ class Lobsterin(dict, MSONable):
         potcar = Potcar.from_file(POTCAR_input)
         for pot in potcar:
             if pot.potential_type != "PAW":
-                raise IOError("Lobster only works with PAW! Use different POTCARs")
+                raise OSError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in lobster-4.1.0
         with zopen(POTCAR_input, "r") as f:
             data = f.read()
+        if isinstance(data, bytes):
+            data = data.decode("utf-8")
         if "SHA256" in data or "COPYR" in data:
             warnings.warn(
                 "These POTCARs are not compatible with "
@@ -628,7 +628,7 @@ class Lobsterin(dict, MSONable):
             )
 
         if potcar.functional != "PBE":
-            raise IOError("We only have BASIS options for PBE so far")
+            raise OSError("We only have BASIS options for PBE so far")
 
         Potcar_names = [name["symbol"] for name in potcar.spec]
         return Potcar_names
@@ -688,7 +688,7 @@ class Lobsterin(dict, MSONable):
         # this basis set covers most elements
         Lobsterindict["basisSet"] = "pbeVaspFit2015"
         # energies around e-fermi
-        Lobsterindict["COHPstartEnergy"] = -15.0
+        Lobsterindict["COHPstartEnergy"] = -35.0
         Lobsterindict["COHPendEnergy"] = 5.0
 
         if option in [
@@ -812,13 +812,12 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         max_basis: list of basis entries: e.g., ['Si 3p 3s ']
 
     Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
-
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict = OrderedDict({})  # type:  Dict[Any, Any]
+    basis_dict: Dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:

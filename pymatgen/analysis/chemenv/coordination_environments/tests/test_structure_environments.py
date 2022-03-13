@@ -5,7 +5,6 @@ __author__ = "waroquiers"
 
 import json
 import os
-import shutil
 import unittest
 
 import numpy as np
@@ -32,7 +31,7 @@ se_files_dir = os.path.join(
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
         with ScratchDir("."):
-            f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
+            f = open(f"{se_files_dir}/se_mp-7000.json")
             dd = json.load(f)
             f.close()
 
@@ -160,7 +159,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
     def test_light_structure_environments(self):
         with ScratchDir("."):
-            f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
+            f = open(f"{se_files_dir}/se_mp-7000.json")
             dd = json.load(f)
             f.close()
 

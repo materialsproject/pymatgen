@@ -328,14 +328,16 @@ accomplishing specific computational tasks, while :class:`InputSet` contain thos
 applied to a specific system or structure.
 
 Custom settings can be provided to :class:`InputGenerator` on instantiation. For example,
-to construct an :class:`InputSet` for a VASP structure relaxation using default Materials
-Project parameters, but change the `NSW` parameter from the default (99) to 500::
+to construct an :class:`InputSet` for packing water molecules into a box using the Packmol
+code, while changing the packing tolerance from 2.0 (default) to 3.0::
 
-    from pymatgen.io.generators import MPRelaxGen
+    from pymatgen.io.packmol import PackmolBoxGen
 
-    input_gen = MPRelaxGen(user_incar_settings={"NSW": 500})
-    vasp_input_set = input_gen.get_input_set(structure)
-    vasp_input_set.write_input('/path/to/calc/directory')
+    input_gen = PackmolBoxGen(tolerance=3.0)
+    packmol_set = input_gen.get_input_set({"name": "water",
+                                           "number": 500,
+                                           "coords": "/path/to/input/file.xyz"})
+    packmol_set.write_input('/path/to/calc/directory')
 
 You can also use `InputSet.from_directory()` to construct a pymatgen :class:`InputSet`
 from a directory containing calculation inputs.

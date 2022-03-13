@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,7 +7,7 @@ This module defines classes to represent the density of states, etc.
 
 import functools
 import warnings
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -160,15 +159,13 @@ class DOS(Spectrum):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
-                )
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
 
 
@@ -368,15 +365,13 @@ class Dos(MSONable):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
-                )
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
+                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
         return "\n".join(stringarray)
 
     @classmethod
@@ -503,7 +498,7 @@ class FermiDos(Dos, MSONable):
             * self.de[: self.idx_vbm + 1],
             axis=0,
         )
-        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm ** 3)
+        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
 
     def get_fermi_interextrapolated(
         self, concentration: float, temperature: float, warn: bool = True, c_ref: float = 1e10, **kwargs
@@ -597,7 +592,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError("Could not find fermi within {}% of concentration={}".format(rtol * 100, concentration))
+            raise ValueError(f"Could not find fermi within {rtol * 100}% of concentration={concentration}")
         return fermi
 
     @classmethod
@@ -790,9 +785,11 @@ class CompleteDos(Dos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}
 
     @property
-    def spin_polarization(self) -> float:
+    def spin_polarization(self) -> Optional[float]:
         """
-        Calculates spin polarization at Fermi level.
+        Calculates spin polarization at Fermi level. If the
+        calculation is not spin-polarized, None will be
+        returned.
 
         See Sanvito et al., doi: 10.1126/sciadv.1602241 for
         an example usage.
@@ -804,6 +801,8 @@ class CompleteDos(Dos):
         n_F = self.get_interpolated_value(self.efermi)
 
         n_F_up = n_F[Spin.up]
+        if Spin.down not in n_F:
+            return None
         n_F_down = n_F[Spin.down]
 
         if (n_F_up + n_F_down) == 0:

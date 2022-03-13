@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module defines Entry classes for containing experimental data.
@@ -55,7 +53,7 @@ class ExpEntry(PDEntry, MSONable):
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula, self.energy)
+        return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()

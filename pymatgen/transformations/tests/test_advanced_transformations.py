@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,18 +5,17 @@ import json
 import os
 import unittest
 import warnings
+from shutil import which
 
 import numpy as np
-from monty.os.path import which
 from monty.serialization import loadfn
 
+from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.analysis.energy_models import IsingModel
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io import atat
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -346,7 +344,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         d = trans.as_dict()
         # Check json encodability
-        s = json.dumps(d)
+        _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
@@ -387,11 +385,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         # returned structure varies between machines: we just want to ensure
         # that the order parameter is accurate
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(0, 2)]),
+            sorted(str(alls[idx].specie) for idx in range(0, 2)),
             sorted(["Fe2+,spin=5", "Fe2+,spin=5"]),
         )
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(2, 6)]),
+            sorted(str(alls[idx].specie) for idx in range(2, 6)),
             sorted(["Fe3+,spin=5", "Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5"]),
         )
         self.assertEqual(str(alls[0].specie), "Fe2+,spin=5")
@@ -406,11 +404,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(0, 2)]),
+            sorted(str(alls[idx].specie) for idx in range(0, 2)),
             sorted(["Fe2+,spin=-5", "Fe2+,spin=-5"]),
         )
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(2, 6)]),
+            sorted(str(alls[idx].specie) for idx in range(2, 6)),
             sorted(["Fe3+,spin=5", "Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5"]),
         )
 
@@ -423,11 +421,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(0, 2)]),
+            sorted(str(alls[idx].specie) for idx in range(0, 2)),
             sorted(["Fe2+,spin=5", "Fe2+,spin=-5"]),
         )
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(2, 6)]),
+            sorted(str(alls[idx].specie) for idx in range(2, 6)),
             sorted(["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=-5"]),
         )
 
@@ -456,11 +454,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.Fe3O4)
         alls.sort(key=lambda x: x.properties["cn"], reverse=True)
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(0, 4)]),
+            sorted(str(alls[idx].specie) for idx in range(0, 4)),
             sorted(["Fe,spin=-5", "Fe,spin=-5", "Fe,spin=5", "Fe,spin=5"]),
         )
         self.assertEqual(
-            sorted([str(alls[idx].specie) for idx in range(4, 6)]),
+            sorted(str(alls[idx].specie) for idx in range(4, 6)),
             sorted(["Fe,spin=5", "Fe,spin=5"]),
         )
 
@@ -474,11 +472,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
         self.assertEqual(
-            sorted([str(struct[idx].specie) for idx in range(0, 2)]),
+            sorted(str(struct[idx].specie) for idx in range(0, 2)),
             sorted(["Fe2+,spin=5", "Fe2+,spin=-5"]),
         )
         self.assertEqual(
-            sorted([str(struct[idx].specie) for idx in range(2, 6)]),
+            sorted(str(struct[idx].specie) for idx in range(2, 6)),
             sorted(["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=5"]),
         )
         self.assertEqual(len(alls), 4)
@@ -493,11 +491,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=100)
         struct = alls[0]["structure"]
         self.assertEqual(
-            sorted([str(struct[idx].specie) for idx in range(0, 2)]),
+            sorted(str(struct[idx].specie) for idx in range(0, 2)),
             sorted(["Fe2+,spin=5", "Fe2+,spin=-5"]),
         )
         self.assertEqual(
-            sorted([str(struct[idx].specie) for idx in range(2, 6)]),
+            sorted(str(struct[idx].specie) for idx in range(2, 6)),
             sorted(["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=-5"]),
         )
         self.assertEqual(len(alls), 2)
@@ -511,11 +509,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
         self.assertEqual(
-            sorted([str(struct[idx].specie) for idx in range(0, 2)]),
+            sorted(str(struct[idx].specie) for idx in range(0, 2)),
             sorted(["Fe2+,spin=5", "Fe2+,spin=-5"]),
         )
         self.assertEqual(
-            sorted([str(struct[idx].specie) for idx in range(2, 6)]),
+            sorted(str(struct[idx].specie) for idx in range(2, 6)),
             sorted(["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=5"]),
         )
         self.assertEqual(len(alls), 6)
@@ -581,7 +579,7 @@ class DopingTransformationTest(PymatgenTest):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         d = trans.as_dict()
         # Check json encodability
-        s = json.dumps(d)
+        _ = json.dumps(d)
         trans = DopingTransformation.from_dict(d)
         self.assertEqual(str(trans.dopant), "Al3+")
         self.assertEqual(trans.max_structures_per_enum, 1)

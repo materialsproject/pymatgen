@@ -11,12 +11,12 @@ from pymatgen.analysis.chemenv.utils.graph_utils import (
 from pymatgen.util.testing import PymatgenTest
 
 
-class FakeNode(object):
+class FakeNode:
     def __init__(self, isite):
         self.isite = isite
 
 
-class FakeNodeWithEqMethod(object):
+class FakeNodeWithEqMethod:
     def __init__(self, isite):
         self.isite = isite
 
@@ -27,7 +27,7 @@ class FakeNodeWithEqMethod(object):
         return 0
 
 
-class FakeNodeWithEqLtMethods(object):
+class FakeNodeWithEqLtMethods:
     def __init__(self, isite):
         self.isite = isite
 
@@ -38,7 +38,7 @@ class FakeNodeWithEqLtMethods(object):
         return self.isite < other.isite
 
     def __str__(self):
-        return "FakeNode_{:d}".format(self.isite)
+        return f"FakeNode_{self.isite:d}"
 
     def __hash__(self):
         return 0
@@ -48,7 +48,7 @@ class FakeNodeWithEqLtMethodsBis(FakeNodeWithEqLtMethods):
     pass
 
 
-class FakeNodeWithEqMethodWrongSortable(object):
+class FakeNodeWithEqMethodWrongSortable:
     def __init__(self, isite):
         self.isite = isite
 
@@ -716,12 +716,12 @@ class GraphUtilsTest(PymatgenTest):
             self.assertEqual(
                 mgc.nodes,
                 nodes_ref,
-                msg="Nodes not equal for inodes = ({})".format(", ".join([str(i) for i in inodes])),
+                msg=f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})",
             )
             self.assertEqual(
                 mgc.edge_indices,
                 edges_ref,
-                msg="Edges not equal for inodes = ({})".format(strnodes),
+                msg=f"Edges not equal for inodes = ({strnodes})",
             )
 
 

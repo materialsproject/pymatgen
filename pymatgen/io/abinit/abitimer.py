@@ -1,9 +1,8 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
 This module provides objects for extracting timing data from the ABINIT output files
-It also provides tools to analye and to visualize the parallel efficiency.
+It also provides tools to analyze and to visualize the parallel efficiency.
 """
 
 import collections
@@ -47,7 +46,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         parser = AbinitTimerParser()
         parser.parse(list_of_files)
 
-    To analyze all *.abo files withing top, use:
+    To analyze all *.abo files within top, use:
 
         parser, paths, okfiles = AbinitTimerParser.walk(top=".", ext=".abo")
     """
@@ -88,7 +87,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # timers[filename][mpi_rank]
         # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
-        self._timers = collections.OrderedDict()
+        self._timers = {}
 
     def __iter__(self):
         return self._timers.__iter__()
@@ -114,8 +113,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         for fname in filenames:
             try:
                 fh = open(fname)  # pylint: disable=R1732
-            except IOError:
-                logger.warning("Cannot open file %s" % fname)
+            except OSError:
+                logger.warning(f"Cannot open file {fname}")
                 continue
 
             try:
@@ -123,7 +122,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 read_ok.append(fname)
 
             except self.Error as e:
-                logger.warning("exception while parsing file %s:\n%s" % (fname, str(e)))
+                logger.warning(f"exception while parsing file {fname}:\n{e}")
                 continue
 
             finally:
@@ -136,7 +135,7 @@ class AbinitTimerParser(collections.abc.Iterable):
     def _read(self, fh, fname):
         """Parse the TIMER section"""
         if fname in self._timers:
-            raise self.Error("Cannot overwrite timer associated to: %s " % fname)
+            raise self.Error(f"Cannot overwrite timer associated to: {fname} ")
 
         def parse_line(line):
             """Parse single line."""
@@ -163,7 +162,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
                 info["fname"] = fname
                 for tok in line.split(","):
-                    key, val = [s.strip() for s in tok.split("=")]
+                    key, val = (s.strip() for s in tok.split("="))
                     info[key] = val
 
             elif line.startswith(self.END_TAG):
@@ -179,7 +178,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 if inside == 2:
                     d = {}
                     for tok in line.split(","):
-                        key, val = [s.strip() for s in tok.split("=")]
+                        key, val = (s.strip() for s in tok.split("="))
                         d[key] = float(val)
                     cpu_time, wall_time = d["cpu_time"], d["wall_time"]
 
@@ -196,7 +195,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                         raise self.Error("line should be empty: " + str(inside) + line)
 
         if not has_timer:
-            raise self.Error("%s: No timer section found" % fname)
+            raise self.Error(f"{fname}: No timer section found")
 
         # Add it to the dict
         self._timers[fname] = data
@@ -398,7 +397,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.grid(True)
 
         # Set xticks and labels.
-        labels = ["MPI=%d, OMP=%d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
+        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -440,7 +439,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         Args:
             key: Keyword used to extract data from the timers. Only the first `nmax`
                 sections with largest value are show.
-            mmax: Maximum nuber of sections to show. Other entries are grouped together
+            mmax: Maximum number of sections to show. Other entries are grouped together
                 in the `others` section.
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
@@ -465,7 +464,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             else:
                 rest += svals
 
-        names.append("others (nmax=%d)" % nmax)
+        names.append(f"others (nmax={nmax})")
         values.append(rest)
 
         # The dataset is stored in values. Now create the stacked histogram.
@@ -482,10 +481,10 @@ class AbinitTimerParser(collections.abc.Iterable):
             bottom += vals
 
         ax.set_ylabel(key)
-        ax.set_title("Stacked histogram with the %d most important sections" % nmax)
+        ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = ["MPI=%d, OMP=%d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
+        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
@@ -563,7 +562,7 @@ class ParallelEfficiency(dict):
             fract = self[sect_name]["wall_fract"]
             vals = alternate(peff, fract)
 
-            table.append([sect_name] + ["%.2f" % val for val in vals])
+            table.append([sect_name] + [f"{val:.2f}" for val in vals])
 
         return table
 

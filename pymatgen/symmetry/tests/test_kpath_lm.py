@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -14,7 +13,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir_structs = PymatgenTest.TEST_FILES_DIR
 

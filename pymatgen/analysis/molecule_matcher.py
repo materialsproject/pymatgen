@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides classes to perform fitting of molecule with arbitrary
@@ -70,7 +68,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             order.
             (None, None) if unform atom is not available.
         """
-        pass
 
     @abc.abstractmethod
     def get_molecule_hash(self, mol):
@@ -84,7 +81,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         Returns:
             A hashable object. Examples can be string formulas, etc.
         """
-        pass
 
     @classmethod
     def from_dict(cls, d):
@@ -96,12 +92,8 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             AbstractMolAtomMapper
         """
         for trans_modules in ["molecule_matcher"]:
-            import sys
 
-            if sys.version_info > (3, 0):
-                level = 0  # Python 3.x
-            else:
-                level = -1  # Python 2.x
+            level = 0  # Python 3.x
             mod = __import__(
                 "pymatgen.analysis." + trans_modules,
                 globals(),
@@ -185,8 +177,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         Return inchi as molecular hash
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat(str("inchi"))
-        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
+        obconv.SetOutFormat("inchi")
+        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
@@ -264,9 +256,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             List of equivalent atoms.
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat(str("inchi"))
-        obconv.AddOption(str("a"), ob.OBConversion.OUTOPTIONS)
-        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
+        obconv.SetOutFormat("inchi")
+        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
+        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(
             r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
@@ -368,7 +360,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 OBMol object
             ilabel1: inchi label map of the first molecule
             ilabel2: inchi label map of the second molecule
-            eq_atoms: equivalent atom lables
+            eq_atoms: equivalent atom labels
 
         Return:
             corrected inchi labels of heavy atoms of the second molecule
@@ -968,7 +960,7 @@ class BruteForceOrderMatcher(KabschMatcher):
     @staticmethod
     def permutations(atoms):
         """Generates all the possible permutations of atom order. To achieve better
-        performance all tha cases where the atoms are different has been ignored.
+        performance all the cases where the atoms are different has been ignored.
         """
         element_iterators = [itertools.permutations(np.where(atoms == element)[0]) for element in np.unique(atoms)]
 
@@ -1298,7 +1290,7 @@ class GeneticOrderMatcher(KabschMatcher):
         if sorted(p_atoms) != sorted(q_atoms):
             raise ValueError("The number of the same species aren't matching!")
 
-        # starting maches (only based on element)
+        # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
 
         for i in range(1, self.N):
@@ -1340,13 +1332,11 @@ class GeneticOrderMatcher(KabschMatcher):
                     if rmsd > self.threshold:
                         continue
 
-                    logger.debug("match - rmsd: {}, inds: {}".format(rmsd, inds))
+                    logger.debug(f"match - rmsd: {rmsd}, inds: {inds}")
                     matches.append(inds)
 
             partial_matches = matches
 
-            logger.info(
-                "number of atom in the fragment: {}, number of possible matches: {}".format(i + 1, len(matches))
-            )
+            logger.info(f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}")
 
         return matches

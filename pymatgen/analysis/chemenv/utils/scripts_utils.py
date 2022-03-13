@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,20 +7,9 @@ This module contains some script utils that are used in the chemenv package.
 
 
 import re
-from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen.ext.matproj import MPRester
-from pymatgen.io.cif import CifParser
-
-try:
-    from pymatgen.vis.structure_vtk import StructureVis
-
-    no_vis = False
-except ImportError:
-    StructureVis = None  # type: ignore
-    no_vis = True
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -40,7 +28,16 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCo
 from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
+from pymatgen.ext.matproj import MPRester
+from pymatgen.io.cif import CifParser
 
+try:
+    from pymatgen.vis.structure_vtk import StructureVis
+
+    no_vis = False
+except ImportError:
+    StructureVis = None  # type: ignore
+    no_vis = True
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -50,7 +47,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = OrderedDict()  # type: dict
+strategies_class_lookup = {}
 strategies_class_lookup["SimplestChemenvStrategy"] = SimplestChemenvStrategy
 
 
@@ -106,9 +103,9 @@ def draw_cg(
         if show_perfect:
             if len(neighbors) == 2:
                 perfect_geometry = AbstractGeometry.from_cg(cg)
-                trans = csm_info["other_symmetry_measures"]["translation_vector_{}".format(csm_suffix)]
-                rot = csm_info["other_symmetry_measures"]["rotation_matrix_{}".format(csm_suffix)]
-                scale = csm_info["other_symmetry_measures"]["scaling_factor_{}".format(csm_suffix)]
+                trans = csm_info["other_symmetry_measures"][f"translation_vector_{csm_suffix}"]
+                rot = csm_info["other_symmetry_measures"][f"rotation_matrix_{csm_suffix}"]
+                scale = csm_info["other_symmetry_measures"][f"scaling_factor_{csm_suffix}"]
                 points = perfect_geometry.points_wcs_ctwcc()
                 rotated_points = rotateCoords(points, rot)
                 points = [scale * pp + trans for pp in rotated_points]
@@ -147,9 +144,9 @@ def draw_cg(
             vis.add_edges(edges)
         if show_perfect:
             perfect_geometry = AbstractGeometry.from_cg(cg)
-            trans = csm_info["other_symmetry_measures"]["translation_vector_{}".format(csm_suffix)]
-            rot = csm_info["other_symmetry_measures"]["rotation_matrix_{}".format(csm_suffix)]
-            scale = csm_info["other_symmetry_measures"]["scaling_factor_{}".format(csm_suffix)]
+            trans = csm_info["other_symmetry_measures"][f"translation_vector_{csm_suffix}"]
+            rot = csm_info["other_symmetry_measures"][f"rotation_matrix_{csm_suffix}"]
+            scale = csm_info["other_symmetry_measures"][f"scaling_factor_{csm_suffix}"]
             points = perfect_geometry.points_wcs_ctwcc()
             rotated_points = rotateCoords(points, rot)
             points = [scale * pp + trans for pp in rotated_points]
@@ -202,7 +199,7 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     )
     if view_index:
         for ineighbor, neighbor in enumerate(structure[1:]):
-            vis.add_text(neighbor.coords, "{}".format(ineighbor), color=(0, 0, 0))
+            vis.add_text(neighbor.coords, f"{ineighbor}", color=(0, 0, 0))
     if zoom is not None:
         vis.zoom(zoom)
     return vis
@@ -255,7 +252,7 @@ def compute_environments(chemenv_configuration):
             found = False
             print("Enter the source from which the structure is coming or <q> to quit :")
             for key_character, qq in questions.items():
-                print(" - <{}> for a structure from {}".format(key_character, string_sources[qq]["string"]))
+                print(f" - <{key_character}> for a structure from {string_sources[qq]['string']}")
             test = input(" ... ")
             if test == "q":
                 break
@@ -285,7 +282,7 @@ def compute_environments(chemenv_configuration):
             a = MPRester()
             structure = a.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
-        print("Computing environments for {} ... ".format(structure.composition.reduced_formula))
+        print(f"Computing environments for {structure.composition.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print("Computing environments finished")
         while True:
@@ -342,7 +339,7 @@ def compute_environments(chemenv_configuration):
                             mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
                             for mingeom in mingeoms:
                                 csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                                mystring += "{} : {:.2f}       ".format(mingeom[0], csm)
+                                mystring += f"{mingeom[0]} : {csm:.2f}       "
                     print(mystring)
             if test == "g":
                 while True:

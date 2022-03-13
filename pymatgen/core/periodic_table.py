@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,14 +5,12 @@
 import ast
 import json
 import re
-import sys
 import warnings
 from collections import Counter
 from enum import Enum
-from io import open
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Literal, Optional, Tuple, Union
 
 import numpy as np
 from monty.json import MSONable
@@ -21,13 +18,8 @@ from monty.json import MSONable
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 # Loads element data from json file
-with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
+with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -189,7 +181,7 @@ class ElementBase(Enum):
             energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
             ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
-        self.symbol = "%s" % symbol
+        self.symbol = symbol
         d = _pt_data[symbol]
 
         # Store key variables for quick access
@@ -302,7 +294,7 @@ class ElementBase(Enum):
                             # Ignore error. val will just remain a string.
                             pass
             return val
-        raise AttributeError("Element has no attribute %s!" % item)
+        raise AttributeError(f"Element has no attribute {item}!")
 
     @property
     def data(self) -> dict:
@@ -497,8 +489,8 @@ class ElementBase(Enum):
         e_config_combs = list(combinations(range(n), v_e))
 
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
-        TL = [sum([ml_ms[comb[e]][0] for e in range(v_e)]) for comb in e_config_combs]
-        TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)]) for comb in e_config_combs]
+        TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
+        TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
         comb_counter = Counter(zip(TL, TS))
 
         term_symbols = []
@@ -600,23 +592,41 @@ class ElementBase(Enum):
         for sym, data in _pt_data.items():
             if data["Atomic no"] == z:
                 return Element(sym)
-        raise ValueError("No element with this atomic number %s" % z)
+        raise ValueError(f"No element with this atomic number {z}")
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> "Element":
         """
         Returns an element from a row and group number.
+        Important Note: For lanthanoids and actinoids, the row number must
+        be 8 and 9, respectively, and the group number must be
+        between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
+        value for Element(symbol).row and Element(symbol).group for these
+        elements.
 
         Args:
-            row (int): Row number
-            group (int): Group number
+            row (int): (pseudo) row number. This is the
+                standard row number except for the lanthanoids
+                and actinoids for which it is 8 or 9, respectively.
+            group (int): (pseudo) group number. This is the
+                standard group number except for the lanthanoids
+                and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
         for sym in _pt_data.keys():
             el = Element(sym)
-            if el.row == row and el.group == group:
+            if 57 <= el.Z <= 71:
+                el_pseudorow = 8
+                el_pseudogroup = (el.Z - 54) % 32
+            elif 89 <= el.Z <= 103:
+                el_pseudorow = 9
+                el_pseudogroup = (el.Z - 54) % 32
+            else:
+                el_pseudorow = el.row
+                el_pseudogroup = el.group
+            if el_pseudorow == row and el_pseudogroup == group:
                 return el
         raise ValueError("No element with this row and group!")
 
@@ -638,13 +648,15 @@ class ElementBase(Enum):
     def row(self) -> int:
         """
         Returns the periodic table row of the element.
+        Note: For lanthanoids and actinoids, the row is always 6 or 7,
+        respectively.
         """
         z = self.Z
         total = 0
         if 57 <= z <= 71:
-            return 8
+            return 6
         if 89 <= z <= 103:
-            return 9
+            return 7
         for i, size in enumerate(_pt_row_sizes):
             total += size
             if total >= z:
@@ -655,12 +667,14 @@ class ElementBase(Enum):
     def group(self) -> int:
         """
         Returns the periodic table group of the element.
+        Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
         if z == 1:
             return 1
         if z == 2:
             return 18
+
         if 3 <= z <= 18:
             if (z - 2) % 8 == 0:
                 return 18
@@ -672,6 +686,9 @@ class ElementBase(Enum):
             if (z - 18) % 18 == 0:
                 return 18
             return (z - 18) % 18
+
+        if (57 <= z <= 71) or (89 <= z <= 103):
+            return 3
 
         if (z - 54) % 32 == 0:
             return 18
@@ -813,7 +830,7 @@ class ElementBase(Enum):
         """
         Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
         (IUPAC Recommendations 2005)". This ordering effectively follows the
-        groups and rows of the periodic table, except the Lanthanides, Actanides
+        groups and rows of the periodic table, except the Lanthanides, Actinides
         and hydrogen.
         """
         return self._data["IUPAC ordering"]
@@ -860,7 +877,7 @@ class ElementBase(Enum):
                 except ValueError:
                     el = None  # type: ignore
                 if el and ((not filter_function) or filter_function(el)):
-                    rowstr.append("{:3s}".format(el.symbol))
+                    rowstr.append(f"{el.symbol:3s}")
                 else:
                     rowstr.append("   ")
             print(" ".join(rowstr))
@@ -1038,7 +1055,7 @@ class Species(MSONable, Stringify):
         self._properties = properties if properties else {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
-                raise ValueError("{} is not a supported property".format(k))
+                raise ValueError(f"{k} is not a supported property")
 
     def __getattr__(self, a):
         # overriding getattr doesn't play nice with pickle, so we
@@ -1066,7 +1083,7 @@ class Species(MSONable, Stringify):
     def __hash__(self):
         """
         Equal Species should have the same str representation, hence
-        should hash equally. Unequal Species will have differnt str
+        should hash equally. Unequal Species will have different str
         representations.
         """
         return self.__str__().__hash__()
@@ -1111,12 +1128,12 @@ class Species(MSONable, Stringify):
             d = self._el.data
             oxstr = str(int(self._oxi_state))
             if oxstr in d.get("Ionic radii hs", {}):
-                warnings.warn("No default ionic radius for %s. Using hs data." % self)
+                warnings.warn(f"No default ionic radius for {self}. Using hs data.")
                 return d["Ionic radii hs"][oxstr]
             if oxstr in d.get("Ionic radii ls", {}):
-                warnings.warn("No default ionic radius for %s. Using ls data." % self)
+                warnings.warn(f"No default ionic radius for {self}. Using ls data.")
                 return d["Ionic radii ls"][oxstr]
-        warnings.warn("No ionic radius for {}!".format(self))
+        warnings.warn(f"No ionic radius for {self}!")
         return None
 
     @property
@@ -1139,7 +1156,7 @@ class Species(MSONable, Stringify):
             A Species object.
 
         Raises:
-            ValueError if species_string cannot be intepreted.
+            ValueError if species_string cannot be interpreted.
         """
 
         # e.g. Fe2+,spin=5
@@ -1185,7 +1202,7 @@ class Species(MSONable, Stringify):
             else:
                 output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
-            output += ",%s=%s" % (p, v)
+            output += f",{p}={v}"
         return output
 
     def to_pretty_string(self) -> str:
@@ -1221,7 +1238,7 @@ class Species(MSONable, Stringify):
             return quad_mom.get(isotopes[0], 0.0)
 
         if isotope not in quad_mom:
-            raise ValueError("No quadrupole moment for isotope {}".format(isotope))
+            raise ValueError(f"No quadrupole moment for isotope {isotope}")
         return quad_mom.get(isotope, 0.0)
 
     def get_shannon_radius(
@@ -1257,7 +1274,7 @@ class Species(MSONable, Stringify):
                 )
         else:
             data = radii[spin]
-        return data["%s_radius" % radius_type]
+        return data[f"{radius_type}_radius"]
 
     def get_crystal_field_spin(
         self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"
@@ -1282,10 +1299,10 @@ class Species(MSONable, Stringify):
             raise ValueError("Invalid coordination or spin config.")
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
-            raise AttributeError("Invalid element {} for crystal field calculation.".format(self.symbol))
+            raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation.")
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if nelectrons < 0 or nelectrons > 10:
-            raise AttributeError("Invalid oxidation state {} for element {}".format(self.oxi_state, self.symbol))
+            raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
         if spin_config == "high":
             if nelectrons <= 5:
                 return nelectrons
@@ -1381,7 +1398,7 @@ class DummySpecies(Species):
 
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError("{} contains {}, which is a valid element symbol.".format(symbol, symbol[:i]))
+                raise ValueError(f"{symbol} contains {symbol[:i]}, which is a valid element symbol.")
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
@@ -1390,10 +1407,10 @@ class DummySpecies(Species):
         self._properties = properties if properties else {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
-                raise ValueError("{} is not a supported property".format(k))
+                raise ValueError(f"{k} is not a supported property")
 
     def __getattr__(self, a):
-        # overriding getattr doens't play nice with pickle, so we
+        # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         p = object.__getattribute__(self, "_properties")
         if a in p:
@@ -1481,7 +1498,7 @@ class DummySpecies(Species):
             A DummySpecies object.
 
         Raises:
-            ValueError if species_string cannot be intepreted.
+            ValueError if species_string cannot be interpreted.
         """
         m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
@@ -1531,7 +1548,7 @@ class DummySpecies(Species):
             else:
                 output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
-            output += ",%s=%s" % (p, v)
+            output += f",{p}={v}"
         return output
 
 
@@ -1541,16 +1558,12 @@ class Specie(Species):
     to maintain backwards compatibility.
     """
 
-    pass
-
 
 class DummySpecie(DummySpecies):
     """
     This maps the historical grammatically inaccurate DummySpecie to DummySpecies
     to maintain backwards compatibility.
     """
-
-    pass
 
 
 def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
@@ -1597,4 +1610,4 @@ def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
             try:
                 return DummySpecies.from_string(obj)
             except Exception:
-                raise ValueError("Can't parse Element or String from type %s: %s." % (type(obj), obj))
+                raise ValueError(f"Can't parse Element or String from type {type(obj)}: {obj}.")

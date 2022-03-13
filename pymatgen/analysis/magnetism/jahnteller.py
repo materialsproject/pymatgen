@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,9 +7,8 @@ JahnTeller distortion analysis.
 
 
 import os
-import sys
 import warnings
-from typing import Any, Dict, Optional, Tuple, Union, cast
+from typing import Any, Dict, Literal, Optional, Tuple, Union, cast
 
 import numpy as np
 
@@ -22,11 +20,6 @@ from pymatgen.analysis.local_env import (
 from pymatgen.core.periodic_table import Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -183,7 +176,7 @@ class JahnTellerAnalyzer:
                             """
                             Avoid storing to unreasonable precision, hurts readability.
                             """
-                            return float("{:.4f}".format(f))
+                            return float(f"{f:.4f}")
 
                         # to be Jahn-Teller active, all ligands have to be the same
                         if len(ligands_species) == 1:
@@ -215,7 +208,7 @@ class JahnTellerAnalyzer:
                         {
                             "site_indices": indices,
                             "strength": "none",
-                            "reason": "motif is {}".format(motif),
+                            "reason": f"motif is {motif}",
                         }
                     )
 
@@ -308,7 +301,7 @@ class JahnTellerAnalyzer:
             )
             active = analysis["active"]
         except Exception as e:
-            warnings.warn("Error analyzing {}: {}".format(structure.composition.reduced_formula, e))
+            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
 
         return active
 
@@ -353,7 +346,7 @@ class JahnTellerAnalyzer:
                         structure.add_site_property("possible_jt_active", jt_sites)
             return structure
         except Exception as e:
-            warnings.warn("Error analyzing {}: {}".format(structure.composition.reduced_formula, e))
+            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
             return structure
 
     @staticmethod
@@ -372,10 +365,10 @@ class JahnTellerAnalyzer:
         # taken from get_crystal_field_spin
         elec = species.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
-            raise AttributeError("Invalid element {} for crystal field calculation.".format(species.symbol))
+            raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
         nelectrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
         if nelectrons < 0 or nelectrons > 10:
-            raise AttributeError("Invalid oxidation state {} for element {}".format(species.oxi_state, species.symbol))
+            raise AttributeError(f"Invalid oxidation state {species.oxi_state} for element {species.symbol}")
 
         return nelectrons
 
