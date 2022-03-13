@@ -8,6 +8,7 @@ Classes for reading/manipulating/writing QChem input files.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Literal
 
 from monty.io import zopen
@@ -271,7 +272,7 @@ class QCInput(InputFile):
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
-    def from_file(filename: str) -> QCInput:
+    def from_file(filename: str | Path) -> QCInput:
         """
         Create QcInput from file.
         Args:
