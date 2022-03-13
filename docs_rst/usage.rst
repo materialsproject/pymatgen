@@ -234,7 +234,7 @@ Molecules. For example, you can change any site simply with::
     molecule[1] = "F"
 
     # Change species and coordinates (fractional assumed for Structures,
-    # cartesian for Molecules)
+    # Cartesian for Molecules)
     structure[1] = "Cl", [0.51, 0.51, 0.51]
     molecule[1] = "F", [1.34, 2, 3]
 

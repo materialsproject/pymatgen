@@ -13,6 +13,8 @@ Fast computation of many-element Pourbaix diagrams:
     Patel et al., https://arxiv.org/abs/1909.00035 (submitted)
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 import re
@@ -20,7 +22,6 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -466,11 +467,11 @@ class PourbaixDiagram(MSONable):
 
     def __init__(
         self,
-        entries: Union[List[PourbaixEntry], List[MultiEntry]],
-        comp_dict: Optional[Dict[str, float]] = None,
-        conc_dict: Optional[Dict[str, float]] = None,
+        entries: list[PourbaixEntry] | list[MultiEntry],
+        comp_dict: dict[str, float] | None = None,
+        conc_dict: dict[str, float] | None = None,
         filter_solids: bool = True,
-        nproc: Optional[int] = None,
+        nproc: int | None = None,
     ):
         """
         Args:

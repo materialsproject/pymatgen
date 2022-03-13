@@ -17,9 +17,10 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
+from __future__ import annotations
+
 import warnings
 from pathlib import Path
-from typing import Dict, Union
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -87,11 +88,11 @@ class Cp2kInputSet(Cp2kInput):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
-        potential_and_basis: Dict = {},
+        structure: Structure | Molecule,
+        potential_and_basis: dict = {},
         multiplicity: int = 0,
         project_name: str = "CP2K",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -139,7 +140,7 @@ class Cp2kInputSet(Cp2kInput):
 
         self.update(override_default_params)
 
-    def create_subsys(self, structure: Union[Structure, Molecule]):
+    def create_subsys(self, structure: Structure | Molecule):
         """
         Create the structure for the input
         """
@@ -211,12 +212,12 @@ class DftSet(Cp2kInputSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         ot: bool = True,
         band_gap: float = 0.01,
         eps_default: float = 1e-12,
         eps_scf: float = 1e-7,
-        max_scf: Union[int, None] = None,
+        max_scf: int | None = None,
         minimizer: str = "DIIS",
         preconditioner: str = "FULL_ALL",
         algorithm: str = "STRICT",
@@ -225,9 +226,9 @@ class DftSet(Cp2kInputSet):
         rel_cutoff: int = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         wfn_restart_file_name: str = None,
-        kpoints: Union[Kpoints, None] = None,
+        kpoints: Kpoints | None = None,
         smearing: bool = False,
         **kwargs,
     ):
@@ -462,7 +463,7 @@ class DftSet(Cp2kInputSet):
         cutoff_radius: float = 8.0,
         potential_type: str = None,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,
@@ -736,10 +737,10 @@ class StaticSet(DftSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         project_name: str = "Static",
         run_type: str = "ENERGY_FORCE",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -768,13 +769,13 @@ class RelaxSet(DftSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         max_drift: float = 3e-3,
         max_force: float = 4.5e-3,
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -839,9 +840,9 @@ class CellOptSet(DftSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         project_name: str = "CellOpt",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -887,17 +888,17 @@ class HybridStaticSet(StaticSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-Static",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,
@@ -961,17 +962,17 @@ class HybridRelaxSet(RelaxSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-Relax",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,
@@ -1035,17 +1036,17 @@ class HybridCellOptSet(CellOptSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-CellOpt",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,

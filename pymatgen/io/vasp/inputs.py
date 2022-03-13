@@ -6,6 +6,8 @@ Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
+from __future__ import annotations
+
 import glob
 import itertools
 import json
@@ -18,7 +20,7 @@ import warnings
 from collections import namedtuple
 from enum import Enum
 from hashlib import md5
-from typing import Any, Dict, Literal, Sequence, Tuple, Union
+from typing import Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
@@ -557,7 +559,7 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Poscar":
+    def from_dict(cls, d: dict) -> Poscar:
         """
         :param d: Dict representation.
         :return: Poscar
@@ -639,7 +641,7 @@ class Incar(dict, MSONable):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params: Dict[str, Any] = None):
+    def __init__(self, params: dict[str, Any] = None):
         """
         Creates an Incar object.
 
@@ -682,7 +684,7 @@ class Incar(dict, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "Incar":
+    def from_dict(cls, d) -> Incar:
         """
         :param d: Dict representation.
         :return: Incar
@@ -746,7 +748,7 @@ class Incar(dict, MSONable):
             f.write(self.__str__())
 
     @staticmethod
-    def from_file(filename: PathLike) -> "Incar":
+    def from_file(filename: PathLike) -> Incar:
         """
         Reads an Incar object from a file.
 
@@ -760,7 +762,7 @@ class Incar(dict, MSONable):
             return Incar.from_string(f.read())
 
     @staticmethod
-    def from_string(string: str) -> "Incar":
+    def from_string(string: str) -> Incar:
         """
         Reads an Incar object from a string.
 
@@ -902,7 +904,7 @@ class Incar(dict, MSONable):
 
         return val.strip().capitalize()
 
-    def diff(self, other: "Incar") -> Dict[str, Dict[str, Any]]:
+    def diff(self, other: Incar) -> dict[str, dict[str, Any]]:
         """
         Diff function for Incar.  Compares two Incars and indicates which
         parameters are the same and which are not. Useful for checking whether
@@ -1005,7 +1007,7 @@ class Kpoints_supported_modes(Enum):
         return str(self.name)
 
     @staticmethod
-    def from_string(s: str) -> "Kpoints_supported_modes":
+    def from_string(s: str) -> Kpoints_supported_modes:
         """
         :param s: String
         :return: Kpoints_supported_modes
@@ -1029,8 +1031,8 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: Kpoints_supported_modes = supported_modes.Gamma,
-        kpts: Sequence[Union[float, int, Sequence]] = ((1, 1, 1),),
-        kpts_shift: Tuple[float, float, float] = (0, 0, 0),
+        kpts: Sequence[float | int | Sequence] = ((1, 1, 1),),
+        kpts_shift: tuple[float, float, float] = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
@@ -1151,7 +1153,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts: Tuple[int, int, int] = (1, 1, 1), shift: Tuple[float, float, float] = (0, 0, 0)):
+    def gamma_automatic(kpts: tuple[int, int, int] = (1, 1, 1), shift: tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1173,7 +1175,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts: Tuple[int, int, int] = (2, 2, 2), shift: Tuple[float, float, float] = (0, 0, 0)):
+    def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: tuple[float, float, float] = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1860,7 +1862,7 @@ class PotcarSingle:
             f.write(self.__str__())
 
     @staticmethod
-    def from_file(filename: str) -> "PotcarSingle":
+    def from_file(filename: str) -> PotcarSingle:
         """
         Reads PotcarSingle from file.
 

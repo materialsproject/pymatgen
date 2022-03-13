@@ -3,6 +3,8 @@ Module to call mcsqs, distributed with AT-AT
 https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 """
 
+from __future__ import annotations
+
 import os
 import tempfile
 import warnings
@@ -10,7 +12,6 @@ from collections import namedtuple
 from pathlib import Path
 from shutil import which
 from subprocess import Popen, TimeoutExpired
-from typing import Dict, List, Optional, Union
 
 from monty.dev import requires
 
@@ -33,12 +34,12 @@ directory: str
 )
 def run_mcsqs(
     structure: Structure,
-    clusters: Dict[int, float],
-    scaling: Union[int, List[int]] = 1,
+    clusters: dict[int, float],
+    scaling: int | list[int] = 1,
     search_time: float = 60,
-    directory: Optional[str] = None,
-    instances: Optional[int] = None,
-    temperature: Union[int, float] = 1,
+    directory: str | None = None,
+    instances: int | None = None,
+    temperature: int | float = 1,
     wr: float = 1,
     wn: float = 1,
     wd: float = 0.5,
@@ -202,7 +203,7 @@ def _parse_sqs_path(path) -> Sqs:
         lines = f.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
-    objective_function: Union[float, str]
+    objective_function: float | str
     if objective_function_str != "Perfect_match":
         objective_function = float(objective_function_str)
     else:
@@ -224,7 +225,7 @@ def _parse_sqs_path(path) -> Sqs:
             lines = f.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
-        obj: Union[float, str]
+        obj: float | str
         if objective_function_str != "Perfect_match":
             obj = float(objective_function_str)
         else:
