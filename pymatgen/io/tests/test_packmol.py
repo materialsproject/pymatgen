@@ -2,6 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 from subprocess import TimeoutExpired
+from shutil import which
 
 import pytest
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
@@ -49,6 +50,7 @@ def water():
     return Molecule(water_atoms, water_coords)
 
 
+@pytest.mark.skipif(which("packmol") is not None, reason="packmol executable not present")
 class TestPackmolSet:
     def test_packmol_with_molecule(self, water, ethanol):
         """
