@@ -1,8 +1,8 @@
 numpy==1.22.2
 sympy==1.9
 requests==2.26.0
-monty==2022.1.19
-ruamel.yaml==0.17.17
+monty==2022.3.12
+ruamel.yaml==0.17.21
 scipy==1.7.3
 tabulate==0.8.9
 matplotlib==3.5.1
