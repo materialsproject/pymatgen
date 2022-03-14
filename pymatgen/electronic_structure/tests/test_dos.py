@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,10 +7,11 @@ import os
 import unittest
 
 import numpy as np
+from monty.io import zopen
 from monty.serialization import loadfn
 
-from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import (
     DOS,
@@ -24,7 +24,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class DosTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
@@ -62,7 +62,7 @@ class DosTest(unittest.TestCase):
 
 class FermiDosTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
         self.dos = FermiDos(self.dos)
 
@@ -109,8 +109,10 @@ class FermiDosTest(unittest.TestCase):
 
 class CompleteDosTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "pdag3_complete_dos.json.gz")) as f:
+            self.dos_pdag3 = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
         dos = self.dos
@@ -185,10 +187,80 @@ class CompleteDosTest(unittest.TestCase):
         self.assertIsInstance(dos_dict["densities"]["1"][0], float)
         self.assertNotIsInstance(dos_dict["densities"]["1"][0], np.float64)
 
+    def test_get_band_center(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+        band_center = dos.get_band_center()
+        self.assertAlmostEqual(band_center, -3.078841005723767)
+
+        band_center = dos.get_band_center(elements=[Element("Ag"), Element("Pd")])
+        self.assertAlmostEqual(band_center, -3.078841005723767)
+
+        band_center = dos.get_band_center(elements=[Element("Pd")])
+        self.assertAlmostEqual(band_center, -1.476449501704171)
+
+        band_center = dos.get_band_center(sites=[s for s in struct if s.species_string == "Pd"])
+        self.assertAlmostEqual(band_center, -1.476449501704171)
+
+        band_center = dos.get_band_center(sites=[struct[-3]])
+        self.assertAlmostEqual(band_center, -1.4144921311083436)
+
+        band_center = dos.get_band_center(band=OrbitalType.p)
+        self.assertAlmostEqual(band_center, 0.9430322204760462)
+
+        band_center = dos.get_band_center(elements=[Element("Pd")], band=OrbitalType.p)
+        self.assertAlmostEqual(band_center, 0.7825770239165218)
+
+        band_center = dos.get_band_center(elements=[Element("Pd")], erange=[-4, -2])
+        self.assertAlmostEqual(band_center, -2.8754000116714065)
+
+    def test_get_upper_band_edge(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+        band_edge = dos.get_upper_band_edge()
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(elements=[Element("Pd")])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(sites=[struct[-3]])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(elements=[Element("Pd")], erange=[-4, 0.5])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+    def test_get_n_moment(self):
+        dos = self.dos_pdag3
+        moment = dos.get_n_moment(1)
+        self.assertAlmostEqual(moment, 0)
+
+        moment = dos.get_n_moment(1, center=False)
+        self.assertAlmostEqual(moment, -3.078841005723767)
+
+    def test_band_filling(self):
+        dos = self.dos_pdag3
+        filling = dos.get_band_filling()
+        self.assertAlmostEqual(filling, 0.9583552024357637)
+
+    def test_band_width(self):
+        dos = self.dos_pdag3
+        width = dos.get_band_width()
+        self.assertAlmostEqual(width, 1.7831724662185575)
+
+    def test_skewness(self):
+        dos = self.dos_pdag3
+        skewness = dos.get_band_skewness()
+        self.assertAlmostEqual(skewness, 1.7422716340493507)
+
+    def test_kurtosis(self):
+        dos = self.dos_pdag3
+        kurtosis = dos.get_band_kurtosis()
+        self.assertAlmostEqual(kurtosis, 7.764506941340621)
+
 
 class DOSTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             d = json.load(f)
             y = list(zip(d["densities"]["1"], d["densities"]["-1"]))
             self.dos = DOS(d["energies"], y, d["efermi"])
@@ -223,27 +295,27 @@ class SpinPolarizationTest(unittest.TestCase):
 class LobsterCompleteDosTest(unittest.TestCase):
     def setUp(self):
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_spin.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_spin.json")) as f:
             data_spin = json.load(f)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_nonspin.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_nonspin.json")) as f:
             data_nonspin = json.load(f)
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_KF.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_KF.json")) as f:
             data_structure = json.load(f)
         self.structure = Structure.from_dict(data_structure)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_MnO.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_MnO.json")) as f:
             data_MnO = json.load(f)
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_MnO_nonspin.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_MnO_nonspin.json")) as f:
             data_MnO_nonspin = json.load(f)
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_MnO.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_MnO.json")) as f:
             data_MnO = json.load(f)
         self.structure_MnO = Structure.from_dict(data_MnO)
 

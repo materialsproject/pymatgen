@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -323,7 +322,7 @@ class StructureMatcher(MSONable):
             structure within a fractional tolerance.
             ii. If true:
 
-                ia. Convert both lattices to cartesian and place
+                ia. Convert both lattices to Cartesian and place
                 both structures on an average lattice
                 ib. Compute and return the average and max rms
                 displacement between the two structures normalized
@@ -514,7 +513,7 @@ class StructureMatcher(MSONable):
     @classmethod
     def _cart_dists(cls, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
         """
-        Finds a matching in cartesian space. Finds an additional
+        Finds a matching in Cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
 
         Args:
@@ -543,7 +542,7 @@ class StructureMatcher(MSONable):
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
-        return new_d2 ** 0.5 * normalization, f_translation, s
+        return new_d2**0.5 * normalization, f_translation, s
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
         """
@@ -554,7 +553,7 @@ class StructureMatcher(MSONable):
         Returns:
         mask, struct1 translation indices, struct2 translation index
         """
-        mask = np.zeros((len(struct2), len(struct1), fu), dtype=np.bool)
+        mask = np.zeros((len(struct2), len(struct1), fu), dtype=bool)
 
         inner = []
         for sp2, i in itertools.groupby(enumerate(struct2.species_and_occu), key=lambda x: x[1]):
@@ -581,7 +580,7 @@ class StructureMatcher(MSONable):
         if s1_supercell:
             # remove the symmetrically equivalent s1 indices
             inds = inds[::fu]
-        return np.array(mask, dtype=np.int_), inds, i
+        return np.array(mask, dtype=int), inds, i
 
     def fit(self, struct1, struct2, symmetric=False):
         """
@@ -1196,7 +1195,7 @@ class StructureMatcher(MSONable):
 class PointDefectComparator(MSONable):
     """
     A class that matches pymatgen Point Defect objects even if their
-    cartesian co-ordinates are different (compares sublattices for the defect)
+    Cartesian coordinates are different (compares sublattices for the defect)
 
     NOTE: for defect complexes (more than a single defect),
     this comparator will break.

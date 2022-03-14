@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -12,7 +11,6 @@ Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum v
 import json
 import os
 from enum import Enum
-from io import open
 
 from monty.json import MontyEncoder
 
@@ -28,7 +26,7 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
 
@@ -418,7 +416,7 @@ class LibxcFunc(Enum):
         self.family = info["Family"]
 
     def __str__(self):
-        return "name=%s, kind=%s, family=%s" % (self.name, self.kind, self.family)
+        return f"name={self.name}, kind={self.kind}, family={self.family}"
 
     @staticmethod
     def all_families():
@@ -426,7 +424,7 @@ class LibxcFunc(Enum):
         List of strings with the libxc families.
         Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
         """
-        return sorted(set(d["Family"] for d in _all_xcfuncs.values()))
+        return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
@@ -435,7 +433,7 @@ class LibxcFunc(Enum):
         Also in this case, the string is obtained by remove the XC_ prefix.
         XC_CORRELATION --> CORRELATION
         """
-        return sorted(set(d["Kind"] for d in _all_xcfuncs.values()))
+        return sorted({d["Kind"] for d in _all_xcfuncs.values()})
 
     @property
     def info_dict(self):

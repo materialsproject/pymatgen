@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -183,7 +182,7 @@ class FunctionalGroupExtractor:
         rings_indices = [set(sum(ring, ())) for ring in rings]
 
         for ring in rings_indices:
-            ring_spec = sorted([str(self.species[node]) for node in ring])
+            ring_spec = sorted(str(self.species[node]) for node in ring)
             # All rings of interest are three-member rings
             if len(ring) == 3 and ring_spec in [
                 ["C", "C", "O"],
@@ -274,7 +273,7 @@ class FunctionalGroupExtractor:
                 num_deviants = 0
                 for node in ring:
                     neighbors = strat.get_nn_info(self.molecule, node)
-                    neighbor_spec = sorted([str(self.species[n["site_index"]]) for n in neighbors])
+                    neighbor_spec = sorted(str(self.species[n["site_index"]]) for n in neighbors)
                     if neighbor_spec != ["C", "C", "H"]:
                         num_deviants += 1
 

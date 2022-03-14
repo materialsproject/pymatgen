@@ -2,16 +2,32 @@ import os
 import unittest
 from pathlib import Path
 
+import numpy as np
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.phonopy import *
+from pymatgen.io.phonopy import (
+    CompletePhononDos,
+    PhononBandStructure,
+    PhononBandStructureSymmLine,
+    Structure,
+    get_complete_ph_dos,
+    get_displaced_structures,
+    get_gruneisen_ph_bs_symm_line,
+    get_gruneisenparameter,
+    get_ph_bs_symm_line,
+    get_ph_dos,
+    get_phonon_band_structure_from_fc,
+    get_phonon_band_structure_symm_line_from_fc,
+    get_phonon_dos_from_fc,
+    get_phonopy_structure,
+    get_pmg_structure,
+)
 from pymatgen.util.testing import PymatgenTest
 
 try:
     from phonopy import Phonopy
-    from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
-    from phonopy.structure.atoms import PhonopyAtoms
+    from phonopy.file_IO import parse_FORCE_CONSTANTS
 except ImportError as ex:
     print(ex)
     Phonopy = None
@@ -82,8 +98,8 @@ class StructureConversionTest(PymatgenTest):
         s_pmg2 = get_pmg_structure(s_ph)
 
         coords_ph = s_ph.get_scaled_positions()
-        symbols_pmg = set([e.symbol for e in s_pmg.composition.keys()])
-        symbols_pmg2 = set([e.symbol for e in s_pmg2.composition.keys()])
+        symbols_pmg = {e.symbol for e in s_pmg.composition.keys()}
+        symbols_pmg2 = {e.symbol for e in s_pmg2.composition.keys()}
 
         self.assertAlmostEqual(s_ph.get_cell()[1, 1], s_pmg.lattice._matrix[1, 1], 7)
         self.assertAlmostEqual(s_pmg.lattice._matrix[1, 1], s_pmg2.lattice._matrix[1, 1], 7)

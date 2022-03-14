@@ -13,13 +13,14 @@ A quick overview of the module:
 -- The rest of the classes are children of Section intended to make initialization of common sections easier.
 """
 
+from __future__ import annotations
+
 import copy
 import os
 import re
-import sys
 import textwrap
 import warnings
-from typing import Dict, List, Sequence, Tuple, Union
+from typing import Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -27,11 +28,6 @@ from monty.json import MSONable
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"
@@ -84,7 +80,7 @@ class Keyword(MSONable):
         return (
             self.name.__str__()
             + " "
-            + ("[{}] ".format(self.units) if self.units else "")
+            + (f"[{self.units}] " if self.units else "")
             + " ".join(map(str, self.values))
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
@@ -128,7 +124,7 @@ class Keyword(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        Initialise from dictonary
+        Initialise from dictionary
         """
         return Keyword(
             d["name"],
@@ -237,9 +233,9 @@ class Section(MSONable):
         name: str,
         subsections: dict = None,
         repeats: bool = False,
-        description: Union[str, None] = None,
-        keywords: Dict = {},
-        section_parameters: Union[List, Tuple] = [],
+        description: str | None = None,
+        keywords: dict = {},
+        section_parameters: list | tuple = [],
         location: str = None,
         verbose: bool = True,
         alias: str = None,
@@ -637,7 +633,7 @@ class Cp2kInput(Section):
         return Cp2kInput.from_lines(lines)
 
     @classmethod
-    def from_lines(cls, lines: Union[List, tuple]):
+    def from_lines(cls, lines: list | tuple):
         """
         Helper method to read lines of file
         """
@@ -960,8 +956,8 @@ class Mgrid(Section):
 
     def __init__(
         self,
-        cutoff: Union[int, float] = 1200,
-        rel_cutoff: Union[int, float] = 80,
+        cutoff: int | float = 1200,
+        rel_cutoff: int | float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
         subsections: dict = None,
@@ -1138,7 +1134,7 @@ class OrbitalTransformation(Section):
             minimizer (str): The minimizer to use with the OT method. Default is conjugate gradient method,
                 which is more robust, but more well-behaved systems should use DIIS, which can be as much
                 as 50% faster.
-            preconditioner (str): Preconditionar to use for OT, FULL_ALL tends to be most robust, but is
+            preconditioner (str): Preconditioner to use for OT, FULL_ALL tends to be most robust, but is
                 not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be more robust,
                 and is reasonably efficient with large systems. For huge, but well behaved, systems,
                 where construction of the preconditioner can take a very long time, FULL_KINETIC can be a good
@@ -1169,11 +1165,11 @@ class OrbitalTransformation(Section):
             + "Default settings already provide an efficient, yet robust method. Most "
             + "systems benefit from using the FULL_ALL preconditioner combined with a small "
             + "value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using "
-            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalisation"
+            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalization"
             + "is performed. If preconditioned correctly, method guaranteed to find minimum. "
             + "Disadvantages: Sensitive to preconditioning. A good preconditioner can be "
             + "expensive. No smearing, or advanced SCF mixing possible: POOR convergence for "
-            + "metalic systems."
+            + "metallic systems."
         )
 
         keywords = {
@@ -1230,7 +1226,7 @@ class Kind(Section):
     def __init__(
         self,
         specie: str,
-        alias: Union[str, None] = None,
+        alias: str | None = None,
         magnetization: float = 0.0,
         subsections: dict = None,
         basis_set: str = "GTH_BASIS",
@@ -1243,7 +1239,7 @@ class Kind(Section):
 
         Args:
             specie (Species or Element): Object representing the atom.
-            alias (str): Alias for the atom, can be used for specifying modifcations
+            alias (str): Alias for the atom, can be used for specifying modifications
                 to certain atoms but not all, e.g. Mg_1 and Mg_2 to force difference
                 oxidation states on the two atoms.
             magnetization (float): From the CP2K Manual: The magnetization used
@@ -1356,8 +1352,8 @@ class Coord(Section):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
-        aliases: Union[dict, None] = None,
+        structure: Structure | Molecule,
+        aliases: dict | None = None,
         subsections: dict = None,
         **kwargs,
     ):
@@ -1430,7 +1426,7 @@ class LDOS(Section):
     Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.
     """
 
-    def __init__(self, index: int = 1, alias: Union[str, None] = None, **kwargs):
+    def __init__(self, index: int = 1, alias: str | None = None, **kwargs):
         """
         Initialize the LDOS section
 
@@ -1557,7 +1553,7 @@ class Smear(Section):
 
     def __init__(
         self,
-        elec_temp: Union[int, float] = 300,
+        elec_temp: int | float = 300,
         method: str = "FERMI_DIRAC",
         fixed_magnetic_moment: float = -1e2,
         **kwargs,
@@ -1722,8 +1718,8 @@ class PBE(Section):
     def __init__(
         self,
         parameterization: str = "ORIG",
-        scale_c: Union[float, int] = 1,
-        scale_x: Union[float, int] = 1,
+        scale_c: float | int = 1,
+        scale_x: float | int = 1,
     ):
         """
         Args:
@@ -1765,8 +1761,8 @@ class Kpoints(Section):
 
     def __init__(
         self,
-        kpts: Union[Sequence, Sequence[Sequence[int]]],
-        weights: Union[Sequence, None] = None,
+        kpts: Sequence | Sequence[Sequence[int]],
+        weights: Sequence | None = None,
         eps_geo: float = 1e-6,
         full_grid: bool = False,
         parallel_group_size: int = -1,

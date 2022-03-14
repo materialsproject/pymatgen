@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -10,7 +9,6 @@ import bisect
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
-from typing import Dict
 from warnings import warn
 
 import numpy as np
@@ -99,12 +97,12 @@ class EwaldSummation(MSONable):
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = eta if eta else (len(structure) * w / (self._vol ** 2)) ** (1 / 3) * pi
+        self._eta = eta if eta else (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
         # reciprocal space cutoff radii
-        self._accf = sqrt(log(10 ** acc_factor))
+        self._accf = sqrt(log(10**acc_factor))
 
         self._rmax = real_space_cut if real_space_cut else self._accf / self._sqrt_eta
         self._gmax = recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
@@ -125,7 +123,7 @@ class EwaldSummation(MSONable):
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = (
-            -EwaldSummation.CONV_FACT / 2 * np.pi / structure.volume / self._eta * structure.charge ** 2
+            -EwaldSummation.CONV_FACT / 2 * np.pi / structure.volume / self._eta * structure.charge**2
         )
 
     def compute_partial_energy(self, removed_indices):
@@ -179,7 +177,7 @@ class EwaldSummation(MSONable):
             output = ["Missing sites."]
             for site in sub_structure:
                 if site not in matches:
-                    output.append("unmatched = {}".format(site))
+                    output.append(f"unmatched = {site}")
             raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
@@ -336,7 +334,7 @@ class EwaldSummation(MSONable):
         frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
-        g2s = np.sum(gs ** 2, 1)
+        g2s = np.sum(gs**2, 1)
         expvals = np.exp(-g2s / (4 * self._eta))
         grs = np.sum(gs[:, None] * coords[None, :], 2)
 
@@ -365,7 +363,7 @@ class EwaldSummation(MSONable):
                 forces += factor[:, None] * g[None, :]
 
         forces *= EwaldSummation.CONV_FACT
-        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2 ** 0.5
+        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2**0.5
         return erecip, forces
 
     def _calc_real_and_point(self):
@@ -382,7 +380,7 @@ class EwaldSummation(MSONable):
 
         qs = np.array(self._oxi_states)
 
-        epoint = -(qs ** 2) * sqrt(self._eta / pi)
+        epoint = -(qs**2) * sqrt(self._eta / pi)
 
         for i in range(numsites):
             nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(
@@ -408,7 +406,7 @@ class EwaldSummation(MSONable):
             if self._compute_forces:
                 nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
 
-                fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
+                fijpf = qj / rij**3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij**2))
                 forces[i] += np.sum(
                     np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nccoords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
@@ -444,7 +442,7 @@ class EwaldSummation(MSONable):
             ]
         return "\n".join(output)
 
-    def as_dict(self, verbosity: int = 0) -> Dict:
+    def as_dict(self, verbosity: int = 0) -> dict:
         """
         Json-serialization dict representation of EwaldSummation.
 
@@ -471,7 +469,7 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict, fmt: str = None, **kwargs) -> "EwaldSummation":
+    def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> "EwaldSummation":
         """Create an EwaldSummation instance from JSON serialized dictionary.
 
         Args:
@@ -704,7 +702,7 @@ class EwaldMinimizer:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
 
-        # if we wont have enough indices left, return
+        # if we won't have enough indices left, return
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
 
@@ -767,7 +765,7 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     try:
-        avg_oxi = sum([sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None])
+        avg_oxi = sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
         return avg_oxi
     except AttributeError:
         pass

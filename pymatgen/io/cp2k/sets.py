@@ -17,12 +17,13 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
+from __future__ import annotations
+
 import warnings
 from pathlib import Path
-from typing import Dict, Union
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     LDOS,
@@ -87,11 +88,11 @@ class Cp2kInputSet(Cp2kInput):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
-        potential_and_basis: Dict = {},
+        structure: Structure | Molecule,
+        potential_and_basis: dict = {},
         multiplicity: int = 0,
         project_name: str = "CP2K",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -139,7 +140,7 @@ class Cp2kInputSet(Cp2kInput):
 
         self.update(override_default_params)
 
-    def create_subsys(self, structure: Union[Structure, Molecule]):
+    def create_subsys(self, structure: Structure | Molecule):
         """
         Create the structure for the input
         """
@@ -211,12 +212,12 @@ class DftSet(Cp2kInputSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         ot: bool = True,
         band_gap: float = 0.01,
         eps_default: float = 1e-12,
         eps_scf: float = 1e-7,
-        max_scf: Union[int, None] = None,
+        max_scf: int | None = None,
         minimizer: str = "DIIS",
         preconditioner: str = "FULL_ALL",
         algorithm: str = "STRICT",
@@ -225,9 +226,9 @@ class DftSet(Cp2kInputSet):
         rel_cutoff: int = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         wfn_restart_file_name: str = None,
-        kpoints: Union[Kpoints, None] = None,
+        kpoints: Kpoints | None = None,
         smearing: bool = False,
         **kwargs,
     ):
@@ -249,17 +250,17 @@ class DftSet(Cp2kInputSet):
                 reasonable results for most properties.
             max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
                 corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
-                while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+                while with diagonalization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
             preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
                 default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
-                only change from theses two when simulation cell gets to be VERY large,
-                in which case FULL_KINETIC might be preferred.
+                only change from these two when simulation cell gets to be VERY large, in which case FULL_KINETIC might
+                be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
-            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
+            rel_cutoff (int): This cutoff decides how the Gaussians are mapped onto the different levels of the
                 multigrid. From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
                     function will cover number of grid points greater than or equal to the number of grid points
                     will cover on a reference grid defined by REL_CUTOFF.
@@ -410,7 +411,7 @@ class DftSet(Cp2kInputSet):
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias="LDOS {}".format(i + 1), verbose=False))
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
 
     def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
@@ -462,7 +463,7 @@ class DftSet(Cp2kInputSet):
         cutoff_radius: float = 8.0,
         potential_type: str = None,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,
@@ -681,9 +682,9 @@ class DftSet(Cp2kInputSet):
         }
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
         if not self.check("FORCE_EVAL/SUBSYS/CELL"):
-            x = max([s.coords[0] for s in self.structure.sites])
-            y = max([s.coords[1] for s in self.structure.sites])
-            z = max([s.coords[2] for s in self.structure.sites])
+            x = max(s.coords[0] for s in self.structure.sites)
+            y = max(s.coords[1] for s in self.structure.sites)
+            z = max(s.coords[2] for s in self.structure.sites)
             self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[x, 0, 0], [0, y, 0], [0, 0, z]])))
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
 
@@ -736,10 +737,10 @@ class StaticSet(DftSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         project_name: str = "Static",
         run_type: str = "ENERGY_FORCE",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -768,13 +769,13 @@ class RelaxSet(DftSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         max_drift: float = 3e-3,
         max_force: float = 4.5e-3,
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -796,7 +797,7 @@ class RelaxSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
@@ -839,9 +840,9 @@ class CellOptSet(DftSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         project_name: str = "CellOpt",
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         **kwargs,
     ):
         """
@@ -863,7 +864,7 @@ class CellOptSet(DftSet):
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweights robustness. CG is more robust, especially when you are far from
+                efficiency outweighs robustness. CG is more robust, especially when you are far from
                 the minimum, but it slower.
                 Default value: BFGS
         """
@@ -887,17 +888,17 @@ class HybridStaticSet(StaticSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-Static",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,
@@ -961,17 +962,17 @@ class HybridRelaxSet(RelaxSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-Relax",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,
@@ -1035,17 +1036,17 @@ class HybridCellOptSet(CellOptSet):
 
     def __init__(
         self,
-        structure: Union[Structure, Molecule],
+        structure: Structure | Molecule,
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-CellOpt",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        override_default_params: Dict = {},
+        override_default_params: dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
-        aux_basis: Union[Dict, None] = None,
+        aux_basis: dict | None = None,
         admm: bool = True,
         eps_schwarz: float = 1e-6,
         eps_schwarz_forces: float = 1e-6,

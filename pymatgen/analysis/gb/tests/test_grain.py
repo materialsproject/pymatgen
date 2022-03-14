@@ -9,8 +9,8 @@ import warnings
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")

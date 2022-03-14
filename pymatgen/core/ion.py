@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,9 +5,10 @@
 Module containing class to create an ion
 """
 
+from __future__ import annotations
+
 import re
 from copy import deepcopy
-from typing import Dict, Tuple
 
 from monty.json import MSONable
 
@@ -34,7 +34,7 @@ class Ion(Composition, MSONable, Stringify):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula: str) -> "Ion":
+    def from_formula(cls, formula: str) -> Ion:
         """
         Creates Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
@@ -99,7 +99,7 @@ class Ion(Composition, MSONable, Stringify):
         chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = True) -> Tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = True) -> tuple[str, float]:
         """
         Calculates a reduced formula and factor.
 
@@ -118,7 +118,7 @@ class Ion(Composition, MSONable, Stringify):
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the
-                Lanthanides, Actanides and hydrogen. Note that polyanions
+                Lanthanides, Actinides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
             hydrates: If True (default), attempt to recognize hydrated metal
@@ -207,7 +207,7 @@ class Ion(Composition, MSONable, Stringify):
         """
         return self._charge
 
-    def as_dict(self) -> Dict[str, float]:
+    def as_dict(self) -> dict[str, float]:
         """
         Returns:
             dict with composition, as well as charge
@@ -217,7 +217,7 @@ class Ion(Composition, MSONable, Stringify):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "Ion":
+    def from_dict(cls, d) -> Ion:
         """
         Generates an ion object from a dict created by as_dict().
 

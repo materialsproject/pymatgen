@@ -1,12 +1,13 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 from itertools import product
-from typing import Iterator, Optional, Tuple, Union
+from typing import Iterator
 
 import numpy as np
 from scipy.linalg import polar
@@ -16,11 +17,6 @@ from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
 from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
-
-
-Vector3D = Tuple[float, float, float]
-Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-Matrix2D = Tuple[Vector3D, Vector3D]
 
 
 class CoherentInterfaceBuilder:
@@ -33,9 +29,9 @@ class CoherentInterfaceBuilder:
         self,
         substrate_structure: Structure,
         film_structure: Structure,
-        film_miller: Tuple[int, int, int],
-        substrate_miller: Tuple[int, int, int],
-        zslgen: Optional[ZSLGenerator] = None,
+        film_miller: tuple[int, int, int],
+        substrate_miller: tuple[int, int, int],
+        zslgen: ZSLGenerator | None = None,
     ):
         """
         Args:
@@ -152,11 +148,11 @@ class CoherentInterfaceBuilder:
 
     def get_interfaces(
         self,
-        termination: Tuple[str, str],
+        termination: tuple[str, str],
         gap: float = 2.0,
         vacuum_over_film: float = 20.0,
-        film_thickness: Union[float, int] = 1,
-        substrate_thickness: Union[float, int] = 1,
+        film_thickness: float | int = 1,
+        substrate_thickness: float | int = 1,
         in_layers: bool = True,
     ) -> Iterator[Interface]:
         """

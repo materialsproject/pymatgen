@@ -53,7 +53,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         os.makedirs("tmp_dir")
 
     def test_read_write_structure_environments(self):
-        f = open("{}/{}".format(json_files_dir, "test_T--4_FePO4_icsd_4266.json"), "r")
+        f = open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json")
         dd = json.load(f)
         f.close()
 
@@ -69,7 +69,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         json.dump(se.as_dict(), f)
         f.close()
 
-        f = open("tmp_dir/se.json", "r")
+        f = open("tmp_dir/se.json")
         dd = json.load(f)
         f.close()
 
@@ -86,7 +86,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         json.dump(lse.as_dict(), f)
         f.close()
 
-        f = open("tmp_dir/lse.json", "r")
+        f = open("tmp_dir/lse.json")
         dd = json.load(f)
         f.close()
 
@@ -95,7 +95,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertEqual(lse, lse2)
 
     def test_structure_environments_neighbors_sets(self):
-        f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
+        f = open(f"{se_files_dir}/se_mp-7000.json")
         dd = json.load(f)
         f.close()
 
@@ -273,7 +273,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertFalse(multi_weights_strategy_2 == multi_weights_strategy_3)
 
     def test_read_write_voronoi(self):
-        f = open("{}/{}".format(json_files_dir, "test_T--4_FePO4_icsd_4266.json"), "r")
+        f = open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json")
         dd = json.load(f)
         f.close()
 
@@ -287,7 +287,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         json.dump(detailed_voronoi_container.as_dict(), f)
         f.close()
 
-        f = open("tmp_dir/se.json", "r")
+        f = open("tmp_dir/se.json")
         dd = json.load(f)
         f.close()
 

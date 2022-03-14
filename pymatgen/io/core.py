@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -29,10 +28,11 @@ If you want to implement a new InputGenerator, please take note of the following
 
 import abc
 import os
-from pathlib import Path
-from typing import Union, Dict
-from zipfile import ZipFile
 from collections.abc import MutableMapping
+from pathlib import Path
+from typing import Dict, Union
+from zipfile import ZipFile
+
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -229,4 +229,3 @@ class InputGenerator(MSONable):
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
-        pass

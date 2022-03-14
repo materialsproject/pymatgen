@@ -1,8 +1,15 @@
 import unittest
 
+import numpy as np
+
+from pymatgen.analysis.adsorption import (
+    AdsorbateSiteFinder,
+    generate_all_slabs,
+    get_rot,
+    reorient_z,
+)
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule
-from pymatgen.analysis.adsorption import *
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.testing import PymatgenTest
@@ -41,8 +48,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.asf_struct = AdsorbateSiteFinder(Structure.from_sites(self.slab_dict["111"].sites))
 
     def test_init(self):
-        asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
-        asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
+        AdsorbateSiteFinder(self.slab_dict["100"])
+        AdsorbateSiteFinder(self.slab_dict["111"])
 
     def test_from_bulk_and_miller(self):
         # Standard site finding
@@ -155,7 +162,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
                 self.assertEqual(len(adslabs), 1)
 
             # Test out whether it can correctly dope both
-            # sides. Avoid (111) becasue it is not symmetric
+            # sides. Avoid (111) because it is not symmetric
             if tuple(slab.miller_index) != (1, 1, 1):
                 adslabs = adsgen.generate_substitution_structures("Ni", sub_both_sides=True, target_species=["Mg"])
                 # Test if default parameters dope the surface site
@@ -178,8 +185,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
 
     def test_functions(self):
         slab = self.slab_dict["111"]
-        rot = get_rot(slab)
-        reoriented = reorient_z(slab)
+        get_rot(slab)
+        reorient_z(slab)
 
 
 if __name__ == "__main__":

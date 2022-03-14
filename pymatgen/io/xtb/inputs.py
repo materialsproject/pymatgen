@@ -1,14 +1,16 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
 Classes for writing XTB input files
 """
+
+from __future__ import annotations
+
 import logging
 import os
-from typing import Dict, Optional, Union, List
 
 from monty.json import MSONable
+
 from pymatgen.core import Molecule
 
 __author__ = "Alex Epstein"
@@ -33,8 +35,8 @@ class CRESTInput(MSONable):
         self,
         molecule: Molecule,
         working_dir: str = ".",
-        coords_filename: Optional[str] = "crest_in.xyz",
-        constraints: Optional[Dict[str, Union[List[int], float]]] = None,
+        coords_filename: str | None = "crest_in.xyz",
+        constraints: dict[str, list[int] | float] | None = None,
     ):
         """
 
@@ -98,15 +100,15 @@ class CRESTInput(MSONable):
                     interval_list.append(atoms_for_mtd[i + 1])
         force_constant = force_constant
         allowed_mtd_string = ",".join(
-            ["{}-{}".format(interval_list[i], interval_list[i + 1]) for i in range(len(interval_list)) if i % 2 == 0]
+            [f"{interval_list[i]}-{interval_list[i + 1]}" for i in range(len(interval_list)) if i % 2 == 0]
         )
         constrains_file_string = (
             "$constrain\n"
-            + "  atoms: {}\n".format(",".join([str(i) for i in atoms_to_constrain]))
-            + "  force constant={}\n".format(force_constant)
-            + "  reference={}\n".format(reference_fnm)
+            + f"  atoms: {','.join([str(i) for i in atoms_to_constrain])}\n"
+            + f"  force constant={force_constant}\n"
+            + f"  reference={reference_fnm}\n"
             + "$metadyn\n"
-            + "  atoms: {}\n".format(allowed_mtd_string)
+            + f"  atoms: {allowed_mtd_string}\n"
             + "$end"
         )
 

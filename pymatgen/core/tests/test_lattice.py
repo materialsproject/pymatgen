@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -103,7 +102,7 @@ class LatticeTestCase(PymatgenTest):
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1, 2, 3)
-        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a ** 2)) ** (-1 / 2)
+        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
         self.assertEqual(dhkl, cubic_copy.d_hkl(hkl))
 
     def test_reciprocal_lattice(self):
@@ -361,11 +360,11 @@ class LatticeTestCase(PymatgenTest):
 
         for family_name, lattice in self.families.items():
             # print(family_name)
-            self.assertArrayEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
-            self.assertArrayEqual(lattice.norm(frac_basis), lattice.abc)
+            self.assertArrayAlmostEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
+            self.assertArrayAlmostEqual(lattice.norm(frac_basis), lattice.abc, 5)
             for (i, vec) in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                self.assertArrayEqual(length[0], lattice.abc[i])
+                self.assertArrayAlmostEqual(length[0], lattice.abc[i], 5)
                 # We always get a ndarray.
                 self.assertTrue(hasattr(length, "shape"))
 
@@ -582,17 +581,17 @@ class LatticeTestCase(PymatgenTest):
         a1 = 10
         np.testing.assert_array_almost_equal(
             Lattice.cubic(a1).selling_vector.round(4),
-            np.array([0, 0, 0, -(a1 ** 2), -(a1 ** 2), -(a1 ** 2)]),
+            np.array([0, 0, 0, -(a1**2), -(a1**2), -(a1**2)]),
         )
         a2, c2 = 5, 8
         np.testing.assert_array_almost_equal(
             Lattice.tetragonal(a2, c2).selling_vector.round(4),
-            np.array([0, 0, 0, -(a2 ** 2), -(a2 ** 2), -(c2 ** 2)]),
+            np.array([0, 0, 0, -(a2**2), -(a2**2), -(c2**2)]),
         )
         a3, b3, c3 = 4, 6, 7
         np.testing.assert_array_almost_equal(
             Lattice.orthorhombic(a3, b3, c3).selling_vector.round(4),
-            np.array([0, 0, 0, -(a3 ** 2), -(b3 ** 2), -(c3 ** 2)]),
+            np.array([0, 0, 0, -(a3**2), -(b3**2), -(c3**2)]),
         )
 
 

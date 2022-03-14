@@ -3,7 +3,7 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 
 Author: Shyue Ping Ong
 """
-
+import datetime
 import glob
 import json
 import os
@@ -47,7 +47,7 @@ def make_doc(ctx):
                 newoutput = []
                 suboutput = []
                 subpackage = False
-                with open(f, "r") as fid:
+                with open(f) as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
@@ -95,7 +95,7 @@ def make_dash(ctx):
     ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/")
     plist = "pymatgen.docset/Contents/Info.plist"
     xml = []
-    with open(plist, "rt") as f:
+    with open(plist) as f:
         for l in f:
             xml.append(l.strip())
             if l.strip() == "<dict>":
@@ -123,12 +123,12 @@ def contribute_dash(ctx, version):
     make_dash(ctx)
     ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        with open("docset.json", "rt") as f:
+        with open("docset.json") as f:
             data = json.load(f)
             data["version"] = version
         with open("docset.json", "wt") as f:
             json.dump(data, f, indent=4)
-        ctx.run('git commit --no-verify -a -m "Update to v%s"' % version)
+        ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
     ctx.run("rm pymatgen.tgz")
 
@@ -137,8 +137,8 @@ def contribute_dash(ctx, version):
 def submit_dash_pr(ctx, version):
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
         payload = {
-            "title": "Update pymatgen docset to v%s" % version,
-            "body": "Update pymatgen docset to v%s" % version,
+            "title": f"Update pymatgen docset to v{version}",
+            "body": f"Update pymatgen docset to v{version}",
             "head": "Dash-User-Contributions:master",
             "base": "master",
         }
@@ -176,16 +176,16 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/core/__init__.py", "rt") as f:
+    with open("pymatgen/core/__init__.py") as f:
         contents = f.read()
-        contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % version, contents)
+        contents = re.sub(r"__version__ = .*\n", f'__version__ = "{version}"\n', contents)
 
     with open("pymatgen/core/__init__.py", "wt") as f:
         f.write(contents)
 
-    with open("setup.py", "rt") as f:
+    with open("setup.py") as f:
         contents = f.read()
-        contents = re.sub(r"version=([^,]+),", 'version="%s",' % version, contents)
+        contents = re.sub(r"version=([^,]+),", f'version="{version}",', contents)
 
     with open("setup.py", "wt") as f:
         f.write(contents)
@@ -247,13 +247,13 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version, sim=False):
+def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), sim=False):
     """
     Create a preliminary change log using the git logs.
 
     :param ctx:
     """
-    output = subprocess.check_output(["git", "log", "--pretty=format:%s", "v%s..HEAD" % CURRENT_VER])
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{CURRENT_VER}..HEAD"])
     lines = []
     misc = []
     for l in output.decode("utf-8").strip().split("\n"):
@@ -276,7 +276,7 @@ def update_changelog(ctx, version, sim=False):
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    head = "\n\nv%s\n" % version + "-" * (len(version) + 1) + "\n"
+    head = f"\n\nv{version}\n" + "-" * (len(version) + 1) + "\n"
     toks.insert(-1, head + "\n".join(lines))
     if not sim:
         with open("CHANGES.rst", "w") as f:
@@ -289,7 +289,7 @@ def update_changelog(ctx, version, sim=False):
 
 
 @task
-def release(ctx, version, nodoc=False):
+def release(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
@@ -304,6 +304,10 @@ def release(ctx, version, nodoc=False):
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
     release_github(ctx, version)
+    ctx.run("rm -f dist/*.*", warn=True)
+    ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
 
 
@@ -321,4 +325,4 @@ def open_doc(ctx):
 @task
 def lint(ctx):
     for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
-        ctx.run("%s pymatgen" % cmd)
+        ctx.run(f"{cmd} pymatgen")

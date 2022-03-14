@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,9 +8,9 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 import logging
 from itertools import chain
 
-from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
 from monty.json import MSONable
 from scipy.optimize import bisect
 from scipy.spatial import HalfspaceIntersection
@@ -216,9 +215,9 @@ class DefectPhaseDiagram(MSONable):
 
             hs_ints = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
-            # Group the intersections and coresponding facets
+            # Group the intersections and corresponding facets
             ints_and_facets = zip(hs_ints.intersections, hs_ints.dual_facets)
-            # Only inlcude the facets corresponding to entries, not the boundaries
+            # Only include the facets corresponding to entries, not the boundaries
             total_entries = len(defects)
             ints_and_facets = filter(
                 lambda int_and_facet: all(np.array(int_and_facet[1]) < total_entries),
@@ -271,7 +270,7 @@ class DefectPhaseDiagram(MSONable):
                                 cb_list,
                             )
                         )
-                    logger.info("{} is only stable defect out of {}".format(name_stable_below_vbm, name_set))
+                    logger.info(f"{name_stable_below_vbm} is only stable defect out of {name_set}")
                     transition_level_map[track_name] = {}
                     stable_entries[track_name] = list([defects[vbm_def_index]])
                     finished_charges[track_name] = [one_def.charge for one_def in defects]
@@ -344,7 +343,7 @@ class DefectPhaseDiagram(MSONable):
     def suggest_charges(self, tolerance=0.1):
         """
         Suggest possible charges for defects to compute based on proximity
-        of known transitions from entires to VBM and CBM
+        of known transitions from entries to VBM and CBM
 
         Args:
             tolerance (float): tolerance with respect to the VBM and CBM to
@@ -447,14 +446,12 @@ class DefectPhaseDiagram(MSONable):
 
         def _get_total_q(ef):
             qd_tot = sum(
-                [
-                    d["charge"] * d["conc"]
-                    for d in self.defect_concentrations(
-                        chemical_potentials=chemical_potentials,
-                        temperature=temperature,
-                        fermi_level=ef,
-                    )
-                ]
+                d["charge"] * d["conc"]
+                for d in self.defect_concentrations(
+                    chemical_potentials=chemical_potentials,
+                    temperature=temperature,
+                    fermi_level=ef,
+                )
             )
             qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
@@ -478,14 +475,12 @@ class DefectPhaseDiagram(MSONable):
 
         high_temp_fermi_level = self.solve_for_fermi_energy(quench_temperature, chemical_potentials, bulk_dos)
         fixed_defect_charge = sum(
-            [
-                d["charge"] * d["conc"]
-                for d in self.defect_concentrations(
-                    chemical_potentials=chemical_potentials,
-                    temperature=quench_temperature,
-                    fermi_level=high_temp_fermi_level,
-                )
-            ]
+            d["charge"] * d["conc"]
+            for d in self.defect_concentrations(
+                chemical_potentials=chemical_potentials,
+                temperature=quench_temperature,
+                fermi_level=high_temp_fermi_level,
+            )
         )
 
         fdos = FermiDos(bulk_dos, bandgap=self.band_gap)
@@ -564,7 +559,7 @@ class DefectPhaseDiagram(MSONable):
         Produce defect Formation energy vs Fermi energy plot
         Args:
             mu_elts:
-                a dictionnary of {Element:value} giving the chemical
+                a dictionary of {Element:value} giving the chemical
                 potential of each element
             xlim:
                 Tuple (min,max) giving the range of the x (fermi energy) axis
@@ -654,7 +649,7 @@ class DefectPhaseDiagram(MSONable):
             plt.plot(xy[defnom][0], xy[defnom][1], linewidth=3, color=colors[cnt])
             for_legend.append(self.stable_entries[defnom][0].copy())
 
-        # plot transtition levels
+        # plot transition levels
         for cnt, defnom in enumerate(xy.keys()):
             x_trans, y_trans = [], []
             for x_val, chargeset in self.transition_level_map[defnom].items():
@@ -717,7 +712,7 @@ class DefectPhaseDiagram(MSONable):
         plt.xlabel("Fermi energy (eV)", size=ax_fontsize * width)
         plt.ylabel("Defect Formation\nEnergy (eV)", size=ax_fontsize * width)
         if title:
-            plt.title("{}".format(title), size=ax_fontsize * width)
+            plt.title(f"{title}", size=ax_fontsize * width)
 
         if saved:
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")

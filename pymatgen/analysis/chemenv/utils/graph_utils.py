@@ -21,9 +21,9 @@ def get_delta(node1, node2, edge_data):
     :return:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
-        return np.array(edge_data["delta"], dtype=np.int_)
+        return np.array(edge_data["delta"], dtype=int)
     if node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
-        return -np.array(edge_data["delta"], dtype=np.int_)
+        return -np.array(edge_data["delta"], dtype=int)
     raise ValueError("Trying to find a delta between two nodes with an edge that seems not to link these nodes.")
 
 
@@ -194,7 +194,7 @@ class SimpleGraphCycle(MSONable):
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
-            raise ValueError("SimpleGraphCycle is not valid : {}".format(msg))
+            raise ValueError(f"SimpleGraphCycle is not valid : {msg}")
 
     def order(self, raise_on_fail=True):
         """Orders the SimpleGraphCycle.
@@ -226,7 +226,7 @@ class SimpleGraphCycle(MSONable):
         # Not sure whether the following should be checked here... if strict ordering was guaranteed by
         # the validate method, why would it be needed to have a unique class. One could have 2 subclasses of
         # the same parent class and things could be ok. To be checked what to do. (see also MultiGraphCycle)
-        node_classes = set(n.__class__ for n in self.nodes)
+        node_classes = {n.__class__ for n in self.nodes}
         if len(node_classes) > 1:
             if raise_on_fail:
                 raise ValueError("Could not order simple graph cycle as the nodes are of different classes.")
@@ -385,7 +385,7 @@ class MultiGraphCycle(MSONable):
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
-            raise ValueError("MultiGraphCycle is not valid : {}".format(msg))
+            raise ValueError(f"MultiGraphCycle is not valid : {msg}")
 
     def order(self, raise_on_fail=True):
         """Orders the SimpleGraphCycle.
@@ -417,7 +417,7 @@ class MultiGraphCycle(MSONable):
         # Not sure whether the following should be checked here... if strict ordering was guaranteed by
         # the validate method, why would it be needed to have a unique class. One could have 2 subclasses of
         # the same parent class and things could be ok. To be checked what to do. (see also SimpleGraphCycle)
-        node_classes = set(n.__class__ for n in self.nodes)
+        node_classes = {n.__class__ for n in self.nodes}
         if len(node_classes) > 1:
             if raise_on_fail:
                 raise ValueError("Could not order simple graph cycle as the nodes are of different classes.")
@@ -454,8 +454,8 @@ class MultiGraphCycle(MSONable):
         out = ["Multigraph cycle with nodes :"]
         cycle = []
         for inode, node1, node2 in zip(itertools.count(), self.nodes[:-1], self.nodes[1:]):
-            cycle.append("{} -*{:d}*- {}".format(str(node1), self.edge_indices[inode], str(node2)))
-        cycle.append("{} -*{:d}*- {}".format(str(self.nodes[-1]), self.edge_indices[-1], str(self.nodes[0])))
+            cycle.append(f"{node1} -*{self.edge_indices[inode]:d}*- {node2}")
+        cycle.append(f"{self.nodes[-1]} -*{self.edge_indices[-1]:d}*- {self.nodes[0]}")
         # out.extend([str(node) for node in self.nodes])
         out.extend(cycle)
         return "\n".join(out)
@@ -490,7 +490,7 @@ def get_all_elementary_cycles(graph):
         all_edges_dict[(n2, n1)] = nedges
         index2edge.append((n1, n2))
         nedges += 1
-    cycles_matrix = np.zeros(shape=(len(cycle_basis), nedges), dtype=np.bool)
+    cycles_matrix = np.zeros(shape=(len(cycle_basis), nedges), dtype=bool)
     for icycle, cycle in enumerate(cycle_basis):
         for in1, n1 in enumerate(cycle):
             n2 = cycle[(in1 + 1) % len(cycle)]
@@ -502,7 +502,7 @@ def get_all_elementary_cycles(graph):
 
     for ncycles in range(1, len(cycle_basis) + 1):
         for cycles_combination in itertools.combinations(cycles_matrix, ncycles):
-            edges_counts = np.array(np.mod(np.sum(cycles_combination, axis=0), 2), dtype=np.bool)
+            edges_counts = np.array(np.mod(np.sum(cycles_combination, axis=0), 2), dtype=bool)
             myedges = [edge for iedge, edge in enumerate(index2edge) if edges_counts[iedge]]
             # print(myedges)
             try:

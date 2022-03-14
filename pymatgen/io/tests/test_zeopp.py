@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -280,7 +279,6 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         self._vac_struct = p
 
     def test_void_volume_surface_area(self):
-        pass
         vol, sa = get_void_volume_surfarea(self._vac_struct, self._radii)
         # print "vol:  ", vol, "sa:  ", sa
         self.assertIsInstance(vol, float)

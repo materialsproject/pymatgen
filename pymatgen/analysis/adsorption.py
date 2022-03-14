@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides classes used to enumerate surface sites
@@ -18,10 +16,10 @@ from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
 from pymatgen import vis
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
@@ -240,7 +238,7 @@ class AdsorbateSiteFinder:
     ):
         """
         Finds surface sites according to the above algorithm.  Returns
-        a list of corresponding cartesian coordinates.
+        a list of corresponding Cartesian coordinates.
 
         Args:
             distance (float): distance from the coordinating ensemble
@@ -318,7 +316,7 @@ class AdsorbateSiteFinder:
         symmetrically equivalent duplicates
 
         Args:
-            coords_set: coordinate set in cartesian coordinates
+            coords_set: coordinate set in Cartesian coordinates
             threshold: tolerance for distance equivalence, used
                 as input to in_coord_list_pbc for dupl. checking
         """
@@ -366,7 +364,7 @@ class AdsorbateSiteFinder:
             indices (list of ints): list of ints from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
-                cartesian coordinate
+                Cartesian coordinate
         """
         if cartesian:
             return np.average([site_list[i].coords for i in indices], axis=0)
@@ -395,9 +393,7 @@ class AdsorbateSiteFinder:
             # Translate the molecule so that the center of mass of the atoms
             # that have the most negative z coordinate is at (0, 0, 0)
             front_atoms = molecule.copy()
-            front_atoms._sites = [
-                s for s in molecule.sites if s.coords[2] == min([s.coords[2] for s in molecule.sites])
-            ]
+            front_atoms._sites = [s for s in molecule.sites if s.coords[2] == min(s.coords[2] for s in molecule.sites)]
             x, y, z = front_atoms.center_of_mass
             molecule.translate_sites(vector=[-x, -y, -z])
         if reorient:
@@ -575,7 +571,7 @@ class AdsorbateSiteFinder:
 
         target_species = target_species or []
 
-        # Get symmetrized structure in case we want to substitue both sides
+        # Get symmetrized structure in case we want to substitute both sides
         sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
 
         # Define a function for substituting a site
@@ -586,7 +582,7 @@ class AdsorbateSiteFinder:
                 # Find an equivalent site on the other surface
                 eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
                 for ii in eq_indices:
-                    if "%.6f" % (sym_slab[ii].frac_coords[2]) != "%.6f" % (site.frac_coords[2]):
+                    if f"{sym_slab[ii].frac_coords[2]:.6f}" != f"{site.frac_coords[2]:.6f}":
                         props["surface_properties"][ii] = "substitute"
                         slab.replace(ii, atom)
                         break
@@ -643,7 +639,7 @@ def get_rot(slab):
 
 def put_coord_inside(lattice, cart_coordinate):
     """
-    converts a cartesian coordinate such that it is inside the unit cell.
+    converts a Cartesian coordinate such that it is inside the unit cell.
     """
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,6 @@
 This module defines generic plotters.
 """
 
-import collections
 import importlib
 
 from pymatgen.util.plotting import pretty_plot
@@ -50,10 +48,10 @@ class SpectrumPlotter:
         self.yshift = yshift
         self.stack = stack
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
+        mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         self.colors_cycle = getattr(mod, color_cycle[1]).mpl_colors
         self.colors = []
-        self._spectra = collections.OrderedDict()
+        self._spectra = {}
 
     def add_spectrum(self, label, spectrum, color=None):
         """

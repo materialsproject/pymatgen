@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module contains some math utils that are used in the chemenv package.
@@ -22,7 +20,7 @@ import numpy as np
 from scipy.special import erf
 
 ##############################################################
-# cartesian product of lists ##################################
+# Cartesian product of lists ##################################
 ##############################################################
 
 
@@ -85,7 +83,7 @@ def divisors(n):
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k ** x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
+    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
     listfactors = _cartesian_product(listexponents)
     for f in listfactors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))
@@ -350,7 +348,7 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
         return np.where(
             np.isclose(xx, 0.0),
             aa * float("inf"),
-            aa * np.power(xx - 1.0, 2) / xx ** 2.0,
+            aa * np.power(xx - 1.0, 2) / xx**2.0,
         )
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -369,7 +367,7 @@ def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0)
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
-        return aa * np.power(xx - 1.0, 2) / xx ** powern
+        return aa * np.power(xx - 1.0, 2) / xx**powern
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_inverse_powern_decreasing(xx_scaled_and_clamped, prefactor=prefactor, powern=powern)

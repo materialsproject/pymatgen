@@ -131,7 +131,7 @@ class ConnectedComponentTest(PymatgenTest):
 
         cc = ConnectedComponent(graph=graph)
         ref_sorted_edges = [[en1, en2], [en1, en3]]
-        sorted_edges = sorted([sorted(e) for e in cc.graph.edges()])
+        sorted_edges = sorted(sorted(e) for e in cc.graph.edges())
         assert sorted_edges == ref_sorted_edges
 
         ccfromdict = ConnectedComponent.from_dict(cc.as_dict())
@@ -145,7 +145,7 @@ class ConnectedComponentTest(PymatgenTest):
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
             assert set(list(cc.graph.nodes())) == set(list(loaded_cc.graph.nodes()))
-            assert sorted_edges == sorted([sorted(e) for e in loaded_cc.graph.edges()])
+            assert sorted_edges == sorted(sorted(e) for e in loaded_cc.graph.edges())
 
             for ii, e in enumerate(sorted_edges):
                 assert cc.graph[e[0]][e[1]] == loaded_cc.graph[e[0]][e[1]]
@@ -857,7 +857,7 @@ Node #3 Li (O:6), connected to :
             "O:6#Fe",
         ]
         assert len(ccs) == 2
-        ccs_periodicities = set(cc.periodicity for cc in ccs)
+        ccs_periodicities = {cc.periodicity for cc in ccs}
         assert ccs_periodicities == {"0D", "2D"}
 
     def test_coordination_sequences(self):
@@ -867,7 +867,7 @@ Node #3 Li (O:6), connected to :
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath, "r") as f:
+        with open(BaTiO3_se_fpath) as f:
             dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
         lse = LightStructureEnvironments.from_structure_environments(

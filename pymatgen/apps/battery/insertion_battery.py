@@ -1,22 +1,17 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-__author__ = "Anubhav Jain, Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-
+from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable, Dict, Union, Tuple, List
+from typing import Iterable
 
-from monty.dev import deprecated
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
@@ -25,6 +20,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
+__author__ = "Anubhav Jain, Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
 
 
 @dataclass
@@ -41,8 +39,8 @@ class InsertionElectrode(AbstractElectrode):
     @classmethod
     def from_entries(
         cls,
-        entries: Iterable[Union[ComputedEntry, ComputedStructureEntry]],
-        working_ion_entry: Union[ComputedEntry, ComputedStructureEntry, PDEntry],
+        entries: Iterable[ComputedEntry | ComputedStructureEntry],
+        working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
     ):
         """
@@ -82,9 +80,9 @@ class InsertionElectrode(AbstractElectrode):
             elements.update(entry.composition.elements)
 
         # Set an artificial high energy for each element for convex hull generation
-        element_energy = max([entry.energy_per_atom for entry in entries]) + 10
+        element_energy = max(entry.energy_per_atom for entry in entries) + 10
 
-        pdentries: List[Union[ComputedEntry, ComputedStructureEntry, PDEntry]] = []
+        pdentries: list[ComputedEntry | ComputedStructureEntry | PDEntry] = []
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
@@ -98,13 +96,13 @@ class InsertionElectrode(AbstractElectrode):
             return e.composition.get_atomic_fraction(_working_ion)
 
         # stable entries ordered by amount of Li asc
-        _stable_entries = tuple(sorted([e for e in pd.stable_entries if e in entries], key=lifrac))
+        _stable_entries = tuple(sorted((e for e in pd.stable_entries if e in entries), key=lifrac))
 
         # unstable entries ordered by amount of Li asc
-        _unstable_entries = tuple(sorted([e for e in pd.unstable_entries if e in entries], key=lifrac))
+        _unstable_entries = tuple(sorted((e for e in pd.unstable_entries if e in entries), key=lifrac))
 
         # create voltage pairs
-        _vpairs: Tuple[AbstractVoltagePair] = tuple(  # type: ignore
+        _vpairs: tuple[AbstractVoltagePair, ...] = tuple(
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],
@@ -319,12 +317,12 @@ class InsertionElectrode(AbstractElectrode):
                 battery_list.append(self.__class__.from_entries(all_entries, self.working_ion_entry))
         return battery_list
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
         Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
-        The current methode will be called from within super().get_summary_dict.
+        The current method will be called from within super().get_summary_dict.
 
         Args:
             print_subelectrodes: Also print data on all the possible
@@ -368,74 +366,6 @@ class InsertionElectrode(AbstractElectrode):
 
         return d
 
-    @deprecated(
-        replacement=get_summary_dict,
-        message="Name and logic changed, as_dict_summary will be removed in a future release.",
-    )
-    def as_dict_summary(self, print_subelectrodes=True):
-        """
-        Generate a summary dict.
-
-        Args:
-            print_subelectrodes: Also print data on all the possible
-                subelectrodes.
-
-        Returns:
-            A summary of this electrode"s properties in dict format.
-        """
-        chg_comp = self.fully_charged_entry.composition
-        dischg_comp = self.fully_discharged_entry.composition
-
-        ion = self.working_ion
-        d = {
-            "average_voltage": self.get_average_voltage(),
-            "max_voltage": self.max_voltage,
-            "min_voltage": self.min_voltage,
-            "max_delta_volume": self.max_delta_volume,
-            "max_voltage_step": self.max_voltage_step,
-            "capacity_grav": self.get_capacity_grav(),
-            "capacity_vol": self.get_capacity_vol(),
-            "energy_grav": self.get_specific_energy(),
-            "energy_vol": self.get_energy_density(),
-            "working_ion": self.working_ion.symbol,
-            "nsteps": self.num_steps,
-            "framework": self.voltage_pairs[0].framework.to_data_dict,
-            "formula_charge": chg_comp.reduced_formula,
-            "id_charge": self.fully_charged_entry.entry_id,
-            "formula_discharge": dischg_comp.reduced_formula,
-            "id_discharge": self.fully_discharged_entry.entry_id,
-            "fracA_charge": chg_comp.get_atomic_fraction(ion),
-            "fracA_discharge": dischg_comp.get_atomic_fraction(ion),
-            "max_instability": self.get_max_instability(),
-            "min_instability": self.get_min_instability(),
-            "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
-            "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
-            "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
-        }
-
-        if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update(
-                {
-                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
-                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
-                    "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
-                    },
-                }
-            )
-
-        if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
-
-        if print_subelectrodes:
-
-            def f_dict(c):
-                return c.get_summary_dict(print_subelectrodes=False)
-
-            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
-            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
-        return d
-
     def __str__(self):
         return self.__repr__()
 
@@ -443,10 +373,10 @@ class InsertionElectrode(AbstractElectrode):
         output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
         dischg_form = self.fully_discharged_entry.composition.reduced_formula
-        output.append("InsertionElectrode with endpoints at {} and {}".format(chg_form, dischg_form))
-        output.append("Avg. volt. = {} V".format(self.get_average_voltage()))
-        output.append("Grav. cap. = {} mAh/g".format(self.get_capacity_grav()))
-        output.append("Vol. cap. = {}".format(self.get_capacity_vol()))
+        output.append(f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}")
+        output.append(f"Avg. volt. = {self.get_average_voltage()} V")
+        output.append(f"Grav. cap. = {self.get_capacity_grav()} mAh/g")
+        output.append(f"Vol. cap. = {self.get_capacity_vol()}")
         return "\n".join(output)
 
     @classmethod
@@ -603,11 +533,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            "Insertion voltage pair with working ion {}".format(self.working_ion_entry.composition.reduced_formula),
-            "V = {}, mAh = {}".format(self.voltage, self.mAh),
-            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
-            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge),
-            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge),
+            f"Insertion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"V = {self.voltage}, mAh = {self.mAh}",
+            f"mass_charge = {self.mass_charge}, mass_discharge = {self.mass_discharge}",
+            f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",
+            f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
         ]
         return "\n".join(output)
 

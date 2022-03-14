@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -13,14 +12,14 @@ import sys
 
 from tabulate import tabulate, tabulate_formats
 
-from pymatgen.core import SETTINGS
-from pymatgen.core.structure import Structure
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_query import do_query
 from pymatgen.cli.pmg_structure import analyze_structures
+from pymatgen.core import SETTINGS
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Incar, Potcar
 
 
@@ -53,7 +52,7 @@ def diff_incar(args):
 
     def format_lists(v):
         if isinstance(v, (tuple, list)):
-            return " ".join(["%d*%.2f" % (len(tuple(group)), i) for (i, group) in itertools.groupby(v)])
+            return " ".join([f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v)])
         return v
 
     d = incar1.diff(incar2)
@@ -132,6 +131,13 @@ def main():
         dest="var_spec",
         nargs="+",
         help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/psps",
+    )
+    parser_config.add_argument(
+        "-b",
+        "--backup",
+        default=".bak",
+        help="Suffix to append to a backup of .pmgrc.yaml when changing this file. "
+        "Defaults to '.bak'. Set to '' to disable.",
     )
     parser_config.set_defaults(func=configure_pmg)
 

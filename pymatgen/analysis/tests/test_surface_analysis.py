@@ -11,7 +11,6 @@ from pymatgen.analysis.surface_analysis import (
     SurfaceEnergyPlotter,
     WorkFunctionAnalyzer,
 )
-from pymatgen.analysis.wulff import WulffShape
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 
@@ -24,7 +23,6 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    cwd = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
     return path
 
@@ -91,11 +89,11 @@ class SlabEntryTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     label = clean.create_slab_label
                     comp = str(clean.composition.reduced_composition)
-                    self.assertEqual(str(hkl) + " %s" % (comp), label)
+                    self.assertEqual(str(hkl) + f" {comp}", label)
 
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         label = ads.create_slab_label
-                        self.assertEqual(label, str(hkl) + " %s+O, 0.250 ML" % (comp))
+                        self.assertEqual(label, str(hkl) + f" {comp}+O, 0.250 ML")
 
     def test_surface_energy(self):
         # For a nonstoichiometric case, the cheimcal potentials do not
@@ -207,7 +205,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             analyzer = self.Oads_analyzer_dict[el]
             # chempot = analyzer.max_adsorption_chempot_range(0)
             wulff = analyzer.wulff_from_chempot(delu_default=-6)
-            se = wulff.weighted_surface_energy
+            wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play
@@ -226,9 +224,9 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             color_dict = analyzer.color_palette_dict()
             for hkl in self.metals_O_entry_dict[el].keys():
                 for clean in self.metals_O_entry_dict[el][hkl].keys():
-                    color = color_dict[clean]
+                    _ = color_dict[clean]
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-                        color = color_dict[ads]
+                        _ = color_dict[ads]
 
     def test_get_surface_equilibrium(self):
         # For clean stoichiometric system, the two equations should
@@ -325,10 +323,7 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
 
     def test_shift(self):
         wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=-0.25, blength=3.7, **self.kwargs)
-        self.assertEqual(
-            "%.f" % (self.wf_analyzer.ave_bulk_p),
-            "%.f" % (wf_analyzer_shift.ave_bulk_p),
-        )
+        self.assertAlmostEqual(self.wf_analyzer.ave_bulk_p, wf_analyzer_shift.ave_bulk_p, places=0)
 
     def test_is_converged(self):
         self.assertTrue(self.wf_analyzer.is_converged())

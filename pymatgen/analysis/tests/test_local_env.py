@@ -1,18 +1,14 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import os
 import unittest
 import warnings
 from math import pi
+from shutil import which
 
 import numpy as np
 import pytest
-from monty.os.path import which
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import (
     BrunnerNN_real,
@@ -23,6 +19,7 @@ from pymatgen.analysis.local_env import (
     CrystalNN,
     CutOffDictNN,
     EconNN,
+    IsayevNN,
     JmolNN,
     LocalStructOrderParams,
     MinimumDistanceNN,
@@ -33,13 +30,14 @@ from pymatgen.analysis.local_env import (
     ValenceIonicRadiusEvaluator,
     VoronoiNN,
     get_neighbors_of_site_with_index,
+    metal_edge_extender,
     site_is_of_motif_type,
     solid_angle,
-    IsayevNN,
-    metal_edge_extender,
 )
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 
@@ -198,8 +196,8 @@ class VoronoiNNTest(PymatgenTest):
             by_one = self.nn.get_nn_info(self.s, i)
 
             # Get the weights
-            all_weights = sorted([x["weight"] for x in info])
-            by_one_weights = sorted([x["weight"] for x in by_one])
+            all_weights = sorted(x["weight"] for x in info)
+            by_one_weights = sorted(x["weight"] for x in by_one)
 
             self.assertArrayAlmostEqual(all_weights, by_one_weights)
 
@@ -1063,7 +1061,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         ops_099 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.99)
         ops_101 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=1.01)
         ops_501 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=5.01)
-        ops_voro = LocalStructOrderParams(op_types, parameters=op_params)
+        _ = LocalStructOrderParams(op_types, parameters=op_params)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
@@ -1478,7 +1476,7 @@ class Critic2NNTest(PymatgenTest):
         warnings.filters = self.prev_warnings
 
     def test_cn(self):
-        nn = Critic2NN()
+        Critic2NN()
         # self.assertEqual(nn.get_cn(self.diamond, 0), 4)
 
 

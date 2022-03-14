@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -11,9 +10,6 @@ import unittest
 import numpy as np
 from monty.json import MontyDecoder
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
 from pymatgen.analysis.structure_matcher import (
     ElementComparator,
@@ -24,7 +20,10 @@ from pymatgen.analysis.structure_matcher import (
     StructureMatcher,
 )
 from pymatgen.core import PeriodicSite
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 
@@ -33,7 +32,7 @@ class StructureMatcherTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
@@ -807,7 +806,7 @@ class StructureMatcherTest(PymatgenTest):
         sp = ["Si", "Si", "Al"]
         s1 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
-        self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2), (0.32 ** 0.5 / 2, 0.4))
+        self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
 
         self.assertEqual(sm.fit(s1, s2), False)
         self.assertEqual(sm.fit_anonymous(s1, s2), False)

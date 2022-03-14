@@ -1,9 +1,7 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 import unittest
-from pathlib import Path
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import Cp2kInput

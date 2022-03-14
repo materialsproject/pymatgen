@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -212,13 +211,13 @@ class SubstitutionPredictor:
         """
         for sp in species:
             if get_el_sp(sp) not in self.p.species:
-                raise ValueError("the species {} is not allowed for the probability model you are using".format(sp))
+                raise ValueError(f"the species {sp} is not allowed for the probability model you are using")
         max_probabilities = []
         for s1 in species:
             if to_this_composition:
-                max_p = max([self.p.cond_prob(s2, s1) for s2 in self.p.species])
+                max_p = max(self.p.cond_prob(s2, s1) for s2 in self.p.species)
             else:
-                max_p = max([self.p.cond_prob(s1, s2) for s2 in self.p.species])
+                max_p = max(self.p.cond_prob(s1, s2) for s2 in self.p.species)
             max_probabilities.append(max_p)
 
         output = []
@@ -245,7 +244,7 @@ class SubstitutionPredictor:
                     _recurse(output_prob + [prob], output_species + [sp])
 
         _recurse([], [])
-        logging.info("{} substitutions found".format(len(output)))
+        logging.info(f"{len(output)} substitutions found")
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
@@ -280,5 +279,5 @@ class SubstitutionPredictor:
                 charge += subs[k].oxi_state * v
             if abs(charge) < 1e-8:
                 output.append(p)
-        logging.info("{} charge balanced substitutions found".format(len(output)))
+        logging.info(f"{len(output)} charge balanced substitutions found")
         return output

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,9 +6,9 @@ import os
 import unittest
 import warnings
 
-from pymatgen.core import SETTINGS
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.transformations.standard_transformations import (
@@ -64,7 +63,7 @@ class TransformedStructureTest(PymatgenTest):
         self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
 
     def test_from_dict(self):
-        d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json"), "r"))
+        d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")))
         d["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(d)
         ts.other_parameters["author"] = "Will"

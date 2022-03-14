@@ -1,13 +1,13 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 import os
-import pytest
 import tempfile
 
-from pymatgen.util.testing import PymatgenTest
+import pytest
+
 from pymatgen.io.template import TemplateInputGen
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 
@@ -22,7 +22,7 @@ class TestTemplateInputGen:
                 filename="hello_world.in",
             )
             tis.write_input(scratch_dir)
-            with open(os.path.join(scratch_dir, "hello_world.in"), "r") as f:
+            with open(os.path.join(scratch_dir, "hello_world.in")) as f:
                 assert "298" in f.read()
 
             with pytest.raises(FileNotFoundError):
@@ -46,7 +46,7 @@ class TestTemplateInputGen:
 
             tis.write_input(scratch_dir, overwrite=True)
 
-            with open(os.path.join(scratch_dir, "hello_world.in"), "r") as f:
+            with open(os.path.join(scratch_dir, "hello_world.in")) as f:
                 assert "400" in f.read()
 
             tis.write_input(scratch_dir, zip_inputs=True)

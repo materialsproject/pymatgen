@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,6 @@
 import os
 import warnings
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.transformations.advanced_transformations import SuperTransformation
@@ -15,6 +13,7 @@ from pymatgen.transformations.standard_transformations import (
     RemoveSpeciesTransformation,
     SubstitutionTransformation,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 class CifTransmuterTest(PymatgenTest):
@@ -29,9 +28,9 @@ class CifTransmuterTest(PymatgenTest):
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
         tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans)
         self.assertEqual(len(tsc), 2)
-        expected_ans = set(["Mn", "O", "Li", "P"])
+        expected_ans = {"Mn", "O", "Li", "P"}
         for s in tsc:
-            els = set([el.symbol for el in s.final_structure.composition.elements])
+            els = {el.symbol for el in s.final_structure.composition.elements}
             self.assertEqual(expected_ans, els)
 
 
@@ -43,9 +42,9 @@ class PoscarTransmuterTest(PymatgenTest):
             [os.path.join(self.TEST_FILES_DIR, "POSCAR"), os.path.join(self.TEST_FILES_DIR, "POSCAR")], trans
         )
         self.assertEqual(len(tsc), 2)
-        expected_ans = set(["Mn", "O", "P"])
+        expected_ans = {"Mn", "O", "P"}
         for s in tsc:
-            els = set([el.symbol for el in s.final_structure.composition.elements])
+            els = {el.symbol for el in s.final_structure.composition.elements}
             self.assertEqual(expected_ans, els)
 
     def test_transmuter(self):

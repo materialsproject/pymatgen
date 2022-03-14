@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,8 +6,6 @@ import os
 from pymatgen.core.structure import Structure
 from pymatgen.io.atat import Mcsqs
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.testing import PymatgenTest
-
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 

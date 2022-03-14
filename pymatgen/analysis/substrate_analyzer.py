@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,8 +6,8 @@ This module provides classes to identify optimal substrates for film growth
 """
 
 import warnings
-from pymatgen.analysis.interfaces import ZSLGenerator, SubstrateAnalyzer  # noqa
 
+from pymatgen.analysis.interfaces import SubstrateAnalyzer, ZSLGenerator  # noqa
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"

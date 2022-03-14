@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
@@ -7,16 +6,19 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
+from __future__ import annotations
+
 import collections
 import fnmatch
 import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -310,7 +312,7 @@ class Icohplist:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[1:-1]
         if len(data) == 0:
-            raise IOError("ICOHPLIST file contains no data.")
+            raise OSError("ICOHPLIST file contains no data.")
 
         # Which Lobster version?
         if len(data[0].split()) == 8:
@@ -349,7 +351,7 @@ class Icohplist:
             # TODO: adapt this for orbitalwise stuff
             num_bonds = len(data_without_orbitals) // 2
             if num_bonds == 0:
-                raise IOError("ICOHPLIST file contains no data.")
+                raise OSError("ICOHPLIST file contains no data.")
         else:
             num_bonds = len(data_without_orbitals)
 
@@ -364,7 +366,7 @@ class Icohplist:
             line = data_without_orbitals[bond].split()
             icohp = {}
             if version == "2.2.1":
-                label = "%s" % (line[0])
+                label = f"{line[0]}"
                 atom1 = str(line[1])
                 atom2 = str(line[2])
                 length = float(line[3])
@@ -375,7 +377,7 @@ class Icohplist:
                     icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[4])
 
             elif version == "3.1.1":
-                label = "%s" % (line[0])
+                label = f"{line[0]}"
                 atom1 = str(line[1])
                 atom2 = str(line[2])
                 length = float(line[3])
@@ -412,7 +414,7 @@ class Icohplist:
         )
 
     @property
-    def icohplist(self) -> Dict[Any, Dict[str, Any]]:
+    def icohplist(self) -> dict[Any, dict[str, Any]]:
         """
         Returns: icohplist compatible with older version of this class
         """
@@ -474,8 +476,6 @@ class Doscar:
 
     .. attribute:: is_spin_polarized
         Boolean. Tells if the system is spin polarized
-
-
     """
 
     def __init__(
@@ -501,7 +501,7 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        with open(doscar) as f:
+        with zopen(doscar, "rt") as f:
             natoms = int(f.readline().split()[0])
             efermi = float([f.readline() for nn in range(4)][3].split()[17])
             dos = []
@@ -649,7 +649,7 @@ class Charge:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[3:-3]
         if len(data) == 0:
-            raise IOError("CHARGES file contains no data.")
+            raise OSError("CHARGES file contains no data.")
 
         self.num_atoms = len(data)
         self.atomlist = []  # type: List[str]
@@ -718,10 +718,10 @@ class Lobsterout:
         Boolean, indicates that DOSCAR.lobster is present
 
       .. attribute: has_Projection
-        Boolean, indcates that projectionData.lobster is present
+        Boolean, indicates that projectionData.lobster is present
 
       .. attribute: has_bandoverlaps
-        Boolean, indcates that bandOverlaps.lobster is present
+        Boolean, indicates that bandOverlaps.lobster is present
 
       .. attribute: has_density_of_energies
         Boolean, indicates that DensityOfEnergy.lobster is present
@@ -759,7 +759,6 @@ class Lobsterout:
       .. attribute: warninglines
         string with all warnings
 
-
     """
 
     # TODO: add tests for skipping COBI and madelung
@@ -773,7 +772,7 @@ class Lobsterout:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")  # [3:-3]
         if len(data) == 0:
-            raise IOError("lobsterout does not contain any data")
+            raise OSError("lobsterout does not contain any data")
 
         # check if Lobster starts from a projection
         self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
@@ -1066,7 +1065,7 @@ class Fatband:
 
     .. attribute: label_dict
 
-         (dict) of {} this link a kpoint (in frac coords or cartesian coordinates depending on the coords).
+         (dict) of {} this link a kpoint (in frac coords or Cartesian coordinates depending on the coords).
 
     .. attribute: lattice
 
@@ -1363,7 +1362,7 @@ class Bandoverlaps:
     def has_good_quality_check_occupied_bands(
         self,
         number_occ_bands_spin_up: int,
-        number_occ_bands_spin_down: Optional[int] = None,
+        number_occ_bands_spin_down: int | None = None,
         spin_polarized: bool = False,
         limit_deviation: float = 0.1,
     ) -> bool:
@@ -1493,8 +1492,6 @@ class Wavefunction:
     .. attribute: distance
 
         list of distance to first point in wave function file
-
-
     """
 
     def __init__(self, filename, structure):
@@ -1690,7 +1687,7 @@ class MadelungEnergies:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[5]
         if len(data) == 0:
-            raise IOError("MadelungEnergies file contains no data.")
+            raise OSError("MadelungEnergies file contains no data.")
         line = data.split()
         self.ewald_splitting = float(line[0])
         self.madelungenergies_Mulliken = float(line[1])
@@ -1729,7 +1726,7 @@ class SitePotential:
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")
         if len(data) == 0:
-            raise IOError("SitePotentials file contains no data.")
+            raise OSError("SitePotentials file contains no data.")
 
         self.ewald_splitting = float(data[0].split()[9])
 

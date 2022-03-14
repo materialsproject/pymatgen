@@ -1,13 +1,15 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 Classes for reading/manipulating/writing QChem input files.
 """
+
+from __future__ import annotations
+
 import logging
-import sys
-from typing import Dict, List, Optional, Tuple, Union
+from pathlib import Path
+from typing import Literal
 
 from monty.io import zopen
 
@@ -15,11 +17,6 @@ from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -41,17 +38,17 @@ class QCInput(InputFile):
 
     def __init__(
         self,
-        molecule: Union[Molecule, Literal["read"]],
-        rem: Dict,
-        opt: Optional[Dict[str, List]] = None,
-        pcm: Optional[Dict] = None,
-        solvent: Optional[Dict] = None,
-        smx: Optional[Dict] = None,
-        scan: Optional[Dict[str, List]] = None,
-        van_der_waals: Optional[Dict[str, float]] = None,
+        molecule: Molecule | Literal["read"],
+        rem: dict,
+        opt: dict[str, list] | None = None,
+        pcm: dict | None = None,
+        solvent: dict | None = None,
+        smx: dict | None = None,
+        scan: dict[str, list] | None = None,
+        van_der_waals: dict[str, float] | None = None,
         vdw_mode: str = "atomic",
-        plots: Optional[Dict] = None,
-        nbo: Optional[Dict] = None,
+        plots: dict | None = None,
+        nbo: dict | None = None,
     ):
         """
         Args:
@@ -64,7 +61,7 @@ class QCInput(InputFile):
                 Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
             opt (dict of lists):
                 A dictionary of opt sections, where each opt section is a key and the corresponding
-                values are a list of strings. Stings must be formatted as instructed by the QChem manual.
+                values are a list of strings. Strings must be formatted as instructed by the QChem manual.
                 The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
                 Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
             pcm (dict):
@@ -85,7 +82,7 @@ class QCInput(InputFile):
                 more than two.
                 Ex. scan = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
             van_der_waals (dict):
-                A dictionary of custom van der Waals radii to be used when construcing cavities for the PCM
+                A dictionary of custom van der Waals radii to be used when constructing cavities for the PCM
                 model or when computing, e.g. Mulliken charges. They keys are strs whose meaning depends on
                 the value of vdw_mode, and the values are the custom radii in angstroms.
             vdw_mode (str): Method of specifying custom van der Waals radii - 'atomic' or 'sequential'.
@@ -192,7 +189,7 @@ class QCInput(InputFile):
         return "\n".join(combined_list)
 
     @staticmethod
-    def multi_job_string(job_list: List["QCInput"]) -> str:
+    def multi_job_string(job_list: list[QCInput]) -> str:
         """
         Args:
             job_list (): List of jobs
@@ -200,7 +197,7 @@ class QCInput(InputFile):
         Returns:
             (str) String representation of multi job input file.
         """
-        multi_job_string = str()
+        multi_job_string = ""
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
                 multi_job_string += job_i.__str__() + "\n@@@\n\n"
@@ -209,7 +206,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_string(cls, string: str) -> "QCInput":
+    def from_string(cls, string: str) -> QCInput:
         """
         Read QcInput from string.
 
@@ -263,7 +260,7 @@ class QCInput(InputFile):
         )
 
     @staticmethod
-    def write_multi_job_file(job_list: List["QCInput"], filename: str):
+    def write_multi_job_file(job_list: list[QCInput], filename: str):
         """
         Write a multijob file.
 
@@ -274,8 +271,21 @@ class QCInput(InputFile):
         with zopen(filename, "wt") as f:
             f.write(QCInput.multi_job_string(job_list))
 
+    @staticmethod
+    def from_file(filename: str | Path) -> QCInput:
+        """
+        Create QcInput from file.
+        Args:
+            filename (str): Filename
+
+        Returns:
+            QcInput
+        """
+        with zopen(filename, "rt") as f:
+            return QCInput.from_string(f.read())
+
     @classmethod
-    def from_multi_jobs_file(cls, filename: str) -> List["QCInput"]:
+    def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
         """
         Create list of QcInput from a file.
         Args:
@@ -292,7 +302,7 @@ class QCInput(InputFile):
             return input_list
 
     @staticmethod
-    def molecule_template(molecule: Union[Molecule, Literal["read"]]) -> str:
+    def molecule_template(molecule: Molecule | Literal["read"]) -> str:
         """
         Args:
             molecule (Molecule): molecule
@@ -309,9 +319,7 @@ class QCInput(InputFile):
             else:
                 raise ValueError('The only acceptable text value for molecule is "read"')
         else:
-            mol_list.append(
-                " {charge} {spin_mult}".format(charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity)
-            )
+            mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
                 mol_list.append(
                     " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
@@ -322,7 +330,7 @@ class QCInput(InputFile):
         return "\n".join(mol_list)
 
     @staticmethod
-    def rem_template(rem: Dict) -> str:
+    def rem_template(rem: dict) -> str:
         """
         Args:
             rem ():
@@ -333,12 +341,12 @@ class QCInput(InputFile):
         rem_list = []
         rem_list.append("$rem")
         for key, value in rem.items():
-            rem_list.append("   {key} = {value}".format(key=key, value=value))
+            rem_list.append(f"   {key} = {value}")
         rem_list.append("$end")
         return "\n".join(rem_list)
 
     @staticmethod
-    def opt_template(opt: Dict[str, List]) -> str:
+    def opt_template(opt: dict[str, list]) -> str:
         """
         Optimization template.
 
@@ -352,11 +360,11 @@ class QCInput(InputFile):
         opt_list.append("$opt")
         # loops over all opt sections
         for key, value in opt.items():
-            opt_list.append("{section}".format(section=key))
+            opt_list.append(f"{key}")
             # loops over all values within the section
             for i in value:
-                opt_list.append("   {val}".format(val=i))
-            opt_list.append("END{section}".format(section=key))
+                opt_list.append(f"   {i}")
+            opt_list.append(f"END{key}")
             opt_list.append("")
         # this deletes the empty space after the last section
         del opt_list[-1]
@@ -364,7 +372,7 @@ class QCInput(InputFile):
         return "\n".join(opt_list)
 
     @staticmethod
-    def pcm_template(pcm: Dict) -> str:
+    def pcm_template(pcm: dict) -> str:
         """
         Pcm run template.
 
@@ -377,12 +385,12 @@ class QCInput(InputFile):
         pcm_list = []
         pcm_list.append("$pcm")
         for key, value in pcm.items():
-            pcm_list.append("   {key} {value}".format(key=key, value=value))
+            pcm_list.append(f"   {key} {value}")
         pcm_list.append("$end")
         return "\n".join(pcm_list)
 
     @staticmethod
-    def solvent_template(solvent: Dict) -> str:
+    def solvent_template(solvent: dict) -> str:
         """
         Solvent template.
 
@@ -395,12 +403,12 @@ class QCInput(InputFile):
         solvent_list = []
         solvent_list.append("$solvent")
         for key, value in solvent.items():
-            solvent_list.append("   {key} {value}".format(key=key, value=value))
+            solvent_list.append(f"   {key} {value}")
         solvent_list.append("$end")
         return "\n".join(solvent_list)
 
     @staticmethod
-    def smx_template(smx: Dict) -> str:
+    def smx_template(smx: dict) -> str:
         """
         Args:
             smx ():
@@ -412,14 +420,14 @@ class QCInput(InputFile):
         smx_list.append("$smx")
         for key, value in smx.items():
             if value == "tetrahydrofuran":
-                smx_list.append("   {key} {value}".format(key=key, value="thf"))
+                smx_list.append(f"   {key} thf")
             else:
-                smx_list.append("   {key} {value}".format(key=key, value=value))
+                smx_list.append(f"   {key} {value}")
         smx_list.append("$end")
         return "\n".join(smx_list)
 
     @staticmethod
-    def scan_template(scan: Dict[str, List]) -> str:
+    def scan_template(scan: dict[str, list]) -> str:
         """
         Args:
             scan (dict): Dictionary with scan section information.
@@ -430,18 +438,18 @@ class QCInput(InputFile):
         """
         scan_list = []
         scan_list.append("$scan")
-        total_vars = sum([len(v) for v in scan.values()])
+        total_vars = sum(len(v) for v in scan.values())
         if total_vars > 2:
             raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
                 for var in variables:
-                    scan_list.append("   {var_type} {var}".format(var_type=var_type, var=var))
+                    scan_list.append(f"   {var_type} {var}")
         scan_list.append("$end")
         return "\n".join(scan_list)
 
     @staticmethod
-    def van_der_waals_template(radii: Dict[str, float], mode: str = "atomic") -> str:
+    def van_der_waals_template(radii: dict[str, float], mode: str = "atomic") -> str:
         """
         Args:
             radii (dict): Dictionary with custom van der Waals radii, in
@@ -472,7 +480,7 @@ class QCInput(InputFile):
         return "\n".join(vdw_list)
 
     @staticmethod
-    def plots_template(plots: Dict) -> str:
+    def plots_template(plots: dict) -> str:
         """
         Args:
             plots ():
@@ -483,12 +491,12 @@ class QCInput(InputFile):
         plots_list = []
         plots_list.append("$plots")
         for key, value in plots.items():
-            plots_list.append("   {key} {value}".format(key=key, value=value))
+            plots_list.append(f"   {key} {value}")
         plots_list.append("$end")
         return "\n".join(plots_list)
 
     @staticmethod
-    def nbo_template(nbo: Dict) -> str:
+    def nbo_template(nbo: dict) -> str:
         """
         Args:
             nbo ():
@@ -499,12 +507,12 @@ class QCInput(InputFile):
         nbo_list = []
         nbo_list.append("$nbo")
         for key, value in nbo.items():
-            nbo_list.append("   {key} = {value}".format(key=key, value=value))
+            nbo_list.append(f"   {key} = {value}")
         nbo_list.append("$end")
         return "\n".join(nbo_list)
 
     @staticmethod
-    def find_sections(string: str) -> List:
+    def find_sections(string: str) -> list:
         """
         Find sections in the string.
 
@@ -530,7 +538,7 @@ class QCInput(InputFile):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Union[Molecule, Literal["read"]]:
+    def read_molecule(string: str) -> Molecule | Literal["read"]:
         """
         Read molecule from string.
 
@@ -567,7 +575,7 @@ class QCInput(InputFile):
         return mol
 
     @staticmethod
-    def read_rem(string: str) -> Dict:
+    def read_rem(string: str) -> dict:
         """
         Parse rem from string.
 
@@ -578,13 +586,13 @@ class QCInput(InputFile):
             (dict) rem
         """
         header = r"^\s*\$rem"
-        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        row = r"\s*([a-zA-Z\_\d]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         return dict(rem_table[0])
 
     @staticmethod
-    def read_opt(string: str) -> Dict[str, List]:
+    def read_opt(string: str) -> dict[str, list]:
         """
         Read opt section from string.
 
@@ -645,7 +653,7 @@ class QCInput(InputFile):
         return opt
 
     @staticmethod
-    def read_pcm(string: str) -> Dict:
+    def read_pcm(string: str) -> dict:
         """
         Read pcm parameters from string.
 
@@ -660,13 +668,13 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_table:
-            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
+            print("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
             return {}
 
         return dict(pcm_table[0])
 
     @staticmethod
-    def read_vdw(string: str) -> Tuple[str, Dict]:
+    def read_vdw(string: str) -> tuple[str, dict]:
         """
         Read van der Waals parameters from string.
 
@@ -681,7 +689,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not vdw_table:
-            print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
+            print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
         if vdw_table[0][0][0] == 2:
@@ -692,7 +700,7 @@ class QCInput(InputFile):
         return mode, dict(vdw_table[0][1:])
 
     @staticmethod
-    def read_solvent(string: str) -> Dict:
+    def read_solvent(string: str) -> dict:
         """
         Read solvent parameters from string.
 
@@ -707,13 +715,13 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not solvent_table:
-            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
+            print("No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines.")
             return {}
 
         return dict(solvent_table[0])
 
     @staticmethod
-    def read_smx(string: str) -> Dict:
+    def read_smx(string: str) -> dict:
         """
         Read smx parameters from string.
 
@@ -728,7 +736,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         smx_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not smx_table:
-            print("No valid smx inputs found. Note that there should be no '=' chracters in smx input lines.")
+            print("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
             return {}
         smx = {}
         for key, val in smx_table[0]:
@@ -738,7 +746,7 @@ class QCInput(InputFile):
         return smx
 
     @staticmethod
-    def read_scan(string: str) -> Dict[str, List]:
+    def read_scan(string: str) -> dict[str, list]:
         """
         Read scan section from a string.
 
@@ -753,7 +761,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if scan_table == []:
-            print("No valid scan inputs found. Note that there should be no '=' chracters in scan input lines.")
+            print("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
             return {}
 
         stre = []
@@ -773,7 +781,7 @@ class QCInput(InputFile):
         return {"stre": stre, "bend": bend, "tors": tors}
 
     @staticmethod
-    def read_plots(string: str) -> Dict:
+    def read_plots(string: str) -> dict:
         """
         Read plots parameters from string.
 
@@ -788,7 +796,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         plots_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if plots_table == []:
-            print("No valid plots inputs found. Note that there should be no '=' chracters in plots input lines.")
+            print("No valid plots inputs found. Note that there should be no '=' characters in plots input lines.")
             return {}
         plots = {}
         for key, val in plots_table[0]:
@@ -796,7 +804,7 @@ class QCInput(InputFile):
         return plots
 
     @staticmethod
-    def read_nbo(string: str) -> Dict:
+    def read_nbo(string: str) -> dict:
         """
         Read nbo parameters from string.
 

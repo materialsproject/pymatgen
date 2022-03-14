@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -32,7 +31,7 @@ the VASP source to see the differences. We are able to recover a smooth same
 branch polarization more frequently using the naive calculation in calc_ionic
 than using the ionic dipole moment reported in the OUTCAR.
 
-Some defintions of terms used in the comments below:
+Some definitions of terms used in the comments below:
 
 A polar structure belongs to a polar space group. A polar space group has a
 one of the 10 polar point group:
@@ -114,7 +113,7 @@ class PolarizationLattice(Structure):
         """
         Given coords and a site, find closet site to coords.
         Args:
-            coords (3x1 array): cartesian coords of center of sphere
+            coords (3x1 array): Cartesian coords of center of sphere
             site: site to find closest to coords
             r: radius of sphere. Defaults to diagonal of unit cell
 

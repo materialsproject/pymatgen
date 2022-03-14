@@ -9,7 +9,7 @@ import copy
 import json
 import logging
 import os
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from collections.abc import Mapping, MutableMapping
 from enum import Enum
 
@@ -30,67 +30,59 @@ logger = logging.getLogger(__file__)
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
 # they will be generated with structure.to_abivars()
-GEOVARS = set(
-    [
-        "acell",
-        "rprim",
-        "rprimd",
-        "angdeg",
-        "xred",
-        "xcart",
-        "xangst",
-        "znucl",
-        "typat",
-        "ntypat",
-        "natom",
-    ]
-)
+GEOVARS = {
+    "acell",
+    "rprim",
+    "rprimd",
+    "angdeg",
+    "xred",
+    "xcart",
+    "xangst",
+    "znucl",
+    "typat",
+    "ntypat",
+    "natom",
+}
 
 # Variables defining tolerances (used in pop_tolerances)
-_TOLVARS = set(
-    [
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-        "tolimg",
-        "tolmxf",
-        "tolrde",
-    ]
-)
+_TOLVARS = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+    "tolimg",
+    "tolmxf",
+    "tolrde",
+}
 
 # Variables defining tolerances for the SCF cycle that are mutally exclusive
-_TOLVARS_SCF = set(
-    [
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-    ]
-)
+_TOLVARS_SCF = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+}
 
 # Variables determining if data files should be read in input
-_IRDVARS = set(
-    [
-        "irdbseig",
-        "irdbsreso",
-        "irdhaydock",
-        "irdddk",
-        "irdden",
-        "ird1den",
-        "irdqps",
-        "irdkss",
-        "irdscr",
-        "irdsuscep",
-        "irdvdw",
-        "irdwfk",
-        "irdwfkfine",
-        "irdwfq",
-        "ird1wf",
-    ]
-)
+_IRDVARS = {
+    "irdbseig",
+    "irdbsreso",
+    "irdhaydock",
+    "irdddk",
+    "irdden",
+    "ird1den",
+    "irdqps",
+    "irdkss",
+    "irdscr",
+    "irdsuscep",
+    "irdvdw",
+    "irdwfk",
+    "irdwfkfine",
+    "irdwfq",
+    "ird1wf",
+}
 
 # Name of the (default) tolerance used by the runlevels.
 _runl2tolname = {
@@ -140,7 +132,7 @@ def as_structure(obj):
             return Structure.from_dict(obj)
         return aobj.structure_from_abivars(cls=None, **obj)
 
-    raise TypeError("Don't know how to convert %s into a structure" % type(obj))
+    raise TypeError(f"Don't know how to convert {type(obj)} into a structure")
 
 
 class ShiftMode(Enum):
@@ -170,7 +162,7 @@ class ShiftMode(Enum):
             return obj
         if is_string(obj):
             return cls(obj[0].upper())
-        raise TypeError("The object provided is not handled: type %s" % type(obj))
+        raise TypeError(f"The object provided is not handled: type {type(obj)}")
 
 
 def _stopping_criterion(runlevel, accuracy):
@@ -257,7 +249,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError("invalid shift_mode: `%s`" % str(shift_mode))
+    raise ValueError(f"invalid shift_mode: `{str(shift_mode)}`")
 
 
 def gs_input(
@@ -617,7 +609,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__setitem__(key, value)
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, id(self))
+        return f"<{self.__class__.__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_string()
@@ -695,7 +687,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError("key: %s not in self:\n %s" % (key, list(self.keys())))
+                raise KeyError(f"key: {key} not in self:\n {list(self.keys())}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -760,13 +752,13 @@ class BasicAbinitInput(AbstractInput, MSONable):
         args = list(abi_args)[:]
         args.extend(list(abi_kwargs.items()))
 
-        self._vars = OrderedDict(args)
+        self._vars = dict(args)
         self.set_structure(structure)
 
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.exists(pseudo_dir):
-                raise self.Error("Directory %s does not exist" % pseudo_dir)
+                raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
 
         try:
@@ -782,7 +774,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         JSON interface used in pymatgen for easier serialization.
         """
-        # Use a list of (key, value) to serialize the OrderedDict
+        # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
             if isinstance(value, np.ndarray):
@@ -817,15 +809,13 @@ class BasicAbinitInput(AbstractInput, MSONable):
         d = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError("type %s: %s does not have `to_abivars` method" % (type(obj), repr(obj)))
+                raise TypeError(f"type {type(obj)}: {repr(obj)} does not have `to_abivars` method")
             d.update(self.set_vars(obj.to_abivars()))
         return d
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
-            logger.info(
-                "Replacing previously set tolerance variable: {0}.".format(self.remove_vars(_TOLVARS_SCF, strict=False))
-            )
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
 
@@ -837,7 +827,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             )
 
     def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        r"""
+        """
         String representation.
 
         Args:
@@ -862,7 +852,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         exclude = set(exclude) if exclude is not None else set()
 
         # Default is no sorting else alphabetical order.
-        keys = sorted([k for k, v in self.items() if k not in exclude and v is not None])
+        keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
         items = [(k, self[k]) for k in keys]
@@ -1041,7 +1031,7 @@ class BasicMultiDataset:
         for i in range(multi.ndtset):
             multi[i].set_vars(ecut=1)
 
-    BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:
+    BasicMultiDataset provides its own implementation of __getattr__ so that one can simply use:
 
         multi.set_vars(ecut=1)
 
@@ -1120,13 +1110,13 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error("Cannot find the following pseudopotential files:\n%s" % str(missing))
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{str(missing)}")
 
             pseudos = PseudoTable(pseudo_paths)
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError("ndtset %d cannot be <=0" % ndtset)
+            raise ValueError(f"ndtset {ndtset} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
@@ -1257,7 +1247,7 @@ class BasicMultiDataset:
         """
         if self.ndtset > 1:
             # Multi dataset mode.
-            lines = ["ndtset %d" % self.ndtset]
+            lines = [f"ndtset {int(self.ndtset)}"]
 
             def has_same_variable(kref, vref, other_inp):
                 """True if variable kref is present in other_inp with the same value."""
@@ -1299,7 +1289,7 @@ class BasicMultiDataset:
                     lines.append(str(InputVariable(vname, value)))
 
             for i, inp in enumerate(self):
-                header = "### DATASET %d ###" % (i + 1)
+                header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
                 s = inp.to_string(
                     post=str(i + 1),
@@ -1308,8 +1298,7 @@ class BasicMultiDataset:
                     exclude=global_vars,
                 )
                 if s:
-                    header = len(header) * "#" + "\n" + header + "\n" + len(header) * "#" + "\n"
-                    s = "\n" + header + s + "\n"
+                    s = f"\n{len(header) * '#'}\n{header}\n{len(header) * '#'}\n{s}\n"
 
                 lines.append(s)
 
@@ -1329,5 +1318,5 @@ class BasicMultiDataset:
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):
-            p = root + "DS%d" % i + ext
+            p = root + f"DS{i}" + ext
             inp.write(filepath=p)

@@ -1,16 +1,20 @@
 import os
 import tempfile
 from pathlib import Path
+from shutil import which
 from subprocess import TimeoutExpired
 
 import pytest
+
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
+from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import PymatgenTest
 
-from pymatgen.io.packmol import PackmolBoxGen
-
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
+
+if which("packmol") is None:
+    pytest.skip("packmol executable not present", allow_module_level=True)
 
 
 @pytest.fixture
@@ -116,7 +120,7 @@ class TestPackmolSet:
                 ],
             )
             pw.write_input(scratch_dir)
-            with open(os.path.join(scratch_dir, "packmol.inp"), "r") as f:
+            with open(os.path.join(scratch_dir, "packmol.inp")) as f:
                 input_string = f.read()
                 assert "maxit 0" in input_string
                 assert "nloop 0" in input_string
@@ -152,7 +156,7 @@ class TestPackmolSet:
                 box=[0, 0, 0, 2, 2, 2],
             )
             pw.write_input(scratch_dir)
-            with open(os.path.join(scratch_dir, "packmol.inp"), "r") as f:
+            with open(os.path.join(scratch_dir, "packmol.inp")) as f:
                 input_string = f.read()
                 assert "inside box 0 0 0 2 2 2" in input_string
             with pytest.raises(ValueError):

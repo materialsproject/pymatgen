@@ -2,11 +2,13 @@ name: Release
 
 on:
   release:
-    types: [ created ]
+    types: [created]
   workflow_dispatch:
 
 jobs:
   test:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
 
     strategy:
       max-parallel: 20
@@ -31,18 +33,12 @@ jobs:
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.8
-      - uses: actions/cache@v2
-        if: startsWith(runner.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          python-version: 3.9
+          cache: pip
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
@@ -58,23 +54,20 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        os: [ macos-latest, windows-latest ]
-        python-version: [ 3.7, 3.8 ]
+        os: [macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        if: startsWith(runner.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            setup.py
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
@@ -87,5 +80,6 @@ jobs:
         run: |
           pip install setuptools wheel twine
           python setup.py sdist bdist_wheel
-          twine upload dist/*.whl
+          twine upload --skip-existing dist/*.whl
           twine upload --skip-existing dist/*.tar.gz
+        continue-on-error: true

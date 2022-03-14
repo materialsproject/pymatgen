@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -22,7 +21,7 @@ class XYZ:
 
     .. note::
         Exporting periodic structures in the XYZ format will lose information
-        about the periodicity. Essentially, only cartesian coordinates are
+        about the periodicity. Essentially, only Cartesian coordinates are
         written in this format and no information is retained about the
         lattice.
     """
@@ -140,7 +139,7 @@ class XYZ:
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]
-        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
+        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
         for site in frame_mol:
             output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
         return "\n".join(output)
