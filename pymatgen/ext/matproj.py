@@ -1022,8 +1022,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        if show_progress_bar:
-            progress_bar = tqdm(total=len(mids))
+        progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
@@ -1051,8 +1050,7 @@ class MPRester:
                             "seconds (will try at most {} times)...".format(max_tries_per_chunk)
                         )
                         sleep(5)
-            if show_progress_bar:
-                progress_bar.update(len(chunk))
+            progress_bar.update(len(chunk))
         return data
 
     def submit_structures(
