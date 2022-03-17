@@ -2654,7 +2654,7 @@ class IMolecule(SiteCollection, MSONable):
         cls,
         sites: Sequence[Site],
         charge: float = 0,
-        spin_multiplicity: float = None,
+        spin_multiplicity: int = None,
         validate_proximity: bool = False,
         charge_spin_check: bool = True,
     ) -> IMolecule | Molecule:
@@ -3945,7 +3945,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         )
 
     def set_charge_and_spin(
-        self, charge: float, spin_multiplicity: float | None = None, charge_spin_check: bool = True
+        self, charge: float, spin_multiplicity: int | None = None, charge_spin_check: bool = True
     ):
         """
         Set the charge and spin multiplicity.
