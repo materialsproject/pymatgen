@@ -261,7 +261,7 @@ class AseAtomsAdaptor:
         if atoms.has("initial_magmoms"):
             mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1
         else:
-            mult = None
+            mult = 1
         charge_spin_check = cls_kwargs.get("charge_spin_check", True)
         molecule.set_charge_and_spin(charge, spin_multiplicity=mult, charge_spin_check=charge_spin_check)
 
