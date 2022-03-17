@@ -637,7 +637,7 @@ class DftSet(Cp2kInputSet):
                 }
             )
         elif hybrid_functional == "PBE0":
-            pbe = PBE("ORIG", scale_c=1, scale_x=0.75)
+            pbe = PBE("ORIG", scale_c=1, scale_x=1-hf_fraction)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
             xc_functional.insert(
                 Section(
@@ -645,7 +645,7 @@ class DftSet(Cp2kInputSet):
                     subsections={},
                     keywords={
                         "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                        "SCALE_X": Keyword("SCALE_X", 0.25),
+                        "SCALE_X": Keyword("SCALE_X", hf_fraction),
                     },
                 )
             )
