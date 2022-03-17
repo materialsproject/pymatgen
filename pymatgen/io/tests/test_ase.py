@@ -3,10 +3,10 @@
 
 
 import os
-import pytest
 import unittest
 
 import numpy as np
+import pytest
 
 import pymatgen.io.ase as aio
 from pymatgen.core.composition import Composition

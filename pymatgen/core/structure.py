@@ -3944,9 +3944,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def set_charge_and_spin(
-        self, charge: float, spin_multiplicity: float | None, charge_spin_check: bool = True
-    ):
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: float | None, charge_spin_check: bool = True):
         """
         Set the charge and spin multiplicity.
 
