@@ -2,6 +2,9 @@
 # Distributed under the terms of the MIT License.
 
 """Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
+
+from __future__ import annotations
+
 import ast
 import json
 import re
@@ -10,7 +13,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Dict, List, Literal, Optional, Tuple, Union
+from typing import Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -212,7 +215,7 @@ class ElementBase(Enum):
         return float("NaN")
 
     @property
-    def atomic_radius(self) -> Optional[FloatWithUnit]:
+    def atomic_radius(self) -> FloatWithUnit | None:
         """
         Returns:
             float | None: The atomic radius of the element in Ångstroms.
@@ -220,7 +223,7 @@ class ElementBase(Enum):
         return self._atomic_radius
 
     @property
-    def atomic_mass(self) -> Optional[FloatWithUnit]:
+    def atomic_mass(self) -> FloatWithUnit | None:
         """
         Returns:
             float | None: The atomic mass of the element in amu.
@@ -365,7 +368,7 @@ class ElementBase(Enum):
         return FloatWithUnit(0.0, "ang")
 
     @property
-    def ionic_radii(self) -> Dict[int, float]:
+    def ionic_radii(self) -> dict[int, float]:
         """
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in ang.
@@ -394,17 +397,17 @@ class ElementBase(Enum):
         return 0
 
     @property
-    def oxidation_states(self) -> Tuple:
+    def oxidation_states(self) -> tuple:
         """Tuple of all known oxidation states"""
         return tuple(self._data.get("Oxidation states", []))
 
     @property
-    def common_oxidation_states(self) -> Tuple:
+    def common_oxidation_states(self) -> tuple:
         """Tuple of common oxidation states"""
         return tuple(self._data.get("Common oxidation states", []))
 
     @property
-    def icsd_oxidation_states(self) -> Tuple:
+    def icsd_oxidation_states(self) -> tuple:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element"""
         return tuple(self._data.get("ICSD oxidation states", []))
@@ -417,7 +420,7 @@ class ElementBase(Enum):
         return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
-    def full_electronic_structure(self) -> List[Tuple[int, str, int]]:
+    def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """
         Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
@@ -464,7 +467,7 @@ class ElementBase(Enum):
         return valence[0]
 
     @property
-    def term_symbols(self) -> List[List[str]]:
+    def term_symbols(self) -> list[list[str]]:
         """
         All possible  Russell-Saunders term symbol of the Element
         eg. L = 1, n_e = 2 (s2)
@@ -579,7 +582,7 @@ class ElementBase(Enum):
         return self.symbol < other.symbol
 
     @staticmethod
-    def from_Z(z: int) -> "Element":
+    def from_Z(z: int) -> Element:
         """
         Get an element from an atomic number.
 
@@ -595,7 +598,7 @@ class ElementBase(Enum):
         raise ValueError(f"No element with this atomic number {z}")
 
     @staticmethod
-    def from_row_and_group(row: int, group: int) -> "Element":
+    def from_row_and_group(row: int, group: int) -> Element:
         """
         Returns an element from a row and group number.
         Important Note: For lanthanoids and actinoids, the row number must
@@ -839,7 +842,7 @@ class ElementBase(Enum):
         return Element(self.symbol)
 
     @staticmethod
-    def from_dict(d) -> "Element":
+    def from_dict(d) -> Element:
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
@@ -858,7 +861,7 @@ class ElementBase(Enum):
         }
 
     @staticmethod
-    def print_periodic_table(filter_function: Optional[Callable] = None):
+    def print_periodic_table(filter_function: Callable | None = None):
         """
         A pretty ASCII printer for the periodic table, based on some
         filter_function.
@@ -1025,8 +1028,8 @@ class Species(MSONable, Stringify):
     def __init__(
         self,
         symbol: str,
-        oxidation_state: Optional[float] = 0.0,
-        properties: Optional[dict] = None,
+        oxidation_state: float | None = 0.0,
+        properties: dict | None = None,
     ):
         """
         Initializes a Species.
@@ -1117,7 +1120,7 @@ class Species(MSONable, Stringify):
         return self._el
 
     @property
-    def ionic_radius(self) -> Optional[float]:
+    def ionic_radius(self) -> float | None:
         """
         Ionic radius of specie. Returns None if data is not present.
         """
@@ -1137,14 +1140,14 @@ class Species(MSONable, Stringify):
         return None
 
     @property
-    def oxi_state(self) -> Optional[float]:
+    def oxi_state(self) -> float | None:
         """
         Oxidation state of Species.
         """
         return self._oxi_state
 
     @staticmethod
-    def from_string(species_string: str) -> "Species":
+    def from_string(species_string: str) -> Species:
         """
         Returns a Species from a string representation.
 
@@ -1217,7 +1220,7 @@ class Species(MSONable, Stringify):
                 output += formula_double_format(-self.oxi_state) + "-"
         return output
 
-    def get_nmr_quadrupole_moment(self, isotope: Optional[str] = None) -> float:
+    def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
         """
         Gets the nuclear electric quadrupole moment in units of
         e*millibarns
@@ -1344,7 +1347,7 @@ class Species(MSONable, Stringify):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "Species":
+    def from_dict(cls, d) -> Species:
         """
         :param d: Dict representation.
         :return: Species.
@@ -1378,8 +1381,8 @@ class DummySpecies(Species):
     def __init__(
         self,
         symbol: str = "X",
-        oxidation_state: Optional[float] = 0,
-        properties: Optional[dict] = None,
+        oxidation_state: float | None = 0,
+        properties: dict | None = None,
     ):
         """
         Args:
@@ -1461,7 +1464,7 @@ class DummySpecies(Species):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> Optional[float]:
+    def oxi_state(self) -> float | None:
         """
         Oxidation state associated with DummySpecies
         """
@@ -1486,7 +1489,7 @@ class DummySpecies(Species):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @staticmethod
-    def from_string(species_string: str) -> "DummySpecies":
+    def from_string(species_string: str) -> DummySpecies:
         """
         Returns a Dummy from a string representation.
 
@@ -1530,7 +1533,7 @@ class DummySpecies(Species):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "DummySpecies":
+    def from_dict(cls, d) -> DummySpecies:
         """
         :param d: Dict representation
         :return: DummySpecies
@@ -1566,7 +1569,7 @@ class DummySpecie(DummySpecies):
     """
 
 
-def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
+def get_el_sp(obj) -> Element | Species | DummySpecies:
     """
     Utility method to get an Element or Species from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.

@@ -362,7 +362,7 @@ Here are some quick examples of the core capabilities and objects:
     1 Cl     0.510000     0.510000     0.510000
     2 Cs     0.000000     0.000000     0.000000
     >>>
-    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # Molecules function similarly, but with Site and Cartesian coords.
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]

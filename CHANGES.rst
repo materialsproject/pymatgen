@@ -1590,7 +1590,7 @@ v3.2.5
 v3.2.4
 ------
 
-* GaussianOutput can now parse frequencies, normal modes and cartesian forces
+* GaussianOutput can now parse frequencies, normal modes and Cartesian forces
   (Xin Chen).
 * Support for Aiida<->pymatgen conversion by the Aiida development team (Andrius
   Merkys).
@@ -1713,7 +1713,7 @@ v3.0.11
 v3.0.10
 ------
 
-* Fix cartesian coord parsing in Poscar class.
+* Fix Cartesian coord parsing in Poscar class.
 * Vasprun now works with non-GGA PBE runs
 * Misc bug fixes
 
@@ -2122,7 +2122,7 @@ v2.6.3
   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
 * Improvements to StructureMatcher: stol (site - tolerance) redefined as
   a fraction of the average length per atom. Structures matched in fractional
-  space are now also matched in cartesian space and a rms displacement
+  space are now also matched in Cartesian space and a rms displacement
   normalized by length per atom can be returned using the rms_dist method.
 
 v2.6.2

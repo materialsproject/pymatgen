@@ -34,7 +34,7 @@ __date__ = "March 14, 2012"
 class Kpoint(MSONable):
     """
     Class to store kpoint objects. A kpoint is defined with a lattice and frac
-    or cartesian coordinates syntax similar than the site object in
+    or Cartesian coordinates syntax similar than the site object in
     pymatgen.core.structure.
     """
 
@@ -55,7 +55,7 @@ class Kpoint(MSONable):
                 cell, i.e., all fractional coordinates satisfy 0 <= a < 1.
                 Defaults to False.
             coords_are_cartesian: Boolean indicating if the coordinates given are
-                in cartesian or fractional coordinates (by default fractional)
+                in Cartesian or fractional coordinates (by default fractional)
             label: the label of the kpoint if any (None by default)
         """
         self._lattice = lattice
@@ -93,7 +93,7 @@ class Kpoint(MSONable):
     @property
     def cart_coords(self):
         """
-        The cartesian coordinates of the kpoint as a numpy array
+        The Cartesian coordinates of the kpoint as a numpy array
         """
         return np.copy(self._ccoords)
 
@@ -120,7 +120,7 @@ class Kpoint(MSONable):
 
     def __str__(self):
         """
-        Returns a string with fractional, cartesian coordinates and label
+        Returns a string with fractional, Cartesian coordinates and label
         """
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
@@ -226,7 +226,7 @@ class BandStructure:
                 WITH a 2*pi coefficient
             efermi (float): fermi energy
             labels_dict: (dict) of {} this links a kpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
@@ -561,7 +561,7 @@ class BandStructure:
 
         Args:
             kpoint (1x3 array): coordinate of the k-point
-            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            cartesian (bool): kpoint is in Cartesian or fractional coordinates
             tol (float): tolerance below which coordinates are considered equal
 
         Returns:
@@ -586,7 +586,7 @@ class BandStructure:
         Returns degeneracy of a given k-point based on structure symmetry
         Args:
             kpoint (1x3 array): coordinate of the k-point
-            cartesian (bool): kpoint is in cartesian or fractional coordinates
+            cartesian (bool): kpoint is in Cartesian or fractional coordinates
             tol (float): tolerance below which coordinates are considered equal
 
         Returns:
@@ -768,7 +768,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 WITH a 2*pi coefficient
             efermi: fermi energy
             label_dict: (dict) of {} this link a kpoint (in frac coords or
-                cartesian coordinates depending on the coords).
+                Cartesian coordinates depending on the coords).
             coords_are_cartesian: Whether coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we

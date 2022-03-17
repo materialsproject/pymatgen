@@ -5,11 +5,13 @@ This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
+from __future__ import annotations
+
 import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import List, Optional, Sequence, Type, Union
+from typing import Sequence, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -517,7 +519,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: AnyCompEntry) -> List[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyCompEntry) -> list[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -537,7 +539,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             CompatibilityError if the entry is not compatible
         """
 
-    def process_entry(self, entry: ComputedEntry) -> Optional[ComputedEntry]:
+    def process_entry(self, entry: ComputedEntry) -> ComputedEntry | None:
         """
         Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
@@ -554,8 +556,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return None
 
     def process_entries(
-        self, entries: Union[AnyCompEntry, List[AnyCompEntry]], clean: bool = True, verbose: bool = False
-    ) -> List[ComputedEntry]:
+        self, entries: AnyCompEntry | list[AnyCompEntry], clean: bool = True, verbose: bool = False
+    ) -> list[ComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
@@ -942,7 +944,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         pc.get_correction(entry)
 
         # apply energy adjustments
-        adjustments: List[CompositionEnergyAdjustment] = []
+        adjustments: list[CompositionEnergyAdjustment] = []
 
         comp = entry.composition
         rform = comp.reduced_formula
@@ -1209,10 +1211,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(
         self,
-        solid_compat: Optional[Union[Compatibility, Type[Compatibility]]] = MaterialsProject2020Compatibility,
-        o2_energy: Optional[float] = None,
-        h2o_energy: Optional[float] = None,
-        h2o_adjustments: Optional[float] = None,
+        solid_compat: Compatibility | type[Compatibility] | None = MaterialsProject2020Compatibility,
+        o2_energy: float | None = None,
+        h2o_energy: float | None = None,
+        h2o_adjustments: float | None = None,
     ):
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
@@ -1391,9 +1393,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(
-        self, entries: Union[ComputedEntry, List[ComputedEntry]], clean: bool = False, verbose: bool = False
-    ):
+    def process_entries(self, entries: ComputedEntry | list[ComputedEntry], clean: bool = False, verbose: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 

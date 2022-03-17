@@ -273,10 +273,10 @@ class GulpIO:
             structure: pymatgen Structure object
             cell_flg (default = True): Option to use lattice parameters.
             fractional_flg (default = True): If True, fractional coordinates
-                are used. Else, cartesian coordinates in Angstroms are used.
+                are used. Else, Cartesian coordinates in Angstroms are used.
                 ******
                 GULP convention is to use fractional coordinates for periodic
-                structures and cartesian coordinates for non-periodic
+                structures and Cartesian coordinates for non-periodic
                 structures.
                 ******
             anion_shell_flg (default = True): If True, anions are considered

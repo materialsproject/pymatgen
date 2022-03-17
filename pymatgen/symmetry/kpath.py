@@ -97,7 +97,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
-        the kpoints along the paths in cartesian coordinates
+        the kpoints along the paths in Cartesian coordinates
         together with the labels for symmetry points -Wei.
         """
         list_k_points = []
@@ -1167,8 +1167,8 @@ class KPathLatimerMunro(KPathBase):
         # 1: Get lattices of real and reciprocal structures, and reciprocal
         # point group, and Brillouin zone (BZ)
 
-        V = self._latt.matrix.T  # fractional real space to cartesian real space
-        # fractional reciprocal space to cartesian reciprocal space
+        V = self._latt.matrix.T  # fractional real space to Cartesian real space
+        # fractional reciprocal space to Cartesian reciprocal space
         W = self._rec_lattice.matrix.T
         # fractional real space to fractional reciprocal space
         A = np.dot(np.linalg.inv(W), V)
@@ -1476,7 +1476,7 @@ class KPathLatimerMunro(KPathBase):
         face_center_inds = []
         bz_as_key_point_inds = []
 
-        # pymatgen gives BZ in cartesian coordinates; convert to fractional in
+        # pymatgen gives BZ in Cartesian coordinates; convert to fractional in
         # the primitive basis for reciprocal space
         for (i, facet) in enumerate(bz):
             for (j, vert) in enumerate(facet):

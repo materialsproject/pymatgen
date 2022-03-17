@@ -5,7 +5,9 @@
 This module implements symmetry-related structure forms.
 """
 
-from typing import List, Sequence
+from __future__ import annotations
+
+from typing import Sequence
 
 import numpy as np
 from tabulate import tabulate
@@ -58,8 +60,8 @@ class SymmetrizedStructure(Structure):
             equivalent_indices[inv].append(i)
             equivalent_sites[inv].append(self.sites[i])
             wyckoff_symbols[inv].append(wyckoff_letters[i])
-        self.equivalent_indices: List[int] = equivalent_indices  # type: ignore
-        self.equivalent_sites: List[PeriodicSite] = equivalent_sites  # type: ignore
+        self.equivalent_indices: list[int] = equivalent_indices  # type: ignore
+        self.equivalent_sites: list[PeriodicSite] = equivalent_sites  # type: ignore
         self.wyckoff_letters = wyckoff_letters
         self.wyckoff_symbols = [f"{len(w)}{w[0]}" for w in wyckoff_symbols]
 
@@ -74,7 +76,7 @@ class SymmetrizedStructure(Structure):
             wyckoff_letters=self.wyckoff_letters,
         )
 
-    def find_equivalent_sites(self, site) -> List[PeriodicSite]:
+    def find_equivalent_sites(self, site) -> list[PeriodicSite]:
         """
         Finds all symmetrically equivalent sites for a particular site
 

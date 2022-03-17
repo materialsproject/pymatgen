@@ -4,11 +4,12 @@
 This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
-# flake8: ignore=E712
+
+from __future__ import annotations
+
 import os
 import warnings
 from itertools import groupby
-from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -54,8 +55,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         structure_matcher: StructureMatcher = StructureMatcher(),
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
-        compat_1: Optional[Compatibility] = MaterialsProject2020Compatibility(),
-        compat_2: Optional[Compatibility] = None,
+        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),
+        compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
     ):
         """
@@ -122,7 +123,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def process_entries(
         self,
-        entries: Union[ComputedStructureEntry, ComputedEntry, list],
+        entries: ComputedStructureEntry | ComputedEntry | list,
         clean: bool = True,
         verbose: bool = True,
         mixing_state_data=None,
@@ -157,7 +158,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             A list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
-        processed_entry_list: List = []
+        processed_entry_list: list = []
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
@@ -273,7 +274,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         Raises:
             CompatibilityError if the DFT mixing scheme cannot be applied to the entry.
         """
-        adjustments: List[ConstantEnergyAdjustment] = []
+        adjustments: list[ConstantEnergyAdjustment] = []
         run_type = entry.parameters.get("run_type")
 
         if mixing_state_data is None:
@@ -453,7 +454,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"an edge case in {self.__class__.__name__}. Inspect your input carefully and post a bug report."
             )
 
-    def get_mixing_state_data(self, entries: List[ComputedStructureEntry], verbose: bool = False):
+    def get_mixing_state_data(self, entries: list[ComputedStructureEntry], verbose: bool = False):
         """
         Generate internal state data to be passed to get_adjustments.
 

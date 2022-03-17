@@ -110,7 +110,7 @@ class GrainBoundary(Structure):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.rotation_axis = rotation_axis
@@ -1292,7 +1292,7 @@ class GrainBoundaryGenerator:
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
         # which is the transformation matrix
 
-        # now trans_cry is the transformation matrix from crystal to cartesian coordinates.
+        # now trans_cry is the transformation matrix from crystal to Cartesian coordinates.
         # for cubic, do not need to change.
         if lat_type.lower() != "c":
             if lat_type.lower() == "h":

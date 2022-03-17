@@ -1,0 +1,4 @@
+## Template input file
+For testing TemplateInputSet
+
+Variables like $TEMPERATURE should be substituted with values.
