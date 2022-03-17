@@ -4,6 +4,9 @@
 """
 This module implements more advanced transformations.
 """
+
+from __future__ import annotations
+
 import logging
 import math
 import warnings
@@ -11,7 +14,6 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import Dict, Optional
 
 import numpy as np
 from monty.dev import requires
@@ -1506,8 +1508,8 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     def __init__(
         self,
-        min_atoms: Optional[int] = None,
-        max_atoms: Optional[int] = None,
+        min_atoms: int | None = None,
+        max_atoms: int | None = None,
         min_length: float = 15.0,
         force_diagonal: bool = False,
     ):
@@ -1997,7 +1999,7 @@ class SQSTransformation(AbstractTransformation):
         return disordered_substructure
 
     @staticmethod
-    def _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: Optional[Dict[int, int]] = None):
+    def _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: dict[int, int] | None = None):
         """
         Set up an ATAT cluster.out file for a given structure and set of constraints
         Args:
@@ -2155,7 +2157,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
     """
 
     @requires(hiphive, "hiphive is required for MonteCarloRattleTransformation")
-    def __init__(self, rattle_std: float, min_distance: float, seed: Optional[int] = None, **kwargs):
+    def __init__(self, rattle_std: float, min_distance: float, seed: int | None = None, **kwargs):
         """
         Args:
             rattle_std: Rattle amplitude (standard deviation in normal

@@ -238,7 +238,7 @@ class AdsorbateSiteFinder:
     ):
         """
         Finds surface sites according to the above algorithm.  Returns
-        a list of corresponding cartesian coordinates.
+        a list of corresponding Cartesian coordinates.
 
         Args:
             distance (float): distance from the coordinating ensemble
@@ -316,7 +316,7 @@ class AdsorbateSiteFinder:
         symmetrically equivalent duplicates
 
         Args:
-            coords_set: coordinate set in cartesian coordinates
+            coords_set: coordinate set in Cartesian coordinates
             threshold: tolerance for distance equivalence, used
                 as input to in_coord_list_pbc for dupl. checking
         """
@@ -364,7 +364,7 @@ class AdsorbateSiteFinder:
             indices (list of ints): list of ints from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
-                cartesian coordinate
+                Cartesian coordinate
         """
         if cartesian:
             return np.average([site_list[i].coords for i in indices], axis=0)
@@ -639,7 +639,7 @@ def get_rot(slab):
 
 def put_coord_inside(lattice, cart_coordinate):
     """
-    converts a cartesian coordinate such that it is inside the unit cell.
+    converts a Cartesian coordinate such that it is inside the unit cell.
     """
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])

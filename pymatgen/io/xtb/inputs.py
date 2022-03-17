@@ -3,9 +3,11 @@
 """
 Classes for writing XTB input files
 """
+
+from __future__ import annotations
+
 import logging
 import os
-from typing import Dict, List, Optional, Union
 
 from monty.json import MSONable
 
@@ -33,8 +35,8 @@ class CRESTInput(MSONable):
         self,
         molecule: Molecule,
         working_dir: str = ".",
-        coords_filename: Optional[str] = "crest_in.xyz",
-        constraints: Optional[Dict[str, Union[List[int], float]]] = None,
+        coords_filename: str | None = "crest_in.xyz",
+        constraints: dict[str, list[int] | float] | None = None,
     ):
         """
 

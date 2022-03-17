@@ -5,9 +5,10 @@
 This module defines classes to represent the density of states, etc.
 """
 
+from __future__ import annotations
+
 import functools
 import warnings
-from typing import Dict, List, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -188,7 +189,7 @@ class Dos(MSONable):
         Fermi level
     """
 
-    def __init__(self, efermi: float, energies: ArrayLike, densities: Dict[Spin, ArrayLike]):
+    def __init__(self, efermi: float, energies: ArrayLike, densities: dict[Spin, ArrayLike]):
         """
         Args:
             efermi: Fermi level energy
@@ -375,7 +376,7 @@ class Dos(MSONable):
         return "\n".join(stringarray)
 
     @classmethod
-    def from_dict(cls, d) -> "Dos":
+    def from_dict(cls, d) -> Dos:
         """
         Returns Dos object from dict representation of Dos.
         """
@@ -596,7 +597,7 @@ class FermiDos(Dos, MSONable):
         return fermi
 
     @classmethod
-    def from_dict(cls, d) -> "FermiDos":
+    def from_dict(cls, d) -> FermiDos:
         """
         Returns Dos object from dict representation of Dos.
         """
@@ -639,7 +640,7 @@ class CompleteDos(Dos):
     """
 
     def __init__(
-        self, structure: Structure, total_dos: Dos, pdoss: Dict[PeriodicSite, Dict[Orbital, Dict[Spin, ArrayLike]]]
+        self, structure: Structure, total_dos: Dos, pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, ArrayLike]]]
     ):
         """
         Args:
@@ -682,7 +683,7 @@ class CompleteDos(Dos):
         site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
-    def get_site_spd_dos(self, site: PeriodicSite) -> Dict[OrbitalType, Dos]:
+    def get_site_spd_dos(self, site: PeriodicSite) -> dict[OrbitalType, Dos]:
         """
         Get orbital projected Dos of a particular site
 
@@ -692,7 +693,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
         """
-        spd_dos: Dict[OrbitalType, Dict[Spin, ArrayLike]] = {}
+        spd_dos: dict[OrbitalType, dict[Spin, ArrayLike]] = {}
         for orb, pdos in self.pdos[site].items():
             orbital_type = _get_orb_type(orb)
             if orbital_type in spd_dos:
@@ -701,7 +702,7 @@ class CompleteDos(Dos):
                 spd_dos[orbital_type] = pdos
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
-    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> Dict[str, Dos]:
+    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> dict[str, Dos]:
         """
         Get the t2g, eg projected DOS for a particular site.
 
@@ -726,7 +727,7 @@ class CompleteDos(Dos):
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
-    def get_spd_dos(self) -> Dict[OrbitalType, Dos]:
+    def get_spd_dos(self) -> dict[OrbitalType, Dos]:
         """
         Get orbital projected Dos.
 
@@ -743,7 +744,7 @@ class CompleteDos(Dos):
                     spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
-    def get_element_dos(self) -> Dict[SpeciesLike, Dos]:
+    def get_element_dos(self) -> dict[SpeciesLike, Dos]:
         """
         Get element projected Dos.
 
@@ -761,7 +762,7 @@ class CompleteDos(Dos):
                     el_dos[el] = add_densities(el_dos[el], pdos)
         return {el: Dos(self.efermi, self.energies, densities) for el, densities in el_dos.items()}
 
-    def get_element_spd_dos(self, el: SpeciesLike) -> Dict[OrbitalType, Dos]:
+    def get_element_spd_dos(self, el: SpeciesLike) -> dict[OrbitalType, Dos]:
         """
         Get element and spd projected Dos
 
@@ -785,7 +786,7 @@ class CompleteDos(Dos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}
 
     @property
-    def spin_polarization(self) -> Optional[float]:
+    def spin_polarization(self) -> float | None:
         """
         Calculates spin polarization at Fermi level. If the
         calculation is not spin-polarized, None will be
@@ -816,8 +817,8 @@ class CompleteDos(Dos):
     def get_band_filling(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
     ) -> float:
         """
@@ -868,10 +869,10 @@ class CompleteDos(Dos):
     def get_band_center(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
-        erange: List[float] = None,
+        erange: list[float] = None,
     ) -> float:
         """
         Computes the orbital-projected band center, defined as the first moment
@@ -902,10 +903,10 @@ class CompleteDos(Dos):
     def get_band_width(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
-        erange: List[float] = None,
+        erange: list[float] = None,
     ) -> float:
         """
         Get the orbital-projected band width, defined as the square root of the second moment
@@ -932,10 +933,10 @@ class CompleteDos(Dos):
     def get_band_skewness(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
-        erange: List[float] = None,
+        erange: list[float] = None,
     ) -> float:
         """
         Get the orbital-projected skewness, defined as the third standardized moment
@@ -967,10 +968,10 @@ class CompleteDos(Dos):
     def get_band_kurtosis(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
-        erange: List[float] = None,
+        erange: list[float] = None,
     ) -> float:
         """
         Get the orbital-projected kurtosis, defined as the fourth standardized moment
@@ -1004,10 +1005,10 @@ class CompleteDos(Dos):
         self,
         n: int,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
-        erange: List[float] = None,
+        erange: list[float] = None,
         center: bool = True,
     ) -> float:
         """
@@ -1077,8 +1078,8 @@ class CompleteDos(Dos):
     def get_hilbert_transform(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
     ) -> Dos:
         """
         Returns the Hilbert transform of the orbital-projected density of states,
@@ -1125,10 +1126,10 @@ class CompleteDos(Dos):
     def get_upper_band_edge(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: List[SpeciesLike] = None,
-        sites: List[PeriodicSite] = None,
+        elements: list[SpeciesLike] = None,
+        sites: list[PeriodicSite] = None,
         spin: Spin = None,
-        erange: List[float] = None,
+        erange: list[float] = None,
     ) -> float:
         """
         Get the orbital-projected upper band edge. The definition by Xin et al.
@@ -1163,7 +1164,7 @@ class CompleteDos(Dos):
         return upper_band_edge
 
     @classmethod
-    def from_dict(cls, d) -> "CompleteDos":
+    def from_dict(cls, d) -> CompleteDos:
         """
         Returns CompleteDos object from dict representation.
         """
@@ -1249,7 +1250,7 @@ class LobsterCompleteDos(CompleteDos):
             raise ValueError("orbital is not correct")
         return Dos(self.efermi, self.energies, self.pdos[site][orbital])  # type: ignore
 
-    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> Dict[str, Dos]:
+    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> dict[str, Dos]:
         """
         Get the t2g, eg projected DOS for a particular site.
         Args:
@@ -1277,7 +1278,7 @@ class LobsterCompleteDos(CompleteDos):
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
-    def get_spd_dos(self) -> Dict[str, Dos]:  # type: ignore
+    def get_spd_dos(self) -> dict[str, Dos]:  # type: ignore
         """
         Get orbital projected Dos.
         For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital
@@ -1297,7 +1298,7 @@ class LobsterCompleteDos(CompleteDos):
 
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
-    def get_element_spd_dos(self, el: SpeciesLike) -> Dict[str, Dos]:  # type: ignore
+    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """
         Get element and spd projected Dos
 
@@ -1322,7 +1323,7 @@ class LobsterCompleteDos(CompleteDos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}
 
     @classmethod
-    def from_dict(cls, d) -> "LobsterCompleteDos":
+    def from_dict(cls, d) -> LobsterCompleteDos:
         """
         Returns: CompleteDos object from dict representation.
         """
@@ -1339,7 +1340,7 @@ class LobsterCompleteDos(CompleteDos):
         return LobsterCompleteDos(struct, tdos, pdoss)
 
 
-def add_densities(density1: Dict[Spin, ArrayLike], density2: Dict[Spin, ArrayLike]) -> Dict[Spin, ArrayLike]:
+def add_densities(density1: dict[Spin, ArrayLike], density2: dict[Spin, ArrayLike]) -> dict[Spin, ArrayLike]:
     """
     Method to sum two densities.
 

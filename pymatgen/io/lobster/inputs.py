@@ -6,10 +6,12 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
+from __future__ import annotations
+
 import itertools
 import os
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 import spglib
@@ -638,8 +640,8 @@ class Lobsterin(dict, MSONable):
         cls,
         POSCAR_input: str = "POSCAR",
         INCAR_input: str = "INCAR",
-        POTCAR_input: Optional[str] = None,
-        dict_for_basis: Optional[dict] = None,
+        POTCAR_input: str | None = None,
+        dict_for_basis: dict | None = None,
         option: str = "standard",
     ):
         """
@@ -817,7 +819,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict: Dict[str, dict] = {}
+    basis_dict: dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:

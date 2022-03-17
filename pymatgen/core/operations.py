@@ -22,7 +22,7 @@ __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
 class SymmOp(MSONable):
     """
-    A symmetry operation in cartesian space. Consists of a rotation plus a
+    A symmetry operation in Cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
     for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation.
 
@@ -212,7 +212,7 @@ class SymmOp(MSONable):
         Generates a SymmOp for a rotation about a given axis plus translation.
 
         Args:
-            axis: The axis of rotation in cartesian space. For example,
+            axis: The axis of rotation in Cartesian space. For example,
                 [1, 0, 0]indicates rotation about x-axis.
             angle (float): Angle of rotation.
             angle_in_radians (bool): Set to True if angles are given in
@@ -254,7 +254,7 @@ class SymmOp(MSONable):
 
         Args:
             origin (3x1 array): The origin which the axis passes through.
-            axis (3x1 array): The axis of rotation in cartesian space. For
+            axis (3x1 array): The axis of rotation in Cartesian space. For
                 example, [1, 0, 0]indicates rotation about x-axis.
             angle (float): Angle of rotation.
             angle_in_radians (bool): Set to True if angles are given in
