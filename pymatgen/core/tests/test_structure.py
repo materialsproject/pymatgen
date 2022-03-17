@@ -1409,6 +1409,20 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]], spin_multiplicity=3)
         self.assertEqual(mol.spin_multiplicity, 3)
 
+    def test_no_spin_check(self):
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+        ]
+        mol = Molecule(["C", "H", "H", "H"], coords)
+        with pytest.raises(ValueError):
+            mol.set_charge_and_spin(0, 1)
+        mol.set_charge_and_spin(0, 1, charge_spin_check=False)
+        assert mol.spin_multiplicity == 1
+        assert mol.charge == 0
+
     def test_equal(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         self.assertNotEqual(mol, self.mol)
@@ -1621,6 +1635,20 @@ class MoleculeTest(PymatgenTest):
         cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         self.assertEqual(mol.formula, "H8 C2")
         self.assertEqual(cluster.formula, "H4 C1")
+
+    def test_no_spin_check(self):
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+        ]
+        mol = Molecule(["C", "H", "H", "H"], coords)
+        with pytest.raises(ValueError):
+            mol.set_charge_and_spin(0, 1)
+        mol.set_charge_and_spin(0, 1, charge_spin_check=False)
+        assert mol.spin_multiplicity == 1
+        assert mol.charge == 0
 
 
 if __name__ == "__main__":
