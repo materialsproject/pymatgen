@@ -2544,7 +2544,7 @@ class IMolecule(SiteCollection, MSONable):
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
         charge: float = 0.0,
-        spin_multiplicity: float = None,
+        spin_multiplicity: int = None,
         validate_proximity: bool = False,
         site_properties: dict = None,
     ):
@@ -3819,7 +3819,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         species: Sequence[SpeciesLike],
         coords: Sequence[ArrayLike],
         charge: float = 0.0,
-        spin_multiplicity: float = None,
+        spin_multiplicity: int = None,
         validate_proximity: bool = False,
         site_properties: dict = None,
     ) -> None:
