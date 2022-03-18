@@ -10,7 +10,7 @@ import pytest
 
 import pymatgen.io.ase as aio
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, StructureError
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
@@ -163,7 +163,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual(struct.site_properties["prop"], prop.tolist())
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap"))
-        with pytest.raises(ValueError):
+        with pytest.raises(StructureError):
             struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
