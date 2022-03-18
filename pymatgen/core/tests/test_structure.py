@@ -1419,9 +1419,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         with pytest.raises(ValueError):
             mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
-        with pytest.raises(ValueError):
-            mol.set_charge_and_spin(0, 1)
-        mol.set_charge_and_spin(0, 1, charge_spin_check=False)
+        mol.set_charge_and_spin(0, 1)
         assert mol.spin_multiplicity == 1
         assert mol.charge == 0
 
@@ -1648,7 +1646,7 @@ class MoleculeTest(PymatgenTest):
         with pytest.raises(ValueError):
             mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
-        mol.set_charge_and_spin(0, 1, charge_spin_check=False)
+        mol.set_charge_and_spin(0, 1)
         assert mol.spin_multiplicity == 1
         assert mol.charge == 0
 

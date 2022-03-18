@@ -3944,7 +3944,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def set_charge_and_spin(self, charge: float, spin_multiplicity: int | None = None, charge_spin_check: bool = True):
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: int | None = None):
         """
         Set the charge and spin multiplicity.
 
@@ -3954,9 +3954,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 Defaults to None, which means that the spin multiplicity is
                 set to 1 if the molecule has no unpaired electrons and to 2
                 if there are unpaired electrons.
-            charge_spin_check (bool): Whether to check that the charge and
-                spin multiplicity are compatible with each other. Defaults
-                to True.
         """
         self._charge = charge
         nelectrons = 0.0
@@ -3967,7 +3964,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
-            if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
+            if self._charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
                     "Charge of {} and spin multiplicity of {} is"
                     " not possible for this molecule".format(self._charge, spin_multiplicity)
