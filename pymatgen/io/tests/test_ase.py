@@ -162,6 +162,11 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(struct.site_properties["prop"], prop.tolist())
 
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        atoms.set_distance(0, 1, 0.001)
+        with pytest.raises(ValueError):
+            struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
+
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_mag(self):
         from ase.io import read
@@ -198,26 +203,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual([s.species_string for s in molecule], atoms.get_chemical_symbols())
         self.assertEqual(molecule.charge, 0)
         self.assertEqual(molecule.spin_multiplicity, 1)
-
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
-        initial_charges = [2.0] * len(atoms)
-        initial_mags = [1.0] * len(atoms)
-        atoms.set_initial_charges(initial_charges)
-        atoms.set_initial_magnetic_moments(initial_mags)
-        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
-        self.assertEqual(molecule.charge, np.sum(initial_charges))
-        self.assertEqual(molecule.spin_multiplicity, np.sum(initial_mags) + 1)
-        self.assertEqual(molecule.site_properties.get("charge", None), initial_charges)
-        self.assertEqual(molecule.site_properties.get("magmom", None), initial_mags)
-
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
-        initial_mags = [2.0] * len(atoms)
-        atoms.set_initial_magnetic_moments(initial_mags)
-        with pytest.raises(ValueError):
-            molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
-        molecule = aio.AseAtomsAdaptor.get_molecule(atoms, charge_spin_check=False)
-        self.assertEqual(molecule.spin_multiplicity, np.sum(initial_mags) + 1)
-        self.assertEqual(molecule.site_properties.get("magmom", None), initial_mags)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_back_forth(self):
