@@ -1646,7 +1646,7 @@ class MoleculeTest(PymatgenTest):
             mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
         with pytest.raises(ValueError):
-            mol_valid.set_charge_and_spin(0,1)
+            mol_valid.set_charge_and_spin(0, 1)
         mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
         self.assertEqual(mol.spin_multiplicity, 1)
         self.assertEqual(mol.charge, 0)
