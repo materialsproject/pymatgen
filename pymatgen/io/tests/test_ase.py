@@ -163,7 +163,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual(struct.site_properties["prop"], prop.tolist())
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap"))
-        struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
+        struct = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual([s.species_string for s in struct], atoms.get_chemical_symbols())
         with pytest.raises(StructureError):
             struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
