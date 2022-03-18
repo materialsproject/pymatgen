@@ -204,6 +204,17 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         self.assertEqual(molecule.charge, 0)
         self.assertEqual(molecule.spin_multiplicity, 1)
 
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        initial_charges = [2.0] * len(atoms)
+        initial_mags = [1.0] * len(atoms)
+        atoms.set_initial_charges(initial_charges)
+        atoms.set_initial_magnetic_moments(initial_mags)
+        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
+        self.assertEqual(molecule.charge, np.sum(initial_charges))
+        self.assertEqual(molecule.spin_multiplicity, np.sum(initial_mags) + 1)
+        self.assertEqual(molecule.site_properties.get("charge", None), initial_charges)
+        self.assertEqual(molecule.site_properties.get("magmom", None), initial_mags)
+
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_back_forth(self):
         from ase.constraints import FixAtoms
