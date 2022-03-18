@@ -1419,6 +1419,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         with pytest.raises(ValueError):
             mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
+        self.assertEqual(mol.spin_multiplicity, 1)
+        self.assertEqual(mol.charge, 0)
 
     def test_equal(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
@@ -1642,10 +1644,15 @@ class MoleculeTest(PymatgenTest):
         ]
         with pytest.raises(ValueError):
             mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+        mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
+        with pytest.raises(ValueError):
+            mol_valid.set_charge_and_spin(0,1)
         mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
-        mol.set_charge_and_spin(0, 1)
-        assert mol.spin_multiplicity == 1
-        assert mol.charge == 0
+        self.assertEqual(mol.spin_multiplicity, 1)
+        self.assertEqual(mol.charge, 0)
+        mol.set_charge_and_spin(0, 3)
+        self.assertEqual(mol.charge, 0)
+        self.assertEqual(mol.spin_multiplicity, 3)
 
 
 if __name__ == "__main__":
