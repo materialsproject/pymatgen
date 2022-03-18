@@ -2,7 +2,6 @@ import os
 import unittest
 
 import numpy as np
-
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp
@@ -223,6 +222,31 @@ class TestLobsterNeighbors(unittest.TestCase):
                 filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
                 additional_condition=1,
             )
+
+    def test_cation_anion_mode_without_ions(self):
+        with self.assertRaises(ValueError) as err:
+            test = LobsterNeighbors(
+                are_coops=False,
+                filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
+                structure=Structure.from_file(os.path.join(test_dir_env, "../POSCAR")),
+                valences_from_charges=False,
+                additional_condition=1,
+            )
+        self.assertEqual(
+            str(err.exception), "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+        )
+        with self.assertRaises(ValueError) as err:
+            test = LobsterNeighbors(
+                are_coops=False,
+                filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
+                structure=Structure.from_file(os.path.join(test_dir_env, "../POSCAR")),
+                valences_from_charges=False,
+                additional_condition=1,
+                valences=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            )
+        self.assertEqual(
+            str(err.exception), "All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work"
+        )
 
     def test_wrong_additional_correction(self):
         with self.assertRaises(ValueError):
