@@ -162,8 +162,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(struct.site_properties["prop"], prop.tolist())
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
-        atoms.set_distance(0, 1, 0.001)
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap"))
         with pytest.raises(ValueError):
             struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
