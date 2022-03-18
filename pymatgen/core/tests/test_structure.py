@@ -1418,6 +1418,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         ]
         with pytest.raises(ValueError):
             mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+        mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
 
     def test_equal(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
