@@ -1383,7 +1383,7 @@ def generic_groupby(list_in, comp=operator.eq):
         if ls1 is not None:
             continue
         list_out[i1] = label_num
-        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:  # noqa
+        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:
             if comp(list_in[i1], list_in[i2]):
                 if list_out[i2] is None:
                     list_out[i2] = list_out[i1]
