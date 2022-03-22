@@ -31,6 +31,7 @@ from monty.fractions import lcm
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
+from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
@@ -130,7 +131,7 @@ class Slab(Structure):
             reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -460,7 +461,7 @@ class Slab(Structure):
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
         """
-        # Let's do the work in cartesian coords
+        # Let's do the work in Cartesian coords
         center = np.sum([self[i].coords for i in indices], axis=0) / len(indices)
 
         coords = center + self.normal * distance / np.linalg.norm(self.normal)
@@ -531,11 +532,11 @@ class Slab(Structure):
             energy=d["energy"],
         )
 
-    def get_surface_sites(self, tag=False):
+    def get_surface_sites(self, tag=False, local_env=VoronoiNN):
         """
         Returns the surface sites and their indices in a dictionary. The
         oriented unit cell of the slab will determine the coordination number
-        of a typical site. We use VoronoiNN to determine the
+        of a typical site. We use VoronoiNN by default to determine the
         coordination number of bulk sites and slab sites. Due to the
         pathological error resulting from some surface sites in the
         VoronoiNN, we assume any site that has this error is a surface
@@ -545,6 +546,8 @@ class Slab(Structure):
             Args:
                 tag (bool): Option to adds site attribute "is_surfsite" (bool)
                     to all sites of slab. Defaults to False
+                local_env (local_env method): The method to use for determining
+                    bonding topology. Defaults to VoronoiNN.
 
             Returns:
                 A dictionary grouping sites on top and bottom of the slab
@@ -559,14 +562,12 @@ class Slab(Structure):
             compound systems.
         """
 
-        from pymatgen.analysis.local_env import VoronoiNN
-
         # Get a dictionary of coordination numbers
         # for each distinct site in the structure
         a = SpacegroupAnalyzer(self.oriented_unit_cell)
         ucell = a.get_symmetrized_structure()
         cn_dict = {}
-        v = VoronoiNN()
+        v = local_env()
         unique_indices = [equ[0] for equ in ucell.equivalent_indices]
 
         for i in unique_indices:
@@ -582,7 +583,7 @@ class Slab(Structure):
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
-        v = VoronoiNN()
+        v = local_env()
 
         surf_sites_dict, properties = {"top": [], "bottom": []}, []
         for i, site in enumerate(self):
@@ -659,7 +660,7 @@ class Slab(Structure):
         Arg:
             specie (str): The specie to add
             point (coords): The coordinate of the site in the slab to add.
-            coords_are_cartesian (bool): Is the point in cartesian coordinates
+            coords_are_cartesian (bool): Is the point in Cartesian coordinates
 
         Returns:
             (Slab): The modified slab
@@ -1920,11 +1921,11 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp
         lattice (list or Lattice): A 3x3 lattice matrix or `Lattice` object (for
             example obtained from Structure.lattice).
         coords (iterable): A list or numpy array of coordinates. Can be
-            cartesian or fractional coordinates. If more than three sets of
+            Cartesian or fractional coordinates. If more than three sets of
             coordinates are provided, the best plane that minimises the
             distance to all sites will be calculated.
         coords_are_cartesian (bool, optional): Whether the coordinates are
-            in cartesian space. If using fractional coordinates set to False.
+            in Cartesian space. If using fractional coordinates set to False.
         round_dp (int, optional): The number of decimal places to round the
             miller index to.
         verbose (bool, optional): Whether to print warnings.

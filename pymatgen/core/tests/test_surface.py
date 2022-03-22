@@ -8,6 +8,7 @@ import unittest
 
 import numpy as np
 
+from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -178,6 +179,12 @@ class SlabTest(PymatgenTest):
             self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
             total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
             self.assertTrue(slab.is_symmetric())
+            self.assertEqual(total_surf_sites / 2, 4)
+
+            # Now try different NN algo
+            surf_sites_dict = slab.get_surface_sites(local_env=CrystalNN(porous_adustment=False))
+            self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
             self.assertEqual(total_surf_sites / 2, 4)
 
             # Test if the ratio of surface sites per area is
