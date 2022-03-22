@@ -1,5 +1,6 @@
 """Support for Abinit input variables."""
 import collections
+import collections.abc
 import string
 
 import numpy as np
@@ -234,7 +235,7 @@ def flatten(iterable):
                 return tuple(array)
             iterator = stack.pop()
         else:
-            if not isinstance(value, str) and isinstance(value, collections.Iterable):
+            if not isinstance(value, str) and isinstance(value, collections.abc.Iterable):
                 stack.append(iterator)
                 iterator = iter(value)
             else:
