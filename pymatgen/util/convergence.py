@@ -232,8 +232,6 @@ def p0_simple_reciprocal(xs, ys):
     Returns:
 
     """
-    # b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
-    # a = ys[1] - b / xs[1]
     b = (ys[-1] - ys[-2]) / (1 / (xs[-1]) - 1 / (xs[-2]))
     a = ys[-2] - b / (xs[-2])
     return [a, b]

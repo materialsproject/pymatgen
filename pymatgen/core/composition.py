@@ -325,20 +325,17 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def fractional_composition(self) -> Composition:
         """
-        Returns the normalized composition which the number of species sum to
+        Returns the normalized composition in which the amounts of each species sum to
         1.
-
-        Returns:
-            Normalized composition which the number of species sum to 1.
+        E.g. "Fe2 O3".fractional_composition = "Fe0.4 O0.6".
         """
         return self / self._natoms
 
     @property
     def reduced_composition(self) -> Composition:
         """
-        Returns the reduced composition,i.e. amounts normalized by greatest
-        common denominator. e.g., Composition("FePO4") for
-        Composition("Fe4P4O16").
+        Returns the reduced composition, i.e. amounts normalized by greatest common denominator.
+        E.g. "Fe4 P4 O16".reduced_composition = "Fe P O4".
         """
         return self.get_reduced_composition_and_factor()[0]
 
@@ -640,13 +637,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def get_el_amt_dict(self) -> dict[str, float]:
         """
         Returns:
-            Dict with element symbol and (unreduced) amount e.g.,
+            dict[str, float]: element symbol and (unreduced) amount. E.g.
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d: dict[str, float] = collections.defaultdict(float)
-        for e, a in self.items():
-            d[e.symbol] += a
-        return d
+        dic: dict[str, float] = collections.defaultdict(float)
+        for el, amt in self.items():
+            dic[el.symbol] += amt
+        return dic
 
     def as_dict(self) -> dict[str, float]:
         """

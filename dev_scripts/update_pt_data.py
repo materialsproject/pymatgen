@@ -187,7 +187,6 @@ def parse_shannon_radii():
             spin = sheet[f"D{int(i)}"].value
         else:
             spin = ""
-        # print("%s - %d - %s" % (el, charge, cn))
 
         radii[el][charge][cn][spin] = {
             "crystal_radius": float(sheet[f"E{int(i)}"].value),
