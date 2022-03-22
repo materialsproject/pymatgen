@@ -2060,10 +2060,11 @@ class IStructure(SiteCollection, MSONable):
                     # satisfy the restriction condition
                     p_latt, s_latt = p.lattice, self.lattice
                     if type(constrain_latt).__name__ == "list":
-                        if all(getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt):
+                        if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict":
-                        if all(getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()):  # type: ignore
+                        if all(getattr(p_latt, pp) == constrain_latt[pp]
+                               for pp in constrain_latt.keys()):  # type: ignore
                             return p
 
         return self.copy()
