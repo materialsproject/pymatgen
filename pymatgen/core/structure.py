@@ -830,8 +830,7 @@ class IStructure(SiteCollection, MSONable):
 
         if not spg.is_compatible(latt):
             raise ValueError(
-                "Supplied lattice with parameters %s is incompatible with "
-                "supplied spacegroup %s!" % (latt.parameters, spg.symbol)
+                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup {spg.symbol}!"
             )
 
         if len(species) != len(coords):
@@ -925,8 +924,7 @@ class IStructure(SiteCollection, MSONable):
 
         if not msg.is_compatible(latt):
             raise ValueError(
-                "Supplied lattice with parameters %s is incompatible with "
-                "supplied spacegroup %s!" % (latt.parameters, msg.sg_symbol)
+                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup {msg.sg_symbol}!"
             )
 
         if len(species) != len(coords):
@@ -1793,20 +1791,14 @@ class IStructure(SiteCollection, MSONable):
                     unmapped_start_ind.append(i)
 
             if len(unmapped_start_ind) > 1:
-                raise ValueError(
-                    "Unable to reliably match structures "
-                    "with auto_sort_tol = %f. unmapped indices "
-                    "= %s" % (autosort_tol, unmapped_start_ind)
-                )
+                raise ValueError(f"Unable to reliably match structures with {autosort_tol = }, {unmapped_start_ind = }")
 
             sorted_end_coords = np.zeros_like(end_coords)
             matched = []
             for i, j in site_mappings.items():
                 if len(j) > 1:
                     raise ValueError(
-                        "Unable to reliably match structures "
-                        "with auto_sort_tol = %f. More than one "
-                        "site match!" % autosort_tol
+                        f"Unable to reliably match structures with auto_sort_tol = {autosort_tol}. More than one site match!"
                     )
                 sorted_end_coords[i] = end_coords[j[0]]
                 matched.append(j[0])
@@ -2595,8 +2587,7 @@ class IMolecule(SiteCollection, MSONable):
         if spin_multiplicity:
             if (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    "Charge of %d and spin multiplicity of %d is"
-                    " not possible for this molecule" % (self._charge, spin_multiplicity)
+                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for this molecule"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:

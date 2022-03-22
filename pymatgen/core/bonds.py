@@ -6,14 +6,16 @@ This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
 """
 
+from __future__ import annotations
+
 import collections
 import json
 import os
 import warnings
-from typing import Optional
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import Site
+from pymatgen.util.typing import SpeciesLike
 
 
 def _load_bond_length_data():
@@ -52,7 +54,7 @@ class CovalentBond:
         """
         return self.site1.distance(self.site2)
 
-    def get_bond_order(self, tol: float = 0.2, default_bl: Optional[float] = None) -> float:
+    def get_bond_order(self, tol: float = 0.2, default_bl: float | None = None) -> float:
         """
         The bond order according the distance between the two sites
         Args:
@@ -75,9 +77,7 @@ class CovalentBond:
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
     @staticmethod
-    def is_bonded(
-        site1, site2, tol: float = 0.2, bond_order: Optional[float] = None, default_bl: Optional[float] = None
-    ):
+    def is_bonded(site1, site2, tol: float = 0.2, bond_order: float | None = None, default_bl: float | None = None):
         """
         Test if two sites are bonded, up to a certain limit.
         Args:
@@ -117,7 +117,7 @@ class CovalentBond:
         return self.__repr__()
 
 
-def obtain_all_bond_lengths(sp1, sp2, default_bl: Optional[float] = None):
+def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
     """
     Obtain bond lengths for all bond orders from bond length database
 
@@ -143,7 +143,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl: Optional[float] = None):
     raise ValueError("No bond data for elements {} - {}".format(*syms))
 
 
-def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: Optional[float] = None):
+def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | None = None):
     """
     Calculate the bond order given the distance of 2 species
 
@@ -185,7 +185,7 @@ def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: Optional
     return trial_bond_order - 1
 
 
-def get_bond_length(sp1, sp2, bond_order: float = 1):
+def get_bond_length(sp1: SpeciesLike, sp2: SpeciesLike, bond_order: float = 1) -> float:
     """
     Get the bond length between two species.
 
@@ -213,7 +213,7 @@ def get_bond_length(sp1, sp2, bond_order: float = 1):
     # not exist. In both cases, sum of atomic radius is returned.
     except (ValueError, KeyError):
         warnings.warn(
-            "No order %d bond lengths between %s and %s found in "
-            "database. Returning sum of atomic radius." % (bond_order, sp1, sp2)
+            f"No order {bond_order} bond lengths between {sp1} and {sp2} found in "
+            "database. Returning sum of atomic radius."
         )
-        return sp1.atomic_radius + sp2.atomic_radius
+        return sp1.atomic_radius + sp2.atomic_radius  # type: ignore

@@ -208,9 +208,8 @@ class ElementBase(Enum):
         if "X" in self._data:
             return self._data["X"]
         warnings.warn(
-            "No electronegativity for %s. Setting to NaN. "
-            "This has no physical meaning, and is mainly done to "
-            "avoid errors caused by the code expecting a float." % self.symbol
+            f"No electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
+            "and is mainly done to avoid errors caused by the code expecting a float."
         )
         return float("NaN")
 

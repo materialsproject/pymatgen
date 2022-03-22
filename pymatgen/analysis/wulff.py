@@ -625,7 +625,7 @@ class WulffShape:
             z=[0],
             colorbar=go.ColorBar(
                 title={
-                    "text": r"Surface energy %s" % units,
+                    "text": f"Surface energy {units}",
                     "side": "right",
                     "font": {"size": 25},
                 },
