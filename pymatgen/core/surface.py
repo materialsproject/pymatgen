@@ -31,7 +31,7 @@ from monty.fractions import lcm
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
-from pymatgen.analysis.local_env import VoronoiNN
+from pymatgen.analysis.local_env import NearNeighbors, VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
@@ -532,7 +532,7 @@ class Slab(Structure):
             energy=d["energy"],
         )
 
-    def get_surface_sites(self, tag=False, local_env=VoronoiNN):
+    def get_surface_sites(self, tag: bool = False, local_env: NearNeighbors = VoronoiNN):
         """
         Returns the surface sites and their indices in a dictionary. The
         oriented unit cell of the slab will determine the coordination number
@@ -546,7 +546,7 @@ class Slab(Structure):
             Args:
                 tag (bool): Option to adds site attribute "is_surfsite" (bool)
                     to all sites of slab. Defaults to False
-                local_env (local_env method): The method to use for determining
+                local_env (NearNeighbors): The method to use for determining
                     bonding topology. Defaults to VoronoiNN.
 
             Returns:
