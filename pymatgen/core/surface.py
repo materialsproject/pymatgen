@@ -25,6 +25,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd
+from typing import Type
 
 import numpy as np
 from monty.fractions import lcm
@@ -532,7 +533,7 @@ class Slab(Structure):
             energy=d["energy"],
         )
 
-    def get_surface_sites(self, tag: bool = False, local_env: NearNeighbors = VoronoiNN):
+    def get_surface_sites(self, tag: bool = False, local_env: Type[NearNeighbors] = VoronoiNN):
         """
         Returns the surface sites and their indices in a dictionary. The
         oriented unit cell of the slab will determine the coordination number
