@@ -38,6 +38,8 @@ The above are recommendations. The following are UNBREAKABLE rules:
    ensures the as_dict and from_dict work correctly.
 """
 
+from __future__ import annotations
+
 import abc
 import glob
 import itertools
@@ -48,7 +50,7 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import List, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -638,7 +640,7 @@ class DictSet(VaspInputSet):
         return nelect
 
     @property
-    def kpoints(self) -> Union[Kpoints, None]:
+    def kpoints(self) -> Kpoints | None:
         """
         Returns a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
@@ -753,15 +755,15 @@ class DictSet(VaspInputSet):
             with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
 
-    def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
+    def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> tuple:
         """
         Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
 
         Args:
             max_prime_factor (int): the valid prime factors of the grid size in each direction
-                                    VASP has many different setting for this to handle many compiling options.
-                                    For typical MPI options all prime factors up to 7 are allowed
+                VASP has many different setting for this to handle many compiling options.
+                For typical MPI options all prime factors up to 7 are allowed
         """
 
         # TODO throw error for Ultrasoft potentials
@@ -839,7 +841,7 @@ def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool 
     raise ValueError("No factorable number found, not possible.")
 
 
-def primes_less_than(max_val: int) -> List[int]:
+def primes_less_than(max_val: int) -> list[int]:
     """
     Get the primes less than or equal to the max value
     """
@@ -1161,7 +1163,7 @@ class MPStaticSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Optional[Kpoints]:
+    def kpoints(self) -> Kpoints | None:
         """
         :return: Kpoints
         """
@@ -1622,7 +1624,7 @@ class MPNonSCFSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Optional[Kpoints]:
+    def kpoints(self) -> Kpoints | None:
         """
         :return: Kpoints
         """

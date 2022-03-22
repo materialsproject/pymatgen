@@ -5,9 +5,11 @@
 This module implements the Zur and McGill lattice matching algorithm
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from itertools import product
-from typing import Iterator, List
+from typing import Iterator
 
 import numpy as np
 from monty.json import MSONable
@@ -22,12 +24,12 @@ class ZSLMatch(MSONable):
     the appropriate transformation matrix
     """
 
-    film_sl_vectors: List
-    substrate_sl_vectors: List
-    film_vectors: List
-    substrate_vectors: List
-    film_transformation: List
-    substrate_transformation: List
+    film_sl_vectors: list
+    substrate_sl_vectors: list
+    film_vectors: list
+    substrate_vectors: list
+    film_transformation: list
+    substrate_transformation: list
 
     @property
     def match_area(self):

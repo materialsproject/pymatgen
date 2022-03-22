@@ -11,18 +11,19 @@ from shutil import which
 from subprocess import PIPE, Popen
 
 import numpy as np
+from monty.dev import deprecated
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
 
 try:
     from openbabel import pybel as pb
 except ImportError:
     pb = None
-
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
@@ -170,6 +171,7 @@ class Polymer:
             self.end += len(self.monomer)
 
 
+@deprecated(PackmolBoxGen, "PackmolRunner is being phased out in favor of the packmol I/O class.")
 class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of

@@ -5,8 +5,10 @@
 This module implements reading and writing of ShengBTE CONTROL files.
 """
 
+from __future__ import annotations
+
 import warnings
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 from monty.dev import requires
@@ -82,7 +84,7 @@ class Control(MSONable, dict):
         "espresso",
     ]
 
-    def __init__(self, ngrid: Optional[List[int]] = None, temperature: Union[float, Dict[str, float]] = 300, **kwargs):
+    def __init__(self, ngrid: list[int] | None = None, temperature: float | dict[str, float] = 300, **kwargs):
         """
         Args:
             ngrid: Reciprocal space grid density as a list of 3 ints.
@@ -143,7 +145,7 @@ class Control(MSONable, dict):
         nml = f90nml.read(filepath)
         sdict = nml.todict()
 
-        all_dict: Dict[str, Any] = {}
+        all_dict: dict[str, Any] = {}
         all_dict.update(sdict["allocations"])
         all_dict.update(sdict["crystal"])
         all_dict.update(sdict["parameters"])
@@ -153,7 +155,7 @@ class Control(MSONable, dict):
         return cls.from_dict(all_dict)
 
     @classmethod
-    def from_dict(cls, control_dict: Dict):
+    def from_dict(cls, control_dict: dict):
         """
         Write a CONTROL file from a Python dictionary. Description and default
         parameters can be found at
@@ -202,7 +204,7 @@ class Control(MSONable, dict):
             file.write(control_str)
 
     @classmethod
-    def from_structure(cls, structure: Structure, reciprocal_density: Optional[int] = 50000, **kwargs):
+    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs):
         """
         Get a ShengBTE control object from a structure.
 

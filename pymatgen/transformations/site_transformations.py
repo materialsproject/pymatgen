@@ -34,7 +34,7 @@ class InsertSitesTransformation(AbstractTransformation):
             coords: A list of coords corresponding to those species. e.g.,
                 [[0,0,0],[0.5,0.5,0.5]].
             coords_are_cartesian (bool): Set to True if coords are given in
-                cartesian coords. Defaults to False.
+                Cartesian coords. Defaults to False.
             validate_proximity (bool): Set to False if you do not wish to ensure
                 that added sites are not too close to other sites. Defaults to True.
         """

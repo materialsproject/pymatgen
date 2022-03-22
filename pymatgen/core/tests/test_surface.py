@@ -90,7 +90,7 @@ class SlabTest(PymatgenTest):
         self.assertEqual(len(zno_slab), 8)
 
         # check reorient_lattice. get a slab not oriented and check that orientation
-        # works even with cartesian coordinates.
+        # works even with Cartesian coordinates.
         zno_not_or = SlabGenerator(
             self.zno1,
             [1, 0, 0],

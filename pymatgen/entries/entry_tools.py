@@ -6,6 +6,7 @@ This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
+from __future__ import annotations
 
 import collections
 import csv
@@ -14,7 +15,7 @@ import itertools
 import json
 import logging
 import re
-from typing import Iterable, List, Set, Union
+from typing import Iterable, List, Set
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -203,7 +204,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(self, entries: Iterable[Union[PDEntry, ComputedEntry, ComputedStructureEntry]]):
+    def __init__(self, entries: Iterable[PDEntry | ComputedEntry | ComputedStructureEntry]):
         """
         Args:
             entries: All the entries.
@@ -271,7 +272,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         return entry in self.ground_states
 
-    def get_subset_in_chemsys(self, chemsys: List[str]):
+    def get_subset_in_chemsys(self, chemsys: list[str]):
         """
         Returns an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
