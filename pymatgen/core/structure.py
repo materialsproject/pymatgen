@@ -830,7 +830,8 @@ class IStructure(SiteCollection, MSONable):
 
         if not spg.is_compatible(latt):
             raise ValueError(
-                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup {spg.symbol}!"
+                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup "
+                f"{spg.symbol}!"
             )
 
         if len(species) != len(coords):
@@ -848,7 +849,7 @@ class IStructure(SiteCollection, MSONable):
         for i, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
-            all_coords.extend(cc)
+            all_coords.extend(cc)  # type: ignore
             for k, v in props.items():
                 all_site_properties[k].extend([v[i]] * len(cc))
 
@@ -924,7 +925,8 @@ class IStructure(SiteCollection, MSONable):
 
         if not msg.is_compatible(latt):
             raise ValueError(
-                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup {msg.sg_symbol}!"
+                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup "
+                f"{msg.sg_symbol}!"
             )
 
         if len(species) != len(coords):
@@ -1663,7 +1665,7 @@ class IStructure(SiteCollection, MSONable):
             return self.__class__(  # type: ignore
                 reduced_latt,
                 self.species_and_occu,
-                self.cart_coords,
+                self.cart_coords,  # type: ignore
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
@@ -1798,7 +1800,8 @@ class IStructure(SiteCollection, MSONable):
             for i, j in site_mappings.items():
                 if len(j) > 1:
                     raise ValueError(
-                        f"Unable to reliably match structures with auto_sort_tol = {autosort_tol}. More than one site match!"
+                        f"Unable to reliably match structures with auto_sort_tol = {autosort_tol}. "
+                        "More than one site match!"
                     )
                 sorted_end_coords[i] = end_coords[j[0]]
                 matched.append(j[0])
@@ -2580,7 +2583,7 @@ class IMolecule(SiteCollection, MSONable):
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
-            raise StructureError(("Molecule contains sites that are ", "less than 0.01 Angstrom apart!"))
+            raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
 
         self._charge = charge
         nelectrons = 0.0
@@ -2593,7 +2596,8 @@ class IMolecule(SiteCollection, MSONable):
         if spin_multiplicity:
             if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for this molecule"
+                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for "
+                    "this molecule!"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:
