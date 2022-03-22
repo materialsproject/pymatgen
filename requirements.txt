@@ -1,5 +1,5 @@
-numpy==1.22.2
-sympy==1.9
+numpy==1.22.3
+sympy==1.10.1
 requests==2.26.0
 monty==2022.3.12
 ruamel.yaml==0.17.21
@@ -9,7 +9,7 @@ matplotlib==3.5.1
 palettable==3.3.0
 spglib==1.16.3
 pandas==1.4.1
-networkx==2.6.3
+networkx==2.7.1
 plotly==5.4.0
 beautifulsoup4==4.10.0
 uncertainties==3.1.6
