@@ -110,7 +110,7 @@ class SpacegroupAnalyzer:
         Get the SpacegroupOperations for the Structure.
 
         Returns:
-            SpacgroupOperations object.
+            SpacegroupOperations object.
         """
         return SpacegroupOperations(
             self.get_space_group_symbol(),

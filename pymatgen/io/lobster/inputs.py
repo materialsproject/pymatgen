@@ -502,9 +502,9 @@ class Lobsterin(dict, MSONable):
             newlist = [list(gp) for gp in list(grid)]
             mapping = []
             for gp in newlist:
-                minusgp = [-k for k in gp]
-                if minusgp in newlist and minusgp not in [[0, 0, 0]]:
-                    mapping.append(newlist.index(minusgp))
+                minus_gp = [-k for k in gp]
+                if minus_gp in newlist and minus_gp not in [[0, 0, 0]]:
+                    mapping.append(newlist.index(minus_gp))
                 else:
                     mapping.append(newlist.index(gp))
 

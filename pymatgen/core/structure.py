@@ -819,19 +819,19 @@ class IStructure(SiteCollection, MSONable):
 
         try:
             i = int(sg)
-            sgp = SpaceGroup.from_int_number(i)
+            spg = SpaceGroup.from_int_number(i)
         except ValueError:
-            sgp = SpaceGroup(sg)
+            spg = SpaceGroup(sg)
 
         if isinstance(lattice, Lattice):
             latt = lattice
         else:
             latt = Lattice(lattice)
 
-        if not sgp.is_compatible(latt):
+        if not spg.is_compatible(latt):
             raise ValueError(
                 "Supplied lattice with parameters %s is incompatible with "
-                "supplied spacegroup %s!" % (latt.parameters, sgp.symbol)
+                "supplied spacegroup %s!" % (latt.parameters, spg.symbol)
             )
 
         if len(species) != len(coords):
@@ -847,7 +847,7 @@ class IStructure(SiteCollection, MSONable):
         all_coords = []  # type: List[List[float]]
         all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
         for i, (sp, c) in enumerate(zip(species, frac_coords)):
-            cc = sgp.get_orbit(c, tol=tol)
+            cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
             for k, v in props.items():
