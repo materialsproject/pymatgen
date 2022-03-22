@@ -476,7 +476,8 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) idebug setgap shiftgap \n"
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "

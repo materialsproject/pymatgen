@@ -2063,8 +2063,9 @@ class IStructure(SiteCollection, MSONable):
                         if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict":
-                        if all(getattr(p_latt, pp) == constrain_latt[pp]
-                               for pp in constrain_latt.keys()):  # type: ignore
+                        if all(
+                            getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt.keys()  # type: ignore
+                        ):
                             return p
 
         return self.copy()
