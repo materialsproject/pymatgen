@@ -272,13 +272,13 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient.
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
                 he First index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
@@ -386,13 +386,13 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
                 he First index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we

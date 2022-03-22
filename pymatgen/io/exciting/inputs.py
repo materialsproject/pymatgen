@@ -241,7 +241,7 @@ class ExcitingInput(MSONable):
                     new_struct[j].frac_coords[1],
                     new_struct[j].frac_coords[2],
                 )
-                # obtain cartesian coords from fractional ones if needed
+                # obtain Cartesian coords from fractional ones if needed
                 if cartesian:
                     coord2 = []
                     for k in range(3):
