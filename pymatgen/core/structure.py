@@ -2531,9 +2531,10 @@ class IMolecule(SiteCollection, MSONable):
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
         charge: float = 0.0,
-        spin_multiplicity: float = None,
+        spin_multiplicity: int = None,
         validate_proximity: bool = False,
         site_properties: dict = None,
+        charge_spin_check: bool = True,
     ):
         """
         Creates a Molecule.
@@ -2555,6 +2556,9 @@ class IMolecule(SiteCollection, MSONable):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            charge_spin_check (bool): Whether to check that the charge and
+                spin multiplicity are compatible with each other. Defaults
+                to True.
         """
         if len(species) != len(coords):
             raise StructureError(
@@ -2564,6 +2568,8 @@ class IMolecule(SiteCollection, MSONable):
                     "coordinates.",
                 )
             )
+
+        self._charge_spin_check = charge_spin_check
 
         sites = []
         for i, _ in enumerate(species):
@@ -2585,7 +2591,7 @@ class IMolecule(SiteCollection, MSONable):
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
-            if (nelectrons + spin_multiplicity) % 2 != 1:
+            if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
                     f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for this molecule"
                 )
@@ -2636,7 +2642,12 @@ class IMolecule(SiteCollection, MSONable):
 
     @classmethod
     def from_sites(
-        cls, sites: Sequence[Site], charge: float = 0, spin_multiplicity: float = None, validate_proximity: bool = False
+        cls,
+        sites: Sequence[Site],
+        charge: float = 0,
+        spin_multiplicity: int = None,
+        validate_proximity: bool = False,
+        charge_spin_check: bool = True,
     ) -> IMolecule | Molecule:
         """
         Convenience constructor to make a Molecule from a list of sites.
@@ -2648,6 +2659,9 @@ class IMolecule(SiteCollection, MSONable):
                 in which it is determined automatically.
             validate_proximity (bool): Whether to check that atoms are too
                 close.
+            charge_spin_check (bool): Whether to check that the charge and
+                spin multiplicity are compatible with each other. Defaults
+                to True.
         """
         props = collections.defaultdict(list)
         for site in sites:
@@ -2660,6 +2674,7 @@ class IMolecule(SiteCollection, MSONable):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=props,
+            charge_spin_check=charge_spin_check,
         )
 
     def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> tuple[IMolecule | Molecule, ...]:
@@ -2998,6 +3013,7 @@ class IMolecule(SiteCollection, MSONable):
             charge=self._charge,
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
+            charge_spin_check=self._charge_spin_check,
         )
 
     def to(self, fmt=None, filename=None):
@@ -3805,9 +3821,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         species: Sequence[SpeciesLike],
         coords: Sequence[ArrayLike],
         charge: float = 0.0,
-        spin_multiplicity: float = None,
+        spin_multiplicity: int = None,
         validate_proximity: bool = False,
         site_properties: dict = None,
+        charge_spin_check: bool = True,
     ) -> None:
         """
         Creates a MutableMolecule.
@@ -3829,6 +3846,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            charge_spin_check (bool): Whether to check that the charge and
+                spin multiplicity are compatible with each other. Defaults
+                to True.
         """
         super().__init__(
             species,
@@ -3837,6 +3857,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties,
+            charge_spin_check=charge_spin_check,
         )
         self._sites: list[Site] = list(self._sites)  # type: ignore
 
@@ -3914,7 +3935,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def set_charge_and_spin(self, charge: float, spin_multiplicity: float | None = None):
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: int | None = None):
         """
         Set the charge and spin multiplicity.
 
@@ -3934,7 +3955,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
-            if (nelectrons + spin_multiplicity) % 2 != 1:
+            if self._charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
                     "Charge of {} and spin multiplicity of {} is"
                     " not possible for this molecule".format(self._charge, spin_multiplicity)
