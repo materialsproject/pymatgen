@@ -246,6 +246,7 @@ class SpaceGroup(SymmetryGroup):
                 classmethod. Alternative origin choices can be indicated by a
                 translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
+        from pymatgen.core.operations import SymmOp
 
         int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
