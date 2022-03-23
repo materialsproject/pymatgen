@@ -760,7 +760,6 @@ class KSampling(AbivarAble, MSONable):
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1, 3))
-            # print("in path with kptbound: %s " % kptbounds)
 
             abivars.update(
                 {
