@@ -360,6 +360,8 @@ class SpaceGroup(SymmetryGroup):
         Full set of symmetry operations as matrices. Lazily initialized as
         generation sometimes takes a bit of time.
         """
+        from pymatgen.core.operations import SymmOp
+
         if self._symmetry_ops is None:
             self._symmetry_ops = {SymmOp(m) for m in self._generate_full_symmetry_ops()}
         return self._symmetry_ops
