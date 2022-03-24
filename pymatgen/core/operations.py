@@ -5,6 +5,8 @@
 This module provides classes that operate on points or vectors in 3D space.
 """
 
+from __future__ import annotations
+
 import re
 import string
 import warnings
@@ -197,7 +199,7 @@ class SymmOp(MSONable):
         return SymmOp(new_matrix)
 
     @property
-    def inverse(self) -> "SymmOp":
+    def inverse(self) -> SymmOp:
         """
         Returns inverse of transformation.
         """
@@ -207,7 +209,7 @@ class SymmOp(MSONable):
     @staticmethod
     def from_axis_angle_and_translation(
         axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0)
-    ) -> "SymmOp":
+    ) -> SymmOp:
         """
         Generates a SymmOp for a rotation about a given axis plus translation.
 
@@ -247,7 +249,7 @@ class SymmOp(MSONable):
     @staticmethod
     def from_origin_axis_angle(
         origin: ArrayLike, axis: ArrayLike, angle: float, angle_in_radians: bool = False
-    ) -> "SymmOp":
+    ) -> SymmOp:
         """
         Generates a SymmOp for a rotation about a given axis through an
         origin.
@@ -320,7 +322,7 @@ class SymmOp(MSONable):
         )
 
     @staticmethod
-    def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> "SymmOp":
+    def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
         """
         Returns reflection symmetry operation.
 
@@ -354,7 +356,7 @@ class SymmOp(MSONable):
         return SymmOp(mirror_mat)
 
     @staticmethod
-    def inversion(origin: ArrayLike = (0, 0, 0)) -> "SymmOp":
+    def inversion(origin: ArrayLike = (0, 0, 0)) -> SymmOp:
         """
         Inversion symmetry operation about axis.
 
@@ -371,7 +373,7 @@ class SymmOp(MSONable):
         return SymmOp(mat)
 
     @staticmethod
-    def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> "SymmOp":
+    def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
         """
         Returns a roto-reflection symmetry operation
 
@@ -412,7 +414,7 @@ class SymmOp(MSONable):
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
     @staticmethod
-    def from_xyz_string(xyz_string: str) -> "SymmOp":
+    def from_xyz_string(xyz_string: str) -> SymmOp:
         """
         Args:
             xyz_string: string of the form 'x, y, z', '-x, -y, z',
@@ -441,7 +443,7 @@ class SymmOp(MSONable):
         return SymmOp.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, d) -> "SymmOp":
+    def from_dict(cls, d) -> SymmOp:
         """
         :param d: dict
         :return: SymmOp from dict representation.
@@ -527,7 +529,7 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symmop, time_reversal) -> "MagSymmOp":
+    def from_symmop(cls, symmop, time_reversal) -> MagSymmOp:
         """
         Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
@@ -547,7 +549,7 @@ class MagSymmOp(SymmOp):
         translation_vec: ArrayLike = (0, 0, 0),
         time_reversal: int = 1,
         tol: float = 0.1,
-    ) -> "MagSymmOp":
+    ) -> MagSymmOp:
         """
         Creates a symmetry operation from a rotation matrix, translation
         vector and time reversal operator.
@@ -567,7 +569,7 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symmop, time_reversal)
 
     @staticmethod
-    def from_xyzt_string(xyzt_string: str) -> "MagSymmOp":
+    def from_xyzt_string(xyzt_string: str) -> MagSymmOp:
         """
         Args:
             xyz_string: string of the form 'x, y, z, +1', '-x, -y, z, -1',
@@ -603,7 +605,7 @@ class MagSymmOp(SymmOp):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "MagSymmOp":
+    def from_dict(cls, d: dict) -> MagSymmOp:
         """
         :param d: dict
         :return: MagneticSymmOp from dict representation.
