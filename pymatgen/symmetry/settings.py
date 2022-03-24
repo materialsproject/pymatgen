@@ -12,7 +12,7 @@ from fractions import Fraction
 
 import numpy as np
 
-from pymatgen.core import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
 
