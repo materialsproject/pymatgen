@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2022.3.24
+----------
+* Emergency bugfix release to fix circular import (@janosh)
+
 v2022.3.22
 ----------
 * Support kwargs for ASE adaptor. (@arosen93)
