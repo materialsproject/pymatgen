@@ -206,7 +206,7 @@ class BalancedReaction(MSONable):
             elif amt > cls.TOLERANCE:
                 product_str.append(f"{amt:.4g} {formula}")
 
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+        return f"{' + '.join(reactant_str)} -> {' + '.join(product_str)}"
 
     @classmethod
     def _str_from_comp(cls, coeffs, compositions, reduce=False):

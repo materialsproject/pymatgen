@@ -5,6 +5,8 @@
 This module provides classes for calculating the ewald sum of a structure.
 """
 
+from __future__ import annotations
+
 import bisect
 from copy import copy, deepcopy
 from datetime import datetime
@@ -469,7 +471,7 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> "EwaldSummation":
+    def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON serialized dictionary.
 
         Args:

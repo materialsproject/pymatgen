@@ -7,7 +7,7 @@ This module provides
 from collections import namedtuple
 
 from monty.functools import lazy_property
-from monty.json import MSONable  # , MontyEncoder
+from monty.json import MSONable
 from monty.string import is_string
 
 from pymatgen.core.libxcfunc import LibxcFunc
