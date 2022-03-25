@@ -50,8 +50,7 @@ def average_coordination_number(structures, freq=10):
             cn = vnn.get_cn(s, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
-    for el in coordination_numbers:
-        coordination_numbers[el] = coordination_numbers[el] / elements[el] / count
+    coordination_numbers = {el: v / elements[el] / count for el, v in coordination_numbers.items()}
     return coordination_numbers
 
 

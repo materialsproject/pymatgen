@@ -150,6 +150,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         sections, info, cpu_time, wall_time = None, None, None, None
         data = {}
+        parser_failed = False
         inside, has_timer = 0, False
         for line in fh:
             # print(line.strip())

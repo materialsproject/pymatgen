@@ -207,8 +207,8 @@ class LMTOCtrl:
                     struc_lines[cat].append(line)
                 else:
                     pass
-        for cat in struc_lines:
-            struc_lines[cat] = " ".join(struc_lines[cat]).replace("= ", "=")
+
+        struc_lines = {k: " ".join(v).replace("= ", "=") for k, v in struc_lines.items()}
 
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
