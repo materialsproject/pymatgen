@@ -682,7 +682,7 @@ class ReactionDiagramTest(unittest.TestCase):
             self.assertIn(Element.C, e.composition)
             self.assertIn(Element.P, e.composition)
             self.assertIn(Element.H, e.composition)
-        formed_formula = [e.composition.reduced_formula for e in self.rd.rxn_entries]
+        [e.composition.reduced_formula for e in self.rd.rxn_entries]
         expected_formula = [
             "V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829",
             "V0.125P0.125H0.05C0.0375O0.6625",
