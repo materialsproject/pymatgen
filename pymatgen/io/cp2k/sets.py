@@ -17,12 +17,14 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
+from __future__ import annotations
+
 import itertools
 import os
 import warnings
 from pathlib import Path
 
-from ruamel import yaml
+from ruamel.yaml import YAML
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -71,7 +73,8 @@ __date__ = "March 2022"
 MODULE_DIR = Path(__file__).resolve().parent
 
 with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
-    SETTINGS = yaml.load(f, Loader=yaml.Loader)
+    yaml = YAML(typ="unsafe", pure=True)
+    SETTINGS = yaml.load(f)
 
 
 class Cp2kInputSet(Cp2kInput):

@@ -20,6 +20,8 @@ A quick overview of the module:
    sections easier.
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import os
