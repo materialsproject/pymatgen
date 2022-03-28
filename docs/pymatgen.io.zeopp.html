@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.zeopp module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.io.zeopp module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -140,7 +140,7 @@ is not installed. But there should be no errors.</p></li>
 </ol>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.ZeoCssr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeoCssr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L57-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeoCssr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L57-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.io.cssr.html#pymatgen.io.cssr.Cssr" title="pymatgen.io.cssr.Cssr"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cssr.Cssr</span></code></a></p>
 <p>ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
 input CSSR format. The coordinate system is rotated from xyz to zyx.
@@ -153,7 +153,7 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.ZeoCssr.from_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L147-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L147-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Reads a CSSR file to a ZeoCssr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -167,7 +167,7 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.ZeoCssr.from_string">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L109-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L109-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Reads a string representation to a ZeoCssr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -183,7 +183,7 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.ZeoVoronoiXYZ">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeoVoronoiXYZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L162-L230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeoVoronoiXYZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L162-L230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.io.xyz.html#pymatgen.io.xyz.XYZ" title="pymatgen.io.xyz.XYZ"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.xyz.XYZ</span></code></a></p>
 <p>Class to read Voronoi Nodes from XYZ file written by Zeo++.
 The sites have an additional column representing the voronoi node radius.
@@ -195,7 +195,7 @@ The voronoi node radius is represented by the site property voronoi_radius.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L203-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L203-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Creates XYZ object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -209,7 +209,7 @@ The voronoi node radius is represented by the site property voronoi_radius.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L176-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L176-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Creates Zeo++ Voronoi XYZ object from a string.
 from_string method of XYZ class is being redefined.</p>
 <dl class="field-list simple">
@@ -226,7 +226,7 @@ from_string method of XYZ class is being redefined.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.get_free_sphere_params">
-<span class="sig-name descname"><span class="pre">get_free_sphere_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../../../monty/monty/dev.py#L391-L447"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_free_sphere_params" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_free_sphere_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../../../monty/monty/dev.py#L391-L447"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_free_sphere_params" title="Permalink to this definition"></a></dt>
 <dd><p>Analyze the void space in the input structure using voronoi decomposition
 Calls Zeo++ for Voronoi decomposition.</p>
 <dl class="field-list simple">
@@ -252,7 +252,7 @@ unit cell defined by the lattice of input structure</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes">
-<span class="sig-name descname"><span class="pre">get_high_accuracy_voronoi_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L329-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_high_accuracy_voronoi_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L329-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes" title="Permalink to this definition"></a></dt>
 <dd><p>Analyze the void space in the input structure using high accuracy
 voronoi decomposition.
 Calls Zeo++ for Voronoi decomposition.</p>
@@ -279,7 +279,7 @@ unit cell defined by the lattice of input structure</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.get_void_volume_surfarea">
-<span class="sig-name descname"><span class="pre">get_void_volume_surfarea</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/zeopp.py#L451-L507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_void_volume_surfarea" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_void_volume_surfarea</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/zeopp.py#L451-L507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_void_volume_surfarea" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the volume and surface area of isolated void using Zeo++.
 Useful to compute the volume and surface area of vacant site.</p>
 <dl class="field-list simple">
@@ -303,7 +303,7 @@ radii.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.zeopp.get_voronoi_nodes">
-<span class="sig-name descname"><span class="pre">get_voronoi_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../../../monty/monty/dev.py#L233-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_voronoi_nodes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_voronoi_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../../../monty/monty/dev.py#L233-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_voronoi_nodes" title="Permalink to this definition"></a></dt>
 <dd><p>Analyze the void space in the input structure using voronoi decomposition
 Calls Zeo++ for Voronoi decomposition.</p>
 <dl class="field-list simple">

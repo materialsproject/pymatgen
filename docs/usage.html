@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>Usage &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -73,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#compatibility-mixing-gga-and-gga-u-runs">Compatibility - Mixing GGA and GGA+U runs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-io-managing-calculation-inputs-and-outputs">pymatgen.io - Managing calculation inputs and outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#simple-example-making-a-phase-diagram">Simple example - Making a phase diagram</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#another-example-calculating-reaction-energies">Another example - Calculating reaction energies</a></li>
@@ -329,7 +330,7 @@ Molecules. For example, you can change any site simply with:</p>
 <span class="n">molecule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
 
 <span class="c1"># Change species and coordinates (fractional assumed for Structures,</span>
-<span class="c1"># cartesian for Molecules)</span>
+<span class="c1"># Cartesian for Molecules)</span>
 <span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
 <span class="n">molecule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.34</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
 
@@ -402,6 +403,40 @@ he should use the following procedure:</p>
 </pre></div>
 </div>
 </section>
+</section>
+<section id="pymatgen-io-managing-calculation-inputs-and-outputs">
+<h2>pymatgen.io - Managing calculation inputs and outputs<a class="headerlink" href="#pymatgen-io-managing-calculation-inputs-and-outputs" title="Permalink to this headline"></a></h2>
+<p>The <a class="reference internal" href="pymatgen.io.html#module-pymatgen.io" title="pymatgen.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io</span></code></a> module contains classes to facilitate writing input files
+and parsing output files from a variety of computational codes, including VASP,
+Q-Chem, LAMMPS, CP2K, AbInit, and many more.</p>
+<p>The core class for managing inputs is the <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>. An <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> object contains
+all the data necessary to write one or more input files for a calculation.
+Specifically, every <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> has a <cite>write_input()</cite> method that writes all the
+necessary files to a location you specify. There are also <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes
+that yield <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> with settings tailored to specific calculation types (for example,
+a structure relaxation). You can think of <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes as “recipes” for
+accomplishing specific computational tasks, while <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> contain those recipes
+applied to a specific system or structure.</p>
+<p>Custom settings can be provided to <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> on instantiation. For example,
+to construct an <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> for packing water molecules into a box using the Packmol
+code, while changing the packing tolerance from 2.0 (default) to 3.0:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.packmol</span> <span class="kn">import</span> <span class="n">PackmolBoxGen</span>
+
+<span class="n">input_gen</span> <span class="o">=</span> <span class="n">PackmolBoxGen</span><span class="p">(</span><span class="n">tolerance</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="n">packmol_set</span> <span class="o">=</span> <span class="n">input_gen</span><span class="o">.</span><span class="n">get_input_set</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+                                       <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+                                       <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/input/file.xyz&quot;</span><span class="p">})</span>
+<span class="n">packmol_set</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="s1">&#39;/path/to/calc/directory&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use <cite>InputSet.from_directory()</cite> to construct a pymatgen <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>
+from a directory containing calculation inputs.</p>
+<p>Many codes also contain classes for parsing output files into pymatgen objects that
+inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">InputFile</span></code>, which provides a standard interface for reading and
+writing individual files.</p>
+<p>Use of <code class="xref py py-class docutils literal notranslate"><span class="pre">InputFile</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes is
+not yet fully implemented by all codes supported by pymatgen, so please refer to the
+respective module documentation for each code for more details.</p>
 </section>
 <section id="pymatgen-borg-high-throughput-data-assimilation">
 <h2>pymatgen.borg - High-throughput data assimilation<a class="headerlink" href="#pymatgen-borg-high-throughput-data-assimilation" title="Permalink to this headline"></a></h2>

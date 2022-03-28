@@ -709,7 +709,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
         Args:
             tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.5, 0, 0.5] in cartesian coordinates will be
+                site. For example, [0.5, 0, 0.5] in Cartesian coordinates will be
                 considered to be on the same coordinates as [0, 0, 0] for a
                 tolerance of 0.5. Defaults to 0.5.
         """

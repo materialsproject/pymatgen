@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.transformations.defect_transformations module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.transformations.defect_transformations module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -118,7 +118,7 @@
 <p>This module defines classes for point defect transformations on structures</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.transformations.defect_transformations.DefectTransformation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DefectTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../transformations/defect_transformations.py#L19-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DefectTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../transformations/defect_transformations.py#L19-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Generates Defect structures based on pymatgen Defect Core classes</p>
 <dl class="field-list simple">
@@ -132,7 +132,7 @@ NOTE: defect.bulk_structure should be same as provided structure in the apply_tr
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation">
-<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../transformations/defect_transformations.py#L33-L43"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../transformations/defect_transformations.py#L33-L43"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> – (bulk structure to be scaled up - typically conventional unit cell)</p>
@@ -145,13 +145,13 @@ NOTE: defect.bulk_structure should be same as provided structure in the apply_tr
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.transformations.defect_transformations.DefectTransformation.inverse">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.inverse" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.inverse" title="Permalink to this definition"></a></dt>
 <dd><p>Not implemented</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_one_to_many</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many" title="Permalink to this definition"></a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>

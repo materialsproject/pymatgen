@@ -6,6 +6,7 @@
 Implementation for `pmg config` CLI.
 """
 
+from __future__ import annotations
 
 import glob
 import os
@@ -13,7 +14,7 @@ import shutil
 import subprocess
 import sys
 from argparse import Namespace
-from typing import List, Literal
+from typing import Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
@@ -21,7 +22,7 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import SETTINGS_FILE
 
 
-def setup_potcars(potcar_dirs: List[str]):
+def setup_potcars(potcar_dirs: list[str]):
     """Setup POTCAR directories."""
     pspdir, targetdir = (os.path.abspath(d) for d in potcar_dirs)
     try:
@@ -82,7 +83,7 @@ def setup_potcars(potcar_dirs: List[str]):
     print("")
     print(
         "PSP resources directory generated. It is recommended that you "
-        "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir)
+        f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(targetdir)}'"
     )
     print("Start a new terminal to ensure that your environment variables are properly set.")
 
@@ -177,7 +178,7 @@ def install_software(install: Literal["enumlib", "bader"]):
         print("")
 
 
-def add_config_var(tokens: List[str], backup_suffix: str) -> None:
+def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     """Add/update keys in .pmgrc.yaml config file."""
     d = {}
     if os.path.exists(SETTINGS_FILE):

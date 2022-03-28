@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2022.2.10
+v2022.3.24
 ----------
-* Require Cython during setup. (@jonringer)
+* Emergency bugfix release to fix circular import (@janosh)

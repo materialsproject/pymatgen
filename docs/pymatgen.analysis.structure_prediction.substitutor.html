@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.structure_prediction.substitutor module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.analysis.structure_prediction.substitutor module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -119,7 +119,7 @@
 <p>This module provides classes for predicting new structures from existing ones.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Substitutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L32-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Substitutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L32-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This object uses a data mined ionic substitution approach to propose
 compounds likely to be stable. It relies on an algorithm presented in
@@ -141,13 +141,13 @@ lambda_table, alpha</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L249-L260"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L249-L260"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L262-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L262-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -160,21 +160,21 @@ lambda_table, alpha</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species">
-<span class="sig-name descname"><span class="pre">get_allowed_species</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L61-L66"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_allowed_species</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L61-L66"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species" title="Permalink to this definition"></a></dt>
 <dd><p>returns the species in the domain of the probability function
 any other specie will not work</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp">
-<span class="sig-name descname"><span class="pre">pred_from_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L231-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pred_from_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L231-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp" title="Permalink to this definition"></a></dt>
 <dd><p>Similar to pred_from_list except this method returns a list after
 checking that compositions are charge balanced.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list">
-<span class="sig-name descname"><span class="pre">pred_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L176-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pred_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L176-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list" title="Permalink to this definition"></a></dt>
 <dd><p>There are an exceptionally large number of substitutions to
 look at (260^n), where n is the number of species in the
 list. We need a more efficient than brute force way of going
@@ -202,7 +202,7 @@ dictionary, and a probability value</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures">
-<span class="sig-name descname"><span class="pre">pred_from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_existing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/structure_prediction/substitutor.py#L68-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pred_from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_existing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/structure_prediction/substitutor.py#L68-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures" title="Permalink to this definition"></a></dt>
 <dd><p>performs a structure prediction targeting compounds containing all of
 the target_species, based on a list of structure (those structures
 can for instance come from a database like the ICSD). It will return

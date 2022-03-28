@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.apps.battery.analyzer module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.apps.battery.analyzer module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -119,7 +119,7 @@
 <p>Analysis classes for batteries</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BatteryAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc_oxid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxi_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../apps/battery/analyzer.py#L28-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BatteryAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc_oxid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxi_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../apps/battery/analyzer.py#L28-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A suite of methods for starting with an oxidized structure and determining its potential as a battery</p>
 <p>Pass in a structure for analysis</p>
@@ -136,7 +136,7 @@ by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav">
-<span class="sig-name descname"><span class="pre">get_max_capgrav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../apps/battery/analyzer.py#L137-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_max_capgrav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../apps/battery/analyzer.py#L137-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav" title="Permalink to this definition"></a></dt>
 <dd><p>Give max capacity in mAh/g for inserting and removing a charged ion
 Note that the weight is normalized to the most ion-packed state,
 thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.</p>
@@ -155,7 +155,7 @@ thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li i
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol">
-<span class="sig-name descname"><span class="pre">get_max_capvol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../apps/battery/analyzer.py#L155-L169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_max_capvol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../apps/battery/analyzer.py#L155-L169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol" title="Permalink to this definition"></a></dt>
 <dd><p>Give max capacity in mAh/cc for inserting and removing a charged ion into base structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -173,7 +173,7 @@ thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li i
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid">
-<span class="sig-name descname"><span class="pre">get_removals_int_oxid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../apps/battery/analyzer.py#L171-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_removals_int_oxid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../apps/battery/analyzer.py#L171-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a set of ion removal steps, e.g. set([1.0 2.0 4.0]) etc. in order to
 produce integer oxidation states of the redox metals.
 If multiple redox metals are present, all combinations of reduction/oxidation are tested.
@@ -191,7 +191,7 @@ Li6V4(PO4)6 will return [4.0, 6.0])  <em>note that this example is not normalize
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_ion_insertion</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_ion_insertion</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion" title="Permalink to this definition"></a></dt>
 <dd><p>Maximum number of ion A that can be inserted while maintaining charge-balance.
 No consideration is given to whether there (geometrically speaking) are ion sites to actually accommodate the
 extra ions.</p>
@@ -204,7 +204,7 @@ extra ions.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_ion_removal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_ion_removal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/apps/battery/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal" title="Permalink to this definition"></a></dt>
 <dd><p>Maximum number of ion A that can be removed while maintaining charge-balance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -217,7 +217,7 @@ extra ions.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.is_redox_active_intercalation">
-<span class="sig-name descname"><span class="pre">is_redox_active_intercalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../apps/battery/analyzer.py#L250-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_redox_active_intercalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../apps/battery/analyzer.py#L250-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition"></a></dt>
 <dd><p>True if element is redox active and interesting for intercalation materials</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

@@ -356,8 +356,8 @@ class SlabEntry(ComputedStructureEntry):
 
         if self.adsorbates:
             for ads in ads_strs:
-                label += r"+%s" % (ads)
-            label += r", %.3f ML" % (self.get_monolayer)
+                label += f"+{ads}"
+            label += f", {self.get_monolayer:.3f} ML"
         return label
 
     @staticmethod
@@ -1128,7 +1128,7 @@ class SurfaceEnergyPlotter:
 
         # Make the figure look nice
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.0)
-        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (ref_el))
+        axes.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
 
         ylim = ylim if ylim else axes.get_ylim()
         plt.xticks(rotation=60)
@@ -1331,8 +1331,8 @@ class SurfaceEnergyPlotter:
         # Label plot
         plt.xlim(range1)
         plt.ylim(range2)
-        plt.xlabel(r"$\Delta\mu_{%s} (eV)$" % (el1), fontsize=25)
-        plt.ylabel(r"$\Delta\mu_{%s} (eV)$" % (el2), fontsize=25)
+        plt.xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
+        plt.ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
         plt.xticks(rotation=60)
 
         return plt
@@ -1616,7 +1616,7 @@ class WorkFunctionAnalyzer:
         plt.plot([0, 1], [self.vacuum_locpot] * 2, "b--", zorder=-5, linewidth=1)
         xy = [label_in_bulk, self.vacuum_locpot + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$V_{vac}=%.2f$" % (self.vacuum_locpot),
+            f"$V_{{vac}}={self.vacuum_locpot:.2f}$",
             xy=xy,
             xytext=xy,
             color="b",
@@ -1627,7 +1627,7 @@ class WorkFunctionAnalyzer:
         plt.plot([0, 1], [self.efermi] * 2, "g--", zorder=-5, linewidth=3)
         xy = [label_in_bulk, self.efermi + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$E_F=%.2f$" % (self.efermi),
+            f"$E_F={self.efermi:.2f}$",
             xytext=xy,
             xy=xy,
             fontsize=label_fontsize,
@@ -1638,7 +1638,7 @@ class WorkFunctionAnalyzer:
         plt.plot([0, 1], [self.ave_bulk_p] * 2, "r--", linewidth=1.0, zorder=-1)
         xy = [label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
+            f"$V^{{interior}}_{{slab}}={self.ave_bulk_p:.2f}$",
             xy=xy,
             xytext=xy,
             color="r",
@@ -1655,7 +1655,7 @@ class WorkFunctionAnalyzer:
         )
         xy = [label_in_vac, self.efermi + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$\Phi=%.2f$" % (self.work_function),
+            rf"$\Phi={self.work_function:.2f}$",
             xy=xy,
             xytext=xy,
             fontsize=label_fontsize,
@@ -1941,9 +1941,9 @@ class NanoscaleStability:
             r_list.append(r)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
-        plt.xlabel(r"Particle radius ($%s$)" % (ru))
+        plt.xlabel(rf"Particle radius (${ru}$)")
         eu = f"${e_units}/{ru}^3$"
-        plt.ylabel(r"$G_{form}$ (%s)" % (eu))
+        plt.ylabel(rf"$G_{{form}}$ ({eu})")
 
         plt.plot(r_list, gform_list, label=label)
 

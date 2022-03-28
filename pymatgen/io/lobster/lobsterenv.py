@@ -119,9 +119,18 @@ class LobsterNeighbors(NearNeighbors):
                 except ValueError:
                     self.valences = None
                     if additional_condition in [1, 3, 5, 6]:
-                        print("Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work")
+                        raise ValueError(
+                            "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+                        )
         else:
             self.valences = valences
+        if np.allclose(np.array(self.valences), np.zeros(np.array(self.valences).shape)) and additional_condition in [
+            1,
+            3,
+            5,
+            6,
+        ]:
+            raise ValueError("All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work")
 
         if limits is None:
             self.lowerlimit = None

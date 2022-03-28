@@ -11,6 +11,8 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import logging
@@ -21,7 +23,6 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -931,9 +932,10 @@ class MPRester:
         self,
         criteria,
         properties,
-        chunk_size=500,
-        max_tries_per_chunk=5,
-        mp_decode=True,
+        chunk_size: int = 500,
+        max_tries_per_chunk: int = 5,
+        mp_decode: bool = True,
+        show_progress_bar: bool = True,
     ):
         r"""
         Performs an advanced query using MongoDB-like syntax for directly
@@ -992,6 +994,8 @@ class MPRester:
             mp_decode (bool): Whether to do a decoding to a Pymatgen object
                 where possible. In some cases, it might be useful to just get
                 the raw python dict, i.e., set to False.
+            show_progress_bar (bool): Whether to show a progress bar for large queries.
+                Defaults to True. Set to False to reduce visual noise.
 
         Returns:
             List of results. E.g.,
@@ -1018,7 +1022,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        progress_bar = tqdm(total=len(mids))
+        progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
@@ -1620,8 +1624,8 @@ class MPRester:
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
 
-    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
-        nomad_exist_task_ids: List[str] = []
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> list[str]:
+        nomad_exist_task_ids: list[str] = []
         prefix = prefix.replace("/raw/query", "/repo/")
         for task_id in task_ids:
             url = prefix + task_id

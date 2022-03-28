@@ -6,7 +6,9 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import Callable, List, Literal, Union
+from __future__ import annotations
+
+from typing import Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -92,7 +94,7 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float = 0.0, func: Union[str, Callable] = "gaussian"):
+    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian"):
         """
         Apply Gaussian/Lorentzian smearing to spectrum y value.
 
@@ -120,7 +122,7 @@ class Spectrum(MSONable):
             self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
-    def get_interpolated_value(self, x: float) -> List[float]:
+    def get_interpolated_value(self, x: float) -> list[float]:
         """
         Returns an interpolated y value for a particular x value.
 

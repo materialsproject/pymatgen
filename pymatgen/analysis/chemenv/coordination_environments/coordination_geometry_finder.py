@@ -498,7 +498,7 @@ class LocalGeometryFinder:
         :param lattice: The lattice of the structure
         :param species: The species on the sites
         :param coords: The coordinates of the sites
-        :param coords_are_cartesian: If set to True, the coordinates are given in cartesian coordinates
+        :param coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates
         """
         self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
 

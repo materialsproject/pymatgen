@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.core.tensors module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.core.tensors module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -120,7 +120,7 @@ basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SquareTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L876-L983"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SquareTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L876-L983"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>Base class for doing useful general operations on second rank tensors
 (stress, strain etc.).</p>
@@ -140,13 +140,13 @@ voigt-notation vector with the tensor entries</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.det">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">det</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.det" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">det</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.det" title="Permalink to this definition"></a></dt>
 <dd><p>shorthand for the determinant of the SquareTensor</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.get_scaled">
-<span class="sig-name descname"><span class="pre">get_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L960-L968"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.get_scaled" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L960-L968"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.get_scaled" title="Permalink to this definition"></a></dt>
 <dd><p>Scales the tensor by a certain multiplicative scale factor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -158,13 +158,13 @@ SquareTensor object</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.inv">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inv</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.inv" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inv</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.inv" title="Permalink to this definition"></a></dt>
 <dd><p>shorthand for matrix inverse on SquareTensor</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.is_rotation">
-<span class="sig-name descname"><span class="pre">is_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_improper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L922-L939"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.is_rotation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_improper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L922-L939"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.is_rotation" title="Permalink to this definition"></a></dt>
 <dd><p>Test to see if tensor is a valid rotation matrix, performs a
 test to check whether the inverse is equal to the transpose
 and if the determinant is equal to one within the specified
@@ -184,13 +184,13 @@ rotations in the determination of validity</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.polar_decomposition">
-<span class="sig-name descname"><span class="pre">polar_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L979-L983"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">polar_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L979-L983"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition"></a></dt>
 <dd><p>calculates matrices for polar decomposition</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.principal_invariants">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">principal_invariants</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.principal_invariants" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">principal_invariants</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.principal_invariants" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a list of principal invariants for the tensor,
 which are the values of the coefficients of the characteristic
 polynomial for the matrix</p>
@@ -198,7 +198,7 @@ polynomial for the matrix</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.refine_rotation">
-<span class="sig-name descname"><span class="pre">refine_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L941-L958"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.refine_rotation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">refine_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L941-L958"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.refine_rotation" title="Permalink to this definition"></a></dt>
 <dd><p>Helper method for refining rotation matrix by ensuring
 that second and third rows are perpendicular to the first.
 Gets new y vector from an orthogonal projection of x onto y
@@ -215,7 +215,7 @@ and the new z vector from a cross product of the new x and y</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.SquareTensor.trans">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trans</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.trans" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trans</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.trans" title="Permalink to this definition"></a></dt>
 <dd><p>shorthand for transpose on SquareTensor</p>
 </dd></dl>
 
@@ -223,7 +223,7 @@ and the new z vector from a cross product of the new x and y</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L36-L704"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L36-L704"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Base class for doing useful general operations on Nth order tensors,
 without restrictions on the type (stress, elastic, strain, piezo, etc.)</p>
@@ -242,7 +242,7 @@ to the coefficients of the voigt-notation tensor</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L675-L696"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L675-L696"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Serializes the tensor object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -259,7 +259,7 @@ may be lost in conversion.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.average_over_unit_sphere">
-<span class="sig-name descname"><span class="pre">average_over_unit_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L174-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.average_over_unit_sphere" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">average_over_unit_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L174-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.average_over_unit_sphere" title="Permalink to this definition"></a></dt>
 <dd><p>Method for averaging the tensor projection over the unit
 with option for custom quadrature.</p>
 <dl class="field-list simple">
@@ -276,7 +276,7 @@ to quadpy.sphere.Lebedev(19) as read from file</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.convert_to_ieee">
-<span class="sig-name descname"><span class="pre">convert_to_ieee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L496-L519"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.convert_to_ieee" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">convert_to_ieee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L496-L519"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.convert_to_ieee" title="Permalink to this definition"></a></dt>
 <dd><p>Given a structure associated with a tensor, attempts a
 calculation of the tensor in IEEE format according to
 the 1987 IEEE standards.</p>
@@ -300,13 +300,13 @@ produced by the ieee transform generator, default True</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.einsum_sequence">
-<span class="sig-name descname"><span class="pre">einsum_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">einsum_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L137-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.einsum_sequence" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">einsum_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other_arrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">einsum_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L137-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.einsum_sequence" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the result of an einstein summation expression</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.fit_to_structure">
-<span class="sig-name descname"><span class="pre">fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L327-L340"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.fit_to_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L327-L340"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.fit_to_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a tensor that is invariant with respect to symmetry
 operations corresponding to a structure</p>
 <dl class="field-list simple">
@@ -323,13 +323,13 @@ used to generate the symmetry operations</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L698-L704"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L698-L704"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>MSONAble from_dict implementation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.from_values_indices">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_values_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voigt_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L549-L598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_values_indices" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_values_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voigt_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L549-L598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_values_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a tensor from values and indices, with options
 for populating the remainder of the tensor.</p>
 <dl class="field-list simple">
@@ -355,7 +355,7 @@ optimization procedure</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.from_voigt">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt_input</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L403-L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt_input</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L403-L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_voigt" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor based on the voigt notation vector or matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -366,7 +366,7 @@ optimization procedure</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.get_grouped_indices">
-<span class="sig-name descname"><span class="pre">get_grouped_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L192-L230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_grouped_indices" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_grouped_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L192-L230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_grouped_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Gets index sets for equivalent tensor values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -395,7 +395,7 @@ within tolerances</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.get_ieee_rotation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ieee_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L422-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_ieee_rotation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ieee_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L422-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_ieee_rotation" title="Permalink to this definition"></a></dt>
 <dd><p>Given a structure associated with a tensor, determines
 the rotation matrix for IEEE conversion according to
 the 1987 IEEE standards.</p>
@@ -413,7 +413,7 @@ using SquareTensor.refine_rotation</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.get_symbol_dict">
-<span class="sig-name descname"><span class="pre">get_symbol_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L232-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_symbol_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symbol_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L232-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_symbol_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a summary dict for tensor with associated symbol</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,7 +446,7 @@ within tolerances</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.get_voigt_dict">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_voigt_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L385-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_voigt_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_voigt_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L385-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_voigt_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary that maps indices in the tensor to those
 in a voigt representation based on input rank</p>
 <dl class="field-list simple">
@@ -458,7 +458,7 @@ in a voigt representation based on input rank</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.is_fit_to_structure">
-<span class="sig-name descname"><span class="pre">is_fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L342-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_fit_to_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L342-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_fit_to_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Tests whether a tensor is invariant with respect to the
 symmetry operations of a particular structure by testing
 whether the residual of the symmetric portion is below a
@@ -475,7 +475,7 @@ tolerance</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.is_symmetric">
-<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L317-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_symmetric" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L317-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_symmetric" title="Permalink to this definition"></a></dt>
 <dd><p>Tests whether a tensor is symmetric or not based on the residual
 with its symmetric part, from self.symmetrized</p>
 <dl class="field-list simple">
@@ -487,7 +487,7 @@ with its symmetric part, from self.symmetrized</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.is_voigt_symmetric">
-<span class="sig-name descname"><span class="pre">is_voigt_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L368-L383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_voigt_symmetric" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_voigt_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L368-L383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_voigt_symmetric" title="Permalink to this definition"></a></dt>
 <dd><p>Tests symmetry of tensor to that necessary for voigt-conversion
 by grouping indices into pairs and constructing a sequence of
 possible permutations to be used in a tensor transpose</p>
@@ -495,7 +495,7 @@ possible permutations to be used in a tensor transpose</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.populate">
-<span class="sig-name descname"><span class="pre">populate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L600-L673"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.populate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">populate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L600-L673"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.populate" title="Permalink to this definition"></a></dt>
 <dd><p>Takes a partially populated tensor, and populates the non-zero
 entries according to the following procedure, iterated until
 the desired convergence (specified via prec) is achieved.</p>
@@ -523,7 +523,7 @@ to True</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.project">
-<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L157-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.project" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L157-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.project" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method for projection of a tensor into a
 vector.  Returns the tensor dotted into a unit vector
 along the input n.</p>
@@ -541,7 +541,7 @@ the tensor into the vector</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.rotate">
-<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L122-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.rotate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L122-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.rotate" title="Permalink to this definition"></a></dt>
 <dd><p>Applies a rotation directly, and tests input matrix to ensure a valid
 rotation.</p>
 <dl class="field-list simple">
@@ -556,7 +556,7 @@ rotation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.round">
-<span class="sig-name descname"><span class="pre">round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decimals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L277-L291"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.round" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decimals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L277-L291"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.round" title="Permalink to this definition"></a></dt>
 <dd><p>Wrapper around numpy.round to ensure object
 of same type is returned</p>
 <dl class="field-list simple">
@@ -574,7 +574,7 @@ positions to the left of the decimal point.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.structure_transform">
-<span class="sig-name descname"><span class="pre">structure_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L521-L547"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.structure_transform" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">structure_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L521-L547"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.structure_transform" title="Permalink to this definition"></a></dt>
 <dd><p>Transforms a tensor from one basis for an original structure
 into a new basis defined by a new structure.</p>
 <dl class="field-list simple">
@@ -597,12 +597,12 @@ corresponds to the new_structure’s basis</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.symbol">
-<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'T'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'T'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.symmetrized">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symmetrized" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symmetrized" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a generally symmetrized tensor, calculated by taking
 the sum of the tensor and its transpose with respect to all
 possible permutations of indices</p>
@@ -610,7 +610,7 @@ possible permutations of indices</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_op</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L113-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.transform" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_op</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L113-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.transform" title="Permalink to this definition"></a></dt>
 <dd><p>Applies a transformation (via a symmetry operation) to a tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -621,20 +621,20 @@ possible permutations of indices</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.voigt">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.voigt" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the tensor in Voigt notation</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.voigt_symmetrized">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt_symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.voigt_symmetrized" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt_symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.voigt_symmetrized" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a “voigt”-symmetrized tensor, i. e. a voigt-notation
 tensor such that it is invariant wrt permutation of indices</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.Tensor.zeroed">
-<span class="sig-name descname"><span class="pre">zeroed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L104-L111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.zeroed" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zeroed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L104-L111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.zeroed" title="Permalink to this definition"></a></dt>
 <dd><p>returns the matrix with all entries below a certain threshold
 (i.e. tol) set to zero</p>
 </dd></dl>
@@ -643,7 +643,7 @@ tensor such that it is invariant wrt permutation of indices</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TensorCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_class=&lt;class</span> <span class="pre">'pymatgen.core.tensors.Tensor'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L707-L873"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TensorCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_class=&lt;class</span> <span class="pre">'pymatgen.core.tensors.Tensor'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L707-L873"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A sequence of tensors that can be used for fitting data
 or for having a tensor expansion</p>
@@ -657,7 +657,7 @@ or for having a tensor expansion</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L847-L860"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L847-L860"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>voigt</strong> – Whether to use voight form.</p>
@@ -670,7 +670,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.convert_to_ieee">
-<span class="sig-name descname"><span class="pre">convert_to_ieee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L819-L828"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.convert_to_ieee" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">convert_to_ieee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L819-L828"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.convert_to_ieee" title="Permalink to this definition"></a></dt>
 <dd><p>Convert all tensors to IEEE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -688,7 +688,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.fit_to_structure">
-<span class="sig-name descname"><span class="pre">fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L769-L777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.fit_to_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L769-L777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.fit_to_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Fits all tensors to a Structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -705,7 +705,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L862-L873"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L862-L873"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Creates TensorCollection from dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -719,7 +719,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.from_voigt">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt_input_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_class=&lt;class</span> <span class="pre">'pymatgen.core.tensors.Tensor'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L808-L817"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voigt_input_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_class=&lt;class</span> <span class="pre">'pymatgen.core.tensors.Tensor'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L808-L817"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_voigt" title="Permalink to this definition"></a></dt>
 <dd><p>Creates TensorCollection from voigt form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -736,7 +736,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.is_fit_to_structure">
-<span class="sig-name descname"><span class="pre">is_fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L779-L785"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_fit_to_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_fit_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L779-L785"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_fit_to_structure" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -752,7 +752,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.is_symmetric">
-<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L762-L767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_symmetric" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L762-L767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_symmetric" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tol</strong> – tolerance</p>
@@ -765,7 +765,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.is_voigt_symmetric">
-<span class="sig-name descname"><span class="pre">is_voigt_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L801-L806"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_voigt_symmetric" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_voigt_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L801-L806"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_voigt_symmetric" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tol</strong> – tolerance</p>
@@ -778,7 +778,7 @@ or for having a tensor expansion</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.ranks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ranks</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.ranks" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ranks</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.ranks" title="Permalink to this definition"></a></dt>
 <dd><p>Ranks for all tensors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -789,7 +789,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.rotate">
-<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L745-L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.rotate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L745-L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.rotate" title="Permalink to this definition"></a></dt>
 <dd><p>Rotates TensorCollection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -806,7 +806,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.round">
-<span class="sig-name descname"><span class="pre">round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L830-L838"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.round" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L830-L838"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.round" title="Permalink to this definition"></a></dt>
 <dd><p>Round all tensors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -823,7 +823,7 @@ or for having a tensor expansion</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.symmetrized">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.symmetrized" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.symmetrized" title="Permalink to this definition"></a></dt>
 <dd><p>TensorCollection where all tensors are symmetrized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -834,7 +834,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_op</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L736-L743"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.transform" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_op</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L736-L743"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.transform" title="Permalink to this definition"></a></dt>
 <dd><p>Transforms TensorCollection with a symmetry operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -848,7 +848,7 @@ or for having a tensor expansion</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.voigt">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.voigt" title="Permalink to this definition"></a></dt>
 <dd><p>TensorCollection where all tensors are in voight form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -859,7 +859,7 @@ or for having a tensor expansion</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.voigt_symmetrized">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt_symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.voigt_symmetrized" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">voigt_symmetrized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.voigt_symmetrized" title="Permalink to this definition"></a></dt>
 <dd><p>TensorCollection where all tensors are voigt symmetrized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -870,7 +870,7 @@ or for having a tensor expansion</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorCollection.zeroed">
-<span class="sig-name descname"><span class="pre">zeroed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L729-L734"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.zeroed" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zeroed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L729-L734"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.zeroed" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tol</strong> – Tolerance</p>
@@ -885,7 +885,7 @@ or for having a tensor expansion</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorMapping">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TensorMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L1028-L1108"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TensorMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L1028-L1108"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></p>
 <p>Base class for tensor mappings, which function much like
 a dictionary, but use numpy routines to determine approximate
@@ -907,7 +907,7 @@ items in the mapping</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorMapping.items">
-<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L1088-L1092"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.items" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L1088-L1092"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.items" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Items in mapping.</p>
@@ -917,7 +917,7 @@ items in the mapping</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.TensorMapping.values">
-<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L1082-L1086"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.values" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L1082-L1086"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.values" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Values in mapping.</p>
@@ -929,13 +929,13 @@ items in the mapping</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.get_uvec">
-<span class="sig-name descname"><span class="pre">get_uvec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L986-L991"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.get_uvec" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_uvec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L986-L991"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.get_uvec" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a unit vector parallel to input vector</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.tensors.symmetry_reduce">
-<span class="sig-name descname"><span class="pre">symmetry_reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/tensors.py#L994-L1025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.symmetry_reduce" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symmetry_reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/tensors.py#L994-L1025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.tensors.symmetry_reduce" title="Permalink to this definition"></a></dt>
 <dd><p>Function that converts a list of tensors corresponding to a structure
 and returns a dictionary consisting of unique tensor keys with symmop
 values corresponding to transformations that will result in derivative

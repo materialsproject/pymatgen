@@ -194,9 +194,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                     c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
                 except KeyError:
                     raise ValueError(
-                        "Unable to calculate XRD pattern as "
-                        "there is no scattering coefficients for"
-                        " %s." % sp.symbol
+                        f"Unable to calculate XRD pattern as there is no scattering coefficients for {sp.symbol}."
                     )
                 coeffs.append(c)
                 dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))

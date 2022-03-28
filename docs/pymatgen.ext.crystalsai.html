@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.ext.crystalsai module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.ext.crystalsai module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -119,7 +119,7 @@
 for rapid property prediction.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CrystalAIRester</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../ext/crystalsai.py#L12-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CrystalAIRester</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../ext/crystalsai.py#L12-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is a high-level interface to the REST API for <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a>
 for property prediction. Using this API, you can use MatErials Graph
@@ -139,7 +139,7 @@ Chen, C.; Ye, W.; Zuo, Y.; Zheng, C.; Ong, S. P. &lt;i&gt;Graph Networks as a Un
 <p>Init for Rester.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester.get_available_models">
-<span class="sig-name descname"><span class="pre">get_available_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../ext/crystalsai.py#L47-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.get_available_models" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_available_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../ext/crystalsai.py#L47-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.get_available_models" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Available model names. It should be noted that model names starting
@@ -150,7 +150,7 @@ with log10 are for the log10 of that quantity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester.predict_mp">
-<span class="sig-name descname"><span class="pre">predict_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp_id</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../ext/crystalsai.py#L56-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_mp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp_id</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../ext/crystalsai.py#L56-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_mp" title="Permalink to this definition"></a></dt>
 <dd><p>Predict using the <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -171,7 +171,7 @@ with log10 are for the log10 of that quantity and you should apply
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester.predict_structure">
-<span class="sig-name descname"><span class="pre">predict_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../ext/crystalsai.py#L79-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../ext/crystalsai.py#L79-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Predict using the <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

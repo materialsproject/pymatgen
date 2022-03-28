@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.phonon.gruneisen module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.phonon.gruneisen module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -118,7 +118,7 @@
 <p>This module provides classes to define a Grueneisen band structure.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L38-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L38-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class for Grueneisen parameters on a regular grid.</p>
 <dl class="field-list simple">
@@ -136,14 +136,14 @@ reciprocal lattice vectors WITH a 2*pi coefficient</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.acoustic_debye_temp">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acoustic_debye_temp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.acoustic_debye_temp" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acoustic_debye_temp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.acoustic_debye_temp" title="Permalink to this definition"></a></dt>
 <dd><p>Acoustic Debye temperature in K, i.e. the Debye temperature divided by nsites**(1/3).
 Adapted from abipy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.average_gruneisen">
-<span class="sig-name descname"><span class="pre">average_gruneisen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L72-L125"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.average_gruneisen" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">average_gruneisen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L72-L125"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.average_gruneisen" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the average of the Gruneisen based on the values on the regular grid.
 If squared is True the average will use the squared value of the Gruneisen and a squared root
 is performed on the final result.
@@ -169,13 +169,13 @@ temperature) and “acoustic” (only the acoustic modes, i.e. the first three m
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_limit">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">debye_temp_limit</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_limit" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">debye_temp_limit</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_limit" title="Permalink to this definition"></a></dt>
 <dd><p>Debye temperature in K. Adapted from apipy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_phonopy">
-<span class="sig-name descname"><span class="pre">debye_temp_phonopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq_max_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L214-L232"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_phonopy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">debye_temp_phonopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq_max_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L214-L232"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_phonopy" title="Permalink to this definition"></a></dt>
 <dd><p>Get Debye temperature in K as implemented in phonopy.
 :param freq_max_fit: Maximum frequency to include for fitting.</p>
 <blockquote>
@@ -190,7 +190,7 @@ temperature) and “acoustic” (only the acoustic modes, i.e. the first three m
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.phdos">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.phdos" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.phdos" title="Permalink to this definition"></a></dt>
 <dd><p>PhononDos object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -201,13 +201,13 @@ temperature) and “acoustic” (only the acoustic modes, i.e. the first three m
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.tdos">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.tdos" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.tdos" title="Permalink to this definition"></a></dt>
 <dd><p>The total DOS (re)constructed from the gruneisen.yaml file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.thermal_conductivity_slack">
-<span class="sig-name descname"><span class="pre">thermal_conductivity_slack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">squared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L127-L163"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.thermal_conductivity_slack" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">thermal_conductivity_slack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">squared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L127-L163"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.thermal_conductivity_slack" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
 using the average Gruneisen.
 Adapted from abipy.</p>
@@ -237,7 +237,7 @@ simple rescaling of the value at the Debye temperature.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBandStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisenparameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L243-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBandStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisenparameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L243-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.bandstructure.PhononBandStructure</span></code></a></p>
 <p>This is the most generic phonon band structure data possible
 it’s defined by a list of qpoints + frequencies for each of them.
@@ -257,13 +257,13 @@ frequencies.</p></li>
 Pymatgen uses the physics convention of reciprocal lattice vectors
 WITH a 2*pi coefficient.</p></li>
 <li><p><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
-frequencies in cartesian coordinates. A numpy array of complex
+frequencies in Cartesian coordinates. A numpy array of complex
 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
 he First index of the array refers to the band, the second to the index
 of the qpoint, the third to the atom in the structure and the fourth
-to the cartesian coordinates.</p></li>
+to the Cartesian coordinates.</p></li>
 <li><p><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
-cartesian coordinates depending on the coords) to a label.</p></li>
+Cartesian coordinates depending on the coords) to a label.</p></li>
 <li><p><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are cartesian.</p></li>
 <li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
 associated with the band structure. This is needed if we
@@ -273,7 +273,7 @@ provide projections to the band structure</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L302-L331"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L302-L331"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable (dict)</p>
@@ -283,7 +283,7 @@ provide projections to the band structure</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L333-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L333-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -301,7 +301,7 @@ provide projections to the band structure</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBandStructureSymmLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisenparameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L359-L438"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBandStructureSymmLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisenparameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L359-L438"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure" title="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.gruneisen.GruneisenPhononBandStructure</span></code></a>, <a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.bandstructure.PhononBandStructureSymmLine</span></code></a></p>
 <p>This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
 for every frequency.</p>
@@ -318,13 +318,13 @@ shape (3*len(structure), len(qpoints))</p></li>
 Pymatgen uses the physics convention of reciprocal lattice vectors
 WITH a 2*pi coefficient</p></li>
 <li><p><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
-frequencies in cartesian coordinates. A numpy array of complex
+frequencies in Cartesian coordinates. A numpy array of complex
 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
 he First index of the array refers to the band, the second to the index
 of the qpoint, the third to the atom in the structure and the fourth
-to the cartesian coordinates.</p></li>
+to the Cartesian coordinates.</p></li>
 <li><p><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
-cartesian coordinates depending on the coords) to a label.</p></li>
+Cartesian coordinates depending on the coords) to a label.</p></li>
 <li><p><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are cartesian.</p></li>
 <li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
 associated with the band structure. This is needed if we
@@ -334,7 +334,7 @@ provide projections to the band structure</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../phonon/gruneisen.py#L417-L438"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../phonon/gruneisen.py#L417-L438"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>

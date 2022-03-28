@@ -426,11 +426,9 @@ class FloatWithUnit(float):
     def __getstate__(self):
         state = self.__dict__.copy()
         state["val"] = float(self)
-        # print("in getstate %s" % state)
         return state
 
     def __setstate__(self, state):
-        # print("in setstate %s" % state)
         self._unit = state["_unit"]
 
     @property
@@ -788,7 +786,7 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
-    if isinstance(obj, collections.Mapping):
+    if isinstance(obj, collections.abc.Mapping):
         return {k: obj_with_unit(v, unit) for k, v in obj.items()}
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 

@@ -4,16 +4,18 @@
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 from itertools import chain, combinations, product
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from pymatgen.core import Lattice, Site, Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Site, Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -33,10 +35,10 @@ class Interface(Structure):
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=False,
-        in_plane_offset: Tuple[float, float] = (0, 0),
+        in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 0,
         vacuum_over_film: float = 0.0,
-        interface_properties: Optional[Dict] = None,
+        interface_properties: dict | None = None,
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -63,7 +65,7 @@ class Interface(Structure):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -116,7 +118,7 @@ class Interface(Structure):
     @property
     def gap(self) -> float:
         """
-        The gap in cartesian units between the film and the substrate
+        The gap in Cartesian units between the film and the substrate
         """
         return self._gap
 
@@ -134,7 +136,7 @@ class Interface(Structure):
     @property
     def vacuum_over_film(self) -> float:
         """
-        The vacuum space over the film in cartesian units
+        The vacuum space over the film in Cartesian units
         """
         return self._vacuum_over_film
 
@@ -149,7 +151,7 @@ class Interface(Structure):
         self.__update_c(self.lattice.c + delta)
 
     @property
-    def substrate_indices(self) -> List[int]:
+    def substrate_indices(self) -> list[int]:
         """
         Site indices for the substrate atoms
         """
@@ -157,7 +159,7 @@ class Interface(Structure):
         return sub_indices
 
     @property
-    def substrate_sites(self) -> List[Site]:
+    def substrate_sites(self) -> list[Site]:
         """
         The site objects in the substrate
         """
@@ -172,7 +174,7 @@ class Interface(Structure):
         return Structure.from_sites(self.substrate_sites)
 
     @property
-    def film_indices(self) -> List[int]:
+    def film_indices(self) -> list[int]:
         """
         Site indices of the film sites
         """
@@ -180,7 +182,7 @@ class Interface(Structure):
         return f_indices
 
     @property
-    def film_sites(self) -> List[Site]:
+    def film_sites(self) -> list[Site]:
         """
         Return the film sites of the interface.
         """
@@ -194,13 +196,10 @@ class Interface(Structure):
         """
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> "Interface":  # type:ignore
+    def copy(self):
         """
-        Convenience method to get a copy of the structure, with options to add
-        site properties.
-
         Returns:
-            A copy of the Interface.
+            Interface: A copy of the Interface.
         """
 
         return Interface.from_dict(self.as_dict())
@@ -222,7 +221,7 @@ class Interface(Structure):
         struct_copy.sort(key=key, reverse=reverse)
         return struct_copy
 
-    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> List[Tuple[float, float]]:
+    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
         """
         Computes possible in-plane shifts based on an adsorbate site  algorithm
 
@@ -289,7 +288,7 @@ class Interface(Structure):
 
     def __update_c(self, new_c: float) -> None:
         """
-        Modifies the c-direction of the lattice without changing the site cartesian coordinates
+        Modifies the c-direction of the lattice without changing the site Cartesian coordinates
         Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites
         """
         if new_c <= 0:
@@ -301,7 +300,7 @@ class Interface(Structure):
 
         for site, c_coords in zip(self, self.cart_coords):
             site._lattice = new_latice  # Update the lattice
-            site.coords = c_coords  # Put back into original cartesian space
+            site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):
         """
@@ -343,12 +342,12 @@ class Interface(Structure):
         cls,
         substrate_slab: Slab,
         film_slab: Slab,
-        in_plane_offset: Tuple[float, float] = (0, 0),
+        in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
         vacuum_over_film: float = 0.0,
-        interface_properties: Optional[Dict] = None,
+        interface_properties: dict | None = None,
         center_slab: bool = True,
-    ) -> "Interface":
+    ) -> Interface:
         """
         Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
@@ -479,7 +478,7 @@ def label_termination(slab: Structure) -> str:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(slab[i])
 
@@ -521,7 +520,7 @@ def count_layers(struc: Structure, el=None) -> int:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(struc[i])
 

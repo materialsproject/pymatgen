@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lammps.utils module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.io.lammps.utils module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -119,7 +119,7 @@
 <p>This module defines utility classes and functions.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.utils.LammpsRunner">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps.in'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L447-L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps.in'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/lammps/utils.py#L449-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>LAMMPS wrapper</p>
 <dl class="field-list simple">
@@ -132,97 +132,15 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.utils.LammpsRunner.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L468-L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/lammps/utils.py#L470-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner.run" title="Permalink to this definition"></a></dt>
 <dd><p>Write the input/data files and run LAMMPS.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.lammps.utils.PackmolRunner">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PackmolRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pack.inp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xyz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'maxit':</span> <span class="pre">20,</span> <span class="pre">'nloop':</span> <span class="pre">600}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'packed.xyz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'packmol'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L173-L444"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Wrapper for the Packmol software that can be used to pack various types of
-molecules into a one single unit.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mols</strong> – list of Molecules to pack</p></li>
-<li><p><strong>input_file</strong> – name of the packmol input file</p></li>
-<li><p><strong>tolerance</strong> – min distance between the atoms</p></li>
-<li><p><strong>filetype</strong> – input/output structure file type</p></li>
-<li><p><strong>control_params</strong> – packmol control parameters dictionary. Basically
-all parameters other than structure/atoms</p></li>
-<li><p><strong>param_list</strong> – list of parameters containing dicts for each molecule</p></li>
-<li><p><strong>auto_box</strong> – put the molecule assembly in a box</p></li>
-<li><p><strong>output_file</strong> – output file name. The extension will be adjusted
-according to the filetype</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule">
-<span class="sig-name descname"><span class="pre">convert_obatoms_to_molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residue_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_property</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ff_map'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L365-L409"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule" title="Permalink to this definition"></a></dt>
-<dd><p>Convert list of openbabel atoms to MOlecule.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms</strong> (<em>[</em><em>OBAtom</em><em>]</em>) – list of OBAtom objects</p></li>
-<li><p><strong>residue_name</strong> (<em>str</em>) – the key in self.map_residue_to_mol. Usec to
-restore the site properties in the final packed molecule.</p></li>
-<li><p><strong>site_property</strong> (<em>str</em>) – the site property to be restored.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Molecule object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties">
-<span class="sig-name descname"><span class="pre">restore_site_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_property</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ff_map'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L411-L444"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties" title="Permalink to this definition"></a></dt>
-<dd><p>Restore the site properties for the final packed molecule.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>site_property</strong> (<em>str</em>) – </p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – path to the final packed molecule.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Molecule</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.lammps.utils.PackmolRunner.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_property</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L302-L327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.run" title="Permalink to this definition"></a></dt>
-<dd><p>Write the input file to the scratch directory, run packmol and return
-the packed molecule to the current working directory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>site_property</strong> (<em>str</em>) – if set then the specified site property
-for the the final packed molecule will be restored.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Molecule object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.lammps.utils.PackmolRunner.write_pdb">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L329-L351"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.write_pdb" title="Permalink to this definition"></a></dt>
-<dd><p>dump the molecule into pdb file with custom residue name and number.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.utils.Polymer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Polymer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_chain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/lammps/utils.py#L31-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.Polymer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Polymer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_chain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/lammps/utils.py#L32-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.Polymer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate polymer chain via Random walk. At each position there are
 a total of 5 possible moves(excluding the previous direction).</p>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.functional_groups module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.analysis.functional_groups module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -118,7 +118,7 @@
 <p>Determine functional groups present in a Molecule.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FunctionalGroupExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L31-L358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FunctionalGroupExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L31-L358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used to algorithmically parse a molecule (represented by an
 instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary
@@ -137,7 +137,7 @@ etc.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups">
-<span class="sig-name descname"><span class="pre">categorize_functional_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L319-L358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">categorize_functional_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L319-L358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups" title="Permalink to this definition"></a></dt>
 <dd><p>Determine classes of functional groups present in a set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -153,7 +153,7 @@ type of group there is.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups">
-<span class="sig-name descname"><span class="pre">get_all_functional_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catch_basic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L294-L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_all_functional_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catch_basic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L294-L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups" title="Permalink to this definition"></a></dt>
 <dd><p>Identify all functional groups (or all within a certain subset) in the
 molecule, combining the methods described above.</p>
 <dl class="field-list simple">
@@ -177,7 +177,7 @@ other methods</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups">
-<span class="sig-name descname"><span class="pre">get_basic_functional_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L230-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_basic_functional_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L230-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups" title="Permalink to this definition"></a></dt>
 <dd><p>Identify functional groups that cannot be identified by the Ertl method
 of get_special_carbon and get_heteroatoms, such as benzene rings, methyl
 groups, and ethyl groups.</p>
@@ -197,7 +197,7 @@ defined in this function will be sought.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms">
-<span class="sig-name descname"><span class="pre">get_heteroatoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L102-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_heteroatoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L102-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms" title="Permalink to this definition"></a></dt>
 <dd><p>Identify non-H, non-C atoms in the MoleculeGraph, returning a list of
 their node indices.</p>
 <dl class="field-list simple">
@@ -213,7 +213,7 @@ functional groups are of interest).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon">
-<span class="sig-name descname"><span class="pre">get_special_carbon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L124-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_special_carbon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L124-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon" title="Permalink to this definition"></a></dt>
 <dd><p>Identify Carbon atoms in the MoleculeGraph that fit the characteristics
 defined Ertl (2017), returning a list of their node indices.</p>
 <dl class="simple">
@@ -239,7 +239,7 @@ Default None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms">
-<span class="sig-name descname"><span class="pre">link_marked_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/functional_groups.py#L198-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">link_marked_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/functional_groups.py#L198-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms" title="Permalink to this definition"></a></dt>
 <dd><p>Take a list of marked “interesting” atoms (heteroatoms, special carbons)
 and attempt to connect them, returning a list of disjoint groups of
 special atoms (and their connected hydrogens).</p>

@@ -1487,12 +1487,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "{} {} + {} {} -> ".format(
-                            fmt(c1),
-                            r1.reduced_formula,
-                            fmt(c2),
-                            r2.reduced_formula,
-                        )
+                        rxn_str = f"{fmt(c1)} {r1.reduced_formula} + {fmt(c2)} {r2.reduced_formula} -> "
                         products = []
                         product_entries = []
 

@@ -4,8 +4,11 @@
 """
 This module contains the classes to build a ConversionElectrode.
 """
+
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, Iterable
+from typing import Iterable
 
 from scipy.constants import N_A
 
@@ -240,7 +243,7 @@ class ConversionElectrode(AbstractElectrode):
         ]
         return "\n".join(output)
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.

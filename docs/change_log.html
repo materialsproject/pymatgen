@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,6 +53,9 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-3-24">v2022.3.24</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-3-22">v2022.3.22</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-3-7">v2022.3.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-2-10">v2022.2.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-2-7">v2022.2.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-2-1">v2022.2.1</a></li>
@@ -386,6 +389,41 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
+<section id="v2022-3-24">
+<h2>v2022.3.24<a class="headerlink" href="#v2022-3-24" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Emergency bugfix release to fix circular import (&#64;janosh)</p></li>
+</ul>
+</section>
+<section id="v2022-3-22">
+<h2>v2022.3.22<a class="headerlink" href="#v2022-3-22" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Support kwargs for ASE adaptor. (&#64;arosen93)</p></li>
+<li><p>Fix for cation error in Lobster analysis. (&#64;JaGeo)</p></li>
+<li><p>Major revampt of Abstract interface for Input classes in IO. (&#64;rkingsbury)</p></li>
+<li><p>Orbital-projected band center, band filling, band ceneter, skewness, kurtosis, etc. (&#64;arosen93)</p></li>
+<li><p>Misc cleanups. (&#64;janosh)</p></li>
+</ul>
+</section>
+<section id="v2022-3-7">
+<h2>v2022.3.7<a class="headerlink" href="#v2022-3-7" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Add VASP WSWQ file parsing, PR #2439 from &#64;jmmshn</p></li>
+<li><p>Improve chemical potential diagram plotting, PR #2447 from &#64;mattmcdermott</p></li>
+<li><p>Update to Lobster calculation settings, PR #2434 from &#64;JaGeo master</p></li>
+<li><p>Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from &#64;arosen93</p></li>
+<li><p>Fix for Structure.from_file when file is in YAML format from &#64;janosh fix-structure-from-yml</p></li>
+<li><p>Update of linter configuration, PR #2440 from &#64;janosh</p></li>
+<li><p>Update to ChemEnv citation, PR #2448 from &#64;JaGeo</p></li>
+<li><p>Type annotation fix, PR #2432 from &#64;janosh</p></li>
+<li><p>Documentation fix for Structure.apply_operation, PR #2433 from &#64;janosh</p></li>
+<li><p>Add caching to compatibility classes as speed optimization, PR #2450 from &#64;munrojm</p></li>
+</ul>
+<p>This release was previously intended for v2022.2.25.</p>
+<p>Important note: an update to a library that pymatgen depends upon has led to the
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
+you may need to re-generate this file. This issue should now be fixed and not re-occur.</p>
+</section>
 <section id="v2022-2-10">
 <h2>v2022.2.10<a class="headerlink" href="#v2022-2-10" title="Permalink to this headline"></a></h2>
 <ul class="simple">
@@ -2333,7 +2371,7 @@ sulfide formation energies.</p></li>
 <section id="v3-2-4">
 <h2>v3.2.4<a class="headerlink" href="#v3-2-4" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>GaussianOutput can now parse frequencies, normal modes and cartesian forces
+<li><p>GaussianOutput can now parse frequencies, normal modes and Cartesian forces
 (Xin Chen).</p></li>
 <li><p>Support for Aiida&lt;-&gt;pymatgen conversion by the Aiida development team (Andrius
 Merkys).</p></li>
@@ -2484,7 +2522,7 @@ document schema for use with MPRester.query method.</p></li>
 <section id="v3-0-10">
 <h2>v3.0.10<a class="headerlink" href="#v3-0-10" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>Fix cartesian coord parsing in Poscar class.</p></li>
+<li><p>Fix Cartesian coord parsing in Poscar class.</p></li>
 <li><p>Vasprun now works with non-GGA PBE runs</p></li>
 <li><p>Misc bug fixes</p></li>
 </ul>
@@ -2999,7 +3037,7 @@ et al.’s algorithm.</p></li>
 PDAnalyzer and PDPlotter in pymatgen.phasediagrams.</p></li>
 <li><p>Improvements to StructureMatcher: stol (site - tolerance) redefined as
 a fraction of the average length per atom. Structures matched in fractional
-space are now also matched in cartesian space and a rms displacement
+space are now also matched in Cartesian space and a rms displacement
 normalized by length per atom can be returned using the rms_dist method.</p></li>
 </ul>
 </section>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.chemenv.utils.graph_utils module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.analysis.chemenv.utils.graph_utils module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -120,7 +120,7 @@
 <p>This module contains some graph utils that are used in the chemenv package.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultiGraphCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L314-L466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultiGraphCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L314-L466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class used to describe a cycle in a multigraph.</p>
 <p>nodes are the nodes of the cycle and edge_indices are the indices of the edges in the cycle.
@@ -144,7 +144,7 @@ edge_indices:     0 . 1 . 0 . 2 . 0 . (0)</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.order">
-<span class="sig-name descname"><span class="pre">order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_on_fail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L390-L445"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.order" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_on_fail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L390-L445"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.order" title="Permalink to this definition"></a></dt>
 <dd><p>Orders the SimpleGraphCycle.</p>
 <p>The ordering is performed such that the first node is the “lowest” one
 and the second node is the lowest one of the two neighbor nodes of the
@@ -163,7 +163,7 @@ ordering fails.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_strict_ordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L381-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.validate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_strict_ordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L381-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.validate" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>check_strict_ordering</strong> – </p>
@@ -178,7 +178,7 @@ ordering fails.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SimpleGraphCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L132-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SimpleGraphCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L132-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class used to describe a cycle in a simple graph (graph without multiple edges).</p>
 <p>Note that the convention used here is the networkx convention for which simple graphs allow
@@ -198,7 +198,7 @@ If the user explicitly sets ordered to False, the SimpleGraphCycle will not be o
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L294-L301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L294-L301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict</p>
@@ -208,7 +208,7 @@ If the user explicitly sets ordered to False, the SimpleGraphCycle will not be o
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L303-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L303-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Serialize from dict.
 :param d:
 :param validate:
@@ -217,7 +217,7 @@ If the user explicitly sets ordered to False, the SimpleGraphCycle will not be o
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_edges">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges_are_ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L260-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_edges" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges_are_ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L260-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_edges" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs SimpleGraphCycle from a list edges.</p>
 <p>By default, the edges list is supposed to be ordered as it will be
 much faster to construct the cycle. If edges_are_ordered is set to
@@ -227,7 +227,7 @@ order in the list.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.order">
-<span class="sig-name descname"><span class="pre">order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_on_fail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L199-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.order" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_on_fail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L199-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.order" title="Permalink to this definition"></a></dt>
 <dd><p>Orders the SimpleGraphCycle.</p>
 <p>The ordering is performed such that the first node is the “lowest” one
 and the second node is the lowest one of the two neighbor nodes of the
@@ -246,7 +246,7 @@ ordering fails.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_strict_ordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L190-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.validate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_strict_ordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L190-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.validate" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>check_strict_ordering</strong> – </p>
@@ -261,7 +261,7 @@ ordering fails.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.get_all_elementary_cycles">
-<span class="sig-name descname"><span class="pre">get_all_elementary_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L469-L520"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.get_all_elementary_cycles" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_all_elementary_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L469-L520"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.get_all_elementary_cycles" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>graph</strong> – </p>
@@ -274,7 +274,7 @@ ordering fails.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.get_all_simple_paths_edges">
-<span class="sig-name descname"><span class="pre">get_all_simple_paths_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L30-L71"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.get_all_simple_paths_edges" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_all_simple_paths_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L30-L71"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.get_all_simple_paths_edges" title="Permalink to this definition"></a></dt>
 <dd><p>Get all the simple path and edges.
 :param graph:
 :param source:
@@ -286,7 +286,7 @@ ordering fails.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.graph_utils.get_delta">
-<span class="sig-name descname"><span class="pre">get_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L15-L27"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.get_delta" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/chemenv/utils/graph_utils.py#L15-L27"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.graph_utils.get_delta" title="Permalink to this definition"></a></dt>
 <dd><p>Get the delta.
 :param node1:
 :param node2:

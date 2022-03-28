@@ -342,14 +342,11 @@ class BoltztrapRunner(MSONable):
                 f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
 
             f.write(
-                "{}\n".format(
-                    "\n".join(
-                        [
-                            " ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
-                            for row in self._bs.structure.lattice.matrix
-                        ]
-                    )
+                "\n".join(
+                    " ".join([f"{Length(i, 'ang').to('bohr'):.5f}" for i in row])
+                    for row in self._bs.structure.lattice.matrix
                 )
+                + "\n"
             )
 
             if self._symprec is not None:
@@ -479,8 +476,8 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    "1 0 %d %f         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n" % (setgap, Energy(self.scissor, "eV").to("Ry"))
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "

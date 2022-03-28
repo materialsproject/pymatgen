@@ -130,7 +130,7 @@ class Slab(Structure):
             reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -460,7 +460,7 @@ class Slab(Structure):
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
         """
-        # Let's do the work in cartesian coords
+        # Let's do the work in Cartesian coords
         center = np.sum([self[i].coords for i in indices], axis=0) / len(indices)
 
         coords = center + self.normal * distance / np.linalg.norm(self.normal)
@@ -659,7 +659,7 @@ class Slab(Structure):
         Arg:
             specie (str): The specie to add
             point (coords): The coordinate of the site in the slab to add.
-            coords_are_cartesian (bool): Is the point in cartesian coordinates
+            coords_are_cartesian (bool): Is the point in Cartesian coordinates
 
         Returns:
             (Slab): The modified slab
@@ -1474,10 +1474,10 @@ class ReconstructionGenerator:
 
         if reconstruction_name not in reconstructions_archive.keys():
             raise KeyError(
-                "The reconstruction_name entered (%s) does not exist in the "
-                "archive. Please select from one of the following reconstructions: %s "
+                f"The reconstruction_name entered ({reconstruction_name}) does not exist in the "
+                f"archive. Please select from one of the following reconstructions: {list(reconstructions_archive)} "
                 "or add the appropriate dictionary to the archive file "
-                "reconstructions_archive.json." % (reconstruction_name, list(reconstructions_archive.keys()))
+                "reconstructions_archive.json."
             )
 
         # Get the instructions to build the reconstruction
@@ -1920,11 +1920,11 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp
         lattice (list or Lattice): A 3x3 lattice matrix or `Lattice` object (for
             example obtained from Structure.lattice).
         coords (iterable): A list or numpy array of coordinates. Can be
-            cartesian or fractional coordinates. If more than three sets of
+            Cartesian or fractional coordinates. If more than three sets of
             coordinates are provided, the best plane that minimises the
             distance to all sites will be calculated.
         coords_are_cartesian (bool, optional): Whether the coordinates are
-            in cartesian space. If using fractional coordinates set to False.
+            in Cartesian space. If using fractional coordinates set to False.
         round_dp (int, optional): The number of decimal places to round the
             miller index to.
         verbose (bool, optional): Whether to print warnings.

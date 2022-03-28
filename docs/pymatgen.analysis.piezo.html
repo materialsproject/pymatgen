@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.piezo module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.analysis.piezo module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -118,7 +118,7 @@
 <p>This module provides classes for the Piezoelectric tensor</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.piezo.PiezoTensor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PiezoTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/piezo.py#L22-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PiezoTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/piezo.py#L22-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>This class describes the 3x6 piezo tensor in Voigt-notation</p>
 <p>Create an PiezoTensor object.  The constructor throws an error if
@@ -134,7 +134,7 @@ representing the piezo tensor</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_vasp_voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_vasp_array</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/piezo.py#L44-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_vasp_voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_vasp_array</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../analysis/piezo.py#L44-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_vasp_array</strong> (<em>nd.array</em>) – Voigt form of tensor.</p>

@@ -8,34 +8,6 @@ ci:
   skip: [flake8, mypy]
 
 repos:
-  - repo: https://github.com/psf/black
-    rev: 22.1.0
-    hooks:
-      - id: black
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
-    hooks:
-      - id: check-yaml
-        exclude: pymatgen/analysis/vesta_cutoffs.yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
-    hooks:
-      - id: flake8
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
-    hooks:
-      - id: pyupgrade
-        args: [--py38-plus]
 
   - repo: https://github.com/myint/autoflake
     rev: v1.4
@@ -48,13 +20,37 @@ repos:
           - --expand-star-imports
           - --ignore-init-module-imports
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.0
+    hooks:
+      - id: pyupgrade
+        args: [--py38-plus]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: check-yaml
+        exclude: pymatgen/analysis/vesta_cutoffs.yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/psf/black
+    rev: 22.1.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.931
+    rev: v0.930
     hooks:
       - id: mypy
-
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.1.1
-    hooks:
-      - id: pydocstyle
-        exclude: (test_|tests/|tasks.py)

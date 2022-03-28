@@ -143,7 +143,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         explicit_optimized_permutations=None,
         multiplicity=None,
         other_plane_points=None,
-    ):  # , plane_safe_permutations=False):
+    ):
         """
             Initializes a separation plane for a given perfect coordination geometry
 
@@ -179,10 +179,6 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self._hash = 10000 * len(plane_points) + 100 * len(point_groups[0]) + len(point_groups[1])
         self.ordered_plane = ordered_plane
         self.ordered_point_groups = [False, False] if ordered_point_groups is None else ordered_point_groups
-        # self._ordered_indices = list(point_groups[0])
-        # self._ordered_indices.extend(plane_points)
-        # self._ordered_indices.extend(point_groups[1])
-        # self._inv_ordered_indices = np.argsort(self._ordered_indices)
         self.explicit_permutations = explicit_permutations
         self.explicit_optimized_permutations = explicit_optimized_permutations
         self._safe_permutations = None
@@ -203,24 +199,6 @@ class SeparationPlane(AbstractChemenvAlgorithm):
             len(plane_points),
             len(point_groups[1]),
         )
-
-    # @property
-    # def ordered_indices(self):
-    #     """
-    #     Ordered indices of the separation plane.
-    #
-    #     Examples:
-    #          For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
-    #          point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
-    #          [0, 3, 5, 8, 1, 4, 2, 7, 6].
-    #
-    #     Returns: list of ordered indices of this separation plane.
-    #     """
-    #     return self._ordered_indices
-    #
-    # @property
-    # def inv_ordered_indices(self):
-    #     return self._inv_ordered_indices
 
     @property
     def permutations(self):

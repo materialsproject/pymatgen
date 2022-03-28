@@ -1,6 +1,38 @@
 Change log
 ==========
 
+v2022.3.24
+----------
+* Emergency bugfix release to fix circular import (@janosh)
+
+v2022.3.22
+----------
+* Support kwargs for ASE adaptor. (@arosen93)
+* Fix for cation error in Lobster analysis. (@JaGeo)
+* Major revampt of Abstract interface for Input classes in IO. (@rkingsbury)
+* Orbital-projected band center, band filling, band ceneter, skewness, kurtosis, etc. (@arosen93)
+* Misc cleanups. (@janosh)
+
+v2022.3.7
+---------
+
+* Add VASP WSWQ file parsing, PR #2439 from @jmmshn
+* Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
+* Update to Lobster calculation settings, PR #2434 from @JaGeo master
+* Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from @arosen93
+* Fix for Structure.from_file when file is in YAML format from @janosh fix-structure-from-yml
+* Update of linter configuration, PR #2440 from @janosh
+* Update to ChemEnv citation, PR #2448 from @JaGeo
+* Type annotation fix, PR #2432 from @janosh
+* Documentation fix for Structure.apply_operation, PR #2433 from @janosh
+* Add caching to compatibility classes as speed optimization, PR #2450 from @munrojm
+
+This release was previously intended for v2022.2.25.
+
+Important note: an update to a library that pymatgen depends upon has led to the
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
+you may need to re-generate this file. This issue should now be fixed and not re-occur.
+
 v2022.2.10
 ----------
 * Require Cython during setup. (@jonringer)
@@ -1570,7 +1602,7 @@ v3.2.5
 v3.2.4
 ------
 
-* GaussianOutput can now parse frequencies, normal modes and cartesian forces
+* GaussianOutput can now parse frequencies, normal modes and Cartesian forces
   (Xin Chen).
 * Support for Aiida<->pymatgen conversion by the Aiida development team (Andrius
   Merkys).
@@ -1693,7 +1725,7 @@ v3.0.11
 v3.0.10
 ------
 
-* Fix cartesian coord parsing in Poscar class.
+* Fix Cartesian coord parsing in Poscar class.
 * Vasprun now works with non-GGA PBE runs
 * Misc bug fixes
 
@@ -2102,7 +2134,7 @@ v2.6.3
   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
 * Improvements to StructureMatcher: stol (site - tolerance) redefined as
   a fraction of the average length per atom. Structures matched in fractional
-  space are now also matched in cartesian space and a rms displacement
+  space are now also matched in Cartesian space and a rms displacement
   normalized by length per atom can be returned using the rms_dist method.
 
 v2.6.2

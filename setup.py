@@ -3,14 +3,15 @@
 
 """Setup.py for pymatgen."""
 
+from __future__ import annotations
+
 import platform
 import sys
-from typing import List
 
 import numpy
 from setuptools import Extension, find_namespace_packages, setup
 
-extra_link_args: List[str] = []
+extra_link_args: list[str] = []
 if sys.platform.startswith("win") and platform.machine().endswith("64"):
     extra_link_args.append("-Wl,--allow-multiple-definition")
 
@@ -75,7 +76,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.2.10",
+    version="2022.3.24",
     python_requires=">=3.8",
     setup_requires=[
         "Cython>=0.29.23",

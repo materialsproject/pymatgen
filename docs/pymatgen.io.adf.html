@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.adf module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.io.adf module &mdash; pymatgen 2022.3.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.3.24
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -118,7 +118,7 @@
 <p>IO for ADF files.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfInput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L664-L713"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInput" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L659-L708"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basic ADF input file writer.</p>
 <p>Initialization method.</p>
@@ -129,7 +129,7 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfInput.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inpfile</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L681-L713"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInput.write_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inpfile</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L676-L708"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInput.write_file" title="Permalink to this definition"></a></dt>
 <dd><p>Write an ADF input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -145,14 +145,14 @@
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfInputError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfInputError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L66-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInputError" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfInputError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L61-L64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInputError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>The default error class for ADF.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L78-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L73-L450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The basic input unit for ADF. A key is a string of characters that does not
 contain a delimiter (blank, comma or equal sign). A key may have multiple
@@ -174,7 +174,7 @@ is a primitive object.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.add_option">
-<span class="sig-name descname"><span class="pre">add_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L267-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.add_option" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L262-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.add_option" title="Permalink to this definition"></a></dt>
 <dd><p>Add a new option to this key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -189,7 +189,7 @@ options.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.add_subkey">
-<span class="sig-name descname"><span class="pre">add_subkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subkey</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L233-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.add_subkey" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_subkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subkey</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L228-L243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.add_subkey" title="Permalink to this definition"></a></dt>
 <dd><p>Add a new subkey to this key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -202,18 +202,18 @@ options.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L341-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L336-L351"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>A JSON serializable dict representation of self.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.block_keys">
-<span class="sig-name descname"><span class="pre">block_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'A1FIT',</span> <span class="pre">'ANALYTICALFREQ',</span> <span class="pre">'ATOMS',</span> <span class="pre">'BASIS',</span> <span class="pre">'CHARGE',</span> <span class="pre">'EXACTDENSITY',</span> <span class="pre">'GEOMETRY',</span> <span class="pre">'INTEGRATION',</span> <span class="pre">'OCCUPATIONS',</span> <span class="pre">'RELATIVISTIC',</span> <span class="pre">'SAVE',</span> <span class="pre">'SCF',</span> <span class="pre">'SYMMETRY',</span> <span class="pre">'TITLE',</span> <span class="pre">'TOTALENERGY',</span> <span class="pre">'UNITS',</span> <span class="pre">'UNRESTRICTED',</span> <span class="pre">'XC',</span> <span class="pre">'ZLMFIT'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.block_keys" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">block_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'A1FIT',</span> <span class="pre">'ANALYTICALFREQ',</span> <span class="pre">'ATOMS',</span> <span class="pre">'BASIS',</span> <span class="pre">'CHARGE',</span> <span class="pre">'EXACTDENSITY',</span> <span class="pre">'GEOMETRY',</span> <span class="pre">'INTEGRATION',</span> <span class="pre">'OCCUPATIONS',</span> <span class="pre">'RELATIVISTIC',</span> <span class="pre">'SAVE',</span> <span class="pre">'SCF',</span> <span class="pre">'SYMMETRY',</span> <span class="pre">'TITLE',</span> <span class="pre">'TOTALENERGY',</span> <span class="pre">'UNITS',</span> <span class="pre">'UNRESTRICTED',</span> <span class="pre">'XC',</span> <span class="pre">'ZLMFIT'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.block_keys" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L364-L387"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L359-L382"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Construct a MSONable AdfKey object from the JSON dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -230,7 +230,7 @@ options.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.from_string">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L389-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L384-L450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Construct an AdfKey object from the string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -253,7 +253,7 @@ options.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.has_option">
-<span class="sig-name descname"><span class="pre">has_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L319-L339"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.has_option" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">has_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L314-L334"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.has_option" title="Permalink to this definition"></a></dt>
 <dd><p>Return True if the option is included in this key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,7 +270,7 @@ options.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.has_subkey">
-<span class="sig-name descname"><span class="pre">has_subkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subkey</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L207-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.has_subkey" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">has_subkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subkey</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L202-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.has_subkey" title="Permalink to this definition"></a></dt>
 <dd><p>Return True if this AdfKey contains the given subkey.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -287,20 +287,20 @@ options.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.is_block_key">
-<span class="sig-name descname"><span class="pre">is_block_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L157-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.is_block_key" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_block_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L152-L156"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.is_block_key" title="Permalink to this definition"></a></dt>
 <dd><p>Return True if this key is a block key.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.key">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.key" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.key" title="Permalink to this definition"></a></dt>
 <dd><p>Return the name of this key. If this is a block key, the name will be
 converted to upper cases.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.remove_option">
-<span class="sig-name descname"><span class="pre">remove_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L291-L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.remove_option" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">remove_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L286-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.remove_option" title="Permalink to this definition"></a></dt>
 <dd><p>Remove an option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -314,7 +314,7 @@ converted to upper cases.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.remove_subkey">
-<span class="sig-name descname"><span class="pre">remove_subkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subkey</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L250-L265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.remove_subkey" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">remove_subkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subkey</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L245-L260"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.remove_subkey" title="Permalink to this definition"></a></dt>
 <dd><p>Remove the given subkey, if existed, from this AdfKey.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -325,12 +325,12 @@ converted to upper cases.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.sub_keys">
-<span class="sig-name descname"><span class="pre">sub_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'AtomDepQuality'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.sub_keys" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sub_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'AtomDepQuality'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.sub_keys" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfKey.to_json">
-<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L358-L362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.to_json" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L353-L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.to_json" title="Permalink to this definition"></a></dt>
 <dd><p>Return a json string representation of the MSONable AdfKey object.</p>
 </dd></dl>
 
@@ -338,12 +338,12 @@ converted to upper cases.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L716-L1002"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L711-L997"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basic ADF output file parser.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.is_failed">
-<span class="sig-name descname"><span class="pre">is_failed</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_failed" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_failed</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_failed" title="Permalink to this definition"></a></dt>
 <dd><p>True is the ADF job is terminated without success. Otherwise False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -354,7 +354,7 @@ converted to upper cases.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.is_internal_crash">
-<span class="sig-name descname"><span class="pre">is_internal_crash</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_internal_crash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_internal_crash</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_internal_crash" title="Permalink to this definition"></a></dt>
 <dd><p>True if the job is terminated with internal crash. Please read ‘TAPE13’
 of the ADF manual for more detail.</p>
 <dl class="field-list simple">
@@ -366,7 +366,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.error">
-<span class="sig-name descname"><span class="pre">error</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.error" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">error</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.error" title="Permalink to this definition"></a></dt>
 <dd><p>The error description.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -377,7 +377,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.run_type">
-<span class="sig-name descname"><span class="pre">run_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.run_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.run_type" title="Permalink to this definition"></a></dt>
 <dd><p>The RunType of this ADF job. Possible options are: ‘SinglePoint’,
 ‘GeometryOptimization’, ‘AnalyticalFreq’ and ‘NUmericalFreq’.</p>
 <dl class="field-list simple">
@@ -389,7 +389,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.final_energy">
-<span class="sig-name descname"><span class="pre">final_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">final_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_energy" title="Permalink to this definition"></a></dt>
 <dd><p>The final molecule energy (a.u).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -400,7 +400,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.final_structure">
-<span class="sig-name descname"><span class="pre">final_structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">final_structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_structure" title="Permalink to this definition"></a></dt>
 <dd><p>The final structure of the molecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -411,7 +411,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.energies">
-<span class="sig-name descname"><span class="pre">energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.energies" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.energies" title="Permalink to this definition"></a></dt>
 <dd><p>The energy of each cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -422,7 +422,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.structures">
-<span class="sig-name descname"><span class="pre">structures</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">structures</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.structures" title="Permalink to this definition"></a></dt>
 <dd><p>The structure of each cycle If geometry optimization is performed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -433,7 +433,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.frequencies">
-<span class="sig-name descname"><span class="pre">frequencies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.frequencies" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">frequencies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.frequencies" title="Permalink to this definition"></a></dt>
 <dd><p>The frequencies of the molecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -444,7 +444,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.normal_modes">
-<span class="sig-name descname"><span class="pre">normal_modes</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.normal_modes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">normal_modes</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.normal_modes" title="Permalink to this definition"></a></dt>
 <dd><p>The normal modes of the molecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -455,7 +455,7 @@ of the ADF manual for more detail.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutput.freq_type">
-<span class="sig-name descname"><span class="pre">freq_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.freq_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">freq_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.freq_type" title="Permalink to this definition"></a></dt>
 <dd><p>Either ‘Analytical’ or ‘Numerical’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -474,14 +474,14 @@ of the ADF manual for more detail.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfOutputError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfOutputError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L72-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutputError" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfOutputError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L67-L70"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutputError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>The default error class for errors raised by <code class="docutils literal notranslate"><span class="pre">AdfOutput</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'energy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ADF_RUN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_subkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_directives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L458-L661"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'energy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ADF_RUN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_subkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_directives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L453-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic task for ADF. All settings in this class are independent of molecules.</p>
 <p class="rubric">Notes</p>
@@ -504,13 +504,13 @@ not support calculating force/gradient.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L609-L624"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L604-L619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>A JSON serializable dict representation of self.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L632-L661"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L627-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Construct a MSONable AdfTask object from the JSON dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -527,42 +527,42 @@ not support calculating force/gradient.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.get_default_basis_set">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_basis_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L522-L527"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_basis_set" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_basis_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L517-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_basis_set" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Default basis set</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.get_default_geo">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_geo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L536-L541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_geo" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_geo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L531-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_geo" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: ADFKey using default geometry.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.get_default_scf">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_scf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L529-L534"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_scf" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_scf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L524-L529"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_scf" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: ADF using default SCF.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.get_default_units">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L550-L555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_units" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L545-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_units" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Default units.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.get_default_xc">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_xc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L543-L548"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_xc" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_xc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L538-L543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_xc" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: ADFKey using default XC.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.operations">
-<span class="sig-name descname"><span class="pre">operations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'energy':</span> <span class="pre">'Evaluate</span> <span class="pre">the</span> <span class="pre">single</span> <span class="pre">point</span> <span class="pre">energy.',</span> <span class="pre">'freq':</span> <span class="pre">'Same</span> <span class="pre">as</span> <span class="pre">frequencies.',</span> <span class="pre">'frequencies':</span> <span class="pre">'Compute</span> <span class="pre">second</span> <span class="pre">derivatives</span> <span class="pre">and</span> <span class="pre">print</span> <span class="pre">out</span> <span class="pre">an</span> <span class="pre">analysis</span> <span class="pre">of</span> <span class="pre">molecular</span> <span class="pre">vibrations.',</span> <span class="pre">'numerical_frequencies':</span> <span class="pre">'Compute</span> <span class="pre">molecular</span> <span class="pre">frequencies</span> <span class="pre">using</span> <span class="pre">numerical</span> <span class="pre">method.',</span> <span class="pre">'optimize':</span> <span class="pre">'Minimize</span> <span class="pre">the</span> <span class="pre">energy</span> <span class="pre">by</span> <span class="pre">varying</span> <span class="pre">the</span> <span class="pre">molecular</span> <span class="pre">structure.'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.operations" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">operations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'energy':</span> <span class="pre">'Evaluate</span> <span class="pre">the</span> <span class="pre">single</span> <span class="pre">point</span> <span class="pre">energy.',</span> <span class="pre">'freq':</span> <span class="pre">'Same</span> <span class="pre">as</span> <span class="pre">frequencies.',</span> <span class="pre">'frequencies':</span> <span class="pre">'Compute</span> <span class="pre">second</span> <span class="pre">derivatives</span> <span class="pre">and</span> <span class="pre">print</span> <span class="pre">out</span> <span class="pre">an</span> <span class="pre">analysis</span> <span class="pre">of</span> <span class="pre">molecular</span> <span class="pre">vibrations.',</span> <span class="pre">'numerical_frequencies':</span> <span class="pre">'Compute</span> <span class="pre">molecular</span> <span class="pre">frequencies</span> <span class="pre">using</span> <span class="pre">numerical</span> <span class="pre">method.',</span> <span class="pre">'optimize':</span> <span class="pre">'Minimize</span> <span class="pre">the</span> <span class="pre">energy</span> <span class="pre">by</span> <span class="pre">varying</span> <span class="pre">the</span> <span class="pre">molecular</span> <span class="pre">structure.'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.operations" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.adf.AdfTask.to_json">
-<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L626-L630"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.to_json" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L621-L625"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.to_json" title="Permalink to this definition"></a></dt>
 <dd><p>Return a json string representation of the MSONable AdfTask object.</p>
 </dd></dl>
 
@@ -570,7 +570,7 @@ not support calculating force/gradient.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.adf.is_numeric">
-<span class="sig-name descname"><span class="pre">is_numeric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L17-L38"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.is_numeric" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_numeric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L18-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.is_numeric" title="Permalink to this definition"></a></dt>
 <dd><p>Return True is the string <code class="docutils literal notranslate"><span class="pre">s</span></code> is a numeric string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -588,14 +588,14 @@ float. Otherwise False will be returned.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.adf.iterlines">
-<span class="sig-name descname"><span class="pre">iterlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../io/adf.py#L41-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.iterlines" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">iterlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.3.24/pymatgen/core/../io/adf.py#L42-L58"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.iterlines" title="Permalink to this definition"></a></dt>
 <dd><p>A generator form of s.split(’n’) for reducing memory overhead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – A multi-line string.</p>
 </dd>
 <dt class="field-even">Yields</dt>
-<dd class="field-even"><p><strong>line</strong> (<em>str</em>) – A string.</p>
+<dd class="field-even"><p><em>str</em> – line</p>
 </dd>
 </dl>
 </dd></dl>
