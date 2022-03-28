@@ -18,7 +18,7 @@ import pandas as pd
 
 from monty.io import zopen
 from monty.re import regrep
-from monty.json import jsanitize
+from monty.json import jsanitize, MSONable
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -1453,9 +1453,11 @@ class Cp2kOutput:
         d["ran_successfully"] = self.completed
         d["cp2k_version"] = self.cp2k_version
         d["output"]["structure"] = self.final_structure.as_dict()
-        d["output"]["forces"] = self.data.get("forces", None)
-        d["output"]["stress"] = self.data.get("stress_tensor", None)
-        d["output"]["ionic_steps"] = self.ionic_steps
+        d["output"]["forces"] = self.data.get("forces", [None])[-1]
+        d["output"]["stress"] = self.data.get("stress_tensor", [None])[-1]
+        d["output"]["ionic_steps"] = [
+            {k: v.as_dict() if isinstance(v, MSONable) else v for k, v in step.items()} for step in self.ionic_steps
+        ]
         d["composition"] = self.composition.as_dict()
         d["output"]["energy"] = self.final_energy
         d["output"]["energy_per_atom"] = self.final_energy / self.composition.num_atoms

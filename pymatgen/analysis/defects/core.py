@@ -456,10 +456,11 @@ class Polaron(Substitution):
         Returns a name for this defect
         """
         poss_deflist = sorted(
-            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1]
+        )
         defindex = poss_deflist[0][2]
         return "Polaron_{}_on_{}_mult{}".format(
-            'e' if self.charge < 0 else 'h', self.bulk_structure[defindex].specie, self.multiplicity
+            "e" if self.charge < 0 else "h", self.bulk_structure[defindex].specie, self.multiplicity
         )
 
 
@@ -480,19 +481,17 @@ class GhostVacancy(Vacancy):
         defect_structure.make_supercell(supercell)
 
         # create a trivial defect structure to find where supercell transformation moves the lattice
-        struct_for_defect_site = Structure(self.bulk_structure.copy().lattice,
-                                           [self.site.specie],
-                                           [self.site.frac_coords],
-                                           to_unit_cell=True)
+        struct_for_defect_site = Structure(
+            self.bulk_structure.copy().lattice, [self.site.specie], [self.site.frac_coords], to_unit_cell=True
+        )
         struct_for_defect_site.make_supercell(supercell)
         defect_site = struct_for_defect_site[0]
 
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True), key=lambda x: x[1])
-        defindex = poss_deflist[0][2]
-        defect_structure.add_site_property(
-            'ghost', [True if i == defindex else False for i in range(len(defect_structure))]
+            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True), key=lambda x: x[1]
         )
+        defindex = poss_deflist[0][2]
+        defect_structure.add_site_property("ghost", [i == defindex for i in range(len(defect_structure))])
         defect_structure.set_charge(self.charge)
         return defect_structure
 
@@ -791,3 +790,177 @@ class DefectCorrection(MSONable):
         """
         entry.correction.update(self.get_correction(entry))
         return entry
+
+
+# TODO Experimental
+class DefectComplex(Defect):
+    """
+    A class for describing point defect complexes as a collection of isolated defects.
+    """
+
+    def __init__(self, structure, defects, charge=0.0, multiplicity=None):
+        """
+        Initialize the defect complex
+
+        Args:
+            structure: pymatgen Structure object representing the bulk system
+            defects: List of Defect objects representing the defects in the complex
+            charge: Charge of the complex
+            multiplicity: Multiplicity of the complex (defaults to None and is determined
+                automatically)
+        """
+        self._structure = structure
+        self._charge = int(charge)
+        self._defects = defects
+        lattice_match = all(
+            np.allclose(structure.lattice.matrix, defect.site.lattice.matrix, atol=1e-5) for defect in defects
+        )
+        if not lattice_match:
+            raise ValueError("defect_site lattice must be same as structure lattice.")
+
+        self._defect_site = [defect.site for defect in defects]
+
+        self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
+
+    @property
+    def bulk_structure(self):
+        """
+        Returns the structure without any defects.
+        """
+        return self._structure
+
+    @property
+    def charge(self):
+        """
+        Returns the charge of a defect
+        """
+        return self._charge
+
+    @property
+    def site(self):
+        """
+        Returns the defect position as a site object
+        """
+        return self._defect_site
+
+    @property
+    def defects(self):
+        """
+        Returns the list of defects
+        """
+        return self._defects
+
+    @property
+    def multiplicity(self):
+        """
+        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
+        """
+        return self._multiplicity
+
+    @property
+    def defect_composition(self):
+        """
+        Returns the defect composition as a Composition object
+        """
+        temp_comp = Composition()
+        for defect in self.defects:
+            temp_comp += defect.defect_composition
+        return temp_comp
+
+    def generate_defect_structure(self, supercell=(1, 1, 1)):
+        """
+        Returns Defective Substitution structure, decorated with charge.
+        If bulk structure had any site properties, all of these properties are
+        removed in the resulting defect structure.
+
+        Args:
+            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
+        """
+        defect_structure = self.bulk_structure.copy()
+        defect_structure.make_supercell(supercell)
+
+        # create a trivial defect structure to find where supercell transformation moves the defect
+        for site, defect in zip(self.site, self.defects):
+            struct_for_defect_site = Structure(
+                self.bulk_structure.copy().lattice,
+                [site.species],
+                [site.frac_coords],
+                to_unit_cell=True,
+                coords_are_cartesian=False,
+            )
+            struct_for_defect_site.make_supercell(supercell)
+            defect_site = struct_for_defect_site[0]
+
+            poss_deflist = sorted(
+                defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True),
+                key=lambda x: x[1],
+            )
+            defindex = poss_deflist[0][2]
+
+            if isinstance(defect, Vacancy):
+                defect_structure.remove_sites([defindex])
+
+            elif isinstance(defect, GhostVacancy):
+                defect_structure.add_site_property("ghost", [i == defindex for i in range(len(defect_structure))])
+
+            elif isinstance(defect, Substitution):
+                defect_structure.replace(defindex, site.specie.symbol)
+
+            elif isinstance(defect, Interstitial):
+                defect_structure.append(
+                    site.specie.symbol, defect_site.coords, coords_are_cartesian=True, properties=None
+                )
+
+            else:
+                raise ValueError("Defect type not recognized")
+
+        defect_structure.set_charge(self.charge)
+        return defect_structure
+
+    @property
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        return "DefectComplex-({})".format(",".join(d.name for d in self.defects))
+
+    def get_multiplicity(self):
+        """
+        Get the multiplicity of the defect complex.
+        """
+        m = 0
+        tmp = self.bulk_structure.copy()
+        for site in self.site:
+            sga = SpacegroupAnalyzer(tmp)
+            periodic_struc = sga.get_symmetrized_structure()
+            poss_deflist = sorted(
+                periodic_struc.get_sites_in_sphere(site.coords, 0.1, include_index=True),
+                key=lambda x: x[1],
+            )
+            if poss_deflist:
+                defindex = poss_deflist[0][2]
+                tmp.replace(defindex, site.species, site.frac_coords)
+            else:
+                defindex = len(tmp)
+                tmp.insert(site.species, site.frac_coords, coords_are_cartesian=False)
+
+            equivalent_sites = periodic_struc.find_equivalent_sites(periodic_struc[defindex])
+            m = len(equivalent_sites)
+        return m
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the defect.
+
+        Returns:
+            A copy of the Defect.
+        """
+        return self.from_dict(self.as_dict())
+
+    def set_charge(self, new_charge=0.0):
+        """
+        Sets the overall charge
+        Args:
+            charge (float): new charge to set
+        """
+        self._charge = int(new_charge)

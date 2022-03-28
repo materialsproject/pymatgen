@@ -5,7 +5,6 @@
 Implementation of defect correction methods.
 """
 
-from collections import deque
 import logging
 import subprocess
 import numpy as np
@@ -377,7 +376,6 @@ class FreysoldtCorrection2d(DefectCorrection):
         structure = entry.parameters["initial_defect_structure"]
         slab_bottom = np.argmin(structure.cart_coords[:, 2])
         slab_top = np.argmax(structure.cart_coords[:, 2])
-        slab_length = structure.lattice.c
         defect_cart_coords = structure.lattice.get_cartesian_coords(entry.parameters["defect_frac_sc_coords"])
         self.write_sphinx_input(
             lattice_matrix=structure.lattice.matrix,
@@ -386,7 +384,7 @@ class FreysoldtCorrection2d(DefectCorrection):
             slab_bottom=structure[slab_bottom].coords[2],
             slab_top=structure[slab_top].coords[2],
         )
-        out = self.optimize(q=entry.defect.charge, slab_top=slab_top, slab_bottom=slab_bottom, slab_length=slab_length)
+        out = self.optimize(q=entry.defect.charge)
         es_corr = self.parse_output(out)
         return {"2d_electrostatic": es_corr}
 
@@ -450,8 +448,9 @@ class FreysoldtCorrection2d(DefectCorrection):
             str(shift),
             "-C",
             str(C),
-            "--onlyProfile" if only_profile else "",
         ]
+        if only_profile:
+            command.append("--onlyProfile")
 
         with subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
             stdout, stderr = rs.communicate()
@@ -460,7 +459,7 @@ class FreysoldtCorrection2d(DefectCorrection):
 
             return stdout.decode("utf-8")
 
-    def optimize(self, q, slab_top, slab_bottom, slab_length, max_iter=100, threshold_slope=1e-3, threshold_C=1e-3):
+    def optimize(self, q, max_iter=100, threshold_slope=1e-3, threshold_C=1e-3):
         """
         Optimize the alignment constant C and shift for the potentials.
 
@@ -523,14 +522,12 @@ class FreysoldtCorrection2d(DefectCorrection):
                 logger.debug("optimal shift is in [%.8f, %.8f]" % (smin, smax))
                 logger.info("shift charge in -z direction; try shift = %.8f" % shift)
 
+        C_ave = (C1 + C2) / 2
         if done:
-            C_ave = (C1 + C2) / 2
             logger.info("DONE! shift = %.8f & alignment correction = %.8f" % (shift, C_ave))
-            output = self.run_sxdefectalign2d(shift=shift, C=C_ave, only_profile=True)
         else:
             logger.info("Could not find optimal shift after %d tries :(" % max_iter)
-
-        return output
+        return self.run_sxdefectalign2d(shift=shift, C=C_ave, only_profile=True)
 
     def parse_output(self, output):
         """
@@ -544,7 +541,7 @@ class FreysoldtCorrection2d(DefectCorrection):
         """
         data = np.loadtxt("vline-eV.dat")
         self.metadata["pot_plot_data"] = {"Vdiff": data[:, 2], "Vmodel": data[:, 1], "z": data[:, 0], "Vsr": data[:, 3]}
-        return float(deque(output, 1)[0].split()[-2])
+        return float(output.split("\n")[-2].split()[-2])
 
     def plot(self, savefig=False):
         """

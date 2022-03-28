@@ -162,20 +162,16 @@ class Cp2kInputSet(Cp2kInput):
             kwargs = {}
 
             _ox = (
-                self.structure.site_properties["oxi_state"][unique_kinds[k][0]]
+                self.structure.site_properties["oxi_state"][v[0]]
                 if "oxi_state" in self.structure.site_properties
                 else 0
             )
-            _sp = (
-                self.structure.site_properties["spin"][unique_kinds[k][0]]
-                if "spin" in self.structure.site_properties
-                else 0
-            )
+            _sp = self.structure.site_properties["spin"][v[0]] if "spin" in self.structure.site_properties else 0
 
             bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
 
             if "magmom" in self.structure.site_properties and not bs:
-                kwargs["magnetization"] = self.structure.site_properties["magmom"][unique_kinds[k][0]]
+                kwargs["magnetization"] = self.structure.site_properties["magmom"][v[0]]
 
             if "ghost" in self.structure.site_properties:
                 kwargs["ghost"] = self.structure.site_properties["ghost"][v[0]]
@@ -191,7 +187,7 @@ class Cp2kInputSet(Cp2kInput):
                 potential = basis_and_potential[kind]["potential"]
 
             if "aux_basis" in self.structure.site_properties:
-                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][unique_kinds[k][0]]
+                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
                 if kwargs["aux_basis"] == "match":
                     kwargs["aux_basis"] = basis_set
 
@@ -229,13 +225,13 @@ class DftSet(Cp2kInputSet):
         ot: bool = True,
         energy_gap: float = -1,
         eps_default: float = 1e-12,
-        eps_scf: float = 1e-7,
+        eps_scf: float = 1e-6,
         max_scf: Union[int, None] = None,
         minimizer: str = "DIIS",
-        preconditioner: str = "FULL_ALL",
-        algorithm: str = "STRICT",
+        preconditioner: str = "FULL_SINGLE_INVERSE",
+        algorithm: str = "IRAC",
         linesearch: str = "2PNT",
-        rotation: bool = False,
+        rotation: bool = True,
         occupation_preconditioner: bool = False,
         cutoff: int = 0,
         rel_cutoff: int = 50,
@@ -259,8 +255,8 @@ class DftSet(Cp2kInputSet):
             energy_gap (float): Estimate of energy gap for preconditioner. Default is -1, leaving it up to cp2k.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
                 value, ensuring an overall accuracy of at least this much.
-            eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-7. Should
-                ensure reasonable results for all properties.
+            eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-6. Should
+                ensure reasonable results, but is not applicable to all situations.
                     Note: eps_scf is *not* in units of energy, as in most DFT codes. For OT method, it is the largest
                     gradient of the energy with respect to changing any of the molecular orbital coefficients. For
                     diagonalization, it is the largest change in the density matrix from the last step.
@@ -270,10 +266,22 @@ class DftSet(Cp2kInputSet):
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
-            preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
-                default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
-                only change from these two when simulation cell gets to be VERY large, in which case FULL_KINETIC might
-                be preferred.
+            preconditioner (str): Preconditioner for the OT method. FULL_SINGLE_INVERSE is very robust and compatible
+                with non-integer occupations from IRAC+rotation. FULL_ALL is considered "best" but needs algorithm to
+                be set to STRICT. Only change from these two when simulation cell gets to be VERY large, in which case
+                FULL_KINETIC might be preferred.
+            algorithm (str): Algorithm for the OT method. STRICT assumes that the orbitals are strictly orthogonal to
+                each other, which works well for wide gap ionic systems, but can diverge for systems with small gaps,
+                fractional occupations, and some other cases. IRAC (iterative refinement of the approximate congruency)
+                transformation is not analytically correct and uses a truncated polynomial expansion, but is robust to
+                the problems with STRICT, and so is the default.
+            linesearch (str): Linesearch method for CG. 2PNT is the default, and is the fastest, but is not as robust
+                as 3PNT. 2PNT is required as of cp2k v9.1 for compatibility with irac+rotation. This may be upgraded
+                in the future. 3PNT can be good for wide gapped transition metal systems as an alternative.
+            rotation (bool): Whether or not to allow for rotation of the orbitals in the OT method. This equates to
+                allowing for fractional occupations in the calculation.
+            occupation_preconditioner (bool): Whether or not to account for fractional occupations in the
+                preconditioner. This method is not fully integrated as of cp2k v9.1 and is set to false by default.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate. By default cutoff is set to 0,
                 which will assign it to be the largest exponent of your basis times the rel_cutoff.
@@ -410,9 +418,9 @@ class DftSet(Cp2kInputSet):
             self.print_ldos()
         if kwargs.get("print_mo_cubes", True):
             self.print_mo_cubes()
-        if kwargs.get("print_hartree_potential", False):
+        if kwargs.get("print_hartree_potential", True):
             self.print_hartree_potential()
-        if kwargs.get("print_e_density", False):
+        if kwargs.get("print_e_density", True):
             self.print_e_density()
 
         self.update(self.override_default_params)
@@ -496,7 +504,7 @@ class DftSet(Cp2kInputSet):
         omega: float = 0.11,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
-        eps_schwarz: float = 1e-6,
+        eps_schwarz: float = 1e-7,
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
@@ -546,9 +554,8 @@ class DftSet(Cp2kInputSet):
                 possible when compared to non ADMM hybrid calculations. Default: True
             eps_schwarz (float): Screening threshold for HFX, in Ha. Contributions smaller than this
                 will be screened. The smaller the value, the more accurate, but also the more
-                costly. Default value is 1e-6, which is quite aggressive. Aggressive screening
-                can also lead to convergence issues. 1e-7 should be a safe value if 1e-6 is too
-                aggressive.
+                costly. Default value is 1e-7. 1e-6 works in a large number of cases, but is
+                quite aggressive, which can lead to convergence issues.
             eps_schwarz_forces (float): Same as for eps_schwarz, but for screening contributions to
                 forces. Convergence is not as sensitive with respect to eps_schwarz forces as
                 compared to eps_schwarz, and so 1e-6 should be good default.
@@ -637,7 +644,7 @@ class DftSet(Cp2kInputSet):
                 }
             )
         elif hybrid_functional == "PBE0":
-            pbe = PBE("ORIG", scale_c=1, scale_x=1-hf_fraction)
+            pbe = PBE("ORIG", scale_c=1, scale_x=1 - hf_fraction)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
             xc_functional.insert(
                 Section(
