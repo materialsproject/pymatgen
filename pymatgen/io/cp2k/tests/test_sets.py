@@ -3,18 +3,18 @@
 
 import unittest
 
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.structure import Molecule, Species, Structure
 from pymatgen.io.cp2k.sets import (
+    CellOptSet,
     Cp2kInputSet,
     DftSet,
-    StaticSet,
+    HybridCellOptSet,
+    HybridRelaxSet,
     HybridStaticSet,
     RelaxSet,
-    HybridRelaxSet,
-    CellOptSet,
-    HybridCellOptSet,
+    StaticSet,
 )
-from pymatgen.core.structure import Structure, Molecule, Species
+from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
@@ -40,7 +40,7 @@ property_structure = Structure(
     coords=[[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [1, 1, 1]],
 )
 
-# TODO More comprehensive testing 
+# TODO More comprehensive testing
 class SetTest(PymatgenTest):
     def setUp(self):
         pass

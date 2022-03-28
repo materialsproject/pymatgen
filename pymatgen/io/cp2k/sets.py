@@ -21,45 +21,46 @@ import itertools
 import os
 import warnings
 from pathlib import Path
+
 from ruamel import yaml
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
+    LDOS,
+    PBE,
+    PDOS,
+    QS,
+    BrokenSymmetry,
+    Cell,
+    Coord,
     Cp2kInput,
-    Section,
+    Dft,
+    E_Density_Cube,
+    ForceEval,
+    Global,
     Keyword,
     KeywordList,
-    Global,
-    ForceEval,
+    Kind,
+    Kpoints,
     Mgrid,
     MO_Cubes,
     OrbitalTransformation,
-    Xc_Functional,
-    SectionList,
-    V_Hartree_Cube,
-    Dft,
-    E_Density_Cube,
-    LDOS,
-    PDOS,
-    Coord,
-    Kind,
-    QS,
-    PBE,
-    Cell,
-    Subsys,
     Scf,
-    Kpoints,
+    Section,
+    SectionList,
     Smear,
-    BrokenSymmetry,
+    Subsys,
+    V_Hartree_Cube,
+    Xc_Functional,
 )
 from pymatgen.io.cp2k.utils import (
-    get_basis_and_potential,
     get_aux_basis,
-    get_unique_site_indices,
+    get_basis_and_potential,
     get_cutoff_from_basis,
-    get_xc_functionals,
     get_truncated_coulomb_cutoff,
+    get_unique_site_indices,
+    get_xc_functionals,
 )
 
 __author__ = "Nicholas Winner"
@@ -802,7 +803,7 @@ class DftSet(Cp2kInputSet):
                             "FIXED_ATOMS",
                             keywords={
                                 "COMPONENTS_TO_FIX": Keyword("COMPONENTS_TO_FIX", c),
-                                "LIST": Keyword("LIST", "{}..{}".format(t[0], t[1])),
+                                "LIST": Keyword("LIST", f"{t[0]}..{t[1]}"),
                             },
                         )
                         for t, c in zip(tuples, components)

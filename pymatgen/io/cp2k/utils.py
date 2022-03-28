@@ -4,8 +4,9 @@ Utility functions for assisting with cp2k IO
 
 import os
 import re
-from pathlib import Path
 import warnings
+from pathlib import Path
+
 import numpy as np
 from monty.io import zopen
 from ruamel.yaml import YAML
@@ -127,7 +128,7 @@ def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
         "potential_filename": potential_filename,
     }
 
-    with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
+    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
         yaml = YAML(typ="unsafe", pure=True)
         settings = yaml.load(f)
 
@@ -177,7 +178,7 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
         default_basis_type (str) default basis type if n
 
     """
-    with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
+    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
         yaml = YAML(typ="unsafe", pure=True)
         settings = yaml.load(f)
         aux_bases = {
@@ -203,7 +204,7 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
             if aux_bases[k]:
                 basis[k] = aux_bases[k][0]
             else:
-                raise LookupError("No basis of that type found for: {}".format(k))
+                raise LookupError(f"No basis of that type found for: {k}")
     return basis
 
 
@@ -251,7 +252,7 @@ def get_unique_site_indices(structure):
     sites = {}
     nums = {s: 1 for s in structure.symbol_set}
     for s in _sites:
-        sites["{}_{}".format(s[0], nums[s[0]])] = _sites[s]
+        sites[f"{s[0]}_{nums[s[0]]}"] = _sites[s]
         nums[s[0]] += 1
 
     return sites
@@ -269,7 +270,7 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
     Returns:
         Ideal cutoff for calculation.
     """
-    with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
+    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
         yaml = YAML(typ="unsafe", pure=True)
         _exponents = yaml.load(f)
         _exponents = {
@@ -278,7 +279,7 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
             if v["basis_sets"].get("basis_set_largest_exponents")
         }
         exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
-        return max([np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases)])
+        return max(np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases))
 
 
 # TODO this is not comprehensive. There are so many libxc functionals (e.g. see r2scan)
@@ -313,7 +314,7 @@ def get_xc_functionals(name):
         return ["MGGA_X_R2SCAN", "MGGA_C_R2SCAN"]
     if name == "R2SCANL":
         return ["MGGA_X_R2SCANL", "MGGA_C_R2SCANL"]
-    warnings.warn("Unknown XC functionals: {}".format(name))
+    warnings.warn(f"Unknown XC functionals: {name}")
     return [name]
 
 

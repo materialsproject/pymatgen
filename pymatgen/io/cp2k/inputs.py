@@ -21,22 +21,22 @@ A quick overview of the module:
 """
 
 import copy
+import itertools
 import os
 import re
 import textwrap
 import warnings
-import itertools
 from collections import OrderedDict
 from typing import Iterable, Sequence
+
 from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 
 __author__ = "Nicholas Winner"
 __version__ = "1.0"

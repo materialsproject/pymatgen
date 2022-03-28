@@ -15,19 +15,17 @@ from itertools import chain
 
 import numpy as np
 import pandas as pd
-
 from monty.io import zopen
+from monty.json import MSONable, jsanitize
 from monty.re import regrep
-from monty.json import jsanitize, MSONable
 
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, CompleteDos
-from pymatgen.io.xyz import XYZ
-
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.units import Ha_to_eV
+from pymatgen.electronic_structure.core import Orbital, Spin
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
-from pymatgen.core.units import Ha_to_eV
+from pymatgen.io.xyz import XYZ
 
 __author__ = "Nicholas Winner"
 __version__ = "1.0"

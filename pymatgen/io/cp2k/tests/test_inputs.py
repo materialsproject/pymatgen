@@ -17,7 +17,9 @@ Si_structure = Structure(
 )
 
 nonsense_Structure = Structure(
-    lattice=[[-1.0, -10.0, -100.0], [0.1, 0.01, 0.001], [7.0, 11.0, 21.0]], species=["H"], coords=[[-1, -1, -1]],
+    lattice=[[-1.0, -10.0, -100.0], [0.1, 0.01, 0.001], [7.0, 11.0, 21.0]],
+    species=["H"],
+    coords=[[-1, -1, -1]],
 )
 
 molecule = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])
@@ -64,7 +66,8 @@ class InputTest(PymatgenTest):
     def test_ci_file(self):
         # proper keyword retrieval
         self.assertEqual(
-            self.ci["FORCE_EVAL"]["DFT"]["SCF"]["OT"]["MINIMIZER"], Keyword("MINIMIZER", "DIIS"),
+            self.ci["FORCE_EVAL"]["DFT"]["SCF"]["OT"]["MINIMIZER"],
+            Keyword("MINIMIZER", "DIIS"),
         )
 
         # proper type retrieval
@@ -75,10 +78,12 @@ class InputTest(PymatgenTest):
 
         # description retrieval
         self.assertEqual(
-            self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description, "Input parameters needed to set up the CELL.",
+            self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description,
+            "Input parameters needed to set up the CELL.",
         )
         self.assertEqual(
-            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["CUTOFF"].description, "Cutoff in [Ry] for finest level of the MG.",
+            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["CUTOFF"].description,
+            "Cutoff in [Ry] for finest level of the MG.",
         )
 
     def test_odd_file(self):
