@@ -3,19 +3,18 @@
 
 import unittest
 
-from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.inputs import Cp2kInput
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cp2k.sets import (
-    CellOptSet,
     Cp2kInputSet,
     DftSet,
-    HybridCellOptSet,
-    HybridRelaxSet,
+    StaticSet,
     HybridStaticSet,
     RelaxSet,
-    StaticSet,
+    HybridRelaxSet,
+    CellOptSet,
+    HybridCellOptSet,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.structure import Structure, Molecule, Species
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
@@ -24,14 +23,24 @@ Si_structure = Structure(
 )
 
 nonsense_Structure = Structure(
-    lattice=[[-1.0, -10.0, -100.0], [0.1, 0.01, 0.001], [7.0, 11.0, 21.0]],
-    species=["X"],
-    coords=[[-1, -1, -1]],
+    lattice=[[-1, -10, -100], [0.1, 0.01, 0.001], [7, 11, 21]], species=["X"], coords=[[-1, -1, -1]]
 )
 
 molecule = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])
 
 
+property_structure = Structure(
+    lattice=[[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+    species=[
+        Species("Ni", oxidation_state=4, properties={"spin": 0}),
+        Species("O", oxidation_state=-2, properties={"spin": 0}),
+        "Ni",
+        "O",
+    ],
+    coords=[[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [1, 1, 1]],
+)
+
+# TODO More comprehensive testing 
 class SetTest(PymatgenTest):
     def setUp(self):
         pass
@@ -41,48 +50,20 @@ class SetTest(PymatgenTest):
             cis = Cp2kInputSet(s)
             self.assertMSONable(cis)
             cis = Cp2kInputSet.from_dict(cis.as_dict())
-            cis = Cp2kInputSet.from_string(cis.get_string())
+            Cp2kInputSet.from_string(cis.get_string())
 
-            cis = DftSet(s)
-            self.assertMSONable(cis)
-            cis = DftSet.from_dict(cis.as_dict())
-            cis = DftSet.from_string(cis.get_string())
-
-            cis = StaticSet(s)
-            self.assertMSONable(cis)
-            cis = StaticSet.from_dict(cis.as_dict())
-            cis = StaticSet.from_string(cis.get_string())
-
-            cis = HybridStaticSet(s)
-            self.assertMSONable(cis)
-            cis = HybridStaticSet.from_dict(cis.as_dict())
-            cis = HybridStaticSet.from_string(cis.get_string())
-
-            cis = RelaxSet(s)
-            self.assertMSONable(cis)
-            cis = RelaxSet.from_dict(cis.as_dict())
-            cis = RelaxSet.from_string(cis.get_string())
-
-            cis = HybridRelaxSet(s)
-            self.assertMSONable(cis)
-            cis = HybridRelaxSet.from_dict(cis.as_dict())
-            cis = HybridRelaxSet.from_string(cis.get_string())
-
-            cis = CellOptSet(s)
-            self.assertMSONable(cis)
-            cis = CellOptSet.from_dict(cis.as_dict())
-            cis = CellOptSet.from_string(cis.get_string())
-
-            cis = HybridCellOptSet(s)
-            self.assertMSONable(cis)
-            cis = HybridCellOptSet.from_dict(cis.as_dict())
-            cis = HybridCellOptSet.from_string(cis.get_string())
+            DftSet(s)
+            StaticSet(s)
+            HybridStaticSet(s)
+            RelaxSet(s)
+            HybridRelaxSet(s)
+            CellOptSet(s)
+            HybridCellOptSet(s)
 
     def test_aux_basis(self):
         Si_aux_bases = ["FIT", "cFIT", "pFIT", "cpFIT"]
         for s in Si_aux_bases:
-            cis = HybridStaticSet(Si_structure, aux_basis={"Si": s})
-            cis = Cp2kInput.from_string(cis.get_string())
+            HybridStaticSet(Si_structure, aux_basis={"Si": s})
 
     def test_prints(self):
         cis = RelaxSet(Si_structure, print_ldos=False, print_pdos=False)

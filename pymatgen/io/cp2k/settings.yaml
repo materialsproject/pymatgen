@@ -1,0 +1,2661 @@
+Ac:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Ag:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q11
+    - DZVP-MOLOPT-SR-GTH-q11
+    - TZVP-MOLOPT-SR-GTH-q11
+    - TZV2P-MOLOPT-SR-GTH-q11
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q11: 2.586709178255
+      SZV-MOLOPT-SR-GTH-q11: 2.586709178255
+      TZV2P-MOLOPT-SR-GTH-q11: 2.58670918
+      TZVP-MOLOPT-SR-GTH-q11: 2.58670918
+    best_basis: TZV2P-MOLOPT-SR-GTH-Q11
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q11
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q11
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PADE-q19
+    - GTH-PBE-q11
+Al:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - GTH-def2-QZVP
+    - cFIT3
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    - cFIT7
+    - cFIT8
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT8
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q3
+    - DZVP-MOLOPT-SR-GTH-q3
+    - TZVP-MOLOPT-SR-GTH-q3
+    - TZV2P-MOLOPT-SR-GTH-q3
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q3: 1.212902319099
+      SZV-MOLOPT-SR-GTH-q3: 1.212902319099
+      TZV2P-MOLOPT-SR-GTH-q3: 1.21290232
+      TZVP-MOLOPT-SR-GTH-q3: 1.21290232
+    best_basis: TZV2P-MOLOPT-SR-GTH-q3
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q3
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q3
+    - GTH-BP-q3
+    - GTH-PADE
+    - GTH-PBE-q3
+Am:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Ar:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q8
+    - DZVP-MOLOPT-SR-GTH-q8
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q8: 3.936450214256
+      SZV-MOLOPT-SR-GTH-q8: 3.936450214256
+    best_basis: DZVP-MOLOPT-SR-GTH-q8
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q8
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q8
+    - GTH-BP-q8
+    - GTH-HCTH120-q8
+    - GTH-PADE
+    - GTH-PBE-q8
+As:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q5
+    - DZVP-MOLOPT-SR-GTH-q5
+    - TZVP-MOLOPT-SR-GTH-q5
+    - TZV2P-MOLOPT-SR-GTH-q5
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q5: 1.098624139209
+      SZV-MOLOPT-SR-GTH-q5: 1.098624139209
+      TZV2P-MOLOPT-SR-GTH-q5: 1.09862414
+      TZVP-MOLOPT-SR-GTH-q5: 1.09862414
+    best_basis: TZV2P-MOLOPT-SR-GTH-q5
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q5
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q5
+    - GTH-BP-q5
+    - GTH-PADE
+    - GTH-PBE-q5
+At:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q7
+    - DZVP-MOLOPT-SR-GTH-q7
+    - TZVP-MOLOPT-SR-GTH-q7
+    - TZV2P-MOLOPT-SR-GTH-q7
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q7: 1.796641038213
+      SZV-MOLOPT-SR-GTH-q7: 1.796641038213
+      TZV2P-MOLOPT-SR-GTH-q7: 1.79664104
+      TZVP-MOLOPT-SR-GTH-q7: 1.79664104
+    best_basis: TZV2P-MOLOPT-SR-GTH-q7
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q7
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q7
+Au:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q11
+    - DZVP-MOLOPT-SR-GTH-q11
+    - TZVP-MOLOPT-SR-GTH-q11
+    - TZV2P-MOLOPT-SR-GTH-q11
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q11: 2.950008433436
+      SZV-MOLOPT-SR-GTH-q11: 2.950008433436
+      TZV2P-MOLOPT-SR-GTH-q11: 2.95000843
+      TZVP-MOLOPT-SR-GTH-q11: 2.95000843
+    best_basis: TZV2P-MOLOPT-SR-GTH-q11
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q11
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q11
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PADE-q19
+    - GTH-PBE-q11
+B:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q3
+    - DZVP-MOLOPT-SR-GTH-q3
+    - TZVP-MOLOPT-SR-GTH-q3
+    - TZV2P-MOLOPT-SR-GTH-q3
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q3: 3.053444073497
+      SZV-MOLOPT-SR-GTH-q3: 3.053444073497
+      TZV2P-MOLOPT-SR-GTH-q3: 3.05344407
+      TZVP-MOLOPT-SR-GTH-q3: 3.05344407
+    best_basis: TZV2P-MOLOPT-SR-GTH-q3
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q3
+    preferred_aux_basis: optFIT3
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q3
+    - GTH-BP-q3
+    - GTH-PADE
+    - GTH-PBE-q3
+    - GTH-PBESol-q3
+Ba:
+  basis_sets:
+    aux_basis:
+    - cFIT8
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - FIT8
+    - FIT9
+    - FIT10
+    - FIT11
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q10
+    - DZVP-MOLOPT-SR-GTH-q10
+    - TZVP-MOLOPT-SR-GTH-q10
+    - TZV2P-MOLOPT-SR-GTH-q10
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q10: 1.099107387393
+      SZV-MOLOPT-SR-GTH-q10: 1.099107387393
+      TZV2P-MOLOPT-SR-GTH-q10: 1.09910739
+      TZVP-MOLOPT-SR-GTH-q10: 1.09910739
+    best_basis: TZV2P-MOLOPT-SR-GTH-q10
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q10
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q10
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PBE-q10
+Be:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q4
+    - DZVP-MOLOPT-SR-GTH-q4
+    - TZVP-MOLOPT-SR-GTH-q4
+    - TZV2P-MOLOPT-SR-GTH-q4
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q4: 14.92741041093
+      SZV-MOLOPT-SR-GTH-q4: 14.92741041093
+      TZV2P-MOLOPT-SR-GTH-q4: 14.92741041
+      TZVP-MOLOPT-SR-GTH-q4: 14.92741041
+    best_basis: TZV2P-MOLOPT-SR-GTH-q4
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q4
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q4
+    - GTH-BP-q4
+    - GTH-PADE-q2
+    - GTH-PADE
+    - GTH-PBE-q4
+Bi:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q5
+    - DZVP-MOLOPT-SR-GTH-q5
+    - TZVP-MOLOPT-SR-GTH-q5
+    - TZV2P-MOLOPT-SR-GTH-q5
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q5: 1.666928293168
+      SZV-MOLOPT-SR-GTH-q5: 1.666928293168
+      TZV2P-MOLOPT-SR-GTH-q5: 1.66692829
+      TZVP-MOLOPT-SR-GTH-q5: 1.66692829
+    best_basis: TZV2P-MOLOPT-SR-GTH-q5
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q5
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q5
+    - GTH-PADE
+    - GTH-PBE-q5
+Bk:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Br:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q7
+    - DZVP-MOLOPT-SR-GTH-q7
+    - TZVP-MOLOPT-SR-GTH-q7
+    - TZV2P-MOLOPT-SR-GTH-q7
+    - SZV-MOLOPT-GTH-q7
+    - DZVP-MOLOPT-GTH-q7
+    - TZVP-MOLOPT-GTH-q7
+    - TZV2P-MOLOPT-GTH-q7
+    - TZV2PX-MOLOPT-GTH-q7
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q7: 2.90898813
+      DZVP-MOLOPT-SR-GTH-q7: 1.73739273812
+      SZV-MOLOPT-GTH-q7: 2.90898813
+      SZV-MOLOPT-SR-GTH-q7: 1.73739273812
+      TZV2P-MOLOPT-GTH-q7: 2.90898813
+      TZV2P-MOLOPT-SR-GTH-q7: 1.73739274
+      TZV2PX-MOLOPT-GTH-q7: 2.90898813
+      TZVP-MOLOPT-GTH-q7: 2.90898813
+      TZVP-MOLOPT-SR-GTH-q7: 1.73739274
+    best_basis: TZV2PX-MOLOPT-GTH-q7
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q7
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q7
+    - GTH-BP-q7
+    - GTH-PADE
+    - GTH-PBE-q7
+C:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - optFIT3
+    - pFIT3
+    - cpFIT3
+    - FIT3
+    - aug-FIT3
+    - aug-cFIT3
+    - aug-pFIT3
+    - aug-cpFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q4
+    - DZVP-MOLOPT-GTH-q4
+    - TZVP-MOLOPT-GTH-q4
+    - TZV2P-MOLOPT-GTH-q4
+    - TZV2PX-MOLOPT-GTH-q4
+    - SZV-MOLOPT-SR-GTH-q4
+    - DZVP-MOLOPT-SR-GTH-q4
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q4: 6.132624767898
+      DZVP-MOLOPT-SR-GTH-q4: 5.605330751705
+      SZV-MOLOPT-GTH-q4: 6.132624767898
+      SZV-MOLOPT-SR-GTH-q4: 5.605330751705
+      TZV2P-MOLOPT-GTH-q4: 6.132624767898
+      TZV2PX-MOLOPT-GTH-q4: 6.132624767898
+      TZVP-MOLOPT-GTH-q4: 6.132624767898
+    best_basis: TZV2PX-MOLOPT-GTH-q4
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q4
+    preferred_aux_basis: optFIT3
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q4
+    - GTH-BP-q4
+    - GTH-HCTH120-q4
+    - GTH-HCTH407-q4
+    - GTH-PADE
+    - GTH-PBE-q4
+Ca:
+  basis_sets:
+    aux_basis:
+    - cFIT7
+    - cFIT8
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - FIT7
+    - FIT8
+    - FIT9
+    - FIT10
+    - FIT11
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q10
+    - DZVP-MOLOPT-SR-GTH-q10
+    - TZVP-MOLOPT-SR-GTH-q10
+    - TZV2P-MOLOPT-SR-GTH-q10
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q10: 5.284985596557
+      SZV-MOLOPT-SR-GTH-q10: 5.284985596557
+      TZV2P-MOLOPT-SR-GTH-q10: 5.28498554
+      TZVP-MOLOPT-SR-GTH-q10: 5.28498554
+    best_basis: TZV2P-MOLOPT-SR-GTH-q10
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q10
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q10
+    - GTH-BP-q10
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PBE-q10
+Cd:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q12: 2.617301292227
+      SZV-MOLOPT-SR-GTH-q12: 2.617301292227
+      TZV2P-MOLOPT-SR-GTH-q12: 2.61730129
+      TZVP-MOLOPT-SR-GTH-q12: 2.61730129
+    best_basis: TZV2P-MOLOPT-SR-GTH-q12
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PBE-q12
+Ce:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    - SZV-MOLOPT-SR-GTH-q30
+    - DZV-MOLOPT-SR-GTH-q30
+    - DZVP-MOLOPT-SR-GTH-q30
+    - TZVP-MOLOPT-SR-GTH-q30
+    - TZV2P-MOLOPT-SR-GTH-q30
+    basis_set_largest_exponents:
+      DZV-MOLOPT-SR-GTH-q30: 18.92175586
+      DZVP-MOLOPT-SR-GTH-q12: 4.34805319
+      DZVP-MOLOPT-SR-GTH-q30: 18.92175586
+      SZV-MOLOPT-SR-GTH-q12: 4.34805319
+      SZV-MOLOPT-SR-GTH-q30: 18.92175586
+      TZV2P-MOLOPT-SR-GTH-q12: 4.34805319
+      TZV2P-MOLOPT-SR-GTH-q30: 18.92175586
+      TZVP-MOLOPT-SR-GTH-q12: 4.34805319
+      TZVP-MOLOPT-SR-GTH-q30: 18.92175586
+    best_basis: TZV2P-MOLOPT-SR-GTH-q30
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q12
+    - GTH-PADE
+    - GTH-PBE-q12
+Cf:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Cl:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - pFIT3
+    - cpFIT3
+    - FIT3
+    - aug-FIT3
+    - aug-cFIT3
+    - aug-pFIT3
+    - aug-cpFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q7
+    - DZVP-MOLOPT-GTH-q7
+    - TZV2P-MOLOPT-GTH-q7
+    - TZV2PX-MOLOPT-GTH-q7
+    - SZV-MOLOPT-SR-GTH-q7
+    - DZVP-MOLOPT-SR-GTH-q7
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q7: 4.57703419411
+      DZVP-MOLOPT-SR-GTH-q7: 2.379078117601
+      SZV-MOLOPT-GTH-q7: 4.57703419411
+      SZV-MOLOPT-SR-GTH-q7: 2.379078117601
+      TZV2P-MOLOPT-GTH-q7: 4.57703419411
+      TZV2PX-MOLOPT-GTH-q7: 4.57703419411
+      TZVP-MOLOPT-GTH-q7: 4.57703419411
+    best_basis: DZVP-MOLOPT-SR-GTH-q7
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q7
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q7
+    - GTH-BP-q7
+    - GTH-PADE
+    - GTH-PBE-q7
+Cm:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Co:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q17
+    - DZVP-MOLOPT-SR-GTH-q17
+    - TZVP-MOLOPT-SR-GTH-q17
+    - TZV2P-MOLOPT-SR-GTH-q17
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q17: 8.365267848849
+      SZV-MOLOPT-SR-GTH-q17: 8.365267848849
+      TZV2P-MOLOPT-SR-GTH-q17: 8.36526785
+      TZVP-MOLOPT-SR-GTH-q17: 8.36526785
+    best_basis: TZV2P-MOLOPT-SR-GTH-q17
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q17
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q17
+    - GTH-BP-q17
+    - GTH-PADE
+    - GTH-PADE-q9
+    - GTH-PBE-q17
+Cr:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q14
+    - DZVP-MOLOPT-SR-GTH-q14
+    - TZVP-MOLOPT-SR-GTH-q14
+    - TZV2P-MOLOPT-SR-GTH-q14
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q14: 8.512514788173
+      SZV-MOLOPT-SR-GTH-q14: 8.512514788173
+      TZV2P-MOLOPT-SR-GTH-q14: 8.51251479
+      TZVP-MOLOPT-SR-GTH-q14: 8.51251479
+    best_basis: TZV2P-MOLOPT-SR-GTH-q14
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q14
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q14
+    - GTH-BP-q14
+    - GTH-PADE
+    - GTH-PADE-q6
+    - GTH-PBE-q14
+Cs:
+  basis_sets:
+    aux_basis:
+    - cFIT7
+    - cFIT8
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - FIT7
+    - FIT8
+    - FIT9
+    - FIT10
+    - FIT11
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q9
+    - DZVP-MOLOPT-SR-GTH-q9
+    - TZVP-MOLOPT-SR-GTH-q9
+    - TZV2P-MOLOPT-SR-GTH-q9
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q9: 1.000865707027
+      SZV-MOLOPT-SR-GTH-q9: 1.000865707027
+      TZV2P-MOLOPT-SR-GTH-q9: 1.00086571
+      TZVP-MOLOPT-SR-GTH-q9: 1.00086571
+    best_basis: TZV2P-MOLOPT-SR-GTH-q9
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q9
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BP-q9
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PBE-q9
+Cu:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q11
+    - DZVP-MOLOPT-SR-GTH-q11
+    - TZVP-MOLOPT-SR-GTH-q11
+    - TZV2P-MOLOPT-SR-GTH-q11
+    - SZV-MOLOPT-GTH-q11
+    - DZVP-MOLOPT-GTH-q11
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q11: 15.94251414
+      DZVP-MOLOPT-SR-GTH-q11: 5.804051150731
+      SZV-MOLOPT-GTH-q11: 15.94251414
+      SZV-MOLOPT-SR-GTH-q11: 5.804051150731
+      TZV2P-MOLOPT-SR-GTH-q11: 5.80405115
+      TZVP-MOLOPT-SR-GTH-q11: 5.80405115
+    best_basis: TZV2P-MOLOPT-SR-GTH-q11
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q11
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q11
+    - GTH-BP-q11
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PADE-q19
+    - GTH-PBE-q11
+Dy:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q20
+    - DZVP-MOLOPT-SR-GTH-q20
+    - TZVP-MOLOPT-SR-GTH-q20
+    - TZV2P-MOLOPT-SR-GTH-q20
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q20: 6.18926622
+      SZV-MOLOPT-SR-GTH-q20: 6.18926622
+      TZV2P-MOLOPT-SR-GTH-q20: 6.18926622
+      TZVP-MOLOPT-SR-GTH-q20: 6.18926622
+    best_basis: TZV2P-MOLOPT-SR-GTH-q20
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q20
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q20
+Er:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q22
+    - DZVP-MOLOPT-SR-GTH-q22
+    - TZVP-MOLOPT-SR-GTH-q22
+    - TZV2P-MOLOPT-SR-GTH-q22
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q22: 6.88248204
+      SZV-MOLOPT-SR-GTH-q22: 6.88248204
+      TZV2P-MOLOPT-SR-GTH-q22: 6.88248204
+      TZVP-MOLOPT-SR-GTH-q22: 6.88248204
+    best_basis: TZV2P-MOLOPT-SR-GTH-q22
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q22
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q22
+Es:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Eu:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q17
+    - DZVP-MOLOPT-SR-GTH-q17
+    - TZVP-MOLOPT-SR-GTH-q17
+    - TZV2P-MOLOPT-SR-GTH-q17
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q17: 5.38735781
+      SZV-MOLOPT-SR-GTH-q17: 5.38735781
+      TZV2P-MOLOPT-SR-GTH-q17: 5.38735781
+      TZVP-MOLOPT-SR-GTH-q17: 5.38735781
+    best_basis: TZV2P-MOLOPT-SR-GTH-q17
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q17
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q17
+F:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    - cpFIT3
+    - aug-cFIT3
+    - aug-cpFIT3
+    - FIT3
+    - pFIT3
+    - aug-FIT3
+    - aug-pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q7
+    - DZVP-MOLOPT-GTH-q7
+    - TZVP-MOLOPT-GTH-q7
+    - TZV2P-MOLOPT-GTH-q7
+    - TZV2PX-MOLOPT-GTH-q7
+    - SZV-MOLOPT-SR-GTH-q7
+    - DZVP-MOLOPT-SR-GTH-q7
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q7: 15.025672765127
+      DZVP-MOLOPT-SR-GTH-q7: 13.701520668842
+      SZV-MOLOPT-GTH-q7: 15.025672765127
+      SZV-MOLOPT-SR-GTH-q7: 13.701520668842
+      TZV2P-MOLOPT-GTH-q7: 15.025672765127
+      TZV2PX-MOLOPT-GTH-q7: 15.025672765127
+      TZVP-MOLOPT-GTH-q7: 15.025672765127
+    best_basis: TZV2PX-MOLOPT-GTH-q7
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q7
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q7
+    - GTH-BP-q7
+    - GTH-HCTH120-q7
+    - GTH-PADE
+    - GTH-PBE-q7
+Fe:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q16
+    - DZVP-MOLOPT-SR-GTH-q16
+    - TZVP-MOLOPT-SR-GTH-q16
+    - TZV2P-MOLOPT-SR-GTH-q16
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q16: 8.424366035773
+      SZV-MOLOPT-SR-GTH-q16: 8.424366035773
+      TZV2P-MOLOPT-SR-GTH-q16: 8.42436604
+      TZVP-MOLOPT-SR-GTH-q16: 8.42436604
+    best_basis: TZV2P-MOLOPT-SR-GTH-q16
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q16
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 4.66
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q16
+    - GTH-BP-q16
+    - GTH-PADE
+    - GTH-PADE-q8
+    - GTH-PBE-q16
+Fm:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Fr:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Ga:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 7.066653970373
+      SZV-MOLOPT-SR-GTH-q13: 7.066653970373
+      TZV2P-MOLOPT-SR-GTH-q13: 7.06665397
+      TZVP-MOLOPT-SR-GTH-q13: 7.06665397
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q13
+    - GTH-BP-q13
+    - GTH-PADE
+    - GTH-PADE-q3
+    - GTH-PBE-q13
+Gd:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q18
+    - DZVP-MOLOPT-SR-GTH-q18
+    - TZVP-MOLOPT-SR-GTH-q18
+    - TZV2P-MOLOPT-SR-GTH-q18
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q18: 5.51542296
+      SZV-MOLOPT-SR-GTH-q18: 5.51542296
+      TZV2P-MOLOPT-SR-GTH-q18: 5.51542296
+      TZVP-MOLOPT-SR-GTH-q18: 5.51542296
+    best_basis: TZV2P-MOLOPT-SR-GTH-q18
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q18
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q18
+    - GTH-PADE
+    - GTH-PBE-q18
+Ge:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q4
+    - DZVP-MOLOPT-SR-GTH-q4
+    - TZVP-MOLOPT-SR-GTH-q4
+    - TZV2P-MOLOPT-SR-GTH-q4
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q4: 3.751626352194
+      SZV-MOLOPT-SR-GTH-q4: 3.751626352194
+      TZV2P-MOLOPT-SR-GTH-q4: 3.75162635
+      TZVP-MOLOPT-SR-GTH-q4: 3.75162635
+    best_basis: TZV2P-MOLOPT-SR-GTH-q4
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q4
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q4
+    - GTH-BP-q4
+    - GTH-PADE
+    - GTH-PBE-q4
+H:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - pFIT3
+    - cpFIT3
+    - FIT3
+    - aug-FIT3
+    - aug-pFIT3
+    - aug-cFIT3
+    - aug-cpFIT3
+    - GTH-def-QZVP
+    - aug-GTH-def-QZVP
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q1
+    - DZVP-MOLOPT-GTH-q1
+    - TZVP-MOLOPT-GTH-q1
+    - TZV2P-MOLOPT-GTH-q1
+    - TZV2PX-MOLOPT-GTH-q1
+    - SZV-MOLOPT-SR-GTH-q1
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q1: 11.478000339908
+      DZVP-MOLOPT-SR-GTH-q1: 10.068468228533
+      SZV-MOLOPT-GTH-q1: 11.478000339908
+      SZV-MOLOPT-SR-GTH-q1: 10.068468228533
+      TZV2P-MOLOPT-GTH-q1: 11.478000339908
+      TZV2PX-MOLOPT-GTH-q1: 11.478000339908
+      TZVP-MOLOPT-GTH-q1: 11.478000339908
+    best_basis: TZV2P-MOLOPT-GTH-q1
+    preferred_basis: TZVP-MOLOPT-GTH-q1
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - PPs
+    - GTH-BLYP-q1
+    - GTH-BP-q1
+    - GTH-HCTH120-q1
+    - GTH-HCTH407-q1
+    - GTH-PADE
+    - GTH-PBE-q1
+    - GTH-OLYP-q1
+He:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q2
+    - DZVP-MOLOPT-SR-GTH-q2
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q2: 11.042785405048
+      SZV-MOLOPT-SR-GTH-q2: 11.042785405048
+    best_basis: DZVP-MOLOPT-SR-GTH-q2
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q2
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q2
+    - GTH-BP-q2
+    - GTH-PADE
+    - GTH-PBE-q2
+Hf:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q12: 2.671196497548
+      SZV-MOLOPT-SR-GTH-q12: 2.671196497548
+      TZV2P-MOLOPT-SR-GTH-q12: 2.6711965
+      TZVP-MOLOPT-SR-GTH-q12: 2.6711965
+    best_basis: TZV2P-MOLOPT-SR-GTH-q12
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q12
+Hg:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q12: 3.031517109734
+      SZV-MOLOPT-SR-GTH-q12: 3.031517109734
+      TZV2P-MOLOPT-SR-GTH-q12: 3.03151711
+      TZVP-MOLOPT-SR-GTH-q12: 3.03151711
+    best_basis: TZV2P-MOLOPT-SR-GTH-q12
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PBE-q12
+Ho:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q21
+    - DZVP-MOLOPT-SR-GTH-q21
+    - TZVP-MOLOPT-SR-GTH-q21
+    - TZV2P-MOLOPT-SR-GTH-q21
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q21: 6.54556284
+      SZV-MOLOPT-SR-GTH-q21: 6.54556284
+      TZV2P-MOLOPT-SR-GTH-q21: 6.54556284
+      TZVP-MOLOPT-SR-GTH-q21: 6.54556284
+    best_basis: TZV2P-MOLOPT-SR-GTH-q21
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q21
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q21
+I:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q7
+    - DZVP-MOLOPT-SR-GTH-q7
+    - TZVP-MOLOPT-SR-GTH-q7
+    - TZV2P-MOLOPT-SR-GTH-q7
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q7: 0.966172693776
+      SZV-MOLOPT-SR-GTH-q7: 0.966172693776
+      TZV2P-MOLOPT-SR-GTH-q7: 0.96617269
+      TZVP-MOLOPT-SR-GTH-q7: 0.96617269
+    best_basis: TZV2P-MOLOPT-SR-GTH-q7
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q7
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q7
+    - GTH-PADE
+    - GTH-PBE-q7
+In:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 3.101675464995
+      SZV-MOLOPT-SR-GTH-q13: 3.101675464995
+      TZV2P-MOLOPT-SR-GTH-q13: 3.10167546
+      TZVP-MOLOPT-SR-GTH-q13: 3.10167546
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q13
+    - GTH-PADE
+    - GTH-PADE-q3
+    - GTH-PBE-q13
+Ir:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q17
+    - DZVP-MOLOPT-SR-GTH-q17
+    - TZVP-MOLOPT-SR-GTH-q17
+    - TZV2P-MOLOPT-SR-GTH-q17
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q17: 3.382588893137
+      SZV-MOLOPT-SR-GTH-q17: 3.382588893137
+      TZV2P-MOLOPT-SR-GTH-q17: 3.38258889
+      TZVP-MOLOPT-SR-GTH-q17: 3.38258889
+    best_basis: TZV2P-MOLOPT-SR-GTH-q17
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q17
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q9
+    - GTH-PBE-q17
+K:
+  basis_sets:
+    aux_basis:
+    - cFIT7
+    - cFIT8
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - FIT7
+    - FIT8
+    - FIT9
+    - FIT10
+    - FIT11
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q9
+    - DZVP-MOLOPT-SR-GTH-q9
+    - TZVP-MOLOPT-SR-GTH-q9
+    - TZV2P-MOLOPT-SR-GTH-q9
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q9: 2.891270375454
+      SZV-MOLOPT-SR-GTH-q9: 2.891270375454
+      TZV2P-MOLOPT-SR-GTH-q9: 2.89127038
+      TZVP-MOLOPT-SR-GTH-q9: 2.89127038
+    best_basis: TZV2P-MOLOPT-SR-GTH-q9
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q9
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q9
+    - GTH-BP-q9
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PBE-q9
+Kr:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q8
+    - DZVP-MOLOPT-SR-GTH-q8
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q8: 1.784435668906
+      SZV-MOLOPT-SR-GTH-q8: 1.784435668906
+    best_basis: DZVP-MOLOPT-SR-GTH-q8
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q8
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q8
+    - GTH-BP-q8
+    - GTH-PADE
+    - GTH-PBE-q8
+La:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - DZVP-MOLOPT-SR-GTH-q11
+    - TZVP-MOLOPT-SR-GTH-q11
+    - TZV2P-MOLOPT-SR-GTH-q11
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q11: 2.61043358
+      TZV2P-MOLOPT-SR-GTH-q11: 2.61043358
+      TZVP-MOLOPT-SR-GTH-q11: 2.61043358
+    best_basis: TZV2P-MOLOPT-SR-GTH-q11
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q11
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q11
+Li:
+  basis_sets:
+    aux_basis:
+    - cFIT4
+    - cFIT4-SR
+    - cFIT5
+    - cFIT5-SR
+    - FIT4
+    - FIT4-SR
+    - FIT5
+    - FIT5-SR
+    - GTH-def2-QZVP
+    - cFIT3
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q3
+    - DZVP-MOLOPT-SR-GTH-q3
+    - TZVP-MOLOPT-SR-GTH-q3
+    - TZV2P-MOLOPT-SR-GTH-q3
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q3: 7.133127574876
+      SZV-MOLOPT-SR-GTH-q3: 7.133127574876
+      TZV2P-MOLOPT-SR-GTH-q3: 7.13312757
+      TZVP-MOLOPT-SR-GTH-q3: 7.13312757
+    best_basis: TZV2P-MOLOPT-SR-GTH-q3
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q3
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q3
+    - GTH-BP-q3
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PBE-q3
+Lr:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Lu:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q25
+    - DZVP-MOLOPT-SR-GTH-q25
+    - TZVP-MOLOPT-SR-GTH-q25
+    - TZV2P-MOLOPT-SR-GTH-q25
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q25: 7.81599376
+      SZV-MOLOPT-SR-GTH-q25: 7.81599376
+      TZV2P-MOLOPT-SR-GTH-q25: 7.81599376
+      TZVP-MOLOPT-SR-GTH-q25: 7.81599376
+    best_basis: TZV2P-MOLOPT-SR-GTH-q25
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q25
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q25
+Md:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Mg:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q10
+    - DZVP-MOLOPT-SR-GTH-q10
+    - SZV-MOLOPT-SR-GTH-q2
+    - DZVP-MOLOPT-SR-GTH-q2
+    - TZVP-MOLOPT-SR-GTH-q2
+    - TZV2P-MOLOPT-SR-GTH-q2
+    - DZVPd-MOLOPT-SR-GTH-q10
+    - TZVPd-MOLOPT-SR-GTH-q10
+    - TZV2Pd-MOLOPT-SR-GTH-q10
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q10: 30.653047963189
+      DZVP-MOLOPT-SR-GTH-q2: 1.45920927
+      DZVPd-MOLOPT-SR-GTH-q10: 30.65304796
+      SZV-MOLOPT-SR-GTH-q10: 30.653047963189
+      SZV-MOLOPT-SR-GTH-q2: 1.45920927
+      TZV2P-MOLOPT-SR-GTH-q2: 1.45920927
+      TZV2Pd-MOLOPT-SR-GTH-q10: 30.65304796
+      TZVP-MOLOPT-SR-GTH-q2: 1.45920927
+      TZVPd-MOLOPT-SR-GTH-q10: 30.65304796
+    best_basis: TZV2Pd-MOLOPT-SR-GTH-q10
+    preferred_basis: TZVPd-MOLOPT-SR-GTH-q10
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q10
+    - GTH-BP-q10
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PBE-q10
+Mn:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q15
+    - DZVP-MOLOPT-SR-GTH-q15
+    - TZVP-MOLOPT-SR-GTH-q15
+    - TZV2P-MOLOPT-SR-GTH-q15
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q15: 8.544553301652
+      SZV-MOLOPT-SR-GTH-q15: 8.544553301652
+      TZV2P-MOLOPT-SR-GTH-q15: 8.5445533
+      TZVP-MOLOPT-SR-GTH-q15: 8.5445533
+    best_basis: TZV2P-MOLOPT-SR-GTH-q15
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q15
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q15
+    - GTH-BP-q15
+    - GTH-PADE
+    - GTH-PADE-q7
+    - GTH-PBE-q15
+Mo:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q14
+    - DZVP-MOLOPT-SR-GTH-q14
+    - TZVP-MOLOPT-SR-GTH-q14
+    - TZV2P-MOLOPT-SR-GTH-q14
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q14: 2.540273246178
+      SZV-MOLOPT-SR-GTH-q14: 2.540273246178
+      TZV2P-MOLOPT-SR-GTH-q14: 2.54027325
+      TZVP-MOLOPT-SR-GTH-q14: 2.54027325
+    best_basis: TZV2P-MOLOPT-SR-GTH-q14
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q14
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q14
+    - GTH-PADE
+    - GTH-PADE-q6
+    - GTH-PBE-q14
+N:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    - cpFIT3
+    - aug-cFIT3
+    - aug-cpFIT3
+    - FIT3
+    - pFIT3
+    - aug-FIT3
+    - aug-pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q5
+    - DZVP-MOLOPT-GTH-q5
+    - TZVP-MOLOPT-GTH-q5
+    - TZV2P-MOLOPT-GTH-q5
+    - TZV2PX-MOLOPT-GTH-q5
+    - SZV-MOLOPT-SR-GTH-q5
+    - DZVP-MOLOPT-SR-GTH-q5
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q5: 9.042730397298
+      DZVP-MOLOPT-SR-GTH-q5: 7.341988051825
+      SZV-MOLOPT-GTH-q5: 9.042730397298
+      SZV-MOLOPT-SR-GTH-q5: 7.341988051825
+      TZV2P-MOLOPT-GTH-q5: 9.042730397298
+      TZV2PX-MOLOPT-GTH-q5: 9.042730397298
+      TZVP-MOLOPT-GTH-q5: 9.042730397298
+    best_basis: TZV2PX-MOLOPT-GTH-q5
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q5
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q5
+    - GTH-BP-q5
+    - GTH-HCTH120-q5
+    - GTH-HCTH407-q5
+    - GTH-PADE
+    - GTH-PBE-q5
+Na:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q9
+    - DZVP-MOLOPT-SR-GTH-q9
+    - DZVPd-MOLOPT-SR-GTH-q9
+    - TZVPd-MOLOPT-SR-GTH-q9
+    - TZV2Pd-MOLOPT-SR-GTH-q9
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q9: 23.51880076196
+      DZVPd-MOLOPT-SR-GTH-q9: 23.51880076
+      SZV-MOLOPT-SR-GTH-q9: 23.51880076196
+      TZV2Pd-MOLOPT-SR-GTH-q9: 23.51880076
+      TZVPd-MOLOPT-SR-GTH-q9: 23.51880076
+    best_basis: TZV2Pd-MOLOPT-SR-GTH-q9
+    preferred_basis: TZVPd-MOLOPT-SR-GTH-q9
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q9
+    - GTH-BP-q9
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PBE-q9
+Nb:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 3.445688332127
+      SZV-MOLOPT-SR-GTH-q13: 3.445688332127
+      TZV2P-MOLOPT-SR-GTH-q13: 3.44568833
+      TZVP-MOLOPT-SR-GTH-q13: 3.44568833
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q5
+    - GTH-PBE-q13
+Nd:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q14
+    - DZVP-MOLOPT-SR-GTH-q14
+    - TZVP-MOLOPT-SR-GTH-q14
+    - TZV2P-MOLOPT-SR-GTH-q14
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q14: 4.69889675
+      SZV-MOLOPT-SR-GTH-q14: 4.69889675
+      TZV2P-MOLOPT-SR-GTH-q14: 4.69889675
+      TZVP-MOLOPT-SR-GTH-q14: 4.69889675
+    best_basis: TZV2P-MOLOPT-SR-GTH-q14
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q14
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q14
+Ne:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q8
+    - DZVP-MOLOPT-SR-GTH-q8
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q8: 19.144669251814
+      SZV-MOLOPT-SR-GTH-q8: 19.144669251814
+    best_basis: DZVP-MOLOPT-SR-GTH-q8
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q8
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q8
+    - GTH-BP-q8
+    - GTH-PADE
+    - GTH-PBE-q8
+Ni:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q18
+    - DZVP-MOLOPT-SR-GTH-q18
+    - TZVP-MOLOPT-SR-GTH-q18
+    - TZV2P-MOLOPT-SR-GTH-q18
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q18: 10.077427756816
+      SZV-MOLOPT-SR-GTH-q18: 10.077427756816
+      TZV2P-MOLOPT-SR-GTH-q18: 10.07742776
+      TZVP-MOLOPT-SR-GTH-q18: 10.07742776
+    best_basis: TZV2P-MOLOPT-SR-GTH-q18
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q18
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q18
+    - GTH-BP-q18
+    - GTH-PADE-q10
+    - GTH-PADE
+    - GTH-PBE-q18
+No:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Np:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+O:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    - cpFIT3
+    - aug-cFIT3
+    - aug-cpFIT3
+    - FIT3
+    - pFIT3
+    - aug-FIT3
+    - aug-pFIT3
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q6
+    - DZVP-MOLOPT-GTH-q6
+    - TZVP-MOLOPT-GTH-q6
+    - TZV2P-MOLOPT-GTH-q6
+    - TZV2PX-MOLOPT-GTH-q6
+    - SZV-MOLOPT-SR-GTH-q6
+    - DZVP-MOLOPT-SR-GTH-q6
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q6: 12.015954705512
+      DZVP-MOLOPT-SR-GTH-q6: 10.389228018317
+      SZV-MOLOPT-GTH-q6: 12.015954705512
+      SZV-MOLOPT-SR-GTH-q6: 10.389228018317
+      TZV2P-MOLOPT-GTH-q6: 12.015954705512
+      TZV2PX-MOLOPT-GTH-q6: 12.015954705512
+      TZVP-MOLOPT-GTH-q6: 12.015954705512
+    best_basis: TZV2PX-MOLOPT-GTH-q6
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q6
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q6
+    - GTH-BP-q6
+    - GTH-HCTH120-q6
+    - GTH-HCTH407-q6
+    - GTH-PADE
+    - GTH-PBE-q6
+    - GTH-OLYP-q6
+Os:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q16
+    - DZVP-MOLOPT-SR-GTH-q16
+    - TZVP-MOLOPT-SR-GTH-q16
+    - TZV2P-MOLOPT-SR-GTH-q16
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q16: 3.25404452124
+      SZV-MOLOPT-SR-GTH-q16: 3.25404452124
+      TZV2P-MOLOPT-SR-GTH-q16: 3.25404452
+      TZVP-MOLOPT-SR-GTH-q16: 3.25404452
+    best_basis: TZV2P-MOLOPT-SR-GTH-q16
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q16
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q8
+    - GTH-PBE-q16
+P:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    - cpFIT3
+    - aug-cFIT3
+    - aug-cpFIT3
+    - FIT3
+    - pFIT3
+    - aug-FIT3
+    - aug-pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q5
+    - DZVP-MOLOPT-GTH-q5
+    - TZVP-MOLOPT-GTH-q5
+    - TZV2P-MOLOPT-GTH-q5
+    - TZV2PX-MOLOPT-GTH-q5
+    - SZV-MOLOPT-SR-GTH-q5
+    - DZVP-MOLOPT-SR-GTH-q5
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q5: 3.338153406523
+      DZVP-MOLOPT-SR-GTH-q5: 1.631862170786
+      SZV-MOLOPT-GTH-q5: 3.338153406523
+      SZV-MOLOPT-SR-GTH-q5: 1.631862170786
+      TZV2P-MOLOPT-GTH-q5: 3.338153406523
+      TZV2PX-MOLOPT-GTH-q5: 3.338153406523
+      TZVP-MOLOPT-GTH-q5: 3.338153406523
+    best_basis: TZV2PX-MOLOPT-GTH-q5
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q5
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q5
+    - GTH-BP-q5
+    - GTH-HCTH120-q5
+    - GTH-PADE
+    - GTH-PBE-q5
+Pa:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Pb:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q4
+    - DZVP-MOLOPT-SR-GTH-q4
+    - TZVP-MOLOPT-SR-GTH-q4
+    - TZV2P-MOLOPT-SR-GTH-q4
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q4: 1.93359755182
+      SZV-MOLOPT-SR-GTH-q4: 1.93359755182
+      TZV2P-MOLOPT-SR-GTH-q4: 1.93359755
+      TZVP-MOLOPT-SR-GTH-q4: 1.93359755
+    best_basis: TZV2P-MOLOPT-SR-GTH-q4
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q4
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q4
+Pd:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q18
+    - DZVP-MOLOPT-SR-GTH-q18
+    - TZVP-MOLOPT-SR-GTH-q18
+    - TZV2P-MOLOPT-SR-GTH-q18
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q18: 3.408675573589
+      SZV-MOLOPT-SR-GTH-q18: 3.408675573589
+      TZV2P-MOLOPT-SR-GTH-q18: 3.40867557
+      TZVP-MOLOPT-SR-GTH-q18: 3.40867557
+    best_basis: TZV2P-MOLOPT-SR-GTH-q18
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q18
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q18
+    - GTH-PADE-q10
+    - GTH-PADE
+    - GTH-PBE-q18
+Pm:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q15
+    - DZVP-MOLOPT-SR-GTH-q15
+    - TZVP-MOLOPT-SR-GTH-q15
+    - TZV2P-MOLOPT-SR-GTH-q15
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q15: 4.91020816
+      SZV-MOLOPT-SR-GTH-q15: 4.91020816
+      TZV2P-MOLOPT-SR-GTH-q15: 4.91020816
+      TZVP-MOLOPT-SR-GTH-q15: 4.91020816
+    best_basis: TZV2P-MOLOPT-SR-GTH-q15
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q15
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q15
+Po:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q6
+    - DZVP-MOLOPT-SR-GTH-q6
+    - TZVP-MOLOPT-SR-GTH-q6
+    - TZV2P-MOLOPT-SR-GTH-q6
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q6: 1.757750856683
+      SZV-MOLOPT-SR-GTH-q6: 1.757750856683
+      TZV2P-MOLOPT-SR-GTH-q6: 1.75775086
+      TZVP-MOLOPT-SR-GTH-q6: 1.75775086
+    best_basis: TZV2P-MOLOPT-SR-GTH-q6
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q6
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q6
+Pr:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 4.51480477
+      SZV-MOLOPT-SR-GTH-q13: 4.51480477
+      TZV2P-MOLOPT-SR-GTH-q13: 4.51480477
+      TZVP-MOLOPT-SR-GTH-q13: 4.51480477
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q13
+Pt:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q18
+    - DZVP-MOLOPT-SR-GTH-q18
+    - TZVP-MOLOPT-SR-GTH-q18
+    - TZV2P-MOLOPT-SR-GTH-q18
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q18: 3.630667770866
+      SZV-MOLOPT-SR-GTH-q18: 3.630667770866
+      TZV2P-MOLOPT-SR-GTH-q18: 3.63066777
+      TZVP-MOLOPT-SR-GTH-q18: 3.63066777
+    best_basis: TZV2P-MOLOPT-SR-GTH-q18
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q18
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE-q10
+    - GTH-PADE
+    - GTH-PBE-q18
+Pu:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Ra:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Rb:
+  basis_sets:
+    aux_basis:
+    - cFIT7
+    - cFIT8
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - FIT7
+    - FIT8
+    - FIT9
+    - FIT10
+    - FIT11
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q9
+    - DZVP-MOLOPT-SR-GTH-q9
+    - TZVP-MOLOPT-SR-GTH-q9
+    - TZV2P-MOLOPT-SR-GTH-q9
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q9: 7.10723069415
+      SZV-MOLOPT-SR-GTH-q9: 7.10723069415
+      TZV2P-MOLOPT-SR-GTH-q9: 7.10723069
+      TZVP-MOLOPT-SR-GTH-q9: 7.10723069
+    best_basis: TZV2P-MOLOPT-SR-GTH-q9
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q9
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE-q1
+    - GTH-PADE
+    - GTH-PBE-q9
+Re:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q15
+    - DZVP-MOLOPT-SR-GTH-q15
+    - TZVP-MOLOPT-SR-GTH-q15
+    - TZV2P-MOLOPT-SR-GTH-q15
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q15: 3.240620484285
+      SZV-MOLOPT-SR-GTH-q15: 3.240620484285
+      TZV2P-MOLOPT-SR-GTH-q15: 3.24062048
+      TZVP-MOLOPT-SR-GTH-q15: 3.24062048
+    best_basis: TZV2P-MOLOPT-SR-GTH-q15
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q15
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q7
+    - GTH-PBE-q15
+Rh:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q17
+    - DZVP-MOLOPT-SR-GTH-q17
+    - SZV-MOLOPT-SR-GTH-q9
+    - SZVP-MOLOPT-SR-GTH-q9
+    - DZVP-MOLOPT-SR-GTH-q9
+    - TZVP-MOLOPT-SR-GTH-q9
+    - TZV2P-MOLOPT-SR-GTH-q9
+    - TZVP-MOLOPT-SR-GTH-q17
+    - TZV2P-MOLOPT-SR-GTH-q17
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q17: 3.157817444361
+      DZVP-MOLOPT-SR-GTH-q9: 3.902721449032
+      SZV-MOLOPT-SR-GTH-q17: 3.157817444361
+      SZV-MOLOPT-SR-GTH-q9: 3.902721449032
+      SZVP-MOLOPT-SR-GTH-q9: 3.902721449032
+      TZV2P-MOLOPT-SR-GTH-q17: 3.15781744
+      TZV2P-MOLOPT-SR-GTH-q9: 3.90272145
+      TZVP-MOLOPT-SR-GTH-q17: 3.15781744
+      TZVP-MOLOPT-SR-GTH-q9: 3.90272145
+    best_basis: TZV2P-MOLOPT-SR-GTH-q17
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q9
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q17
+    - GTH-PADE
+    - GTH-PADE-q9
+    - GTH-PBE-q17
+Rn:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q8
+    - DZVP-MOLOPT-SR-GTH-q8
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q8: 2.000005663002
+      SZV-MOLOPT-SR-GTH-q8: 2.000005663002
+    best_basis: DZVP-MOLOPT-SR-GTH-q8
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q8
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q8
+Ru:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q16
+    - DZVP-MOLOPT-SR-GTH-q16
+    - TZVP-MOLOPT-SR-GTH-q16
+    - TZV2P-MOLOPT-SR-GTH-q16
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q16: 2.787485846721
+      SZV-MOLOPT-SR-GTH-q16: 2.787485846721
+      TZV2P-MOLOPT-SR-GTH-q16: 2.78748585
+      TZVP-MOLOPT-SR-GTH-q16: 2.78748585
+    best_basis: TZV2P-MOLOPT-SR-GTH-q16
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q16
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q16
+    - GTH-BP-q16
+    - GTH-PADE
+    - GTH-PADE-q8
+    - GTH-PBE-q16
+S:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    - cpFIT3
+    - aug-cFIT3
+    - aug-cpFIT3
+    - FIT3
+    - pFIT3
+    - aug-FIT3
+    - aug-pFIT3
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q6
+    - DZVP-MOLOPT-GTH-q6
+    - TZVP-MOLOPT-GTH-q6
+    - TZV2P-MOLOPT-GTH-q6
+    - TZV2PX-MOLOPT-GTH-q6
+    - SZV-MOLOPT-SR-GTH-q6
+    - DZVP-MOLOPT-SR-GTH-q6
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q6: 3.817590656735
+      DZVP-MOLOPT-SR-GTH-q6: 2.215854692813
+      SZV-MOLOPT-GTH-q6: 3.817590656735
+      SZV-MOLOPT-SR-GTH-q6: 2.215854692813
+      TZV2P-MOLOPT-GTH-q6: 3.817590656735
+      TZV2PX-MOLOPT-GTH-q6: 3.817590656735
+      TZVP-MOLOPT-GTH-q6: 3.817590656735
+    best_basis: TZV2PX-MOLOPT-GTH-q6
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q6
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q6
+    - GTH-BP-q6
+    - GTH-PADE
+    - GTH-PBE-q6
+Sb:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q5
+    - DZVP-MOLOPT-SR-GTH-q5
+    - TZVP-MOLOPT-SR-GTH-q5
+    - TZV2P-MOLOPT-SR-GTH-q5
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q5: 0.757214368696
+      SZV-MOLOPT-SR-GTH-q5: 0.757214368696
+      TZV2P-MOLOPT-SR-GTH-q5: 0.75721437
+      TZVP-MOLOPT-SR-GTH-q5: 0.75721437
+    best_basis: TZV2P-MOLOPT-SR-GTH-q5
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q5
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q5
+    - GTH-PADE
+    - GTH-PBE-q5
+Sc:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q11
+    - DZVP-MOLOPT-SR-GTH-q11
+    - TZVP-MOLOPT-SR-GTH-q11
+    - TZV2P-MOLOPT-SR-GTH-q11
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q11: 7.596358558474
+      SZV-MOLOPT-SR-GTH-q11: 7.596358558474
+      TZV2P-MOLOPT-SR-GTH-q11: 7.59635856
+      TZVP-MOLOPT-SR-GTH-q11: 7.59635856
+    best_basis: TZV2P-MOLOPT-SR-GTH-q11
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q11
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q11
+    - GTH-BP-q11
+    - GTH-PADE
+    - GTH-PADE-q3
+    - GTH-PBE-q11
+Se:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q6
+    - DZVP-MOLOPT-SR-GTH-q6
+    - TZVP-MOLOPT-SR-GTH-q6
+    - TZV2P-MOLOPT-SR-GTH-q6
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q6: 1.465689267622
+      SZV-MOLOPT-SR-GTH-q6: 1.465689267622
+      TZV2P-MOLOPT-SR-GTH-q6: 1.46568927
+      TZVP-MOLOPT-SR-GTH-q6: 1.46568927
+    best_basis: TZV2P-MOLOPT-SR-GTH-q6
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q6
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q6
+    - GTH-BP-q6
+    - GTH-PADE
+    - GTH-PBE-q6
+Si:
+  basis_sets:
+    aux_basis:
+    - cFIT3
+    - cpFIT3
+    - FIT3
+    - pFIT3
+    - aug-FIT3
+    - aug-cFIT3
+    - aug-pFIT3
+    - aug-cpFIT3
+    - GTH-def2-QZVP
+    - aug-GTH-def2-QZVP
+    basis_molopt:
+    - SZV-MOLOPT-GTH-q4
+    - DZVP-MOLOPT-GTH-q4
+    - TZVP-MOLOPT-GTH-q4
+    - TZV2P-MOLOPT-GTH-q4
+    - TZV2PX-MOLOPT-GTH-q4
+    - SZV-MOLOPT-SR-GTH-q4
+    - DZVP-MOLOPT-SR-GTH-q4
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-GTH-q4: 2.693604434572
+      DZVP-MOLOPT-SR-GTH-q4: 1.256767641387
+      SZV-MOLOPT-GTH-q4: 2.693604434572
+      SZV-MOLOPT-SR-GTH-q4: 1.256767641387
+      TZV2P-MOLOPT-GTH-q4: 2.693604434572
+      TZV2PX-MOLOPT-GTH-q4: 2.693604434572
+      TZVP-MOLOPT-GTH-q4: 2.693604434572
+    best_basis: TZV2PX-MOLOPT-GTH-q4
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q4
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q4
+    - GTH-BP-q4
+    - GTH-PADE
+    - GTH-PBE-q4
+Sm:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q16
+    - DZVP-MOLOPT-SR-GTH-q16
+    - TZVP-MOLOPT-SR-GTH-q16
+    - TZV2P-MOLOPT-SR-GTH-q16
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q16: 5.15953935
+      SZV-MOLOPT-SR-GTH-q16: 5.15953935
+      TZV2P-MOLOPT-SR-GTH-q16: 5.15953935
+      TZVP-MOLOPT-SR-GTH-q16: 5.15953935
+    best_basis: TZV2P-MOLOPT-SR-GTH-q16
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q16
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q16
+Sn:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q4
+    - DZVP-MOLOPT-SR-GTH-q4
+    - TZVP-MOLOPT-SR-GTH-q4
+    - TZV2P-MOLOPT-SR-GTH-q4
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q4: 0.666669575074
+      SZV-MOLOPT-SR-GTH-q4: 0.666669575074
+      TZV2P-MOLOPT-SR-GTH-q4: 0.66666958
+      TZVP-MOLOPT-SR-GTH-q4: 0.66666958
+    best_basis: TZV2P-MOLOPT-SR-GTH-q4
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q4
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q4
+Sr:
+  basis_sets:
+    aux_basis:
+    - cFIT8
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - FIT8
+    - FIT9
+    - FIT10
+    - FIT11
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q10
+    - DZVP-MOLOPT-SR-GTH-q10
+    - TZVP-MOLOPT-SR-GTH-q10
+    - TZV2P-MOLOPT-SR-GTH-q10
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q10: 7.290111894735
+      SZV-MOLOPT-SR-GTH-q10: 7.290111894735
+      TZV2P-MOLOPT-SR-GTH-q10: 7.29011189
+      TZVP-MOLOPT-SR-GTH-q10: 7.29011189
+    best_basis: TZV2P-MOLOPT-SR-GTH-q10
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q10
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q10
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PBE-q10
+Ta:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 2.946055777701
+      SZV-MOLOPT-SR-GTH-q13: 2.946055777701
+      TZV2P-MOLOPT-SR-GTH-q13: 2.94605578
+      TZVP-MOLOPT-SR-GTH-q13: 2.94605578
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q5
+    - GTH-PBE-q13
+Tb:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q19
+    - DZVP-MOLOPT-SR-GTH-q19
+    - TZVP-MOLOPT-SR-GTH-q19
+    - TZV2P-MOLOPT-SR-GTH-q19
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q19: 5.84477789
+      SZV-MOLOPT-SR-GTH-q19: 5.84477789
+      TZV2P-MOLOPT-SR-GTH-q19: 5.84477789
+      TZVP-MOLOPT-SR-GTH-q19: 5.84477789
+    best_basis: TZV2P-MOLOPT-SR-GTH-q19
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q19
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q19
+Tc:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q15
+    - DZVP-MOLOPT-SR-GTH-q15
+    - TZVP-MOLOPT-SR-GTH-q15
+    - TZV2P-MOLOPT-SR-GTH-q15
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q15: 3.164224765901
+      SZV-MOLOPT-SR-GTH-q15: 3.164224765901
+      TZV2P-MOLOPT-SR-GTH-q15: 3.16422477
+      TZVP-MOLOPT-SR-GTH-q15: 3.16422477
+    best_basis: TZV2P-MOLOPT-SR-GTH-q15
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q15
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q7
+    - GTH-PBE-q15
+Te:
+  basis_sets:
+    aux_basis:
+    - cFIT6
+    - cFIT7
+    - cFIT9
+    - FIT6
+    - FIT7
+    - FIT9
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q6
+    - DZVP-MOLOPT-SR-GTH-q6
+    - TZVP-MOLOPT-SR-GTH-q6
+    - TZV2P-MOLOPT-SR-GTH-q6
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q6: 0.871170553457
+      SZV-MOLOPT-SR-GTH-q6: 0.871170553457
+      TZV2P-MOLOPT-SR-GTH-q6: 0.87117055
+      TZVP-MOLOPT-SR-GTH-q6: 0.87117055
+    best_basis: TZV2P-MOLOPT-SR-GTH-q6
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q6
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q6
+    - GTH-BP-q6
+    - GTH-PADE
+    - GTH-PBE-q6
+Th:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+Ti:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q12: 7.884569925997
+      SZV-MOLOPT-SR-GTH-q12: 7.884569925997
+      TZV2P-MOLOPT-SR-GTH-q12: 7.88456993
+      TZVP-MOLOPT-SR-GTH-q12: 7.88456993
+    best_basis: TZV2P-MOLOPT-SR-GTH-q12
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q12
+    - GTH-BP-q12
+    - GTH-PADE
+    - GTH-PADE-q4
+    - GTH-PBE-q12
+Tl:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 3.381004006201
+      SZV-MOLOPT-SR-GTH-q13: 3.381004006201
+      TZV2P-MOLOPT-SR-GTH-q13: 3.38100401
+      TZVP-MOLOPT-SR-GTH-q13: 3.38100401
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PADE-q3
+    - GTH-PBE-q13
+Tm:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q23
+    - DZVP-MOLOPT-SR-GTH-q23
+    - TZVP-MOLOPT-SR-GTH-q23
+    - TZV2P-MOLOPT-SR-GTH-q23
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q23: 7.21251657
+      SZV-MOLOPT-SR-GTH-q23: 7.21251657
+      TZV2P-MOLOPT-SR-GTH-q23: 7.21251657
+      TZVP-MOLOPT-SR-GTH-q23: 7.21251657
+    best_basis: TZV2P-MOLOPT-SR-GTH-q23
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q23
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q23
+U:
+  basis_sets:
+    aux_basis: null
+    basis_molopt: []
+    basis_set_largest_exponents: null
+    best_basis: null
+    preferred_basis: null
+  dft_plus_u: null
+  potentials:
+    gth_potentials: []
+V:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q13
+    - DZVP-MOLOPT-SR-GTH-q13
+    - TZVP-MOLOPT-SR-GTH-q13
+    - TZV2P-MOLOPT-SR-GTH-q13
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q13: 7.984623749528
+      SZV-MOLOPT-SR-GTH-q13: 7.984623749528
+      TZV2P-MOLOPT-SR-GTH-q13: 7.98462375
+      TZVP-MOLOPT-SR-GTH-q13: 7.98462375
+    best_basis: TZV2P-MOLOPT-SR-GTH-q13
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q13
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q13
+    - GTH-BP-q13
+    - GTH-PADE
+    - GTH-PADE-q5
+    - GTH-PBE-q13
+W:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q14
+    - DZVP-MOLOPT-SR-GTH-q14
+    - TZVP-MOLOPT-SR-GTH-q14
+    - TZV2P-MOLOPT-SR-GTH-q14
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q14: 3.103253876757
+      SZV-MOLOPT-SR-GTH-q14: 3.103253876757
+      TZV2P-MOLOPT-SR-GTH-q14: 3.10325388
+      TZVP-MOLOPT-SR-GTH-q14: 3.10325388
+    best_basis: TZV2P-MOLOPT-SR-GTH-q14
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q14
+  dft_plus_u:
+    L: 2
+    U_MINUS_J: 0
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q14
+    - GTH-PADE
+    - GTH-PADE-q6
+    - GTH-PBE-q14
+Xe:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q8
+    - DZVP-MOLOPT-SR-GTH-q8
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q8: 1.060135338393
+      SZV-MOLOPT-SR-GTH-q8: 1.060135338393
+    best_basis: DZVP-MOLOPT-SR-GTH-q8
+    preferred_basis: DZVP-MOLOPT-SR-GTH-q8
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q8
+Y:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q11
+    - DZVP-MOLOPT-SR-GTH-q11
+    - TZVP-MOLOPT-SR-GTH-q11
+    - TZV2P-MOLOPT-SR-GTH-q11
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q11: 7.169829557085
+      SZV-MOLOPT-SR-GTH-q11: 7.169829557085
+      TZV2P-MOLOPT-SR-GTH-q11: 7.16982956
+      TZVP-MOLOPT-SR-GTH-q11: 7.16982956
+    best_basis: TZV2P-MOLOPT-SR-GTH-q11
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q11
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q11
+    - GTH-PADE
+    - GTH-PADE-q3
+    - GTH-PBE-q11
+Yb:
+  basis_sets:
+    aux_basis: null
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q24
+    - DZVP-MOLOPT-SR-GTH-q24
+    - TZVP-MOLOPT-SR-GTH-q24
+    - TZV2P-MOLOPT-SR-GTH-q24
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q24: 7.5659643
+      SZV-MOLOPT-SR-GTH-q24: 7.5659643
+      TZV2P-MOLOPT-SR-GTH-q24: 7.5659643
+      TZVP-MOLOPT-SR-GTH-q24: 7.5659643
+    best_basis: TZV2P-MOLOPT-SR-GTH-q24
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q24
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-PADE
+    - GTH-PBE-q24
+Zn:
+  basis_sets:
+    aux_basis:
+    - cFIT9
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - FIT9
+    - FIT10
+    - FIT11
+    - FIT12
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q12: 6.400812724595
+      SZV-MOLOPT-SR-GTH-q12: 6.400812724595
+      TZV2P-MOLOPT-SR-GTH-q12: 6.40081272
+      TZVP-MOLOPT-SR-GTH-q12: 6.40081272
+    best_basis: TZV2P-MOLOPT-SR-GTH-q12
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q12
+    - GTH-BP-q12
+    - GTH-PADE
+    - GTH-PADE-q2
+    - GTH-PADE-q20
+    - GTH-PBE-q12
+Zr:
+  basis_sets:
+    aux_basis:
+    - cFIT10
+    - cFIT11
+    - cFIT12
+    - cFIT13
+    - FIT10
+    - FIT11
+    - FIT12
+    - FIT13
+    basis_molopt:
+    - SZV-MOLOPT-SR-GTH-q12
+    - DZVP-MOLOPT-SR-GTH-q12
+    - TZVP-MOLOPT-SR-GTH-q12
+    - TZV2P-MOLOPT-SR-GTH-q12
+    basis_set_largest_exponents:
+      DZVP-MOLOPT-SR-GTH-q12: 7.568385790028
+      SZV-MOLOPT-SR-GTH-q12: 7.568385790028
+      TZV2P-MOLOPT-SR-GTH-q12: 7.56838579
+      TZVP-MOLOPT-SR-GTH-q12: 7.56838579
+    best_basis: TZV2P-MOLOPT-SR-GTH-q12
+    preferred_basis: TZVP-MOLOPT-SR-GTH-q12
+  dft_plus_u: null
+  potentials:
+    gth_potentials:
+    - GTH-BLYP-q12
+    - GTH-BP-q12
+    - GTH-PADE
+    - GTH-PADE-q4
+    - GTH-PBE-q12
