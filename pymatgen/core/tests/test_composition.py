@@ -384,6 +384,8 @@ class CompositionTest(PymatgenTest):
         self.assertEqual((self.comp[0] / 4).formula, "Li0.75 Fe0.5 P0.75 O3")
 
     def test_equals(self):
+        # generate randomized compositions for robustness (tests might pass for specific elements
+        # but fail for others)
         random_z = random.randint(1, 92)
         fixed_el = Element.from_Z(random_z)
         other_z = random.randint(1, 92)
