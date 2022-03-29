@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2022.3.29
+----------
+* Major update to CP2K module, PR #2475 from @nwinner
+* Bug fix to remove problematic import, PR #2477 from @mkhorton
+
 v2022.3.24
 ----------
 * Emergency bugfix release to fix circular import (@janosh)
