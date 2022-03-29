@@ -355,6 +355,9 @@ class CompositionTest(PymatgenTest):
             "Incorrect composition after addition!",
         )
 
+        foo = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(foo), NotImplemented)
+
     def test_sub(self):
         self.assertEqual(
             (self.comp[0] - Composition("Li2O")).formula,
@@ -369,6 +372,9 @@ class CompositionTest(PymatgenTest):
         c1 = Composition({"S": 1 + Composition.amount_tolerance / 2, "O": 1})
         c2 = Composition({"S": 1})
         self.assertEqual(len((c1 - c2).elements), 1)
+
+        foo = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(foo), NotImplemented)
 
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
@@ -395,6 +401,10 @@ class CompositionTest(PymatgenTest):
         )
         self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
 
+        c1, c2 = self.comp[:2]
+        self.assertTrue(c1 == c1)
+        self.assertFalse(c1 == c2)
+
     def test_hash_robustness(self):
         c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
         c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*1.01}")
@@ -417,6 +427,11 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(c3 < c1)
         self.assertTrue(c4 > c1)
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]), [c3, c1, c1_1, c4, c2])
+
+        foo = Element("Fe")
+        self.assertEqual(c1.__eq__(foo), NotImplemented)
+        self.assertEqual(c1.__ne__(foo), NotImplemented)
+        self.assertEqual(c1.__lt__(foo), NotImplemented)
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
