@@ -9,14 +9,13 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
-import numbers
 import os
 import re
 import string
 import warnings
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import Generator, Iterator, Union
+from typing import Generator, Iterator, Union, cast
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -225,14 +224,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12
         """
-        if not isinstance(other, numbers.Number):
+        if not isinstance(other, (int, float)):
             return NotImplemented
         return Composition({el: self[el] * other for el in self}, allow_negative=self.allow_negative)
 
     __rmul__ = __mul__
 
     def __truediv__(self, other: object) -> Composition:
-        if not isinstance(other, numbers.Number):
+        if not isinstance(other, (int, float)):
             return NotImplemented
         return Composition({el: self[el] / other for el in self}, allow_negative=self.allow_negative)
 
@@ -451,7 +450,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return " ".join(formula)
 
     @property
-    def elements(self) -> list[SpeciesLike]:
+    def elements(self) -> list[Element | Species | DummySpecies]:
         """
         Returns view of elements in Composition.
         """
@@ -499,12 +498,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Calculate weight fraction of an Element or Species.
 
         Args:
-            el (Element/Species): Element or Species to get fraction for.
+            el (Element | Species): Element or Species to get fraction for.
 
         Returns:
-            Weight fraction for element el in Composition
+            float: Weight fraction for element el in Composition.
         """
-        return get_el_sp(el).atomic_mass * abs(self[el]) / self.weight
+        el_mass = cast(float, get_el_sp(el).atomic_mass)
+        return el_mass * abs(self[el]) / self.weight
 
     def contains_element_type(self, category: str) -> bool:
         """
@@ -541,7 +541,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         )
 
         if category not in allowed_categories:
-            raise ValueError(f"Please pick a category from: {', '.join(allowed_categories)}")
+            raise ValueError(f"Please pick a category from: {allowed_categories}")
 
         if "block" in category:
             return any(category[0] in el.block for el in self.elements)
@@ -1222,31 +1222,31 @@ class ChemicalPotential(dict, MSONable):
         if len(d) != len(self):
             raise ValueError("Duplicate potential specified")
 
-    def __mul__(self, other):
-        if isinstance(other, numbers.Number):
+    def __mul__(self, other: object) -> ChemicalPotential:
+        if isinstance(other, (int, float)):
             return ChemicalPotential({k: v * other for k, v in self.items()})
-        raise NotImplementedError()
+        return NotImplemented
 
     __rmul__ = __mul__
 
-    def __truediv__(self, other):
-        if isinstance(other, numbers.Number):
+    def __truediv__(self, other: object) -> ChemicalPotential:
+        if isinstance(other, (int, float)):
             return ChemicalPotential({k: v / other for k, v in self.items()})
-        raise NotImplementedError()
+        return NotImplemented
 
     __div__ = __truediv__
 
-    def __sub__(self, other):
+    def __sub__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
             els = set(self.keys()).union(other.keys())
             return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0) for e in els})
-        raise NotImplementedError()
+        return NotImplemented
 
-    def __add__(self, other):
+    def __add__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
             els = set(self.keys()).union(other.keys())
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
-        raise NotImplementedError()
+        return NotImplemented
 
     def get_energy(self, composition: Composition, strict: bool = True) -> float:
         """

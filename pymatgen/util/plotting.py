@@ -478,7 +478,6 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     for entry in list_of_materials:
         if type(entry).__name__ not in ["ComputedEntry", "ComputedStructureEntry"]:
             X_pair = [Element(el).X for el in entry]
-            print(f"{entry=}")
             el_1, el_2 = entry
             formatted_formula = f"{el_1}-{el_2}"
         else:
