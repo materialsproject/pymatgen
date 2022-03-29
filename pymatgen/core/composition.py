@@ -16,7 +16,7 @@ import string
 import warnings
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import Generator, Union
+from typing import Generator, Iterator, Union
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -139,40 +139,47 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
-    def __getitem__(self, item: SpeciesLike):
+    def __getitem__(self, item: SpeciesLike) -> float:
         try:
             sp = get_el_sp(item)
             return self._data.get(sp, 0)
         except ValueError as ex:
             raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._data)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
         return self._data.keys().__iter__()
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         try:
             sp = get_el_sp(item)
             return sp in self._data
         except ValueError as ex:
             raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        """Defines == for Compositions."""
+        if not isinstance(other, Composition):
+            return NotImplemented
+
         #  elements with amounts < Composition.amount_tolerance don't show up
         #  in the elmap, so checking len enables us to only check one
-        #  compositions elements
+        #  composition's elements
         if len(self) != len(other):
             return False
 
-        return all(abs(v - other[el]) <= Composition.amount_tolerance for el, v in self.items())
+        return all(abs(amt - other[el]) <= Composition.amount_tolerance for el, amt in self.items())
 
-    def __ge__(self, other):
+    def __ge__(self, other: object) -> bool:
         """
         Defines >= for Compositions. Should ONLY be used for defining a sort
-        order (the behavior is probably not what you'd expect)
+        order (the behavior is probably not what you'd expect).
         """
+        if not isinstance(other, Composition):
+            return NotImplemented
+
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= Composition.amount_tolerance:
                 return False
@@ -180,18 +187,21 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 return True
         return True
 
-    def __add__(self, other):
+    def __add__(self, other: object) -> Composition:
         """
         Adds two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        new_el_map = collections.defaultdict(float)
+        if not isinstance(other, (Composition, dict)):
+            return NotImplemented
+
+        new_el_map: dict[SpeciesLike, float] = collections.defaultdict(float)
         new_el_map.update(self)
         for k, v in other.items():
             new_el_map[get_el_sp(k)] += v
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
-    def __sub__(self, other):
+    def __sub__(self, other: object) -> Composition:
         """
         Subtracts two compositions. For example, an Fe2O3 composition - an FeO
         composition gives an FeO2 composition.
@@ -201,13 +211,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             original composition in any of its elements, unless allow_negative
             is True
         """
-        new_el_map = collections.defaultdict(float)
+        if not isinstance(other, (Composition, dict)):
+            return NotImplemented
+
+        new_el_map: dict[SpeciesLike, float] = collections.defaultdict(float)
         new_el_map.update(self)
         for k, v in other.items():
             new_el_map[get_el_sp(k)] -= v
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
-    def __mul__(self, other):
+    def __mul__(self, other: object) -> Composition:
         """
         Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12
@@ -218,7 +231,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     __rmul__ = __mul__
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: object) -> Composition:
         if not isinstance(other, numbers.Number):
             return NotImplemented
         return Composition({el: self[el] / other for el in self}, allow_negative=self.allow_negative)
@@ -438,7 +451,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return " ".join(formula)
 
     @property
-    def elements(self) -> list[Element | Species | DummySpecies]:
+    def elements(self) -> list[SpeciesLike]:
         """
         Returns view of elements in Composition.
         """
