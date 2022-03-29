@@ -691,6 +691,7 @@ class CifParser:
                 "_symmetry_space_group_name_h-m_",
             ]:
                 sg = data.data.get(symmetry_label)
+                msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
                 if sg:
                     sg = sub_spgrp(sg)
@@ -698,9 +699,7 @@ class CifParser:
                         spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
-                            msg = (
-                                f"No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {symmetry_label} used."
-                            )
+                            msg = msg_template.format(symmetry_label)
                             warnings.warn(msg)
                             self.warnings.append(msg)
                             break
@@ -713,7 +712,7 @@ class CifParser:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s) for s in xyz]
-                                msg = f"No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {symmetry_label} used."
+                                msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break

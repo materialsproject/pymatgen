@@ -1512,7 +1512,7 @@ class LightStructureEnvironments(MSONable):
             return (
                 f"Neighbors Set for site #{self.isite:d} :\n"
                 f" - Coordination number : {len(self):d}\n"
-                f" - Neighbors sites indices : {', '.join([f'{nb_list_index:d}' for nb_list_index in self.all_nbs_sites_indices])}\n"
+                f" - Neighbors sites indices : {', '.join(f'{nb_idxs:d}' for nb_idxs in self.all_nbs_sites_indices)}\n"
             )
 
         def as_dict(self):
