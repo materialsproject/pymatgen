@@ -160,7 +160,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __eq__(self, other: object) -> bool:
         """Defines == for Compositions."""
-        if not isinstance(other, Composition):
+        if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
         #  elements with amounts < Composition.amount_tolerance don't show up
