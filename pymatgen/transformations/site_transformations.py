@@ -246,7 +246,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = MSONable.as_dict(self)
         d["translation_vector"] = self.translation_vector.tolist()

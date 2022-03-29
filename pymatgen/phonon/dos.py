@@ -121,7 +121,7 @@ class PhononDos(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of PhononDos.
+        JSON-serializable dict representation of PhononDos.
         """
         return {
             "@module": self.__class__.__module__,
@@ -384,7 +384,7 @@ class CompletePhononDos(PhononDos):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of CompletePhononDos.
+        JSON-serializable dict representation of CompletePhononDos.
         """
         d = {
             "@module": self.__class__.__module__,

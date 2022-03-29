@@ -86,7 +86,7 @@ class Cohp(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of COHP.
+        JSON-serializable dict representation of COHP.
         """
         d = {
             "@module": self.__class__.__module__,
@@ -308,7 +308,7 @@ class CompleteCohp(Cohp):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of CompleteCohp.
+        JSON-serializable dict representation of CompleteCohp.
         """
         d = {
             "@module": self.__class__.__module__,

@@ -1135,7 +1135,7 @@ class Vasprun(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = {
             "vasp_version": self.vasp_version,
@@ -1567,7 +1567,7 @@ class BSVasprun(Vasprun):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = {
             "vasp_version": self.vasp_version,

@@ -246,7 +246,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation for Site.
+        JSON-serializable dict representation for Site.
         """
         species_list = []
         for spec, occu in self.species.items():
@@ -593,7 +593,7 @@ class PeriodicSite(Site, MSONable):
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """
-        Json-serializable dict representation of PeriodicSite.
+        JSON-serializable dict representation of PeriodicSite.
 
         Args:
             verbosity (int): Verbosity level. Default of 0 only includes the

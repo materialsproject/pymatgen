@@ -2791,7 +2791,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of Molecule
+        JSON-serializable dict representation of Molecule
         """
         d = {
             "@module": self.__class__.__module__,

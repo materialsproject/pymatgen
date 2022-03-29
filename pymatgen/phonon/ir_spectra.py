@@ -67,7 +67,7 @@ class IRDielectricTensor(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of IRDielectricTensor.
+        JSON-serializable dict representation of IRDielectricTensor.
         """
         return {
             "@module": self.__class__.__module__,

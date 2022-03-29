@@ -1195,7 +1195,7 @@ class GaussianOutput:
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         structure = self.final_structure
         d = {
