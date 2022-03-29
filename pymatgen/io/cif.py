@@ -699,8 +699,7 @@ class CifParser:
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
                             msg = (
-                                "No _symmetry_equiv_pos_as_xyz type key found. "
-                                "Spacegroup from %s used." % symmetry_label
+                                f"No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {symmetry_label} used."
                             )
                             warnings.warn(msg)
                             self.warnings.append(msg)
@@ -714,10 +713,7 @@ class CifParser:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s) for s in xyz]
-                                msg = (
-                                    "No _symmetry_equiv_pos_as_xyz type key found. "
-                                    "Spacegroup from %s used." % symmetry_label
-                                )
+                                msg = f"No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {symmetry_label} used."
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break
@@ -1157,7 +1153,7 @@ class CifParser:
                 warnings.warn(f"Error is {str(exc)}.")
 
         if self.warnings:
-            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
+            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
@@ -1289,7 +1285,7 @@ class CifWriter:
             warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None
 
-        format_str = "{:.%df}" % significant_figures
+        format_str = f"{{:.{significant_figures}f}}"
 
         block = {}
         loops = []

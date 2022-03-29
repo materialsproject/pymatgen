@@ -198,7 +198,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         cifname = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
+            cifname = Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif")
             s.to(filename=cifname)
 
         if zip_output:
@@ -399,9 +399,7 @@ class DictSet(VaspInputSet):
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
                 raise KeyError(
-                    "Invalid or unsupported van-der-Waals "
-                    "functional. Supported functionals are "
-                    "%s." % vdw_par.keys()
+                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {vdw_par.keys()}."
                 )
         # read the POTCAR_FUNCTIONAL from the .yaml
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")

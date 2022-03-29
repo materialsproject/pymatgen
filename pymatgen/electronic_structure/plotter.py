@@ -1254,8 +1254,7 @@ class BSPlotterProjected(BSPlotter):
                     )
                 if index > num_branches or index < 1:
                     raise ValueError(
-                        "You give a incorrect index of symmetry lines: %s. The index should be in "
-                        "range of [1, %s]." % (str(index), str(num_branches))
+                        f"You give a incorrect index of symmetry lines: {index}. The index should be in range of [1, {num_branches}]."
                     )
                 indices.append(index - 1)
         else:
@@ -1758,8 +1757,7 @@ class BSPlotterProjected(BSPlotter):
                     for orb in dictio[elt]:
                         if not isinstance(orb, str):
                             raise ValueError(
-                                "The invalid format of orbitals is in 'dictio[%s]': %s. "
-                                "They should be string." % (elt, str(orb))
+                                f"The invalid format of orbitals is in 'dictio[{elt}]': {orb}. They should be string."
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
@@ -1787,8 +1785,7 @@ class BSPlotterProjected(BSPlotter):
                         for orb in sum_morbs[elt]:
                             if not isinstance(orb, str):
                                 raise TypeError(
-                                    "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
-                                    "They should be string." % (elt, str(orb))
+                                    f"The invalid format of orbitals is in 'sum_morbs[{elt}]': {orb}. They should be string."
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
@@ -1804,8 +1801,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictio.keys():
                         raise ValueError(
-                            "You cannot sum projection over orbitals of atoms '%s' because they are not "
-                            "mentioned in 'dictio'." % elt
+                            f"You cannot sum projection over orbitals of atoms '{elt}' because they are not mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_morbs' as a key: {elt}")
@@ -1956,8 +1952,7 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                                 if number not in dictpa[elt]:
                                     raise ValueError(
-                                        "You cannot sum projection with atom number '%s' because it is not "
-                                        "mentioned in dicpta[%s]" % (str(number), elt)
+                                        f"You cannot sum projection with atom number '{number}' because it is not mentioned in dicpta[{elt}]"
                                     )
                             else:
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
@@ -1970,8 +1965,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictpa.keys():
                         raise ValueError(
-                            "You cannot sum projection over atoms '%s' because it is not "
-                            "mentioned in 'dictio'." % elt
+                            f"You cannot sum projection over atoms '{elt}' because it is not mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_atoms' as a key: {elt}")

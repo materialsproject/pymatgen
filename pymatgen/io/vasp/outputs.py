@@ -2074,9 +2074,9 @@ class Outcar:
             "Ediel_sol",
         ]:
             if k == "PAW double counting":
-                self.read_pattern({k: r"%s\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)" % (k)})
+                self.read_pattern({k: rf"{k}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
             else:
-                self.read_pattern({k: r"%s\s+=\s+([\d\-\.]+)" % (k)})
+                self.read_pattern({k: rf"{k}\s+=\s+([\d\-\.]+)"})
             if not self.data[k]:
                 continue
             final_energy_contribs[k] = sum(float(f) for f in self.data[k][-1])
@@ -5559,8 +5559,7 @@ class Waveder:
                     suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
                     if abs(prefix) - abs(suffix):
                         raise RuntimeError(
-                            "Read wrong amount of bytes.\n"
-                            "Expected: %d, read: %d, suffix: %d." % (prefix, len(data), suffix)
+                            f"Read wrong amount of bytes.\nExpected: {prefix}, read: {len(data)}, suffix: {suffix}."
                         )
                     if prefix > 0:
                         break

@@ -115,8 +115,7 @@ def parse_lammps_dumps(file_pattern):
     """
     files = glob.glob(file_pattern)
     if len(files) > 1:
-        pattern = r"%s" % file_pattern.replace("*", "([0-9]+)")
-        pattern = pattern.replace("\\", "\\\\")
+        pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
     for fname in files:

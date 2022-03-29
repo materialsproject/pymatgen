@@ -508,9 +508,8 @@ class BoltztrapRunner(MSONable):
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
-                    "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,"
-                    "energy span around Fermilevel, "
-                    "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
+                    f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} 0.1 {self._nelec:6.1f}     # Fermilevel (Ry),energygrid,"
+                    "energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -536,8 +535,7 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    "1 0 %d %f         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n" % (setgap, Energy(self.scissor, "eV").to("Ry"))
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "

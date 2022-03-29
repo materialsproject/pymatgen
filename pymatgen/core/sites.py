@@ -25,7 +25,7 @@ class Site(collections.abc.Hashable, MSONable):
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
     Composition is used to represent the atoms and occupancy, which allows for
-    disordered site representation. Coords are given in standard cartesian
+    disordered site representation. Coords are given in standard Cartesian
     coordinates.
     """
 
@@ -228,7 +228,7 @@ class Site(collections.abc.Hashable, MSONable):
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas.  For example, FeO4PLi is
+        useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
         if self.species.average_electroneg < other.species.average_electroneg:

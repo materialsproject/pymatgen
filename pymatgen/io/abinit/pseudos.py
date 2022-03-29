@@ -279,8 +279,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # Consistency test based on md5
         if "md5" in d and d["md5"] != new.md5:
             raise ValueError(
-                "The md5 found in file does not agree with the one in dict\n"
-                "Received %s\nComputed %s" % (d["md5"], new.md5)
+                f"The md5 found in file does not agree with the one in dict\nReceived {d['md5']}\nComputed {new.md5}"
             )
 
         return new
@@ -1148,11 +1147,6 @@ class PseudoParser:
                     logger.critical(msg)
                     return None
 
-                # if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
-                #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
-                #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                #    return None
-
                 if pspcod not in self._PSPCODES:
                     raise self.Error(f"{filename}: Don't know how to handle pspcod {pspcod}\n")
 
@@ -1162,9 +1156,6 @@ class PseudoParser:
                     # PAW -> need to know the format pspfmt
                     tokens = lines[lineno + 1].split()
                     pspfmt, creatorID = tokens[:2]
-                    # if tokens[-1].strip() != "pspfmt,creatorID":
-                    #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
-                    #    return None
 
                     ppdesc = ppdesc._replace(format=pspfmt)
 

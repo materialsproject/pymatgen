@@ -387,10 +387,7 @@ class Poscar(MSONable):
                 for i, nat in enumerate(natoms):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * nat)
-                warnings.warn(
-                    "Elements in POSCAR cannot be determined. "
-                    "Defaulting to false names %s." % " ".join(atomic_symbols)
-                )
+                warnings.warn(f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.")
 
         # read the atomic coordinates
         coords = []
@@ -1900,11 +1897,9 @@ class PotcarSingle:
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
             raise ValueError(
-                "No POTCAR for %s with functional %s found. "
-                "Please set the PMG_VASP_PSP_DIR environment in "
-                ".pmgrc.yaml, or you may need to set "
-                "PMG_DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
-                "are using newer psps from VASP." % (symbol, functional)
+                f"No POTCAR for {symbol} with functional {functional} found. Please set the PMG_VASP_PSP_DIR "
+                "environment in .pmgrc.yaml, or you may need to set PMG_DEFAULT_FUNCTIONAL to PBE_52 or "
+                "PBE_54 if you are using newer psps from VASP."
             )
         paths_to_try = [
             os.path.join(d, funcdir, f"POTCAR.{symbol}"),
@@ -1917,8 +1912,7 @@ class PotcarSingle:
                 psingle = PotcarSingle.from_file(p)
                 return psingle
         raise OSError(
-            "You do not have the right POTCAR with functional "
-            + f"{functional} and label {symbol} in your VASP_PSP_DIR"
+            f"You do not have the right POTCAR with functional {functional} and label {symbol} in your VASP_PSP_DIR"
         )
 
     @property
