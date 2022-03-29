@@ -9,14 +9,7 @@ on the StructureEnvironments object. Basically, the LightStructureEnvironments p
 and possibly some fraction corresponding to these.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
+from __future__ import annotations
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -32,6 +25,15 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 allcg = AllCoordinationGeometries()
 symbol_cn_mapping = allcg.get_symbol_cn_mapping()
@@ -1482,7 +1484,7 @@ class LightStructureEnvironments(MSONable):
             ]
 
         @property
-        def neighb_indices_and_images(self):
+        def neighb_indices_and_images(self) -> list[dict[str, int]]:
             """
             List of indices and images with respect to the original unit cell sites for this NeighborsSet.
             """
@@ -1494,10 +1496,10 @@ class LightStructureEnvironments(MSONable):
                 for inb in self.all_nbs_sites_indices_unsorted
             ]
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self.all_nbs_sites_indices)
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return len(self.all_nbs_sites_indices)
 
         def __eq__(self, other):
@@ -1507,12 +1509,11 @@ class LightStructureEnvironments(MSONable):
             return not self == other
 
         def __str__(self):
-            out = f"Neighbors Set for site #{self.isite:d} :\n"
-            out += f" - Coordination number : {len(self):d}\n"
-            out += " - Neighbors sites indices : {}\n".format(
-                ", ".join([f"{nb_list_index:d}" for nb_list_index in self.all_nbs_sites_indices])
+            return (
+                f"Neighbors Set for site #{self.isite:d} :\n"
+                f" - Coordination number : {len(self):d}\n"
+                f" - Neighbors sites indices : {', '.join([f'{nb_list_index:d}' for nb_list_index in self.all_nbs_sites_indices])}\n"
             )
-            return out
 
         def as_dict(self):
             """
@@ -1522,7 +1523,6 @@ class LightStructureEnvironments(MSONable):
                 "isite": self.isite,
                 "all_nbs_sites_indices": self.all_nbs_sites_indices_unsorted,
             }
-            # 'all_nbs_sites_indices_unsorted': self.all_nbs_sites_indices_unsorted}
 
         @classmethod
         def from_dict(cls, dd, structure, all_nbs_sites):
