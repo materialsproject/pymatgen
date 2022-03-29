@@ -180,9 +180,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 return True
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __add__(self, other):
         """
         Adds two compositions. For example, an Fe2O3 composition + an FeO
