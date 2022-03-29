@@ -31,9 +31,8 @@ se_files_dir = os.path.join(
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
         with ScratchDir("."):
-            f = open(f"{se_files_dir}/se_mp-7000.json")
-            dd = json.load(f)
-            f.close()
+            with open(f"{se_files_dir}/se_mp-7000.json") as f:
+                dd = json.load(f)
 
             se = StructureEnvironments.from_dict(dd)
             isite = 6
@@ -159,9 +158,8 @@ class StructureEnvironmentsTest(PymatgenTest):
 
     def test_light_structure_environments(self):
         with ScratchDir("."):
-            f = open(f"{se_files_dir}/se_mp-7000.json")
-            dd = json.load(f)
-            f.close()
+            with open(f"{se_files_dir}/se_mp-7000.json") as f:
+                dd = json.load(f)
 
             se = StructureEnvironments.from_dict(dd)
 
