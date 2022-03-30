@@ -2178,7 +2178,7 @@ class IStructure(SiteCollection, MSONable):
             formats, e.g., "abivars".
 
         Returns:
-            JSON serializable dict representation.
+            JSON-serializable dict representation.
         """
         if fmt == "abivars":
             """Returns a dictionary with the ABINIT variables."""
@@ -2420,7 +2420,7 @@ class IStructure(SiteCollection, MSONable):
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
         Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-        vasprun.xml, CSSR, Netcdf and pymatgen's JSON serialized structures.
+        vasprun.xml, CSSR, Netcdf and pymatgen's JSON-serialized structures.
 
         Args:
             filename (str): The filename to read from.
@@ -3116,7 +3116,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         Reads a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
-        pymatgen's JSON serialized molecules. Using openbabel,
+        pymatgen's JSON-serialized molecules. Using openbabel,
         many more extensions are supported but requires openbabel to be
         installed.
 

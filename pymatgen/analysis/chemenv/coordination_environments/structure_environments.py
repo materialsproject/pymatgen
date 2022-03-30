@@ -404,7 +404,7 @@ class StructureEnvironments(MSONable):
 
         def as_dict(self):
             """
-            A JSON serializable dict representation of the NeighborsSet.
+            A JSON-serializable dict representation of the NeighborsSet.
             """
             return {
                 "isite": self.isite,
@@ -415,7 +415,7 @@ class StructureEnvironments(MSONable):
         @classmethod
         def from_dict(cls, dd, structure, detailed_voronoi):
             """
-            Reconstructs the NeighborsSet algorithm from its JSON serializable dict representation, together with
+            Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
 
             As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
@@ -423,7 +423,7 @@ class StructureEnvironments(MSONable):
             reconstructing itself. These two are both in the StructureEnvironments object.
 
             Args:
-                dd: a JSON serializable dict representation of a NeighborsSet.
+                dd: a JSON-serializable dict representation of a NeighborsSet.
                 structure: The structure.
                 detailed_voronoi: The Voronoi object containing all the neighboring atoms from which the subset of
                     neighbors for this NeighborsSet is extracted.
@@ -1517,7 +1517,7 @@ class LightStructureEnvironments(MSONable):
 
         def as_dict(self):
             """
-            A JSON serializable dict representation of the NeighborsSet.
+            A JSON-serializable dict representation of the NeighborsSet.
             """
             return {
                 "isite": self.isite,
@@ -1527,7 +1527,7 @@ class LightStructureEnvironments(MSONable):
         @classmethod
         def from_dict(cls, dd, structure, all_nbs_sites):
             """
-            Reconstructs the NeighborsSet algorithm from its JSON serializable dict representation, together with
+            Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
 
             As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
@@ -1535,7 +1535,7 @@ class LightStructureEnvironments(MSONable):
             reconstructing itself. These two are both in the LightStructureEnvironments object.
 
             Args:
-                dd: a JSON serializable dict representation of a NeighborsSet.
+                dd: a JSON-serializable dict representation of a NeighborsSet.
                 structure: The structure.
                 all_nbs_sites: The list of all the possible neighbors for a given site.
 

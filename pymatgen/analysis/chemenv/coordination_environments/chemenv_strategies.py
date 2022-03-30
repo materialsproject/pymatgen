@@ -59,7 +59,7 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of this strategy option.
+        A JSON-serializable dict representation of this strategy option.
         """
 
 
@@ -1230,7 +1230,7 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of this neighbors set weight.
+        A JSON-serializable dict representation of this neighbors set weight.
         """
 
     @abc.abstractmethod
