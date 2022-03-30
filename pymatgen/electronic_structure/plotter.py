@@ -3931,7 +3931,7 @@ def plot_fermi_surface(
         cbm (bool): Boolean value to specify if the considered band is a
             conduction band or not
         multiple_figure (bool): If True a figure for each energy level will be
-            shown.  If False all the surfaces will be shown in the same figure.
+            shown. If False all the surfaces will be shown in the same figure.
             In this last case, tune the transparency factor.
         mlab_figure (mayavi.mlab.figure): A previous figure to plot a new
             surface on.

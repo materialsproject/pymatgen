@@ -65,7 +65,7 @@ Direct contributions to pymatgen main distribution
       local repo directory and fix all errors before continuing further.
    c. If you have `pre-commit <https://pre-commit.com/>`_ installed you can use
       the provided :code:`.pre-commit-config.yaml` file to perform automatic style checks
-      before publishing your code.  The pre-commit hooks can be installed using::
+      before publishing your code. The pre-commit hooks can be installed using::
 
             pre-commit install
 

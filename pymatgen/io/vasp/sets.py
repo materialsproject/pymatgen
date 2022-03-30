@@ -5,7 +5,7 @@
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
 of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
-high throughput project.  The basic concept behind an input set is to specify
+high throughput project. The basic concept behind an input set is to specify
 a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.

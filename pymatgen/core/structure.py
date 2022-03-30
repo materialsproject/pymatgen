@@ -1203,7 +1203,7 @@ class IStructure(SiteCollection, MSONable):
         include_image: bool = False,
     ) -> list[PeriodicNeighbor]:
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -1222,7 +1222,7 @@ class IStructure(SiteCollection, MSONable):
     @deprecated(get_neighbors, "This is retained purely for checking purposes.")
     def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -2857,7 +2857,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:

@@ -675,10 +675,10 @@ class KSampling(AbivarAble, MSONable):
         comment=None,
     ):
         """
-        Highly flexible constructor for KSampling objects.  The flexibility comes
+        Highly flexible constructor for KSampling objects. The flexibility comes
         at the cost of usability and in general, it is recommended that you use
         the default constructor only if you know exactly what you are doing and
-        requires the flexibility.  For most usage cases, the object be constructed
+        requires the flexibility. For most usage cases, the object be constructed
         far more easily using the convenience static constructors:
 
             #. gamma_only

@@ -221,7 +221,7 @@ class Poscar(MSONable):
 
         If all else fails, the code will just assign the first n elements in
         increasing atomic number, where n is the number of species, to the
-        Poscar. For example, H, He, Li, ....  This will ensure at least a
+        Poscar. For example, H, He, Li, .... This will ensure at least a
         unique element is assigned to each site and any analysis that does not
         require specific elemental properties should work fine.
 
@@ -269,7 +269,7 @@ class Poscar(MSONable):
 
         If all else fails, the code will just assign the first n elements in
         increasing atomic number, where n is the number of species, to the
-        Poscar. For example, H, He, Li, ....  This will ensure at least a
+        Poscar. For example, H, He, Li, .... This will ensure at least a
         unique element is assigned to each site and any analysis that does not
         require specific elemental properties should work fine.
 
@@ -662,7 +662,7 @@ class Incar(dict, MSONable):
 
     def __setitem__(self, key: str, val: Any):
         """
-        Add parameter-val pair to Incar.  Warns if parameter is not in list of
+        Add parameter-val pair to Incar. Warns if parameter is not in list of
         valid INCAR tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces.
         """
@@ -692,7 +692,7 @@ class Incar(dict, MSONable):
 
     def get_string(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
-        Returns a string representation of the INCAR.  The reason why this
+        Returns a string representation of the INCAR. The reason why this
         method is different from the __str__ method is to provide options for
         pretty printing.
 
@@ -903,7 +903,7 @@ class Incar(dict, MSONable):
 
     def diff(self, other: Incar) -> dict[str, dict[str, Any]]:
         """
-        Diff function for Incar.  Compares two Incars and indicates which
+        Diff function for Incar. Compares two Incars and indicates which
         parameters are the same and which are not. Useful for checking whether
         two runs were done using the same parameters.
 
@@ -1038,10 +1038,10 @@ class Kpoints(MSONable):
         tet_connections=None,
     ):
         """
-        Highly flexible constructor for Kpoints object.  The flexibility comes
+        Highly flexible constructor for Kpoints object. The flexibility comes
         at the cost of usability and in general, it is recommended that you use
         the default constructor only if you know exactly what you are doing and
-        requires the flexibility.  For most usage cases, the three automatic
+        requires the flexibility. For most usage cases, the three automatic
         schemes can be constructed far more easily using the convenience static
         constructors (automatic, gamma_automatic, monkhorst_automatic) and it
         is recommended that you use those.
@@ -1051,14 +1051,14 @@ class Kpoints(MSONable):
             num_kpts: Following VASP method of defining the KPOINTS file, this
                 parameter is the number of kpoints specified. If set to 0
                 (or negative), VASP automatically generates the KPOINTS.
-            style: Style for generating KPOINTS.  Use one of the
+            style: Style for generating KPOINTS. Use one of the
                 Kpoints.supported_modes enum types.
-            kpts (2D array): 2D array of kpoints.  Even when only a single
+            kpts (2D array): 2D array of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
                 the kpts should still be specified as a 2D array. e.g.,
                 [[20]] or [[2,2,2]].
             kpts_shift (3x1 array): Shift for Kpoints.
-            kpts_weights: Optional weights for kpoints.  Weights should be
+            kpts_weights: Optional weights for kpoints. Weights should be
                 integers. For explicit kpoints.
             coord_type: In line-mode, this variable specifies whether the
                 Kpoints were given in Cartesian or Reciprocal coordinates.

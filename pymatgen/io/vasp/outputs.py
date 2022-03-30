@@ -1647,7 +1647,7 @@ class Outcar:
 
         Magnetization on each ion as a tuple of dict, e.g.,
         ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... )
-        Note that this data is not always present.  LORBIT must be set to some
+        Note that this data is not always present. LORBIT must be set to some
         other value than the default.
 
     .. attribute:: chemical_shielding
@@ -1686,7 +1686,7 @@ class Outcar:
 
         Charge on each ion as a tuple of dict, e.g.,
         ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
-        Note that this data is not always present.  LORBIT must be set to some
+        Note that this data is not always present. LORBIT must be set to some
         other value than the default.
 
     .. attribute:: is_stopped
@@ -3476,7 +3476,7 @@ class VolumetricData(MSONable):
         """
         The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
-        instead of the total and diff.  Note that by definition, a
+        instead of the total and diff. Note that by definition, a
         non-spin-polarized run would have Spin.up data == Spin.down data.
         """
         if not self._spin_data:
@@ -4188,7 +4188,7 @@ class Procar:
 
 class Oszicar:
     """
-    A basic parser for an OSZICAR output from VASP.  In general, while the
+    A basic parser for an OSZICAR output from VASP. In general, while the
     OSZICAR is useful for a quick look at the output from a VASP run, we
     recommend that you use the Vasprun parser instead, which gives far richer
     information about a run.

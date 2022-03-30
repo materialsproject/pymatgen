@@ -571,7 +571,7 @@ class ElementBase(Enum):
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas.  For example, FeO4PLi is
+        useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
         x1 = float("inf") if self.X != self.X else self.X
@@ -1582,7 +1582,7 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
     DummyElement parsing will be attempted.
 
     Args:
-        obj (Element/Species/str/int): An arbitrary object.  Supported objects
+        obj (Element/Species/str/int): An arbitrary object. Supported objects
             are actual Element/Species objects, integers (representing atomic
             numbers) or strings (element symbols or species strings).
 
