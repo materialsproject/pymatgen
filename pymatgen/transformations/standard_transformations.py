@@ -1131,7 +1131,7 @@ class RelaxationTransformation(AbstractTransformation):
         """
         self.final_structure = final_structure
         self.metadata = metadata if metadata else {}
-        
+
     def __str__(self):
         return "RelaxationTransformation"
 
