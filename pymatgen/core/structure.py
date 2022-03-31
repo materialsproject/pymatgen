@@ -1489,13 +1489,11 @@ class IStructure(SiteCollection, MSONable):
                             if are_related and not is_reversed:
                                 symmetry_indices[it2] = symmetry_index
                                 symmetry_ops[it2] = op
-                                pass
                             elif are_related and is_reversed:
                                 symmetry_indices[it2] = symmetry_index
                                 symmetry_ops[it2] = op
                                 bonds[0][it2], bonds[1][it2] = bonds[1][it2], bonds[0][it2]
                                 bonds[2][it2] = -bonds[2][it2]
-                                pass
 
                 symmetry_index += 1
 
