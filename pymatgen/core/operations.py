@@ -184,7 +184,7 @@ class SymmOp(MSONable):
         to_b: ArrayLike,
         R_b: ArrayLike,
         tol: float = 0.001,
-    ) -> tuple[bool, bool]:
+    ) -> Tuple[bool, bool]:
         """
         Checks if two bonds, or rather two vectors that connect two points
         each are symmetrically related. R_a and R_b give the change of unit
