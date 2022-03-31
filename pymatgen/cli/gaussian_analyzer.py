@@ -58,7 +58,7 @@ def get_energies(rootdir, reanalyze, verbose):
     ]
     headers = ("Directory", "Formula", "Charge", "Spin Mult.", "Energy", "E/Atom")
     print(tabulate(all_data, headers=headers))
-    print("")
+    print()
     print(msg)
 
 

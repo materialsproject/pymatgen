@@ -9,8 +9,6 @@ import numpy as np
 
 from pymatgen.io.vasp.outputs import Wavecar
 
-# from jarvis.io.vasp.outputs import Wavecar
-
 
 class SOCSpillage:
     """
@@ -211,8 +209,7 @@ class SOCSpillage:
         kmax = kpoints[nkmax]
 
         print("------------------------------------")
-        print()
-        print("                   INDIRECT DIRECT      HOMO/LUMO (eV)")
+        print("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
         print(
             "no spin-orbit gaps",
             f"{float(noso_lumo - noso_homo):+.3f}",
