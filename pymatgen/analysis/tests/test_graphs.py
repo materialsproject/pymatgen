@@ -511,8 +511,8 @@ from    to  to_image
 
         sg = copy.deepcopy(self.bc_square_sg_r)
         # insert an unsorted edge, don't use sg.add_edge as it auto-sorts
-        sg.graph.add_edge(3, 1)
-        sg.graph.add_edge(2, 1)
+        sg.graph.add_edge(3, 1, to_jimage=(0, 0, 0))
+        sg.graph.add_edge(2, 1, to_jimage=(0, 0, 0))
 
         self.assertEqual(list(sg.graph.edges)[-2:], [(3, 1, 0), (2, 1, 0)])
         sg.sort()

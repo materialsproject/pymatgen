@@ -1389,7 +1389,7 @@ class StructureGraph(MSONable):
         for u, v, keys, data in self.graph.edges(keys=True, data=True):
             if v < u:
                 new_v, new_u, new_d = u, v, data.copy()
-                new_d["to_jimage"] = (0, 0, 0)
+                new_d["to_jimage"] = tuple(np.multiply(-1, data["to_jimage"]).astype(int))
                 edges_to_remove.append((u, v, keys))
                 edges_to_add.append((new_u, new_v, new_d))
 
