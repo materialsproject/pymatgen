@@ -9,7 +9,6 @@ import re
 import string
 import warnings
 from math import cos, pi, sin, sqrt
-from typing import Tuple
 
 import numpy as np
 from monty.json import MSONable
