@@ -1445,7 +1445,7 @@ class IStructure(SiteCollection, MSONable):
                     for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
                         bool1 = i == j2
                         bool2 = j == i2
-                        bool3 = (R == -R).all()
+                        bool3 = (R == -R2).all()
                         bool4 = np.isclose(d, d2, atol=numerical_tol)
                         if bool1 and bool2 and bool3 and bool4:
                             redundant.append(it2)
