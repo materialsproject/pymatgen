@@ -374,8 +374,8 @@ class ConversionVoltagePair(AbstractVoltagePair):
         frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
 
         rxn = rxn
-        entries_charge = step2["entries"]
-        entries_discharge = step1["entries"]
+        entries_charge = step1["entries"]
+        entries_discharge = step2["entries"]
 
         return ConversionVoltagePair(  # pylint: disable=E1123
             rxn=rxn,
