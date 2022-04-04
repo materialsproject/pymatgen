@@ -633,6 +633,9 @@ class BSPlotter:
             if not data["is_metal"]:
                 cbm_max.append(data["cbm"][0][1])
                 vbm_min.append(data["vbm"][0][1])
+            else:
+                cbm_max.append(bs.efermi)
+                vbm_min.append(bs.efermi)
 
             for sp in bs.bands.keys():
                 ls = "-" if str(sp) == "1" else "--"
