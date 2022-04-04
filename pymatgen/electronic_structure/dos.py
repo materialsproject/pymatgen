@@ -388,7 +388,7 @@ class Dos(MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of Dos.
+        JSON-serializable dict representation of Dos.
         """
         return {
             "@module": self.__class__.__module__,
@@ -610,7 +610,7 @@ class FermiDos(Dos, MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of Dos.
+        JSON-serializable dict representation of Dos.
         """
         return {
             "@module": self.__class__.__module__,
@@ -1182,7 +1182,7 @@ class CompleteDos(Dos):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of CompleteDos.
+        JSON-serializable dict representation of CompleteDos.
         """
         d = {
             "@module": self.__class__.__module__,

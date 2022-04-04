@@ -2148,7 +2148,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
 
     Rattling atom `i` is carried out as a Monte Carlo move that is accepted with
     a probability determined from the minimum interatomic distance
-    :math:`d_{ij}`.  If :math:`\\min(d_{ij})` is smaller than :math:`d_{min}`
+    :math:`d_{ij}`. If :math:`\\min(d_{ij})` is smaller than :math:`d_{min}`
     the move is only accepted with a low probability.
 
     This process is repeated for each atom a number of times meaning

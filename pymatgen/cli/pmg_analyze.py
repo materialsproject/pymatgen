@@ -89,7 +89,7 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
         print(tabulate(all_data, headers=headers, tablefmt=fmt))
-        print("")
+        print()
         print(msg)
     else:
         print("No valid vasp run found.")

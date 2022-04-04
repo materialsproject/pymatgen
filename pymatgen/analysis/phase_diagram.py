@@ -2121,7 +2121,7 @@ class PDPlotter:
 
     def _get_3d_plot(self, label_stable=True):
         """
-        Shows the plot using pylab.  Usually I won"t do imports in methods,
+        Shows the plot using pylab. Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
@@ -2877,7 +2877,7 @@ class PDPlotter:
 
 def uniquelines(q):
     """
-    Given all the facets, convert it into a set of unique lines.  Specifically
+    Given all the facets, convert it into a set of unique lines. Specifically
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
@@ -2886,7 +2886,7 @@ def uniquelines(q):
 
     Returns:
         setoflines:
-            A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)
+            A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
     """
     setoflines = set()
     for facets in q:

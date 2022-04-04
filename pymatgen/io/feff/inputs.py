@@ -554,7 +554,7 @@ class Tags(dict):
 
     def __setitem__(self, key, val):
         """
-        Add parameter-val pair.  Warns if parameter is not in list of valid
+        Add parameter-val pair. Warns if parameter is not in list of valid
         Feff tags. Also cleans the parameter and val by stripping leading and
         trailing white spaces.
 
@@ -600,7 +600,7 @@ class Tags(dict):
 
     def get_string(self, sort_keys=False, pretty=False):
         """
-        Returns a string representation of the Tags.  The reason why this
+        Returns a string representation of the Tags. The reason why this
         method is different from the __str__ method is to provide options
         for pretty printing.
 
@@ -770,7 +770,7 @@ class Tags(dict):
 
     def diff(self, other):
         """
-        Diff function.  Compares two PARAMETER files and indicates which
+        Diff function. Compares two PARAMETER files and indicates which
         parameters are the same and which are not. Useful for checking whether
         two runs were done using the same parameters.
 

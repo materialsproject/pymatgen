@@ -300,7 +300,7 @@ class Reaction(BalancedReaction):
     def __init__(self, reactants, products):
         """
         Reactants and products to be specified as list of
-        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
+        pymatgen.core.structure.Composition. e.g., [comp1, comp2]
 
         Args:
             reactants ([Composition]): List of reactants.

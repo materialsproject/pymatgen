@@ -33,7 +33,7 @@ __email__ = "shyuep@gmail.com"
 
 class Lattice(MSONable):
     """
-    A lattice object.  Essentially a matrix with conversion matrices. In
+    A lattice object. Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
     degrees unless otherwise stated.
     """

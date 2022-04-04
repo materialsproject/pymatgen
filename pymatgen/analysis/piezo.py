@@ -26,7 +26,7 @@ class PiezoTensor(Tensor):
 
     def __new__(cls, input_array, tol=1e-3):
         """
-        Create an PiezoTensor object.  The constructor throws an error if
+        Create an PiezoTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3, i. e. in true
         tensor notation. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy

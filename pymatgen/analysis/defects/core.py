@@ -530,7 +530,7 @@ class DefectEntry(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of DefectEntry
+        JSON-serializable dict representation of DefectEntry
         """
         d = {
             "@module": self.__class__.__module__,

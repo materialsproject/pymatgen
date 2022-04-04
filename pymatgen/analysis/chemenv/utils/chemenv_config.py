@@ -85,7 +85,7 @@ class ChemEnvConfig:
                 break
             else:
                 print(" ... wrong key, try again ...")
-            print("")
+            print()
         if test == "S":
             print(f'Configuration has been saved to file "{config_file}"')
 

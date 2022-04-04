@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 """
 This module is intended to be used to compute Pourbaix diagrams
-of arbitrary compositions and formation energies.  If you use
+of arbitrary compositions and formation energies. If you use
 this module in your work, please consider citing the following:
 
 General formalism for solid-aqueous equilibria from DFT:
@@ -64,7 +64,7 @@ PREFAC = 0.0591
 class PourbaixEntry(MSONable, Stringify):
     """
     An object encompassing all data relevant to a solid or ion
-    in a Pourbaix diagram.  Each bulk solid/ion has an energy
+    in a Pourbaix diagram. Each bulk solid/ion has an energy
     g of the form: e = e0 + 0.0591 log10(conc) - nO mu_H2O
     + (nH - 2nO) pH + phi (-nH + 2nO + q)
 
@@ -491,7 +491,7 @@ class PourbaixDiagram(MSONable):
                 Hence, including only the stable solid phases generally leads to the
                 most accurate Pourbaix diagrams.
             nproc (int): number of processes to generate multientries with
-                in parallel.  Defaults to None (serial processing)
+                in parallel. Defaults to None (serial processing)
         """
         entries = deepcopy(entries)
         self.filter_solids = filter_solids
@@ -582,7 +582,7 @@ class PourbaixDiagram(MSONable):
     def _get_hull_in_nph_nphi_space(self, entries):
         """
         Generates convex hull of Pourbaix diagram entries in composition,
-        npH, and nphi space.  This enables filtering of multi-entries
+        npH, and nphi space. This enables filtering of multi-entries
         such that only compositionally stable combinations of entries
         are included.
 
@@ -904,7 +904,7 @@ class PourbaixDiagram(MSONable):
     def get_hull_energy(self, pH, V):
         """
         Gets the minimum energy of the Pourbaix "basin" that is formed
-        from the stable Pourbaix planes.  Vectorized.
+        from the stable Pourbaix planes. Vectorized.
 
         Args:
             pH (float or [float]): pH at which to find the hull energy

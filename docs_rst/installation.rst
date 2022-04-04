@@ -134,7 +134,7 @@ POTCAR Setup
 ============
 
 For the code to generate POTCAR files, it needs to know where the VASP
-pseudopotential files are.  We are not allowed to distribute these under the
+pseudopotential files are. We are not allowed to distribute these under the
 VASP license. The good news is that the `pmg` command line utility includes a
 config functionality.
 
@@ -248,7 +248,7 @@ Mac OSX
 
       xcode-select --install
 
-2. (Optional) Install gfortran.  Get an installer at
+2. (Optional) Install gfortran. Get an installer at
    http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
 
 Linux
@@ -283,7 +283,7 @@ Installation tips for optional libraries
 ========================================
 
 This section provides a guide for installing various optional libraries used in
-pymatgen.  Some of the python libraries are rather tricky to build in certain
+pymatgen. Some of the python libraries are rather tricky to build in certain
 operating systems, especially for users unfamiliar with building C/C++ code.
 Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard

@@ -89,7 +89,7 @@ class DefectPhaseDiagram(MSONable):
     def as_dict(self):
         """
         Returns:
-            Json-serializable dict representation of DefectPhaseDiagram
+            JSON-serializable dict representation of DefectPhaseDiagram
         """
         d = {
             "@module": self.__class__.__module__,

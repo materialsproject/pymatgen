@@ -472,7 +472,7 @@ class EwaldSummation(MSONable):
 
     @classmethod
     def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> EwaldSummation:
-        """Create an EwaldSummation instance from JSON serialized dictionary.
+        """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
             d (Dict): Dictionary representation
