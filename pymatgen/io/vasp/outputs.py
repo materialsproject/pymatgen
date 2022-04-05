@@ -3144,15 +3144,15 @@ class Outcar:
 
             # fix polarization units in new versions of vasp
             regex = r"^.*Ionic dipole moment: .*"
-            search = [[regex,None,lambda x,y: x.append(y.group(0))]]
-            r = micro_pyawk(self.filename,search,[])
+            search = [[regex, None, lambda x, y: x.append(y.group(0))]]
+            r = micro_pyawk(self.filename, search, [])
 
             if "|e|" in r[0]:
-                self.p_elec *= -1 
+                self.p_elec *= -1
                 self.p_ion *= -1
                 if self.p_sp1:
-                    self.p_sp1 *= -1 
-                    self.p_sp2 *= -1 
+                    self.p_sp1 *= -1
+                    self.p_sp2 *= -1
 
         except Exception:
             raise Exception("LCALCPOL OUTCAR could not be parsed.")
