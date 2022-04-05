@@ -3149,9 +3149,10 @@ class Outcar:
 
             if "|e|" in r[0]:
                 self.p_elec *= -1 
-                self.p_sp1 *= -1 
-                self.p_sp2 *= -1 
-                self.p_ion *= -1 
+                self.p_ion *= -1
+                if self.p_sp1:
+                    self.p_sp1 *= -1 
+                    self.p_sp2 *= -1 
 
         except Exception:
             raise Exception("LCALCPOL OUTCAR could not be parsed.")
