@@ -3151,8 +3151,8 @@ class Outcar:
                 self.p_elec *= -1
                 self.p_ion *= -1
                 if self.spin and not self.noncollinear:
-                    self.p_sp1 *= -1 
-                    self.p_sp2 *= -1 
+                    self.p_sp1 *= -1
+                    self.p_sp2 *= -1
 
         except Exception as ex:
             print(ex.args)
