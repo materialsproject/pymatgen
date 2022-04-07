@@ -14,6 +14,7 @@ from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
+from typing import Callable
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -2788,34 +2789,33 @@ class MoleculeGraph(MSONable):
 
         return s
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = "Molecule Graph"
         s += f"\nMolecule: \n{self.molecule.__str__()}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = "Molecule Graph"
         s += f"\nMolecule: \n{self.molecule.__repr__()}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         :return: length of Molecule / number of nodes in graph
         """
         return len(self.molecule)
 
-    def sort(self, key=None, reverse=False):
-        """
-        Same as Molecule.sort(), also remaps nodes in graph.
-        :param key:
-        :param reverse:
-        :return:
-        """
+    def sort(self, key: Callable[[Molecule], float] = None, reverse: bool = False) -> None:
+        """Same as Molecule.sort(), also remaps nodes in graph.
 
+        Args:
+            key (callable, optional): Sort key. Defaults to None.
+            reverse (bool, optional): Reverse sort order. Defaults to False.
+        """
         old_molecule = self.molecule.copy()
 
         # sort Molecule

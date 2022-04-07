@@ -335,7 +335,7 @@ class AdfKey(MSONable):
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of self.
+        A JSON-serializable dict representation of self.
         """
         d = {
             "@module": self.__class__.__module__,
@@ -603,7 +603,7 @@ class AdfTask(MSONable):
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of self.
+        A JSON-serializable dict representation of self.
         """
         return {
             "@module": self.__class__.__module__,

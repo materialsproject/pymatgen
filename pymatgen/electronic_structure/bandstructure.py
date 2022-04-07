@@ -126,7 +126,7 @@ class Kpoint(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of a kpoint
+        JSON-serializable dict representation of a kpoint
         """
         return {
             "lattice": self.lattice.as_dict(),
@@ -599,7 +599,7 @@ class BandStructure:
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructure.
+        JSON-serializable dict representation of BandStructure.
         """
         d = {
             "@module": self.__class__.__module__,
@@ -945,7 +945,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        JSON-serializable dict representation of BandStructureSymmLine.
         """
         d = super().as_dict()
         d["branches"] = self.branches
@@ -959,7 +959,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        JSON-serializable dict representation of BandStructureSymmLine.
         """
 
         d = {

@@ -1203,7 +1203,7 @@ class IStructure(SiteCollection, MSONable):
         include_image: bool = False,
     ) -> list[PeriodicNeighbor]:
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -1222,7 +1222,7 @@ class IStructure(SiteCollection, MSONable):
     @deprecated(get_neighbors, "This is retained purely for checking purposes.")
     def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -1823,7 +1823,7 @@ class IStructure(SiteCollection, MSONable):
             # interpolate lattice matrices using polar decomposition
             from scipy.linalg import polar
 
-            # u is unitary (rotation), p is stretch
+            # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
             lvec = p - np.identity(3)
             lstart = self.lattice.matrix.T
@@ -2178,7 +2178,7 @@ class IStructure(SiteCollection, MSONable):
             formats, e.g., "abivars".
 
         Returns:
-            JSON serializable dict representation.
+            JSON-serializable dict representation.
         """
         if fmt == "abivars":
             """Returns a dictionary with the ABINIT variables."""
@@ -2420,7 +2420,7 @@ class IStructure(SiteCollection, MSONable):
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
         Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-        vasprun.xml, CSSR, Netcdf and pymatgen's JSON serialized structures.
+        vasprun.xml, CSSR, Netcdf and pymatgen's JSON-serialized structures.
 
         Args:
             filename (str): The filename to read from.
@@ -2791,7 +2791,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of Molecule
+        JSON-serializable dict representation of Molecule
         """
         d = {
             "@module": self.__class__.__module__,
@@ -2857,7 +2857,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -3116,7 +3116,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         Reads a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
-        pymatgen's JSON serialized molecules. Using openbabel,
+        pymatgen's JSON-serialized molecules. Using openbabel,
         many more extensions are supported but requires openbabel to be
         installed.
 

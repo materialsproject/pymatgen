@@ -99,6 +99,5 @@ if __name__ == "__main__":
         newgeom_dir = "new_geometry_files"
         if not os.path.exists(newgeom_dir):
             os.makedirs(newgeom_dir)
-        f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
-        json.dump(cg.as_dict(), f)
-        f.close()
+        with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
+            json.dump(cg.as_dict(), f)

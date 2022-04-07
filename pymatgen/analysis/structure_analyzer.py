@@ -59,7 +59,7 @@ class VoronoiAnalyzer:
     Performs a statistical analysis of Voronoi polyhedra around each site.
     Each Voronoi polyhedron is described using Schaefli notation.
     That is a set of indices {c_i} where c_i is the number of faces with i
-    number of vertices.  E.g. for a bcc crystal, there is only one polyhedron
+    number of vertices. E.g. for a bcc crystal, there is only one polyhedron
     notation of which is [0,6,0,8,0,0,...].
     In perfect crystals, these also corresponds to the Wigner-Seitz cells.
     For distorted-crystals, liquids or amorphous structures, rather than one-type,

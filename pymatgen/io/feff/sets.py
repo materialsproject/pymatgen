@@ -3,7 +3,7 @@
 
 """
 This module defines the FeffInputSet abstract base class and a concrete
-implementation for the Materials Project.  The basic concept behind an input
+implementation for the Materials Project. The basic concept behind an input
 set is to specify a scheme to generate a consistent set of Feff inputs from a
 structure without further user intervention. This ensures comparability across
 runs.

@@ -228,15 +228,11 @@ or the Virtual Crystal Approximation."""
 
         if len(enforce_typat) != len(structure):
             raise ValueError(
-                "enforce_typat contains %d entries while it should be natom: %s" % (len(enforce_typat)),
-                len(structure),
+                f"enforce_typat contains {len(enforce_typat)} entries while it should be natom: {len(structure)}"
             )
 
         if len(enforce_znucl) != ntypat:
-            raise ValueError(
-                "enforce_znucl contains %d entries while it should be ntypat: %s" % (len(enforce_znucl)),
-                ntypat,
-            )
+            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be ntypat: {ntypat}")
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
@@ -679,10 +675,10 @@ class KSampling(AbivarAble, MSONable):
         comment=None,
     ):
         """
-        Highly flexible constructor for KSampling objects.  The flexibility comes
+        Highly flexible constructor for KSampling objects. The flexibility comes
         at the cost of usability and in general, it is recommended that you use
         the default constructor only if you know exactly what you are doing and
-        requires the flexibility.  For most usage cases, the object be constructed
+        requires the flexibility. For most usage cases, the object be constructed
         far more easily using the convenience static constructors:
 
             #. gamma_only
@@ -921,7 +917,6 @@ class KSampling(AbivarAble, MSONable):
             kpath_bounds = []
             for label in kpath_labels:
                 red_coord = sp.kpath["kpoints"][label]
-                # print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
         return cls(

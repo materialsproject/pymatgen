@@ -603,7 +603,7 @@ class WulffShape:
                     k=tri_indices[2],
                     hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
-                    text=[r"Miller index: %s" % hkl] * len(x_pts),
+                    text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
                     name="",
                 )

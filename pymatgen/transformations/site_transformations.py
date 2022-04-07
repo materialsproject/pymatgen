@@ -246,7 +246,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = MSONable.as_dict(self)
         d["translation_vector"] = self.translation_vector.tolist()
@@ -278,7 +278,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     ALGO_BEST_FIRST:
         This algorithm is for ordering the really large cells that defeats even
-        ALGO_FAST.  For example, if you have 48 sites of which you want to
+        ALGO_FAST. For example, if you have 48 sites of which you want to
         remove 16 of them, the number of possible orderings is around
         2 x 10^12. ALGO_BEST_FIRST shortcircuits the entire search tree by
         removing the highest energy site first, then followed by the next
