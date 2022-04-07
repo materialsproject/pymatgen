@@ -956,7 +956,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected skewness in eV
         """
 
         skewness = self.get_n_moment(
@@ -991,7 +991,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected kurtosis in eV
         """
 
         kurtosis = (
