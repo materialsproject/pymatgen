@@ -337,6 +337,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
 
         G_euler_circuit = nx.algorithms.euler.eulerian_circuit(G_euler)
 
+
         distances_map = []
         kpath_euler = []
 
@@ -347,7 +348,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
                     distances_map.append((plot_axis.index(edge_reg), False))
                 elif edge_euler[::-1] == edge_reg:
                     distances_map.append((plot_axis.index(edge_reg), True))
-
+        
         if bandstructure.is_spin_polarized:
             spins = [Spin.up, Spin.down]
         else:
@@ -356,23 +357,48 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         new_kpoints = []
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
+        
+        num_branches = len(bandstructure.branches)
+        new_branches = []
+        
+        # This ensures proper format of bandstructure.branches
+        processed = []
+        for ind in range(num_branches):
+            branch = bandstructure.branches[ind]
 
+            if branch["name"] not in processed:
+
+                if tuple(branch["name"].split("-")) in plot_axis:
+                    new_branches.append(branch)
+                    processed.append(branch["name"])
+                else:
+                    next_branch = bandstructure.branches[ind+1]
+                    combined = {"start_index": branch["start_index"], 
+                                "end_index": next_branch["end_index"], 
+                                "name": "{}-{}".format(branch["name"].split("-")[0], 
+                                                       next_branch["name"].split("-")[1])}
+                    processed.append(branch["name"])
+                    processed.append(next_branch["name"])
+
+                    new_branches.append(combined)
+                    
+        # Obtain new values
         for entry in distances_map:
+            
+            branch = new_branches[entry[0]]
+            
             if not entry[1]:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["start_index"]
                 stop = branch["end_index"] + 1
                 step = 1
-
             else:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["end_index"]
-                stop = branch["start_index"] - 1
+                stop = branch["start_index"] - 1 if branch["start_index"] != 0 else None
                 step = -1
 
             # kpoints
             new_kpoints += [point.frac_coords for point in bandstructure.kpoints[start:stop:step]]
-
+            
             # eigenvals
             for spin in spins:
                 for n, band in enumerate(bandstructure.bands[spin]):
