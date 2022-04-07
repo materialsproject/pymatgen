@@ -1058,7 +1058,6 @@ class CompleteDos(Dos):
         densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
-        energies = dos.energies - dos.efermi
         if erange:
             densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
