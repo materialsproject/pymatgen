@@ -86,7 +86,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return self._multiplicity
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def defect_composition(self):
         """
@@ -103,7 +103,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def name(self):
         """

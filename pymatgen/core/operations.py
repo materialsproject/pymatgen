@@ -290,7 +290,7 @@ class SymmOp(MSONable):
             - u * (b * v + c * w)  # type: ignore
             + (u * (b * v + c * w) - a * (v2 + w2)) * cos_t  # type: ignore
             + (b * w - c * v) * l * sin_t  # type: ignore
-        ) / l2  # type: ignore
+        ) / l2
 
         m21 = (u * v * (1 - cos_t) + w * l * sin_t) / l2  # type: ignore
         m22 = (v2 + (u2 + w2) * cos_t) / l2  # type: ignore
@@ -300,7 +300,7 @@ class SymmOp(MSONable):
             - v * (a * u + c * w)  # type: ignore
             + (v * (a * u + c * w) - b * (u2 + w2)) * cos_t  # type: ignore
             + (c * u - a * w) * l * sin_t  # type: ignore
-        ) / l2  # type: ignore
+        ) / l2
 
         m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2  # type: ignore
         m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2  # type: ignore

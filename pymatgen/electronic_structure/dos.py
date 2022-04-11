@@ -80,7 +80,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
@@ -120,7 +120,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
 
         # find index of fermi energy
         i_fermi = 0
