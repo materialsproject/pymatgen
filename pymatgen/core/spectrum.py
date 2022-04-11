@@ -218,7 +218,7 @@ class Spectrum(MSONable):
         """
         return "\n".join(
             [
-                self.__class__.__name__,
+                type(self).__name__,
                 f"{self.XLABEL}: {self.x}",
                 f"{self.YLABEL}: {self.y}",
             ]

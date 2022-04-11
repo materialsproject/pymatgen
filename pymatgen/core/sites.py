@@ -260,8 +260,8 @@ class Site(collections.abc.Hashable, MSONable):
             "species": species_list,
             "xyz": [float(c) for c in self.coords],
             "properties": self.properties,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
         if self.properties:
             d["properties"] = self.properties
@@ -612,8 +612,8 @@ class PeriodicSite(Site, MSONable):
             "species": species_list,
             "abc": [float(c) for c in self._frac_coords],  # type: ignore
             "lattice": self._lattice.as_dict(verbosity=verbosity),
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
         if verbosity > 0:

@@ -737,7 +737,7 @@ class CorrectionsList(Compatibility):
             corrected_energy = centry.energy
             correction_uncertainty = centry.correction_uncertainty
         d = {
-            "compatibility": self.__class__.__name__,
+            "compatibility": type(self).__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
             "correction_uncertainty": correction_uncertainty,

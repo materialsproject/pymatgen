@@ -99,7 +99,7 @@ class EnergyAdjustment(MSONable):
 
     def __repr__(self):
         output = [
-            f"{self.__class__.__name__}:",
+            f"{type(self).__name__}:",
             f"  Name: {self.name}",
             f"  Value: {self.value:.3f} eV",
             f"  Uncertainty: {self.uncertainty:.3f} eV",
@@ -463,7 +463,7 @@ class ComputedEntry(Entry):
         output = [
             "{} {:<10} - {:<12} ({})".format(
                 self.entry_id,
-                self.__class__.__name__,
+                type(self).__name__,
                 self.composition.formula,
                 self.composition.reduced_formula,
             ),
@@ -564,7 +564,7 @@ class ComputedEntry(Entry):
         # NOTE It is assumed that the user will ensure entry_id is a
         # unique identifier for ComputedEntry type classes.
         if self.entry_id is not None:
-            return hash(f"{self.__class__.__name__}{self.entry_id}")
+            return hash(f"{type(self).__name__}{self.entry_id}")
 
         return super().__hash__()
 
@@ -687,7 +687,7 @@ class ComputedStructureEntry(ComputedEntry):
         # TODO: this should raise TypeError since normalization does not make sense
         # raise TypeError("You cannot normalize a structure.")
         warnings.warn(
-            f"Normalization of a `{self.__class__.__name__}` makes "
+            f"Normalization of a `{type(self).__name__}` makes "
             "`self.composition` and `self.structure.composition` inconsistent"
             " - please use self.composition for all further calculations."
         )

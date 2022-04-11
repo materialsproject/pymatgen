@@ -545,8 +545,8 @@ class Poscar(MSONable):
         :return: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "true_names": self.true_names,
             "selective_dynamics": np.array(self.selective_dynamics).tolist(),
@@ -676,8 +676,8 @@ class Incar(dict, MSONable):
         :return: MSONable dict.
         """
         d = dict(self)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -1564,8 +1564,8 @@ class Kpoints(MSONable):
         for para in optional_paras:
             if para in self.__dict__:
                 d[para] = self.__dict__[para]
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -2205,8 +2205,8 @@ class Potcar(list, MSONable):
         return {
             "functional": self.functional,
             "symbols": self.symbols,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -2337,8 +2337,8 @@ class VaspInput(dict, MSONable):
         :return: MSONable dict.
         """
         d = {k: v.as_dict() for k, v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod

@@ -202,7 +202,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             s.to(filename=cifname)
 
         if zip_output:
-            filename = self.__class__.__name__ + ".zip"
+            filename = type(self).__name__ + ".zip"
             with ZipFile(os.path.join(output_dir, filename), "w") as zip:
                 for file in [
                     "INCAR",
@@ -713,10 +713,10 @@ class DictSet(VaspInputSet):
         return int(nbands)
 
     def __str__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def __repr__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def write_input(
         self,

@@ -338,8 +338,8 @@ class AdfKey(MSONable):
         A JSON-serializable dict representation of self.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "name": self.name,
             "options": self.options,
         }
@@ -606,8 +606,8 @@ class AdfTask(MSONable):
         A JSON-serializable dict representation of self.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "operation": self.operation,
             "title": self.title,
             "xc": self.xc.as_dict(),

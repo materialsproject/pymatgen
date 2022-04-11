@@ -183,8 +183,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 "parameters": self._parameters,
                 "data": self._data,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -298,8 +298,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -423,8 +423,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 "data": self._data,
                 "file_extensions": self._file_extensions,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

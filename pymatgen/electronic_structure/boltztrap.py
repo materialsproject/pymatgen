@@ -748,8 +748,8 @@ class BoltztrapRunner(MSONable):
         :return: MSONable dict
         """
         results = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lpfac": self.lpfac,
             "bs": self.bs.as_dict(),
             "nelec": self._nelec,

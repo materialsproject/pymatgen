@@ -857,8 +857,8 @@ class ElementBase(Enum):
         easier serialization.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
         }
 
@@ -1339,8 +1339,8 @@ class Species(MSONable, Stringify):
         :return: Json-able dictionary representation.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
         }
@@ -1525,8 +1525,8 @@ class DummySpecies(Species):
         :return: MSONAble dict representation.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
         }

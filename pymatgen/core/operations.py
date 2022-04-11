@@ -396,8 +396,8 @@ class SymmOp(MSONable):
         :return: MSONAble dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "matrix": self.affine_matrix.tolist(),
             "tolerance": self.tol,
         }
@@ -597,8 +597,8 @@ class MagSymmOp(SymmOp):
         :return: MSONABle dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "matrix": self.affine_matrix.tolist(),
             "tolerance": self.tol,
             "time_reversal": self.time_reversal,

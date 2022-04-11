@@ -1642,7 +1642,7 @@ class IStructure(SiteCollection, MSONable):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        return self.__class__.from_sites(sites, charge=self._charge)
+        return type(self).from_sites(sites, charge=self._charge)
 
     def get_reduced_structure(self, reduction_algo: Literal["niggli", "LLL"] = "niggli") -> IStructure | Structure:
         """
@@ -1722,7 +1722,7 @@ class IStructure(SiteCollection, MSONable):
                 )
             )
         new_sites = sorted(new_sites)
-        return self.__class__.from_sites(new_sites, charge=self._charge)
+        return type(self).from_sites(new_sites, charge=self._charge)
 
     def interpolate(
         self,
@@ -2189,8 +2189,8 @@ class IStructure(SiteCollection, MSONable):
         del latt_dict["@class"]
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "lattice": latt_dict,
             "sites": [],
@@ -2722,7 +2722,7 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return tuple(self.__class__.from_sites(cluster) for cluster in clusters)
+        return tuple(type(self).from_sites(cluster) for cluster in clusters)
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """
@@ -2792,8 +2792,8 @@ class IMolecule(SiteCollection, MSONable):
         JSON-serializable dict representation of Molecule
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
@@ -4120,7 +4120,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Returns:
             A copy of the Molecule.
         """
-        return self.__class__.from_sites(self)
+        return type(self).from_sites(self)
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1):
         """
