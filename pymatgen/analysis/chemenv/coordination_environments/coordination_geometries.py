@@ -106,8 +106,8 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         Returns: a JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "permutations": self._permutations,
         }
 
@@ -308,8 +308,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Returns: a JSON-serializable dict representation of this SeparationPlane algorithm.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "plane_points": self.plane_points,
             "mirror_plane": self.mirror_plane,
             "ordered_plane": self.ordered_plane,

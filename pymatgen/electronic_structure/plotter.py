@@ -2491,7 +2491,7 @@ class BSDOSPlotter:
                         spd_dos = dos.get_spd_dos()
                         for idx, orb in enumerate([OrbitalType.s, OrbitalType.p, OrbitalType.d, OrbitalType.f]):
                             if orb in spd_dos:
-                                dos_densities = spd_dos[orb].densities[spin] * int(spin)  # type: ignore
+                                dos_densities = spd_dos[orb].densities[spin] * int(spin)
                                 label = orb if spin == Spin.up else None  # type: ignore
                                 dos_ax.plot(
                                     dos_densities,

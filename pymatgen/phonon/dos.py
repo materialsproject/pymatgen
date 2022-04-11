@@ -124,8 +124,8 @@ class PhononDos(MSONable):
         JSON-serializable dict representation of PhononDos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "frequencies": list(self.frequencies),
             "densities": list(self.densities),
         }
@@ -387,8 +387,8 @@ class CompletePhononDos(PhononDos):
         JSON-serializable dict representation of CompletePhononDos.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "frequencies": list(self.frequencies),
             "densities": list(self.densities),

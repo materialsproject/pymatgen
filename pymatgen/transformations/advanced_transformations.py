@@ -46,7 +46,7 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 try:
-    import hiphive  # type: ignore
+    import hiphive
 except ImportError:
     hiphive = None
 
@@ -1564,7 +1564,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             # round the entries of T and force T to be nonsingular
             self.transformation_matrix = _round_and_make_arr_singular(self.transformation_matrix)  # type: ignore
 
-            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs  # type: ignore
+            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
 
             # Find the shortest dimension length and direction
             a = proposed_sc_lat_vecs[0]
@@ -2194,7 +2194,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         Returns:
             Structure with sites perturbed.
         """
-        from hiphive.structure_generation.rattle import mc_rattle  # type: ignore
+        from hiphive.structure_generation.rattle import mc_rattle
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
         seed = self.random_state.randint(1, 1000000000)

@@ -108,8 +108,8 @@ class LMTOCtrl:
         parameter of the primitive cell.
         """
         ctrl_dict = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
         if self.header is not None:
             ctrl_dict["HEADER"] = self.header

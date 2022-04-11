@@ -162,7 +162,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
-            warnings.warn(f"{self.__class__.__name__} cannot process single entries. Supply a list of entries.")
+            warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
             return processed_entry_list
 
         # if clean is True, remove all previous adjustments from the entry
@@ -451,7 +451,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         else:
             raise CompatibilityError(
                 "WARNING! If you see this Exception it means you have encountered"
-                f"an edge case in {self.__class__.__name__}. Inspect your input carefully and post a bug report."
+                f"an edge case in {type(self).__name__}. Inspect your input carefully and post a bug report."
             )
 
     def get_mixing_state_data(self, entries: list[ComputedStructureEntry], verbose: bool = False):

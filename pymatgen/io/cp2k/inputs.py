@@ -117,8 +117,8 @@ class Keyword(MSONable):
         Get a dictionary representation of the Keyword
         """
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["name"] = self.name
         d["values"] = self.values
         d["description"] = self.description

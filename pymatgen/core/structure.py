@@ -258,13 +258,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
+        return tuple(sorted(specie.symbol for specie in self.types_of_species))
 
-    @property  # type: ignore
+    @property
     def atomic_numbers(self) -> tuple[int, ...]:
         """List of atomic numbers."""
         try:
-            return tuple(site.specie.Z for site in self)  # type: ignore
+            return tuple(site.specie.Z for site in self)
         except AttributeError:
             raise AttributeError("atomic_numbers available only for ordered Structures")
 
@@ -858,7 +858,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
         cls,
-        msg: str | MagneticSpaceGroup,  # type: ignore
+        msg: str | MagneticSpaceGroup,
         lattice: list | np.ndarray | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
@@ -916,7 +916,7 @@ class IStructure(SiteCollection, MSONable):
         magmoms = [Magmom(m) for m in site_properties["magmom"]]
 
         if not isinstance(msg, MagneticSpaceGroup):
-            msg = MagneticSpaceGroup(msg)  # type: ignore
+            msg = MagneticSpaceGroup(msg)
 
         if isinstance(lattice, Lattice):
             latt = lattice
@@ -1328,9 +1328,7 @@ class IStructure(SiteCollection, MSONable):
 
         """
         try:
-            from pymatgen.optimization.neighbors import (
-                find_points_in_spheres,  # type: ignore
-            )
+            from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)  # type: ignore
         else:
@@ -1644,7 +1642,7 @@ class IStructure(SiteCollection, MSONable):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        return self.__class__.from_sites(sites, charge=self._charge)
+        return type(self).from_sites(sites, charge=self._charge)
 
     def get_reduced_structure(self, reduction_algo: Literal["niggli", "LLL"] = "niggli") -> IStructure | Structure:
         """
@@ -1662,7 +1660,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Invalid reduction algo : {reduction_algo}")
 
         if reduced_latt != self.lattice:
-            return self.__class__(  # type: ignore
+            return self.__class__(
                 reduced_latt,
                 self.species_and_occu,
                 self.cart_coords,  # type: ignore
@@ -1724,7 +1722,7 @@ class IStructure(SiteCollection, MSONable):
                 )
             )
         new_sites = sorted(new_sites)
-        return self.__class__.from_sites(new_sites, charge=self._charge)
+        return type(self).from_sites(new_sites, charge=self._charge)
 
     def interpolate(
         self,
@@ -1835,7 +1833,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 lat = self.lattice
             fcoords = start_coords + x * vec
-            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties))  # type: ignore
+            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties))
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -2191,8 +2189,8 @@ class IStructure(SiteCollection, MSONable):
         del latt_dict["@class"]
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "lattice": latt_dict,
             "sites": [],
@@ -2592,7 +2590,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecies):
-                    nelectrons += sp.Z * amt  # type: ignore
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
@@ -2724,7 +2722,7 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return tuple(self.__class__.from_sites(cluster) for cluster in clusters)
+        return tuple(type(self).from_sites(cluster) for cluster in clusters)
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """
@@ -2794,8 +2792,8 @@ class IMolecule(SiteCollection, MSONable):
         JSON-serializable dict representation of Molecule
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
@@ -2949,7 +2947,7 @@ class IMolecule(SiteCollection, MSONable):
         for i, j, k in itertools.product(
             list(range(images[0])), list(range(images[1])), list(range(images[2]))  # type: ignore
         ):
-            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]  # type: ignore
+            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:
                 while True:
                     op = SymmOp.from_origin_axis_angle(
@@ -3013,9 +3011,9 @@ class IMolecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return self.__class__(  # type: ignore
+        return self.__class__(
             self.species_and_occu,
-            new_coords,  # type: ignore
+            new_coords,
             charge=self._charge,
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
@@ -3274,7 +3272,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     raise ValueError("PeriodicSite added must have same lattice as Structure!")
                 if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for single int indices!")
-                self._sites[ii] = site  # type: ignore
+                self._sites[ii] = site
             else:
                 if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
                     self._sites[ii].species = site  # type: ignore
@@ -3402,7 +3400,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         elif coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
         else:
-            frac_coords = coords  # type: ignore
+            frac_coords = coords
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
         self._sites[i] = new_site
@@ -4039,7 +4037,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vector = [0, 0, 0]
         for i in indices:
             site = self._sites[i]
-            new_site = Site(site.species, site.coords + vector, properties=site.properties)  # type: ignore
+            new_site = Site(site.species, site.coords + vector, properties=site.properties)
             self._sites[i] = new_site
 
     def rotate_sites(
@@ -4122,7 +4120,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Returns:
             A copy of the Molecule.
         """
-        return self.__class__.from_sites(self)
+        return type(self).from_sites(self)
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1):
         """

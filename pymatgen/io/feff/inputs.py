@@ -577,8 +577,8 @@ class Tags(dict):
             Dictionary of parameters from fefftags object
         """
         tags_dict = dict(self)
-        tags_dict["@module"] = self.__class__.__module__
-        tags_dict["@class"] = self.__class__.__name__
+        tags_dict["@module"] = type(self).__module__
+        tags_dict["@class"] = type(self).__name__
         return tags_dict
 
     @staticmethod
