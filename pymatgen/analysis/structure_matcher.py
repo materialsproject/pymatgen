@@ -666,7 +666,8 @@ class StructureMatcher(MSONable):
         Rescales, finds the reduced structures (primitive and niggli),
         and finds fu, the supercell size to make struct1 comparable to
         s2.
-        If skip_structure_reduction is True, skip to get reduced structures (by primitive transformation and niggli reduction). This option is useful for fitting a set of structures several times.
+        If skip_structure_reduction is True, skip to get reduced structures (by primitive transformation and
+        niggli reduction). This option is useful for fitting a set of structures several times.
         """
         if skip_structure_reduction:
             # Need to copy original structures to rescale lattices later
