@@ -292,3 +292,32 @@ class LammpsInputConstructor:
         self.ncomments = 0
         self.input_settings = input_settings if input_settings is not None else OrderedDict()
         self.curr_stage_name = None
+
+    def _stage_name_exist(self, stage_name: str):
+        """
+        Helper method to internally check if a given stage name exists
+        Parameters
+        ----------
+        stage_name (str): Name of the stage.
+
+        Returns: True or False
+        -------
+
+        """
+        return stage_name in self.input_settings.keys()
+
+    def _add_stage_name(self, stage_name: str):
+        """
+        Helper method to generate and add stage name internally.
+        Parameters
+        ----------
+        stage_name (str): Stage name to be added.
+        -------
+
+        """
+        if stage_name is None:
+            stage_name = self.curr_stage_name if self.curr_stage_name is not None else "stage %s" % self.nstages
+
+        if not self._stage_name_exist(stage_name):
+            self.input_settings[stage_name] = OrderedDict()
+            self.curr_stage_name = stage_name
