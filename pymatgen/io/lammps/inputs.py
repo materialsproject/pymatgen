@@ -371,7 +371,7 @@ class LammpsInputConstructor:
             self.add_command('header', '# ' + comment)
         else:
             self.ncomments += 1
-            self.add_command('comment_{}'.format(self.ncomments), '# ' + comment)
+            self.add_command('comment_{}'.format(self.ncomments), '## ' + comment)
 
     def add_command_from_string(self, string: str, stage_name: str = None):
         """
