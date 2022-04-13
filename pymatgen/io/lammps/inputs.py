@@ -292,15 +292,3 @@ class LammpsInputConstructor:
         self.ncomments = 0
         self.input_settings = input_settings if input_settings is not None else OrderedDict()
         self.curr_stage_name = None
-
-    def init_stage(self):
-        """
-        Use this method to initiate new stage/black in LAMMPS input.
-        -------
-
-        """
-        self.nstages += 1
-
-        stage_name = "stage %s" % self.nstages
-        self._add_stage_name(stage_name)
-
