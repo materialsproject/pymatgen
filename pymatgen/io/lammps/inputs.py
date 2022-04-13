@@ -5,7 +5,6 @@
 This module implements methods for writing LAMMPS input files.
 """
 
-
 import os
 import re
 import shutil
@@ -142,12 +141,12 @@ class LammpsTemplateGen(TemplateInputGen):
     """
 
     def get_input_set(  # type: ignore
-        self,
-        script_template: Union[str, Path],
-        settings: Optional[Dict] = None,
-        script_filename: str = "in.lammps",
-        data: Union[LammpsData, CombinedData] = None,
-        data_filename: str = "system.data",
+            self,
+            script_template: Union[str, Path],
+            settings: Optional[Dict] = None,
+            script_filename: str = "in.lammps",
+            data: Union[LammpsData, CombinedData] = None,
+            data_filename: str = "system.data",
     ):
         """
         Args:
@@ -321,3 +320,14 @@ class LammpsInputConstructor:
         if not self._stage_name_exist(stage_name):
             self.input_settings[stage_name] = OrderedDict()
             self.curr_stage_name = stage_name
+
+    def init_stage(self):
+        """
+        Use this method to initiate new stage/black in LAMMPS input.
+        -------
+
+        """
+        self.nstages += 1
+
+        stage_name = "stage %s" % self.nstages
+        self._add_stage_name(stage_name)
