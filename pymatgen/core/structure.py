@@ -29,7 +29,6 @@ from typing import (
     Optional,
     Sequence,
     Set,
-    Tuple,
     Union,
 )
 
@@ -224,7 +223,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return len(self.types_of_species)
 
     @property
-    def types_of_species(self) -> Tuple[Union[Element, Species, DummySpecies]]:
+    def types_of_species(self) -> tuple[Union[Element, Species, DummySpecies]]:
         """
         List of types of specie.
         """
@@ -237,7 +236,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple(sorted(set(types)))  # type: ignore
 
     @property
-    def types_of_specie(self) -> Tuple[Union[Element, Species, DummySpecies]]:
+    def types_of_specie(self) -> tuple[Union[Element, Species, DummySpecies]]:
         """
         Specie->Species rename. Maintained for backwards compatibility.
         """
@@ -250,7 +249,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 if site.specie == t:
                     yield site
 
-    def indices_from_symbol(self, symbol: str) -> Tuple[int, ...]:
+    def indices_from_symbol(self, symbol: str) -> tuple[int, ...]:
         """
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
@@ -258,7 +257,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple((i for i, specie in enumerate(self.species) if specie.symbol == symbol))
 
     @property
-    def symbol_set(self) -> Tuple[str]:
+    def symbol_set(self) -> tuple[str]:
         """
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
@@ -266,7 +265,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
 
     @property  # type: ignore
-    def atomic_numbers(self) -> Tuple[int]:
+    def atomic_numbers(self) -> tuple[int]:
         """List of atomic numbers."""
         return tuple(site.specie.Z for site in self)  # type: ignore
 
@@ -713,7 +712,7 @@ class IStructure(SiteCollection, MSONable):
                     properties=prop,
                 )
             )
-        self._sites: Tuple[PeriodicSite, ...] = tuple(sites)
+        self._sites: tuple[PeriodicSite, ...] = tuple(sites)
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ", "less than 0.01 Angstrom apart!"))
         self._charge = charge
@@ -977,7 +976,7 @@ class IStructure(SiteCollection, MSONable):
         return self.lattice.get_all_distances(self.frac_coords, self.frac_coords)
 
     @property
-    def sites(self) -> Tuple[PeriodicSite, ...]:
+    def sites(self) -> tuple[PeriodicSite, ...]:
         """
         Returns an iterator for the sites in the Structure.
         """
@@ -998,7 +997,7 @@ class IStructure(SiteCollection, MSONable):
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
-    def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0) -> Tuple[str, int]:
+    def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0) -> tuple[str, int]:
         """
         Convenience method to quickly get the spacegroup of a structure.
 
@@ -1250,7 +1249,7 @@ class IStructure(SiteCollection, MSONable):
         sites: List[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> Tuple[np.ndarray, ...]:
+    ) -> tuple[np.ndarray, ...]:
         """
         A python version of getting neighbor_list. The returned values are a tuple of
         numpy arrays (center_indices, points_indices, offset_vectors, distances).
@@ -1304,7 +1303,7 @@ class IStructure(SiteCollection, MSONable):
         sites: Sequence[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> Tuple[np.ndarray, ...]:
+    ) -> tuple[np.ndarray, ...]:
         """
         Get neighbor lists using numpy array representations without constructing
         Neighbor objects. If the cython extension is installed, this method will
@@ -1373,7 +1372,7 @@ class IStructure(SiteCollection, MSONable):
         unique: bool = False,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> Tuple[np.ndarray, ...]:
+    ) -> tuple[np.ndarray, ...]:
         """
         Similar to 'get_neighbor_list' with sites=None, but the neighbors are
         grouped by symmetry. The returned values are a tuple of numpy arrays
@@ -2807,7 +2806,7 @@ class IMolecule(SiteCollection, MSONable):
         return center / total_weight  # type: ignore
 
     @property
-    def sites(self) -> Tuple[Site, ...]:
+    def sites(self) -> tuple[Site, ...]:
         """
         Returns a tuple of sites in the Molecule.
         """
@@ -2841,7 +2840,7 @@ class IMolecule(SiteCollection, MSONable):
             site_properties=props,
         )
 
-    def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> Tuple[Union["IMolecule", "Molecule"], ...]:
+    def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> tuple[Union["IMolecule", "Molecule"], ...]:
         """
         Returns two molecules based on breaking the bond between atoms at index
         ind1 and ind2.
