@@ -1365,14 +1365,14 @@ class IStructure(SiteCollection, MSONable):
                     distances[cond],
                 )
             )
-
+        
     def get_symmetric_neighbor_list(
-        self,
-        r: float,
-        sg: str,
-        unique: bool = False,
-        numerical_tol: float = 1e-8,
-        exclude_self: bool = True,
+            self,
+            r: float,
+            sg: str,
+            unique: bool = False,
+            numerical_tol: float = 1e-8,
+            exclude_self: bool = True,
     ) -> Tuple[np.ndarray, ...]:
         """
         Similar to 'get_neighbor_list' with sites=None, but the neighbors are
@@ -1387,7 +1387,6 @@ class IStructure(SiteCollection, MSONable):
         output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
         two bonds connecting two points is given. Out of the two, the bond that does not
         reverse the sites is chosen.
-
         Args:
             r (float): Radius of sphere
             sg (str/int): The spacegroup the symmetry operations of which will be
@@ -1460,7 +1459,7 @@ class IStructure(SiteCollection, MSONable):
         symmetry_indices = np.empty(nbonds)
         symmetry_indices[:] = np.NaN
         symmetry_ops = np.empty(len(symmetry_indices), dtype=object)
-
+        symmetry_identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
         symmetry_index = 0
 
         # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
@@ -1472,7 +1471,7 @@ class IStructure(SiteCollection, MSONable):
         for it in range(nbonds):
             if np.isnan(symmetry_indices[it]):
                 symmetry_indices[it] = symmetry_index
-                symmetry_ops[it] = ops[0]
+                symmetry_ops[it] = symmetry_identity
                 for it2 in np.arange(nbonds)[np.isnan(symmetry_indices)]:
                     equal_distance = np.isclose(bonds[3][it], bonds[3][it2], atol=numerical_tol)
                     if equal_distance:
@@ -1512,7 +1511,7 @@ class IStructure(SiteCollection, MSONable):
         # that are the first occurence of a new symmetry index in the ordered output are the ones
         # that are assigned the Identity as a symmetry operation.
         idcs_symop = np.arange(nbonds)
-        identity_idcs = np.where(symmetry_ops == ops[0])[0]
+        identity_idcs = np.where(symmetry_ops == symmetry_identity)[0]
         for symmetry_idx in np.unique(symmetry_indices):
             first_idx = np.argmax(symmetry_indices == symmetry_idx)
             for second_idx in identity_idcs:
