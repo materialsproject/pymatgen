@@ -13,6 +13,7 @@ import warnings
 from pathlib import Path
 from string import Template
 from typing import Dict, Optional, Union
+from collections import OrderedDict
 
 from monty.dev import deprecated
 from monty.json import MSONable
@@ -171,13 +172,13 @@ class LammpsTemplateGen(TemplateInputGen):
 
 @deprecated(LammpsTemplateGen, "This method will be retired in the future. Consider using LammpsTemplateSet instead.")
 def write_lammps_inputs(
-    output_dir,
-    script_template,
-    settings=None,
-    data=None,
-    script_filename="in.lammps",
-    make_dir_if_not_present=True,
-    **kwargs,
+        output_dir,
+        script_template,
+        settings=None,
+        data=None,
+        script_filename="in.lammps",
+        make_dir_if_not_present=True,
+        **kwargs,
 ):
     """
     Writes input files for a LAMMPS run. Input script is constructed
@@ -271,3 +272,23 @@ def write_lammps_inputs(
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
             warnings.warn(f"No data file supplied. Skip writing {data_filename}.")
+
+
+class LammpsInputConstructor:
+    def __init__(self, input_settings: OrderedDict = None):
+        """
+        Class for LAMMPS input file generation in line/stage wise manner. A stage
+        here is defined as a block of LAMMPS input commands usually performing a
+        specific task during the simulation such as energy minimization or
+        NPT/NVT runs. But more broadly, a stage can also be block of LAMMPS
+        input where simulation box is setup, a set of variables are declared or
+        quantities are computed. A comment beginning with '#' is treated as a
+        header for a stage and marks the start of a new stage in the LAMMPS input.
+        Parameters
+        ----------
+        input_settings (OrderedDict): Ordered Dictionary of LAMMPS input settings.
+        """
+        self.nstages = 0
+        self.ncomments = 0
+        self.input_settings = input_settings if input_settings is not None else OrderedDict()
+        self.curr_stage_name = None
