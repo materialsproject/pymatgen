@@ -391,3 +391,42 @@ class LammpsInputConstructor:
         command = string_split[0]
         args = ' '.join(string_split[1:])
         self.input_settings[self.curr_stage_name][command] = args
+
+    def add_stage(self, stage_commands: dict or list, header: str = None, description: str = None):
+        """
+        Adds an entire stage or block of LAMMPS input commands
+        and argument.
+        Parameters
+        ----------
+        stage_commands (dict): A dictionary containing LAMMPS commands
+        and arguments as key value pairs.
+        Example: {'units': 'metal', 'atom_style': 'charge'}.
+        Alternatively, a list of strings containing both LAMMPS commands
+        and corresponding arguments can be provided.
+        Example: ['units  metal', 'atom_style charge']
+        header: The header for the stage. The stage number will be used
+        as the header if not provided.
+        description: Add short description for this stage. This will
+        added inline with the stage header in the input
+        script.
+
+        Returns
+        -------
+
+        """
+
+        self.init_stage()
+
+        if header is None:
+            header = self.curr_stage_name
+
+        if description is not None:
+            self.add_comment("%s : %s" % (header, description), is_stage_header=True)
+        else:
+            self.add_comment(header, is_stage_header=True)
+
+        if isinstance(stage_commands, dict):
+            self.add_command_from_dict(stage_commands, self.curr_stage_name)
+        elif isinstance(stage_commands, list):
+            for command_string in stage_commands:
+                self.add_command_from_string(command_string, self.curr_stage_name)
