@@ -373,4 +373,21 @@ class LammpsInputConstructor:
             self.ncomments += 1
             self.add_command('comment_{}'.format(self.ncomments), '# ' + comment)
 
+    def add_command_from_string(self, string: str, stage_name: str = None):
+        """
+        Adds single command and it's arguments passed as a single string.
+        Parameters
+        ----------
+        string (str): String of command and it's arguments. The first word of
+        the string is treated as the LAMMPS command
+        and rest of the string is treated as it's arguments
+        stage_name (str or None): If specified, the LAMMPS command string is
+        added under the specified stage else latest stage is assumed.
+        -------
 
+        """
+        self._add_stage_name(stage_name)
+        string_split = string.split()
+        command = string_split[0]
+        args = ' '.join(string_split[1:])
+        self.input_settings[self.curr_stage_name][command] = args
