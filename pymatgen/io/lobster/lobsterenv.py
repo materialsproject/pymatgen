@@ -54,6 +54,7 @@ class LobsterNeighbors(NearNeighbors):
         perc_strength_ICOHP=0.15,
         valences_from_charges=False,
         filename_CHARGE=None,
+        which_charge="Mulliken",
         adapt_extremum_to_add_cond=False,
     ):
         """
@@ -81,6 +82,7 @@ class LobsterNeighbors(NearNeighbors):
             valences_from_charges: if True and path to CHARGE.lobster is provided, will use Lobster charges (
             Mulliken) instead of valences
             filename_CHARGE: (str) Path to Charge.lobster
+            which_charge: (str) "Mulliken" or "Loewdin"
             adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
             additional condition
         """
@@ -106,7 +108,10 @@ class LobsterNeighbors(NearNeighbors):
         if valences is None:
             if valences_from_charges and filename_CHARGE is not None:
                 chg = Charge(filename=filename_CHARGE)
-                self.valences = chg.Mulliken
+                if which_charge == "Mulliken":
+                    self.valences = chg.Mulliken
+                elif which_charge == "Loewdin":
+                    self.valences = chg.Loewdin
             else:
                 bv_analyzer = BVAnalyzer()
                 try:
@@ -114,9 +119,18 @@ class LobsterNeighbors(NearNeighbors):
                 except ValueError:
                     self.valences = None
                     if additional_condition in [1, 3, 5, 6]:
-                        print("Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work")
+                        raise ValueError(
+                            "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+                        )
         else:
             self.valences = valences
+        if np.allclose(np.array(self.valences), np.zeros(np.array(self.valences).shape)) and additional_condition in [
+            1,
+            3,
+            5,
+            6,
+        ]:
+            raise ValueError("All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work")
 
         if limits is None:
             self.lowerlimit = None
@@ -1213,8 +1227,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         :return: Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "strategy": self.strategy,
             "structure": self.structure.as_dict(),
             "coordination_environments": self.coordination_environments,

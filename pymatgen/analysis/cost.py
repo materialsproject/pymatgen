@@ -19,9 +19,9 @@ import scipy.constants as const
 from monty.design_patterns import singleton
 from monty.string import unicode2str
 
+from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.util.provenance import is_valid_bibtex
 
 __author__ = "Anubhav Jain"

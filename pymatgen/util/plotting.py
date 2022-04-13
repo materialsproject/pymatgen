@@ -148,7 +148,7 @@ def pretty_plot_two_axis(
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    r"""
+    """
     Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -157,7 +157,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
         deg (int): Degree of polynomial. Defaults to 1.
         xlabel (str): Label for x-axis.
         ylabel (str): Label for y-axis.
-        \\*\\*kwargs: Keyword args passed to pretty_plot.
+        kwargs: Keyword args passed to pretty_plot.
 
     Returns:
         matplotlib.pyplot object.
@@ -354,7 +354,7 @@ def format_formula(formula):
                 number_format = ""
             formatted_formula += s
 
-    return r"$%s$" % (formatted_formula)
+    return f"${formatted_formula}$"
 
 
 def van_arkel_triangle(list_of_materials, annotate=True):
@@ -478,7 +478,8 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     for entry in list_of_materials:
         if type(entry).__name__ not in ["ComputedEntry", "ComputedStructureEntry"]:
             X_pair = [Element(el).X for el in entry]
-            formatted_formula = "%s-%s" % tuple(entry)
+            el_1, el_2 = entry
+            formatted_formula = f"{el_1}-{el_2}"
         else:
             X_pair = [Element(el).X for el in entry.composition.as_dict().keys()]
             formatted_formula = format_formula(entry.composition.reduced_formula)

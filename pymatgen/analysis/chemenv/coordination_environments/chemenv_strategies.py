@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
 Some strategies can favour larger or smaller environments. Some strategies uniquely identifies the environments while
@@ -60,7 +59,7 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of this strategy option.
+        A JSON-serializable dict representation of this strategy option.
         """
 
 
@@ -82,8 +81,8 @@ class DistanceCutoffFloat(float, StrategyOption):
     def as_dict(self):
         """MSONAble dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -112,8 +111,8 @@ class AngleCutoffFloat(float, StrategyOption):
     def as_dict(self):
         """MSONAble dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -143,8 +142,8 @@ class CSMFloat(float, StrategyOption):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -176,8 +175,8 @@ class AdditionalConditionInt(int, StrategyOption):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -442,8 +441,8 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def __str__(self):
-        out = f'  Chemenv Strategy "{self.__class__.__name__}"\n'
-        out += f"  {'=' * (19 + len(self.__class__.__name__))}\n\n"
+        out = f'  Chemenv Strategy "{type(self).__name__}"\n'
+        out += f"  {'=' * (19 + len(type(self).__name__))}\n\n"
         out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
         out += "\n\n"
@@ -823,7 +822,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
 
     def __eq__(self, other):
         return (
-            self.__class__.__name__ == other.__class__.__name__
+            type(self).__name__ == other.__class__.__name__
             and self._distance_cutoff == other._distance_cutoff
             and self._angle_cutoff == other._angle_cutoff
             and self._additional_condition == other._additional_condition
@@ -837,8 +836,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :return: Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "distance_cutoff": float(self._distance_cutoff),
             "angle_cutoff": float(self._angle_cutoff),
             "additional_condition": int(self._additional_condition),
@@ -1028,8 +1027,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     def __eq__(self, other):
         return (
-            self.__class__.__name__ == other.__class__.__name__
-            and self._additional_condition == other.additional_condition
+            type(self).__name__ == other.__class__.__name__ and self._additional_condition == other.additional_condition
         )
 
     def as_dict(self):
@@ -1038,8 +1036,8 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         :return: Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
         }
 
@@ -1189,8 +1187,8 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         :return: Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "max_nabundant": self.max_nabundant,
             "target_environments": self.target_environments,
@@ -1200,7 +1198,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
 
     def __eq__(self, other):
         return (
-            self.__class__.__name__ == other.__class__.__name__
+            type(self).__name__ == other.__class__.__name__
             and self._additional_condition == other.additional_condition
             and self.max_nabundant == other.max_nabundant
             and self.target_environments == other.target_environments
@@ -1231,7 +1229,7 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of this neighbors set weight.
+        A JSON-serializable dict representation of this neighbors set weight.
         """
 
     @abc.abstractmethod
@@ -1299,8 +1297,8 @@ class AngleNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONAble dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "aa": self.aa,
         }
 
@@ -1368,8 +1366,8 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "average_type": self.average_type,
             "aa": self.aa,
             "bb": self.bb,
@@ -1399,7 +1397,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of inverse power distances.
         """
-        return [1.0 / dist ** self.bb for dist in nb_set.normalized_distances]
+        return [1.0 / dist**self.bb for dist in nb_set.normalized_distances]
 
     @staticmethod
     def ang(nb_set):
@@ -1416,7 +1414,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of power angle weights.
         """
-        return [ang ** self.aa for ang in nb_set.normalized_angles]
+        return [ang**self.aa for ang in nb_set.normalized_angles]
 
     @staticmethod
     def anginvdist(nb_set):
@@ -1435,7 +1433,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :return: List of angle/power distance weights.
         """
         nangles = nb_set.normalized_angles
-        return [nangles[ii] / dist ** self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+        return [nangles[ii] / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
 
     def angninvdist(self, nb_set):
         """Power angle/distance weight.
@@ -1453,7 +1451,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :return: List of power angle/power distance weights.
         """
         nangles = nb_set.normalized_angles
-        return [nangles[ii] ** self.aa / dist ** self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+        return [nangles[ii] ** self.aa / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
 
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         """Get the weight of a given neighbors set.
@@ -1630,8 +1628,8 @@ class SelfCSMNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "effective_csm_estimator": self.effective_csm_estimator,
             "weight_estimator": self.weight_estimator,
             "symmetry_measure_type": self.symmetry_measure_type,
@@ -1859,8 +1857,8 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         :return:
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "effective_csm_estimator": self.effective_csm_estimator,
             "weight_estimator": self.weight_estimator,
             "delta_cn_weight_estimators": self.delta_cn_weight_estimators,
@@ -1920,8 +1918,8 @@ class CNBiasNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "cn_weights": {str(cn): cnw for cn, cnw in self.cn_weights.items()},
             "initialization_options": self.initialization_options,
         }
@@ -2222,8 +2220,8 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "weight_type": self.weight_type,
             "surface_definition": self.surface_definition,
             "nb_sets_from_hints": self.nb_sets_from_hints,
@@ -2291,8 +2289,8 @@ class DistancePlateauNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "distance_function": self.distance_function,
             "weight_function": self.weight_function,
         }
@@ -2354,8 +2352,8 @@ class AnglePlateauNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "angle_function": self.angle_function,
             "weight_function": self.weight_function,
         }
@@ -2431,8 +2429,8 @@ class DistanceNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSOnable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "weight_function": self.weight_function,
             "nbs_source": self.nbs_source,
         }
@@ -2511,8 +2509,8 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "weight_function": self.weight_function,
             "nbs_source": self.nbs_source,
         }
@@ -2788,7 +2786,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
 
     def __eq__(self, other):
         return (
-            self.__class__.__name__ == other.__class__.__name__
+            type(self).__name__ == other.__class__.__name__
             and self._additional_condition == other._additional_condition
             and self.symmetry_measure_type == other.symmetry_measure_type
             and self.nb_set_weights == other.nb_set_weights
@@ -2804,8 +2802,8 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         :return: Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "symmetry_measure_type": self.symmetry_measure_type,
             "nb_set_weights": [nb_set_weight.as_dict() for nb_set_weight in self.nb_set_weights],
@@ -2951,7 +2949,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
 
     def __eq__(self, other):
         return (
-            self.__class__.__name__ == other.__class__.__name__
+            type(self).__name__ == other.__class__.__name__
             and self._additional_condition == other._additional_condition
             and self.symmetry_measure_type == other.symmetry_measure_type
             and self.dist_ang_area_weight == other.dist_ang_area_weight
@@ -2972,8 +2970,8 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         :return: Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "symmetry_measure_type": self.symmetry_measure_type,
             "dist_ang_area_weight": self.dist_ang_area_weight.as_dict()

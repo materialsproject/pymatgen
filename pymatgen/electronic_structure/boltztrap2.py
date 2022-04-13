@@ -113,7 +113,7 @@ class VasprunBSLoader:
         self.mommat = None  # not implemented yet
         self.magmom = None  # not implemented yet
         self.fermi = bs_obj.efermi * units.eV
-        self.UCvol = self.structure.volume * units.Angstrom ** 3
+        self.UCvol = self.structure.volume * units.Angstrom**3
 
         if not bs_obj.is_metal():
             self.vbm_idx = max(bs_obj.get_vbm()["band_index"][Spin.up] + bs_obj.get_vbm()["band_index"][Spin.down])
@@ -123,8 +123,8 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.fermi
-            self.cbm = self.fermi
+            self.vbm = self.fermi / units.eV
+            self.cbm = self.fermi / units.eV
 
         if nelect:
             self.nelect_all = nelect
@@ -236,7 +236,7 @@ class BandstructureLoader:
         self.mommat = mommat  # not implemented yet
         self.magmom = magmom  # not implemented yet
         self.fermi = bs_obj.efermi * units.eV
-        self.UCvol = self.structure.volume * units.Angstrom ** 3
+        self.UCvol = self.structure.volume * units.Angstrom**3
 
         if not bs_obj.is_metal():
             self.vbm_idx = max(bs_obj.get_vbm()["band_index"][Spin.up] + bs_obj.get_vbm()["band_index"][Spin.down])
@@ -352,7 +352,7 @@ class VasprunLoader:
             self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters["NELECT"]
-            self.UCvol = self.structure.volume * units.Angstrom ** 3
+            self.UCvol = self.structure.volume * units.Angstrom**3
 
             bs_obj = vrun_obj.get_band_structure()
             if not bs_obj.is_metal():
@@ -771,7 +771,7 @@ class BztTransportProperties:
                         cond_eff_mass[t, i] = (
                             np.linalg.inv(self.Conductivity_mu[t, i])
                             * self.Carrier_conc_mu[t, i]
-                            * units.qe_SI ** 2
+                            * units.qe_SI**2
                             / units.me_SI
                             * 1e6
                         )
@@ -883,7 +883,7 @@ class BztTransportProperties:
             for t in range(len(temp_r)):
                 for i, dop in enumerate(doping):
                     try:
-                        cond_eff_mass[t, i] = np.linalg.inv(cond[t, i]) * dop * units.qe_SI ** 2 / units.me_SI * 1e6
+                        cond_eff_mass[t, i] = np.linalg.inv(cond[t, i]) * dop * units.qe_SI**2 / units.me_SI * 1e6
                     except np.linalg.LinAlgError:
                         pass
 

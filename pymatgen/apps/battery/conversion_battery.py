@@ -4,8 +4,11 @@
 """
 This module contains the classes to build a ConversionElectrode.
 """
+
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, Iterable
+from typing import Iterable
 
 from scipy.constants import N_A
 
@@ -173,7 +176,7 @@ class ConversionElectrode(AbstractElectrode):
         """
         Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
-        a subelectrode that is essentially on the same path.  For example, a
+        a subelectrode that is essentially on the same path. For example, a
         ConversionElectrode formed by starting from an FePO4 composition would
         be a super_electrode of a ConversionElectrode formed from an LiFePO4
         composition.
@@ -240,12 +243,12 @@ class ConversionElectrode(AbstractElectrode):
         ]
         return "\n".join(output)
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
         Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
-        The current methode will be called from within super().get_summary_dict.
+        The current method will be called from within super().get_summary_dict.
 
         Args:
             print_subelectrodes: Also print data on all the possible

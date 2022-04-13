@@ -348,7 +348,7 @@ class WulffShape:
         )
 
     def show(self, *args, **kwargs):
-        r"""
+        """
         Show the Wulff plot.
 
         Args:
@@ -405,7 +405,7 @@ class WulffShape:
         Args:
             color_set: default is 'PuBu'
             grid_off (bool): default is True
-            axis_off (bool): default is Ture
+            axis_off (bool): default is True
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
             off_color: Default color for facets not present on the Wulff shape.
@@ -603,7 +603,7 @@ class WulffShape:
                     k=tri_indices[2],
                     hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
-                    text=[r"Miller index: %s" % hkl] * len(x_pts),
+                    text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
                     name="",
                 )
@@ -625,7 +625,7 @@ class WulffShape:
             z=[0],
             colorbar=go.ColorBar(
                 title={
-                    "text": r"Surface energy %s" % units,
+                    "text": f"Surface energy {units}",
                     "side": "right",
                     "font": {"size": 25},
                 },

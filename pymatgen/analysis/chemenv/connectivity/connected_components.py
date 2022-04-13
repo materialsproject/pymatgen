@@ -871,7 +871,7 @@ class ConnectedComponent(MSONable):
             edata (dict): Edge data dictionary with possibly the above tuples as lists.
 
         Returns:
-            dict: Edge data dictionary with the lists tranformed back into tuples when applicable.
+            dict: Edge data dictionary with the lists transformed back into tuples when applicable.
         """
         edata["delta"] = tuple(edata["delta"])
         edata["ligands"] = [tuple([lig[0], tuple(lig[1]), tuple(lig[2])]) for lig in edata["ligands"]]
@@ -898,8 +898,8 @@ class ConnectedComponent(MSONable):
                     ied = self._edgekey_to_edgedictkey(ie)
                     new_dict_of_dicts[in1][in2][ied] = jsanitize(edge_data)
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "nodes": {strindex: (node.as_dict(), data) for strindex, (node, data) in nodes.items()},
             "graph": new_dict_of_dicts,
         }

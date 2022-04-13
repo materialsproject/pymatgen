@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides classes to comparison the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,
@@ -274,8 +273,8 @@ class MoleculeStructureComparator(MSONable):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "bond_length_cap": self.bond_length_cap,
             "covalent_radius": self.covalent_radius,
             "priority_bonds": self.priority_bonds,

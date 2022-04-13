@@ -18,11 +18,11 @@ and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 
 import logging
 import subprocess
+from shutil import which
 
 import pandas as pd
 from monty.dev import requires
 from monty.json import MSONable
-from monty.os.path import which
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 

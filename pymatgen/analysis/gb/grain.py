@@ -110,7 +110,7 @@ class GrainBoundary(Structure):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.rotation_axis = rotation_axis
@@ -276,8 +276,8 @@ class GrainBoundary(Structure):
             Dictionary representation of GrainBoundary object
         """
         d = super().as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["init_cell"] = self.init_cell.as_dict()
         d["rotation_axis"] = self.rotation_axis
         d["rotation_angle"] = self.rotation_angle
@@ -823,10 +823,10 @@ class GrainBoundaryGenerator:
             # For tetragonal and hexagonal system, ratio = c2 / a2.
             a, c = (structure.lattice.a, structure.lattice.c)
             if c > a:
-                frac = Fraction(c ** 2 / a ** 2).limit_denominator(max_denominator)
+                frac = Fraction(c**2 / a**2).limit_denominator(max_denominator)
                 ratio = [frac.numerator, frac.denominator]
             else:
-                frac = Fraction(a ** 2 / c ** 2).limit_denominator(max_denominator)
+                frac = Fraction(a**2 / c**2).limit_denominator(max_denominator)
                 ratio = [frac.denominator, frac.numerator]
         elif lat_type == "r":
             # For rhombohedral system, ratio = (1 + 2 * cos(alpha)) / cos(alpha).
@@ -1028,7 +1028,7 @@ class GrainBoundaryGenerator:
                 temp = gcd(mu, mv)
                 mu = int(round(mu / temp))
                 mv = int(round(mv / temp))
-            d = (u ** 2 + v ** 2 - u * v) * mv + w ** 2 * mu
+            d = (u**2 + v**2 - u * v) * mv + w**2 * mu
             if abs(angle - 180.0) < 1.0e0:
                 m = 0
                 n = 1
@@ -1041,30 +1041,30 @@ class GrainBoundaryGenerator:
 
             # construct the rotation matrix, check reference for details
             r_list = [
-                (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 + 2 * w * mu * m * n + 3 * mu * m ** 2,
-                (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 - 2 * w * mu * m * n + 3 * mu * m ** 2,
-                2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2 + 3 * mu * m ** 2,
+                (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + 2 * w * mu * m * n + 3 * mu * m**2,
+                (2 * v - u) * u * mv * n**2 - 4 * w * mu * m * n,
+                2 * u * w * mu * n**2 + 2 * (2 * v - u) * mu * m * n,
+                (2 * u - v) * v * mv * n**2 + 4 * w * mu * m * n,
+                (v**2 * mv - u**2 * mv - w**2 * mu) * n**2 - 2 * w * mu * m * n + 3 * mu * m**2,
+                2 * v * w * mu * n**2 - 2 * (2 * u - v) * mu * m * n,
+                (2 * u - v) * w * mv * n**2 - 3 * v * mv * m * n,
+                (2 * v - u) * w * mv * n**2 + 3 * u * mv * m * n,
+                (w**2 * mu - u**2 * mv - v**2 * mv + u * v * mv) * n**2 + 3 * mu * m**2,
             ]
             m = -1 * m
             r_list_inv = [
-                (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 + 2 * w * mu * m * n + 3 * mu * m ** 2,
-                (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 - 2 * w * mu * m * n + 3 * mu * m ** 2,
-                2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2 + 3 * mu * m ** 2,
+                (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + 2 * w * mu * m * n + 3 * mu * m**2,
+                (2 * v - u) * u * mv * n**2 - 4 * w * mu * m * n,
+                2 * u * w * mu * n**2 + 2 * (2 * v - u) * mu * m * n,
+                (2 * u - v) * v * mv * n**2 + 4 * w * mu * m * n,
+                (v**2 * mv - u**2 * mv - w**2 * mu) * n**2 - 2 * w * mu * m * n + 3 * mu * m**2,
+                2 * v * w * mu * n**2 - 2 * (2 * u - v) * mu * m * n,
+                (2 * u - v) * w * mv * n**2 - 3 * v * mv * m * n,
+                (2 * v - u) * w * mv * n**2 + 3 * u * mv * m * n,
+                (w**2 * mu - u**2 * mv - v**2 * mv + u * v * mv) * n**2 + 3 * mu * m**2,
             ]
             m = -1 * m
-            F = 3 * mu * m ** 2 + d * n ** 2
+            F = 3 * mu * m**2 + d * n**2
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
@@ -1087,7 +1087,7 @@ class GrainBoundaryGenerator:
                 temp = gcd(mu, mv)
                 mu = int(round(mu / temp))
                 mv = int(round(mv / temp))
-            d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + 2 * mv * (v * w + w * u + u * v)
+            d = (u**2 + v**2 + w**2) * (mu - 2 * mv) + 2 * mv * (v * w + w * u + u * v)
             if abs(angle - 180.0) < 1.0e0:
                 m = 0
                 n = 1
@@ -1098,48 +1098,48 @@ class GrainBoundaryGenerator:
 
             # construct the rotation matrix, check reference for details
             r_list = [
-                (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                (mu - 2 * mv) * (u**2 - v**2 - w**2) * n**2
                 + 2 * mv * (v - w) * m * n
-                - 2 * mv * v * w * n ** 2
-                + mu * m ** 2,
-                2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                - 2 * mv * v * w * n**2
+                + mu * m**2,
+                2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                (mu - 2 * mv) * (v**2 - w**2 - u**2) * n**2
                 + 2 * mv * (w - u) * m * n
-                - 2 * mv * u * w * n ** 2
-                + mu * m ** 2,
-                2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                - 2 * mv * u * w * n**2
+                + mu * m**2,
+                2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                (mu - 2 * mv) * (w**2 - u**2 - v**2) * n**2
                 + 2 * mv * (u - v) * m * n
-                - 2 * mv * u * v * n ** 2
-                + mu * m ** 2,
+                - 2 * mv * u * v * n**2
+                + mu * m**2,
             ]
             m = -1 * m
             r_list_inv = [
-                (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                (mu - 2 * mv) * (u**2 - v**2 - w**2) * n**2
                 + 2 * mv * (v - w) * m * n
-                - 2 * mv * v * w * n ** 2
-                + mu * m ** 2,
-                2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                - 2 * mv * v * w * n**2
+                + mu * m**2,
+                2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                (mu - 2 * mv) * (v**2 - w**2 - u**2) * n**2
                 + 2 * mv * (w - u) * m * n
-                - 2 * mv * u * w * n ** 2
-                + mu * m ** 2,
-                2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                - 2 * mv * u * w * n**2
+                + mu * m**2,
+                2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                (mu - 2 * mv) * (w**2 - u**2 - v**2) * n**2
                 + 2 * mv * (u - v) * m * n
-                - 2 * mv * u * v * n ** 2
-                + mu * m ** 2,
+                - 2 * mv * u * v * n**2
+                + mu * m**2,
             ]
             m = -1 * m
-            F = mu * m ** 2 + d * n ** 2
+            F = mu * m**2 + d * n**2
             all_list = r_list_inv + r_list + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
@@ -1202,7 +1202,7 @@ class GrainBoundaryGenerator:
                 mu = int(round(mu / temp))
                 mv = int(round(mv / temp))
                 lam = int(round(lam / temp))
-            d = (mv * u ** 2 + lam * v ** 2) * mv + w ** 2 * mu * mv
+            d = (mv * u**2 + lam * v**2) * mv + w**2 * mu * mv
             if abs(angle - 180.0) < 1.0e0:
                 m = 0
                 n = 1
@@ -1211,30 +1211,30 @@ class GrainBoundaryGenerator:
                 m = fraction.denominator
                 n = fraction.numerator
             r_list = [
-                (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2,
+                (u**2 * mv * mv - lam * v**2 * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                2 * lam * (v * u * mv * n**2 - w * mu * m * n),
+                2 * mu * (u * w * mv * n**2 + v * lam * m * n),
+                2 * mv * (u * v * mv * n**2 + w * mu * m * n),
+                (v**2 * mv * lam - u**2 * mv * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                2 * mv * mu * (v * w * n**2 - u * m * n),
+                2 * mv * (u * w * mv * n**2 - v * lam * m * n),
+                2 * lam * mv * (v * w * n**2 + u * m * n),
+                (w**2 * mu * mv - u**2 * mv * mv - v**2 * mv * lam) * n**2 + lam * mu * m**2,
             ]
             m = -1 * m
             r_list_inv = [
-                (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2,
+                (u**2 * mv * mv - lam * v**2 * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                2 * lam * (v * u * mv * n**2 - w * mu * m * n),
+                2 * mu * (u * w * mv * n**2 + v * lam * m * n),
+                2 * mv * (u * v * mv * n**2 + w * mu * m * n),
+                (v**2 * mv * lam - u**2 * mv * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                2 * mv * mu * (v * w * n**2 - u * m * n),
+                2 * mv * (u * w * mv * n**2 - v * lam * m * n),
+                2 * lam * mv * (v * w * n**2 + u * m * n),
+                (w**2 * mu * mv - u**2 * mv * mv - v**2 * mv * lam) * n**2 + lam * mu * m**2,
             ]
             m = -1 * m
-            F = mu * lam * m ** 2 + d * n ** 2
+            F = mu * lam * m**2 + d * n**2
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
@@ -1292,7 +1292,7 @@ class GrainBoundaryGenerator:
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
         # which is the transformation matrix
 
-        # now trans_cry is the transformation matrix from crystal to cartesian coordinates.
+        # now trans_cry is the transformation matrix from crystal to Cartesian coordinates.
         # for cubic, do not need to change.
         if lat_type.lower() != "c":
             if lat_type.lower() == "h":
@@ -1359,7 +1359,7 @@ class GrainBoundaryGenerator:
         # enumerate all possible n, m to give possible sigmas within the cutoff.
         for n_loop in range(1, n_max + 1):
             n = n_loop
-            m_max = int(np.sqrt(cutoff * a_max - n ** 2 * sum(np.array(r_axis) ** 2)))
+            m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     if m == 0:
@@ -1376,7 +1376,7 @@ class GrainBoundaryGenerator:
                         a = 2
                     else:
                         a = 1
-                    sigma = int(round((m ** 2 + n ** 2 * sum(np.array(r_axis) ** 2)) / a))
+                    sigma = int(round((m**2 + n**2 * sum(np.array(r_axis) ** 2)) / a))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
@@ -1451,7 +1451,7 @@ class GrainBoundaryGenerator:
                 mv = int(round(mv / temp))
 
         # refer to the meaning of d in reference
-        d = (u ** 2 + v ** 2 - u * v) * mv + w ** 2 * mu
+        d = (u**2 + v**2 - u * v) * mv + w**2 * mu
 
         # Compute the max n we need to enumerate.
         n_max = int(np.sqrt((cutoff * 12 * mu * mv) / abs(d)))
@@ -1461,41 +1461,41 @@ class GrainBoundaryGenerator:
             if (c2_a2_ratio is None) and w == 0:
                 m_max = 0
             else:
-                m_max = int(np.sqrt((cutoff * 12 * mu * mv - n ** 2 * d) / (3 * mu)))
+                m_max = int(np.sqrt((cutoff * 12 * mu * mv - n**2 * d) / (3 * mu)))
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
-                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 + 2 * w * mu * m * n + 3 * mu * m ** 2,
-                        (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                        2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                        (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 - 2 * w * mu * m * n + 3 * mu * m ** 2,
-                        2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                        (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                        (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2 + 3 * mu * m ** 2,
+                        (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + 2 * w * mu * m * n + 3 * mu * m**2,
+                        (2 * v - u) * u * mv * n**2 - 4 * w * mu * m * n,
+                        2 * u * w * mu * n**2 + 2 * (2 * v - u) * mu * m * n,
+                        (2 * u - v) * v * mv * n**2 + 4 * w * mu * m * n,
+                        (v**2 * mv - u**2 * mv - w**2 * mu) * n**2 - 2 * w * mu * m * n + 3 * mu * m**2,
+                        2 * v * w * mu * n**2 - 2 * (2 * u - v) * mu * m * n,
+                        (2 * u - v) * w * mv * n**2 - 3 * v * mv * m * n,
+                        (2 * v - u) * w * mv * n**2 + 3 * u * mv * m * n,
+                        (w**2 * mu - u**2 * mv - v**2 * mv + u * v * mv) * n**2 + 3 * mu * m**2,
                     ]
                     m = -1 * m
                     # inverse of the rotation matrix
                     R_list_inv = [
-                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 + 2 * w * mu * m * n + 3 * mu * m ** 2,
-                        (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                        2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                        (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 - 2 * w * mu * m * n + 3 * mu * m ** 2,
-                        2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                        (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                        (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2 + 3 * mu * m ** 2,
+                        (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + 2 * w * mu * m * n + 3 * mu * m**2,
+                        (2 * v - u) * u * mv * n**2 - 4 * w * mu * m * n,
+                        2 * u * w * mu * n**2 + 2 * (2 * v - u) * mu * m * n,
+                        (2 * u - v) * v * mv * n**2 + 4 * w * mu * m * n,
+                        (v**2 * mv - u**2 * mv - w**2 * mu) * n**2 - 2 * w * mu * m * n + 3 * mu * m**2,
+                        2 * v * w * mu * n**2 - 2 * (2 * u - v) * mu * m * n,
+                        (2 * u - v) * w * mv * n**2 - 3 * v * mv * m * n,
+                        (2 * v - u) * w * mv * n**2 + 3 * u * mv * m * n,
+                        (w**2 * mu - u**2 * mv - v**2 * mv + u * v * mv) * n**2 + 3 * mu * m**2,
                     ]
                     m = -1 * m
-                    F = 3 * mu * m ** 2 + d * n ** 2
+                    F = 3 * mu * m**2 + d * n**2
                     all_list = R_list_inv + R_list + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     # and its inverse.
                     com_fac = reduce(gcd, all_list)
-                    sigma = int(round((3 * mu * m ** 2 + d * n ** 2) / com_fac))
+                    sigma = int(round((3 * mu * m**2 + d * n**2) / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
@@ -1574,7 +1574,7 @@ class GrainBoundaryGenerator:
                 mv = int(round(mv / temp))
 
         # refer to the meaning of d in reference
-        d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + 2 * mv * (v * w + w * u + u * v)
+        d = (u**2 + v**2 + w**2) * (mu - 2 * mv) + 2 * mv * (v * w + w * u + u * v)
         # Compute the max n we need to enumerate.
         n_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv))) / abs(d)))
 
@@ -1583,54 +1583,54 @@ class GrainBoundaryGenerator:
             if ratio_alpha is None and u + v + w == 0:
                 m_max = 0
             else:
-                m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n ** 2 * d) / (mu)))
+                m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n**2 * d) / (mu)))
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
-                        (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                        (mu - 2 * mv) * (u**2 - v**2 - w**2) * n**2
                         + 2 * mv * (v - w) * m * n
-                        - 2 * mv * v * w * n ** 2
-                        + mu * m ** 2,
-                        2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                        2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                        2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                        (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                        - 2 * mv * v * w * n**2
+                        + mu * m**2,
+                        2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                        2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                        2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                        (mu - 2 * mv) * (v**2 - w**2 - u**2) * n**2
                         + 2 * mv * (w - u) * m * n
-                        - 2 * mv * u * w * n ** 2
-                        + mu * m ** 2,
-                        2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                        2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                        2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                        (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                        - 2 * mv * u * w * n**2
+                        + mu * m**2,
+                        2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                        2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                        2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                        (mu - 2 * mv) * (w**2 - u**2 - v**2) * n**2
                         + 2 * mv * (u - v) * m * n
-                        - 2 * mv * u * v * n ** 2
-                        + mu * m ** 2,
+                        - 2 * mv * u * v * n**2
+                        + mu * m**2,
                     ]
                     m = -1 * m
                     # inverse of the rotation matrix
                     R_list_inv = [
-                        (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                        (mu - 2 * mv) * (u**2 - v**2 - w**2) * n**2
                         + 2 * mv * (v - w) * m * n
-                        - 2 * mv * v * w * n ** 2
-                        + mu * m ** 2,
-                        2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                        2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                        2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                        (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                        - 2 * mv * v * w * n**2
+                        + mu * m**2,
+                        2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                        2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                        2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) * m * w * n + (mu - 2 * mv) * u * v * n**2),
+                        (mu - 2 * mv) * (v**2 - w**2 - u**2) * n**2
                         + 2 * mv * (w - u) * m * n
-                        - 2 * mv * u * w * n ** 2
-                        + mu * m ** 2,
-                        2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                        2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                        2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                        (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                        - 2 * mv * u * w * n**2
+                        + mu * m**2,
+                        2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                        2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) * m * v * n + (mu - 2 * mv) * w * u * n**2),
+                        2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) * m * u * n + (mu - 2 * mv) * w * v * n**2),
+                        (mu - 2 * mv) * (w**2 - u**2 - v**2) * n**2
                         + 2 * mv * (u - v) * m * n
-                        - 2 * mv * u * v * n ** 2
-                        + mu * m ** 2,
+                        - 2 * mv * u * v * n**2
+                        + mu * m**2,
                     ]
                     m = -1 * m
-                    F = mu * m ** 2 + d * n ** 2
+                    F = mu * m**2 + d * n**2
                     all_list = R_list_inv + R_list + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     #  and its inverse.
@@ -1703,7 +1703,7 @@ class GrainBoundaryGenerator:
                 mv = int(round(mv / temp))
 
         # refer to the meaning of d in reference
-        d = (u ** 2 + v ** 2) * mv + w ** 2 * mu
+        d = (u**2 + v**2) * mv + w**2 * mu
 
         # Compute the max n we need to enumerate.
         n_max = int(np.sqrt((cutoff * 4 * mu * mv) / d))
@@ -1713,41 +1713,41 @@ class GrainBoundaryGenerator:
             if c2_a2_ratio is None and w == 0:
                 m_max = 0
             else:
-                m_max = int(np.sqrt((cutoff * 4 * mu * mv - n ** 2 * d) / mu))
+                m_max = int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
-                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 + mu * m ** 2,
-                        2 * v * u * mv * n ** 2 - 2 * w * mu * m * n,
-                        2 * u * w * mu * n ** 2 + 2 * v * mu * m * n,
-                        2 * u * v * mv * n ** 2 + 2 * w * mu * m * n,
-                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 + mu * m ** 2,
-                        2 * v * w * mu * n ** 2 - 2 * u * mu * m * n,
-                        2 * u * w * mv * n ** 2 - 2 * v * mv * m * n,
-                        2 * v * w * mv * n ** 2 + 2 * u * mv * m * n,
-                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv) * n ** 2 + mu * m ** 2,
+                        (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + mu * m**2,
+                        2 * v * u * mv * n**2 - 2 * w * mu * m * n,
+                        2 * u * w * mu * n**2 + 2 * v * mu * m * n,
+                        2 * u * v * mv * n**2 + 2 * w * mu * m * n,
+                        (v**2 * mv - u**2 * mv - w**2 * mu) * n**2 + mu * m**2,
+                        2 * v * w * mu * n**2 - 2 * u * mu * m * n,
+                        2 * u * w * mv * n**2 - 2 * v * mv * m * n,
+                        2 * v * w * mv * n**2 + 2 * u * mv * m * n,
+                        (w**2 * mu - u**2 * mv - v**2 * mv) * n**2 + mu * m**2,
                     ]
                     m = -1 * m
                     # inverse of rotation matrix
                     R_list_inv = [
-                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 + mu * m ** 2,
-                        2 * v * u * mv * n ** 2 - 2 * w * mu * m * n,
-                        2 * u * w * mu * n ** 2 + 2 * v * mu * m * n,
-                        2 * u * v * mv * n ** 2 + 2 * w * mu * m * n,
-                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 + mu * m ** 2,
-                        2 * v * w * mu * n ** 2 - 2 * u * mu * m * n,
-                        2 * u * w * mv * n ** 2 - 2 * v * mv * m * n,
-                        2 * v * w * mv * n ** 2 + 2 * u * mv * m * n,
-                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv) * n ** 2 + mu * m ** 2,
+                        (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + mu * m**2,
+                        2 * v * u * mv * n**2 - 2 * w * mu * m * n,
+                        2 * u * w * mu * n**2 + 2 * v * mu * m * n,
+                        2 * u * v * mv * n**2 + 2 * w * mu * m * n,
+                        (v**2 * mv - u**2 * mv - w**2 * mu) * n**2 + mu * m**2,
+                        2 * v * w * mu * n**2 - 2 * u * mu * m * n,
+                        2 * u * w * mv * n**2 - 2 * v * mv * m * n,
+                        2 * v * w * mv * n**2 + 2 * u * mv * m * n,
+                        (w**2 * mu - u**2 * mv - v**2 * mv) * n**2 + mu * m**2,
                     ]
                     m = -1 * m
-                    F = mu * m ** 2 + d * n ** 2
+                    F = mu * m**2 + d * n**2
                     all_list = R_list + R_list_inv + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
-                    sigma = int(round((mu * m ** 2 + d * n ** 2) / com_fac))
+                    sigma = int(round((mu * m**2 + d * n**2) / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
@@ -1848,7 +1848,7 @@ class GrainBoundaryGenerator:
             if v == 0 and w == 0:
                 mv = 1
         # refer to the meaning of d in reference
-        d = (mv * u ** 2 + lam * v ** 2) * mv + w ** 2 * mu * mv
+        d = (mv * u**2 + lam * v**2) * mv + w**2 * mu * mv
 
         # Compute the max n we need to enumerate.
         n_max = int(np.sqrt((cutoff * 4 * mu * mv * mv * lam) / d))
@@ -1858,42 +1858,42 @@ class GrainBoundaryGenerator:
             if (mu_temp is None and w == 0) or (lam_temp is None and v == 0) or (mv_temp is None and u == 0):
                 m_max = 0
             else:
-                m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n ** 2 * d) / mu / lam))
+                m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
             for m in range(0, m_max + 1):
 
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
-                        (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                        2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                        2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                        2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                        (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                        2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                        2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                        2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                        (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2,
+                        (u**2 * mv * mv - lam * v**2 * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                        2 * lam * (v * u * mv * n**2 - w * mu * m * n),
+                        2 * mu * (u * w * mv * n**2 + v * lam * m * n),
+                        2 * mv * (u * v * mv * n**2 + w * mu * m * n),
+                        (v**2 * mv * lam - u**2 * mv * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                        2 * mv * mu * (v * w * n**2 - u * m * n),
+                        2 * mv * (u * w * mv * n**2 - v * lam * m * n),
+                        2 * lam * mv * (v * w * n**2 + u * m * n),
+                        (w**2 * mu * mv - u**2 * mv * mv - v**2 * mv * lam) * n**2 + lam * mu * m**2,
                     ]
                     m = -1 * m
                     # inverse of rotation matrix
                     R_list_inv = [
-                        (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                        2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                        2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                        2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                        (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                        2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                        2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                        2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                        (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2,
+                        (u**2 * mv * mv - lam * v**2 * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                        2 * lam * (v * u * mv * n**2 - w * mu * m * n),
+                        2 * mu * (u * w * mv * n**2 + v * lam * m * n),
+                        2 * mv * (u * v * mv * n**2 + w * mu * m * n),
+                        (v**2 * mv * lam - u**2 * mv * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
+                        2 * mv * mu * (v * w * n**2 - u * m * n),
+                        2 * mv * (u * w * mv * n**2 - v * lam * m * n),
+                        2 * lam * mv * (v * w * n**2 + u * m * n),
+                        (w**2 * mu * mv - u**2 * mv * mv - v**2 * mv * lam) * n**2 + lam * mu * m**2,
                     ]
                     m = -1 * m
-                    F = mu * lam * m ** 2 + d * n ** 2
+                    F = mu * lam * m**2 + d * n**2
                     all_list = R_list + R_list_inv + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
-                    sigma = int(round((mu * lam * m ** 2 + d * n ** 2) / com_fac))
+                    sigma = int(round((mu * lam * m**2 + d * n**2) / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
@@ -1916,7 +1916,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_possible_plane_cubic(plane_cutoff, r_axis, r_angle):
         """
-        Find all possible plane combinations for GBs given a rotaion axis and angle for
+        Find all possible plane combinations for GBs given a rotation axis and angle for
         cubic system, and classify them to different categories, including 'Twist',
         'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
 
@@ -2414,13 +2414,13 @@ def fix_pbc(structure, matrix=None):
 
 def symm_group_cubic(mat):
     """
-     obtain cubic symmetric eqivalents of the list of vectors.
+     obtain cubic symmetric equivalents of the list of vectors.
 
     Args:
         matrix (lattice matrix, n by 3 array/matrix)
 
     Return:
-        cubic symmetric eqivalents of the list of vectors.
+        cubic symmetric equivalents of the list of vectors.
     """
     sym_group = np.zeros([24, 3, 3])
     sym_group[0, :] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]

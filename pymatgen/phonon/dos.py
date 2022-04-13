@@ -121,11 +121,11 @@ class PhononDos(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of PhononDos.
+        JSON-serializable dict representation of PhononDos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "frequencies": list(self.frequencies),
             "densities": list(self.densities),
         }
@@ -181,7 +181,7 @@ class PhononDos(MSONable):
             return 1.0 / (np.sinh(x) ** 2)
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        cv = np.trapz(wd2kt ** 2 * csch2(wd2kt) * dens, x=freqs)
+        cv = np.trapz(wd2kt**2 * csch2(wd2kt) * dens, x=freqs)
         cv *= const.Boltzmann * const.Avogadro
 
         if structure:
@@ -384,11 +384,11 @@ class CompletePhononDos(PhononDos):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of CompletePhononDos.
+        JSON-serializable dict representation of CompletePhononDos.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "frequencies": list(self.frequencies),
             "densities": list(self.densities),

@@ -36,7 +36,7 @@ def get_energies(rootdir, reanalyze, verbose):
     logging.info(f"Detected {ncpus} cpus")
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(save_file) and not reanalyze:
-        msg = f"Using previously assimilated data from {save_file}." + " Use -f to force re-analysis."
+        msg = f"Using previously assimilated data from {save_file}. Use -f to force re-analysis."
         queen.load_data(save_file)
     else:
         queen.parallel_assimilate(rootdir)
@@ -58,7 +58,7 @@ def get_energies(rootdir, reanalyze, verbose):
     ]
     headers = ("Directory", "Formula", "Charge", "Spin Mult.", "Energy", "E/Atom")
     print(tabulate(all_data, headers=headers))
-    print("")
+    print()
     print(msg)
 
 

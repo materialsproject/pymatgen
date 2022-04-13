@@ -4,7 +4,7 @@ netCDF4==1.5.8
 fdint==2.0.2
 phonopy==2.4.2
 h5py==3.6.0
-BoltzTraP2==20.6.2
+BoltzTraP2==22.3.1
 f90nml==1.1.2
 # hiphive==0.6
 seekpath==1.9.4

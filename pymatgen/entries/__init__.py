@@ -9,6 +9,8 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Literal, Union
 
@@ -37,7 +39,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     def __init__(
         self,
-        composition: Union[Composition, str, Dict[str, float]],
+        composition: Composition | str | dict[str, float],
         energy: float,
     ):
         """
@@ -85,12 +87,12 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
-        return f"{self.__class__.__name__} : {self.composition} with energy = {self.energy:.4f}"
+        return f"{type(self).__name__} : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> "Entry":
+    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> Entry:
         """
         Normalize the entry's composition and energy.
 
@@ -127,8 +129,8 @@ class Entry(MSONable, metaclass=ABCMeta):
         :return: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "energy": self._energy,
             "composition": self._composition.as_dict(),
         }
@@ -151,4 +153,4 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
-        return hash(f"{self.__class__.__name__}{self._composition.formula}{self._energy:.8f}")
+        return hash(f"{type(self).__name__}{self._composition.formula}{self._energy:.8f}")

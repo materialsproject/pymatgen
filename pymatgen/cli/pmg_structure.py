@@ -10,8 +10,8 @@ import sys
 
 from tabulate import tabulate
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Shyue Ping Ong"
@@ -100,8 +100,8 @@ def compare_structures(args):
         sys.exit(-1)
 
     m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
-    for i, grp in enumerate(m.group_structures(structures)):
-        print(f"Group {i}: ")
+    for idx, grp in enumerate(m.group_structures(structures)):
+        print(f"Group {idx}: ")
         for s in grp:
             print(f"- {filenames[structures.index(s)]} ({s.formula})")
         print()

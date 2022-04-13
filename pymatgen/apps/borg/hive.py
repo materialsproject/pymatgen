@@ -183,8 +183,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 "parameters": self._parameters,
                 "data": self._data,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -253,11 +253,11 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
                         warnings.warn(f"{len(files)} files found. {files_to_parse[filename]} is being parsed.")
 
-            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
+            if not set(files_to_parse).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(
-                    "Unable to parse %s as not all necessary files are present! "
+                    f"Unable to parse {files_to_parse} as not all necessary files are present! "
                     "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
-                    "to be present. Only %s detected" % str(files_to_parse.keys())
+                    f"to be present. Only {files} detected"
                 )
 
             poscar = Poscar.from_file(files_to_parse["POSCAR"])
@@ -298,8 +298,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -423,8 +423,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 "data": self._data,
                 "file_extensions": self._file_extensions,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

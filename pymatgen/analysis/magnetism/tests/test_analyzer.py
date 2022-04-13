@@ -3,17 +3,17 @@
 
 import os
 import unittest
+import warnings
+from shutil import which
 
 import numpy as np
-from monty.os.path import which
+from monty.serialization import loadfn
 
 from pymatgen.analysis.magnetism import (
     CollinearMagneticStructureAnalyzer,
     MagneticStructureEnumerator,
     Ordering,
-    loadfn,
     magnetic_deformation,
-    warnings,
 )
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
@@ -80,7 +80,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         msa = CollinearMagneticStructureAnalyzer(self.Fe)
         self.assertEqual(msa.structure.site_properties["magmom"][0], 5)
 
-        # and that we can retrieve a spin representaiton
+        # and that we can retrieve a spin representation
         Fe_spin = msa.get_structure_with_spin()
         self.assertFalse("magmom" in Fe_spin.site_properties)
         self.assertEqual(Fe_spin[0].specie.spin, 5)

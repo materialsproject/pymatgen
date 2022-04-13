@@ -23,12 +23,12 @@ import os
 import subprocess
 import tempfile
 import time
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
-from monty.os.path import which
 from scipy import constants
 from scipy.spatial import distance
 
@@ -342,14 +342,11 @@ class BoltztrapRunner(MSONable):
                 f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
 
             f.write(
-                "{}\n".format(
-                    "\n".join(
-                        [
-                            " ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
-                            for row in self._bs.structure.lattice.matrix
-                        ]
-                    )
+                "\n".join(
+                    " ".join([f"{Length(i, 'ang').to('bohr'):.5f}" for i in row])
+                    for row in self._bs.structure.lattice.matrix
                 )
+                + "\n"
             )
 
             if self._symprec is not None:
@@ -382,14 +379,14 @@ class BoltztrapRunner(MSONable):
                 + "10,'boltztrap.energy"
                 + so
                 + "',         'old',    "
-                "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
-                "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
-                "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
-                "0\n" + "21,'boltztrap.trace',           'unknown',    "
-                "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
-                "'formatted',0\n" + "24,'boltztrap.halltens',           'unknown',    "
-                "'formatted',0\n" + "30,'boltztrap_BZ.cube',           'unknown',    "
+                "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
+                "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
+                "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "0\n51,'boltztrap.sigxxx',        'unknown',    'formatted',"
+                "0\n21,'boltztrap.trace',           'unknown',    "
+                "'formatted',0\n22,'boltztrap.condtens',           'unknown',    "
+                "'formatted',0\n24,'boltztrap.halltens',           'unknown',    "
+                "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
 
@@ -442,14 +439,14 @@ class BoltztrapRunner(MSONable):
                 + "10,'boltztrap.energy"
                 + so
                 + "',         'old',    "
-                "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
-                "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
-                "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
-                "0\n" + "21,'boltztrap.trace',           'unknown',    "
-                "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
-                "'formatted',0\n" + "24,'boltztrap.halltens',           'unknown',    "
-                "'formatted',0\n" + "30,'boltztrap_BZ.cube',           'unknown',    "
+                "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
+                "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
+                "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "0\n51,'boltztrap.sigxxx',        'unknown',    'formatted',"
+                "0\n21,'boltztrap.trace',           'unknown',    "
+                "'formatted',0\n22,'boltztrap.condtens',           'unknown',    "
+                "'formatted',0\n24,'boltztrap.halltens',           'unknown',    "
+                "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
             i = 1000
@@ -479,8 +476,8 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    "1 0 %d %f         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n" % (setgap, Energy(self.scissor, "eV").to("Ry"))
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "
@@ -511,9 +508,8 @@ class BoltztrapRunner(MSONable):
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
-                    "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,"
-                    "energy span around Fermilevel, "
-                    "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
+                    f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} 0.1 {self._nelec:6.1f}     # Fermilevel "
+                    "(Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -539,8 +535,8 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    "1 0 %d %f         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n" % (setgap, Energy(self.scissor, "eV").to("Ry"))
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
+                    "idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "
@@ -752,8 +748,8 @@ class BoltztrapRunner(MSONable):
         :return: MSONable dict
         """
         results = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lpfac": self.lpfac,
             "bs": self.bs.as_dict(),
             "nelec": self._nelec,
@@ -1383,8 +1379,8 @@ class BoltztrapAnalyzer:
                             result_doping[doping][temp].append(
                                 np.linalg.inv(np.array(self._cond_doping[doping][temp][i]))
                                 * self.doping[doping][i]
-                                * 10 ** 6
-                                * constants.e ** 2
+                                * 10**6
+                                * constants.e**2
                                 / constants.m_e
                             )
                         except np.linalg.LinAlgError:
@@ -1397,7 +1393,7 @@ class BoltztrapAnalyzer:
                         cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
                     except np.linalg.LinAlgError:
                         pass
-                    result[temp].append(cond_inv * conc[temp][i] * 10 ** 6 * constants.e ** 2 / constants.m_e)
+                    result[temp].append(cond_inv * conc[temp][i] * 10**6 * constants.e**2 / constants.m_e)
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)
 
@@ -2454,10 +2450,10 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
         from fdint import fdk
     except ImportError:
         raise BoltztrapError(
-            "fdint module not found. Please, install it.\n" + "It is needed to calculate Fermi integral quickly."
+            "fdint module not found. Please, install it.\nIt is needed to calculate Fermi integral quickly."
         )
 
-    return (2 * np.pi ** 2 * abs(n) * 10 ** 6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
+    return (2 * np.pi**2 * abs(n) * 10**6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
         2 * constants.m_e * constants.k * T / (constants.h / 2 / np.pi) ** 2
     )
 

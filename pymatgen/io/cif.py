@@ -691,6 +691,7 @@ class CifParser:
                 "_symmetry_space_group_name_h-m_",
             ]:
                 sg = data.data.get(symmetry_label)
+                msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
                 if sg:
                     sg = sub_spgrp(sg)
@@ -698,10 +699,7 @@ class CifParser:
                         spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
-                            msg = (
-                                "No _symmetry_equiv_pos_as_xyz type key found. "
-                                "Spacegroup from %s used." % symmetry_label
-                            )
+                            msg = msg_template.format(symmetry_label)
                             warnings.warn(msg)
                             self.warnings.append(msg)
                             break
@@ -714,10 +712,7 @@ class CifParser:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s) for s in xyz]
-                                msg = (
-                                    "No _symmetry_equiv_pos_as_xyz type key found. "
-                                    "Spacegroup from %s used." % symmetry_label
-                                )
+                                msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break
@@ -900,7 +895,7 @@ class CifParser:
             if m:
                 parsed_sym = m.group()
 
-        if parsed_sym is not None and (m_sp or not re.match(fr"{parsed_sym}\d*", sym)):
+        if parsed_sym is not None and (m_sp or not re.match(rf"{parsed_sym}\d*", sym)):
             msg = f"{sym} parsed as {parsed_sym}"
             warnings.warn(msg)
             self.warnings.append(msg)
@@ -1157,7 +1152,7 @@ class CifParser:
                 warnings.warn(f"Error is {str(exc)}.")
 
         if self.warnings:
-            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
+            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
@@ -1289,7 +1284,7 @@ class CifWriter:
             warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None
 
-        format_str = "{:.%df}" % significant_figures
+        format_str = f"{{:.{significant_figures}f}}"
 
         block = {}
         loops = []

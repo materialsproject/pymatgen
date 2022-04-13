@@ -5,4 +5,10 @@
 Package for analysis of magnetic structures.
 """
 
-from pymatgen.analysis.magnetism.analyzer import *  # noqa
+from pymatgen.analysis.magnetism.analyzer import (
+    CollinearMagneticStructureAnalyzer,
+    MagneticStructureEnumerator,
+    Ordering,
+    OverwriteMagmomMode,
+    magnetic_deformation,
+)

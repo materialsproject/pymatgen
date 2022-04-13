@@ -5,7 +5,6 @@
 import os
 import warnings
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.transformations.advanced_transformations import SuperTransformation
@@ -14,6 +13,7 @@ from pymatgen.transformations.standard_transformations import (
     RemoveSpeciesTransformation,
     SubstitutionTransformation,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 class CifTransmuterTest(PymatgenTest):

@@ -12,9 +12,10 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
-import pytest  # type: ignore
-from _pytest.monkeypatch import MonkeyPatch  # type: ignore
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
+from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
@@ -46,7 +47,6 @@ from pymatgen.io.vasp.sets import (
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
-    loadfn,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest

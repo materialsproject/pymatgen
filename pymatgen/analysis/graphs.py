@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-Module for graph representations of crystals.
+Module for graph representations of crystals and molecules.
 """
 
 import copy
@@ -13,12 +13,13 @@ import warnings
 from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
+from shutil import which
+from typing import Callable
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
 from monty.json import MSONable
-from monty.os.path import which
 from networkx.drawing.nx_agraph import write_dot
 from networkx.readwrite import json_graph
 from scipy.spatial import KDTree
@@ -31,10 +32,8 @@ from pymatgen.vis.structure_vtk import EL_COLORS
 
 try:
     import igraph
-
-    IGRAPH_AVAILABLE = True
 except ImportError:
-    IGRAPH_AVAILABLE = False
+    igraph = None
 
 
 logger = logging.getLogger(__name__)
@@ -95,7 +94,7 @@ def _isomorphic(frag1, frag2):
             f2_comp_dict[node[1]["specie"]] += 1
     if f1_comp_dict != f2_comp_dict:
         return False
-    if IGRAPH_AVAILABLE:
+    if igraph is not None:
         ifrag1 = _igraph_from_nxgraph(frag1)
         ifrag2 = _igraph_from_nxgraph(frag2)
         return ifrag1.isomorphic_vf2(ifrag2, node_compat_fn=_compare)
@@ -557,10 +556,7 @@ class StructureGraph(MSONable):
         # ensure that edge exists before attempting to change it
         if not existing_edges:
             raise ValueError(
-                "Edge between {} and {} cannot be altered;\
-                                no edge exists between those sites.".format(
-                    from_index, to_index
-                )
+                f"Edge between {from_index} and {to_index} cannot be altered; no edge exists between those sites."
             )
 
         if to_jimage is None:
@@ -1084,8 +1080,8 @@ class StructureGraph(MSONable):
         """
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "graphs": json_graph.adjacency_data(self.graph),
         }
@@ -1303,8 +1299,8 @@ class StructureGraph(MSONable):
 
         # return new instance of StructureGraph with supercell
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": new_structure.as_dict(),
             "graphs": json_graph.adjacency_data(new_g),
         }
@@ -1391,16 +1387,16 @@ class StructureGraph(MSONable):
         # normalize directions of edges
         edges_to_remove = []
         edges_to_add = []
-        for u, v, k, d in self.graph.edges(keys=True, data=True):
+        for u, v, keys, data in self.graph.edges(keys=True, data=True):
             if v < u:
-                new_v, new_u, new_d = u, v, d.copy()
-                new_d["to_jimage"] = tuple(np.multiply(-1, d["to_jimage"]).astype(int))
-                edges_to_remove.append((u, v, k))
+                new_v, new_u, new_d = u, v, data.copy()
+                new_d["to_jimage"] = tuple(np.multiply(-1, data["to_jimage"]).astype(int))
+                edges_to_remove.append((u, v, keys))
                 edges_to_add.append((new_u, new_v, new_d))
 
         # add/delete marked edges
-        for edges_to_remove in edges_to_remove:
-            self.graph.remove_edge(*edges_to_remove)
+        for edge in edges_to_remove:
+            self.graph.remove_edge(*edge)
         for (u, v, d) in edges_to_add:
             self.graph.add_edge(u, v, **d)
 
@@ -2742,8 +2738,8 @@ class MoleculeGraph(MSONable):
         """
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "molecule": self.molecule.as_dict(),
             "graphs": json_graph.adjacency_data(self.graph),
         }
@@ -2777,7 +2773,7 @@ class MoleculeGraph(MSONable):
         else:
             print_weights = False
 
-        s = header + "\n" + header_line + "\n"
+        s = f"{header}\n{header_line}\n"
 
         edges = list(g.edges(data=True))
 
@@ -2786,43 +2782,40 @@ class MoleculeGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += "{:4}  {:4}  {:12}  {:.3e}\n".format(
-                    u, v, str(data.get("to_jimage", (0, 0, 0))), data.get("weight", 0)
-                )
+                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
                 s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}\n"
 
         return s
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = "Molecule Graph"
         s += f"\nMolecule: \n{self.molecule.__str__()}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = "Molecule Graph"
         s += f"\nMolecule: \n{self.molecule.__repr__()}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         :return: length of Molecule / number of nodes in graph
         """
         return len(self.molecule)
 
-    def sort(self, key=None, reverse=False):
-        """
-        Same as Molecule.sort(), also remaps nodes in graph.
-        :param key:
-        :param reverse:
-        :return:
-        """
+    def sort(self, key: Callable[[Molecule], float] = None, reverse: bool = False) -> None:
+        """Same as Molecule.sort(), also remaps nodes in graph.
 
+        Args:
+            key (callable, optional): Sort key. Defaults to None.
+            reverse (bool, optional): Reverse sort order. Defaults to False.
+        """
         old_molecule = self.molecule.copy()
 
         # sort Molecule
@@ -2835,18 +2828,18 @@ class MoleculeGraph(MSONable):
         # normalize directions of edges
         edges_to_remove = []
         edges_to_add = []
-        for u, v, k, d in self.graph.edges(keys=True, data=True):
+        for u, v, keys, data in self.graph.edges(keys=True, data=True):
             if v < u:
-                new_v, new_u, new_d = u, v, d.copy()
+                new_v, new_u, new_d = u, v, data.copy()
                 new_d["to_jimage"] = (0, 0, 0)
-                edges_to_remove.append((u, v, k))
+                edges_to_remove.append((u, v, keys))
                 edges_to_add.append((new_u, new_v, new_d))
 
         # add/delete marked edges
-        for edges_to_remove in edges_to_remove:
-            self.graph.remove_edge(*edges_to_remove)
-        for (u, v, d) in edges_to_add:
-            self.graph.add_edge(u, v, **d)
+        for edge in edges_to_remove:
+            self.graph.remove_edge(*edge)
+        for (u, v, data) in edges_to_add:
+            self.graph.add_edge(u, v, **data)
 
     def __copy__(self):
         return MoleculeGraph.from_dict(self.as_dict())

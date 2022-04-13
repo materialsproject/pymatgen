@@ -193,7 +193,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
-    c = Matrix(n, n, [0] * n ** 2)
+    c = Matrix(n, n, [0] * n**2)
     for i in range(n):
         for p in range(n):
             c[i, p] = Integer(c0[i, p])
@@ -343,7 +343,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     if not trial_chem_pot:
         # Try computing mus by assuming one of the defects is dominant at 0.01
-        # concen.  First vacancy is tried and then antisite
+        # concen. First vacancy is tried and then antisite
 
         # Generate trial mus assuming vacancy as dominant defect
         # for specie-0 at lower yval
@@ -772,7 +772,7 @@ def solute_site_preference_finder(
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         solute_defs: List of solute defect parameters in the dictionary
-            format. Similary to that of antisite defs, wtih solute specie
+            format. Similarly to that of antisite defs, with solute specie
             specified in substitution_specie
         solute_concen: Solute concentration (in fractional value)
         trial_chem_pot: Trial chemical potentials to speedup the plot
@@ -1070,7 +1070,7 @@ def solute_site_preference_finder(
 
     if not trial_chem_pot:
         # Try computing mus by assuming one of the defects is dominant at 0.01
-        # concen.  First vacancy is tried and then antisite
+        # concen. First vacancy is tried and then antisite
 
         # Generate trial mus assuming vacancy as dominant defect
         # for specie-0 at lower yval
@@ -1283,7 +1283,7 @@ def solute_defect_density(
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         solute_defs: List of solute defect parameters in the dictionary
-            format. Similary to that of antisite defs, wtih solute specie
+            format. Similarly to that of antisite defs, with solute specie
             specified in substitution_specie
         solute_concen: Solute concentration (in fractional value)
         T: Temperature in Kelvin

@@ -1,6 +1,67 @@
 Change log
 ==========
 
+v2022.3.29
+----------
+* Major update to CP2K module, PR #2475 from @nwinner
+* Bug fix to remove problematic import, PR #2477 from @mkhorton
+
+v2022.3.24
+----------
+* Emergency bugfix release to fix circular import (@janosh)
+
+v2022.3.22
+----------
+* Support kwargs for ASE adaptor. (@arosen93)
+* Fix for cation error in Lobster analysis. (@JaGeo)
+* Major revampt of Abstract interface for Input classes in IO. (@rkingsbury)
+* Orbital-projected band center, band filling, band ceneter, skewness, kurtosis, etc. (@arosen93)
+* Misc cleanups. (@janosh)
+
+v2022.3.7
+---------
+
+* Add VASP WSWQ file parsing, PR #2439 from @jmmshn
+* Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
+* Update to Lobster calculation settings, PR #2434 from @JaGeo master
+* Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from @arosen93
+* Fix for Structure.from_file when file is in YAML format from @janosh fix-structure-from-yml
+* Update of linter configuration, PR #2440 from @janosh
+* Update to ChemEnv citation, PR #2448 from @JaGeo
+* Type annotation fix, PR #2432 from @janosh
+* Documentation fix for Structure.apply_operation, PR #2433 from @janosh
+* Add caching to compatibility classes as speed optimization, PR #2450 from @munrojm
+
+This release was previously intended for v2022.2.25.
+
+Important note: an update to a library that pymatgen depends upon has led to the
+~/.pmgrc.yml configuration file being corrupted for many users. If you are affected,
+you may need to re-generate this file. This issue should now be fixed and not re-occur.
+
+v2022.2.10
+----------
+* Require Cython during setup. (@jonringer)
+
+v2022.2.7
+---------
+* Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.
+* Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (@JaGeo)
+* Return None for ISPIN=1 for `Vasprun('vasprun.xml').complete_dos.spin_polarization`.
+
+
+v2022.2.1
+---------
+* Chargemol caller for partial atomic charge analysis (@arosen93)
+* ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (@arosen93)
+* Cleanup of deprecated methods. (@janosh)
+* Bigfix for gzipped DOSCAR (@JaGeo)
+* Updates for QChem Support (@samblau)
+* QuantumEspresso k-grid fix input fix. (@vorwerkc)
+* `Entry.__repr__()` now ouputs name where available. (@janosh)
+* Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93)
+* `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
+* Improved parsing of coupled cluster calculations in QChem (@espottesmith).
+
 v2022.1.24
 ----------
 * Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.
@@ -59,7 +120,7 @@ Welcome to new contributor @e-kwsm!
 v2022.0.16
 ----------
 
-* Fix to allow PhaseDiagram to be JSON serializable with computed data cached (@mkhorton, #2276)
+* Fix to allow PhaseDiagram to be JSON-serializable with computed data cached (@mkhorton, #2276)
 * Temporarily revert #2239 pending investigation into slow-down in some nearest neighbor finding routines. This does not affect the behavior of any of these classes.
 
 
@@ -1546,7 +1607,7 @@ v3.2.5
 v3.2.4
 ------
 
-* GaussianOutput can now parse frequencies, normal modes and cartesian forces
+* GaussianOutput can now parse frequencies, normal modes and Cartesian forces
   (Xin Chen).
 * Support for Aiida<->pymatgen conversion by the Aiida development team (Andrius
   Merkys).
@@ -1669,7 +1730,7 @@ v3.0.11
 v3.0.10
 ------
 
-* Fix cartesian coord parsing in Poscar class.
+* Fix Cartesian coord parsing in Poscar class.
 * Vasprun now works with non-GGA PBE runs
 * Misc bug fixes
 
@@ -2027,7 +2088,7 @@ v2.7.1
   immutability) which will perform exactly the same way as the previous
   classes. With this change, the :mod:`pymatgen.core.structure_modifier`
   module is now deprecated and will be removed in a future version.
-* read_structure and write_structure now supports pymatgen's json serialized
+* read_structure and write_structure now supports pymatgen's JSON-serialized
   structures.
 * read_mol and write_mol functions now available (analogues of
   read_structure and write_structure for molecules)
@@ -2078,7 +2139,7 @@ v2.6.3
   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
 * Improvements to StructureMatcher: stol (site - tolerance) redefined as
   a fraction of the average length per atom. Structures matched in fractional
-  space are now also matched in cartesian space and a rms displacement
+  space are now also matched in Cartesian space and a rms displacement
   normalized by length per atom can be returned using the rms_dist method.
 
 v2.6.2
@@ -2176,7 +2237,7 @@ v2.3.1
   data by running through the x-axis first, followed by y, then z.
 * Bug fix for reverse_readline so that it works for gzipped and bzipped
   strucutures (courtesy of Anubhav Jain).
-* Fix "lossy" composition to_dict method.  Now composition.to_dict properly
+* Fix "lossy" composition to_dict method. Now composition.to_dict properly
   returns a correct species string as a key for compositions using species,
   instead of just the element symbols.
 * Miscellaneous bug fixes.

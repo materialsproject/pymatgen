@@ -34,7 +34,7 @@ class InsertSitesTransformation(AbstractTransformation):
             coords: A list of coords corresponding to those species. e.g.,
                 [[0,0,0],[0.5,0.5,0.5]].
             coords_are_cartesian (bool): Set to True if coords are given in
-                cartesian coords. Defaults to False.
+                Cartesian coords. Defaults to False.
             validate_proximity (bool): Set to False if you do not wish to ensure
                 that added sites are not too close to other sites. Defaults to True.
         """
@@ -222,8 +222,10 @@ class TranslateSitesTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "TranslateSitesTransformation for indices " + "{}, vect {} and vect_in_frac_coords = {}".format(
-            self.indices_to_move, self.translation_vector, self.vector_in_frac_coords
+        return (
+            f"TranslateSitesTransformation for indices {self.indices_to_move}, "
+            f"vect {self.translation_vector} and "
+            f"vect_in_frac_coords = {self.vector_in_frac_coords}"
         )
 
     def __repr__(self):
@@ -233,7 +235,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def inverse(self):
         """
         Returns:
-            TranslateSitesTranformation with the reverse translation.
+            TranslateSitesTransformation with the reverse translation.
         """
         return TranslateSitesTransformation(self.indices_to_move, -self.translation_vector, self.vector_in_frac_coords)
 
@@ -244,7 +246,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = MSONable.as_dict(self)
         d["translation_vector"] = self.translation_vector.tolist()
@@ -276,7 +278,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     ALGO_BEST_FIRST:
         This algorithm is for ordering the really large cells that defeats even
-        ALGO_FAST.  For example, if you have 48 sites of which you want to
+        ALGO_FAST. For example, if you have 48 sites of which you want to
         remove 16 of them, the number of possible orderings is around
         2 x 10^12. ALGO_BEST_FIRST shortcircuits the entire search tree by
         removing the highest energy site first, then followed by the next
@@ -312,7 +314,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.indices = indices
         self.fractions = fractions
         self.algo = algo
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
     def _best_first_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing best first ordering")
@@ -524,9 +526,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
-        return "PartialRemoveSitesTransformation : Indices and fraction" + " to remove = {}, ALGO = {}".format(
-            self.indices, self.algo
-        )
+        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     def __repr__(self):
         return self.__str__()

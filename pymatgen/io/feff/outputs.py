@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module defines classes for parsing the FEFF output files.
 
@@ -333,7 +332,7 @@ class Xmu(MSONable):
     @property
     def wavenumber(self):
         r"""
-        Returns The wave number in units of \\AA^-1. k=\\sqrt(E −E_f) where E is
+        Returns The wave number in units of \\AA^-1. k=\\sqrt(E - E_f) where E is
         the energy and E_f is the Fermi level computed from electron gas theory
         at the average interstitial charge density.
         """
