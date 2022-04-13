@@ -352,3 +352,25 @@ class LammpsInputConstructor:
 
         self._add_stage_name(stage_name)
         self.input_settings[self.curr_stage_name][command] = args
+
+    def add_comment(self, comment: str, is_stage_header: bool = False):
+        """
+        Method to add a comment or a stage header.
+        Parameters
+        ----------
+        comment (str): Comment string to be added. The comment will be
+        preceded '##' (double hash) in the generated input.
+        is_stage_header (bool): Set this to True, if the comment should be
+        treated as stage/block header to be used at the
+        beginning of each stage/block. Headers are preceded by '#' (single hash)
+        in the generated input.
+        -------
+
+        """
+        if is_stage_header:
+            self.add_command('header', '# ' + comment)
+        else:
+            self.ncomments += 1
+            self.add_command('comment_{}'.format(self.ncomments), '# ' + comment)
+
+
