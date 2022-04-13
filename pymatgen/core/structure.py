@@ -1365,14 +1365,14 @@ class IStructure(SiteCollection, MSONable):
                     distances[cond],
                 )
             )
-        
+
     def get_symmetric_neighbor_list(
-            self,
-            r: float,
-            sg: str,
-            unique: bool = False,
-            numerical_tol: float = 1e-8,
-            exclude_self: bool = True,
+        self,
+        r: float,
+        sg: str,
+        unique: bool = False,
+        numerical_tol: float = 1e-8,
+        exclude_self: bool = True,
     ) -> Tuple[np.ndarray, ...]:
         """
         Similar to 'get_neighbor_list' with sites=None, but the neighbors are
