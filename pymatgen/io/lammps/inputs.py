@@ -392,6 +392,23 @@ class LammpsInputConstructor:
         args = ' '.join(string_split[1:])
         self.input_settings[self.curr_stage_name][command] = args
 
+    def add_command_from_dict(self, dict_name: dict, stage_name: str = None):
+        """
+        Adds single/multiple commands.
+        The dictionary passed must contain LAMMPS commands and it's
+        arguments as key value pairs
+        Parameters
+        ----------
+        dict_name (dict): Dictionary with LAMMPS commands and arguments
+        stage_name (str or None): If specified, the commands are added understand
+        the specified stage else latest stage is assumed.
+        -------
+
+        """
+        self._add_stage_name(stage_name)
+        for command, args in dict_name.items():
+            self.input_settings[self.curr_stage_name][command] = args
+
     def add_stage(self, stage_commands: dict or list, header: str = None, description: str = None):
         """
         Adds an entire stage or block of LAMMPS input commands
@@ -430,3 +447,25 @@ class LammpsInputConstructor:
         elif isinstance(stage_commands, list):
             for command_string in stage_commands:
                 self.add_command_from_string(command_string, self.curr_stage_name)
+
+    def generate_input(self):
+        """
+        Generates and returns the string representation of LAMMPS input file.
+        Returns: String representation of LAMMPS input file
+        -------
+
+        """
+
+        # print(self.input_settings)
+        lammps_input = 'LAMMPS input generated from LammpsInputConstructor\n\n'
+        for stage, command_dict in self.input_settings.items():
+            # print(stage, command_dict)
+            for command, args in command_dict.items():
+                # args = self.input_settings[command]
+                if command.startswith('comment') or command.startswith('header'):
+                    lammps_input += self.add_string(args)
+                else:
+                    lammps_input += self.format_command(command, args)
+        return lammps_input
+
+
