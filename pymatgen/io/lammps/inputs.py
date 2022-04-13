@@ -331,3 +331,24 @@ class LammpsInputConstructor:
 
         stage_name = "stage %s" % self.nstages
         self._add_stage_name(stage_name)
+
+    def add_command(self, command: str, args: str, stage_name=None):
+        """
+        Adds a single LAMMPS command and arguments associated with the
+        command to the input file.
+        Parameters
+        ----------
+        command (str): LAMMPS command
+        args (str): Arguments for the LAMMPS command
+        stage_name (str): If a stage name is mentioned, the command is added
+        under that stage block else latest stage is assumed.
+
+        Returns
+        -------
+
+        """
+        if self.curr_stage_name is None:
+            self.init_stage()
+
+        self._add_stage_name(stage_name)
+        self.input_settings[self.curr_stage_name][command] = args
