@@ -5,7 +5,7 @@ default_language_version:
 
 ci:
   autoupdate_schedule: monthly
-  skip: [flake8, mypy]
+  skip: [flake8, mypy, pylint]
 
 repos:
 
