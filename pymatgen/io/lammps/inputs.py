@@ -468,4 +468,15 @@ class LammpsInputConstructor:
                     lammps_input += self.format_command(command, args)
         return lammps_input
 
+    @staticmethod
+    def format_command(command, args):
+        """
+        Simple format helper for adding command with the arguments.
+        """
+        return "{0:20} {1}\n".format(command, args)
+
+    @staticmethod
+    def add_string(string):
+        return '\n' + string + '\n'
+
 
