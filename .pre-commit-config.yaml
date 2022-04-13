@@ -1,7 +1,7 @@
 exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
 default_language_version:
-  python: python3.8
+  python: python3
 
 ci:
   autoupdate_schedule: monthly
@@ -54,3 +54,18 @@ repos:
     rev: v0.942
     hooks:
       - id: mypy
+
+  # You need to install pylint locally.
+  # See https://pylint.pycqa.org/en/latest/user_guide/pre-commit-integration.html
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args:
+          [
+            "-sn",
+            "--rcfile=pylintrc",
+          ]
