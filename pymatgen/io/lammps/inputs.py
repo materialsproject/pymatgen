@@ -34,8 +34,9 @@ class LammpsInputFile(InputFile):
     Class representing a LAMMPS input settings file, e.g. in.lammps
     """
 
-    pass
-
+    def __init__(self, input_settings: OrderedDict = None):
+        self.input_settings = input_settings
+        self.constr = LammpsInputConstructor()
 
 class CombinedData(InputFile):
     """
@@ -448,35 +449,5 @@ class LammpsInputConstructor:
             for command_string in stage_commands:
                 self.add_command_from_string(command_string, self.curr_stage_name)
 
-    def generate_input(self):
-        """
-        Generates and returns the string representation of LAMMPS input file.
-        Returns: String representation of LAMMPS input file
-        -------
-
-        """
-
-        # print(self.input_settings)
-        lammps_input = 'LAMMPS input generated from LammpsInputConstructor\n\n'
-        for stage, command_dict in self.input_settings.items():
-            # print(stage, command_dict)
-            for command, args in command_dict.items():
-                # args = self.input_settings[command]
-                if command.startswith('comment') or command.startswith('header'):
-                    lammps_input += self.add_string(args)
-                else:
-                    lammps_input += self.format_command(command, args)
-        return lammps_input
-
-    @staticmethod
-    def format_command(command, args):
-        """
-        Simple format helper for adding command with the arguments.
-        """
-        return "{0:20} {1}\n".format(command, args)
-
-    @staticmethod
-    def add_string(string):
-        return '\n' + string + '\n'
-
-
+    def generate_lammps_input(self):
+        return LammpsInputFile(self.input_settings)
