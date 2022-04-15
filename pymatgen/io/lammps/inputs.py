@@ -16,6 +16,7 @@ from collections import OrderedDict
 
 from monty.dev import deprecated
 from monty.json import MSONable
+from monty.io import zopen
 
 from pymatgen.io.core import InputFile
 from pymatgen.io.template import TemplateInputGen
@@ -36,7 +37,6 @@ class LammpsInputFile(InputFile):
 
     def __init__(self, input_settings: OrderedDict = None):
         self.input_settings = input_settings
-        self.constr = LammpsInputConstructor()
 
     def get_string(self):
         """
@@ -82,7 +82,8 @@ class LammpsInputFile(InputFile):
         # return '\n' + string + '\n'
         return string + '\n'
 
-    def from_string(self, s):
+    @staticmethod
+    def from_string(s):
         """
         Reads LammpsInputFile from string.
 
@@ -92,7 +93,8 @@ class LammpsInputFile(InputFile):
         Returns:
             LammpsInputFile object
         """
-        return self.constr._from_string(s)
+        constr = LammpsInputConstructor()
+        return constr._from_string(s)
 
     @classmethod
     def from_dict(cls, d):
@@ -117,6 +119,22 @@ class LammpsInputFile(InputFile):
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
         return d
+
+    @staticmethod
+    def from_file(path: Union[str, Path]):
+        """
+        Creates an InputFile object from a file.
+
+        Args:
+            path: Filename to read, including path.
+
+        Returns:
+            InputFile
+        """
+        filename = path if isinstance(path, Path) else Path(path)
+        with zopen(filename, "rt") as f:
+            return LammpsInputFile.from_string(f.read())
+
 
 class CombinedData(InputFile):
     """
