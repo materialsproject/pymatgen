@@ -106,7 +106,7 @@ class LammpsInputFile(InputFile):
         Returns:
             LammpsInputFile object
         """
-        return LammpsInputFile(OrderedDict({k: v for k, v in d.items() if k.startswith('@')}))
+        return LammpsInputFile(OrderedDict({k: v for k, v in d.items() if not k.startswith('@')}))
 
     def as_dict(self):
         """
@@ -135,6 +135,8 @@ class LammpsInputFile(InputFile):
         with zopen(filename, "rt") as f:
             return LammpsInputFile.from_string(f.read())
 
+    def __str__(self):
+        return self.get_string()
 
 class CombinedData(InputFile):
     """
