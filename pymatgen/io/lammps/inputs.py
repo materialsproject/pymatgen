@@ -72,6 +72,19 @@ class LammpsInputFile(InputFile):
         # return '\n' + string + '\n'
         return string + '\n'
 
+    def from_string(self, s):
+        return self.constr._from_string(s)
+
+    @classmethod
+    def from_dict(cls, d):
+        return LammpsInputFile(OrderedDict({k: v for k, v in d.items() if k.startswith('@')}))
+
+    def as_dict(self):
+        d = self.input_settings.copy()
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
+        return d
+
 class CombinedData(InputFile):
     """
     Class representing a LAMMPS data file, e.g. system.data
@@ -483,5 +496,42 @@ class LammpsInputConstructor:
             for command_string in stage_commands:
                 self.add_command_from_string(command_string, self.curr_stage_name)
 
+    def _from_string(self, s: str) -> LammpsInputFile:
+        """
+        Helper method to parse string representation of LammpsInputFile
+
+        Args:
+            s: String representation of LammpsInputFile.
+
+        Returns: LammpsInputFile
+
+        """
+        for line in self.clean_lines(s.splitlines()[1:]):
+            # print(line)
+            if line[:2] == '##':
+                self.add_comment(comment=line[2:], is_stage_header=False)
+            if line[0] == '#':
+                self.init_stage()
+                self.add_comment(comment=line[2:], is_stage_header=True)
+            else:
+                self.add_command_from_string(line)
+
+        return self.generate_lammps_input()
+    
+    @staticmethod
+    def clean_lines(string_list: list):
+        """
+        Strips whitespaces, carriage returns and empty lines from a list
+        of strings.
+
+        Args:
+            string_list (list): 
+        """
+        for s in string_list:
+            clean_s = s
+            clean_s = clean_s.strip()
+            if not (clean_s == '' or clean_s == '\n'):
+                yield clean_s
+                
     def generate_lammps_input(self):
         return LammpsInputFile(self.input_settings)
