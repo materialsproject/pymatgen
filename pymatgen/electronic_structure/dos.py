@@ -12,7 +12,7 @@ import warnings
 
 import numpy as np
 from monty.json import MSONable
-from scipy.constants.codata import value as _cd
+from scipy.constants import value as _cd
 from scipy.signal import hilbert
 
 from pymatgen.core.periodic_table import get_el_sp

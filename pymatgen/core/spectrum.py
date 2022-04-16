@@ -13,7 +13,7 @@ from typing import Callable, Literal
 import numpy as np
 from monty.json import MSONable
 from scipy import stats
-from scipy.ndimage.filters import convolve1d
+from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.typing import ArrayLike
