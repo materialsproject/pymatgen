@@ -533,7 +533,6 @@ class IcohplistTest(unittest.TestCase):
                 "translation": [0, 0, 0],
             },
         }
-        # TODO: why is this unused?
         icooplist_bise = {
             "1": {
                 "length": 2.88231,
@@ -619,6 +618,7 @@ class IcohplistTest(unittest.TestCase):
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
+        self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
         self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
