@@ -55,17 +55,16 @@ repos:
     hooks:
       - id: mypy
 
-  # You need to install pylint locally.
-  # See https://pylint.pycqa.org/en/latest/user_guide/pre-commit-integration.html
   - repo: local
     hooks:
       - id: pylint
         name: pylint
         entry: pylint
-        language: system
+        language: python
         types: [python]
         args:
           [
             "-sn",
             "--rcfile=pylintrc",
           ]
+        additional_dependencies: [pylint]
