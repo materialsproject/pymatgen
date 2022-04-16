@@ -40,6 +40,7 @@ property_structure = Structure(
     coords=[[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [1, 1, 1]],
 )
 
+
 # TODO More comprehensive testing
 class SetTest(PymatgenTest):
     def setUp(self):

@@ -533,6 +533,7 @@ class IcohplistTest(unittest.TestCase):
                 "translation": [0, 0, 0],
             },
         }
+        # TODO: why is this unused?
         icooplist_bise = {
             "1": {
                 "length": 2.88231,
