@@ -61,31 +61,15 @@ class ConversionElectrodeTest(unittest.TestCase):
         # expected composite upon discharge process, of which entry object has been simplified to reduced formula
         self.expected_composite = {
             "LiCoO2": {
-                "entries_charge": [
-                    ["CoO2"], ["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"]
-                ],
-                "entries_discharge": [
-                    ["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"], ["Co", "Li2O"]
-                ]
+                "entries_charge": [["CoO2"], ["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"]],
+                "entries_discharge": [["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"], ["Co", "Li2O"]],
             },
             "FeF3": {
-                "entries_charge": [
-                    ["FeF3"], ["FeF2", "LiF"]
-                ],
-                "entries_discharge": [
-                    ["FeF2", "LiF"], ["Fe", "LiF"]
-                ]
+                "entries_charge": [["FeF3"], ["FeF2", "LiF"]],
+                "entries_discharge": [["FeF2", "LiF"], ["Fe", "LiF"]],
             },
-            "MnO2": {
-                "entries_charge": [
-                    ["MnO2"]
-                ],
-                "entries_discharge": [
-                    ["Mn", "MgO"]
-                ]
-            }
+            "MnO2": {"entries_charge": [["MnO2"]], "entries_discharge": [["Mn", "MgO"]]},
         }
-
 
     def test_init(self):
         # both 'LiCoO2' and "FeF3" are using Li+ as working ion; MnO2 is for the multivalent Mg2+ ion
