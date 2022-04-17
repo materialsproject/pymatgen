@@ -447,7 +447,7 @@ class ElementBase(Enum):
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        return data  # type: ignore
+        return data
 
     @property
     def valence(self):
@@ -857,8 +857,8 @@ class ElementBase(Enum):
         easier serialization.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
         }
 
@@ -880,7 +880,7 @@ class ElementBase(Enum):
                 try:
                     el = Element.from_row_and_group(row, group)
                 except ValueError:
-                    el = None  # type: ignore
+                    el = None
                 if el and ((not filter_function) or filter_function(el)):
                     rowstr.append(f"{el.symbol:3s}")
                 else:
@@ -1270,8 +1270,8 @@ class Species(MSONable, Stringify):
         """
         radii = self._el.data["Shannon radii"]
         radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
-        if len(radii) == 1:  # type: ignore
-            k, data = list(radii.items())[0]  # type: ignore
+        if len(radii) == 1:
+            k, data = list(radii.items())[0]
             if k != spin:
                 warnings.warn(
                     f"Specified spin state of {spin} not consistent with database "
@@ -1339,8 +1339,8 @@ class Species(MSONable, Stringify):
         :return: Json-able dictionary representation.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
         }
@@ -1525,8 +1525,8 @@ class DummySpecies(Species):
         :return: MSONAble dict representation.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
         }
@@ -1601,7 +1601,7 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
         i = int(c)
         i = i if i == c else None  # type: ignore
     except (ValueError, TypeError):
-        i = None  # type: ignore
+        i = None
 
     if i is not None:
         return Element.from_Z(i)

@@ -8,7 +8,7 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-import pytest  # type: ignore
+import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.tempfile import ScratchDir

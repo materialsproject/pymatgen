@@ -1331,8 +1331,8 @@ class StructureEnvironments(MSONable):
         ]
 
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "voronoi": self.voronoi.as_dict(),
             "valences": self.valences,
             "sites_map": self.sites_map,
@@ -2087,8 +2087,8 @@ class LightStructureEnvironments(MSONable):
             Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "strategy": self.strategy.as_dict(),
             "structure": self.structure.as_dict(),
             "coordination_environments": self.coordination_environments,
@@ -2417,8 +2417,8 @@ class ChemicalEnvironments(MSONable):
             A dictionary representation of the ChemicalEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "coord_geoms": jsanitize(self.coord_geoms),
         }
 

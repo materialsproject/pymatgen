@@ -73,7 +73,7 @@ class PDEntry(Entry):
         name = ""
         if self.name != self.composition.reduced_formula:
             name = f" ({self.name})"
-        return f"{self.__class__.__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
+        return f"{type(self).__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
 
     @property
     def energy(self) -> float:
@@ -175,8 +175,8 @@ class GrandPotPDEntry(PDEntry):
             MSONable dictionary representation of GrandPotPDEntry
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entry": self.original_entry.as_dict(),
             "chempots": {el.symbol: u for el, u in self.chempots.items()},
             "name": self.name,
@@ -263,8 +263,8 @@ class TransformedPDEntry(PDEntry):
             MSONable dictionary representation of TransformedPDEntry
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "sp_mapping": self.sp_mapping,
         }
         d.update(self.original_entry.as_dict())
@@ -373,8 +373,8 @@ class PhaseDiagram(MSONable):
         :return: MSONAble dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
             "computed_data": self.computed_data,
@@ -1278,8 +1278,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "chempots": self.chempots,
             "elements": [e.as_dict() for e in self.elements],
@@ -1377,8 +1377,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
             MSONable dictionary representation of CompoundPhaseDiagram
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "original_entries": [e.as_dict() for e in self.original_entries],
             "terminal_compositions": [c.as_dict() for c in self.terminal_compositions],
             "normalize_terminal_compositions": self.normalize_terminals,

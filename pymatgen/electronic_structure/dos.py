@@ -80,7 +80,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
@@ -120,7 +120,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
 
         # find index of fermi energy
         i_fermi = 0
@@ -391,8 +391,8 @@ class Dos(MSONable):
         JSON-serializable dict representation of Dos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
@@ -613,8 +613,8 @@ class FermiDos(Dos, MSONable):
         JSON-serializable dict representation of Dos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
@@ -1184,8 +1184,8 @@ class CompleteDos(Dos):
         JSON-serializable dict representation of CompleteDos.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
             "energies": self.energies.tolist(),

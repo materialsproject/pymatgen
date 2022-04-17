@@ -340,8 +340,8 @@ class TransformedStructure(MSONable):
         Dict representation of the TransformedStructure.
         """
         d = self.final_structure.as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["history"] = jsanitize(self.history)
         d["last_modified"] = str(datetime.datetime.utcnow())
         d["other_parameters"] = jsanitize(self.other_parameters)

@@ -536,7 +536,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
         for k in self:
             if k not in self._DEFAULT:
-                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -604,8 +604,8 @@ class Electrons(AbivarAble, MSONable):
     def as_dict(self):
         """json friendly dict representation"""
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["spin_mode"] = self.spin_mode.as_dict()
         d["smearing"] = self.smearing.as_dict()
         d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
@@ -1003,8 +1003,8 @@ class KSampling(AbivarAble, MSONable):
             "use_symmetries": self.use_symmetries,
             "use_time_reversal": self.use_time_reversal,
             "chksymbreak": self.chksymbreak,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -1064,13 +1064,11 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         for k in self.abivars:
             if k not in self._default_vars:
-                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
 
         for k in self.abivars:
             if k is MANDATORY:
-                raise ValueError(
-                    f"{self.__class__.__name__}: No default value has been provided for the mandatory key {k}"
-                )
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for the mandatory key {k}")
 
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
@@ -1138,8 +1136,8 @@ class RelaxationMethod(AbivarAble, MSONable):
     def as_dict(self):
         """Convert object to dict."""
         d = dict(self._default_vars)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -1226,7 +1224,7 @@ class PPModel(AbivarAble, MSONable):
     __nonzero__ = __bool__
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}, mode = {str(self.mode)}>"
+        return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -1244,8 +1242,8 @@ class PPModel(AbivarAble, MSONable):
         return {
             "mode": self.mode.name,
             "plasmon_freq": self.plasmon_freq,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @staticmethod

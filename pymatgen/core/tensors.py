@@ -99,7 +99,7 @@ class Tensor(np.ndarray, MSONable):
         return hash(self.tostring())
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.__str__()})"
+        return f"{type(self).__name__}({self.__str__()})"
 
     def zeroed(self, tol=1e-3):
         """
@@ -312,7 +312,7 @@ class Tensor(np.ndarray, MSONable):
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
         new_v = sum(np.transpose(v, ind) for ind in perms) / len(perms)
-        return self.__class__.from_voigt(new_v)
+        return type(self).from_voigt(new_v)
 
     def is_symmetric(self, tol=1e-5):
         """
@@ -687,8 +687,8 @@ class Tensor(np.ndarray, MSONable):
         """
         input_array = self.voigt if voigt else self
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "input_array": input_array.tolist(),
         }
         if voigt:
@@ -851,8 +851,8 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         tensor_list = self.voigt if voigt else self
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "tensor_list": [t.tolist() for t in tensor_list],
         }
         if voigt:

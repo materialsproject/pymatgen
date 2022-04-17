@@ -97,8 +97,8 @@ add these keys if they are not present, but for better long term stability
 through the encoder), the easiest way is to add the following to any to_dict
 property::
 
-    d["@module"] = self.__class__.__module__
-    d["@class"] = self.__class__.__name__
+    d["@module"] = type(self).__module__
+    d["@class"] = type(self).__name__
 
 To use the MontyDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.::

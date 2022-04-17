@@ -245,8 +245,8 @@ class BalancedReaction(MSONable):
             A dictionary representation of BalancedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": {str(comp): coeff for comp, coeff in self.reactants_coeffs.items()},
             "products": {str(comp): coeff for comp, coeff in self.products_coeffs.items()},
         }
@@ -383,8 +383,8 @@ class Reaction(BalancedReaction):
             A dictionary representation of Reaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [comp.as_dict() for comp in self._input_reactants],
             "products": [comp.as_dict() for comp in self._input_products],
         }
@@ -494,8 +494,8 @@ class ComputedReaction(Reaction):
             A dictionary representation of ComputedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [e.as_dict() for e in self._reactant_entries],
             "products": [e.as_dict() for e in self._product_entries],
         }
