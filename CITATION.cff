@@ -9,10 +9,12 @@ message: |
 authors:
 - family-names: Ong
   given-names: Shyue Ping
+  orcid: https://orcid.org/0000-0001-5726-2587
 - family-names: Richards
   given-names: William Davidson
 - family-names: Jain
   given-names: Anubhav
+  orcid: https://orcid.org/0000-0001-5893-9967
 - family-names: Hautier
   given-names: Geoffroy
 - family-names: Kocher
@@ -22,11 +24,13 @@ authors:
 - family-names: Gunter
   given-names: Dan
 - family-names: Chevrier
-  given-names: Vincent
+  given-names: Vincent L.
 - family-names: Persson
-  given-names: Kristin
+  given-names: Kristin A.
+  orcid: https://orcid.org/0000-0003-2495-5509
 - family-names: Ceder
   given-names: Gerbrand
+  orcid: https://orcid.org/0000-0001-9275-3605
 title: 'Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis'
 version: 2022.1.24 # replace with whatever version you use
 doi: 10.1016/j.commatsci.2012.10.028
