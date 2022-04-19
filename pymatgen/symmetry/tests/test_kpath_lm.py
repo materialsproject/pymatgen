@@ -53,11 +53,11 @@ class KPathLatimerMunroTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+            _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
         struct = Structure.from_file(struct_file_path)
-        kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+        _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]

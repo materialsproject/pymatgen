@@ -342,7 +342,7 @@ def linkcode_resolve(domain, info):
         rel_path, line_start, line_end = find_source()
         # __file__ is imported from pymatgen.core
         filename = f"pymatgen/core/{rel_path}#L{line_start}-L{line_end}"
-    except:
+    except Exception:
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"
 
