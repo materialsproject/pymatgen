@@ -314,7 +314,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.indices = indices
         self.fractions = fractions
         self.algo = algo
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
     def _best_first_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing best first ordering")

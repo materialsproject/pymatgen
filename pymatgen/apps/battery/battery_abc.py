@@ -256,7 +256,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         NotImplementedError(
             "The get_sub_electrodes function must be implemented for each concrete electrode "
-            f"class {self.__class__.__name__,}"
+            f"class {type(self).__name__,}"
         )
 
     def get_average_voltage(self, min_voltage=None, max_voltage=None):

@@ -133,8 +133,8 @@ class Kpoint(MSONable):
             "fcoords": self.frac_coords.tolist(),
             "ccoords": self.cart_coords.tolist(),
             "label": self.label,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -602,8 +602,8 @@ class BandStructure:
         JSON-serializable dict representation of BandStructure.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "efermi": self.efermi,
             "kpoints": [],
@@ -963,8 +963,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         """
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "efermi": self.efermi,
             "kpoints": [],

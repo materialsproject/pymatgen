@@ -70,8 +70,8 @@ class IRDielectricTensor(MSONable):
         JSON-serializable dict representation of IRDielectricTensor.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "oscillator_strength": self.oscillator_strength.tolist(),
             "ph_freqs_gamma": self.ph_freqs_gamma.tolist(),
             "structure": self.structure.as_dict(),

@@ -86,7 +86,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return self._multiplicity
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def defect_composition(self):
         """
@@ -103,7 +103,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def name(self):
         """
@@ -533,8 +533,8 @@ class DefectEntry(MSONable):
         JSON-serializable dict representation of DefectEntry
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "defect": self.defect.as_dict(),
             "uncorrected_energy": self.uncorrected_energy,
             "corrections": self.corrections,

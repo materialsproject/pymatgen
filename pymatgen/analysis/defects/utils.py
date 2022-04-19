@@ -58,7 +58,7 @@ invang_to_ev = 3.80986
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
-for cn, di in cn_opt_params.items():  # type: ignore
+for cn, di in cn_opt_params.items():
     for mot, li in di.items():
         motif_cn_op[mot] = {"cn": int(cn), "optype": li[0]}
         motif_cn_op[mot]["params"] = deepcopy(li[1]) if len(li) > 1 else None

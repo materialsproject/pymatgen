@@ -184,7 +184,7 @@ class XcFunc(MSONable):
         """
         Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
         """
-        d = {"@module": self.__class__.__module__, "@class": self.__class__.__name__}
+        d = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             d["x"] = self.x.as_dict()
         if self.c is not None:

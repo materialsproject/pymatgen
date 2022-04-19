@@ -83,7 +83,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
         """
-        return self._species  # type: ignore
+        return self._species
 
     @species.setter
     def species(self, species: SpeciesLike | CompositionLike):
@@ -102,33 +102,33 @@ class Site(collections.abc.Hashable, MSONable):
         """
         Cartesian x coordinate
         """
-        return self.coords[0]  # type: ignore
+        return self.coords[0]
 
     @x.setter
     def x(self, x: float):
-        self.coords[0] = x  # type: ignore
+        self.coords[0] = x
 
     @property
     def y(self) -> float:
         """
         Cartesian y coordinate
         """
-        return self.coords[1]  # type: ignore
+        return self.coords[1]
 
     @y.setter
     def y(self, y: float):
-        self.coords[1] = y  # type: ignore
+        self.coords[1] = y
 
     @property
     def z(self) -> float:
         """
         Cartesian z coordinate
         """
-        return self.coords[2]  # type: ignore
+        return self.coords[2]
 
     @z.setter
     def z(self, z: float):
-        self.coords[2] = z  # type: ignore
+        self.coords[2] = z
 
     def distance(self, other) -> float:
         """
@@ -258,10 +258,10 @@ class Site(collections.abc.Hashable, MSONable):
         d = {
             "name": self.species_string,
             "species": species_list,
-            "xyz": [float(c) for c in self.coords],  # type: ignore
+            "xyz": [float(c) for c in self.coords],
             "properties": self.properties,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
         if self.properties:
             d["properties"] = self.properties
@@ -612,8 +612,8 @@ class PeriodicSite(Site, MSONable):
             "species": species_list,
             "abc": [float(c) for c in self._frac_coords],  # type: ignore
             "lattice": self._lattice.as_dict(verbosity=verbosity),
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
         if verbosity > 0:

@@ -500,8 +500,8 @@ class GaussianInput:
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "molecule": self.molecule.as_dict(),
             "functional": self.functional,
             "basis_set": self.basis_set,
@@ -1238,8 +1238,8 @@ class GaussianOutput:
         }
 
         d["output"] = vout
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
 
         return d
 

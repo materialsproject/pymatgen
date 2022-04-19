@@ -12,8 +12,8 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
-import pytest  # type: ignore
-from _pytest.monkeypatch import MonkeyPatch  # type: ignore
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 

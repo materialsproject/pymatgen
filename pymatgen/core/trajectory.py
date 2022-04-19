@@ -363,8 +363,8 @@ class Trajectory(MSONable):
         :return: MSONAble dict.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "species": self.species,
             "time_step": self.time_step,
             "site_properties": self.site_properties,
