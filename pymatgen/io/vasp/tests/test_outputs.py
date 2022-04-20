@@ -2165,7 +2165,8 @@ class WSWQTest(PymatgenTest):
         self.assertEqual(self.wswq.nbands, 288)
         self.assertEqual(self.wswq.nkpoints, 2)
         self.assertEqual(self.wswq.nspin, 2)
-        self.assertEqual(self.wswq.data.shape, (2, 2, 288, 288))
+        self.assertEqual(self.wswq.me_real.shape, (2, 2, 288, 288))
+        self.assertEqual(self.wswq.me_imag.shape, (2, 2, 288, 288))
 
 
 if __name__ == "__main__":
