@@ -2162,11 +2162,11 @@ class WSWQTest(PymatgenTest):
 
     def test_consistency(self):
         self.assertEqual(True, True)
-        self.assertEqual(self.wswq.nbands, 288)
-        self.assertEqual(self.wswq.nkpoints, 2)
+        self.assertEqual(self.wswq.nbands, 18)
+        self.assertEqual(self.wswq.nkpoints, 20)
         self.assertEqual(self.wswq.nspin, 2)
-        self.assertEqual(self.wswq.me_real.shape, (2, 2, 288, 288))
-        self.assertEqual(self.wswq.me_imag.shape, (2, 2, 288, 288))
+        self.assertEqual(self.wswq.me_real.shape, (2, 20, 18, 18))
+        self.assertEqual(self.wswq.me_imag.shape, (2, 20, 18, 18))
         for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4])):
             if itr == 4:
                 assert np.linalg.norm([r, i]) > 0.999
