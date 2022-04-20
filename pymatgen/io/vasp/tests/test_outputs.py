@@ -2167,6 +2167,11 @@ class WSWQTest(PymatgenTest):
         self.assertEqual(self.wswq.nspin, 2)
         self.assertEqual(self.wswq.me_real.shape, (2, 2, 288, 288))
         self.assertEqual(self.wswq.me_imag.shape, (2, 2, 288, 288))
+        for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4])):
+            if itr == 4:
+                assert np.linalg.norm([r, i]) > 0.999
+            else:
+                assert np.linalg.norm([r, i]) < 0.001
 
 
 if __name__ == "__main__":
