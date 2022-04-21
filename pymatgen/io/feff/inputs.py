@@ -22,7 +22,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, PointGroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
@@ -174,10 +174,16 @@ class Header(MSONable):
         if struct.is_ordered:
             self.struct = struct
             self.source = source
-            sym = SpacegroupAnalyzer(struct)
-            data = sym.get_symmetry_dataset()
-            self.space_number = data["number"]
-            self.space_group = data["international"]
+            if isinstance(self.struct, Structure):
+                sym = SpacegroupAnalyzer(struct)
+                data = sym.get_symmetry_dataset()
+                self.space_number = data["number"]
+                self.space_group = data["international"]
+            elif isinstance(self.struct, Molecule):
+                sym = PointGroupAnalyzer(struct)
+                # symm_data = sym.get_equivalent_atoms()
+                self.space_number = None
+                self.space_group = sym.get_pointgroup()
             self.comment = comment or "None given"
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
@@ -342,19 +348,23 @@ class Header(MSONable):
             "".join(["TITLE Source:  ", self.source]),
             f"TITLE Structure Summary:  {self.struct.composition.formula}",
             f"TITLE Reduced formula:  {self.struct.composition.reduced_formula}",
-            f"TITLE space group: ({self.space_group}), space number:  ({self.space_number})",
-            "TITLE abc:{}".format(" ".join([to_s(i).rjust(10) for i in self.struct.lattice.abc])),
-            "TITLE angles:{}".format(" ".join([to_s(i).rjust(10) for i in self.struct.lattice.angles])),
+            # f"TITLE space group: ({self.space_group}), space number:  ({self.space_number})",
+            # f"TITLE abc:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.abc])}",
+            # f"TITLE angles:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.angles])}",
             f"TITLE sites: {self.struct.num_sites}",
         ]
         for i, site in enumerate(self.struct):
+            if isinstance(self.struct, Structure):
+                coords = [to_s(j).rjust(12) for j in site.frac_coords]
+            elif isinstance(self.struct, Molecule):
+                coords = [to_s(j).rjust(12) for j in site.coords]
             output.append(
                 " ".join(
                     [
                         "*",
                         str(i + 1),
                         site.species_string,
-                        " ".join([to_s(j).rjust(12) for j in site.frac_coords]),
+                        " ".join(coords),
                     ]
                 )
             )
