@@ -1,13 +1,18 @@
-.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
-      :alt: CI Status
-      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
-
-.. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
-      :alt: Conda Downloads
-
-.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
-      :alt: Coveralls Coverage Report
-      :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
+.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml/badge.svg
+   :alt: CI Status
+   :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
+.. image:: https://img.shields.io/pypi/dm/pymatgen?style=flat&color=blue&label=PyPI%20Downloads
+   :alt: PyPI Downloads
+   :target: https://pypi.org/project/pymatgen
+.. image:: https://img.shields.io/conda/dn/conda-forge/pymatgen?style=flat&color=blue&label=Conda%20Downloads
+   :alt: Conda Downloads
+   :target: https://anaconda.org/conda-forge/pymatgen
+.. image:: https://img.shields.io/coveralls/github/materialsproject/pymatgen?style=flat&label=Coverage
+   :alt: Coveralls
+   :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
+.. image:: https://results.pre-commit.ci/badge/github/materialsproject/pymatgen/master.svg
+   :alt: pre-commit.ci status
+   :target: https://results.pre-commit.ci/latest/github/materialsproject/pymatgen/master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
@@ -23,7 +28,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions.  These contributions can be in the
+library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. The following are resources for pymatgen:
 
@@ -104,7 +109,7 @@ installation using conda, which will make things a lot easier, especially on Win
 
     conda install --channel conda-forge pymatgen
 
-In line with the Scientific Python stack, pymatgen will now support a minimum python version off 3.7 from v2021.1.1.
+In line with the Scientific Python stack, in particular :code:`numpy`, :code:`pymatgen` support a minimum Python version off 3.8 from v2022.01.08.
 
 The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_ is always the latest stable
 release that is relatively bug-free and can be installed via pip::

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.1.24 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.4.19 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.1.24
+                2022.4.19
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-1-24">v2022.1.24</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2022-4-19">v2022.4.19</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -125,7 +125,7 @@ diagrams, diffusion analyses, reactions, etc.</p></li>
 <li><p>Integration with the Materials Project REST API, Crystallography Open
 Database and other external data sources.</p></li>
 </ol>
-<p>As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule follows closely that of the Scientific
+<p>As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.</p>
@@ -227,10 +227,14 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h2>
-<section id="v2022-1-24">
-<h3>v2022.1.24<a class="headerlink" href="#v2022-1-24" title="Permalink to this headline"></a></h3>
+<section id="v2022-4-19">
+<h3>v2022.4.19<a class="headerlink" href="#v2022-4-19" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.</p></li>
+<li><p>Fix for discharged and charged entries in conversion battery. (&#64;peikai)`pylint` in <cite>.pre-commit-config.yaml</cite>.</p></li>
+<li><p>Allow skipping of structure reduction in StructureMatcher.group_structures (&#64;lan496)</p></li>
+<li><p>Return NotImplemented for composition comparison methods. (&#64;janosh)</p></li>
+<li><p>BSPlotter bug fixes (&#64;fraricci)</p></li>
+<li><p>Misc bug fixes and deprecation fixes.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
@@ -431,7 +435,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">1 Cl     0.510000     0.510000     0.510000</span>
 <span class="go">2 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Molecules function similarly, but with Site and cartesian coords.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Molecules function similarly, but with Site and Cartesian coords.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># The following changes the C in CH4 to an N and displaces it by 0.01A</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># in the x-direction.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
@@ -574,7 +578,6 @@ scientists. Please refer to the <a class="reference internal" href="references.h
 <span class="n">COPYRIGHT</span> <span class="n">HOLDERS</span> <span class="n">BE</span> <span class="n">LIABLE</span> <span class="n">FOR</span> <span class="n">ANY</span> <span class="n">CLAIM</span><span class="p">,</span> <span class="n">DAMAGES</span> <span class="n">OR</span> <span class="n">OTHER</span> <span class="n">LIABILITY</span><span class="p">,</span> <span class="n">WHETHER</span>
 <span class="n">IN</span> <span class="n">AN</span> <span class="n">ACTION</span> <span class="n">OF</span> <span class="n">CONTRACT</span><span class="p">,</span> <span class="n">TORT</span> <span class="n">OR</span> <span class="n">OTHERWISE</span><span class="p">,</span> <span class="n">ARISING</span> <span class="n">FROM</span><span class="p">,</span> <span class="n">OUT</span> <span class="n">OF</span> <span class="n">OR</span> <span class="n">IN</span>
 <span class="n">CONNECTION</span> <span class="n">WITH</span> <span class="n">THE</span> <span class="n">SOFTWARE</span> <span class="n">OR</span> <span class="n">THE</span> <span class="n">USE</span> <span class="n">OR</span> <span class="n">OTHER</span> <span class="n">DEALINGS</span> <span class="n">IN</span> <span class="n">THE</span> <span class="n">SOFTWARE</span><span class="o">.</span>
-
 </pre></div>
 </div>
 </section>

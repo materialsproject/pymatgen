@@ -5,7 +5,16 @@
 import os
 import unittest
 
-from pymatgen.io.qchem.sets import *
+from pymatgen.io.qchem.sets import (
+    ForceSet,
+    FreqSet,
+    OptSet,
+    PESScanSet,
+    QChemDictSet,
+    QCInput,
+    SinglePointSet,
+    TransitionStateSet,
+)
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"

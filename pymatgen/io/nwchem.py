@@ -135,7 +135,7 @@ class NwTask(MSONable):
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn("Basis set %s not in in NWCHEM_BASIS_LIBRARY" % b)
+                    warnings.warn(f"Basis set {b} not in in NWCHEM_BASIS_LIBRARY")
 
         self.basis_set_option = basis_set_option
 
@@ -188,8 +188,8 @@ $theory_spec
         Returns: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "title": self.title,
@@ -302,14 +302,14 @@ $theory_spec
 
     @classmethod
     def dft_task(cls, mol, xc="b3lyp", **kwargs):
-        r"""
+        """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
 
         Args:
             mol: Input molecule
             xc: Exchange correlation to use.
-            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
@@ -318,13 +318,13 @@ $theory_spec
 
     @classmethod
     def esp_task(cls, mol, **kwargs):
-        r"""
+        """
         A class method for quickly creating ESP tasks with RESP
         charge fitting.
 
         Args:
             mol: Input molecule
-            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
@@ -550,8 +550,6 @@ class NwInputError(Exception):
     """
     Error class for NwInput.
     """
-
-    pass
 
 
 class NwOutput:

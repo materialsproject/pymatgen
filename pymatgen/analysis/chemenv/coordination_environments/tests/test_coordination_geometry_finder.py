@@ -32,6 +32,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             centering_type="standard",
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
+        self.lgf2 = LocalGeometryFinder(print_citation=True)
 
     #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
@@ -134,9 +135,8 @@ class CoordinationGeometryFinderTest(PymatgenTest):
     #
     #     for ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             f = open("{}/{}".format(json_files_dir, json_file), 'r')
-    #             dd = json.load(f)
-    #             f.close()
+    #             with open("{}/{}".format(json_files_dir, json_file), 'r') as f:
+    #                 dd = json.load(f)
     #
     #             atom_indices = dd['atom_indices']
     #             expected_geoms = dd['expected_geoms']

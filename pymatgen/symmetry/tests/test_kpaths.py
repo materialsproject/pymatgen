@@ -9,12 +9,11 @@ from monty.serialization import loadfn
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from seekpath import get_path  # type: ignore
+    from seekpath import get_path
 except ImportError:
     get_path = None
 
@@ -59,7 +58,7 @@ class HighSymmKpathTest(PymatgenTest):
 
             # Throws error if something doesn't work, causing test to fail.
             kpath = HighSymmKpath(struct, path_type="all")
-            kpoints = kpath.get_kpoints()
+            _ = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
         bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))

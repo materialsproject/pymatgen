@@ -2,36 +2,18 @@
 # Distributed under the terms of the MIT License.
 
 """
-Module implementing classes and functions to use Zeo++.
+Module implementing classes and functions to use Zeo++
+by Maciej Haranczyk.
+
+If using this module, cite the following paper on Zeo++:
+T.F. Willems, C.H. Rycroft, M. Kazi, J.C. Meza, and M. Haranczyk,
+Algorithms and tools for high-throughput geometry-based analysis of crystalline porous materials,
+Microporous and Mesoporous Materials, 149 (2012) 134-141.
 
 Zeo++ Installation Steps:
 ========================
-1) Zeo++ requires Voro++. Download Voro++ from code.lbl.gov using
-   subversion:
-   "svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk
-   Password is anonsvn.
-2) Stable version of Zeo++ can be obtained from
-   http://www.maciejharanczyk.info/Zeopp/
-   Alternatively it can be obtained from code.lbl.gov. Replace voro
-   with zeo.
-3) (Optional) Install cython from pip
-Mac OS X:
-4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment
-   (compiler, linker).
-   (b) Run make command
-5) (a) Edit the Zeo++/trunk/cython_wrapper/setup.py to correctly point to
-   Voro++ directory.
-   (b) Run "python setup.py develop" to install Zeo++ python bindings.
-   Be patient, it will take a while.
-Linux:
-4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment.
-   (b) Also add -fPIC option to CFLAGS variable in config.mk file.
-   (c) Run make command
-5) (a) Go to Zeo++/zeo/trunk folder and compile zeo++ library using the
-   command "make dylib".
-   (b) Edit the Zeo++/trunk/cython_wrapper/setup_alt.py to correctly
-   point to Voro++ directory.
-   (c) Run "python setup_alt.py develop" to install Zeo++ python bindings.
+A stable version of Zeo++ can be obtained from http://zeoplusplus.org.
+Instructions can be found at http://www.zeoplusplus.org/download.html
 
 Zeo++ Post-Installation Checking:
 ==============================
@@ -65,7 +47,7 @@ except ImportError:
     zeo_found = False
 
 __author__ = "Bharat Medasani"
-__copyright = "Copyright 2013, The Materials Project"
+__copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
@@ -234,7 +216,7 @@ class ZeoVoronoiXYZ(XYZ):
 
     def __str__(self):
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
-        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
+        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
         for site in self._mols[0]:
             output.append(
                 fmtstr.format(

@@ -85,7 +85,7 @@ class ChemEnvConfig:
                 break
             else:
                 print(" ... wrong key, try again ...")
-            print("")
+            print()
         if test == "S":
             print(f'Configuration has been saved to file "{config_file}"')
 
@@ -135,8 +135,8 @@ class ChemEnvConfig:
         Describe package options.
         """
         out = "Package options :\n"
-        out += " - Maximum distance factor : {:.4f}\n".format(self.package_options["default_max_distance_factor"])
-        out += ' - Default strategy is "{}" :\n'.format(self.package_options["default_strategy"]["strategy"])
+        out += f" - Maximum distance factor : {self.package_options['default_max_distance_factor']:.4f}\n"
+        out += f" - Default strategy is \"{self.package_options['default_strategy']['strategy']}\" :\n"
         strategy_class = strategies_class_lookup[self.package_options["default_strategy"]["strategy"]]
         out += f"{strategy_class.STRATEGY_DESCRIPTION}\n"
         out += "   with options :\n"

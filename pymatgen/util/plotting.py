@@ -4,17 +4,12 @@
 Utilities for generating nicer plots.
 """
 import math
-import sys
+from typing import Literal
 
 import numpy as np
 from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitative", "Set1_9")):
@@ -46,7 +41,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
 
         import matplotlib.pyplot as plt
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
+        mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         colors = getattr(mod, color_cycle[1]).mpl_colors
         from cycler import cycler
 
@@ -153,7 +148,7 @@ def pretty_plot_two_axis(
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    r"""
+    """
     Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -162,7 +157,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
         deg (int): Degree of polynomial. Defaults to 1.
         xlabel (str): Label for x-axis.
         ylabel (str): Label for y-axis.
-        \\*\\*kwargs: Keyword args passed to pretty_plot.
+        kwargs: Keyword args passed to pretty_plot.
 
     Returns:
         matplotlib.pyplot object.
@@ -227,7 +222,9 @@ def periodic_table_heatmap(
             periodic table. Default is "white".
          max_row (integer): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
-            the first 9 rows of elements.
+            the standard 7 rows of the periodic table + 2 rows for the lanthanides
+            and actinides. Use a value of max_row = 7 to exclude the lanthanides and
+            actinides.
          readable_fontcolor (bool): Whether to use readable fontcolor depending
             on background color. Default is False.
     """
@@ -249,10 +246,19 @@ def periodic_table_heatmap(
     blank_value = min_val - 0.01
 
     for el in Element:
-        if el.row > max_row:
-            continue
         value = elemental_data.get(el.symbol, blank_value)
-        value_table[el.row - 1, el.group - 1] = value
+        if 57 <= el.Z <= 71:
+            plot_row = 8
+            plot_group = (el.Z - 54) % 32
+        elif 89 <= el.Z <= 103:
+            plot_row = 9
+            plot_group = (el.Z - 54) % 32
+        else:
+            plot_row = el.row
+            plot_group = el.group
+        if plot_row > max_row:
+            continue
+        value_table[plot_row - 1, plot_group - 1] = value
 
     # Initialize the plt object
     import matplotlib.pyplot as plt
@@ -348,7 +354,7 @@ def format_formula(formula):
                 number_format = ""
             formatted_formula += s
 
-    return r"$%s$" % (formatted_formula)
+    return f"${formatted_formula}$"
 
 
 def van_arkel_triangle(list_of_materials, annotate=True):
@@ -472,7 +478,8 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     for entry in list_of_materials:
         if type(entry).__name__ not in ["ComputedEntry", "ComputedStructureEntry"]:
             X_pair = [Element(el).X for el in entry]
-            formatted_formula = "%s-%s" % tuple(entry)
+            el_1, el_2 = entry
+            formatted_formula = f"{el_1}-{el_2}"
         else:
             X_pair = [Element(el).X for el in entry.composition.as_dict().keys()]
             formatted_formula = format_formula(entry.composition.reduced_formula)
@@ -624,7 +631,7 @@ def add_fig_kwargs(func):
             if len(fig.axes) > len(tags):
                 tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
             for ax, tag in zip(fig.axes, tags):
-                ax.annotate("(%s)" % tag, xy=(0.05, 0.95), xycoords="axes fraction")
+                ax.annotate(f"({tag})", xy=(0.05, 0.95), xycoords="axes fraction")
 
         if tight_layout:
             try:

@@ -22,6 +22,7 @@ from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spi
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import (
+    WSWQ,
     BSVasprun,
     Chgcar,
     Dynmat,
@@ -55,6 +56,9 @@ class VasprunTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+
+    def test_bad_random_seed(self):
+        _ = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
 
     def test_multiple_dielectric(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
@@ -174,6 +178,9 @@ class VasprunTest(PymatgenTest):
         # Test NELM parsing.
         self.assertEqual(vasprun.parameters["NELM"], 60)
         # test pdos parsing
+
+        self.assertEqual(vasprun.complete_dos.spin_polarization, 1.0)
+        self.assertTrue(Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz").complete_dos.spin_polarization is None)
 
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
         self.assertAlmostEqual(pdos0[Orbital.s][Spin.up][16], 0.0026)
@@ -1010,6 +1017,42 @@ class OutcarTest(PymatgenTest):
         self.assertAlmostEqual(outcar.data["elastic_tensor"][0][1], 187.8324)
         self.assertAlmostEqual(outcar.data["elastic_tensor"][3][3], 586.3034)
 
+    def test_read_lcalcpol(self):
+        # outcar with electrons Angst units
+        folder = "BTO_221_99_polarization/interpolation_6_polarization/"
+        filepath = self.TEST_FILES_DIR / folder / "OUTCAR"
+        outcar = Outcar(filepath)
+
+        outcar.read_lcalcpol()
+
+        p_ion = [0.0, 0.0, 19.70306]
+        p_elec = [4.02264, 4.02263, -4.08851]
+        p_sp1 = [2.01124, 2.01124, -2.04426]
+        p_sp2 = [2.01139, 2.01139, -2.04426]
+
+        for i in range(3):
+            self.assertAlmostEqual(outcar.p_ion[i], p_ion[i])
+            self.assertAlmostEqual(outcar.p_elec[i], p_elec[i])
+            self.assertAlmostEqual(outcar.p_sp1[i], p_sp1[i])
+            self.assertAlmostEqual(outcar.p_sp2[i], p_sp2[i])
+
+        # outcar with |e| Angst units
+        filepath = self.TEST_FILES_DIR / "outcar_vasp_6.3.gz"
+        outcar = Outcar(filepath)
+
+        outcar.read_lcalcpol()
+
+        p_ion = [-79.03374, -0.0, -28.44354]
+        p_elec = [9.01127e00, -1.00000e-05, 3.24308e00]
+        p_sp1 = [4.50564, 0.0, 1.62154]
+        p_sp2 = [4.50563e00, -1.00000e-05, 1.62154e00]
+
+        for i in range(3):
+            self.assertAlmostEqual(outcar.p_ion[i], p_ion[i])
+            self.assertAlmostEqual(outcar.p_elec[i], p_elec[i])
+            self.assertAlmostEqual(outcar.p_sp1[i], p_sp1[i])
+            self.assertAlmostEqual(outcar.p_sp2[i], p_sp2[i])
+
     def test_read_piezo_tensor(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon.gz"
         outcar = Outcar(filepath)
@@ -1782,6 +1825,7 @@ class WavecarTest(PymatgenTest):
         self.wH2 = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2_low_symm")
         self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2_low_symm.gamma")
         self.w_ncl = Wavecar(self.TEST_FILES_DIR / "WAVECAR.H2.ncl")
+        self.w_frac_encut = Wavecar(self.TEST_FILES_DIR / "WAVECAR.frac_encut")
 
     def test_standard(self):
         w = self.w
@@ -1798,7 +1842,7 @@ class WavecarTest(PymatgenTest):
 
         self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2")
         self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.encut, 25.0)
         self.assertEqual(w.nb, 9)
         self.assertEqual(w.nk, 1)
         self.assertTrue(np.allclose(w.a, a))
@@ -1814,6 +1858,10 @@ class WavecarTest(PymatgenTest):
             for b in range(w.nb):
                 self.assertEqual(len(w.coeffs[k][b]), len(w.Gpoints[k]))
 
+        # Test WAVECAR with fractional encut
+        self.assertEqual(self.w_frac_encut.encut, 100.5)
+
+        # Test malformed WAVECARs
         with self.assertRaises(ValueError):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.malformed")
 
@@ -1842,7 +1890,7 @@ class WavecarTest(PymatgenTest):
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.encut, 25.0)
         self.assertEqual(w.nb, 9)
         self.assertEqual(w.nk, 1)
         self.assertTrue(np.allclose(w.a, self.a))
@@ -2140,6 +2188,26 @@ class WavederTest(PymatgenTest):
             self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].imag, wderf[i, 9], places=10)
             self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].real, wderf[i, 10], places=10)
             self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].imag, wderf[i, 11], places=10)
+
+
+class WSWQTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
+    def setUp(self):
+        self.wswq = WSWQ.from_file(self.TEST_FILES_DIR / "WSWQ.gz")
+
+    def test_consistency(self):
+        self.assertEqual(True, True)
+        self.assertEqual(self.wswq.nbands, 18)
+        self.assertEqual(self.wswq.nkpoints, 20)
+        self.assertEqual(self.wswq.nspin, 2)
+        self.assertEqual(self.wswq.me_real.shape, (2, 20, 18, 18))
+        self.assertEqual(self.wswq.me_imag.shape, (2, 20, 18, 18))
+        for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4])):
+            if itr == 4:
+                assert np.linalg.norm([r, i]) > 0.999
+            else:
+                assert np.linalg.norm([r, i]) < 0.001
 
 
 if __name__ == "__main__":

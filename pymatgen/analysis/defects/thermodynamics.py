@@ -8,9 +8,9 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 import logging
 from itertools import chain
 
-from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
 from monty.json import MSONable
 from scipy.optimize import bisect
 from scipy.spatial import HalfspaceIntersection
@@ -89,11 +89,11 @@ class DefectPhaseDiagram(MSONable):
     def as_dict(self):
         """
         Returns:
-            Json-serializable dict representation of DefectPhaseDiagram
+            JSON-serializable dict representation of DefectPhaseDiagram
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entries": [entry.as_dict() for entry in self.entries],
             "vbm": self.vbm,
             "band_gap": self.band_gap,
@@ -215,9 +215,9 @@ class DefectPhaseDiagram(MSONable):
 
             hs_ints = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
-            # Group the intersections and coresponding facets
+            # Group the intersections and corresponding facets
             ints_and_facets = zip(hs_ints.intersections, hs_ints.dual_facets)
-            # Only inlcude the facets corresponding to entries, not the boundaries
+            # Only include the facets corresponding to entries, not the boundaries
             total_entries = len(defects)
             ints_and_facets = filter(
                 lambda int_and_facet: all(np.array(int_and_facet[1]) < total_entries),
@@ -343,7 +343,7 @@ class DefectPhaseDiagram(MSONable):
     def suggest_charges(self, tolerance=0.1):
         """
         Suggest possible charges for defects to compute based on proximity
-        of known transitions from entires to VBM and CBM
+        of known transitions from entries to VBM and CBM
 
         Args:
             tolerance (float): tolerance with respect to the VBM and CBM to
@@ -649,7 +649,7 @@ class DefectPhaseDiagram(MSONable):
             plt.plot(xy[defnom][0], xy[defnom][1], linewidth=3, color=colors[cnt])
             for_legend.append(self.stable_entries[defnom][0].copy())
 
-        # plot transtition levels
+        # plot transition levels
         for cnt, defnom in enumerate(xy.keys()):
             x_trans, y_trans = [], []
             for x_val, chargeset in self.transition_level_map[defnom].items():

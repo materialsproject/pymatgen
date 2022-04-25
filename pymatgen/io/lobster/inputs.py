@@ -6,11 +6,12 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
+from __future__ import annotations
+
 import itertools
 import os
 import warnings
-from collections import OrderedDict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 import spglib
@@ -278,8 +279,8 @@ class Lobsterin(dict, MSONable):
         :return: MSONable dict
         """
         d = dict(self)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -379,7 +380,7 @@ class Lobsterin(dict, MSONable):
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols
-            address_basis_file_min: path to file with the minium required basis by the POTCAR
+            address_basis_file_min: path to file with the minimum required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in
@@ -501,9 +502,9 @@ class Lobsterin(dict, MSONable):
             newlist = [list(gp) for gp in list(grid)]
             mapping = []
             for gp in newlist:
-                minusgp = [-k for k in gp]
-                if minusgp in newlist and minusgp not in [[0, 0, 0]]:
-                    mapping.append(newlist.index(minusgp))
+                minus_gp = [-k for k in gp]
+                if minus_gp in newlist and minus_gp not in [[0, 0, 0]]:
+                    mapping.append(newlist.index(minus_gp))
                 else:
                     mapping.append(newlist.index(gp))
 
@@ -639,8 +640,8 @@ class Lobsterin(dict, MSONable):
         cls,
         POSCAR_input: str = "POSCAR",
         INCAR_input: str = "INCAR",
-        POTCAR_input: Optional[str] = None,
-        dict_for_basis: Optional[dict] = None,
+        POTCAR_input: str | None = None,
+        dict_for_basis: dict | None = None,
         option: str = "standard",
     ):
         """
@@ -689,7 +690,7 @@ class Lobsterin(dict, MSONable):
         # this basis set covers most elements
         Lobsterindict["basisSet"] = "pbeVaspFit2015"
         # energies around e-fermi
-        Lobsterindict["COHPstartEnergy"] = -15.0
+        Lobsterindict["COHPstartEnergy"] = -35.0
         Lobsterindict["COHPendEnergy"] = 5.0
 
         if option in [
@@ -813,13 +814,12 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         max_basis: list of basis entries: e.g., ['Si 3p 3s ']
 
     Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
-
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict = OrderedDict({})  # type:  Dict[Any, Any]
+    basis_dict: dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:

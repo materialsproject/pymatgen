@@ -149,7 +149,7 @@ class SlabEntry(ComputedStructureEntry):
         Returns dict which contains Slab Entry data.
         """
 
-        d = {"@module": self.__class__.__module__, "@class": self.__class__.__name__}
+        d = {"@module": type(self).__module__, "@class": type(self).__name__}
         d["structure"] = self.structure
         d["energy"] = self.energy
         d["miller_index"] = self.miller_index
@@ -352,12 +352,12 @@ class SlabEntry(ComputedStructureEntry):
         ads_strs = list(self.ads_entries_dict.keys())
 
         cleaned = self.cleaned_up_slab
-        label += " %s" % (cleaned.composition.reduced_composition)
+        label += f" {cleaned.composition.reduced_composition}"
 
         if self.adsorbates:
             for ads in ads_strs:
-                label += r"+%s" % (ads)
-            label += r", %.3f ML" % (self.get_monolayer)
+                label += f"+{ads}"
+            label += f", {self.get_monolayer:.3f} ML"
         return label
 
     @staticmethod
@@ -1128,7 +1128,7 @@ class SurfaceEnergyPlotter:
 
         # Make the figure look nice
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.0)
-        axes.set_xlabel(r"Chemical potential $\Delta\mu_{%s}$ (eV)" % (ref_el))
+        axes.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
 
         ylim = ylim if ylim else axes.get_ylim()
         plt.xticks(rotation=60)
@@ -1139,9 +1139,9 @@ class SurfaceEnergyPlotter:
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
         plt.plot([xrange[1], xrange[1]], ylim, "--k")
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
-        plt.annotate("%s-rich" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-rich", xy=xy, xytext=xy, rotation=90, fontsize=17)
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
-        plt.annotate("%s-poor" % (ref_el), xy=xy, xytext=xy, rotation=90, fontsize=17)
+        plt.annotate(f"{ref_el}-poor", xy=xy, xytext=xy, rotation=90, fontsize=17)
 
         return plt
 
@@ -1187,7 +1187,7 @@ class SurfaceEnergyPlotter:
                         # Now plot the surface energy vs binding energy
                         plt.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate("%.2f" % (ml), xy=[se, be], xytext=[se, be])
+                            plt.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
         plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
@@ -1243,8 +1243,8 @@ class SurfaceEnergyPlotter:
         delu_dict = delu_dict if delu_dict else {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol("delu_%s" % (str(elements[0])))
-        delu2 = Symbol("delu_%s" % (str(elements[1])))
+        delu1 = Symbol(f"delu_{str(elements[0])}")
+        delu2 = Symbol(f"delu_{str(elements[1])}")
         range1 = ranges[0]
         range2 = ranges[1]
 
@@ -1331,8 +1331,8 @@ class SurfaceEnergyPlotter:
         # Label plot
         plt.xlim(range1)
         plt.ylim(range2)
-        plt.xlabel(r"$\Delta\mu_{%s} (eV)$" % (el1), fontsize=25)
-        plt.ylabel(r"$\Delta\mu_{%s} (eV)$" % (el2), fontsize=25)
+        plt.xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
+        plt.ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
         plt.xticks(rotation=60)
 
         return plt
@@ -1616,7 +1616,7 @@ class WorkFunctionAnalyzer:
         plt.plot([0, 1], [self.vacuum_locpot] * 2, "b--", zorder=-5, linewidth=1)
         xy = [label_in_bulk, self.vacuum_locpot + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$V_{vac}=%.2f$" % (self.vacuum_locpot),
+            f"$V_{{vac}}={self.vacuum_locpot:.2f}$",
             xy=xy,
             xytext=xy,
             color="b",
@@ -1627,7 +1627,7 @@ class WorkFunctionAnalyzer:
         plt.plot([0, 1], [self.efermi] * 2, "g--", zorder=-5, linewidth=3)
         xy = [label_in_bulk, self.efermi + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$E_F=%.2f$" % (self.efermi),
+            f"$E_F={self.efermi:.2f}$",
             xytext=xy,
             xy=xy,
             fontsize=label_fontsize,
@@ -1638,7 +1638,7 @@ class WorkFunctionAnalyzer:
         plt.plot([0, 1], [self.ave_bulk_p] * 2, "r--", linewidth=1.0, zorder=-1)
         xy = [label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
+            f"$V^{{interior}}_{{slab}}={self.ave_bulk_p:.2f}$",
             xy=xy,
             xytext=xy,
             color="r",
@@ -1655,7 +1655,7 @@ class WorkFunctionAnalyzer:
         )
         xy = [label_in_vac, self.efermi + self.ave_locpot * 0.05]
         plt.annotate(
-            r"$\Phi=%.2f$" % (self.work_function),
+            rf"$\Phi={self.work_function:.2f}$",
             xy=xy,
             xytext=xy,
             fontsize=label_fontsize,
@@ -1831,8 +1831,8 @@ class NanoscaleStability:
 
         else:
             # By approximating the particle as a perfect sphere
-            w_vol = (4 / 3) * np.pi * r ** 3
-            sphere_sa = 4 * np.pi * r ** 2
+            w_vol = (4 / 3) * np.pi * r**3
+            sphere_sa = 4 * np.pi * r**2
             tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
@@ -1840,7 +1840,7 @@ class NanoscaleStability:
         new_r = new_r / 10 if r_units == "nanometers" else new_r
         e = Ebulk + tot_wulff_se
         e = e / 1000 if e_units == "keV" else e
-        e = e / ((4 / 3) * np.pi * new_r ** 3) if normalize else e
+        e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
         density = len(bulk_struct) / bulk_struct.lattice.volume
         e = e / (density * w_vol) if scale_per_atom else e
@@ -1859,7 +1859,7 @@ class NanoscaleStability:
     def scaled_wulff(self, wulffshape, r):
         """
         Scales the Wulff shape with an effective radius r. Note that the resulting
-            Wulff does not neccesarily have the same effective radius as the one
+            Wulff does not necessarily have the same effective radius as the one
             provided. The Wulff shape is scaled by its surface energies where first
             the surface energies are scale by the minimum surface energy and then
             multiplied by the given effective radius.
@@ -1941,9 +1941,9 @@ class NanoscaleStability:
             r_list.append(r)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
-        plt.xlabel(r"Particle radius ($%s$)" % (ru))
+        plt.xlabel(rf"Particle radius (${ru}$)")
         eu = f"${e_units}/{ru}^3$"
-        plt.ylabel(r"$G_{form}$ (%s)" % (eu))
+        plt.ylabel(rf"$G_{{form}}$ ({eu})")
 
         plt.plot(r_list, gform_list, label=label)
 

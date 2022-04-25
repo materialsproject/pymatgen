@@ -2,8 +2,6 @@
 # Distributed under the terms of the MIT License.
 
 
-import collections
-
 from pymatgen.core.units import (
     ArrayWithUnit,
     Energy,
@@ -75,13 +73,13 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertAlmostEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
-        y = x ** 3
+        y = x**3
         self.assertAlmostEqual(y, 74.088)
         self.assertEqual(str(y.unit), "ang^3")
 
     def test_memory(self):
         mega = Memory(1, "Mb")
-        self.assertEqual(mega.to("byte"), 1024 ** 2)
+        self.assertEqual(mega.to("byte"), 1024**2)
         self.assertEqual(mega, Memory(1, "mb"))
 
         same_mega = Memory.from_string("1Mb")
@@ -107,13 +105,13 @@ class FloatWithUnitTest(PymatgenTest):
 
         @unitized("pm")
         def h():
-            d = collections.OrderedDict()
+            d = {}
             for i in range(3):
                 d[i] = i * 20
             return d
 
         self.assertEqual(str(h()[1]), "20.0 pm")
-        self.assertIsInstance(h(), collections.OrderedDict)
+        self.assertIsInstance(h(), dict)
 
         @unitized("kg")
         def i():

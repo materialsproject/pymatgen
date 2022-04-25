@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module contains some utility functions and classes that are used in the chemenv package.
 """
@@ -51,9 +50,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(
-            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
-        )
+        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
     return lower_and_upper_functions
 
 
@@ -296,7 +293,7 @@ def rectangle_surface_intersection(
     x2 = np.max(rectangle[0])
     y1 = np.min(rectangle[1])
     y2 = np.max(rectangle[1])
-    # Check that f_lower is allways lower than f_upper between x1 and x2 if no bounds are given or between the bounds
+    # Check that f_lower is always lower than f_upper between x1 and x2 if no bounds are given or between the bounds
     #  of the f_lower and f_upper functions if they are given.
     if check:
         if bounds_lower is not None:
@@ -311,7 +308,7 @@ def rectangle_surface_intersection(
                     numpoints_check=numpoints_check,
                 ):
                     raise RuntimeError(
-                        "Function f_lower is not allways lower or equal to function f_upper within "
+                        "Function f_lower is not always lower or equal to function f_upper within "
                         "the domain defined by the functions bounds."
                     )
             else:
@@ -327,13 +324,13 @@ def rectangle_surface_intersection(
                 numpoints_check=numpoints_check,
             ):
                 raise RuntimeError(
-                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "Function f_lower is not always lower or equal to function f_upper within "
                     "the domain defined by the functions bounds."
                 )
         else:
             if "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
                 raise RuntimeError(
-                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "Function f_lower is not always lower or equal to function f_upper within "
                     "the domain defined by x1 and x2."
                 )
     if bounds_lower is None:
@@ -645,7 +642,7 @@ class Plane:
         self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
-        """Initialialize three random points on this plane.
+        """Initialize three random points on this plane.
 
         :param nonzeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
@@ -776,7 +773,7 @@ class Plane:
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
         to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
-        separated by less than delta are grouped together. The delta parameter is either set explictly or taken as
+        separated by less than delta are grouped together. The delta parameter is either set explicitly or taken as
         a fraction (using the delta_factor parameter) of the maximal point distance.
         :param points: Points for which distances are computed
         :param delta: Distance interval for which two points are considered in the same group.
@@ -819,26 +816,6 @@ class Plane:
         if self.e1 is None:
             diff = self.p2 - self.p1
             self.e1 = diff / norm(diff)
-            self.e2 = np.cross(self.e3, self.e1)
-        return [self.e1, self.e2, self.e3]
-
-    def orthonormal_vectors_old(self):
-        """
-        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
-        third one is the normal vector of the plane
-        :return: List of orthogonal vectors
-        :raise: ValueError if all the coefficients are zero or if there is some other strange error
-        """
-        if self.e1 is None:
-            imax = np.argmax(np.abs(self.normal_vector))
-            if imax == 0:
-                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
-            elif imax == 1:
-                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
-            elif imax == 2:
-                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
-            else:
-                raise ValueError("Only three values in the normal vector, should not be here ...")
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 

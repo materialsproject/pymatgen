@@ -11,6 +11,8 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import logging
@@ -21,16 +23,14 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from monty.serialization import dumpfn
+from ruamel.yaml import YAML
 from tqdm import tqdm
 
 from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core import __version__ as PMG_VERSION
-from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -195,12 +195,13 @@ class MPRester:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         if notify_db_version:
+            yaml = YAML()
             db_version = self.get_database_version()
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
                 with open(SETTINGS_FILE) as f:
-                    d = yaml.load(f)
+                    d = dict(yaml.load(f))
             except OSError:
                 d = {}
 
@@ -208,6 +209,13 @@ class MPRester:
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            else:
+                # ensure data is parsed as dict, rather than ordered dict,
+                # due to change in YAML parsing behavior
+                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+
+            if "LOG" in d["MAPI_DB_VERSION"]:
+                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
             if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
@@ -228,7 +236,8 @@ class MPRester:
             # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                dumpfn(d, SETTINGS_FILE)
+                with open(SETTINGS_FILE, "wt") as f:
+                    yaml.dump(d, f)
             except Exception:
                 pass
 
@@ -297,7 +306,7 @@ class MPRester:
         Returns:
             materials_id (str)
         """
-        return self._make_request("/materials/mid_from_tid/%s" % task_id)
+        return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
     def get_materials_id_references(self, material_id):
         """
@@ -309,7 +318,7 @@ class MPRester:
         Returns:
             BibTeX (str)
         """
-        return self._make_request("/materials/%s/refs" % material_id)
+        return self._make_request(f"/materials/{material_id}/refs")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -350,7 +359,7 @@ class MPRester:
         Returns:
             ([str]) List of all materials ids.
         """
-        return self._make_request("/materials/%s/mids" % chemsys_formula, mp_decode=False)
+        return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
 
     def get_doc(self, materials_id):
         """
@@ -365,7 +374,7 @@ class MPRester:
             Dict of json document of all data that is displayed on a materials
             details page.
         """
-        return self._make_request("/materials/%s/doc" % materials_id, mp_decode=False)
+        return self._make_request(f"/materials/{materials_id}/doc", mp_decode=False)
 
     def get_xas_data(self, material_id, absorbing_element):
         """
@@ -412,7 +421,7 @@ class MPRester:
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        sub_url = "/tasks/%s" % chemsys_formula_id
+        sub_url = f"/tasks/{chemsys_formula_id}"
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
@@ -538,7 +547,7 @@ class MPRester:
         entries = []
         for d in data:
             d["potcar_symbols"] = [
-                "{} {}".format(d["pseudo_potential"]["functional"], l) for l in d["pseudo_potential"]["labels"]
+                f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
@@ -582,7 +591,7 @@ class MPRester:
     def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
-        a pourbaix diagram from the rest interface.
+        a Pourbaix diagram from the rest interface.
 
         Args:
             chemsys (str or [str]): Chemical system string comprising element
@@ -664,7 +673,7 @@ class MPRester:
             ion_entry = IonEntry(ion, energy)
             pbx_entries.append(PourbaixEntry(ion_entry, f"ion-{n}"))
 
-        # Construct the solid pourbaix entries from filtered ion_ref entries
+        # Construct the solid Pourbaix entries from filtered ion_ref entries
 
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
@@ -923,12 +932,12 @@ class MPRester:
         self,
         criteria,
         properties,
-        chunk_size=500,
-        max_tries_per_chunk=5,
-        mp_decode=True,
+        chunk_size: int = 500,
+        max_tries_per_chunk: int = 5,
+        mp_decode: bool = True,
+        show_progress_bar: bool = True,
     ):
         r"""
-
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
@@ -985,6 +994,8 @@ class MPRester:
             mp_decode (bool): Whether to do a decoding to a Pymatgen object
                 where possible. In some cases, it might be useful to just get
                 the raw python dict, i.e., set to False.
+            show_progress_bar (bool): Whether to show a progress bar for large queries.
+                Defaults to True. Set to False to reduce visual noise.
 
         Returns:
             List of results. E.g.,
@@ -1011,7 +1022,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        progress_bar = tqdm(total=len(mids))
+        progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
@@ -1329,7 +1340,7 @@ class MPRester:
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
-            e = self._make_request("/element/%s/tasks/isolated_atom" % (el), mp_decode=False)[0]
+            e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
@@ -1369,7 +1380,7 @@ class MPRester:
         """
         req = f"/materials/{material_id}/substrates?n={number}"
         if orient:
-            req += "&orient={}".format(" ".join(map(str, orient)))
+            req += f"&orient={' '.join(map(str, orient))}"
         return self._make_request(req)
 
     def get_all_substrates(self):
@@ -1613,8 +1624,8 @@ class MPRester:
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
 
-    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
-        nomad_exist_task_ids: List[str] = []
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> list[str]:
+        nomad_exist_task_ids: list[str] = []
         prefix = prefix.replace("/raw/query", "/repo/")
         for task_id in task_ids:
             url = prefix + task_id
@@ -1709,5 +1720,3 @@ class MPRestError(Exception):
     Exception class for MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
-
-    pass

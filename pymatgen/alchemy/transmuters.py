@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module implements various transmuter classes.
 Transmuters are essentially classes that generate TransformedStructures from
@@ -164,12 +163,12 @@ class StandardTransmuter:
             ts.append_filter(structure_filter)
 
     def write_vasp_input(self, **kwargs):
-        r"""
+        """
         Batch write vasp input for a sequence of transformed structures to
         output_dir, following the format output_dir/{formula}_{number}.
 
         Args:
-            \\*\\*kwargs: All kwargs supported by batch_write_vasp_input.
+            kwargs: All kwargs supported by batch_write_vasp_input.
         """
         batch_write_vasp_input(self.transformed_structures, **kwargs)
 

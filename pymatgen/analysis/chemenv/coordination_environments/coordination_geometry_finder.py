@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite the following:
@@ -10,6 +9,10 @@ Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and G
 "Statistical analysis of coordination environments in oxides",
 Chem. Mater., 2017, 29 (19), pp 8346–8360,
 DOI: 10.1021/acs.chemmater.7b02766
+D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier
+"ChemEnv: a fast and robust coordination environment identification tool",
+Acta Cryst. B 2020, 76, pp 683–695,
+DOI: 10.1107/S2052520620007994
 """
 
 __author__ = "David Waroquiers"
@@ -23,7 +26,6 @@ __date__ = "Feb 20, 2016"
 import itertools
 import logging
 import time
-from collections import OrderedDict
 from random import shuffle
 
 import numpy as np
@@ -378,12 +380,18 @@ class LocalGeometryFinder:
         debug_level=None,
         plane_safe_permutations=False,
         only_symbols=None,
+        print_citation=False,
     ):
         """
-        Constructor for the LocalGeometryFinder, initializes the list of coordination geometries
-        :param permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large
+
+        Args:
+            permutations_safe_override:  If set to True, all permutations are tested (very time-consuming for large
             coordination numbers!)
-        :param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
+            plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
+            debug_level: decides the level of debugging
+            permutations_safe_override: Whether to use safe permutations.
+            only_symbols: Whether to restrict the list of environments to be identified.
+            print_citation: If True, the ChemEnv citation will be printed
         """
         self.allcg = AllCoordinationGeometries(
             permutations_safe_override=permutations_safe_override,
@@ -398,7 +406,8 @@ class LocalGeometryFinder:
             bva_distance_scale_factor=None,
             structure_refinement=self.STRUCTURE_REFINEMENT_NONE,
         )
-        print(chemenv_citations())
+        if print_citation:
+            print(chemenv_citations())
 
     def setup_parameters(
         self,
@@ -489,7 +498,7 @@ class LocalGeometryFinder:
         :param lattice: The lattice of the structure
         :param species: The species on the sites
         :param coords: The coordinates of the sites
-        :param coords_are_cartesian: If set to True, the coordinates are given in cartesian coordinates
+        :param coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates
         """
         self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
 
@@ -734,7 +743,7 @@ class LocalGeometryFinder:
             logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string})")
             t1 = time.process_time()
             if optimization > 0:
-                self.detailed_voronoi.local_planes[isite] = OrderedDict()
+                self.detailed_voronoi.local_planes[isite] = {}
                 self.detailed_voronoi.separations[isite] = {}
             se.init_neighbors_sets(
                 isite=isite,
@@ -875,7 +884,7 @@ class LocalGeometryFinder:
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
             logging.debug("Getting StructureEnvironments with optimized algorithm")
-            nb_set.local_planes = OrderedDict()
+            nb_set.local_planes = {}
             nb_set.separations = {}
             cncgsm = self.get_coordination_symmetry_measures_optim(nb_set=nb_set, optimization=optimization)
         else:

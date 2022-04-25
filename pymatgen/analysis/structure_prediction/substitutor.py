@@ -112,9 +112,7 @@ class Substitutor(MSONable):
         result = []
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) != len(target_species):
-            raise ValueError(
-                "the species in target_species are not allowed " + "for the probability model you are using"
-            )
+            raise ValueError("the species in target_species are not allowed for the probability model you are using")
 
         for permut in itertools.permutations(target_species):
             for s in structures_list:
@@ -253,12 +251,12 @@ class Substitutor(MSONable):
         Returns: MSONable dict
         """
         return {
-            "name": self.__class__.__name__,
+            "name": type(self).__name__,
             "version": __version__,
             "kwargs": self._kwargs,
             "threshold": self._threshold,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

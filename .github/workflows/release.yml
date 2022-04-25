@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [ created ]
+    types: [created]
   workflow_dispatch:
 
 jobs:
@@ -33,17 +33,12 @@ jobs:
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: 3.9
-      - uses: actions/cache@v2
-        with:
-          path: ~/Library/Caches/pip # needs to change if `runs-on: macos` changes
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: pip
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
@@ -59,26 +54,20 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        os: [ macos-latest, windows-latest ]
-        python-version: [ '3.8', '3.9', '3.10' ]
+        os: [macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Get pip cache dir
-        id: cache-dir
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ steps.cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            setup.py
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel

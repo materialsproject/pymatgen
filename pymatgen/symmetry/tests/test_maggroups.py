@@ -110,6 +110,7 @@ x+1/2, -y+5/4, -z+3/4, -1
 -x+5/4, y+1/2, -z+3/4, -1
 -x+1/2, y+3/4, z+1/4, -1
 x+3/4, -y+1/2, z+1/4, -1"""
+        self.assertStrContentEqual(msg_1_symmops, msg_1_symmops_ref)
 
         msg_2_symmops = "\n".join([str(op) for op in self.msg_2.symmetry_ops])
         msg_2_symmops_ref = """x, y, z, +1

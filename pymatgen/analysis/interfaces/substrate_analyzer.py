@@ -5,8 +5,9 @@
 This module provides classes to identify optimal substrates for film growth
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Tuple
 
 from pymatgen.analysis.elasticity.strain import Deformation, Strain
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vectors
@@ -16,21 +17,17 @@ from pymatgen.core.surface import (
     get_symmetrically_distinct_miller_indices,
 )
 
-Miller3D = Tuple[int, int, int]
-Vector3D = Tuple[float, float, float]
-Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-
 
 @dataclass
 class SubstrateMatch(ZSLMatch):
     """
-    A substrate match building on the Zur and McGill algorithm. This match class inlcudes the miller
+    A substrate match building on the Zur and McGill algorithm. This match class includes the miller
     planes of the film and substrate the full strain tensor, the Von Mises strain, the ground state
     energy if provided, and the elastic energy
     """
 
-    film_miller: Miller3D
-    substrate_miller: Miller3D
+    film_miller: tuple[int, int, int]
+    substrate_miller: tuple[int, int, int]
     strain: Strain
     von_mises_strain: float
     ground_state_energy: float

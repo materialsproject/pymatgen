@@ -4,6 +4,7 @@ IO for ADF files.
 
 import os
 import re
+from typing import Generator
 
 from monty.io import reverse_readline
 from monty.itertools import chunks
@@ -38,20 +39,14 @@ def is_numeric(s):
         return True
 
 
-def iterlines(s):
-    r"""
-    A generator form of s.split('\n') for reducing memory overhead.
+def iterlines(s: str) -> Generator[str, None, None]:
+    r"""A generator form of s.split('\n') for reducing memory overhead.
 
-    Parameters
-    ----------
-    s : str
-        A multi-line string.
+    Args:
+        s (str): A multi-line string.
 
-    Yields
-    ------
-    line : str
-        A string.
-
+    Yields:
+        str: line
     """
     prevnl = -1
     while True:
@@ -68,15 +63,11 @@ class AdfInputError(Exception):
     The default error class for ADF.
     """
 
-    pass
-
 
 class AdfOutputError(Exception):
     """
     The default error class for errors raised by ``AdfOutput``.
     """
-
-    pass
 
 
 class AdfKey(MSONable):
@@ -275,7 +266,7 @@ class AdfKey(MSONable):
         Parameters
         ----------
         option : Sized or str or int or float
-            A new option to add. This must have the same format with exsiting
+            A new option to add. This must have the same format with existing
             options.
 
         Raises
@@ -344,11 +335,11 @@ class AdfKey(MSONable):
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of self.
+        A JSON-serializable dict representation of self.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "name": self.name,
             "options": self.options,
         }
@@ -612,11 +603,11 @@ class AdfTask(MSONable):
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of self.
+        A JSON-serializable dict representation of self.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "operation": self.operation,
             "title": self.title,
             "xc": self.xc.as_dict(),

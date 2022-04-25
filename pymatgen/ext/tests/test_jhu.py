@@ -21,7 +21,7 @@ class JhuTest(PymatgenTest):
     def test_get_kpoints(self):
         si = PymatgenTest.get_structure("Si")
         input_set = MPRelaxSet(si)
-        kpoints = get_kpoints(si, incar=input_set.incar)
+        _ = get_kpoints(si, incar=input_set.incar)
 
 
 if __name__ == "__main__":

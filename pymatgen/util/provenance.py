@@ -254,7 +254,7 @@ class StructureNL:
         # check remarks limit
         for r in self.remarks:
             if len(r) > 140:
-                raise ValueError("The remark exceeds the maximum size of" "140 characters: {}".format(r))
+                raise ValueError(f"The remark exceeds the maximum size of140 characters: {r}")
 
         # check data limit
         self.data = data if data else {}
@@ -288,8 +288,8 @@ class StructureNL:
         Returns: MSONable dict
         """
         d = self.structure.as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["about"] = {
             "authors": [a.as_dict() for a in self.authors],
             "projects": self.projects,

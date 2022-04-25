@@ -5,21 +5,17 @@
 Input sets for Qchem
 """
 
+from __future__ import annotations
+
 import logging
 import os
-import sys
-from typing import Dict, List, Optional
+from typing import Literal
 
 from monty.io import zopen
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2021, The Materials Project"
@@ -40,16 +36,16 @@ class QChemDictSet(QCInput):
         basis_set: str,
         scf_algorithm: str,
         dft_rung: int = 4,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
-        scan_variables: Optional[Dict[str, List]] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        opt_variables: dict[str, list] | None = None,
+        scan_variables: dict[str, list] | None = None,
         max_scf_cycles: int = 200,
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -220,8 +216,18 @@ class QChemDictSet(QCInput):
             myrem["plots"] = "true"
             myrem["make_cube_files"] = "true"
 
+        mynbo = self.nbo_params
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
+            if "version" in self.nbo_params:
+                if self.nbo_params["version"] == 7:
+                    myrem["run_nbo6"] = "true"
+                else:
+                    raise RuntimeError("nbo params version should only be set to 7! Exiting...")
+            mynbo = {}
+            for key in self.nbo_params:
+                if key != "version":
+                    mynbo[key] = self.nbo_params[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -256,9 +262,11 @@ class QChemDictSet(QCInput):
                     for k, v in temp_plots.items():
                         myplots[k] = v
                 if sec == "nbo":
-                    temp_plots = lower_and_check_unique(sec_dict)
-                    for k, v in temp_plots.items():
-                        myplots[k] = v
+                    if mynbo is None:
+                        raise RuntimeError("Can't overwrite nbo params when NBO is not being run! Exiting...")
+                    temp_nbo = lower_and_check_unique(sec_dict)
+                    for k, v in temp_nbo.items():
+                        mynbo[k] = v
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -275,7 +283,7 @@ class QChemDictSet(QCInput):
             van_der_waals=myvdw,
             vdw_mode=self.vdw_mode,
             plots=myplots,
-            nbo=self.nbo_params,
+            nbo=mynbo,
         )
 
     def write(self, input_file: str):
@@ -300,13 +308,13 @@ class SinglePointSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -395,15 +403,15 @@ class OptSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
+        nbo_params: dict | None = None,
+        opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
-        overwrite_inputs: Optional[Dict] = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -496,15 +504,15 @@ class TransitionStateSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
+        nbo_params: dict | None = None,
+        opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
-        overwrite_inputs: Optional[Dict] = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode="atomic",
     ):
         """
@@ -594,13 +602,13 @@ class ForceSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -687,13 +695,13 @@ class FreqSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -786,15 +794,15 @@ class PESScanSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
-        scan_variables: Optional[Dict[str, List]] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        opt_variables: dict[str, list] | None = None,
+        scan_variables: dict[str, list] | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """

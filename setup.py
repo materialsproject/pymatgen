@@ -3,20 +3,21 @@
 
 """Setup.py for pymatgen."""
 
-import sys
+from __future__ import annotations
+
 import platform
+import sys
+
 import numpy
+from setuptools import Extension, find_namespace_packages, setup
 
-from setuptools import setup, find_namespace_packages, Extension
-
-
-extra_link_args = []
+extra_link_args: list[str] = []
 if sys.platform.startswith("win") and platform.machine().endswith("64"):
     extra_link_args.append("-Wl,--allow-multiple-definition")
 
 
 long_desc = """
-Official docs: [http://pymatgen.org](http://pymatgen.org/)
+Official docs: [https://pymatgen.org](https://pymatgen.org/)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
@@ -24,7 +25,7 @@ for materials analysis. These are some of the main features:
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
 2. Extensive input/output support, including support for
-   [VASP](http://cms.mpi.univie.ac.at/vasp/), [ABINIT](http://www.abinit.org/),
+   [VASP](https://www.vasp.at), [ABINIT](https://www.abinit.org/),
    CIF, Gaussian, XYZ, and many other file formats.
 3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
    diagrams, diffusion analyses, reactions, etc.
@@ -32,7 +33,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions.  These contributions can be in the
+library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
@@ -75,8 +76,11 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.1.24",
+    version="2022.4.19",
     python_requires=">=3.8",
+    setup_requires=[
+        "Cython>=0.29.23",
+    ],
     install_requires=[
         "numpy>=1.20.1",
         "requests",
@@ -92,9 +96,8 @@ setup(
         "pandas",
         "plotly>=4.5.0",
         "uncertainties>=3.1.4",
-        "Cython>=0.29.23",
         "pybtex",
-        "tqdm"
+        "tqdm",
     ],
     extras_require={
         "ase": ["ase>=3.3"],
@@ -130,7 +133,7 @@ setup(
     author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
-    url="http://www.pymatgen.org",
+    url="https://pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
     "analysis code that defines core object representations for "

@@ -66,7 +66,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
         bonded_structure (StructureGraph): A pymatgen structure graph
             decorated with oxidation states. For example, generated using the
             CrystalNN.get_bonded_structure() method.
-        num_dopants (int): The nummber of suggestions to return for
+        num_dopants (int): The number of suggestions to return for
             n- and p-type dopants.
         match_oxi_sign (bool): Whether to force the dopant and original species
             to have the same sign of oxidation state. E.g. If the original site

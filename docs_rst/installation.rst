@@ -134,7 +134,7 @@ POTCAR Setup
 ============
 
 For the code to generate POTCAR files, it needs to know where the VASP
-pseudopotential files are.  We are not allowed to distribute these under the
+pseudopotential files are. We are not allowed to distribute these under the
 VASP license. The good news is that the `pmg` command line utility includes a
 config functionality.
 
@@ -217,7 +217,7 @@ but it comes with some important caveats:
   full test suite on PyPy and it's possible some parts of pymatgen will be broken.
 * All of pymatgen's dependencies now support PyPy including numpy, scipy, and pandas,
   however matplotlib is difficult to install. If trying PyPy, the current advice
-  is to remove the matplotlib dependency, however this means any modules using matplotlib 
+  is to remove the matplotlib dependency, however this means any modules using matplotlib
   will not be importable. The easiest way to install dependencies is using the
   `PyPy builds on conda-forge <https://conda-forge.org/blog/2020/03/10/pypy>`_. For spglib,
   cloning the repository and running ``python setup.py install`` manually is advised.
@@ -248,7 +248,7 @@ Mac OSX
 
       xcode-select --install
 
-2. (Optional) Install gfortran.  Get an installer at
+2. (Optional) Install gfortran. Get an installer at
    http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
 
 Linux
@@ -283,7 +283,7 @@ Installation tips for optional libraries
 ========================================
 
 This section provides a guide for installing various optional libraries used in
-pymatgen.  Some of the python libraries are rather tricky to build in certain
+pymatgen. Some of the python libraries are rather tricky to build in certain
 operating systems, especially for users unfamiliar with building C/C++ code.
 Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
@@ -423,54 +423,6 @@ Here are the steps that I took to make it work:
 Zeo++
 -----
 
-If you use the defects analysis package, you will need to installZeo++/Voro++.
-Here are the steps you need to follow (thanks to Bharat)
+If you use the defects analysis package, you will need to install Zeo++.
 
-Download and install Voro++::
-
-    mkdir Voro++
-    mkdir Voro++/voro
-    cd Voro++/voro
-    svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk  # password is 'anonsvn'
-    cd trunk
-
-Add -fPIC to the CFLAGS variable in config.mk, and then::
-
-    make
-
-Download and install Zeo++::
-
-    mkdir Zeo++
-    mkdir Zeo++/zeo
-    cd Zeo++/zeo
-    svn checkout --username anonsvn https://code.lbl.gov/svn/zeo/trunk  # password is 'anonsvn'
-    cd trunk
-    make dylib
-
-Create python bindings with Cython::
-
-    pip install cython
-    cd cython_wrapper
-    python setup_alt.py develop
-
-To test that the installation worked, here is an example series of things you
-can do using pymatgen::
-
-    In [1]: from pymatgen.analysis.defects.core import Interstitial
-
-    In [2]: from pymatgen.core.structure import Structure
-
-    In [3]: structure = Structure.from_file('/path/to/file')
-
-    In [4]: radii, valences = {}, {}
-
-    In [5]: for element in structure.composition.elements:
-       ...:     radii[element.symbol] = element.atomic_radius
-       ...:     valence = element.group  # Just a first guess..
-       ...:     if element.group > 12:
-       ...:         valence -= 10
-       ...:     valences[element.symbol] = valence
-
-    In [6]: interstitial = Interstitial(structure, radii=radii, valences=valences)
-
-    In [7]: interstitial._defect_sites
+The download and installation instructions for Zeo++ can be found here: http://www.zeoplusplus.org/

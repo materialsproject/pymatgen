@@ -56,9 +56,9 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         angdeg = np.reshape(angdeg, 3)
 
         if np.any(angdeg <= 0.0):
-            raise ValueError("Angles must be > 0 but got %s" % str(angdeg))
+            raise ValueError(f"Angles must be > 0 but got {str(angdeg)}")
         if angdeg.sum() >= 360.0:
-            raise ValueError("The sum of angdeg must be lower that 360, angdeg %s" % str(angdeg))
+            raise ValueError(f"The sum of angdeg must be lower that 360, angdeg {str(angdeg)}")
 
         # This code follows the implementation in ingeo.F90
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
@@ -98,7 +98,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    raise ValueError("Don't know how to construct a Lattice from dict:\n%s" % pformat(d))
+    raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(d)}")
 
 
 def structure_from_abivars(cls=None, *args, **kwargs):
@@ -143,7 +143,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError("Cannot extract coordinates from:\n %s" % str(d))
+        raise ValueError(f"Cannot extract coordinates from:\n {str(d)}")
 
     coords = np.reshape(coords, (-1, 3))
 
@@ -228,15 +228,11 @@ or the Virtual Crystal Approximation."""
 
         if len(enforce_typat) != len(structure):
             raise ValueError(
-                "enforce_typat contains %d entries while it should be natom: %s" % (len(enforce_typat)),
-                len(structure),
+                f"enforce_typat contains {len(enforce_typat)} entries while it should be natom: {len(structure)}"
             )
 
         if len(enforce_znucl) != ntypat:
-            raise ValueError(
-                "enforce_znucl contains %d entries while it should be ntypat: %s" % (len(enforce_znucl)),
-                ntypat,
-            )
+            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be ntypat: {ntypat}")
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
@@ -293,7 +289,7 @@ or the Virtual Crystal Approximation."""
             angdeg=angdeg,
         )
     else:
-        raise ValueError("Wrong value for geomode: %s" % geomode)
+        raise ValueError(f"Wrong value for geomode: {geomode}")
 
     return d
 
@@ -317,7 +313,7 @@ def contract(s):
             old = t
             count.append([1, t])
 
-    return " ".join("%d*%s" % (c, t) for c, t in count)
+    return " ".join(f"{c}*{t}" for c, t in count)
 
 
 class AbivarAble(metaclass=abc.ABCMeta):
@@ -385,7 +381,7 @@ class SpinMode(
         try:
             return _mode2spinvars[obj]
         except KeyError:
-            raise KeyError("Wrong value for spin_mode: %s" % str(obj))
+            raise KeyError(f"Wrong value for spin_mode: {str(obj)}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -438,9 +434,9 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
+        s = f"occopt {self.occopt} # {self.mode} Smearing\n"
         if self.tsmear:
-            s += "tsmear %s" % self.tsmear
+            s += f"tsmear {self.tsmear}"
         return s
 
     def __eq__(self, other):
@@ -493,7 +489,7 @@ class Smearing(AbivarAble, MSONable):
         for (mode_str, occopt) in self._mode2occopt.items():
             if occopt == self.occopt:
                 return mode_str
-        raise AttributeError("Unknown occopt %s" % self.occopt)
+        raise AttributeError(f"Unknown occopt {self.occopt}")
 
     @staticmethod
     def nosmearing():
@@ -540,7 +536,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
         for k in self:
             if k not in self._DEFAULT:
-                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -608,8 +604,8 @@ class Electrons(AbivarAble, MSONable):
     def as_dict(self):
         """json friendly dict representation"""
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["spin_mode"] = self.spin_mode.as_dict()
         d["smearing"] = self.smearing.as_dict()
         d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
@@ -679,10 +675,10 @@ class KSampling(AbivarAble, MSONable):
         comment=None,
     ):
         """
-        Highly flexible constructor for KSampling objects.  The flexibility comes
+        Highly flexible constructor for KSampling objects. The flexibility comes
         at the cost of usability and in general, it is recommended that you use
         the default constructor only if you know exactly what you are doing and
-        requires the flexibility.  For most usage cases, the object be constructed
+        requires the flexibility. For most usage cases, the object be constructed
         far more easily using the convenience static constructors:
 
             #. gamma_only
@@ -760,7 +756,6 @@ class KSampling(AbivarAble, MSONable):
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1, 3))
-            # print("in path with kptbound: %s " % kptbounds)
 
             abivars.update(
                 {
@@ -787,7 +782,7 @@ class KSampling(AbivarAble, MSONable):
             )
 
         else:
-            raise ValueError("Unknown mode %s" % mode)
+            raise ValueError(f"Unknown mode {mode}")
 
         self.abivars = abivars
         # self.abivars["#comment"] = comment
@@ -922,7 +917,6 @@ class KSampling(AbivarAble, MSONable):
             kpath_bounds = []
             for label in kpath_labels:
                 red_coord = sp.kpath["kpoints"][label]
-                # print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
         return cls(
@@ -1009,8 +1003,8 @@ class KSampling(AbivarAble, MSONable):
             "use_symmetries": self.use_symmetries,
             "use_time_reversal": self.use_time_reversal,
             "chksymbreak": self.chksymbreak,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -1070,13 +1064,11 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         for k in self.abivars:
             if k not in self._default_vars:
-                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
 
         for k in self.abivars:
             if k is MANDATORY:
-                raise ValueError(
-                    f"{self.__class__.__name__}: No default value has been provided for the mandatory key {k}"
-                )
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for the mandatory key {k}")
 
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
@@ -1144,8 +1136,8 @@ class RelaxationMethod(AbivarAble, MSONable):
     def as_dict(self):
         """Convert object to dict."""
         d = dict(self._default_vars)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -1159,7 +1151,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
 
 class PPModelModes(Enum):
-    """Differnt kind of plasmon-pole models."""
+    """Different kind of plasmon-pole models."""
 
     noppmodel = 0
     godby = 1
@@ -1232,11 +1224,7 @@ class PPModel(AbivarAble, MSONable):
     __nonzero__ = __bool__
 
     def __repr__(self):
-        return "<{} at {}, mode = {}>".format(
-            self.__class__.__name__,
-            id(self),
-            str(self.mode),
-        )
+        return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -1254,8 +1242,8 @@ class PPModel(AbivarAble, MSONable):
         return {
             "mode": self.mode.name,
             "plasmon_freq": self.plasmon_freq,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @staticmethod
@@ -1285,7 +1273,7 @@ class HilbertTransform(AbivarAble):
         Args:
             nomegasf: Number of points for sampling the spectral function along the real axis.
             domegasf: Step in Ha for the linear mesh used for the spectral function.
-            spmeth: Algorith for the representation of the delta function.
+            spmeth: Algorithm for the representation of the delta function.
             nfreqre: Number of points along the real axis (linear mesh).
             freqremax: Maximum frequency for W along the real axis (in hartree).
             nfreqim: Number of point along the imaginary axis (Gauss-Legendre mesh).
@@ -1376,10 +1364,10 @@ class Screening(AbivarAble):
             inclvkb: Option for the treatment of the dipole matrix elements (NC pseudos).
         """
         if w_type not in self._WTYPES:
-            raise ValueError("W_TYPE: %s is not supported" % w_type)
+            raise ValueError(f"W_TYPE: {w_type} is not supported")
 
         if sc_mode not in self._SC_MODES:
-            raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
+            raise ValueError(f"Self-consistecy mode {sc_mode} is not supported")
 
         self.ecuteps = ecuteps
         self.nband = nband
@@ -1482,10 +1470,10 @@ class SelfEnergy(AbivarAble):
             ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
         """
         if se_type not in self._SIGMA_TYPES:
-            raise ValueError("SIGMA_TYPE: %s is not supported" % se_type)
+            raise ValueError(f"SIGMA_TYPE: {se_type} is not supported")
 
         if sc_mode not in self._SC_MODES:
-            raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
+            raise ValueError(f"Self-consistecy mode {sc_mode} is not supported")
 
         self.type = se_type
         self.sc_mode = sc_mode
@@ -1657,7 +1645,7 @@ class ExcHamiltonian(AbivarAble):
 
         # Consistency check
         if any(bs_loband < 0):
-            raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
+            raise ValueError(f"bs_loband <= 0 while it is {bs_loband}")
         if any(bs_loband >= nband):
             raise ValueError(f"bs_loband ({bs_loband}) >= nband ({nband})")
 
@@ -1715,7 +1703,7 @@ class ExcHamiltonian(AbivarAble):
             raise NotImplementedError("")
 
         else:
-            raise ValueError("Unknown algorithm for EXC: %s" % self.algo)
+            raise ValueError(f"Unknown algorithm for EXC: {self.algo}")
 
         # Add extra kwargs
         abivars.update(self.kwargs)

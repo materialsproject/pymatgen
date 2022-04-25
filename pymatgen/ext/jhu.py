@@ -34,7 +34,7 @@ def get_kpoints(
 ):
     """
     Get kpoints object from JHU servlet, per Wisesa-McGill-Mueller
-    methodology.  Refer to http://muellergroup.jhu.edu/K-Points.html
+    methodology. Refer to http://muellergroup.jhu.edu/K-Points.html
     and P. Wisesa, K. A. McGill, T. Mueller, Phys. Rev. B 93,
     155109 (2016)
 

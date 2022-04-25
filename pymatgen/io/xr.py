@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides input and output mechanisms
 for the xr file format, which is a modified CSSR
@@ -78,7 +77,7 @@ class Xr:
         Args:
             string (str): string representation of an Xr object.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default).  Otherwise,
+                    positions if set to True (default). Otherwise,
                     use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
                     between cell parameters (lengths and angles) from
@@ -153,7 +152,7 @@ class Xr:
         Args:
             filename (str): name of file to read from.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default).  Otherwise,
+                    positions if set to True (default). Otherwise,
                     use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
                     between cell parameters (lengths and angles) from
