@@ -940,7 +940,7 @@ class Potential(MSONable):
             # if there is only one atom and it is the absorbing element, it should
             # be excluded from this list. Otherwise the error `No atoms or overlap
             # cards for unique pot X` will be encountered.
-            if el == self.absorbing_atom and amt == 1:
+            if el == central_element and amt == 1:
                 continue
             ipot = self.pot_dict[el.symbol]
             ipotrow.append([ipot, el.Z, el.symbol, -1, -1, amt, 0])
