@@ -22,7 +22,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, PointGroupAnalyzer
+from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
