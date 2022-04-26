@@ -3142,7 +3142,20 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-        except Exception:
+            # fix polarization units in new versions of vasp
+            regex = r"^.*Ionic dipole moment: .*"
+            search = [[regex, None, lambda x, y: x.append(y.group(0))]]
+            r = micro_pyawk(self.filename, search, [])
+
+            if "|e|" in r[0]:
+                self.p_elec *= -1
+                self.p_ion *= -1
+                if self.spin and not self.noncollinear:
+                    self.p_sp1 *= -1
+                    self.p_sp2 *= -1
+
+        except Exception as ex:
+            print(ex.args)
             raise Exception("LCALCPOL OUTCAR could not be parsed.")
 
     def read_pseudo_zval(self):
@@ -5652,12 +5665,19 @@ class WSWQ(MSONable):
     The indices of WSWQ.data are:
         [spin][kpoint][band_i][band_j]
 
+    Attributes:
+        nspin: Number of spin channels
+        nkpoints: Number of k-points
+        nbands: Number of bands
+        me_real: Real part of the overlap matrix elements
+        me_imag: Imaginary part of the overlap matrix elements
     """
 
     nspin: int
     nkpoints: int
     nbands: int
-    data: np.ndarray
+    me_real: np.ndarray
+    me_imag: np.ndarray
 
     @classmethod
     def from_file(cls, filename):
@@ -5694,7 +5714,7 @@ class WSWQ(MSONable):
         # NOTE: loop order (slow->fast) spin -> kpoint -> j -> i
         data = data.reshape((nspin, nkpoints, nbands, nbands))
         data = np.swapaxes(data, 2, 3)  # swap i and j
-        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, data=data)
+        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, me_real=np.real(data), me_imag=np.imag(data))
 
 
 class UnconvergedVASPWarning(Warning):
