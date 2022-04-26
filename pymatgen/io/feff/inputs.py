@@ -413,6 +413,8 @@ class Atoms(MSONable):
             Molecule
         """
         center = self.struct[self.center_index].coords
+        # this method builds a supercell containing all periodic images of
+        # the unit cell within the specified radius
         sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
 
         symbols = [self.absorbing_atom]
@@ -935,6 +937,11 @@ class Potential(MSONable):
         central_element = Element(self.absorbing_atom)
         ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, 0.0001, 0]]
         for el, amt in self.struct.composition.items():
+            # if there is only one atom and it is the absorbing element, it should
+            # be excluded from this list. Otherwise the error `No atoms or overlap
+            # cards for unique pot X` will be encountered.
+            if el == self.absorbing_atom and amt == 1:
+                continue
             ipot = self.pot_dict[el.symbol]
             ipotrow.append([ipot, el.Z, el.symbol, -1, -1, amt, 0])
         ipot_sorted = sorted(ipotrow, key=itemgetter(0))
