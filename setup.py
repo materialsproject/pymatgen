@@ -42,7 +42,7 @@ issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
 Why use pymatgen?
 =================
 
-There are many materials analysis codes out there, both commerical and free,
+There are many materials analysis codes out there, both commercial and free,
 but pymatgen offer several advantages:
 
 1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,

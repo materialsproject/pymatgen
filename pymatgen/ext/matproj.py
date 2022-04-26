@@ -20,9 +20,11 @@ import math
 import platform
 import re
 import sys
+import traceback
 import warnings
 from enum import Enum, unique
 from time import sleep
+from typing import Any, Sequence
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -42,13 +44,14 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 logger = logging.getLogger(__name__)
 
 
-def get_chunks(sequence, size=1):
+def get_chunks(sequence: Sequence[Any], size=1):
     """
     Args:
-        sequence ():
-        size ():
+        sequence (Sequence[Any]): Any sequence.
+        size (int): Chunk length. Defaults to 1.
 
     Returns:
+        list[Sequence[Any]]: input sequence in chunks of length size.
     """
     chunks = int(math.ceil(len(sequence) / float(size)))
     return [sequence[i * size : (i + 1) * size] for i in range(chunks)]
@@ -140,11 +143,7 @@ class MPRester:
     )
 
     def __init__(
-        self,
-        api_key=None,
-        endpoint=None,
-        notify_db_version=True,
-        include_user_agent=True,
+        self, api_key: str = None, endpoint: str = None, notify_db_version: bool = True, include_user_agent: bool = True
     ):
         """
         Args:
@@ -187,10 +186,8 @@ class MPRester:
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_info = "pymatgen/" + PMG_VERSION
-            python_info = "Python/{}.{}.{}".format(
-                sys.version_info.major, sys.version_info.minor, sys.version_info.micro
-            )
+            pymatgen_info = f"pymatgen/{PMG_VERSION}"
+            python_info = f"Python/{sys.version.split(' ')[0]}"
             platform_info = f"{platform.system()}/{platform.release()}"
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
@@ -202,10 +199,11 @@ class MPRester:
             try:
                 with open(SETTINGS_FILE) as f:
                     d = dict(yaml.load(f))
-            except OSError:
+            except (OSError, TypeError):
+                # TypeError: 'NoneType' object is not iterable occurs if SETTINGS_FILE exists but is empty
                 d = {}
 
-            d = d if d else {}
+            d = d or {}
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
@@ -233,13 +231,13 @@ class MPRester:
             d["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
 
             # write out new database log if possible
-            # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
+            # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(SETTINGS_FILE, "wt") as f:
+                with open(SETTINGS_FILE, "w") as f:
                     yaml.dump(d, f)
             except Exception:
-                pass
+                traceback.print_exc()
 
     def __enter__(self):
         """
