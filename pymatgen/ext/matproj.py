@@ -13,11 +13,11 @@ https://www.materialsproject.org/dashboard.
 
 from __future__ import annotations
 
-import os
 import itertools
 import json
 import logging
 import math
+import os
 import platform
 import re
 import sys
@@ -30,7 +30,7 @@ from monty.json import MontyDecoder, MontyEncoder
 from ruamel.yaml import YAML
 from tqdm import tqdm
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
