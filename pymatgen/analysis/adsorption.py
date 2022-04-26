@@ -707,7 +707,7 @@ def plot_slab(
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
-        r = sites[n].specie.atomic_radius * scale
+        r = sites[n].species.elements[0].atomic_radius * scale
         ax.add_patch(patches.Circle(coord[:2] - lattsum * (repeat // 2), r, color="w", zorder=2 * n))
         color = color_dict[sites[n].species.elements[0].symbol]
         ax.add_patch(
