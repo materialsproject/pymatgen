@@ -84,7 +84,7 @@ setup(
     install_requires=[
         "numpy>=1.20.1",
         "requests",
-        "ruamel.yaml>=0.15.6",
+        "ruamel.yaml>=0.17.0",
         "monty>=3.0.2",
         "scipy>=1.5.0",
         "tabulate",
