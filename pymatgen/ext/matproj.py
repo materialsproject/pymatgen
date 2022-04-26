@@ -187,7 +187,7 @@ class MPRester:
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
             pymatgen_info = f"pymatgen/{PMG_VERSION}"
-            python_info = f"Python/{sys.version.split(' ')[0]}"
+            python_info = f"Python/{sys.version.split()[0]}"
             platform_info = f"{platform.system()}/{platform.release()}"
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
