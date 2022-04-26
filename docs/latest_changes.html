@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.4.19 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.4.26 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.4.19
+                2022.4.26
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -85,14 +85,13 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
-<section id="v2022-4-19">
-<h2>v2022.4.19<a class="headerlink" href="#v2022-4-19" title="Permalink to this headline"></a></h2>
+<section id="v2022-4-26">
+<h2>v2022.4.26<a class="headerlink" href="#v2022-4-26" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>Fix for discharged and charged entries in conversion battery. (&#64;peikai)`pylint` in <cite>.pre-commit-config.yaml</cite>.</p></li>
-<li><p>Allow skipping of structure reduction in StructureMatcher.group_structures (&#64;lan496)</p></li>
-<li><p>Return NotImplemented for composition comparison methods. (&#64;janosh)</p></li>
-<li><p>BSPlotter bug fixes (&#64;fraricci)</p></li>
-<li><p>Misc bug fixes and deprecation fixes.</p></li>
+<li><p>Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (&#64;&#64;fraricci)</p></li>
+<li><p>Removed complex numbers from the definition of WSWQ (&#64;jmmshn)</p></li>
+<li><p>MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
+This avoids the MPRester constantly rewriting a config file and causing users’ pymatgen to completely fail.</p></li>
 </ul>
 </section>
 </section>
