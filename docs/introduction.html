@@ -155,7 +155,7 @@ modifications. MPRester should now be imported from <cite>pymatgen.ext.matproj</
 <cite>Element</cite>, <cite>Species</cite>, <cite>Lattice</cite>, <cite>Structure</cite>, etc. should be imported from <cite>pymatgen.core</cite>. There are a few simple ways
 you can respond to this change:</p>
 <ul>
-<li><p>To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen&lt;=2022.0.0 since all
+<li><p>To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen&lt;2022.0.0 since all
 the imports were already available in previous versions), you need to replace all instances of
 <cite>from pymatgen import MPRester</cite> with <cite>from pymatgen.ext.matproj import MPRester</cite>, followed by replacing all instances
 of <cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. These two steps have to be done in that sequence, since
