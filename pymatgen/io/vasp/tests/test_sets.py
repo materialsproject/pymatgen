@@ -20,6 +20,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.units import FloatWithUnit
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
@@ -1054,6 +1055,9 @@ class MPNMRSetTest(PymatgenTest):
         vis = MPNMRSet(structure, mode="efg")
         self.assertFalse(vis.incar.get("LCHIMAG", None))
         self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+        for q in vis.incar["QUAD_EFG"]:
+            self.assertTrue(isinstance(q, float))
+            self.assertFalse(isinstance(q, FloatWithUnit))
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
         self.assertFalse(vis.incar.get("LCHIMAG", None))
