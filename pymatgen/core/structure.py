@@ -1458,7 +1458,7 @@ class IStructure(SiteCollection, MSONable):
         # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
         # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
         # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two
-        # neighbors 'SymmOp.are_symmetrically_related_bond' is used. It is also checked whether applying the connecting
+        # neighbors 'SymmOp.are_symmetrically_related_vectors' is used. It is also checked whether applying the connecting
         # symmetry operation generates the neighbor-pair itself, or the equivalent version with the sites exchanged
         # and R reversed. The output is always reordered such that the former case is true.
         for it in range(nbonds):
@@ -1470,13 +1470,13 @@ class IStructure(SiteCollection, MSONable):
                     if equal_distance:
                         from_a = self[bonds[0][it]].frac_coords
                         to_a = self[bonds[1][it]].frac_coords
-                        R_a = bonds[2][it]
+                        r_a = bonds[2][it]
                         from_b = self[bonds[0][it2]].frac_coords
                         to_b = self[bonds[1][it2]].frac_coords
-                        R_b = bonds[2][it2]
+                        r_b = bonds[2][it2]
                         for op in ops:
-                            are_related, is_reversed = op.are_symmetrically_related_bond(
-                                from_a, to_a, R_a, from_b, to_b, R_b
+                            are_related, is_reversed = op.are_symmetrically_related_vectors(
+                                from_a, to_a, r_a, from_b, to_b, r_b
                             )
                             if are_related and not is_reversed:
                                 symmetry_indices[it2] = symmetry_index
