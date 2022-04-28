@@ -569,12 +569,12 @@ Direct
         self.assertTrue((symops2[24].affine_matrix == np.eye(4)).all())
         from_a2 = s2[c_indices2[0]].frac_coords
         to_a2 = s2[p_indices2[0]].frac_coords
-        R_a2 = offsets2[0]
+        r_a2 = offsets2[0]
         from_b2 = s2[c_indices2[1]].frac_coords
         to_b2 = s2[p_indices2[1]].frac_coords
-        R_b2 = offsets2[1]
-        self.assertTrue(symops2[1].are_symmetrically_related_bond(from_a2, to_a2, R_a2, from_b2, to_b2, R_b2))
-        self.assertTrue(symops2[1].are_symmetrically_related_bond(from_b2, to_b2, R_b2, from_a2, to_a2, R_a2))
+        r_b2 = offsets2[1]
+        self.assertTrue(symops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2))
+        self.assertTrue(symops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2))
         c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
