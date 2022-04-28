@@ -176,29 +176,29 @@ class SymmOp(MSONable):
             return True
         return False
 
-    def are_symmetrically_related_bond(
+    def are_symmetrically_related_vectors(
         self,
         from_a: ArrayLike,
         to_a: ArrayLike,
-        R_a: ArrayLike,
+        r_a: ArrayLike,
         from_b: ArrayLike,
         to_b: ArrayLike,
-        R_b: ArrayLike,
+        r_b: ArrayLike,
         tol: float = 0.001,
     ) -> tuple[bool, bool]:
         """
-        Checks if two bonds, or rather two vectors that connect two points
-        each are symmetrically related. R_a and R_b give the change of unit
-        cells. Two bonds are also considered symmetrically equivalent if starting
+        Checks if two vectors, or rather two vectors that connect two points
+        each are symmetrically related. r_a and r_b give the change of unit
+        cells. Two vectors are also considered symmetrically equivalent if starting
         and end point are exchanged.
 
         Args:
-            from_a (3x1 array): Starting point of the first bond.
-            to_a (3x1 array): Ending point of the first bond.
-            from_b (3x1 array): Starting point of the second bond.
-            to_b (3x1 array): Ending point of the second bond.
-            R_a (3x1 array): Change of unit cell of the first bond.
-            R_b (3x1 array): Change of unit cell of the second bond.
+            from_a (3x1 array): Starting point of the first vector.
+            to_a (3x1 array): Ending point of the first vector.
+            from_b (3x1 array): Starting point of the second vector.
+            to_b (3x1 array): Ending point of the second vector.
+            r_a (3x1 array): Change of unit cell of the first vector.
+            r_b (3x1 array): Change of unit cell of the second vector.
             tol (float): Absolute tolerance for checking distance.
         Returns:
             (are_related, is_reversed)
@@ -211,13 +211,13 @@ class SymmOp(MSONable):
         is_too_close = np.abs([from_c, to_c] - floored) > 1 - tol
         floored[is_too_close] += 1
 
-        R_c = self.apply_rotation_only(R_a) - floored[0] + floored[1]
+        r_c = self.apply_rotation_only(r_a) - floored[0] + floored[1]
         from_c = from_c % 1
         to_c = to_c % 1
 
-        if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(R_b, R_c, atol=tol):
+        if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(r_b, r_c, atol=tol):
             return (True, False)
-        if np.allclose(to_b, from_c, atol=tol) and np.allclose(from_b, to_c) and np.allclose(R_b, -R_c, atol=tol):
+        if np.allclose(to_b, from_c, atol=tol) and np.allclose(from_b, to_c) and np.allclose(r_b, -r_c, atol=tol):
             return (True, True)
         return (False, False)
 
