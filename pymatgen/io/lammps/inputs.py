@@ -431,7 +431,7 @@ class LammpsInputConstructor:
         stage_name = "stage %s" % self.nstages
         self._add_stage_name(stage_name)
 
-    def add_command(self, command: str, args: str, stage_name=None):
+    def _add_command(self, command: str, args: str = None, stage_name=None):
         """
         Adds a single LAMMPS command and its arguments to LAMMPS input file.
 
@@ -444,9 +444,39 @@ class LammpsInputConstructor:
 
         if self.curr_stage_name is None:
             self.init_stage()
-
         self._add_stage_name(stage_name)
+
+        if args is None:
+            string_split = command.split()
+            command = string_split[0]
+            args = ' '.join(string_split[1:])
+
         self.input_settings[self.curr_stage_name][command] = args
+
+    def add_commands(self, commands: Union[str, list, dict], stage_name=None):
+        """
+        Adds LAMMPS command/s and its arguments to LAMMPS input file.
+
+        Args:
+            commands: LAMMPS command/s. Can pass single string or list of LAMMPS command
+            with its arguments. Also accepts dictionary of LAMMPS commands are
+            corresponding arguments as key value pairs.
+            stage_name: If a stage name is mentioned, the command is added
+                under that stage block else latest stage is assumed.
+        """
+
+        if self.curr_stage_name is None:
+            self.init_stage()
+        self._add_stage_name(stage_name)
+
+        if isinstance(commands, str):
+            self._add_command(commands)
+        elif isinstance(commands, list):
+            for command in commands:
+                self._add_command(command=command)
+        elif isinstance(commands, dict):
+            for command, args in commands.items():
+                self._add_command(command=command, args=args)
 
     def add_comment(self, comment: str, is_stage_header: bool = False):
         """
@@ -462,45 +492,12 @@ class LammpsInputConstructor:
         """
 
         if is_stage_header:
-            self.add_command('header', '# ' + comment)
+            self._add_command('header', '# ' + comment)
         else:
             self.ncomments += 1
-            self.add_command('comment_{}'.format(self.ncomments), '## ' + comment)
+            self._add_command('comment_{}'.format(self.ncomments), '## ' + comment)
 
-    def add_command_from_string(self, string: str, stage_name: str = None):
-        """
-        Adds single command and it's arguments passed as a single string.
-
-        Args:
-            string: String of command and it's arguments. The first word of
-                the string is treated as the LAMMPS command and rest of the string
-                is treated as its arguments.
-            stage_name: If specified, the LAMMPS command string is
-                added under the specified stage else latest stage is assumed.
-        """
-
-        self._add_stage_name(stage_name)
-        string_split = string.split()
-        command = string_split[0]
-        args = ' '.join(string_split[1:])
-        self.input_settings[self.curr_stage_name][command] = args
-
-    def add_command_from_dict(self, dict_name: dict, stage_name: str = None):
-        """
-        Adds single/multiple commands. The dictionary passed must
-        contain LAMMPS commands and its arguments as key value pairs.
-
-        Args:
-            dict_name: Dictionary with LAMMPS commands and arguments
-            stage_name: If specified, the commands are added understand
-                the specified stage else latest stage is assumed.
-        """
-
-        self._add_stage_name(stage_name)
-        for command, args in dict_name.items():
-            self.input_settings[self.curr_stage_name][command] = args
-
-    def add_stage(self, stage_commands: dict, header: str = None, description: str = None):
+    def add_stage(self, stage_commands: Union[list, dict], header: str = None, description: str = None):
         """
         Adds an entire stage or block of LAMMPS input commands and argument.
 
@@ -513,7 +510,7 @@ class LammpsInputConstructor:
             header: The header for the stage. The stage number will be used
                 as the header if not provided.
             description: Add short description for this stage. This will
-                added inline with the stage header in the input
+                add inline with the stage header in the input
         """
 
         self.init_stage()
@@ -526,11 +523,7 @@ class LammpsInputConstructor:
         else:
             self.add_comment(header, is_stage_header=True)
 
-        if isinstance(stage_commands, dict):
-            self.add_command_from_dict(stage_commands, self.curr_stage_name)
-        elif isinstance(stage_commands, list):
-            for command_string in stage_commands:
-                self.add_command_from_string(command_string, self.curr_stage_name)
+        self.add_commands(commands=stage_commands)
 
     def _from_string(self, s: str) -> LammpsInputFile:
         """
