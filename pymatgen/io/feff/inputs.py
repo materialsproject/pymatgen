@@ -395,7 +395,8 @@ class Atoms(MSONable):
         """
         if struct.is_ordered:
             self.struct = struct
-            self.pot_dict = get_atom_map(struct)
+            atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
+            self.pot_dict = get_atom_map(struct, atom_sym)
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
@@ -835,7 +836,8 @@ class Potential(MSONable):
         """
         if struct.is_ordered:
             self.struct = struct
-            self.pot_dict = get_atom_map(struct)
+            atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
+            self.pot_dict = get_atom_map(struct, atom_sym)
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
@@ -1027,20 +1029,27 @@ class FeffParserError(Exception):
     """
 
 
-def get_atom_map(structure):
+def get_atom_map(structure, absorbing_atom=None):
     """
     Returns a dict that maps each atomic symbol to a unique integer starting
     from 1.
 
     Args:
         structure (Structure)
+        absorbing_atom (str): symbol
 
     Returns:
         dict
     """
-    syms = [site.specie.symbol for site in structure]
-    unique_pot_atoms = []
-    [unique_pot_atoms.append(i) for i in syms if not unique_pot_atoms.count(i)]
+    unique_pot_atoms = {site.specie.symbol for site in structure}
+
+    # if there is only a single absorbing atom in the structure,
+    # it should be excluded from this list
+    if absorbing_atom:
+        if len(structure.indices_from_symbol(absorbing_atom)) == 1:
+            print("here")
+            unique_pot_atoms.remove(absorbing_atom)
+
     atom_map = {}
     for i, atom in enumerate(unique_pot_atoms):
         atom_map[atom] = i + 1
