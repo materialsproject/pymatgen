@@ -22,7 +22,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
-from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
@@ -180,11 +180,11 @@ class Header(MSONable):
                 self.space_number = data["number"]
                 self.space_group = data["international"]
             elif isinstance(self.struct, Molecule):
-                #sym = PointGroupAnalyzer(struct)
+                # sym = PointGroupAnalyzer(struct)
                 # symm_data = sym.get_equivalent_atoms()
                 self.space_number = None
                 self.space_group = None
-                #self.space_group = sym.get_pointgroup()
+                # self.space_group = sym.get_pointgroup()
             self.comment = comment or "None given"
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
