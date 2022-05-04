@@ -2692,7 +2692,7 @@ class MVLNPTMDSet(MITMDSet):
 
         # NPT-AIMD default settings
         defaults = {
-            "IALGO": 48,
+            "ALGO": "Fast",
             "ISIF": 3,
             "LANGEVIN_GAMMA": [10] * structure.ntypesp,
             "LANGEVIN_GAMMA_L": 1,
