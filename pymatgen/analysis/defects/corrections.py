@@ -373,6 +373,8 @@ class FreysoldtCorrection2d(DefectCorrection):
                     initial_defect_structure (Structure): Initial defect structure.
                     defect_frac_sc_coords (list): Defect fractional coordinates in supercell.
         """
+        if float(entry.defect.charge) == 0.0:
+            return {'2d_electrostatic': 0.0}
         structure = entry.parameters["initial_defect_structure"]
         slab_bottom = np.argmin(structure.cart_coords[:, 2])
         slab_top = np.argmax(structure.cart_coords[:, 2])
@@ -527,7 +529,7 @@ class FreysoldtCorrection2d(DefectCorrection):
             logger.info("DONE! shift = %.8f & alignment correction = %.8f" % (shift, C_ave))
         else:
             logger.info("Could not find optimal shift after %d tries :(" % max_iter)
-        return self.run_sxdefectalign2d(shift=shift, C=C_ave, only_profile=True)
+        return self.run_sxdefectalign2d(shift=shift, C=C_ave, only_profile=False)
 
     def parse_output(self, output):
         """

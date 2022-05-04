@@ -494,7 +494,7 @@ class DefectPhaseDiagram(MSONable):
             qd_tot += fdos.get_doping(ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
-        return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
+        return bisect(_get_total_q, -0.1, self.band_gap + 0.1)
 
 
     def solve_for_non_equilibrium_fermi_energy(self, temperature, quench_temperature, chemical_potentials, bulk_dos):
