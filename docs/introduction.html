@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.4.19 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.4.26 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.4.19
+                2022.4.26
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-4-19">v2022.4.19</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2022-4-26">v2022.4.26</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -155,7 +155,7 @@ modifications. MPRester should now be imported from <cite>pymatgen.ext.matproj</
 <cite>Element</cite>, <cite>Species</cite>, <cite>Lattice</cite>, <cite>Structure</cite>, etc. should be imported from <cite>pymatgen.core</cite>. There are a few simple ways
 you can respond to this change:</p>
 <ul>
-<li><p>To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen&lt;=2022.0.0 since all
+<li><p>To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen&lt;2022.0.0 since all
 the imports were already available in previous versions), you need to replace all instances of
 <cite>from pymatgen import MPRester</cite> with <cite>from pymatgen.ext.matproj import MPRester</cite>, followed by replacing all instances
 of <cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. These two steps have to be done in that sequence, since
@@ -227,14 +227,13 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h2>
-<section id="v2022-4-19">
-<h3>v2022.4.19<a class="headerlink" href="#v2022-4-19" title="Permalink to this headline"></a></h3>
+<section id="v2022-4-26">
+<h3>v2022.4.26<a class="headerlink" href="#v2022-4-26" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Fix for discharged and charged entries in conversion battery. (&#64;peikai)`pylint` in <cite>.pre-commit-config.yaml</cite>.</p></li>
-<li><p>Allow skipping of structure reduction in StructureMatcher.group_structures (&#64;lan496)</p></li>
-<li><p>Return NotImplemented for composition comparison methods. (&#64;janosh)</p></li>
-<li><p>BSPlotter bug fixes (&#64;fraricci)</p></li>
-<li><p>Misc bug fixes and deprecation fixes.</p></li>
+<li><p>Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (&#64;&#64;fraricci)</p></li>
+<li><p>Removed complex numbers from the definition of WSWQ (&#64;jmmshn)</p></li>
+<li><p>MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
+This avoids the MPRester constantly rewriting a config file and causing users’ pymatgen to completely fail.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>

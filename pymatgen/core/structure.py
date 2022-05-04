@@ -1359,6 +1359,167 @@ class IStructure(SiteCollection, MSONable):
                 )
             )
 
+    def get_symmetric_neighbor_list(
+        self,
+        r: float,
+        sg: str,
+        unique: bool = False,
+        numerical_tol: float = 1e-8,
+        exclude_self: bool = True,
+    ) -> tuple[np.ndarray, ...]:
+        """
+        Similar to 'get_neighbor_list' with sites=None, but the neighbors are
+        grouped by symmetry. The returned values are a tuple of numpy arrays
+        (center_indices, points_indices, offset_vectors, distances,
+         symmetry_indices). Atom `center_indices[i]` has neighbor atom
+        `points_indices[i]` that is translated by `offset_vectors[i]` lattice
+        vectors, and the distance is `distances[i]`. Symmetry_idx groups the bonds
+        that are related by a symmetry of the provided space group and symmetry_op
+        is the operation that relates the first bond of the same symmetry_idx to
+        the respective atom. The first bond maps onto itself via the Identity. The
+        output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
+        two bonds connecting two points is given. Out of the two, the bond that does not
+        reverse the sites is chosen.
+        Args:
+            r (float): Radius of sphere
+            sg (str/int): The spacegroup the symmetry operations of which will be
+                used to classify the neighbors. If a string, it will be interpreted
+                as one of the notations supported by
+                pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
+                If an int, it will be interpreted as an international number.
+                If None, 'get_space_group_info' will be used to determine the
+                space group, default to None.
+            unique (bool): Whether a bond is given for both, or only a single
+                direction is given. The default is False.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be coincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
+            exclude_self (bool): whether to exclude atom neighboring with itself within
+                numerical tolerance distance, default to True
+        Returns: (center_indices, points_indices, offset_vectors, distances,
+                  symmetry_indices, symmetry_ops)
+        """
+
+        from pymatgen.symmetry.groups import SpaceGroup
+
+        if sg is None:
+            ops = SpaceGroup(self.get_space_group_info()[0]).symmetry_ops
+        else:
+            try:
+                i = int(sg)
+                sgp = SpaceGroup.from_int_number(i)
+            except ValueError:
+                sgp = SpaceGroup(sg)
+            ops = sgp.symmetry_ops
+
+        latt = self.lattice
+
+        if not sgp.is_compatible(latt):
+            raise ValueError(
+                "Supplied lattice with parameters %s is incompatible with "
+                "supplied spacegroup %s!" % (latt.parameters, sgp.symbol)
+            )
+
+        # get a list of neighbors up to distance r
+        bonds = self.get_neighbor_list(r)
+
+        if unique:
+            redundant = []
+            # compare all neighbors pairwise to find the pairs that connect the same
+            # two sites, but with an inverted vector (R=-R) that connects the two and add
+            # one of each pair to the redundant list.
+            for it, (i, j, R, d) in enumerate(zip(*bonds)):
+                if it in redundant:
+                    pass
+                else:
+                    for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
+                        bool1 = i == j2
+                        bool2 = j == i2
+                        bool3 = (R == -R2).all()
+                        bool4 = np.isclose(d, d2, atol=numerical_tol)
+                        if bool1 and bool2 and bool3 and bool4:
+                            redundant.append(it2)
+
+            # delete the redundant neighbors
+            m = ~np.in1d(np.arange(len(bonds[0])), redundant)
+            idcs_dist = np.argsort(bonds[3][m])
+            bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
+
+        # expand the output tuple by symmetry_indices and symmetry_ops.
+        nbonds = len(bonds[0])
+        symmetry_indices = np.empty(nbonds)
+        symmetry_indices[:] = np.NaN
+        symmetry_ops = np.empty(len(symmetry_indices), dtype=object)
+        symmetry_identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
+        symmetry_index = 0
+
+        # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
+        # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
+        # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two
+        # neighbors 'SymmOp.are_symmetrically_related_vectors' is used. It is also checked whether applying the
+        # connecting symmetry operation generates the neighbor-pair itself, or the equivalent version with the
+        # sites exchanged and R reversed. The output is always reordered such that the former case is true.
+        for it in range(nbonds):
+            if np.isnan(symmetry_indices[it]):
+                symmetry_indices[it] = symmetry_index
+                symmetry_ops[it] = symmetry_identity
+                for it2 in np.arange(nbonds)[np.isnan(symmetry_indices)]:
+                    equal_distance = np.isclose(bonds[3][it], bonds[3][it2], atol=numerical_tol)
+                    if equal_distance:
+                        from_a = self[bonds[0][it]].frac_coords
+                        to_a = self[bonds[1][it]].frac_coords
+                        r_a = bonds[2][it]
+                        from_b = self[bonds[0][it2]].frac_coords
+                        to_b = self[bonds[1][it2]].frac_coords
+                        r_b = bonds[2][it2]
+                        for op in ops:
+                            are_related, is_reversed = op.are_symmetrically_related_vectors(
+                                from_a, to_a, r_a, from_b, to_b, r_b
+                            )
+                            if are_related and not is_reversed:
+                                symmetry_indices[it2] = symmetry_index
+                                symmetry_ops[it2] = op
+                            elif are_related and is_reversed:
+                                symmetry_indices[it2] = symmetry_index
+                                symmetry_ops[it2] = op
+                                bonds[0][it2], bonds[1][it2] = bonds[1][it2], bonds[0][it2]
+                                bonds[2][it2] = -bonds[2][it2]
+
+                symmetry_index += 1
+
+        # the bonds are ordered by their symmetry index
+        idcs_symid = np.argsort(symmetry_indices)
+        bonds = (
+            bonds[0][idcs_symid],
+            bonds[1][idcs_symid],
+            bonds[2][idcs_symid],
+            bonds[3][idcs_symid],
+        )
+        symmetry_indices = symmetry_indices[idcs_symid]
+        symmetry_ops = symmetry_ops[idcs_symid]
+
+        # the groups of neighbors with the same symmetry index are ordered such that neighbors
+        # that are the first occurence of a new symmetry index in the ordered output are the ones
+        # that are assigned the Identity as a symmetry operation.
+        idcs_symop = np.arange(nbonds)
+        identity_idcs = np.where(symmetry_ops == symmetry_identity)[0]
+        for symmetry_idx in np.unique(symmetry_indices):
+            first_idx = np.argmax(symmetry_indices == symmetry_idx)
+            for second_idx in identity_idcs:
+                if symmetry_indices[second_idx] == symmetry_idx:
+                    idcs_symop[first_idx], idcs_symop[second_idx] = idcs_symop[second_idx], idcs_symop[first_idx]
+
+        return (
+            bonds[0][idcs_symop],
+            bonds[1][idcs_symop],
+            bonds[2][idcs_symop],
+            bonds[3][idcs_symop],
+            symmetry_indices[idcs_symop],
+            symmetry_ops[idcs_symop],
+        )
+
     def get_all_neighbors(
         self,
         r: float,
