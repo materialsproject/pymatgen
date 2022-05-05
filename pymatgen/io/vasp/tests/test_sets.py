@@ -927,7 +927,7 @@ class MVLNPTMDSetTest(PymatgenTest):
         self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
         enmax = max(npt_set.potcar[i].keywords["ENMAX"] for i in range(self.struct.ntypesp))
         self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
-        self.assertEqual(incar["IALGO"], 48)
+        self.assertEqual(incar["ALGO"], "Fast")
         self.assertEqual(incar["ISIF"], 3)
         self.assertEqual(incar["MDALGO"], 3)
         self.assertEqual(incar["SMASS"], 0)
