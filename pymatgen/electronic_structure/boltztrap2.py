@@ -123,8 +123,8 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.fermi
-            self.cbm = self.fermi
+            self.vbm = self.fermi / units.eV
+            self.cbm = self.fermi / units.eV
 
         if nelect:
             self.nelect_all = nelect

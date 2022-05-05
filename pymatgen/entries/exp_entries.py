@@ -72,8 +72,8 @@ class ExpEntry(PDEntry, MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "thermodata": [td.as_dict() for td in self._thermodata],
             "composition": self.composition.as_dict(),
             "temperature": self.temperature,

@@ -142,7 +142,7 @@ class StructureVis:
             magnification:
                 magnification. Use it to render high res images.
             image_format:
-                choose between jpeg, png.  Png is the default.
+                choose between jpeg, png. Png is the default.
         """
         render_large = vtk.vtkRenderLargeImage()
         render_large.SetInput(self.ren)
@@ -166,7 +166,7 @@ class StructureVis:
 
         Args:
             reset_camera: Set to True to reset the camera to a
-                pre-determined default for each structure.  Defaults to False.
+                pre-determined default for each structure. Defaults to False.
         """
         self.ren.RemoveAllViewProps()
         self.picker = None
@@ -898,7 +898,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
 
 
 def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate="10000k", quality=1, **kwargs):
-    r"""
+    """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
     Args:
@@ -907,10 +907,10 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
             movie.mp4
         zoom (float): A zoom to be applied to the visualizer. Defaults to 1.0.
         fps (int): Frames per second for the movie. Defaults to 20.
-        bitrate (str): Video bitate.  Defaults to "10000k" (fairly high
+        bitrate (str): Video bitate. Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
-        \\*\\*kwargs: Any kwargs supported by StructureVis to modify the images
+        kwargs: Any kwargs supported by StructureVis to modify the images
             generated.
     """
     vis = StructureVis(**kwargs)

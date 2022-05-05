@@ -159,7 +159,6 @@ class PymatgenTest(unittest.TestCase):
             objects = [objects]
 
         if protocols is None:
-            # protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
             protocols = [pickle.HIGHEST_PROTOCOL]
 
         # This list will contains the object deserialized with the different

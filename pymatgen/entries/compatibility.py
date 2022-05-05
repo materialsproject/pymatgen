@@ -5,11 +5,13 @@ This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
+from __future__ import annotations
+
 import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import List, Optional, Sequence, Type, Union
+from typing import Sequence, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -438,8 +440,8 @@ class UCorrection(Correction):
         Args:
             config_file: Path to the selected compatibility.yaml config file.
             input_set: InputSet object (to check for the +U settings)
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -517,7 +519,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: AnyCompEntry) -> List[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyCompEntry) -> list[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -537,7 +539,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             CompatibilityError if the entry is not compatible
         """
 
-    def process_entry(self, entry: ComputedEntry) -> Optional[ComputedEntry]:
+    def process_entry(self, entry: ComputedEntry) -> ComputedEntry | None:
         """
         Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
@@ -554,8 +556,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return None
 
     def process_entries(
-        self, entries: Union[AnyCompEntry, List[AnyCompEntry]], clean: bool = True, verbose: bool = False
-    ) -> List[ComputedEntry]:
+        self, entries: AnyCompEntry | list[AnyCompEntry], clean: bool = True, verbose: bool = False
+    ) -> list[ComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
@@ -569,7 +571,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 Default is False.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already
@@ -735,7 +737,7 @@ class CorrectionsList(Compatibility):
             corrected_energy = centry.energy
             correction_uncertainty = centry.correction_uncertainty
         d = {
-            "compatibility": self.__class__.__name__,
+            "compatibility": type(self).__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
             "correction_uncertainty": correction_uncertainty,
@@ -793,8 +795,8 @@ class MaterialsProjectCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -818,6 +820,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
+@cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """
     This class implements the Materials Project 2020 energy correction scheme,
@@ -839,7 +842,7 @@ class MaterialsProject2020Compatibility(Compatibility):
     ):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
                 entries are excluded. Advanced means the GGA/GGA+U mixing scheme
                 of Jain et al. (see References) is implemented. In this case,
                 entries which are supposed to be calculated in GGA+U (i.e.,
@@ -941,7 +944,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         pc.get_correction(entry)
 
         # apply energy adjustments
-        adjustments: List[CompositionEnergyAdjustment] = []
+        adjustments: list[CompositionEnergyAdjustment] = []
 
         comp = entry.composition
         rform = comp.reduced_formula
@@ -1116,8 +1119,8 @@ class MITCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -1152,8 +1155,8 @@ class MITAqueousCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -1178,6 +1181,7 @@ class MITAqueousCompatibility(CorrectionsList):
         )
 
 
+@cached_class
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the Aqueous energy referencing scheme for constructing
@@ -1207,10 +1211,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(
         self,
-        solid_compat: Optional[Union[Compatibility, Type[Compatibility]]] = MaterialsProject2020Compatibility,
-        o2_energy: Optional[float] = None,
-        h2o_energy: Optional[float] = None,
-        h2o_adjustments: Optional[float] = None,
+        solid_compat: Compatibility | type[Compatibility] | None = MaterialsProject2020Compatibility,
+        o2_energy: float | None = None,
+        h2o_energy: float | None = None,
+        h2o_adjustments: float | None = None,
     ):
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
@@ -1389,9 +1393,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(
-        self, entries: Union[ComputedEntry, List[ComputedEntry]], clean: bool = False, verbose: bool = False
-    ):
+    def process_entries(self, entries: ComputedEntry | list[ComputedEntry], clean: bool = False, verbose: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -1404,7 +1406,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already

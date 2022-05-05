@@ -961,8 +961,8 @@ class DetailedVoronoiContainer(MSONable):
         """
         bson_nb_voro_list2 = self.to_bson_voronoi_list2()
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "bson_nb_voro_list2": bson_nb_voro_list2,
             # "neighbors_lists": self.neighbors_lists,
             "structure": self.structure.as_dict(),

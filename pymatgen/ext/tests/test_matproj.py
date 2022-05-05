@@ -12,7 +12,7 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
-from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import SETTINGS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition, Structure
 from pymatgen.electronic_structure.bandstructure import (
@@ -22,13 +22,16 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
-website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+try:
+    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+except requests.exceptions.ConnectionError:
+    website_is_up = False
 
 
 @unittest.skipIf(
@@ -476,7 +479,7 @@ class MPResterTest(PymatgenTest):
 
         self.assertIsInstance(db_version, str)
         yaml = YAML()
-        with open(SETTINGS_FILE) as f:
+        with open(MP_LOG_FILE) as f:
             d = yaml.load(f)
 
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)

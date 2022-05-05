@@ -11,24 +11,26 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import logging
 import math
+import os
 import platform
 import re
 import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import List
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from ruamel.yaml import YAML
 from tqdm import tqdm
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -39,6 +41,8 @@ from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 logger = logging.getLogger(__name__)
+
+MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
 
 def get_chunks(sequence, size=1):
@@ -199,8 +203,8 @@ class MPRester:
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
-                with open(SETTINGS_FILE) as f:
-                    d = yaml.load(f)
+                with open(MP_LOG_FILE) as f:
+                    d = dict(yaml.load(f))
             except OSError:
                 d = {}
 
@@ -208,6 +212,13 @@ class MPRester:
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            else:
+                # ensure data is parsed as dict, rather than ordered dict,
+                # due to change in YAML parsing behavior
+                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+
+            if "LOG" in d["MAPI_DB_VERSION"]:
+                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
             if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
@@ -228,7 +239,7 @@ class MPRester:
             # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(SETTINGS_FILE, "wt") as f:
+                with open(MP_LOG_FILE, "wt") as f:
                     yaml.dump(d, f)
             except Exception:
                 pass
@@ -924,12 +935,12 @@ class MPRester:
         self,
         criteria,
         properties,
-        chunk_size=500,
-        max_tries_per_chunk=5,
-        mp_decode=True,
+        chunk_size: int = 500,
+        max_tries_per_chunk: int = 5,
+        mp_decode: bool = True,
+        show_progress_bar: bool = True,
     ):
         r"""
-
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
@@ -986,6 +997,8 @@ class MPRester:
             mp_decode (bool): Whether to do a decoding to a Pymatgen object
                 where possible. In some cases, it might be useful to just get
                 the raw python dict, i.e., set to False.
+            show_progress_bar (bool): Whether to show a progress bar for large queries.
+                Defaults to True. Set to False to reduce visual noise.
 
         Returns:
             List of results. E.g.,
@@ -1012,7 +1025,7 @@ class MPRester:
         data = []
         mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
-        progress_bar = tqdm(total=len(mids))
+        progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
@@ -1614,8 +1627,8 @@ class MPRester:
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
 
-    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
-        nomad_exist_task_ids: List[str] = []
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> list[str]:
+        nomad_exist_task_ids: list[str] = []
         prefix = prefix.replace("/raw/query", "/repo/")
         for task_id in task_ids:
             url = prefix + task_id

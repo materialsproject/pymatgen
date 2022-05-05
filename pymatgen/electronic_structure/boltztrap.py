@@ -342,14 +342,11 @@ class BoltztrapRunner(MSONable):
                 f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
 
             f.write(
-                "{}\n".format(
-                    "\n".join(
-                        [
-                            " ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
-                            for row in self._bs.structure.lattice.matrix
-                        ]
-                    )
+                "\n".join(
+                    " ".join([f"{Length(i, 'ang').to('bohr'):.5f}" for i in row])
+                    for row in self._bs.structure.lattice.matrix
                 )
+                + "\n"
             )
 
             if self._symprec is not None:
@@ -479,8 +476,8 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    "1 0 %d %f         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n" % (setgap, Energy(self.scissor, "eV").to("Ry"))
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "
@@ -511,9 +508,8 @@ class BoltztrapRunner(MSONable):
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
-                    "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,"
-                    "energy span around Fermilevel, "
-                    "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
+                    f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} 0.1 {self._nelec:6.1f}     # Fermilevel "
+                    "(Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -539,8 +535,8 @@ class BoltztrapRunner(MSONable):
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    "1 0 %d %f         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n" % (setgap, Energy(self.scissor, "eV").to("Ry"))
+                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
+                    "idebug setgap shiftgap \n"
                 )
                 fout.write(
                     "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "
@@ -752,8 +748,8 @@ class BoltztrapRunner(MSONable):
         :return: MSONable dict
         """
         results = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lpfac": self.lpfac,
             "bs": self.bs.as_dict(),
             "nelec": self._nelec,

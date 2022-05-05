@@ -32,7 +32,7 @@ class Stress(SquareTensor):
 
     def __new__(cls, stress_matrix):
         """
-        Create a Stress object.  Note that the constructor uses __new__
+        Create a Stress object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 

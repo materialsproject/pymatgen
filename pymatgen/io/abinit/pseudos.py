@@ -135,10 +135,10 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def __repr__(self):
         try:
-            return f"<{self.__class__.__name__} at {os.path.relpath(self.filepath)}>"
+            return f"<{type(self).__name__} at {os.path.relpath(self.filepath)}>"
         except Exception:
             # relpath can fail if the code is executed in demon mode.
-            return f"<{self.__class__.__name__} at {self.filepath}>"
+            return f"<{type(self).__name__} at {self.filepath}>"
 
     def __str__(self):
         return self.to_string()
@@ -148,7 +148,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # pylint: disable=E1101
         lines = []
         app = lines.append
-        app(f"<{self.__class__.__name__}: {self.basename}>")
+        app(f"<{type(self).__name__}: {self.basename}>")
         app("  summary: " + self.summary.strip())
         app(f"  number of valence electrons: {self.Z_val}")
         app(f"  maximum angular momentum: {l2str(self.l_max)}")
@@ -196,7 +196,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def type(self):
         """Type of pseudo."""
-        return self.__class__.__name__
+        return type(self).__name__
 
     @property
     def element(self):
@@ -279,8 +279,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # Consistency test based on md5
         if "md5" in d and d["md5"] != new.md5:
             raise ValueError(
-                "The md5 found in file does not agree with the one in dict\n"
-                "Received %s\nComputed %s" % (d["md5"], new.md5)
+                f"The md5 found in file does not agree with the one in dict\nReceived {d['md5']}\nComputed {new.md5}"
             )
 
         return new
@@ -309,7 +308,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             shutil.copy(djrepo, os.path.join(tmpdir, os.path.basename(djrepo)))
 
         # Build new object and copy dojo_report if present.
-        new = self.__class__.from_file(new_path)
+        new = type(self).from_file(new_path)
         if self.has_dojo_report:
             new.dojo_report = self.dojo_report.deepcopy()
 
@@ -1148,11 +1147,6 @@ class PseudoParser:
                     logger.critical(msg)
                     return None
 
-                # if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
-                #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
-                #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                #    return None
-
                 if pspcod not in self._PSPCODES:
                     raise self.Error(f"{filename}: Don't know how to handle pspcod {pspcod}\n")
 
@@ -1162,9 +1156,6 @@ class PseudoParser:
                     # PAW -> need to know the format pspfmt
                     tokens = lines[lineno + 1].split()
                     pspfmt, creatorID = tokens[:2]
-                    # if tokens[-1].strip() != "pspfmt,creatorID":
-                    #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
-                    #    return None
 
                     ppdesc = ppdesc._replace(format=pspfmt)
 
@@ -1703,7 +1694,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
             yield from self._pseudos_with_z[z]
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}>"
+        return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_table()
@@ -1740,8 +1731,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
                 k += k.split("#")[0] + "#" + str(count)
                 count += 1
             d.update({k: p.as_dict()})
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod

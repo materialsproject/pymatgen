@@ -418,4 +418,4 @@ def compute_environments(chemenv_configuration):
             test = input('Go to next structure ? ("y" to do so) : ')
             if test == "y":
                 break
-        print("")
+        print()
