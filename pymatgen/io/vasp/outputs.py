@@ -461,7 +461,7 @@ class Vasprun(MSONable):
                         else:
                             self.other_dielectric[comment] = self._parse_diel(elem)
 
-                elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
+                elif tag == "varray" and elem.attrib.get("name") == "transitions":
                     self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -567,10 +567,10 @@ class Vasprun(MSONable):
             def f(freq, real, imag):
                 """
                 The optical absorption coefficient calculated in terms of
-                equation
+                equation, the unit is in cm-1
                 """
-                hbar = 6.582119514e-16  # eV/K
-                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hbar * freq
+                hc = 1.23984*1e-4 # plank constant times speed of light, in the unit of eV*cm
+                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
                 return coeff
 
             absorption_coeff = [
