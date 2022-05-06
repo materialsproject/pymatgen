@@ -11,7 +11,7 @@ import itertools
 import os
 import warnings
 from fnmatch import fnmatch
-from typing import Sequence
+from typing import Any, Optional, Sequence
 
 import numpy as np
 from monty.io import zopen
@@ -34,52 +34,62 @@ __date__ = "Jan 25, 2019"
 
 class Trajectory(MSONable):
     """
-    Trajectory object that stores structural information related to a MD simulation.
+    Trajectory object that stores structural information related to an MD simulation.
+
     Provides basic functions such as slicing trajectory or obtaining displacements.
     """
 
     def __init__(
         self,
-        lattice: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Lattice,
+        lattice: Lattice | list[Lattice] | np.ndarray,
         species: list[str | Element | Species | DummySpecies | Composition],
         frac_coords: list[Sequence[Sequence[float]]] | np.ndarray,
-        time_step: float = 2,
-        site_properties: dict = None,
-        frame_properties: dict = None,
+        time_step: int | float = 2,
+        site_properties: Optional[list[dict[str, Sequence[Any]]]] = None,
+        frame_properties: Optional[dict[str, Sequence[Any]]] = None,
         constant_lattice: bool = True,
         coords_are_displacement: bool = False,
         base_positions: Sequence[Sequence[float]] = None,
     ):
         """
-        Create a trajectory object
+        Create a trajectory of N species with M frames (steps).
+
         Args:
-            lattice: The lattice as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species: List of species on each site. Can take in flexible input,
-                including:
+            lattice: shape (3, 3) or (M, 3, 3). Lattice of the structures in the
+                trajectory. The shape depends on the value of `constant_lattice`.
+                If `constant_lattice=True`, this should be a single lattice that is
+                common for all structures in the trajectory (e.g. in an NVT run).
+                If `constant_lattice=False`, this should be a list of lattices,
+                each for one structure in the trajectory (e.g. in an NPT run).
+            species: shape (N,). List of species on each site. Can take in flexible
+                input, including:
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            frac_coords (MxNx3 array): list of fractional coordinates of
-                each species
-            time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2fs.
-            site_properties (list): Properties associated with the sites as a list of
-                dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}]. The sequences
-                have to be the same length as the atomic species and fractional_coords. Number of supplied
-                dicts should match number of frames in trajectory
-                Defaults to None for no properties.
-            frame_properties (dict): Properties of the trajectory such as energy, pressure, etc. each property should
-                have a length equal to the trajectory length. eg: {'energy': [#, #, #, #], 'pressure': [0, 0.1, 0 0.02]}
-            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.
-            coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or
-                positions (False)
-            base_positions (Nx3 array): The starting positions of all atoms in trajectory. Used to reconstruct positions
-                when converting from displacements to positions. Only needs to be specified if
-                coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.
+            frac_coords: shape (M, N, 3). List of fractional coordinates of each
+                species.
+            time_step: Timestep of simulation in femto-seconds.
+            site_properties: Properties associated with the sites as a list of
+                dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
+                The list should have a length of M, with each dict for a frame. Each
+                sequence in a dict should have a length of N, one for each specie in
+                the structure.
+            frame_properties: Properties associated each frame of in trajectory, such
+                as energy and pressure. Each key value pair of the dict species the
+                name and value of a property. The value should have a length of M,
+                one component for each frame.
+            constant_lattice: Whether the lattice changes during the simulation. See
+                `lattice`.
+            coords_are_displacement: Whether supplied coordinates are given in
+                displacements (True) or positions (False).
+            base_positions: shape (N, 3). The starting positions of all atoms in
+                trajectory. Used to reconstruct positions when converting from
+                displacements to positions. Only needs to be specified if
+                `coords_are_displacement=True`. Defaults to the first index of
+                `frac_coords` if `coords_are_displacement=False`.
         """
         # To support from_dict and as_dict
         if isinstance(frac_coords, list):
