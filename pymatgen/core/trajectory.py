@@ -106,7 +106,7 @@ class Trajectory(MSONable):
                 "Use this single `lattice` as the lattice for all frames."
             )
         else:
-            self.lattice = lattice  # type: ignore
+            self.lattice = lattice
 
         self.constant_lattice = constant_lattice
 
@@ -128,50 +128,64 @@ class Trajectory(MSONable):
         self.site_properties = site_properties
         self.frame_properties = frame_properties
 
-    def get_structure(self, i):
+    def get_structure(self, i: int) -> Structure:
         """
-        Returns structure at specified index
+        Get structure at specified index.
+
         Args:
-            i (int): Index of structure
+            i: Index of structure
+
         Returns:
-            (Structure) pymatgen structure object
+            pymatgen Structure object
         """
         return self[i]
 
     def to_positions(self):
         """
-        Converts fractional coordinates of trajectory into positions
+        Converts fractional coordinates of trajectory into positions.
         """
         if self.coords_are_displacement:
             cumulative_displacements = np.cumsum(self.frac_coords, axis=0)
             positions = self.base_positions + cumulative_displacements
+            # TODO this whole class is dealing with abs coords not frac coords, right?
             self.frac_coords = positions
             self.coords_are_displacement = False
 
     def to_displacements(self):
         """
-        Converts position coordinates of trajectory into displacements between consecutive frames
+        Converts position coordinates of trajectory into displacements between
+        consecutive frames.
         """
         if not self.coords_are_displacement:
-            displacements = np.subtract(self.frac_coords, np.roll(self.frac_coords, 1, axis=0))
+
+            displacements = np.subtract(
+                self.frac_coords,
+                np.roll(self.frac_coords, 1, axis=0),
+            )
             displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
+
+            # TODO what is this doing
             # Deal with PBC
             displacements = [np.subtract(item, np.round(item)) for item in displacements]
 
             self.frac_coords = displacements
             self.coords_are_displacement = True
 
-    def extend(self, trajectory):
+    def extend(self, trajectory: Trajectory):
         """
-        Concatenate another trajectory
+        Concatenate another trajectory.
+
         Args:
-            trajectory (Trajectory): Trajectory to add
+            trajectory: Trajectory to add.
         """
         if self.time_step != trajectory.time_step:
-            raise ValueError("Trajectory not extended: Time steps of trajectories is incompatible")
+            raise ValueError(
+                "Cannot extend trajectory. Time steps of the trajectories are "
+                f"incompatible: {self.time_step} and {trajectory.time_step}."
+            )
 
-        if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
-            raise ValueError("Trajectory not extended: species in trajectory do not match")
+        if self.species != trajectory.species:
+            raise ValueError("Cannot extend trajectory: species in trajectory do not match.")
 
         # Ensure both trajectories are in positions before combining
         self.to_positions()
@@ -180,38 +194,48 @@ class Trajectory(MSONable):
         self.site_properties = self._combine_site_props(
             self.site_properties,
             trajectory.site_properties,
-            np.shape(self.frac_coords)[0],
-            np.shape(trajectory.frac_coords)[0],
+            len(self),
+            len(trajectory),
         )
         self.frame_properties = self._combine_frame_props(
             self.frame_properties,
             trajectory.frame_properties,
-            np.shape(self.frac_coords)[0],
-            np.shape(trajectory.frac_coords)[0],
+            len(self),
+            len(trajectory),
         )
 
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
         self.lattice, self.constant_lattice = self._combine_lattice(
             self.lattice,
             trajectory.lattice,
-            np.shape(self.frac_coords)[0],
-            np.shape(trajectory.frac_coords)[0],
+            len(self),
+            len(trajectory),
         )
 
+    @property
+    def num_frames(self):
+        return len(self.frac_coords)
+
     def __iter__(self):
-        for i in range(np.shape(self.frac_coords)[0]):
+        for i in range(self.num_frames):
             yield self[i]
 
     def __len__(self):
-        return np.shape(self.frac_coords)[0]
+        return self.num_frames
 
-    def __getitem__(self, frames):
+    def __getitem__(self, frames: int | slice) -> Trajectory | Structure:
         """
-        Gets a subset of the trajectory if a slice is given, if an int is given, return a structure
+        Get a subset of the trajectory.
+
+        The output depends on the type of the input `frames`. If a slice is given,
+        return a new trajectory with the given subset of frames; if an int is given,
+        return a structure.
+
         Args:
-            frames (int, slice): int or slice of trajectory to return
+            frames: Indices of the trajectory to return.
+
         Return:
-            (Trajectory, Structure) Subset of trajectory
+            Subset of trajectory
         """
         # If trajectory is in displacement mode, return the displacements at that frame
         if self.coords_are_displacement:
@@ -338,7 +362,6 @@ class Trajectory(MSONable):
             lattice = structures[0].lattice.matrix
         else:
             lattice = [structure.lattice.matrix for structure in structures]
-        site_properties = {}
 
         site_properties = [structure.site_properties for structure in structures]
         return cls(
@@ -408,6 +431,7 @@ class Trajectory(MSONable):
             attribute = [attr_1.copy()] * len_1 if isinstance(attr_1, list) else attr_1.copy()
             attribute.extend([attr_2.copy()] * len_2 if isinstance(attr_2, list) else attr_2.copy())
             attribute_constant = False
+
         return attribute, attribute_constant
 
     @staticmethod
@@ -491,16 +515,16 @@ class Trajectory(MSONable):
 
         return new_frame_props
 
-    def write_Xdatcar(self, filename="XDATCAR", system=None, significant_figures=6):
+    def write_Xdatcar(self, filename: str = "XDATCAR", system: str = None, significant_figures: int = 6):
         """
         Writes Xdatcar to a file. The supported kwargs are the same as those for
         the Xdatcar_from_structs.get_string method and are passed through directly.
 
         Args:
-            filename (str): name of file (It's prudent to end the filename with 'XDATCAR',
+            filename: name of file (It's prudent to end the filename with 'XDATCAR',
                 as most visualization and analysis software require this for autodetection)
-            system (str): Description of system
-            significant_figures (int): Significant figures in the output file
+            system: Description of system
+            significant_figures: Significant figures in the output file
         """
 
         # Ensure trajectory is in position form
