@@ -91,37 +91,42 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `frac_coords` if `coords_are_displacement=False`.
         """
-        # To support from_dict and as_dict
-        if isinstance(frac_coords, list):
-            frac_coords = np.array(frac_coords)
 
         if isinstance(lattice, Lattice):
             lattice = lattice.matrix
+        elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
+            lattice = [x.matrix for x in lattice]
+        lattice = np.asarray(lattice)
 
-        if isinstance(lattice, list):
-            lattice = np.array(lattice)
+        if not constant_lattice and lattice.shape == (3, 3):
+            num_frames = len(frac_coords)
+            self.lattice = [lattice for _ in range(num_frames)]
+            warnings.warn(
+                "`constant_lattice=False`, but only get a single `lattice`. "
+                "Use this single `lattice` as the lattice for all frames."
+            )
+        else:
+            self.lattice = lattice  # type: ignore
 
-        self.frac_coords = frac_coords
+        self.constant_lattice = constant_lattice
+
+        self.frac_coords = np.asarray(frac_coords)
+
         if coords_are_displacement:
             if base_positions is None:
                 warnings.warn(
-                    "Without providing an array of starting positions, \
-                               the positions for each time step will not be available"
+                    "Without providing an array of starting positions, the positions "
+                    "for each time step will not be available."
                 )
             self.base_positions = base_positions
         else:
             self.base_positions = frac_coords[0]
         self.coords_are_displacement = coords_are_displacement
 
-        if not constant_lattice and np.shape(lattice) == (3, 3):
-            self.lattice = [lattice for i in range(np.shape(self.frac_coords)[0])]
-        else:
-            self.lattice = lattice  # type: ignore
-        self.constant_lattice = constant_lattice
         self.species = species
+        self.time_step = time_step
         self.site_properties = site_properties
         self.frame_properties = frame_properties
-        self.time_step = time_step
 
     def get_structure(self, i):
         """
