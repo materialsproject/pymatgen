@@ -9,7 +9,7 @@ actual code demonstrating the use of the code. Learning from those examples
 is the fastest way to get started.
 
 Pymatgen is structured in a highly object-oriented manner. Almost everything
-(Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
+(Element, Site, Structure, etc.) is an object. Currently, the code is heavily
 biased towards the representation and manipulation of crystals with periodic
 boundary conditions, though flexibility has been built in for molecules.
 
@@ -49,7 +49,7 @@ Side-note : as_dict / from_dict
 ===============================
 
 As you explore the code, you may notice that many of the objects have an as_dict
-method and a from_dict static method implemented.  For most of the non-basic
+method and a from_dict static method implemented. For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
 to be extremely fragile with respect to code changes. Pymatgen's as_dict
@@ -97,8 +97,8 @@ add these keys if they are not present, but for better long term stability
 through the encoder), the easiest way is to add the following to any to_dict
 property::
 
-    d["@module"] = self.__class__.__module__
-    d["@class"] = self.__class__.__name__
+    d["@module"] = type(self).__module__
+    d["@class"] = type(self).__name__
 
 To use the MontyDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.::
@@ -122,7 +122,7 @@ Creating a Structure manually
 -----------------------------
 
 This is generally the most painful method. Though sometimes necessary, it is
-seldom the method you would use.  An example of creating the basic silicon
+seldom the method you would use. An example of creating the basic silicon
 crystal is provided below::
 
     from pymatgen.core import Lattice, Structure, Molecule
@@ -208,7 +208,7 @@ Please see the :doc:`installation guide </installation>`.
 Things you can do with Structures
 ---------------------------------
 
-This section is a work in progress.  But just to give an overview of the kind of
+This section is a work in progress. But just to give an overview of the kind of
 analysis you can do:
 
 1. Modify Structures directly or even better, using the :mod:`pymatgen
@@ -358,7 +358,7 @@ it. The basic concept is to provide a convenient means to
 assimilate large quantities of data in a directory structure. For now, the main
 application is the assimilation of entire directory structures of VASP
 calculations into usable pymatgen entries, which can then be used for phase
-diagram and other analyses.  The outline of how it works is as follows:
+diagram and other analyses. The outline of how it works is as follows:
 
 1. Drones are defined in the :mod:`pymatgen.apps.borg.hive` module. A Drone
    is essentially an object which defines how a directory is parsed into a
@@ -488,7 +488,7 @@ the web interface.
 
 In parallel, we have coded in the :mod:`pymatgen.ext.matproj` module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
-useful pymatgen objects for further analyses.  To use the Materials API,
+useful pymatgen objects for further analyses. To use the Materials API,
 your need to first register with the Materials Project and generate your API
 key in your dashboard at https://www.materialsproject.org/dashboard. In the
 examples below, the user's Materials API key is designated as "USER_API_KEY".

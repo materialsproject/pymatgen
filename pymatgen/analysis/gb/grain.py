@@ -276,8 +276,8 @@ class GrainBoundary(Structure):
             Dictionary representation of GrainBoundary object
         """
         d = super().as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["init_cell"] = self.init_cell.as_dict()
         d["rotation_axis"] = self.rotation_axis
         d["rotation_angle"] = self.rotation_angle

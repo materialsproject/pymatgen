@@ -186,7 +186,7 @@ class InputSet(MSONable, MutableMapping):
                 contents.write_file(file)
 
         if zip_inputs:
-            zipfilename = path / f"{self.__class__.__name__}.zip"
+            zipfilename = path / f"{type(self).__name__}.zip"
             with ZipFile(zipfilename, "w") as zip:
                 for fname, contents in self.inputs.items():
                     file = path / fname

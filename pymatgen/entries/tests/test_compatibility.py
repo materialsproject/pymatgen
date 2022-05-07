@@ -21,7 +21,7 @@ from collections import defaultdict
 from math import sqrt
 from pathlib import Path
 
-import pytest  # type: ignore
+import pytest
 from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition

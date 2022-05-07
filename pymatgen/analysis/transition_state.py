@@ -280,11 +280,11 @@ class NEBAnalysis(MSONable):
         Dict representation of NEBAnalysis.
 
         Returns:
-            JSON serializable dict representation.
+            JSON-serializable dict representation.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "r": jsanitize(self.r),
             "energies": jsanitize(self.energies),
             "forces": jsanitize(self.forces),

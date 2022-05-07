@@ -52,13 +52,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         where G = magnetic space group, and F = parent crystallographic
         space group:
 
-        1.  G=F no time reversal, i.e. the same as corresponding
+        1. G=F no time reversal, i.e. the same as corresponding
             crystallographic group
-        2.  G=F+F1', "grey" groups, where avg. magnetic moment is zero,
+        2. G=F+F1', "grey" groups, where avg. magnetic moment is zero,
             e.g. a paramagnet in zero ext. mag. field
-        3.  G=D+(F-D)1', where D is an equi-translation subgroup of F of
+        3. G=D+(F-D)1', where D is an equi-translation subgroup of F of
             index 2, lattice translations do not include time reversal
-        4.  G=D+(F-D)1', where D is an equi-class subgroup of F of index 2
+        4. G=D+(F-D)1', where D is an equi-class subgroup of F of index 2
 
         There are two common settings for magnetic space groups, BNS
         and OG. In case 4, the BNS setting != OG setting, and so a

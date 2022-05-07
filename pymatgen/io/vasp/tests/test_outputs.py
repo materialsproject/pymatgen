@@ -1017,6 +1017,42 @@ class OutcarTest(PymatgenTest):
         self.assertAlmostEqual(outcar.data["elastic_tensor"][0][1], 187.8324)
         self.assertAlmostEqual(outcar.data["elastic_tensor"][3][3], 586.3034)
 
+    def test_read_lcalcpol(self):
+        # outcar with electrons Angst units
+        folder = "BTO_221_99_polarization/interpolation_6_polarization/"
+        filepath = self.TEST_FILES_DIR / folder / "OUTCAR"
+        outcar = Outcar(filepath)
+
+        outcar.read_lcalcpol()
+
+        p_ion = [0.0, 0.0, 19.70306]
+        p_elec = [4.02264, 4.02263, -4.08851]
+        p_sp1 = [2.01124, 2.01124, -2.04426]
+        p_sp2 = [2.01139, 2.01139, -2.04426]
+
+        for i in range(3):
+            self.assertAlmostEqual(outcar.p_ion[i], p_ion[i])
+            self.assertAlmostEqual(outcar.p_elec[i], p_elec[i])
+            self.assertAlmostEqual(outcar.p_sp1[i], p_sp1[i])
+            self.assertAlmostEqual(outcar.p_sp2[i], p_sp2[i])
+
+        # outcar with |e| Angst units
+        filepath = self.TEST_FILES_DIR / "outcar_vasp_6.3.gz"
+        outcar = Outcar(filepath)
+
+        outcar.read_lcalcpol()
+
+        p_ion = [-79.03374, -0.0, -28.44354]
+        p_elec = [9.01127e00, -1.00000e-05, 3.24308e00]
+        p_sp1 = [4.50564, 0.0, 1.62154]
+        p_sp2 = [4.50563e00, -1.00000e-05, 1.62154e00]
+
+        for i in range(3):
+            self.assertAlmostEqual(outcar.p_ion[i], p_ion[i])
+            self.assertAlmostEqual(outcar.p_elec[i], p_elec[i])
+            self.assertAlmostEqual(outcar.p_sp1[i], p_sp1[i])
+            self.assertAlmostEqual(outcar.p_sp2[i], p_sp2[i])
+
     def test_read_piezo_tensor(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon.gz"
         outcar = Outcar(filepath)
@@ -2162,10 +2198,16 @@ class WSWQTest(PymatgenTest):
 
     def test_consistency(self):
         self.assertEqual(True, True)
-        self.assertEqual(self.wswq.nbands, 288)
-        self.assertEqual(self.wswq.nkpoints, 2)
+        self.assertEqual(self.wswq.nbands, 18)
+        self.assertEqual(self.wswq.nkpoints, 20)
         self.assertEqual(self.wswq.nspin, 2)
-        self.assertEqual(self.wswq.data.shape, (2, 2, 288, 288))
+        self.assertEqual(self.wswq.me_real.shape, (2, 20, 18, 18))
+        self.assertEqual(self.wswq.me_imag.shape, (2, 20, 18, 18))
+        for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4])):
+            if itr == 4:
+                assert np.linalg.norm([r, i]) > 0.999
+            else:
+                assert np.linalg.norm([r, i]) < 0.001
 
 
 if __name__ == "__main__":

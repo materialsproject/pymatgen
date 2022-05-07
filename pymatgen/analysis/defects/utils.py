@@ -58,7 +58,7 @@ invang_to_ev = 3.80986
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
-for cn, di in cn_opt_params.items():  # type: ignore
+for cn, di in cn_opt_params.items():
     for mot, li in di.items():
         motif_cn_op[mot] = {"cn": int(cn), "optype": li[0]}
         motif_cn_op[mot]["params"] = deepcopy(li[1]) if len(li) > 1 else None
@@ -207,7 +207,7 @@ class StructureMotifInterstitial:
     Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (e.g., tetrahedra, octahedra). The algorithm is called InFiT
     (Interstitialcy Finding Tool), it was introducted by
     Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
     and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
@@ -237,14 +237,14 @@ class StructureMotifInterstitial:
                 distinct interstitial sites are to be found.
             inter_elem (string): element symbol of desired interstitial.
             motif_types ([string]): list of structure motif types that are
-                to be considered.  Permissible types are:
+                to be considered. Permissible types are:
                 tet (tetrahedron), oct (octahedron).
             op_threshs ([float]): threshold values for the underlying order
                 parameters to still recognize a given structural motif
                 (i.e., for an OP value >= threshold the coordination pattern
                 match is positive, for OP < threshold the match is
                 negative.
-            dl (float): grid fineness in Angstrom.  The input
+            dl (float): grid fineness in Angstrom. The input
                 structure is divided into a grid of dimension
                 a/dl x b/dl x c/dl along the three crystallographic
                 directions, with a, b, and c being the lengths of

@@ -505,7 +505,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     approximately 5,000,000 permutations per minute.
 
     Also, simple rounding of the occupancies are performed, with no attempt
-    made to achieve a target composition.  This is usually not a problem for
+    made to achieve a target composition. This is usually not a problem for
     most ordering problems, but there can be times where rounding errors may
     result in structures that do not have the desired composition.
     This second step will be implemented in the next iteration of the code.

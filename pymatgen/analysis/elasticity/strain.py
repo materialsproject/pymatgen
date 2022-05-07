@@ -35,7 +35,7 @@ class Deformation(SquareTensor):
 
     def __new__(cls, deformation_gradient):
         """
-        Create a Deformation object.  Note that the constructor uses __new__
+        Create a Deformation object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of subclassing
         numpy ndarrays.
 
@@ -107,7 +107,7 @@ class DeformedStructureSet(collections.abc.Sequence):
 
     def __init__(self, structure, norm_strains=None, shear_strains=None, symmetry=False):
         """
-        constructs the deformed geometries of a structure.  Generates
+        constructs the deformed geometries of a structure. Generates
         m + n deformed structures according to the supplied parameters.
 
         Args:
@@ -161,9 +161,9 @@ class Strain(SquareTensor):
 
     def __new__(cls, strain_matrix):
         """
-        Create a Strain object.  Note that the constructor uses __new__
+        Create a Strain object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.  Note also that the default constructor
+        subclassing numpy ndarrays. Note also that the default constructor
         does not include the deformation gradient
 
         Args:
@@ -204,7 +204,7 @@ class Strain(SquareTensor):
         """
         Like Deformation.from_index_amount, except generates
         a strain from the zero 3x3 tensor or voigt vector with
-        the amount specified in the index location.  Ensures
+        the amount specified in the index location. Ensures
         symmetric strain.
 
         Args:
@@ -242,7 +242,7 @@ class Strain(SquareTensor):
 def convert_strain_to_deformation(strain, shape="upper"):
     """
     This function converts a strain to a deformation gradient that will
-    produce that strain.  Supports three methods:
+    produce that strain. Supports three methods:
 
     Args:
         strain (3x3 array-like): strain matrix

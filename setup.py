@@ -33,7 +33,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions.  These contributions can be in the
+library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
@@ -76,7 +76,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.3.24",
+    version="2022.4.26",
     python_requires=">=3.8",
     setup_requires=[
         "Cython>=0.29.23",
@@ -84,7 +84,7 @@ setup(
     install_requires=[
         "numpy>=1.20.1",
         "requests",
-        "ruamel.yaml>=0.15.6",
+        "ruamel.yaml>=0.17.0",
         "monty>=3.0.2",
         "scipy>=1.5.0",
         "tabulate",

@@ -7,6 +7,7 @@ from pathlib import Path
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import PymatgenTest
 
+
 # TODO More comprehensive testing
 class SetTest(PymatgenTest):
     def setUp(self):

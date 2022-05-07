@@ -679,7 +679,7 @@ class MagneticStructureEnumerator:
                 MagOrderingTransformation, to change automatic cell size limits, etc.
         """
 
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
         self.structure = structure
 

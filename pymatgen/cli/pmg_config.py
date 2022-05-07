@@ -80,38 +80,37 @@ def setup_potcars(potcar_dirs: list[str]):
                 except Exception as ex:
                     print(f"An error has occurred. Message is {str(ex)}. Trying to continue... ")
 
-    print("")
     print(
-        "PSP resources directory generated. It is recommended that you "
+        "\nPSP resources directory generated. It is recommended that you "
         f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(targetdir)}'"
     )
     print("Start a new terminal to ensure that your environment variables are properly set.")
 
 
-def build_enum(fortran_command="gfortran"):
+def build_enum(fortran_command: str = "gfortran") -> bool:
     """
     Build enum.
 
     :param fortran_command:
     """
-    currdir = os.getcwd()
+    cwd = os.getcwd()
     state = True
     try:
         subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib.git"])
-        os.chdir(os.path.join(currdir, "enumlib", "symlib", "src"))
+        os.chdir(os.path.join(cwd, "enumlib", "symlib", "src"))
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
-        enumpath = os.path.join(currdir, "enumlib", "src")
+        enumpath = os.path.join(cwd, "enumlib", "src")
         os.chdir(enumpath)
         subprocess.call(["make"])
         for f in ["enum.x", "makestr.x"]:
             subprocess.call(["make", f])
             shutil.copy(f, os.path.join("..", ".."))
     except Exception as ex:
-        print(str(ex))
+        print(ex)
         state = False
     finally:
-        os.chdir(currdir)
+        os.chdir(cwd)
         shutil.rmtree("enumlib")
     return state
 
@@ -165,17 +164,16 @@ def install_software(install: Literal["enumlib", "bader"]):
     if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
-        print("")
+        print()
     elif install == "bader":
         print("Building bader")
         bader = build_bader(fortran_command)
-        print("")
+        print()
     if bader or enum:
         print(
-            "Please add {} to your PATH or move the executables multinum.x, "
-            "makestr.x and/or bader to a location in your PATH.".format(os.path.abspath("."))
+            f"Please add {os.path.abspath('.')} to your PATH or move the executables multinum.x, "
+            "makestr.x and/or bader to a location in your PATH.\n"
         )
-        print("")
 
 
 def add_config_var(tokens: list[str], backup_suffix: str) -> None:

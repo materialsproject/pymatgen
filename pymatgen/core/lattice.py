@@ -33,7 +33,7 @@ __email__ = "shyuep@gmail.com"
 
 class Lattice(MSONable):
     """
-    A lattice object.  Essentially a matrix with conversion matrices. In
+    A lattice object. Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
     degrees unless otherwise stated.
     """
@@ -941,8 +941,8 @@ class Lattice(MSONable):
         """
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "matrix": self._matrix.tolist(),
         }
         a, b, c, alpha, beta, gamma = self.parameters
@@ -1395,8 +1395,8 @@ class Lattice(MSONable):
         if not frac_coords:
             cart_a, cart_b = coords_a, coords_b
         else:
-            cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))  # type: ignore
-            cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))  # type: ignore
+            cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))
+            cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))
 
         return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
 
@@ -1456,13 +1456,11 @@ class Lattice(MSONable):
         """
         try:
             # pylint: disable=C0415
-            from pymatgen.optimization.neighbors import (
-                find_points_in_spheres,  # type: ignore
-            )
+            from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
         else:
-            frac_points = np.ascontiguousarray(frac_points, dtype=np.float_)  # type: ignore
+            frac_points = np.ascontiguousarray(frac_points, dtype=np.float_)
             r = float(r)
             lattice_matrix = np.array(self.matrix)
             lattice_matrix = np.ascontiguousarray(lattice_matrix)

@@ -1227,8 +1227,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         :return: Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "strategy": self.strategy,
             "structure": self.structure.as_dict(),
             "coordination_environments": self.coordination_environments,

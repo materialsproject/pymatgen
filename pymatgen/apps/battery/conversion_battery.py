@@ -176,7 +176,7 @@ class ConversionElectrode(AbstractElectrode):
         """
         Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
-        a subelectrode that is essentially on the same path.  For example, a
+        a subelectrode that is essentially on the same path. For example, a
         ConversionElectrode formed by starting from an FePO4 composition would
         be a super_electrode of a ConversionElectrode formed from an LiFePO4
         composition.
@@ -374,8 +374,8 @@ class ConversionVoltagePair(AbstractVoltagePair):
         frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
 
         rxn = rxn
-        entries_charge = step2["entries"]
-        entries_discharge = step1["entries"]
+        entries_charge = step1["entries"]
+        entries_discharge = step2["entries"]
 
         return ConversionVoltagePair(  # pylint: disable=E1123
             rxn=rxn,

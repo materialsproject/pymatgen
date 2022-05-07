@@ -53,7 +53,7 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of the algorithm
+        A JSON-serializable dict representation of the algorithm
         """
 
     @property
@@ -101,23 +101,23 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     @property
     def as_dict(self):
         """
-        Return the JSON serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+        Return the JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
 
-        Returns: a JSON serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+        Returns: a JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "permutations": self._permutations,
         }
 
     @classmethod
     def from_dict(cls, dd):
         """
-        Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON serializable dict representation.
+        Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
+            dd: a JSON-serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
 
         Returns: an ExplicitPermutationsAlgorithm algorithm.
         """
@@ -303,13 +303,13 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     @property
     def as_dict(self):
         """
-        Return the JSON serializable dict representation of this SeparationPlane algorithm.
+        Return the JSON-serializable dict representation of this SeparationPlane algorithm.
 
-        Returns: a JSON serializable dict representation of this SeparationPlane algorithm.
+        Returns: a JSON-serializable dict representation of this SeparationPlane algorithm.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "plane_points": self.plane_points,
             "mirror_plane": self.mirror_plane,
             "ordered_plane": self.ordered_plane,
@@ -329,10 +329,10 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     @classmethod
     def from_dict(cls, dd):
         """
-        Reconstructs the SeparationPlane algorithm from its JSON serializable dict representation.
+        Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON serializable dict representation of an SeparationPlane algorithm.
+            dd: a JSON-serializable dict representation of an SeparationPlane algorithm.
 
         Returns: a SeparationPlane algorithm.
         """
@@ -509,17 +509,17 @@ class CoordinationGeometry:
 
         def as_dict(self):
             """
-            A JSON serializable dict representation of this NeighborsSetsHints
+            A JSON-serializable dict representation of this NeighborsSetsHints
             """
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
         def from_dict(cls, dd):
             """
-            Reconstructs the NeighborsSetsHints from its JSON serializable dict representation.
+            Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation.
 
             Args:
-                dd: a JSON serializable dict representation of a NeighborsSetsHints.
+                dd: a JSON-serializable dict representation of a NeighborsSetsHints.
 
             Returns: a NeighborsSetsHints.
             """
@@ -595,7 +595,7 @@ class CoordinationGeometry:
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of this CoordinationGeometry.
+        A JSON-serializable dict representation of this CoordinationGeometry.
         """
         return {
             "mp_symbol": self._mp_symbol,
@@ -620,10 +620,10 @@ class CoordinationGeometry:
     @classmethod
     def from_dict(cls, dd):
         """
-        Reconstructs the CoordinationGeometry from its JSON serializable dict representation.
+        Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON serializable dict representation of a CoordinationGeometry.
+            dd: a JSON-serializable dict representation of a CoordinationGeometry.
 
         Returns: a CoordinationGeometry.
         """

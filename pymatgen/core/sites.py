@@ -25,7 +25,7 @@ class Site(collections.abc.Hashable, MSONable):
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
     Composition is used to represent the atoms and occupancy, which allows for
-    disordered site representation. Coords are given in standard cartesian
+    disordered site representation. Coords are given in standard Cartesian
     coordinates.
     """
 
@@ -83,7 +83,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
         """
-        return self._species  # type: ignore
+        return self._species
 
     @species.setter
     def species(self, species: SpeciesLike | CompositionLike):
@@ -102,33 +102,33 @@ class Site(collections.abc.Hashable, MSONable):
         """
         Cartesian x coordinate
         """
-        return self.coords[0]  # type: ignore
+        return self.coords[0]
 
     @x.setter
     def x(self, x: float):
-        self.coords[0] = x  # type: ignore
+        self.coords[0] = x
 
     @property
     def y(self) -> float:
         """
         Cartesian y coordinate
         """
-        return self.coords[1]  # type: ignore
+        return self.coords[1]
 
     @y.setter
     def y(self, y: float):
-        self.coords[1] = y  # type: ignore
+        self.coords[1] = y
 
     @property
     def z(self) -> float:
         """
         Cartesian z coordinate
         """
-        return self.coords[2]  # type: ignore
+        return self.coords[2]
 
     @z.setter
     def z(self, z: float):
-        self.coords[2] = z  # type: ignore
+        self.coords[2] = z
 
     def distance(self, other) -> float:
         """
@@ -228,7 +228,7 @@ class Site(collections.abc.Hashable, MSONable):
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas.  For example, FeO4PLi is
+        useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
         if self.species.average_electroneg < other.species.average_electroneg:
@@ -246,7 +246,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation for Site.
+        JSON-serializable dict representation for Site.
         """
         species_list = []
         for spec, occu in self.species.items():
@@ -258,10 +258,10 @@ class Site(collections.abc.Hashable, MSONable):
         d = {
             "name": self.species_string,
             "species": species_list,
-            "xyz": [float(c) for c in self.coords],  # type: ignore
+            "xyz": [float(c) for c in self.coords],
             "properties": self.properties,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
         if self.properties:
             d["properties"] = self.properties
@@ -593,7 +593,7 @@ class PeriodicSite(Site, MSONable):
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """
-        Json-serializable dict representation of PeriodicSite.
+        JSON-serializable dict representation of PeriodicSite.
 
         Args:
             verbosity (int): Verbosity level. Default of 0 only includes the
@@ -612,8 +612,8 @@ class PeriodicSite(Site, MSONable):
             "species": species_list,
             "abc": [float(c) for c in self._frac_coords],  # type: ignore
             "lattice": self._lattice.as_dict(verbosity=verbosity),
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
         if verbosity > 0:

@@ -126,15 +126,15 @@ class Kpoint(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of a kpoint
+        JSON-serializable dict representation of a kpoint
         """
         return {
             "lattice": self.lattice.as_dict(),
             "fcoords": self.frac_coords.tolist(),
             "ccoords": self.cart_coords.tolist(),
             "label": self.label,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -599,11 +599,11 @@ class BandStructure:
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructure.
+        JSON-serializable dict representation of BandStructure.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "efermi": self.efermi,
             "kpoints": [],
@@ -945,7 +945,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        JSON-serializable dict representation of BandStructureSymmLine.
         """
         d = super().as_dict()
         d["branches"] = self.branches
@@ -959,12 +959,12 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        JSON-serializable dict representation of BandStructureSymmLine.
         """
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "efermi": self.efermi,
             "kpoints": [],

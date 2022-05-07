@@ -20,23 +20,25 @@ A quick overview of the module:
    sections easier.
 """
 
+from __future__ import annotations
+
 import copy
+import itertools
 import os
 import re
 import textwrap
 import warnings
-import itertools
 from collections import OrderedDict
 from typing import Iterable, Sequence
+
 from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 
 __author__ = "Nicholas Winner"
 __version__ = "1.0"
@@ -115,8 +117,8 @@ class Keyword(MSONable):
         Get a dictionary representation of the Keyword
         """
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["name"] = self.name
         d["values"] = self.values
         d["description"] = self.description

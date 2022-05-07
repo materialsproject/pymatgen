@@ -87,7 +87,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
-        return f"{self.__class__.__name__} : {self.composition} with energy = {self.energy:.4f}"
+        return f"{type(self).__name__} : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
@@ -129,8 +129,8 @@ class Entry(MSONable, metaclass=ABCMeta):
         :return: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "energy": self._energy,
             "composition": self._composition.as_dict(),
         }
@@ -153,4 +153,4 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
-        return hash(f"{self.__class__.__name__}{self._composition.formula}{self._energy:.8f}")
+        return hash(f"{type(self).__name__}{self._composition.formula}{self._energy:.8f}")
