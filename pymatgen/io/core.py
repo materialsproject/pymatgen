@@ -126,11 +126,14 @@ class InputSet(MSONable, MutableMapping):
                 InputSet(inputs={}, foo='bar') will make InputSet.foo == 'bar'.
         """
         self.inputs = inputs
+        self._kwargs = kwargs
         self.__dict__.update(**kwargs)
 
     def __getattr__(self, k):
         # allow accessing keys as attributes
-        return self.get(k)
+        if k in self._kwargs:
+            return self.get(k)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
 
     def __len__(self):
         return len(self.inputs.keys())
@@ -179,11 +182,11 @@ class InputSet(MSONable, MutableMapping):
             file.touch()
 
             # write the file
-            if isinstance(contents, str):
-                with zopen(file, "wt") as f:
-                    f.write(contents)
-            else:
+            if isinstance(contents, InputFile):
                 contents.write_file(file)
+            else:
+                with zopen(file, "wt") as f:
+                    f.write(str(contents))
 
         if zip_inputs:
             zipfilename = path / f"{type(self).__name__}.zip"
