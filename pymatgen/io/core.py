@@ -120,7 +120,9 @@ class InputSet(MSONable, MutableMapping):
         Args:
             inputs: The core mapping of filename: file contents that defines the InputSet data.
                 This should be a dict where keys are filenames and values are InputFile objects
-                or strings representing the entire contents of the file. This mapping will
+                or strings representing the entire contents of the file. If a value is not an
+                InputFile object nor a str, but has a __str__ method, this str representation
+                of the object will be written to the corresponding file. This mapping will
                 become the .inputs attribute of the InputSet.
             **kwargs: Any kwargs passed will be set as class attributes e.g.
                 InputSet(inputs={}, foo='bar') will make InputSet.foo == 'bar'.
