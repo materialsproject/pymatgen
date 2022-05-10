@@ -120,17 +120,22 @@ class InputSet(MSONable, MutableMapping):
         Args:
             inputs: The core mapping of filename: file contents that defines the InputSet data.
                 This should be a dict where keys are filenames and values are InputFile objects
-                or strings representing the entire contents of the file. This mapping will
+                or strings representing the entire contents of the file. If a value is not an
+                InputFile object nor a str, but has a __str__ method, this str representation
+                of the object will be written to the corresponding file. This mapping will
                 become the .inputs attribute of the InputSet.
             **kwargs: Any kwargs passed will be set as class attributes e.g.
                 InputSet(inputs={}, foo='bar') will make InputSet.foo == 'bar'.
         """
         self.inputs = inputs
+        self._kwargs = kwargs
         self.__dict__.update(**kwargs)
 
     def __getattr__(self, k):
         # allow accessing keys as attributes
-        return self.get(k)
+        if k in self._kwargs:
+            return self.get(k)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
 
     def __len__(self):
         return len(self.inputs.keys())
@@ -179,11 +184,11 @@ class InputSet(MSONable, MutableMapping):
             file.touch()
 
             # write the file
-            if isinstance(contents, str):
-                with zopen(file, "wt") as f:
-                    f.write(contents)
-            else:
+            if isinstance(contents, InputFile):
                 contents.write_file(file)
+            else:
+                with zopen(file, "wt") as f:
+                    f.write(str(contents))
 
         if zip_inputs:
             zipfilename = path / f"{type(self).__name__}.zip"
