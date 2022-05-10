@@ -33,6 +33,14 @@ __date__ = "Aug 1, 2018"
 class LammpsInputFile(InputFile):
     """
     Class representing a LAMMPS input settings file, e.g. in.lammps.
+    Allows for LAMMPS input generation in line/stage wise manner. A stage
+    here is defined as a block of LAMMPS input commands usually performing a
+    specific task during the simulation such as energy minimization or
+    NPT/NVT runs. But more broadly, a stage can also be block of LAMMPS
+    input where simulation box is setup, a set of variables are declared or
+    quantities are computed. A comment beginning with '#' is treated as a
+    header for a stage and marks the start of a new stage in the LAMMPS input.
+    Other comments starting with '##' are treated as conventional comments.
     """
 
     def __init__(self, input_settings: OrderedDict = None):
@@ -153,29 +161,6 @@ class LammpsInputFile(InputFile):
                     lammps_input += "{0:20} {1}\n".format(command, args)
         return lammps_input
 
-    '''
-    def from_string(self, s: str):
-        """
-        Helper method to parse string representation of LammpsInputFile
-
-        Args:
-            s: String representation of LammpsInputFile.
-
-        Returns: LammpsInputFile
-        """
-
-        for line in self._clean_lines(s.splitlines()[1:]):
-            if line[:2] == '##':
-                self.add_comment(comment=line[2:], is_stage_header=False)
-            if line[0] == '#':
-                self.init_stage()
-                self.add_comment(comment=line[2:], is_stage_header=True)
-            else:
-                self.add_commands(line)
-
-        return LammpsInputFile(self.input_settings)
-    '''
-
     def from_string(self, s: str):
         """ 
         Helper method to parse string representation of LammpsInputFile
@@ -290,6 +275,7 @@ class LammpsInputFile(InputFile):
 
     def __str__(self):
         return self.get_string()
+
 
 class CombinedData(InputFile):
     """
