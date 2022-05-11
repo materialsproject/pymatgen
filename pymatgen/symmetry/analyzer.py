@@ -259,6 +259,15 @@ class SpacegroupAnalyzer:
             symmops.append(op)
         return symmops
 
+    def get_rotational_symmetry_number(self, cartesian=False):
+        symm_ops = self.get_symmetry_operations()
+        sym_number = 0
+        for sym in symm_ops:
+            rot = sym.rotation_matrix
+            if np.abs(np.linalg.det(rot) - 1) < 1e-4:
+                sym_number += 1
+        return sym_number
+
     def get_point_group_operations(self, cartesian=False):
         """
         Return symmetry operations as a list of SymmOp objects.
