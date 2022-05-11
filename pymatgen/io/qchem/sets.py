@@ -172,6 +172,7 @@ class QChemDictSet(QCInput):
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
         myrem["gen_scfman"] = "true"
         myrem["xc_grid"] = "3"
+        myrem["thresh"] = "14"
         myrem["scf_algorithm"] = self.scf_algorithm
         myrem["resp_charges"] = "true"
         myrem["symmetry"] = "false"
