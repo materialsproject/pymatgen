@@ -461,7 +461,7 @@ class FreysoldtCorrection2d(DefectCorrection):
 
             return stdout.decode("utf-8")
 
-    def optimize(self, q, max_iter=100, threshold_slope=1e-3, threshold_C=1e-3):
+    def optimize(self, q, max_iter=1000, threshold_slope=1e-3, threshold_C=1e-3):
         """
         Optimize the alignment constant C and shift for the potentials.
 
@@ -527,9 +527,9 @@ class FreysoldtCorrection2d(DefectCorrection):
         C_ave = (C1 + C2) / 2
         if done:
             logger.info("DONE! shift = %.8f & alignment correction = %.8f" % (shift, C_ave))
-        else:
-            logger.info("Could not find optimal shift after %d tries :(" % max_iter)
-        return self.run_sxdefectalign2d(shift=shift, C=C_ave, only_profile=False)
+            return self.run_sxdefectalign2d(shift=shift, C=C_ave, only_profile=False)
+        logger.info("Could not find optimal shift after %d tries :(" % max_iter)
+        return self.run_sxdefectalign2d(shift=0, C=0, only_profile=False)
 
     def parse_output(self, output):
         """
