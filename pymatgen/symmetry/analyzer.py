@@ -261,12 +261,12 @@ class SpacegroupAnalyzer:
 
     def get_rotational_symmetry_number(self, cartesian=False):
         symm_ops = self.get_symmetry_operations()
-        sym_number = 0
-        for sym in symm_ops:
-            rot = sym.rotation_matrix
+        symm_number = 0
+        for symm in symm_ops:
+            rot = symm.rotation_matrix
             if np.abs(np.linalg.det(rot) - 1) < 1e-4:
-                sym_number += 1
-        return sym_number
+                symm_number += 1
+        return symm_number
 
     def get_point_group_operations(self, cartesian=False):
         """
