@@ -259,7 +259,10 @@ class SpacegroupAnalyzer:
             symmops.append(op)
         return symmops
 
-    def get_rotational_symmetry_number(self, cartesian=False):
+    def get_rotational_symmetry_number(self):
+        """
+        Return the rotational symmetry number.
+        """
         symm_ops = self.get_symmetry_operations()
         symm_number = 0
         for symm in symm_ops:
