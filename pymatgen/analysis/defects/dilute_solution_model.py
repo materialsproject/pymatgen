@@ -343,7 +343,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     if not trial_chem_pot:
         # Try computing mus by assuming one of the defects is dominant at 0.01
-        # concen.  First vacancy is tried and then antisite
+        # concen. First vacancy is tried and then antisite
 
         # Generate trial mus assuming vacancy as dominant defect
         # for specie-0 at lower yval
@@ -1070,7 +1070,7 @@ def solute_site_preference_finder(
 
     if not trial_chem_pot:
         # Try computing mus by assuming one of the defects is dominant at 0.01
-        # concen.  First vacancy is tried and then antisite
+        # concen. First vacancy is tried and then antisite
 
         # Generate trial mus assuming vacancy as dominant defect
         # for specie-0 at lower yval

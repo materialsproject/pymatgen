@@ -47,7 +47,7 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import hiphive  # type: ignore
+    import hiphive
 except ImportError:
     hiphive = None
 

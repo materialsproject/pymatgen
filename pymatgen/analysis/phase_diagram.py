@@ -73,7 +73,7 @@ class PDEntry(Entry):
         name = ""
         if self.name != self.composition.reduced_formula:
             name = f" ({self.name})"
-        return f"{self.__class__.__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
+        return f"{type(self).__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
 
     @property
     def energy(self) -> float:
@@ -175,8 +175,8 @@ class GrandPotPDEntry(PDEntry):
             MSONable dictionary representation of GrandPotPDEntry
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entry": self.original_entry.as_dict(),
             "chempots": {el.symbol: u for el, u in self.chempots.items()},
             "name": self.name,
@@ -263,8 +263,8 @@ class TransformedPDEntry(PDEntry):
             MSONable dictionary representation of TransformedPDEntry
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "sp_mapping": self.sp_mapping,
         }
         d.update(self.original_entry.as_dict())
@@ -373,8 +373,8 @@ class PhaseDiagram(MSONable):
         :return: MSONAble dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
             "computed_data": self.computed_data,
@@ -1278,8 +1278,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "chempots": self.chempots,
             "elements": [e.as_dict() for e in self.elements],
@@ -1377,8 +1377,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
             MSONable dictionary representation of CompoundPhaseDiagram
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "original_entries": [e.as_dict() for e in self.original_entries],
             "terminal_compositions": [c.as_dict() for c in self.terminal_compositions],
             "normalize_terminal_compositions": self.normalize_terminals,
@@ -1487,12 +1487,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "{} {} + {} {} -> ".format(
-                            fmt(c1),
-                            r1.reduced_formula,
-                            fmt(c2),
-                            r2.reduced_formula,
-                        )
+                        rxn_str = f"{fmt(c1)} {r1.reduced_formula} + {fmt(c2)} {r2.reduced_formula} -> "
                         products = []
                         product_entries = []
 
@@ -1912,7 +1907,7 @@ class PDPlotter:
         return plt
 
     def show(self, *args, **kwargs):
-        r"""
+        """
         Draw the phase diagram using Plotly (or Matplotlib) and show it.
 
         Args:
@@ -2126,7 +2121,7 @@ class PDPlotter:
 
     def _get_3d_plot(self, label_stable=True):
         """
-        Shows the plot using pylab.  Usually I won"t do imports in methods,
+        Shows the plot using pylab. Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
@@ -2168,7 +2163,7 @@ class PDPlotter:
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
-        r"""
+        """
         Writes the phase diagram to an image in a stream.
 
         Args:
@@ -2882,7 +2877,7 @@ class PDPlotter:
 
 def uniquelines(q):
     """
-    Given all the facets, convert it into a set of unique lines.  Specifically
+    Given all the facets, convert it into a set of unique lines. Specifically
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
@@ -2891,7 +2886,7 @@ def uniquelines(q):
 
     Returns:
         setoflines:
-            A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)
+            A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
     """
     setoflines = set()
     for facets in q:

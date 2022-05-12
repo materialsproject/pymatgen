@@ -9,7 +9,7 @@ actual code demonstrating the use of the code. Learning from those examples
 is the fastest way to get started.
 
 Pymatgen is structured in a highly object-oriented manner. Almost everything
-(Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
+(Element, Site, Structure, etc.) is an object. Currently, the code is heavily
 biased towards the representation and manipulation of crystals with periodic
 boundary conditions, though flexibility has been built in for molecules.
 
@@ -49,7 +49,7 @@ Side-note : as_dict / from_dict
 ===============================
 
 As you explore the code, you may notice that many of the objects have an as_dict
-method and a from_dict static method implemented.  For most of the non-basic
+method and a from_dict static method implemented. For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
 to be extremely fragile with respect to code changes. Pymatgen's as_dict
@@ -97,8 +97,8 @@ add these keys if they are not present, but for better long term stability
 through the encoder), the easiest way is to add the following to any to_dict
 property::
 
-    d["@module"] = self.__class__.__module__
-    d["@class"] = self.__class__.__name__
+    d["@module"] = type(self).__module__
+    d["@class"] = type(self).__name__
 
 To use the MontyDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.::
@@ -122,7 +122,7 @@ Creating a Structure manually
 -----------------------------
 
 This is generally the most painful method. Though sometimes necessary, it is
-seldom the method you would use.  An example of creating the basic silicon
+seldom the method you would use. An example of creating the basic silicon
 crystal is provided below::
 
     from pymatgen.core import Lattice, Structure, Molecule
@@ -208,7 +208,7 @@ Please see the :doc:`installation guide </installation>`.
 Things you can do with Structures
 ---------------------------------
 
-This section is a work in progress.  But just to give an overview of the kind of
+This section is a work in progress. But just to give an overview of the kind of
 analysis you can do:
 
 1. Modify Structures directly or even better, using the :mod:`pymatgen
@@ -234,7 +234,7 @@ Molecules. For example, you can change any site simply with::
     molecule[1] = "F"
 
     # Change species and coordinates (fractional assumed for Structures,
-    # cartesian for Molecules)
+    # Cartesian for Molecules)
     structure[1] = "Cl", [0.51, 0.51, 0.51]
     molecule[1] = "F", [1.34, 2, 3]
 
@@ -311,6 +311,45 @@ he should use the following procedure::
    plotter = PDPlotter(pd)
    plotter.show()
 
+pymatgen.io - Managing calculation inputs and outputs
+=====================================================
+
+The :mod:`pymatgen.io` module contains classes to facilitate writing input files
+and parsing output files from a variety of computational codes, including VASP,
+Q-Chem, LAMMPS, CP2K, AbInit, and many more.
+
+The core class for managing inputs is the :class:`InputSet`. An :class:`InputSet` object contains
+all the data necessary to write one or more input files for a calculation.
+Specifically, every :class:`InputSet` has a `write_input()` method that writes all the
+necessary files to a location you specify. There are also :class:`InputGenerator` classes
+that yield :class:`InputSet` with settings tailored to specific calculation types (for example,
+a structure relaxation). You can think of :class:`InputGenerator` classes as "recipes" for
+accomplishing specific computational tasks, while :class:`InputSet` contain those recipes
+applied to a specific system or structure.
+
+Custom settings can be provided to :class:`InputGenerator` on instantiation. For example,
+to construct an :class:`InputSet` for packing water molecules into a box using the Packmol
+code, while changing the packing tolerance from 2.0 (default) to 3.0::
+
+    from pymatgen.io.packmol import PackmolBoxGen
+
+    input_gen = PackmolBoxGen(tolerance=3.0)
+    packmol_set = input_gen.get_input_set({"name": "water",
+                                           "number": 500,
+                                           "coords": "/path/to/input/file.xyz"})
+    packmol_set.write_input('/path/to/calc/directory')
+
+You can also use `InputSet.from_directory()` to construct a pymatgen :class:`InputSet`
+from a directory containing calculation inputs.
+
+Many codes also contain classes for parsing output files into pymatgen objects that
+inherit from :class:`InputFile`, which provides a standard interface for reading and
+writing individual files.
+
+Use of :class:`InputFile`, :class:`InputSet`, and :class:`InputGenerator` classes is
+not yet fully implemented by all codes supported by pymatgen, so please refer to the
+respective module documentation for each code for more details.
+
 pymatgen.borg - High-throughput data assimilation
 =================================================
 
@@ -319,7 +358,7 @@ it. The basic concept is to provide a convenient means to
 assimilate large quantities of data in a directory structure. For now, the main
 application is the assimilation of entire directory structures of VASP
 calculations into usable pymatgen entries, which can then be used for phase
-diagram and other analyses.  The outline of how it works is as follows:
+diagram and other analyses. The outline of how it works is as follows:
 
 1. Drones are defined in the :mod:`pymatgen.apps.borg.hive` module. A Drone
    is essentially an object which defines how a directory is parsed into a
@@ -449,7 +488,7 @@ the web interface.
 
 In parallel, we have coded in the :mod:`pymatgen.ext.matproj` module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
-useful pymatgen objects for further analyses.  To use the Materials API,
+useful pymatgen objects for further analyses. To use the Materials API,
 your need to first register with the Materials Project and generate your API
 key in your dashboard at https://www.materialsproject.org/dashboard. In the
 examples below, the user's Materials API key is designated as "USER_API_KEY".
@@ -543,7 +582,7 @@ document schema used in the Materials Project and how best to query for the
 relevant information you need.
 
 Setting the PMG_MAPI_KEY in the config file
----------------------------------------
+-------------------------------------------
 
 MPRester can also read the API key via the pymatgen config file. Simply run::
 

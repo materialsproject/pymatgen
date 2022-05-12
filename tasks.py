@@ -109,7 +109,7 @@ def make_dash(ctx):
     #     for l in f:
     #         l = l.strip()
     #         if l.startswith("<version>"):
-    #             xml.append("<version>%s</version>" % version)
+    #             xml.append(f"<version>{version}</version>")
     #         else:
     #             xml.append(l)
     # with open("docs/pymatgen.xml", "wt") as f:

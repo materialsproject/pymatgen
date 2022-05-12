@@ -372,7 +372,7 @@ class StaticPotential(metaclass=ABCMeta):
         relatively smooth anyway). The smearing obeys periodic
         boundary conditions at the edges of the cell.
 
-        :param r - Smearing width in cartesian coordinates, in the same units
+        :param r - Smearing width in Cartesian coordinates, in the same units
             as the structure lattice vectors
         """
         # Since scaling factor in fractional coords is not isotropic, have to

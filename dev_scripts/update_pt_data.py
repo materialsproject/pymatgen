@@ -31,9 +31,8 @@ def test_json():
 def parse_oxi_state():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("oxidation_states.txt")
-    oxidata = f.read()
-    f.close()
+    with open("oxidation_states.txt") as f:
+        oxidata = f.read()
     oxidata = re.sub("[\n\r]", "", oxidata)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
 
@@ -71,9 +70,8 @@ def parse_oxi_state():
 def parse_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("ionic_radii.csv")
-    radiidata = f.read()
-    f.close()
+    with open("ionic_radii.csv") as f:
+        radiidata = f.read()
     radiidata = radiidata.split("\r")
     header = radiidata[0].split(",")
     for i in range(1, len(radiidata)):
@@ -104,9 +102,8 @@ def parse_ionic_radii():
 def parse_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("radii.csv")
-    radiidata = f.read()
-    f.close()
+    with open("radii.csv") as f:
+        radiidata = f.read()
     radiidata = radiidata.split("\r")
 
     for i in range(1, len(radiidata)):
@@ -187,7 +184,6 @@ def parse_shannon_radii():
             spin = sheet[f"D{int(i)}"].value
         else:
             spin = ""
-        # print("%s - %d - %s" % (el, charge, cn))
 
         radii[el][charge][cn][spin] = {
             "crystal_radius": float(sheet[f"E{int(i)}"].value),

@@ -144,11 +144,11 @@ def all_distances(coords1, coords2):
     Returns the distances between two lists of coordinates
 
     Args:
-        coords1: First set of cartesian coordinates.
-        coords2: Second set of cartesian coordinates.
+        coords1: First set of Cartesian coordinates.
+        coords2: Second set of Cartesian coordinates.
 
     Returns:
-        2d array of cartesian distances. E.g the distance between
+        2d array of Cartesian distances. E.g the distance between
         coords1[i] and coords2[j] is distances[i,j]
     """
     c1 = np.array(coords1)
@@ -422,7 +422,7 @@ class Simplex(MSONable):
         simplex from this origin by subtracting all other vertices from the
         origin. We then project the point into this coordinate system and
         determine the linear decomposition coefficients in this coordinate
-        system.  If the coeffs satisfy that all coeffs >= 0, the composition
+        system. If the coeffs satisfy that all coeffs >= 0, the composition
         is in the facet.
 
         Args:

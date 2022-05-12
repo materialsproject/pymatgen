@@ -7,6 +7,8 @@ the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures.
 """
 
+from __future__ import annotations
+
 import json
 import math
 import os
@@ -16,7 +18,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 from monty.dev import requires
@@ -1011,7 +1013,7 @@ class IsayevNN(VoronoiNN):
     def __init__(
         self,
         tol: float = 0.25,
-        targets: Optional[Union[Element, List[Element]]] = None,
+        targets: Element | list[Element] | None = None,
         cutoff: float = 13.0,
         allow_pathological: bool = False,
         extra_nn_info: bool = True,
@@ -1036,7 +1038,7 @@ class IsayevNN(VoronoiNN):
         self.extra_nn_info = extra_nn_info
         self.compute_adj_neighbors = compute_adj_neighbors
 
-    def get_nn_info(self, structure: Structure, n: int) -> List[Dict[str, Any]]:
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict[str, Any]]:
         """
         Get all near-neighbor site information.
 
@@ -1060,7 +1062,7 @@ class IsayevNN(VoronoiNN):
         nns = self.get_voronoi_polyhedra(structure, n)
         return self._filter_nns(structure, n, nns)
 
-    def get_all_nn_info(self, structure: Structure) -> List[List[Dict[str, Any]]]:
+    def get_all_nn_info(self, structure: Structure) -> list[list[dict[str, Any]]]:
         """
         Args:
             structure (Structure): input structure.
@@ -1072,7 +1074,7 @@ class IsayevNN(VoronoiNN):
         all_nns = self.get_all_voronoi_polyhedra(structure)
         return [self._filter_nns(structure, n, nns) for n, nns in enumerate(all_nns)]
 
-    def _filter_nns(self, structure: Structure, n: int, nns: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _filter_nns(self, structure: Structure, n: int, nns: dict[str, Any]) -> list[dict[str, Any]]:
         """Extract and filter the NN info into the format needed by NearestNeighbors.
 
         Args:
@@ -1860,7 +1862,7 @@ class MinimumVIRENN(NearNeighbors):
         return siw
 
 
-def _get_vire(structure: Union[Structure, IStructure]):
+def _get_vire(structure: Structure | IStructure):
     """Get the ValenceIonicRadiusEvaluator object for an structure taking
     advantage of caching.
 
@@ -2037,8 +2039,8 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10.0
     Returns the motif type of the site with index n in structure struct;
     currently featuring "tetrahedral", "octahedral", "bcc", and "cp"
     (close-packed: fcc and hcp) as well as "square pyramidal" and
-    "trigonal bipyramidal".  If the site is not recognized,
-    "unrecognized" is returned.  If a site should be assigned to two
+    "trigonal bipyramidal". If the site is not recognized,
+    "unrecognized" is returned. If a site should be assigned to two
     different motifs, "multiple assignments" is returned.
 
     Args:
@@ -2393,7 +2395,7 @@ class LocalStructOrderParams:
             thetas ([float]): polar angles of all neighbors in radians.
             phis ([float]): azimuth angles of all neighbors in radians.
                 The list of
-                azimuth angles of all neighbors in radians.  The list of
+                azimuth angles of all neighbors in radians. The list of
                 azimuth angles is expected to have the same size as the
                 list of polar angles; otherwise, a ValueError is raised.
                 Also, the two lists of angles have to be coherent in
@@ -2426,9 +2428,9 @@ class LocalStructOrderParams:
     def get_q2(self, thetas=None, phis=None):
         """
         Calculates the value of the bond orientational order parameter of
-        weight l=2.  If the function is called with non-empty lists of
+        weight l=2. If the function is called with non-empty lists of
         polar and azimuthal angles the corresponding trigonometric terms
-        are computed afresh.  Otherwise, it is expected that the
+        are computed afresh. Otherwise, it is expected that the
         compute_trigonometric_terms function has been just called.
 
         Args:
@@ -2493,9 +2495,9 @@ class LocalStructOrderParams:
     def get_q4(self, thetas=None, phis=None):
         """
         Calculates the value of the bond orientational order parameter of
-        weight l=4.  If the function is called with non-empty lists of
+        weight l=4. If the function is called with non-empty lists of
         polar and azimuthal angles the corresponding trigonometric terms
-        are computed afresh.  Otherwise, it is expected that the
+        are computed afresh. Otherwise, it is expected that the
         compute_trigonometric_terms function has been just called.
 
         Args:
@@ -2601,9 +2603,9 @@ class LocalStructOrderParams:
     def get_q6(self, thetas=None, phis=None):
         """
         Calculates the value of the bond orientational order parameter of
-        weight l=6.  If the function is called with non-empty lists of
+        weight l=6. If the function is called with non-empty lists of
         polar and azimuthal angles the corresponding trigonometric terms
-        are computed afresh.  Otherwise, it is expected that the
+        are computed afresh. Otherwise, it is expected that the
         compute_trigonometric_terms function has been just called.
 
         Args:
@@ -2810,7 +2812,7 @@ class LocalStructOrderParams:
             structure (Structure): input structure.
             n (int): index of site in input structure,
                 for which OPs are to be
-                calculated.  Note that we do not use the sites iterator
+                calculated. Note that we do not use the sites iterator
                 here, but directly access sites via struct[index].
             indices_neighs ([int]): list of indices of those neighbors
                 in Structure object
@@ -2821,9 +2823,9 @@ class LocalStructOrderParams:
                 vs constant cutoff radius if cutoff was positive).
                 We do not use information about the underlying
                 structure lattice if the neighbor indices are explicitly
-                provided.  This has two important consequences.  First,
+                provided. This has two important consequences. First,
                 the input Structure object can, in fact, be a
-                simple list of Site objects.  Second, no nearest images
+                simple list of Site objects. Second, no nearest images
                 of neighbors are determined when providing an index list.
                 Note furthermore that this neighbor
                 determination type ignores the optional target_spec
@@ -2839,9 +2841,9 @@ class LocalStructOrderParams:
                 structure.
 
         Returns:
-            [floats]: representing order parameters.  Should it not be
+            [floats]: representing order parameters. Should it not be
             possible to compute a given OP for a conceptual reason, the
-            corresponding entry is None instead of a float.  For Steinhardt
+            corresponding entry is None instead of a float. For Steinhardt
             et al.'s bond orientational OPs and the other geometric OPs
             ("tet", "oct", "bcc", etc.),
             this can happen if there is a single
@@ -3714,8 +3716,8 @@ def _get_fictive_ionic_radius(site: Site, neighbor: PeriodicNeighbor) -> float:
 
 
 def _get_mean_fictive_ionic_radius(
-    fictive_ionic_radii: List[float],
-    minimum_fir: Optional[float] = None,
+    fictive_ionic_radii: list[float],
+    minimum_fir: float | None = None,
 ) -> float:
     """
     Returns the mean fictive ionic radius.

@@ -4,13 +4,17 @@
 """
 Classes for reading/manipulating/writing QChem input files.
 """
+
+from __future__ import annotations
+
 import logging
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from pathlib import Path
+from typing import Literal
 
 from monty.io import zopen
-from monty.json import MSONable
 
 from pymatgen.core import Molecule
+from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
@@ -23,7 +27,7 @@ __credits__ = "Xiaohui Qu"
 logger = logging.getLogger(__name__)
 
 
-class QCInput(MSONable):
+class QCInput(InputFile):
     """
     An object representing a QChem input file. QCInput attributes represent different sections of a QChem input file.
     To add a new section one needs to modify __init__, __str__, from_sting and add staticmethods
@@ -34,18 +38,18 @@ class QCInput(MSONable):
 
     def __init__(
         self,
-        molecule: Union[Molecule, Literal["read"]],
-        rem: Dict,
-        opt: Optional[Dict[str, List]] = None,
-        pcm: Optional[Dict] = None,
-        solvent: Optional[Dict] = None,
-        smx: Optional[Dict] = None,
-        scan: Optional[Dict[str, List]] = None,
-        van_der_waals: Optional[Dict[str, float]] = None,
+        molecule: Molecule | Literal["read"],
+        rem: dict,
+        opt: dict[str, list] | None = None,
+        pcm: dict | None = None,
+        solvent: dict | None = None,
+        smx: dict | None = None,
+        scan: dict[str, list] | None = None,
+        van_der_waals: dict[str, float] | None = None,
         vdw_mode: str = "atomic",
-        plots: Optional[Dict] = None,
-        nbo: Optional[Dict] = None,
-        geom_opt: Optional[Dict] = None,
+        plots: dict | None = None,
+        nbo: dict | None = None,
+        geom_opt: dict | None = None,
     ):
         """
         Args:
@@ -142,6 +146,12 @@ class QCInput(MSONable):
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
 
+    def get_string(self):
+        """
+        Return a string representation of an entire input file.
+        """
+        return self.__str__()
+
     def __str__(self):
         combined_list = []
         # molecule section
@@ -188,7 +198,7 @@ class QCInput(MSONable):
         return "\n".join(combined_list)
 
     @staticmethod
-    def multi_job_string(job_list: List["QCInput"]) -> str:
+    def multi_job_string(job_list: list[QCInput]) -> str:
         """
         Args:
             job_list (): List of jobs
@@ -205,7 +215,7 @@ class QCInput(MSONable):
         return multi_job_string
 
     @classmethod
-    def from_string(cls, string: str) -> "QCInput":
+    def from_string(cls, string: str) -> QCInput:
         """
         Read QcInput from string.
 
@@ -262,18 +272,8 @@ class QCInput(MSONable):
             geom_opt=geom_opt,
         )
 
-    def write_file(self, filename: str):
-        """
-        Write QcInput to file.
-
-        Args:
-            filename (str): Filename
-        """
-        with zopen(filename, "wt") as f:
-            f.write(self.__str__())
-
     @staticmethod
-    def write_multi_job_file(job_list: List["QCInput"], filename: str):
+    def write_multi_job_file(job_list: list[QCInput], filename: str):
         """
         Write a multijob file.
 
@@ -285,7 +285,7 @@ class QCInput(MSONable):
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
-    def from_file(filename: str) -> "QCInput":
+    def from_file(filename: str | Path) -> QCInput:
         """
         Create QcInput from file.
         Args:
@@ -298,7 +298,7 @@ class QCInput(MSONable):
             return QCInput.from_string(f.read())
 
     @classmethod
-    def from_multi_jobs_file(cls, filename: str) -> List["QCInput"]:
+    def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
         """
         Create list of QcInput from a file.
         Args:
@@ -315,7 +315,7 @@ class QCInput(MSONable):
             return input_list
 
     @staticmethod
-    def molecule_template(molecule: Union[Molecule, Literal["read"]]) -> str:
+    def molecule_template(molecule: Molecule | Literal["read"]) -> str:
         """
         Args:
             molecule (Molecule): molecule
@@ -343,7 +343,7 @@ class QCInput(MSONable):
         return "\n".join(mol_list)
 
     @staticmethod
-    def rem_template(rem: Dict) -> str:
+    def rem_template(rem: dict) -> str:
         """
         Args:
             rem ():
@@ -359,7 +359,7 @@ class QCInput(MSONable):
         return "\n".join(rem_list)
 
     @staticmethod
-    def opt_template(opt: Dict[str, List]) -> str:
+    def opt_template(opt: dict[str, list]) -> str:
         """
         Optimization template.
 
@@ -385,7 +385,7 @@ class QCInput(MSONable):
         return "\n".join(opt_list)
 
     @staticmethod
-    def pcm_template(pcm: Dict) -> str:
+    def pcm_template(pcm: dict) -> str:
         """
         Pcm run template.
 
@@ -403,7 +403,7 @@ class QCInput(MSONable):
         return "\n".join(pcm_list)
 
     @staticmethod
-    def solvent_template(solvent: Dict) -> str:
+    def solvent_template(solvent: dict) -> str:
         """
         Solvent template.
 
@@ -421,7 +421,7 @@ class QCInput(MSONable):
         return "\n".join(solvent_list)
 
     @staticmethod
-    def smx_template(smx: Dict) -> str:
+    def smx_template(smx: dict) -> str:
         """
         Args:
             smx ():
@@ -440,7 +440,7 @@ class QCInput(MSONable):
         return "\n".join(smx_list)
 
     @staticmethod
-    def scan_template(scan: Dict[str, List]) -> str:
+    def scan_template(scan: dict[str, list]) -> str:
         """
         Args:
             scan (dict): Dictionary with scan section information.
@@ -462,7 +462,7 @@ class QCInput(MSONable):
         return "\n".join(scan_list)
 
     @staticmethod
-    def van_der_waals_template(radii: Dict[str, float], mode: str = "atomic") -> str:
+    def van_der_waals_template(radii: dict[str, float], mode: str = "atomic") -> str:
         """
         Args:
             radii (dict): Dictionary with custom van der Waals radii, in
@@ -493,7 +493,7 @@ class QCInput(MSONable):
         return "\n".join(vdw_list)
 
     @staticmethod
-    def plots_template(plots: Dict) -> str:
+    def plots_template(plots: dict) -> str:
         """
         Args:
             plots ():
@@ -509,7 +509,7 @@ class QCInput(MSONable):
         return "\n".join(plots_list)
 
     @staticmethod
-    def nbo_template(nbo: Dict) -> str:
+    def nbo_template(nbo: dict) -> str:
         """
         Args:
             nbo ():
@@ -541,7 +541,7 @@ class QCInput(MSONable):
         return "\n".join(geom_opt_list)
 
     @staticmethod
-    def find_sections(string: str) -> List:
+    def find_sections(string: str) -> list:
         """
         Find sections in the string.
 
@@ -567,7 +567,7 @@ class QCInput(MSONable):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Union[Molecule, Literal["read"]]:
+    def read_molecule(string: str) -> Molecule | Literal["read"]:
         """
         Read molecule from string.
 
@@ -604,7 +604,7 @@ class QCInput(MSONable):
         return mol
 
     @staticmethod
-    def read_rem(string: str) -> Dict:
+    def read_rem(string: str) -> dict:
         """
         Parse rem from string.
 
@@ -621,7 +621,7 @@ class QCInput(MSONable):
         return dict(rem_table[0])
 
     @staticmethod
-    def read_opt(string: str) -> Dict[str, List]:
+    def read_opt(string: str) -> dict[str, list]:
         """
         Read opt section from string.
 
@@ -682,7 +682,7 @@ class QCInput(MSONable):
         return opt
 
     @staticmethod
-    def read_pcm(string: str) -> Dict:
+    def read_pcm(string: str) -> dict:
         """
         Read pcm parameters from string.
 
@@ -703,7 +703,7 @@ class QCInput(MSONable):
         return dict(pcm_table[0])
 
     @staticmethod
-    def read_vdw(string: str) -> Tuple[str, Dict]:
+    def read_vdw(string: str) -> tuple[str, dict]:
         """
         Read van der Waals parameters from string.
 
@@ -729,7 +729,7 @@ class QCInput(MSONable):
         return mode, dict(vdw_table[0][1:])
 
     @staticmethod
-    def read_solvent(string: str) -> Dict:
+    def read_solvent(string: str) -> dict:
         """
         Read solvent parameters from string.
 
@@ -750,7 +750,7 @@ class QCInput(MSONable):
         return dict(solvent_table[0])
 
     @staticmethod
-    def read_smx(string: str) -> Dict:
+    def read_smx(string: str) -> dict:
         """
         Read smx parameters from string.
 
@@ -775,7 +775,7 @@ class QCInput(MSONable):
         return smx
 
     @staticmethod
-    def read_scan(string: str) -> Dict[str, List]:
+    def read_scan(string: str) -> dict[str, list]:
         """
         Read scan section from a string.
 
@@ -810,7 +810,7 @@ class QCInput(MSONable):
         return {"stre": stre, "bend": bend, "tors": tors}
 
     @staticmethod
-    def read_plots(string: str) -> Dict:
+    def read_plots(string: str) -> dict:
         """
         Read plots parameters from string.
 
@@ -833,7 +833,7 @@ class QCInput(MSONable):
         return plots
 
     @staticmethod
-    def read_nbo(string: str) -> Dict:
+    def read_nbo(string: str) -> dict:
         """
         Read nbo parameters from string.
 
@@ -856,7 +856,7 @@ class QCInput(MSONable):
         return nbo
 
     @staticmethod
-    def read_geom_opt(string: str) -> Dict:
+    def read_geom_opt(string: str) -> dict:
         """
         Read geom_opt parameters from string.
 

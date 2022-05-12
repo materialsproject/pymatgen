@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v2022.2.7
----------
-* Critical bug fix for pmgrc.yaml being overwritten in MPRester in a non-standard way.
-* Change in config file for Lobster basis. Removed the 2p orbitals for Be as they led to problems in our computations and probably should be optional during the projection. (@JaGeo) 
-* Return None for ISPIN=1 for `Vasprun('vasprun.xml').complete_dos.spin_polarization`.
-
+v2022.4.26
+----------
+* Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (@@fraricci)
+* Removed complex numbers from the definition of WSWQ (@jmmshn)
+* MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
+  This avoids the MPRester constantly rewriting a config file and causing users' pymatgen to completely fail.

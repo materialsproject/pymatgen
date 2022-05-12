@@ -8,6 +8,7 @@ from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import PymatgenTest
 
 
+# TODO More comprehensive testing
 class SetTest(PymatgenTest):
     def setUp(self):
         self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
