@@ -242,11 +242,11 @@ class QChemDictSet(QCInput):
         my_geom_opt = self.new_geom_opt
         if self.new_geom_opt is not None:
             myrem["geom_opt2"] = "3"
-            if "maxiter" in my_geom_opt:
-                if my_geom_opt["maxiter"] != myrem["geom_opt_max_cycles"]:
+            if "maxiter" in self.new_geom_opt:
+                if my_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
                     raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
             else:
-                my_geom_opt["maxiter"] = myrem["geom_opt_max_cycles"]
+                my_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
