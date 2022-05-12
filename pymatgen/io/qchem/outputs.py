@@ -717,7 +717,7 @@ class QCOutput(MSONable):
             header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
             table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
-        else:
+        else:  # pylint: disable=line-too-long
             header_pattern = r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
@@ -744,7 +744,7 @@ class QCOutput(MSONable):
             )
             table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s+Z-matrix Print:"
-        else:
+        else:  # pylint: disable=line-too-long
             header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
