@@ -525,7 +525,7 @@ class QCInput(InputFile):
         return "\n".join(nbo_list)
 
     @staticmethod
-    def geom_opt_template(geom_opt: Dict) -> str:
+    def geom_opt_template(geom_opt: dict) -> str:
         """
         Args:
             geom_opt ():
