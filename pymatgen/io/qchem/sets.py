@@ -239,14 +239,14 @@ class QChemDictSet(QCInput):
                 if key != "version":
                     mynbo[key] = self.nbo_params[key]
 
-        mygeomopt = self.new_geom_opt
+        my_geom_opt = self.new_geom_opt
         if self.new_geom_opt is not None:
             myrem["geom_opt2"] = "3"
             if "maxiter" in self.new_geom_opt:
-                if mygeomopt["maxiter"] != str(self.geom_opt_max_cycles):
+                if my_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
                     raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
             else:
-                mygeomopt["maxiter"] = str(self.geom_opt_max_cycles)
+                my_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -287,13 +287,13 @@ class QChemDictSet(QCInput):
                     for k, v in temp_nbo.items():
                         mynbo[k] = v
                 if sec == "geom_opt":
-                    if mygeomopt is None:
+                    if my_geom_opt is None:
                         raise RuntimeError(
                             "Can't overwrite geom_opt params when not using the new optimizer! Exiting..."
                         )
                     temp_geomopt = lower_and_check_unique(sec_dict)
                     for k, v in temp_geomopt.items():
-                        mygeomopt[k] = v
+                        my_geom_opt[k] = v
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -311,7 +311,7 @@ class QChemDictSet(QCInput):
             vdw_mode=self.vdw_mode,
             plots=myplots,
             nbo=mynbo,
-            geom_opt=mygeomopt,
+            geom_opt=my_geom_opt,
         )
 
     def write(self, input_file: str):
