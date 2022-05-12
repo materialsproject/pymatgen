@@ -874,6 +874,10 @@ class QCOutput(MSONable):
                 temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
+            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                "key"
+            ) == [[]]:
+                self.data["errors"] += ["back_transform_error"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
             for ii, entry in enumerate(temp_energy_trajectory):
@@ -888,7 +892,7 @@ class QCOutput(MSONable):
             self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
             # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-            # to be determined.
+            # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0
                 and self.data.get("optimized_geometry") is None
