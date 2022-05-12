@@ -13,7 +13,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -217,19 +217,28 @@ class ElementBase(Enum):
     def atomic_radius(self) -> FloatWithUnit | None:
         """
         Returns:
-            float | None: The atomic radius of the element in Ångstroms.
+            float | None: The atomic radius of the element in Ångstroms. Can be None for
+                some elements like noble gases.
         """
         return self._atomic_radius
 
     @property
-    def atomic_mass(self) -> FloatWithUnit | None:
+    def atomic_mass(self) -> FloatWithUnit:
         """
         Returns:
-            float | None: The atomic mass of the element in amu.
+            float: The atomic mass of the element in amu.
         """
         return self._atomic_mass
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> Any:
+        """Key access to available element data.
+
+        Args:
+            item (str): Attribute name.
+
+        Raises:
+            AttributeError: If item not in _pt_data.
+        """
         if item in [
             "mendeleev_no",
             "electrical_resistivity",
@@ -299,7 +308,7 @@ class ElementBase(Enum):
         raise AttributeError(f"Element has no attribute {item}!")
 
     @property
-    def data(self) -> dict:
+    def data(self) -> dict[str, Any]:
         """
         Returns dict of data for element.
         """
@@ -370,7 +379,7 @@ class ElementBase(Enum):
     def ionic_radii(self) -> dict[int, float]:
         """
         All ionic radii of the element as a dict of
-        {oxidation state: ionic radii}. Radii are given in ang.
+        {oxidation state: ionic radii}. Radii are given in angstrom.
         """
         if "Ionic radii" in self._data:
             return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
@@ -378,7 +387,7 @@ class ElementBase(Enum):
 
     @property
     def number(self) -> int:
-        """Alternative attribute for atomic number"""
+        """Alternative attribute for atomic number Z"""
         return self.Z
 
     @property
@@ -396,17 +405,17 @@ class ElementBase(Enum):
         return 0
 
     @property
-    def oxidation_states(self) -> tuple:
+    def oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all known oxidation states"""
-        return tuple(self._data.get("Oxidation states", []))
+        return tuple(int(x) for x in self._data.get("Oxidation states", []))
 
     @property
-    def common_oxidation_states(self) -> tuple:
+    def common_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of common oxidation states"""
         return tuple(self._data.get("Common oxidation states", []))
 
     @property
-    def icsd_oxidation_states(self) -> tuple:
+    def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element"""
         return tuple(self._data.get("ICSD oxidation states", []))
@@ -438,7 +447,7 @@ class ElementBase(Enum):
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        return data  # type: ignore
+        return data
 
     @property
     def valence(self):
@@ -468,11 +477,8 @@ class ElementBase(Enum):
     @property
     def term_symbols(self) -> list[list[str]]:
         """
-        All possible  Russell-Saunders term symbol of the Element
-        eg. L = 1, n_e = 2 (s2)
-        returns
-           [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']]
-
+        All possible  Russell-Saunders term symbol of the Element.
+        eg. L = 1, n_e = 2 (s2) returns [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']]
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
@@ -503,9 +509,6 @@ class ElementBase(Enum):
 
             J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
             term_symbols.append([str(int(2 * (abs(S)) + 1)) + L_symbols[abs(L)] + str(j) for j in J])
-            # Without J
-            # term_symbols.append(str(int(2 * (abs(S)) + 1)) \
-            #                     + L_symbols[abs(L)])
 
             # Delete all configurations included in this term
             for ML in range(-L, L - 1, -1):
@@ -568,7 +571,7 @@ class ElementBase(Enum):
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas.  For example, FeO4PLi is
+        useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
         x1 = float("inf") if self.X != self.X else self.X
@@ -752,7 +755,7 @@ class ElementBase(Enum):
     @property
     def is_metal(self) -> bool:
         """
-        :return: True if is a metal.
+        True if is a metal.
         """
         return (
             self.is_alkali
@@ -815,12 +818,12 @@ class ElementBase(Enum):
     @property
     def is_quadrupolar(self) -> bool:
         """
-        Checks if this element can be quadrupolar
+        Checks if this element can be quadrupolar.
         """
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property
-    def nmr_quadrupole_moment(self) -> dict:
+    def nmr_quadrupole_moment(self) -> dict[str, FloatWithUnit]:
         """
         Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes
@@ -848,14 +851,14 @@ class ElementBase(Enum):
         """
         return Element(d["element"])
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
         }
 
@@ -877,7 +880,7 @@ class ElementBase(Enum):
                 try:
                     el = Element.from_row_and_group(row, group)
                 except ValueError:
-                    el = None  # type: ignore
+                    el = None
                 if el and ((not filter_function) or filter_function(el)):
                     rowstr.append(f"{el.symbol:3s}")
                 else:
@@ -1267,8 +1270,8 @@ class Species(MSONable, Stringify):
         """
         radii = self._el.data["Shannon radii"]
         radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
-        if len(radii) == 1:  # type: ignore
-            k, data = list(radii.items())[0]  # type: ignore
+        if len(radii) == 1:
+            k, data = list(radii.items())[0]
             if k != spin:
                 warnings.warn(
                     f"Specified spin state of {spin} not consistent with database "
@@ -1336,8 +1339,8 @@ class Species(MSONable, Stringify):
         :return: Json-able dictionary representation.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
         }
@@ -1522,8 +1525,8 @@ class DummySpecies(Species):
         :return: MSONAble dict representation.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
         }
@@ -1579,7 +1582,7 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
     DummyElement parsing will be attempted.
 
     Args:
-        obj (Element/Species/str/int): An arbitrary object.  Supported objects
+        obj (Element/Species/str/int): An arbitrary object. Supported objects
             are actual Element/Species objects, integers (representing atomic
             numbers) or strings (element symbols or species strings).
 
@@ -1598,7 +1601,7 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
         i = int(c)
         i = i if i == c else None  # type: ignore
     except (ValueError, TypeError):
-        i = None  # type: ignore
+        i = None
 
     if i is not None:
         return Element.from_Z(i)

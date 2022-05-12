@@ -1,6 +1,30 @@
 Change log
 ==========
 
+v2022.4.26
+----------
+* Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (@@fraricci)
+* Removed complex numbers from the definition of WSWQ (@jmmshn)
+* MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
+  This avoids the MPRester constantly rewriting a config file and causing users' pymatgen to completely fail.
+
+v2022.4.19
+----------
+* Fix for discharged and charged entries in conversion battery. (@peikai)`pylint` in `.pre-commit-config.yaml`.
+* Allow skipping of structure reduction in StructureMatcher.group_structures (@lan496)
+* Return NotImplemented for composition comparison methods. (@janosh)
+* BSPlotter bug fixes (@fraricci)
+* Misc bug fixes and deprecation fixes.
+
+v2022.3.29
+----------
+* Major update to CP2K module, PR #2475 from @nwinner
+* Bug fix to remove problematic import, PR #2477 from @mkhorton
+
+v2022.3.24
+----------
+* Emergency bugfix release to fix circular import (@janosh)
+
 v2022.3.22
 ----------
 * Support kwargs for ASE adaptor. (@arosen93)
@@ -111,7 +135,7 @@ Welcome to new contributor @e-kwsm!
 v2022.0.16
 ----------
 
-* Fix to allow PhaseDiagram to be JSON serializable with computed data cached (@mkhorton, #2276)
+* Fix to allow PhaseDiagram to be JSON-serializable with computed data cached (@mkhorton, #2276)
 * Temporarily revert #2239 pending investigation into slow-down in some nearest neighbor finding routines. This does not affect the behavior of any of these classes.
 
 
@@ -2079,7 +2103,7 @@ v2.7.1
   immutability) which will perform exactly the same way as the previous
   classes. With this change, the :mod:`pymatgen.core.structure_modifier`
   module is now deprecated and will be removed in a future version.
-* read_structure and write_structure now supports pymatgen's json serialized
+* read_structure and write_structure now supports pymatgen's JSON-serialized
   structures.
 * read_mol and write_mol functions now available (analogues of
   read_structure and write_structure for molecules)
@@ -2228,7 +2252,7 @@ v2.3.1
   data by running through the x-axis first, followed by y, then z.
 * Bug fix for reverse_readline so that it works for gzipped and bzipped
   strucutures (courtesy of Anubhav Jain).
-* Fix "lossy" composition to_dict method.  Now composition.to_dict properly
+* Fix "lossy" composition to_dict method. Now composition.to_dict properly
   returns a correct species string as a key for compositions using species,
   instead of just the element symbols.
 * Miscellaneous bug fixes.

@@ -10,7 +10,7 @@ from pymatgen.util.testing import PymatgenTest
 
 try:
     website_is_up = requests.get("http://megnet.crystals.ai").status_code == 200
-except:
+except requests.exceptions.ConnectionError:
     website_is_up = False
 
 

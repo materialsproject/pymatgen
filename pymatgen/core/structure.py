@@ -258,13 +258,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
+        return tuple(sorted(specie.symbol for specie in self.types_of_species))
 
-    @property  # type: ignore
+    @property
     def atomic_numbers(self) -> tuple[int, ...]:
         """List of atomic numbers."""
         try:
-            return tuple(site.specie.Z for site in self)  # type: ignore
+            return tuple(site.specie.Z for site in self)
         except AttributeError:
             raise AttributeError("atomic_numbers available only for ordered Structures")
 
@@ -858,7 +858,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
         cls,
-        msg: str | MagneticSpaceGroup,  # type: ignore
+        msg: str | MagneticSpaceGroup,
         lattice: list | np.ndarray | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
@@ -916,7 +916,7 @@ class IStructure(SiteCollection, MSONable):
         magmoms = [Magmom(m) for m in site_properties["magmom"]]
 
         if not isinstance(msg, MagneticSpaceGroup):
-            msg = MagneticSpaceGroup(msg)  # type: ignore
+            msg = MagneticSpaceGroup(msg)
 
         if isinstance(lattice, Lattice):
             latt = lattice
@@ -1203,7 +1203,7 @@ class IStructure(SiteCollection, MSONable):
         include_image: bool = False,
     ) -> list[PeriodicNeighbor]:
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -1222,7 +1222,7 @@ class IStructure(SiteCollection, MSONable):
     @deprecated(get_neighbors, "This is retained purely for checking purposes.")
     def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -1328,9 +1328,7 @@ class IStructure(SiteCollection, MSONable):
 
         """
         try:
-            from pymatgen.optimization.neighbors import (
-                find_points_in_spheres,  # type: ignore
-            )
+            from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)  # type: ignore
         else:
@@ -1360,6 +1358,167 @@ class IStructure(SiteCollection, MSONable):
                     distances[cond],
                 )
             )
+
+    def get_symmetric_neighbor_list(
+        self,
+        r: float,
+        sg: str,
+        unique: bool = False,
+        numerical_tol: float = 1e-8,
+        exclude_self: bool = True,
+    ) -> tuple[np.ndarray, ...]:
+        """
+        Similar to 'get_neighbor_list' with sites=None, but the neighbors are
+        grouped by symmetry. The returned values are a tuple of numpy arrays
+        (center_indices, points_indices, offset_vectors, distances,
+         symmetry_indices). Atom `center_indices[i]` has neighbor atom
+        `points_indices[i]` that is translated by `offset_vectors[i]` lattice
+        vectors, and the distance is `distances[i]`. Symmetry_idx groups the bonds
+        that are related by a symmetry of the provided space group and symmetry_op
+        is the operation that relates the first bond of the same symmetry_idx to
+        the respective atom. The first bond maps onto itself via the Identity. The
+        output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
+        two bonds connecting two points is given. Out of the two, the bond that does not
+        reverse the sites is chosen.
+        Args:
+            r (float): Radius of sphere
+            sg (str/int): The spacegroup the symmetry operations of which will be
+                used to classify the neighbors. If a string, it will be interpreted
+                as one of the notations supported by
+                pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
+                If an int, it will be interpreted as an international number.
+                If None, 'get_space_group_info' will be used to determine the
+                space group, default to None.
+            unique (bool): Whether a bond is given for both, or only a single
+                direction is given. The default is False.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be coincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
+            exclude_self (bool): whether to exclude atom neighboring with itself within
+                numerical tolerance distance, default to True
+        Returns: (center_indices, points_indices, offset_vectors, distances,
+                  symmetry_indices, symmetry_ops)
+        """
+
+        from pymatgen.symmetry.groups import SpaceGroup
+
+        if sg is None:
+            ops = SpaceGroup(self.get_space_group_info()[0]).symmetry_ops
+        else:
+            try:
+                i = int(sg)
+                sgp = SpaceGroup.from_int_number(i)
+            except ValueError:
+                sgp = SpaceGroup(sg)
+            ops = sgp.symmetry_ops
+
+        latt = self.lattice
+
+        if not sgp.is_compatible(latt):
+            raise ValueError(
+                "Supplied lattice with parameters %s is incompatible with "
+                "supplied spacegroup %s!" % (latt.parameters, sgp.symbol)
+            )
+
+        # get a list of neighbors up to distance r
+        bonds = self.get_neighbor_list(r)
+
+        if unique:
+            redundant = []
+            # compare all neighbors pairwise to find the pairs that connect the same
+            # two sites, but with an inverted vector (R=-R) that connects the two and add
+            # one of each pair to the redundant list.
+            for it, (i, j, R, d) in enumerate(zip(*bonds)):
+                if it in redundant:
+                    pass
+                else:
+                    for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
+                        bool1 = i == j2
+                        bool2 = j == i2
+                        bool3 = (R == -R2).all()
+                        bool4 = np.isclose(d, d2, atol=numerical_tol)
+                        if bool1 and bool2 and bool3 and bool4:
+                            redundant.append(it2)
+
+            # delete the redundant neighbors
+            m = ~np.in1d(np.arange(len(bonds[0])), redundant)
+            idcs_dist = np.argsort(bonds[3][m])
+            bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
+
+        # expand the output tuple by symmetry_indices and symmetry_ops.
+        nbonds = len(bonds[0])
+        symmetry_indices = np.empty(nbonds)
+        symmetry_indices[:] = np.NaN
+        symmetry_ops = np.empty(len(symmetry_indices), dtype=object)
+        symmetry_identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
+        symmetry_index = 0
+
+        # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
+        # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
+        # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two
+        # neighbors 'SymmOp.are_symmetrically_related_vectors' is used. It is also checked whether applying the
+        # connecting symmetry operation generates the neighbor-pair itself, or the equivalent version with the
+        # sites exchanged and R reversed. The output is always reordered such that the former case is true.
+        for it in range(nbonds):
+            if np.isnan(symmetry_indices[it]):
+                symmetry_indices[it] = symmetry_index
+                symmetry_ops[it] = symmetry_identity
+                for it2 in np.arange(nbonds)[np.isnan(symmetry_indices)]:
+                    equal_distance = np.isclose(bonds[3][it], bonds[3][it2], atol=numerical_tol)
+                    if equal_distance:
+                        from_a = self[bonds[0][it]].frac_coords
+                        to_a = self[bonds[1][it]].frac_coords
+                        r_a = bonds[2][it]
+                        from_b = self[bonds[0][it2]].frac_coords
+                        to_b = self[bonds[1][it2]].frac_coords
+                        r_b = bonds[2][it2]
+                        for op in ops:
+                            are_related, is_reversed = op.are_symmetrically_related_vectors(
+                                from_a, to_a, r_a, from_b, to_b, r_b
+                            )
+                            if are_related and not is_reversed:
+                                symmetry_indices[it2] = symmetry_index
+                                symmetry_ops[it2] = op
+                            elif are_related and is_reversed:
+                                symmetry_indices[it2] = symmetry_index
+                                symmetry_ops[it2] = op
+                                bonds[0][it2], bonds[1][it2] = bonds[1][it2], bonds[0][it2]
+                                bonds[2][it2] = -bonds[2][it2]
+
+                symmetry_index += 1
+
+        # the bonds are ordered by their symmetry index
+        idcs_symid = np.argsort(symmetry_indices)
+        bonds = (
+            bonds[0][idcs_symid],
+            bonds[1][idcs_symid],
+            bonds[2][idcs_symid],
+            bonds[3][idcs_symid],
+        )
+        symmetry_indices = symmetry_indices[idcs_symid]
+        symmetry_ops = symmetry_ops[idcs_symid]
+
+        # the groups of neighbors with the same symmetry index are ordered such that neighbors
+        # that are the first occurence of a new symmetry index in the ordered output are the ones
+        # that are assigned the Identity as a symmetry operation.
+        idcs_symop = np.arange(nbonds)
+        identity_idcs = np.where(symmetry_ops == symmetry_identity)[0]
+        for symmetry_idx in np.unique(symmetry_indices):
+            first_idx = np.argmax(symmetry_indices == symmetry_idx)
+            for second_idx in identity_idcs:
+                if symmetry_indices[second_idx] == symmetry_idx:
+                    idcs_symop[first_idx], idcs_symop[second_idx] = idcs_symop[second_idx], idcs_symop[first_idx]
+
+        return (
+            bonds[0][idcs_symop],
+            bonds[1][idcs_symop],
+            bonds[2][idcs_symop],
+            bonds[3][idcs_symop],
+            symmetry_indices[idcs_symop],
+            symmetry_ops[idcs_symop],
+        )
 
     def get_all_neighbors(
         self,
@@ -1644,7 +1803,7 @@ class IStructure(SiteCollection, MSONable):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        return self.__class__.from_sites(sites, charge=self._charge)
+        return type(self).from_sites(sites, charge=self._charge)
 
     def get_reduced_structure(self, reduction_algo: Literal["niggli", "LLL"] = "niggli") -> IStructure | Structure:
         """
@@ -1662,7 +1821,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Invalid reduction algo : {reduction_algo}")
 
         if reduced_latt != self.lattice:
-            return self.__class__(  # type: ignore
+            return self.__class__(
                 reduced_latt,
                 self.species_and_occu,
                 self.cart_coords,  # type: ignore
@@ -1724,7 +1883,7 @@ class IStructure(SiteCollection, MSONable):
                 )
             )
         new_sites = sorted(new_sites)
-        return self.__class__.from_sites(new_sites, charge=self._charge)
+        return type(self).from_sites(new_sites, charge=self._charge)
 
     def interpolate(
         self,
@@ -1823,7 +1982,7 @@ class IStructure(SiteCollection, MSONable):
             # interpolate lattice matrices using polar decomposition
             from scipy.linalg import polar
 
-            # u is unitary (rotation), p is stretch
+            # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
             lvec = p - np.identity(3)
             lstart = self.lattice.matrix.T
@@ -1835,7 +1994,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 lat = self.lattice
             fcoords = start_coords + x * vec
-            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties))  # type: ignore
+            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties))
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -2178,7 +2337,7 @@ class IStructure(SiteCollection, MSONable):
             formats, e.g., "abivars".
 
         Returns:
-            JSON serializable dict representation.
+            JSON-serializable dict representation.
         """
         if fmt == "abivars":
             """Returns a dictionary with the ABINIT variables."""
@@ -2191,8 +2350,8 @@ class IStructure(SiteCollection, MSONable):
         del latt_dict["@class"]
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "lattice": latt_dict,
             "sites": [],
@@ -2420,7 +2579,7 @@ class IStructure(SiteCollection, MSONable):
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
         Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-        vasprun.xml, CSSR, Netcdf and pymatgen's JSON serialized structures.
+        vasprun.xml, CSSR, Netcdf and pymatgen's JSON-serialized structures.
 
         Args:
             filename (str): The filename to read from.
@@ -2592,7 +2751,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecies):
-                    nelectrons += sp.Z * amt  # type: ignore
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
@@ -2724,7 +2883,7 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return tuple(self.__class__.from_sites(cluster) for cluster in clusters)
+        return tuple(type(self).from_sites(cluster) for cluster in clusters)
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """
@@ -2791,11 +2950,11 @@ class IMolecule(SiteCollection, MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of Molecule
+        JSON-serializable dict representation of Molecule
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
@@ -2857,7 +3016,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        Get all neighbors to a site within a sphere of radius r. Excludes the
         site itself.
 
         Args:
@@ -2949,7 +3108,7 @@ class IMolecule(SiteCollection, MSONable):
         for i, j, k in itertools.product(
             list(range(images[0])), list(range(images[1])), list(range(images[2]))  # type: ignore
         ):
-            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]  # type: ignore
+            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:
                 while True:
                     op = SymmOp.from_origin_axis_angle(
@@ -3013,9 +3172,9 @@ class IMolecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return self.__class__(  # type: ignore
+        return self.__class__(
             self.species_and_occu,
-            new_coords,  # type: ignore
+            new_coords,
             charge=self._charge,
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
@@ -3116,7 +3275,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         Reads a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
-        pymatgen's JSON serialized molecules. Using openbabel,
+        pymatgen's JSON-serialized molecules. Using openbabel,
         many more extensions are supported but requires openbabel to be
         installed.
 
@@ -3274,7 +3433,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     raise ValueError("PeriodicSite added must have same lattice as Structure!")
                 if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for single int indices!")
-                self._sites[ii] = site  # type: ignore
+                self._sites[ii] = site
             else:
                 if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
                     self._sites[ii].species = site  # type: ignore
@@ -3402,7 +3561,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         elif coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
         else:
-            frac_coords = coords  # type: ignore
+            frac_coords = coords
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
         self._sites[i] = new_site
@@ -4039,7 +4198,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vector = [0, 0, 0]
         for i in indices:
             site = self._sites[i]
-            new_site = Site(site.species, site.coords + vector, properties=site.properties)  # type: ignore
+            new_site = Site(site.species, site.coords + vector, properties=site.properties)
             self._sites[i] = new_site
 
     def rotate_sites(
@@ -4122,7 +4281,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Returns:
             A copy of the Molecule.
         """
-        return self.__class__.from_sites(self)
+        return type(self).from_sites(self)
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1):
         """

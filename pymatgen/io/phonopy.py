@@ -33,7 +33,7 @@ except ImportError:
     PhonopyAtoms = None
 
 
-@requires(Phonopy, "phonopy not installed!")  # type: ignore
+@requires(Phonopy, "phonopy not installed!")
 def get_pmg_structure(phonopy_structure):
     """
     Convert a PhonopyAtoms object to pymatgen Structure object.
@@ -58,7 +58,7 @@ def get_pmg_structure(phonopy_structure):
     )
 
 
-@requires(Phonopy, "phonopy not installed!")  # type: ignore
+@requires(Phonopy, "phonopy not installed!")
 def get_phonopy_structure(pmg_structure):
     """
     Convert a pymatgen Structure object to a PhonopyAtoms object.

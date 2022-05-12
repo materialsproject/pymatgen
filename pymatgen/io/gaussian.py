@@ -129,7 +129,7 @@ class GaussianInput:
             route_parameters: Additional route parameters as a dict. For example,
                 {'SP':"", "SCF":"Tight"}
             input_parameters: Additional input parameters for run as a dict. Used
-                for example, in PCM calculations.  E.g., {"EPS":12}
+                for example, in PCM calculations. E.g., {"EPS":12}
             link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
             dieze_tag: # preceding the route line. E.g. "#p"
             gen_basis: allows a user-specified basis set to be used in a Gaussian
@@ -500,8 +500,8 @@ class GaussianInput:
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "molecule": self.molecule.as_dict(),
             "functional": self.functional,
             "basis_set": self.basis_set,
@@ -1195,7 +1195,7 @@ class GaussianOutput:
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         structure = self.final_structure
         d = {
@@ -1238,8 +1238,8 @@ class GaussianOutput:
         }
 
         d["output"] = vout
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
 
         return d
 

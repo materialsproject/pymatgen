@@ -440,8 +440,8 @@ class UCorrection(Correction):
         Args:
             config_file: Path to the selected compatibility.yaml config file.
             input_set: InputSet object (to check for the +U settings)
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -571,7 +571,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 Default is False.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already
@@ -737,7 +737,7 @@ class CorrectionsList(Compatibility):
             corrected_energy = centry.energy
             correction_uncertainty = centry.correction_uncertainty
         d = {
-            "compatibility": self.__class__.__name__,
+            "compatibility": type(self).__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
             "correction_uncertainty": correction_uncertainty,
@@ -795,8 +795,8 @@ class MaterialsProjectCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -842,7 +842,7 @@ class MaterialsProject2020Compatibility(Compatibility):
     ):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
                 entries are excluded. Advanced means the GGA/GGA+U mixing scheme
                 of Jain et al. (see References) is implemented. In this case,
                 entries which are supposed to be calculated in GGA+U (i.e.,
@@ -1119,8 +1119,8 @@ class MITCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -1155,8 +1155,8 @@ class MITAqueousCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -1406,7 +1406,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already

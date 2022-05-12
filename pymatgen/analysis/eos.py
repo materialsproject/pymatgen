@@ -191,9 +191,9 @@ class EOSBase(metaclass=ABCMeta):
         plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", f"{self.__class__.__name__} fit")
+        label = kwargs.get("label", f"{type(self).__name__} fit")
         lines = [
-            f"Equation of State: {self.__class__.__name__}",
+            f"Equation of State: {type(self).__name__}",
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
@@ -240,9 +240,9 @@ class EOSBase(metaclass=ABCMeta):
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", f"{self.__class__.__name__} fit")
+        label = kwargs.get("label", f"{type(self).__name__} fit")
         lines = [
-            f"Equation of State: {self.__class__.__name__}",
+            f"Equation of State: {type(self).__name__}",
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",

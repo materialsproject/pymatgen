@@ -633,6 +633,9 @@ class BSPlotter:
             if not data["is_metal"]:
                 cbm_max.append(data["cbm"][0][1])
                 vbm_min.append(data["vbm"][0][1])
+            else:
+                cbm_max.append(bs.efermi)
+                vbm_min.append(bs.efermi)
 
             for sp in bs.bands.keys():
                 ls = "-" if str(sp) == "1" else "--"
@@ -1254,8 +1257,8 @@ class BSPlotterProjected(BSPlotter):
                     )
                 if index > num_branches or index < 1:
                     raise ValueError(
-                        "You give a incorrect index of symmetry lines: %s. The index should be in "
-                        "range of [1, %s]." % (str(index), str(num_branches))
+                        f"You give a incorrect index of symmetry lines: {index}. The index should be in range of "
+                        f"[1, {num_branches}]."
                     )
                 indices.append(index - 1)
         else:
@@ -1607,7 +1610,7 @@ class BSPlotterProjected(BSPlotter):
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
         dictpa, sum_atoms, number_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"Number of subfigures: {str(number_figs)}")
+        print(f"Number of subfigures: {number_figs}")
         if number_figs > 9:
             print(
                 "The number of sub-figures %s might be too manny and the implementation might take a long time.\n"
@@ -1758,8 +1761,7 @@ class BSPlotterProjected(BSPlotter):
                     for orb in dictio[elt]:
                         if not isinstance(orb, str):
                             raise ValueError(
-                                "The invalid format of orbitals is in 'dictio[%s]': %s. "
-                                "They should be string." % (elt, str(orb))
+                                f"The invalid format of orbitals is in 'dictio[{elt}]': {orb}. They should be string."
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
@@ -1787,8 +1789,8 @@ class BSPlotterProjected(BSPlotter):
                         for orb in sum_morbs[elt]:
                             if not isinstance(orb, str):
                                 raise TypeError(
-                                    "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
-                                    "They should be string." % (elt, str(orb))
+                                    f"The invalid format of orbitals is in 'sum_morbs[{elt}]': {orb}. "
+                                    "They should be string."
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
@@ -1804,8 +1806,8 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictio.keys():
                         raise ValueError(
-                            "You cannot sum projection over orbitals of atoms '%s' because they are not "
-                            "mentioned in 'dictio'." % elt
+                            f"You cannot sum projection over orbitals of atoms '{elt}' because they are not "
+                            "mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_morbs' as a key: {elt}")
@@ -1956,8 +1958,8 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                                 if number not in dictpa[elt]:
                                     raise ValueError(
-                                        "You cannot sum projection with atom number '%s' because it is not "
-                                        "mentioned in dicpta[%s]" % (str(number), elt)
+                                        f"You cannot sum projection with atom number '{number}' because it is not "
+                                        f"mentioned in dicpta[{elt}]"
                                     )
                             else:
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
@@ -1970,8 +1972,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictpa.keys():
                         raise ValueError(
-                            "You cannot sum projection over atoms '%s' because it is not "
-                            "mentioned in 'dictio'." % elt
+                            f"You cannot sum projection over atoms '{elt}' because it is not mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_atoms' as a key: {elt}")
@@ -2490,7 +2491,7 @@ class BSDOSPlotter:
                         spd_dos = dos.get_spd_dos()
                         for idx, orb in enumerate([OrbitalType.s, OrbitalType.p, OrbitalType.d, OrbitalType.f]):
                             if orb in spd_dos:
-                                dos_densities = spd_dos[orb].densities[spin] * int(spin)  # type: ignore
+                                dos_densities = spd_dos[orb].densities[spin] * int(spin)
                                 label = orb if spin == Spin.up else None  # type: ignore
                                 dos_ax.plot(
                                     dos_densities,
@@ -3933,7 +3934,7 @@ def plot_fermi_surface(
         cbm (bool): Boolean value to specify if the considered band is a
             conduction band or not
         multiple_figure (bool): If True a figure for each energy level will be
-            shown.  If False all the surfaces will be shown in the same figure.
+            shown. If False all the surfaces will be shown in the same figure.
             In this last case, tune the transparency factor.
         mlab_figure (mayavi.mlab.figure): A previous figure to plot a new
             surface on.

@@ -13,8 +13,9 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from pymatgen.core import Lattice, Site, Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Site, Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

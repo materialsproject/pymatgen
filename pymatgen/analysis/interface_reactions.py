@@ -342,7 +342,7 @@ class InterfacialReactivity(MSONable):
 
     def _get_plotly_figure(self) -> Figure:
         """Returns a Plotly figure of reaction kinks diagram"""
-        kinks = map(list, zip(*self.get_kinks()))  # type: ignore
+        kinks = map(list, zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
         lines = Scatter(
@@ -411,7 +411,7 @@ class InterfacialReactivity(MSONable):
         pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
-        kinks = list(zip(*self.get_kinks()))  # type: ignore
+        kinks = list(zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
         plt.plot(x, energy, "o-", markersize=8, c="navy", zorder=1)
@@ -419,11 +419,7 @@ class InterfacialReactivity(MSONable):
 
         for x_coord, y_coord, rxn in zip(x, energy, reactions):
             products = ", ".join(
-                [
-                    latexify(p.reduced_formula)
-                    for p in rxn.products  # type: ignore
-                    if not np.isclose(rxn.get_coeff(p), 0)  # type: ignore
-                ]
+                [latexify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
             plt.annotate(
                 products,

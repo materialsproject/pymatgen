@@ -169,7 +169,6 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
         self.assertEqual(symm_struct.wyckoff_symbols[0], "16h")
-        # self.assertEqual(symm_struct[0].wyckoff, "16h")
 
         # Check copying
         self.assertEqual(symm_struct.copy(), symm_struct)

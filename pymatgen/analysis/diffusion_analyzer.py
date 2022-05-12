@@ -749,8 +749,8 @@ class DiffusionAnalyzer(MSONable):
         Returns: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "displacements": self.disp.tolist(),
             "specie": self.specie,

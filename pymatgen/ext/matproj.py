@@ -17,6 +17,7 @@ import itertools
 import json
 import logging
 import math
+import os
 import platform
 import re
 import sys
@@ -29,7 +30,7 @@ from monty.json import MontyDecoder, MontyEncoder
 from ruamel.yaml import YAML
 from tqdm import tqdm
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -40,6 +41,8 @@ from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 logger = logging.getLogger(__name__)
+
+MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
 
 def get_chunks(sequence, size=1):
@@ -200,7 +203,7 @@ class MPRester:
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
-                with open(SETTINGS_FILE) as f:
+                with open(MP_LOG_FILE) as f:
                     d = dict(yaml.load(f))
             except OSError:
                 d = {}
@@ -236,7 +239,7 @@ class MPRester:
             # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(SETTINGS_FILE, "wt") as f:
+                with open(MP_LOG_FILE, "wt") as f:
                     yaml.dump(d, f)
             except Exception:
                 pass

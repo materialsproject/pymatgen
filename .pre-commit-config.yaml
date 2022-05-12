@@ -1,11 +1,11 @@
 exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
 default_language_version:
-  python: python3.8
+  python: python3
 
 ci:
   autoupdate_schedule: monthly
-  skip: [flake8, mypy]
+  skip: [flake8, mypy, pylint]
 
 repos:
 
@@ -21,13 +21,13 @@ repos:
           - --ignore-init-module-imports
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
+    rev: v2.32.0
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       - id: check-yaml
         exclude: pymatgen/analysis/vesta_cutoffs.yaml
@@ -41,7 +41,7 @@ repos:
         args: ["--profile", "black"]
 
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.3.0
     hooks:
       - id: black
 
@@ -51,6 +51,20 @@ repos:
       - id: flake8
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.930
+    rev: v0.950
     hooks:
       - id: mypy
+
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: python
+        types: [python]
+        args:
+          [
+            "-sn",
+            "--rcfile=pylintrc",
+          ]
+        additional_dependencies: [pylint]
