@@ -1405,6 +1405,10 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["gdm_neg_precon_error"]
+        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["esp_chg_fit_error"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,
