@@ -1409,6 +1409,10 @@ class QCOutput(MSONable):
             "key"
         ) == [[]]:
             self.data["errors"] += ["esp_chg_fit_error"]
+        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["mem_static_too_small"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,
