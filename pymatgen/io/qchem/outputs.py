@@ -1686,6 +1686,8 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     break
                 if "Archival summary:" in line:
                     break
+                if "3-Center, 4-Electron A:-B-:C Hyperbonds (A-B :C <=> A: B-C)" in line:
+                    break
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
