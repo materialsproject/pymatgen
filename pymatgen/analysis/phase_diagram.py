@@ -358,6 +358,8 @@ class PhaseDiagram(MSONable):
         self.entries = entries
         if computed_data is None:
             computed_data = self._compute()
+        else:
+            computed_data = MontyDecoder().process_decoded(computed_data)
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
