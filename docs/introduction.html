@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.4.26 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.5.17 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.4.26
+                2022.5.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-4-26">v2022.4.26</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2022-5-17">v2022.5.17</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -227,13 +227,15 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h2>
-<section id="v2022-4-26">
-<h3>v2022.4.26<a class="headerlink" href="#v2022-4-26" title="Permalink to this headline"></a></h3>
+<section id="v2022-5-17">
+<h3>v2022.5.17<a class="headerlink" href="#v2022-5-17" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (&#64;&#64;fraricci)</p></li>
-<li><p>Removed complex numbers from the definition of WSWQ (&#64;jmmshn)</p></li>
-<li><p>MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
-This avoids the MPRester constantly rewriting a config file and causing users’ pymatgen to completely fail.</p></li>
+<li><p>PR #2518 from &#64;JaGeo. Fixed wrong line in ICOHPLIST.lobster being read to assess whether orbitalwise interactions are included in these files.</p></li>
+<li><p>PR #2520 from &#64;arosen93. Adds a new property to the <cite>PointGroupAnalyzer</cite>: the rotational symmetry number.</p></li>
+<li><p>PR #2522 from &#64;jmmshn. Fixes PD JSON serialization.</p></li>
+<li><p>PR #2514 from &#64;qianchenqc. Replaced the IALGO tag with ALGO as recommended in the vasp documentation <a class="reference external" href="https://www.vasp.at/wiki/index.php/IALGO">https://www.vasp.at/wiki/index.php/IALGO</a>.</p></li>
+<li><p>PR #2404 from &#64;nheinsdorf. Added a method that gets all the neighbors up a maximum distance for a Structure, and groups these ‘bonds’ according to their symmetry.</p></li>
+<li><p>PR #2509 from &#64;jacksund Fix NMR Set.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
