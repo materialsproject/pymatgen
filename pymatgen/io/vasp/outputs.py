@@ -241,6 +241,28 @@ class Vasprun(MSONable):
         Normal mode eigen vectors.
         3D numpy array of shape (3*natoms, natoms, 3).
 
+    .. attribute:: md_data
+
+        Available only for ML MD runs, i.e., INCAR with ML_LMLFF = .TRUE.
+        md_data is a list of dict with the following format:
+
+        [
+            {
+                'energy': {
+                    'e_0_energy': -525.07195568,
+                    'e_fr_energy': -525.07195568,
+                    'e_wo_entrp': -525.07195568,
+                    'kinetic': 3.17809233,
+                    'lattice kinetic': 0.0,
+                    'nosekinetic': 1.323e-05,
+                    'nosepot': 0.0,
+                    'total': -521.89385012
+                    },
+                'forces': [[0.17677989, 0.48309874, 1.85806696], ...],
+                'structure': Structure object
+            }
+        ]
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -392,7 +414,10 @@ class Vasprun(MSONable):
         self.projected_magnetisation = None
         self.dielectric_data = {}
         self.other_dielectric = {}
+        self.incar = {}
         ionic_steps = []
+
+        md_data = []
         parsed_header = False
         try:
             for event, elem in ET.iterparse(stream):
@@ -478,6 +503,16 @@ class Vasprun(MSONable):
                         phonon_eigenvectors.append(np.array(ev).reshape(natoms, 3))
                     self.normalmode_eigenvals = np.array(eigenvalues)
                     self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
+                elif self.incar.get("ML_LMLFF"):
+                    if tag == "structure" and elem.attrib.get("name") is None:
+                        md_data.append({})
+                        md_data[-1]["structure"] = self._parse_structure(elem)
+                    elif tag == "varray" and elem.attrib.get("name") == "forces":
+                        md_data[-1]["forces"] = _parse_varray(elem)
+                    elif tag == "energy":
+                        d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
+                        if "kinetic" in d:
+                            md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
         except ET.ParseError as ex:
             if self.exception_on_bad_xml:
                 raise ex
@@ -486,6 +521,7 @@ class Vasprun(MSONable):
                 UserWarning,
             )
         self.ionic_steps = ionic_steps
+        self.md_data = md_data
         self.vasp_version = self.generator["version"]
 
     @property
@@ -951,12 +987,12 @@ class Vasprun(MSONable):
                 projections=p_eigenvals,
             )
         return BandStructure(
-            kpoints,
-            eigenvals,
+            kpoints,  # type: ignore
+            eigenvals,  # type: ignore
             lattice_new,
             e_fermi,
             structure=self.final_structure,
-            projections=p_eigenvals,
+            projections=p_eigenvals,  # type: ignore
         )
 
     @property
