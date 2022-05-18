@@ -1838,6 +1838,8 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
                 if "None" in line:
                     continue
+                if "3C" in line:
+                    continue
 
                 # Extract the values
                 entry = {}  # type: Dict[str, Union[str, int, float]]
