@@ -540,9 +540,14 @@ def sulfide_type(structure):
     if comp.is_element or s not in comp:
         return None
 
-    finder = SpacegroupAnalyzer(structure, symprec=0.1)
-    symm_structure = finder.get_symmetrized_structure()
-    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+    try:
+        finder = SpacegroupAnalyzer(structure, symprec=0.1)
+        symm_structure = finder.get_symmetrized_structure()
+        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+    except Exception:
+        # Sometimes the symmetry analyzer fails for some tolerance or other issues. This is a fall back that simply
+        # analyzes all S sites.
+        s_sites = [site for site in structure if site.specie == s]
 
     def process_site(site):
 
