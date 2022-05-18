@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2022.5.18
+----------
+* Bug fix for sulfide_type. Sometimes symmetry analysis fails because of tolerance issues. A fallback to analyze all sites.
+
 v2022.5.17
 ----------
 * PR #2518 from @JaGeo. Fixed wrong line in ICOHPLIST.lobster being read to assess whether orbitalwise interactions are included in these files.
