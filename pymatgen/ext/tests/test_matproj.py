@@ -157,6 +157,9 @@ class MPResterTest(PymatgenTest):
         e2 = {i.entry_id for i in entries2}
         self.assertTrue(e1 == e2)
 
+        stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
+        self.assertTrue(len(stable_entries) < len(entries))
+
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
