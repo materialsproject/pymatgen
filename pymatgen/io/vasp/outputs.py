@@ -3475,11 +3475,10 @@ class VolumetricData(MSONable):
 
     ..attribute:: data
 
-        Actual data as a dict of {string: np.array | list}. The string are "total"
+        Actual data as a dict of {string: np.array}. The string are "total"
         and "diff", in accordance to the output format of vasp LOCPOT and
         CHGCAR files where the total spin density is written first, followed
-        by the difference spin density.  If the data is provided as in list format,
-        it will be converted into an np.array automatically
+        by the difference spin density.
 
     .. attribute:: ngridpts
 
@@ -3494,7 +3493,8 @@ class VolumetricData(MSONable):
 
         Args:
             structure: Structure associated with the volumetric data
-            data: Actual volumetric data.
+            data: Actual volumetric data. If the data is provided as in list format,
+                it will be converted into an np.array automatically
             data_aug: Any extra information associated with volumetric data
                 (typically augmentation charges)
             distance_matrix: A pre-computed distance matrix if available.
