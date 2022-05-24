@@ -854,13 +854,12 @@ class MPRester:
         inc_structure=None,
         property_data=None,
         conventional_unit_cell=False,
+        additional_criteria=None,
     ):
         """
-        Helper method to get a list of ComputedEntries in a chemical system.
-        For example, elements = ["Li", "Fe", "O"] will return a list of all
-        entries in the Li-Fe-O chemical system, i.e., all LixOy,
-        FexOy, LixFey, LixFeyOz, Li, Fe and O phases. Extremely useful for
-        creating phase diagrams of entire chemical systems.
+        Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
+        will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
+        Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
 
         Args:
             elements (str or [str]): Chemical system string comprising element
@@ -882,6 +881,8 @@ class MPRester:
                 supported_properties.
             conventional_unit_cell (bool): Whether to get the standard
                 conventional unit cell
+            additional_criteria (dict): Any additional criteria to pass. For instance, if you are only interested in
+                stable entries, you can pass {"e_above_hull": {"$lte": 0.001}}.
 
         Returns:
             List of ComputedEntries.
@@ -895,8 +896,12 @@ class MPRester:
             for els in itertools.combinations(elements, i + 1):
                 all_chemsyses.append("-".join(sorted(els)))
 
+        criteria = {"chemsys": {"$in": all_chemsyses}}
+        if additional_criteria:
+            criteria.update(additional_criteria)
+
         entries = self.get_entries(
-            {"chemsys": {"$in": all_chemsyses}},
+            criteria,
             compatible_only=compatible_only,
             inc_structure=inc_structure,
             property_data=property_data,

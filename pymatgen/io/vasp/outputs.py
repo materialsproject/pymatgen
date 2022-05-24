@@ -3493,7 +3493,8 @@ class VolumetricData(MSONable):
 
         Args:
             structure: Structure associated with the volumetric data
-            data: Actual volumetric data.
+            data: Actual volumetric data. If the data is provided as in list format,
+                it will be converted into an np.array automatically
             data_aug: Any extra information associated with volumetric data
                 (typically augmentation charges)
             distance_matrix: A pre-computed distance matrix if available.
@@ -3503,8 +3504,9 @@ class VolumetricData(MSONable):
         self.structure = structure
         self.is_spin_polarized = len(data) >= 2
         self.is_soc = len(data) >= 4
-        self.dim = data["total"].shape
-        self.data = data
+        # convert data to numpy arrays incase they were jsanitized as lists
+        self.data = {k: np.array(v) for k, v in data.items()}
+        self.dim = self.data["total"].shape
         self.data_aug = data_aug if data_aug else {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
