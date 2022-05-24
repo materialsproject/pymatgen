@@ -348,7 +348,7 @@ class WulffShape:
         )
 
     def show(self, *args, **kwargs):
-        r"""
+        """
         Show the Wulff plot.
 
         Args:
@@ -603,7 +603,7 @@ class WulffShape:
                     k=tri_indices[2],
                     hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
-                    text=[r"Miller index: %s" % hkl] * len(x_pts),
+                    text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
                     name="",
                 )
@@ -625,7 +625,7 @@ class WulffShape:
             z=[0],
             colorbar=go.ColorBar(
                 title={
-                    "text": r"Surface energy %s" % units,
+                    "text": f"Surface energy {units}",
                     "side": "right",
                     "font": {"size": 25},
                 },

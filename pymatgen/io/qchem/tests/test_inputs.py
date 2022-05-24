@@ -149,8 +149,8 @@ $end"""
 $end"""
         self.assertEqual(vdw_test_sequential, vdw_actual_sequential)
 
-        with self.assertRaises(ValueError):
-            bad_vdw_test = QCInput.van_der_waals_template(vdw_params, mode="mymode")
+        with self.assertRaises(ValueError):  # bad vdw test
+            QCInput.van_der_waals_template(vdw_params, mode="mymode")
 
     def test_find_sections(self):
         str_single_job_input = """$molecule

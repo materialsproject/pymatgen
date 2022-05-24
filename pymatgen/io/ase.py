@@ -135,13 +135,14 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms, cls=None):
+    def get_structure(atoms, cls=None, **cls_kwargs):
         """
         Returns pymatgen structure from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
             cls: The Structure class to instantiate (defaults to pymatgen structure)
+            **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
             Equivalent pymatgen.core.structure.Structure
@@ -194,9 +195,9 @@ class AseAtomsAdaptor:
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
         if cls == Molecule:
-            structure = cls(symbols, positions)
+            structure = cls(symbols, positions, **cls_kwargs)
         else:
-            structure = cls(lattice, symbols, positions, coords_are_cartesian=True)
+            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, **cls_kwargs)
 
         # Set the site magmoms in the Pymatgen structure object
         # Note: ASE distinguishes between initial and converged
@@ -238,22 +239,29 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms, cls=None):
+    def get_molecule(atoms, cls=None, **cls_kwargs):
         """
         Returns pymatgen molecule from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
             cls: The Molecule class to instantiate (defaults to pymatgen molecule)
+            **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
             Equivalent pymatgen.core.structure.Molecule
         """
 
         cls = Molecule if cls is None else cls
-        molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls)
-        molecule.set_charge_and_spin(
-            np.sum(atoms.get_initial_charges()), int(round(np.sum(atoms.get_initial_magnetic_moments()) + 1, 1))
-        )
+        molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
+        if atoms.has("initial_charges"):
+            charge = round(np.sum(atoms.get_initial_charges()))
+        else:
+            charge = 0
+        if atoms.has("initial_magmoms"):
+            mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1
+        else:
+            mult = 1
+        molecule.set_charge_and_spin(charge, spin_multiplicity=mult)
 
         return molecule

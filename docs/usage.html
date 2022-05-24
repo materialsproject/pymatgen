@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>Usage &mdash; pymatgen 2022.5.19 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2022.5.19
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -73,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#compatibility-mixing-gga-and-gga-u-runs">Compatibility - Mixing GGA and GGA+U runs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-io-managing-calculation-inputs-and-outputs">pymatgen.io - Managing calculation inputs and outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#simple-example-making-a-phase-diagram">Simple example - Making a phase diagram</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#another-example-calculating-reaction-energies">Another example - Calculating reaction energies</a></li>
@@ -124,7 +125,7 @@ the pymatgen code base. It should also be pointed out that there is an
 actual code demonstrating the use of the code. Learning from those examples
 is the fastest way to get started.</p>
 <p>Pymatgen is structured in a highly object-oriented manner. Almost everything
-(Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
+(Element, Site, Structure, etc.) is an object. Currently, the code is heavily
 biased towards the representation and manipulation of crystals with periodic
 boundary conditions, though flexibility has been built in for molecules.</p>
 <p>The core modules are in the (yes, you guess it) pymatgen.core package. Given the
@@ -157,7 +158,7 @@ matter what units are being used, as long as they are used consistently.</p>
 <section id="side-note-as-dict-from-dict">
 <h2>Side-note : as_dict / from_dict<a class="headerlink" href="#side-note-as-dict-from-dict" title="Permalink to this headline"></a></h2>
 <p>As you explore the code, you may notice that many of the objects have an as_dict
-method and a from_dict static method implemented.  For most of the non-basic
+method and a from_dict static method implemented. For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
 to be extremely fragile with respect to code changes. Pymatgen’s as_dict
@@ -201,8 +202,8 @@ add these keys if they are not present, but for better long term stability
 (e.g., there may be situations where to_dict is called directly rather than
 through the encoder), the easiest way is to add the following to any to_dict
 property:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
-<span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__module__</span>
+<span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
 </pre></div>
 </div>
 <p>To use the MontyDecoder, simply specify it as the <em>cls</em> kwarg when using json
@@ -224,7 +225,7 @@ Structure/Molecule objects. There are several ways to create these objects:</p>
 <section id="creating-a-structure-manually">
 <h3>Creating a Structure manually<a class="headerlink" href="#creating-a-structure-manually" title="Permalink to this headline"></a></h3>
 <p>This is generally the most painful method. Though sometimes necessary, it is
-seldom the method you would use.  An example of creating the basic silicon
+seldom the method you would use. An example of creating the basic silicon
 crystal is provided below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
 
@@ -306,7 +307,7 @@ Please see the <a class="reference internal" href="installation.html"><span clas
 </section>
 <section id="things-you-can-do-with-structures">
 <h3>Things you can do with Structures<a class="headerlink" href="#things-you-can-do-with-structures" title="Permalink to this headline"></a></h3>
-<p>This section is a work in progress.  But just to give an overview of the kind of
+<p>This section is a work in progress. But just to give an overview of the kind of
 analysis you can do:</p>
 <ol class="arabic simple">
 <li><p>Modify Structures directly or even better, using the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen</span>
@@ -329,7 +330,7 @@ Molecules. For example, you can change any site simply with:</p>
 <span class="n">molecule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
 
 <span class="c1"># Change species and coordinates (fractional assumed for Structures,</span>
-<span class="c1"># cartesian for Molecules)</span>
+<span class="c1"># Cartesian for Molecules)</span>
 <span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
 <span class="n">molecule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.34</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
 
@@ -403,6 +404,40 @@ he should use the following procedure:</p>
 </div>
 </section>
 </section>
+<section id="pymatgen-io-managing-calculation-inputs-and-outputs">
+<h2>pymatgen.io - Managing calculation inputs and outputs<a class="headerlink" href="#pymatgen-io-managing-calculation-inputs-and-outputs" title="Permalink to this headline"></a></h2>
+<p>The <a class="reference internal" href="pymatgen.io.html#module-pymatgen.io" title="pymatgen.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io</span></code></a> module contains classes to facilitate writing input files
+and parsing output files from a variety of computational codes, including VASP,
+Q-Chem, LAMMPS, CP2K, AbInit, and many more.</p>
+<p>The core class for managing inputs is the <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>. An <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> object contains
+all the data necessary to write one or more input files for a calculation.
+Specifically, every <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> has a <cite>write_input()</cite> method that writes all the
+necessary files to a location you specify. There are also <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes
+that yield <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> with settings tailored to specific calculation types (for example,
+a structure relaxation). You can think of <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes as “recipes” for
+accomplishing specific computational tasks, while <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> contain those recipes
+applied to a specific system or structure.</p>
+<p>Custom settings can be provided to <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> on instantiation. For example,
+to construct an <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code> for packing water molecules into a box using the Packmol
+code, while changing the packing tolerance from 2.0 (default) to 3.0:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.packmol</span> <span class="kn">import</span> <span class="n">PackmolBoxGen</span>
+
+<span class="n">input_gen</span> <span class="o">=</span> <span class="n">PackmolBoxGen</span><span class="p">(</span><span class="n">tolerance</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="n">packmol_set</span> <span class="o">=</span> <span class="n">input_gen</span><span class="o">.</span><span class="n">get_input_set</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+                                       <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+                                       <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/input/file.xyz&quot;</span><span class="p">})</span>
+<span class="n">packmol_set</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="s1">&#39;/path/to/calc/directory&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use <cite>InputSet.from_directory()</cite> to construct a pymatgen <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>
+from a directory containing calculation inputs.</p>
+<p>Many codes also contain classes for parsing output files into pymatgen objects that
+inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">InputFile</span></code>, which provides a standard interface for reading and
+writing individual files.</p>
+<p>Use of <code class="xref py py-class docutils literal notranslate"><span class="pre">InputFile</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes is
+not yet fully implemented by all codes supported by pymatgen, so please refer to the
+respective module documentation for each code for more details.</p>
+</section>
 <section id="pymatgen-borg-high-throughput-data-assimilation">
 <h2>pymatgen.borg - High-throughput data assimilation<a class="headerlink" href="#pymatgen-borg-high-throughput-data-assimilation" title="Permalink to this headline"></a></h2>
 <p>The borg package is still a work in progress, but a lot can already be done with
@@ -410,7 +445,7 @@ it. The basic concept is to provide a convenient means to
 assimilate large quantities of data in a directory structure. For now, the main
 application is the assimilation of entire directory structures of VASP
 calculations into usable pymatgen entries, which can then be used for phase
-diagram and other analyses.  The outline of how it works is as follows:</p>
+diagram and other analyses. The outline of how it works is as follows:</p>
 <ol class="arabic simple">
 <li><p>Drones are defined in the <a class="reference internal" href="pymatgen.apps.borg.hive.html#module-pymatgen.apps.borg.hive" title="pymatgen.apps.borg.hive"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive</span></code></a> module. A Drone
 is essentially an object which defines how a directory is parsed into a
@@ -538,7 +573,7 @@ efficiently perform structure manipulation and analyses without going through
 the web interface.</p>
 <p>In parallel, we have coded in the <a class="reference internal" href="pymatgen.ext.matproj.html#module-pymatgen.ext.matproj" title="pymatgen.ext.matproj"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.ext.matproj</span></code></a> module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
-useful pymatgen objects for further analyses.  To use the Materials API,
+useful pymatgen objects for further analyses. To use the Materials API,
 your need to first register with the Materials Project and generate your API
 key in your dashboard at <a class="reference external" href="https://www.materialsproject.org/dashboard">https://www.materialsproject.org/dashboard</a>. In the
 examples below, the user’s Materials API key is designated as “USER_API_KEY”.</p>

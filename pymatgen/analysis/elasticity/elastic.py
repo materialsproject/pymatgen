@@ -141,10 +141,10 @@ class ElasticTensor(NthOrderElasticTensor):
 
     def __new__(cls, input_array, tol=1e-4):
         """
-        Create an ElasticTensor object.  The constructor throws an error if
+        Create an ElasticTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3x3, i. e. in true
-        tensor notation.  Issues a warning if the input_matrix argument does
-        not satisfy standard symmetries.  Note that the constructor uses
+        tensor notation. Issues a warning if the input_matrix argument does
+        not satisfy standard symmetries. Note that the constructor uses
         __new__ rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
@@ -477,7 +477,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def from_pseudoinverse(cls, strains, stresses):
         """
         Class method to fit an elastic tensor from stress/strain
-        data.  Method uses Moore-Penrose pseudoinverse to invert
+        data. Method uses Moore-Penrose pseudoinverse to invert
         the s = C*e equation with elastic tensor, stress, and
         strain in voigt notation
 
@@ -865,7 +865,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on
     central-difference derivatives with respect to distinct
-    strain states.  The algorithm is summarized as follows:
+    strain states. The algorithm is summarized as follows:
 
     1. Identify distinct strain states as sets of indices
        for which nonzero strain values exist, typically
@@ -888,12 +888,12 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
         strains (nx3x3 array-like): Array of 3x3 strains
             to use in fitting of ECs
         stresses (nx3x3 array-like): Array of 3x3 stresses
-            to use in fitting ECs.  These should be PK2 stresses.
+            to use in fitting ECs. These should be PK2 stresses.
         eq_stress (3x3 array-like): stress corresponding to
             equilibrium strain (i. e. "0" strain state).
             If not specified, function will try to find
             the state in the list of provided stresses
-            and strains.  If not found, defaults to 0.
+            and strains. If not found, defaults to 0.
         tol (float): value for which strains below
             are ignored in identifying strain states.
 

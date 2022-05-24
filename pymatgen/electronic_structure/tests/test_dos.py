@@ -7,6 +7,7 @@ import os
 import unittest
 
 import numpy as np
+from monty.io import zopen
 from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import Element
@@ -110,6 +111,8 @@ class CompleteDosTest(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "pdag3_complete_dos.json.gz")) as f:
+            self.dos_pdag3 = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
         dos = self.dos
@@ -183,6 +186,76 @@ class CompleteDosTest(unittest.TestCase):
         self.assertIsInstance(dos_dict["densities"]["1"], list)
         self.assertIsInstance(dos_dict["densities"]["1"][0], float)
         self.assertNotIsInstance(dos_dict["densities"]["1"][0], np.float64)
+
+    def test_get_band_center(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+        band_center = dos.get_band_center()
+        self.assertAlmostEqual(band_center, -3.078841005723767)
+
+        band_center = dos.get_band_center(elements=[Element("Ag"), Element("Pd")])
+        self.assertAlmostEqual(band_center, -3.078841005723767)
+
+        band_center = dos.get_band_center(elements=[Element("Pd")])
+        self.assertAlmostEqual(band_center, -1.476449501704171)
+
+        band_center = dos.get_band_center(sites=[s for s in struct if s.species_string == "Pd"])
+        self.assertAlmostEqual(band_center, -1.476449501704171)
+
+        band_center = dos.get_band_center(sites=[struct[-3]])
+        self.assertAlmostEqual(band_center, -1.4144921311083436)
+
+        band_center = dos.get_band_center(band=OrbitalType.p)
+        self.assertAlmostEqual(band_center, 0.9430322204760462)
+
+        band_center = dos.get_band_center(elements=[Element("Pd")], band=OrbitalType.p)
+        self.assertAlmostEqual(band_center, 0.7825770239165218)
+
+        band_center = dos.get_band_center(elements=[Element("Pd")], erange=[-4, -2])
+        self.assertAlmostEqual(band_center, -2.8754000116714065)
+
+    def test_get_upper_band_edge(self):
+        dos = self.dos_pdag3
+        struct = dos.structure
+        band_edge = dos.get_upper_band_edge()
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(elements=[Element("Pd")])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(sites=[struct[-3]])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+        band_edge = dos.get_upper_band_edge(elements=[Element("Pd")], erange=[-4, 0.5])
+        self.assertAlmostEqual(band_edge, -1.01246969)
+
+    def test_get_n_moment(self):
+        dos = self.dos_pdag3
+        moment = dos.get_n_moment(1)
+        self.assertAlmostEqual(moment, 0)
+
+        moment = dos.get_n_moment(1, center=False)
+        self.assertAlmostEqual(moment, -3.078841005723767)
+
+    def test_band_filling(self):
+        dos = self.dos_pdag3
+        filling = dos.get_band_filling()
+        self.assertAlmostEqual(filling, 0.9583552024357637)
+
+    def test_band_width(self):
+        dos = self.dos_pdag3
+        width = dos.get_band_width()
+        self.assertAlmostEqual(width, 1.7831724662185575)
+
+    def test_skewness(self):
+        dos = self.dos_pdag3
+        skewness = dos.get_band_skewness()
+        self.assertAlmostEqual(skewness, 1.7422716340493507)
+
+    def test_kurtosis(self):
+        dos = self.dos_pdag3
+        kurtosis = dos.get_band_kurtosis()
+        self.assertAlmostEqual(kurtosis, 7.764506941340621)
 
 
 class DOSTest(PymatgenTest):

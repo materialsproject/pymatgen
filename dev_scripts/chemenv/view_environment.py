@@ -52,7 +52,7 @@ if __name__ == "__main__":
         for ialgo, algo in enumerate(cg.algorithms):
             print(f"Algorithm #{ialgo:d} :")
             print(algo)
-            print("")
+            print()
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):

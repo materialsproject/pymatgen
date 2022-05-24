@@ -158,11 +158,11 @@ class SubstitutionProbability:
         Returns: MSONAble dict
         """
         return {
-            "name": self.__class__.__name__,
+            "name": type(self).__name__,
             "version": __version__,
             "init_args": {"lambda_table": self._l, "alpha": self.alpha},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

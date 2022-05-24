@@ -28,7 +28,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions.  These contributions can be in the
+library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. The following are resources for pymatgen:
 
@@ -52,7 +52,7 @@ modifications. ``MPRester`` should now be imported from ``pymatgen.ext.matproj``
 ``Element``, ``Species``, ``Lattice``, ``Structure``, etc. should be imported from ``pymatgen.core``. There are a few simple ways
 you can respond to this change:
 
-* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<=2022.0.0 since all
+* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<2022.0.0 since all
   the imports were already available in previous versions), you need to replace all instances of
   ``from pymatgen import MPRester`` with ``from pymatgen.ext.matproj import MPRester``, followed by replacing all instances
   of ``from pymatgen import`` with ``from pymatgen.core import``. These two steps have to be done in that sequence, since

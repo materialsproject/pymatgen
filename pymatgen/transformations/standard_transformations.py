@@ -505,7 +505,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     approximately 5,000,000 permutations per minute.
 
     Also, simple rounding of the occupancies are performed, with no attempt
-    made to achieve a target composition.  This is usually not a problem for
+    made to achieve a target composition. This is usually not a problem for
     most ordering problems, but there can be times where rounding errors may
     result in structures that do not have the desired composition.
     This second step will be implemented in the next iteration of the code.
@@ -709,7 +709,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
         Args:
             tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.5, 0, 0.5] in cartesian coordinates will be
+                site. For example, [0.5, 0, 0.5] in Cartesian coordinates will be
                 considered to be on the same coordinates as [0, 0, 0] for a
                 tolerance of 0.5. Defaults to 0.5.
         """

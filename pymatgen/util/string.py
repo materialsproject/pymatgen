@@ -272,7 +272,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_species(specie_string):
-    r"""
+    """
     Generates a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 

@@ -4,11 +4,11 @@ Utility functions for assisting with cp2k IO
 
 import os
 import re
+import warnings
 from pathlib import Path
 
 import numpy as np
 from monty.io import zopen
-from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
@@ -104,18 +104,15 @@ def natural_keys(text):
     return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
+def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
     """
-    Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
-    Generally, the GTH potentials are used with the GTH basis sets.
+    Retrieve basis/potential dictionary
 
     Args:
         species: (list) list of species for which to get the potential/basis strings
-        d: (dict) a dictionary specifying how bases and/or potentials should be assigned to species
-            E.g. {'Si': {'cardinality': 'DZVP', 'sr': True}, 'O': {'cardinality': 'TZVP'}}
+        basis_and_potential_map: (dict or str) a keyword string or a dictionary
+            specifying how bases and/or potentials should be assigned
         functional: (str) functional type. Default: 'PBE'
-        basis_type: (str) the basis set type. Default: 'MOLOPT'
-        cardinality: (str) basis set cardinality. Default: 'DZVP'
 
     Returns:
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
@@ -125,58 +122,43 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
     basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
 
     functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-    cardinality = cardinality or SETTINGS.get("PMG_DEFAULT_BASIS_CARDINALITY", "DZVP")
+
     basis_and_potential = {
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
     }
-    for s in species:
-        if s not in d:
-            d[s] = {}
-        if "sr" not in d[s]:
-            d[s]["sr"] = True
-        if "cardinality" not in d[s]:
-            d[s]["cardinality"] = cardinality
 
-    yaml = YAML()
-    with open(os.path.join(MODULE_DIR, "basis_molopt.yaml")) as f:
-        data_b = yaml.load(f)
-    with open(os.path.join(MODULE_DIR, "gth_potentials.yaml")) as f:
-        data_p = yaml.load(f)
+    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
+        yaml = YAML(typ="unsafe", pure=True)
+        settings = yaml.load(f)
 
-    for s in species:
-        basis_and_potential[s] = {}
-        b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
-        if d[s]["sr"] and any("SR" in _ for _ in b):
-            b = [_ for _ in b if "SR" in _]
-        else:
-            b = [_ for _ in b if "SR" not in _]
-        if "q" in d[s]:
-            b = [_ for _ in b if d[s]["q"] in _]
-        else:
-
-            def srt(x):
-                return int(x.split("q")[-1])
-
-            b = sorted(b, key=srt)[-1:]
-        if len(b) == 0:
-            raise LookupError("NO BASIS OF THAT TYPE AVAILABLE")
-        if len(b) > 1:
-            raise LookupError("AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER")
-
-        basis_and_potential[s]["basis"] = b[0]
-        p = [_ for _ in data_p[s] if functional in _.split("-")]
-        if len(p) == 0:
-            raise LookupError("NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE")
-        if len(p) > 1:
-            raise LookupError("AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER")
-
-        basis_and_potential[s]["potential"] = p[0]
+    if basis_and_potential_map == "best":
+        basis_and_potential.update(
+            {
+                s: {
+                    "basis": settings[s]["basis_sets"]["best_basis"],
+                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
+                }
+                for s in species
+            }
+        )
+    elif basis_and_potential_map == "preferred":
+        basis_and_potential.update(
+            {
+                s: {
+                    "basis": settings[s]["basis_sets"]["preferred_basis"],
+                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
+                }
+                for s in species
+            }
+        )
+    else:
+        basis_and_potential.update(basis_and_potential_map)
 
     return basis_and_potential
 
 
-def get_aux_basis(basis_type, default_basis_type="cFIT"):
+def get_aux_basis(basis_type, default_basis_type="cpFIT"):
     """
     Get auxiliary basis info for a list of species.
 
@@ -196,11 +178,23 @@ def get_aux_basis(basis_type, default_basis_type="cFIT"):
         default_basis_type (str) default basis type if n
 
     """
+    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
+        yaml = YAML(typ="unsafe", pure=True)
+        settings = yaml.load(f)
+        aux_bases = {
+            s: [settings[s]["basis_sets"]["preferred_aux_basis"]]
+            if "preferred_aux_basis" in settings[s]["basis_sets"]
+            else settings[s]["basis_sets"]["aux_basis"]
+            for s in settings
+        }
+
     default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
     basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
     basis = {k: {} for k in basis_type}
-    aux_bases = loadfn(os.path.join(MODULE_DIR, "aux_basis.yaml"))
     for k in basis_type:
+        if aux_bases.get(k) is None:
+            basis[k] = None
+            continue
         for i in aux_bases[k]:
             if i.startswith(basis_type[k]):
                 basis[k] = i
@@ -210,7 +204,7 @@ def get_aux_basis(basis_type, default_basis_type="cFIT"):
             if aux_bases[k]:
                 basis[k] = aux_bases[k][0]
             else:
-                raise LookupError("NO BASIS OF THAT TYPE")
+                raise LookupError(f"No basis of that type found for: {k}")
     return basis
 
 
@@ -220,30 +214,119 @@ def get_unique_site_indices(structure):
     unique values is used for indexing.
 
     For example, if you have magnetic CoO with half Co atoms having a positive moment, and the other
-    half having a negative moment. Then this function will create a dict of sites for Co_1, Co_2, O.
+    half having a negative moment. Then this function will create a dict of sites for Co_1, Co_2, O. This
+    function also deals with "Species" properties like oxi_state and spin by pushing them to site
+    properties.
 
     This creates unique sites, based on site properties, but does not have anything to do with turning
-    those site properties into CP2K input parameters.
+    those site properties into CP2K input parameters. This will only be done for properties which can be
+    turned into CP2K input parameters, which are stored in parsable_site_properties.
     """
+    spins = []
+    oxi_states = []
+    parsable_site_properties = {"magmom", "oxi_state", "spin", "u_minus_j", "basis", "potential", "ghost", "aux_basis"}
+
+    for site in structure:
+        for sp, occu in site.species.items():
+            oxi_states.append(getattr(sp, "oxi_state", 0))
+            spins.append(getattr(sp, "_properties", {}).get("spin", 0))
+
+    structure.add_site_property("oxi_state", oxi_states)
+    structure.add_site_property("spin", spins)
+    structure.remove_oxidation_states()
+    items = [
+        (
+            site.species_string,
+            *[
+                structure.site_properties[k][i]
+                for k in structure.site_properties
+                if k.lower() in parsable_site_properties
+            ],
+        )
+        for i, site in enumerate(structure)
+    ]
+    unique_itms = list(set(items))
+    _sites = {u: [] for u in unique_itms}
+    for i, itm in enumerate(items):
+        _sites[itm].append(i)
     sites = {}
-    _property = None
-    for s in structure.symbol_set:
-        s_ids = structure.indices_from_symbol(s)
-        unique = [0]
-        for site_prop, vals in structure.site_properties.items():
-            _unique = np.unique([vals[i] for i in s_ids])
-            if len(unique) < len(_unique):
-                unique = _unique
-                _property = site_prop
-        if _property is None:
-            sites[s] = s_ids
-        else:
-            for i, u in enumerate(unique):
-                sites[s + "_" + str(i + 1)] = []
-                for j, site in zip(
-                    s_ids,
-                    [structure.site_properties[_property][ids] for ids in s_ids],
-                ):
-                    if site == u:
-                        sites[s + "_" + str(i + 1)].append(j)
+    nums = {s: 1 for s in structure.symbol_set}
+    for s in _sites:
+        sites[f"{s[0]}_{nums[s[0]]}"] = _sites[s]
+        nums[s[0]] += 1
+
     return sites
+
+
+def get_cutoff_from_basis(els, bases, rel_cutoff=50):
+    """
+    Gets the appropriate cutoff for the calculation given the elements/basis sets being used
+    and the desired relative cutoff.
+
+    Args:
+        els: list of element symbols
+        bases: corresponding basis set names for the elements
+        rel_cutoff: The desired relative cutoff
+    Returns:
+        Ideal cutoff for calculation.
+    """
+    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
+        yaml = YAML(typ="unsafe", pure=True)
+        _exponents = yaml.load(f)
+        _exponents = {
+            k: v["basis_sets"].get("basis_set_largest_exponents")
+            for k, v in _exponents.items()
+            if v["basis_sets"].get("basis_set_largest_exponents")
+        }
+        exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
+        return max(np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases))
+
+
+# TODO this is not comprehensive. There are so many libxc functionals (e.g. see r2scan)
+# and their availability changes with libxc version. I see no easy way to deal with this
+# So these are just a few of the most common ones.
+# TODO whenever ADMM gets interfaced with LibXC, this should include hybrid functionals
+# and the sets will get more streamlined.
+def get_xc_functionals(name):
+    """
+    Get the XC functionals for a given functional name. This utility does
+    not deal with defining hybrid functionals since those may or may not
+    require ADMM, which is not supported by LibXC and so needs to be manually
+    defined.
+
+    Args:
+        name: Name of the functional.
+    """
+    name = name.upper()
+    if name == "PBE":
+        return ["PBE"]
+    if name in ("LDA", "PADE"):
+        return ["PADE"]
+    if name == "B3LYP":
+        return ["B3LYP"]
+    if name == "BLYP":
+        return ["BLYP"]
+    if name == "SCAN":
+        return ["MGGA_X_SCAN", "MGGA_C_SCAN"]
+    if name == "SCANL":
+        return ["MGGA_X_SCANL", "MGGA_C_SCANL"]
+    if name == "R2SCAN":
+        return ["MGGA_X_R2SCAN", "MGGA_C_R2SCAN"]
+    if name == "R2SCANL":
+        return ["MGGA_X_R2SCANL", "MGGA_C_R2SCANL"]
+    warnings.warn(f"Unknown XC functionals: {name}")
+    return [name]
+
+
+def get_truncated_coulomb_cutoff(inp_struct):
+    """
+    Get the truncated Coulomb cutoff for a given structure.
+    """
+
+    m = inp_struct.lattice.matrix
+    m = (abs(m) > 1e-5) * m
+    a, b, c = m[0], m[1], m[2]
+    x = abs(np.dot(a, np.cross(b, c)) / np.linalg.norm(np.cross(b, c)))
+    y = abs(np.dot(b, np.cross(a, c)) / np.linalg.norm(np.cross(a, c)))
+    z = abs(np.dot(c, np.cross(a, b)) / np.linalg.norm(np.cross(a, b)))
+    return np.floor(100 * min([x, y, z]) / 2) / 100

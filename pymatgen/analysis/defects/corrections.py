@@ -89,7 +89,7 @@ class FreysoldtCorrection(DefectCorrection):
                     axis_grid (3 x NGX where NGX is the length of the NGX grid
                     in the x,y and z axis directions. Same length as planar
                     average lists):
-                        A list of 3 numpy arrays which contain the cartesian axis
+                        A list of 3 numpy arrays which contain the Cartesian axis
                         values (in angstroms) that correspond to each planar avg
                         potential supplied.
 
@@ -113,9 +113,9 @@ class FreysoldtCorrection(DefectCorrection):
         """
 
         if self.axis is None:
-            list_axis_grid = np.array(entry.parameters["axis_grid"])
-            list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
-            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
+            list_axis_grid = np.array(entry.parameters["axis_grid"], dtype=object)
+            list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"], dtype=object)
+            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"], dtype=object)
             list_axes = range(len(list_axis_grid))
         else:
             list_axes = np.array(self.axis)
@@ -221,7 +221,7 @@ class FreysoldtCorrection(DefectCorrection):
         Args:
              axis_grid (1 x NGX where NGX is the length of the NGX grid
                     in the axis direction. Same length as pureavg list):
-                        A numpy array which contain the cartesian axis
+                        A numpy array which contain the Cartesian axis
                         values (in angstroms) that correspond to each planar avg
                         potential supplied.
              pureavg (1 x NGX where NGX is the length of the NGX grid in

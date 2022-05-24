@@ -6,13 +6,15 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
+from __future__ import annotations
+
 import collections
 import fnmatch
 import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 from monty.io import zopen
@@ -229,29 +231,19 @@ class Cohpcar:
         ]
 
         line_new = line.rsplit("(", 1)
-        # bondnumber = line[0].replace("->", ":").replace(".", ":").split(':')[1]
         length = float(line_new[-1][:-1])
 
         sites = line_new[0].replace("->", ":").split(":")[1:3]
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
 
-        # species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
             orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]  # type: Any
-            orb_label = "%d%s-%d%s" % (
-                orbitals[0][0],
-                orbitals[0][1].name,
-                orbitals[1][0],
-                orbitals[1][1].name,
-            )  # type: Any
+            orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: Any
 
         else:
             orbitals = None
             orb_label = None
-
-        # a label based on the species alone is not feasible, there can be more than one bond for each atom combination
-        # label = "%s" % (bondnumber)
 
         bond_data = {
             "length": length,
@@ -331,7 +323,7 @@ class Icohplist:
 
         # check if orbitalwise ICOHPLIST
         # include case when there is only one ICOHP!!!
-        if len(data) > 2 and "_" in data[2].split()[1]:
+        if len(data) > 2 and "_" in data[1].split()[1]:
             self.orbitalwise = True
             warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
         else:
@@ -412,7 +404,7 @@ class Icohplist:
         )
 
     @property
-    def icohplist(self) -> Dict[Any, Dict[str, Any]]:
+    def icohplist(self) -> dict[Any, dict[str, Any]]:
         """
         Returns: icohplist compatible with older version of this class
         """
@@ -1063,7 +1055,7 @@ class Fatband:
 
     .. attribute: label_dict
 
-         (dict) of {} this link a kpoint (in frac coords or cartesian coordinates depending on the coords).
+         (dict) of {} this link a kpoint (in frac coords or Cartesian coordinates depending on the coords).
 
     .. attribute: lattice
 
@@ -1360,7 +1352,7 @@ class Bandoverlaps:
     def has_good_quality_check_occupied_bands(
         self,
         number_occ_bands_spin_up: int,
-        number_occ_bands_spin_down: Optional[int] = None,
+        number_occ_bands_spin_down: int | None = None,
         spin_polarized: bool = False,
         limit_deviation: float = 0.1,
     ) -> bool:
