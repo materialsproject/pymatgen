@@ -93,7 +93,7 @@ v2022.2.1
 * Bigfix for gzipped DOSCAR (@JaGeo)
 * Updates for QChem Support (@samblau)
 * QuantumEspresso k-grid fix input fix. (@vorwerkc)
-* `Entry.__repr__()` now ouputs name where available. (@janosh)
+* `Entry.__repr__()` now outputs name where available. (@janosh)
 * Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93)
 * `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
 * Improved parsing of coupled cluster calculations in QChem (@espottesmith).
@@ -178,7 +178,7 @@ you are acknowledged appropriately by filling out the linked form.
 * Improve appearance of periodic table heatmap (@penicillin0, #2272)
 * Small improvements to battery classes (@jmmshn, #2262)
 * Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
-* Fix for bad param in OPTIMADE reponse fields (@ml-evs, #2244)
+* Fix for bad param in OPTIMADE response fields (@ml-evs, #2244)
 * Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
 * Fix for Moladaptor (@orioncohen, #2269)
 * Fix for incorrect Potcar hash warnings (@mkhorton, #2273)
@@ -630,7 +630,7 @@ v2019.10.2
 ----------
 * IRSpectra class (@henriquemiranda)
 * Much faster get_neighbors written in Cython (@chc273).
-* VolumetricData allows for sum or substraction of data with different
+* VolumetricData allows for sum or subtraction of data with different
   structures, with warnings.
 
 v2019.9.16
@@ -894,7 +894,7 @@ v2018.9.19
 * Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
 * New features and fixes to `chemenv` analysis module (@davidwaroquiers)
 * Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
-* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fixes to `Defect` objects, including allowing rotational supercell transformations (@dbroberg)
 * Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
 * Added '@' notation parsing in `Composition` (@tamuhey)
 * BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
@@ -955,7 +955,7 @@ v2018.5.21
 
 v2018.5.14
 ----------
-* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+* Dash docs now available for pymatgen. See pymatgen.org "Offline docs" section
   for details.
 * Better CrystalNN. (Anubhav Jain)
 * Fixes for elastic module. (Joseph Montoya)
@@ -1308,7 +1308,7 @@ v4.5.4
 v4.5.3
 ------
 * Added an alternative interstitial finder that works with a grid-based structure-motif search. (Nils Zimmermann)
-* Optionnal possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)
+* Optional possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)
 * Read intensity and normal modes for Gaussian. (Germain Salvato Vallverdu)
 * Minor bug fixes.
 
@@ -1321,7 +1321,7 @@ v4.5.1
 * You can now specify a different default functional choice for pymatgen by
   setting PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer
   functional sets, you need to specify PBE_52 or PBE_54 for example.
-* Swtich to ISYM 3 by default for HSE.
+* Switch to ISYM 3 by default for HSE.
 * Updates to FEFF>
 * Misc bug fixes and startup speed improvements.
 
@@ -1539,7 +1539,7 @@ v3.5.0
 v3.4.0
 ------
 * 10-100x speed up to Structure copying and Site init, which means many
-  functionality has seen signifcant speed improvement (e.g., structure
+  functionality has seen significant speed improvement (e.g., structure
   matching).
 * Convenience method Structure.matches now perform similarity matching
   for Structures.
@@ -1558,7 +1558,7 @@ v3.3.5
 * Added interpolation failure warnings and smooth tolerance for
   scipy.interpolate.splrep in bandstructures (Tess).
 * Added DiffusionAnalyzer.get_framework_rms_plot.
-* Complete rewrite of Procar class to use ND array access and zero-based
+* Complete rewrite of Procar class to use NDarray access and zero-based
   indexing.
 * OrderParameters class for analysis of local structural features
   (Nils Zimmermann).
