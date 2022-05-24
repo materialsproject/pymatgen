@@ -1876,7 +1876,13 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["acceptor atom 1 number"] = int(line[44:47].strip())
                     entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
                     entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
-                    entry["perturbation energy"] = float(line[53:63].strip())
+                    try:
+                        entry["perturbation energy"] = float(line[53:63].strip())
+                    except ValueError:
+                        if line[53:63].strip() == "*******":
+                            entry["perturbation energy"] = float("inf")
+                        else:
+                            raise ValueError("Unknown value error in parsing perturbation energy")
                     entry["energy difference"] = float(line[63:71].strip())
                     entry["fock matrix element"] = float(line[71:79].strip())
                 e2_data.append(entry)
