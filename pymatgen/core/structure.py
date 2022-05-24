@@ -2388,13 +2388,14 @@ class IStructure(SiteCollection, MSONable):
         return df
 
     @classmethod
-    def from_dict(cls, d, fmt=None):
+    def from_dict(cls, d: dict[str, Any], fmt: Literal["abivars"] | None = None):
         """
         Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
 
         Args:
             d (dict): Dict representation of structure.
+            fmt ('abivars' | None): Use structure_from_abivars() to parse the dict. Defaults to None.
 
         Returns:
             Structure object
@@ -2409,7 +2410,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge", None)
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, fmt: str = None, filename=None, **kwargs) -> str | None:
+    def to(self, fmt: str = None, filename: str = None, **kwargs) -> str | None:
         """
         Outputs the structure to a file or string.
 
