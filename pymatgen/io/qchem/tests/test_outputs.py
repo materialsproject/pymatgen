@@ -318,6 +318,10 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data5["nbo_data"]["hybridization_character"][1]["bond index"][7], "149")
         self.assertEqual(data7["nbo_data"]["hybridization_character"][1]["bond index"][7], "21")
 
+    def test_NBO7_infinite_e2pert(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_inf.qout")).data
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0], float("inf"))
+
 
 if __name__ == "__main__":
     unittest.main()
