@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,10 +7,10 @@ Input sets for LAMMPS
 
 import logging
 from pathlib import Path
-from typing import Union, Dict, List
+from typing import Dict, List, Union
 
-from pymatgen.io.core import InputSet, InputGenerator
-from pymatgen.io.lammps.inputs import LammpsInputFile, CombinedData
+from pymatgen.io.core import InputGenerator, InputSet
+from pymatgen.io.lammps.inputs import CombinedData, LammpsInputFile
 
 __author__ = "Ryan Kingsbury, ..."
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -77,4 +76,3 @@ class LammpsAqueousSet(InputGenerator):
                 Numbers must be passed in the order corresponding to the order
                 of Molecule in mol.
         """
-        pass
