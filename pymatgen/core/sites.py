@@ -485,10 +485,9 @@ class PeriodicSite(Site, MSONable):
         """
         Move frac coords to within the unit cell cell.
         """
-        frac_coords = self.frac_coords.copy()
-        frac_coords[self.lattice.pbc] = np.mod(self.frac_coords[self.lattice.pbc], 1)
+        frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
-            self.frac_coords = frac_coords
+            self.frac_coords = np.array(frac_coords)
             return None
         return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties)
 

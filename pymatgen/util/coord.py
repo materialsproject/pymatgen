@@ -105,6 +105,8 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
 
     Args:
         subset, superset: List of frac_coords
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         list of indices such that superset[indices] = subset
@@ -160,8 +162,7 @@ def all_distances(coords1, coords2):
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike,
-             pbc: Tuple[bool, bool, bool] = (True, True, True)):
+def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: Tuple[bool, bool, bool] = (True, True, True)):
     """
     Returns the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
@@ -171,6 +172,8 @@ def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike,
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         fcoords2: Second set of fractional coordinates.
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         Fractional distance. Each coordinate must have the property that
@@ -182,8 +185,7 @@ def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike,
     return fdist - np.round(fdist) * pbc
 
 
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False,
-                         pbc=(True, True, True)):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -204,7 +206,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         first index is fcoords1 index, second is fcoords2 index
     """
     # pylint: disable=I1101
-    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2, pbc=pbc)
+    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
@@ -217,6 +219,8 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True
         fcoord_list: List of fractional coords
         fcoord: A specific fractional coord to test.
         atol: Absolute tolerance. Defaults to 1e-8.
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
@@ -225,7 +229,7 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True
         return []
     fcoords = np.tile(fcoord, (len(fcoord_list), 1))
     fdist = fcoord_list - fcoords
-    fdist[pbc] -= np.round(fdist)[pbc]
+    fdist[:, pbc] -= np.round(fdist)[:, pbc]
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
@@ -237,6 +241,8 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
         fcoord_list: List of fractional coords to test
         fcoord: A specific fractional coord to test.
         atol: Absolute tolerance. Defaults to 1e-8.
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         True if coord is in the coord list.
@@ -254,6 +260,8 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] == True, then subset[1] cannot be matched
             to superset[2]
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         True if all of subset is in superset.

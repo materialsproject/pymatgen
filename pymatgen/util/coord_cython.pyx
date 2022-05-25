@@ -64,8 +64,7 @@ cdef void dot_2d_mod(np.float_t[:, ::1] a, np.float_t[:, ::1] b, np.float_t[:, :
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None,
-                         pbc=(True, True, True)):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -90,6 +89,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
+    pbc = lattice.pbc
     cdef int n_pbc = sum(pbc)
     cdef int n_pbc_im = 3 ** n_pbc
     cdef np.float_t[:, ::1] frac_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
@@ -200,6 +200,8 @@ def is_coord_subset_pbc(subset, superset, atol, mask, pbc=(True, True, True)):
 
     Args:
         subset, superset: List of fractional coords
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         True if all of subset is in superset.
@@ -246,6 +248,8 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
 
     Args:
         subset, superset: List of frac_coords
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         list of indices such that superset[indices] = subset

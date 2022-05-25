@@ -40,7 +40,7 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
-    def __init__(self, matrix: ArrayLike, pbc: Optional[Tuple[bool, bool, bool]] = None):
+    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] | None = None):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
@@ -69,7 +69,7 @@ class Lattice(MSONable):
         if pbc is None:
             pbc = (True, True, True)
         else:
-            pbc = tuple(pbc)
+            pbc = tuple(pbc)  # type: ignore
         self._pbc = pbc
 
     @property
@@ -129,7 +129,7 @@ class Lattice(MSONable):
 
     def copy(self):
         """Deep copy of self."""
-        return self.__class__(self.matrix.copy())
+        return self.__class__(self.matrix.copy(), pbc=self.pbc)
 
     @property
     def matrix(self) -> np.ndarray:
@@ -137,7 +137,7 @@ class Lattice(MSONable):
         return self._matrix
 
     @property
-    def pbc(self) -> Tuple[bool, bool, bool]:
+    def pbc(self) -> tuple[bool, bool, bool]:
         """Tuple defining the periodicity of the Lattice"""
         return self._pbc
 
@@ -223,12 +223,14 @@ class Lattice(MSONable):
         return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
-    def cubic(a: float, pbc: Optional[Tuple[bool, bool, bool]] = None) -> Lattice:
+    def cubic(a: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
         """
         Convenience constructor for a cubic lattice.
 
         Args:
             a (float): The *a* lattice parameter of the cubic cell.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Cubic lattice of dimensions a x a x a.
@@ -236,14 +238,15 @@ class Lattice(MSONable):
         return Lattice([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]], pbc)
 
     @staticmethod
-    def tetragonal(a: float, c: float,
-                   pbc: Optional[Tuple[bool, bool, bool]] = None) -> Lattice:
+    def tetragonal(a: float, c: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
         """
         Convenience constructor for a tetragonal lattice.
 
         Args:
             a (float): *a* lattice parameter of the tetragonal cell.
             c (float): *c* lattice parameter of the tetragonal cell.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Tetragonal lattice of dimensions a x a x c.
@@ -251,8 +254,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 90, pbc=pbc)
 
     @staticmethod
-    def orthorhombic(a: float, b: float, c: float,
-                     pbc: Optional[Tuple[bool, bool, bool]] = None) -> Lattice:
+    def orthorhombic(a: float, b: float, c: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
         """
         Convenience constructor for an orthorhombic lattice.
 
@@ -260,6 +262,8 @@ class Lattice(MSONable):
             a (float): *a* lattice parameter of the orthorhombic cell.
             b (float): *b* lattice parameter of the orthorhombic cell.
             c (float): *c* lattice parameter of the orthorhombic cell.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Orthorhombic lattice of dimensions a x b x c.
@@ -267,8 +271,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, 90, 90, pbc=pbc)
 
     @staticmethod
-    def monoclinic(a: float, b: float, c: float, beta: float,
-                   pbc: Optional[Tuple[bool, bool, bool]] = None) -> Lattice:
+    def monoclinic(a: float, b: float, c: float, beta: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
         """
         Convenience constructor for a monoclinic lattice.
 
@@ -278,6 +281,8 @@ class Lattice(MSONable):
             c (float): *c* lattice parameter of the monoclinc cell.
             beta (float): *beta* angle between lattice vectors b and c in
                 degrees.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Monoclinic lattice of dimensions a x b x c with non right-angle
@@ -286,14 +291,15 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, beta, 90, pbc=pbc)
 
     @staticmethod
-    def hexagonal(a: float, c: float,
-                  pbc: Optional[Tuple[bool, bool, bool]] = None) -> Lattice:
+    def hexagonal(a: float, c: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
         """
         Convenience constructor for a hexagonal lattice.
 
         Args:
             a (float): *a* lattice parameter of the hexagonal cell.
             c (float): *c* lattice parameter of the hexagonal cell.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Hexagonal lattice of dimensions a x a x c.
@@ -301,14 +307,15 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 120, pbc=pbc)
 
     @staticmethod
-    def rhombohedral(a: float, alpha: float,
-                     pbc: Optional[Tuple[bool, bool, bool]] = None) -> Lattice:
+    def rhombohedral(a: float, alpha: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
         """
         Convenience constructor for a rhombohedral lattice.
 
         Args:
             a (float): *a* lattice parameter of the rhombohedral cell.
             alpha (float): Angle for the rhombohedral lattice in degrees.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Rhombohedral lattice of dimensions a x a x a.
@@ -325,7 +332,7 @@ class Lattice(MSONable):
         beta: float,
         gamma: float,
         vesta: bool = False,
-        pbc: Optional[Tuple[bool, bool, bool]] = None
+        pbc: tuple[bool, bool, bool] | None = None,
     ):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
@@ -338,6 +345,8 @@ class Lattice(MSONable):
             beta (float): *beta* angle in degrees.
             gamma (float): *gamma* angle in degrees.
             vesta: True if you import Cartesian coordinates from VESTA.
+            pbc (tuple): a tuple defining the periodic boundary conditions along the three
+                axis of the lattice. If None periodic in all directions.
 
         Returns:
             Lattice with the specified lattice parameters.
@@ -394,8 +403,7 @@ class Lattice(MSONable):
 
         if "matrix" in d:
             return cls(d["matrix"], d.get("pbc"))
-        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"],
-                                   pbc=d.get("pbc"))
+        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"], pbc=d.get("pbc"))
 
     @property
     def a(self) -> float:
@@ -1353,7 +1361,7 @@ class Lattice(MSONable):
 
         new_c = (new_volume / (geo_factor * np.prod(ratios))) ** (1 / 3.0)
 
-        return Lattice(versors * (new_c * ratios))
+        return Lattice(versors * (new_c * ratios), pbc=self.pbc)
 
     def get_wigner_seitz_cell(self) -> list[list[np.ndarray]]:
         """
@@ -1616,8 +1624,7 @@ class Lattice(MSONable):
                 fcoords, dists, inds, image
         """
         if self.pbc != (True, True, True):
-            raise RuntimeError("get_points_in_sphere_old does not support "
-                               "partial periodic boundary conditions")
+            raise RuntimeError("get_points_in_sphere_old does not support partial periodic boundary conditions")
         # TODO: refactor to use lll matrix (nmax will be smaller)
         # Determine the maximum number of supercells in each direction
         #  required to contain a sphere of radius n
@@ -1700,7 +1707,7 @@ class Lattice(MSONable):
             2d array of Cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True, pbc=self.pbc)
+        v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
         return np.sqrt(d2)
 
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
@@ -1752,7 +1759,7 @@ class Lattice(MSONable):
             equal to distance.
         """
         if jimage is None:
-            v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True, pbc=self.pbc)
+            v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
             fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - frac_coords2  # type: ignore
             fc = np.array(np.round(fc), dtype=int)
             return np.sqrt(d2[0, 0]), fc
@@ -1886,7 +1893,7 @@ def get_points_in_spheres(
     all_coords: np.ndarray,
     center_coords: np.ndarray,
     r: float,
-    pbc: bool | list[bool] = True,
+    pbc: bool | list[bool] | tuple[bool, bool, bool] = True,
     numerical_tol: float = 1e-8,
     lattice: Lattice = None,
     return_fcoords: bool = False,

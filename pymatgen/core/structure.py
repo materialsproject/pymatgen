@@ -993,6 +993,18 @@ class IStructure(SiteCollection, MSONable):
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
+    @property
+    def pbc(self) -> tuple[bool, bool, bool]:
+        """
+        Returns the periodicity of the structure.
+        """
+        return self._lattice.pbc
+
+    @property
+    def is_3d_periodic(self) -> bool:
+        """True if the Lattice is periodic in all directions."""
+        return self._lattice.is_3d_periodic
+
     def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0) -> tuple[str, int]:
         """
         Convenience method to quickly get the spacegroup of a structure.
@@ -1124,18 +1136,6 @@ class IStructure(SiteCollection, MSONable):
         Returns the volume of the structure.
         """
         return self._lattice.volume
-
-    @property
-    def pbc(self) -> Tuple[bool, bool, bool]:
-        """
-        Returns the periodicity of the structure.
-        """
-        return self._lattice.pbc
-
-    @property
-    def is_3d_periodic(self) -> bool:
-        """True if the Lattice is periodic in all directions."""
-        return all(self._lattice.is_3d_periodic)
 
     def get_distance(self, i: int, j: int, jimage=None) -> float:
         """
