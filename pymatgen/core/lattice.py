@@ -40,7 +40,7 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
-    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] | None = None):
+    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
@@ -66,11 +66,7 @@ class Lattice(MSONable):
         self._diags = None
         self._lll_matrix_mappings = {}  # type: Dict[float, Tuple[np.ndarray, np.ndarray]]
         self._lll_inverse = None
-        if pbc is None:
-            pbc = (True, True, True)
-        else:
-            pbc = tuple(pbc)  # type: ignore
-        self._pbc = pbc
+        self._pbc = tuple(pbc)
 
     @property
     def lengths(self) -> tuple[float, float, float]:
@@ -139,7 +135,7 @@ class Lattice(MSONable):
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
         """Tuple defining the periodicity of the Lattice"""
-        return self._pbc
+        return self._pbc  # type: ignore
 
     @property
     def is_3d_periodic(self) -> bool:
@@ -223,7 +219,7 @@ class Lattice(MSONable):
         return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
-    def cubic(a: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
+    def cubic(a: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
         """
         Convenience constructor for a cubic lattice.
 
@@ -238,7 +234,7 @@ class Lattice(MSONable):
         return Lattice([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]], pbc)
 
     @staticmethod
-    def tetragonal(a: float, c: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
+    def tetragonal(a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
         """
         Convenience constructor for a tetragonal lattice.
 
@@ -254,7 +250,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 90, pbc=pbc)
 
     @staticmethod
-    def orthorhombic(a: float, b: float, c: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
+    def orthorhombic(a: float, b: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
         """
         Convenience constructor for an orthorhombic lattice.
 
@@ -271,7 +267,9 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, 90, 90, pbc=pbc)
 
     @staticmethod
-    def monoclinic(a: float, b: float, c: float, beta: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
+    def monoclinic(
+        a: float, b: float, c: float, beta: float, pbc: tuple[bool, bool, bool] = (True, True, True)
+    ) -> Lattice:
         """
         Convenience constructor for a monoclinic lattice.
 
@@ -291,7 +289,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, beta, 90, pbc=pbc)
 
     @staticmethod
-    def hexagonal(a: float, c: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
+    def hexagonal(a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
         """
         Convenience constructor for a hexagonal lattice.
 
@@ -307,7 +305,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 120, pbc=pbc)
 
     @staticmethod
-    def rhombohedral(a: float, alpha: float, pbc: tuple[bool, bool, bool] | None = None) -> Lattice:
+    def rhombohedral(a: float, alpha: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
         """
         Convenience constructor for a rhombohedral lattice.
 
@@ -332,7 +330,7 @@ class Lattice(MSONable):
         beta: float,
         gamma: float,
         vesta: bool = False,
-        pbc: tuple[bool, bool, bool] | None = None,
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
@@ -401,9 +399,10 @@ class Lattice(MSONable):
             kwargs.update(d)
             return lattice_from_abivars(cls=cls, **kwargs)
 
+        pbc = d.get("pbc", (True, True, True))
         if "matrix" in d:
-            return cls(d["matrix"], d.get("pbc"))
-        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"], pbc=d.get("pbc"))
+            return cls(d["matrix"], pbc=pbc)
+        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"], pbc=pbc)
 
     @property
     def a(self) -> float:
