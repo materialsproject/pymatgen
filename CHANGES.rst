@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v2022.5.26
+----------
+* Q-Chem updates to NBO and new geometry optimizer, PR #2521 by @samblau
+* Bug fix for VolumetricData, PR #2525 by @jmmshn
+* Bug fix for MPRester, PR #2531 by @janosh
+
 v2022.5.19
 ----------
 * Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
@@ -24,7 +30,7 @@ v2022.5.17
 
 v2022.4.26
 ----------
-* Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (@@fraricci)
+* Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (@fraricci)
 * Removed complex numbers from the definition of WSWQ (@jmmshn)
 * MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
   This avoids the MPRester constantly rewriting a config file and causing users' pymatgen to completely fail.
