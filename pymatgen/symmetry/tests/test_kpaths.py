@@ -66,6 +66,7 @@ class HighSymmKpathTest(PymatgenTest):
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
         self.assertEqual(cont_bs.as_dict(), alt_bs.as_dict())
+        self.assertEqual(alt_bs.kpoints[0].label, alt_bs.kpoints[-1].label)
 
 
 if __name__ == "__main__":
