@@ -416,7 +416,7 @@ class Atoms(MSONable):
         """
         center = self.struct[self.center_index].coords
         # this method builds a supercell containing all periodic images of
-        # the unit cell within the specified radius
+        # the unit cell within the specified radius, excluding the central atom
         sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
 
         symbols = [self.absorbing_atom]
