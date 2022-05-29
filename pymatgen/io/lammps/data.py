@@ -226,10 +226,10 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
     xhi = a + xlo
     m = lattice.matrix
     xy = np.dot(m[1], m[0] / a)
-    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    yhi = np.sqrt(b**2 - xy**2) + ylo
     xz = np.dot(m[2], m[0] / a)
     yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
-    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    zhi = np.sqrt(c**2 - xz**2 - yz**2) + zlo
     tilt = None if lattice.is_orthogonal else [xy, xz, yz]
     rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0], [xy, yhi - ylo, 0], [xz, yz, zhi - zlo]], m)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
@@ -1282,7 +1282,7 @@ class CombinedData(LammpsData):
             mols_in_data = len(atoms_df["molecule-ID"].unique())
             self.mols_per_data.append(mols_in_data)
             for j in range(self.nums[i]):
-                self.atoms = self.atoms.append(atoms_df, ignore_index=True)
+                self.atoms = self.atoms.concat(atoms_df, ignore_index=True)
                 atoms_df["molecule-ID"] += mols_in_data
             type_count += len(mol.masses)
             mol_count += self.nums[i] * mols_in_data
@@ -1306,7 +1306,7 @@ class CombinedData(LammpsData):
                     for col in topo_df.columns[1:]:
                         topo_df[col] += atom_count
                     for j in range(self.nums[i]):
-                        self.topology[kw] = self.topology[kw].append(topo_df, ignore_index=True)
+                        self.topology[kw] = self.topology[kw].concat(topo_df, ignore_index=True)
                         for col in topo_df.columns[1:]:
                             topo_df[col] += len(mol.atoms)
                     count[kw] += len(mol.force_field[kw[:-1] + " Coeffs"])
@@ -1542,10 +1542,10 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge", is_sor
     m = s.lattice.matrix
     xhi = a
     xy = np.dot(m[1], m[0] / xhi)
-    yhi = np.sqrt(b ** 2 - xy ** 2)
+    yhi = np.sqrt(b**2 - xy**2)
     xz = np.dot(m[2], m[0] / xhi)
     yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
-    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
+    zhi = np.sqrt(c**2 - xz**2 - yz**2)
     box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
     box_tilt = [xy, xz, yz]
     box_tilt = None if not any(box_tilt) else box_tilt
