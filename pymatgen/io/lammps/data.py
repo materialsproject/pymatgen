@@ -665,7 +665,7 @@ class LammpsData(MSONable):
                 True.
 
         """
-        with zopen(filename, 'rt') as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
@@ -1385,7 +1385,7 @@ class CombinedData(LammpsData):
             pandas.DataFrame
 
         """
-        with zopen(filename, 'rt') as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
