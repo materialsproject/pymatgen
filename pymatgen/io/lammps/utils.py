@@ -462,7 +462,7 @@ class LammpsRunner:
             raise RuntimeError(
                 "LammpsRunner requires the executable {} to be in the path. "
                 "Please download and install LAMMPS from "
-                "http://lammps.sandia.gov. "
+                "https://www.lammps.org/. "
                 "Don't forget to add the binary to your path".format(self.lammps_bin[-1])
             )
         self.input_filename = input_filename
