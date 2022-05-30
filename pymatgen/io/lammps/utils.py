@@ -308,7 +308,7 @@ class PackmolRunner:
 
         Args:
             site_property (str): if set then the specified site property
-                for the the final packed molecule will be restored.
+                for the final packed molecule will be restored.
 
         Returns:
                 Molecule object
