@@ -62,7 +62,7 @@ class HighSymmKpathTest(PymatgenTest):
 
     def test_continuous_kpath(self):
         bs = loadfn(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json.gz")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json")
         )
         cont_bs = loadfn(
             os.path.join(
