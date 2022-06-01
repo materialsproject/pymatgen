@@ -107,7 +107,7 @@ class GruneisenParameter(MSONable):
 
         if limit_frequencies == "debye":
             adt = self.acoustic_debye_temp
-            ind = np.where((w >= 0) & (w <= adt * const.value("Boltzmann constant in Hz/K")/const.tera))
+            ind = np.where((w >= 0) & (w <= adt * const.value("Boltzmann constant in Hz/K") / const.tera))
         elif limit_frequencies == "acoustic":
             w_acoustic = w[:, :3]
             ind = np.where(w_acoustic >= 0)
