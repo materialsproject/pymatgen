@@ -335,7 +335,7 @@ class PeriodicSite(Site, MSONable):
             frac_coords = coords  # type: ignore
 
         if to_unit_cell:
-            frac_coords = np.mod(frac_coords, 1)
+            frac_coords = [np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)]
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)
@@ -485,9 +485,9 @@ class PeriodicSite(Site, MSONable):
         """
         Move frac coords to within the unit cell cell.
         """
-        frac_coords = np.mod(self.frac_coords, 1)
+        frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
-            self.frac_coords = frac_coords
+            self.frac_coords = np.array(frac_coords)
             return None
         return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties)
 
@@ -509,7 +509,7 @@ class PeriodicSite(Site, MSONable):
         if self.species != other.species:
             return False
 
-        frac_diff = pbc_diff(self.frac_coords, other.frac_coords)
+        frac_diff = pbc_diff(self.frac_coords, other.frac_coords, self.lattice.pbc)
         return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
     def __eq__(self, other):

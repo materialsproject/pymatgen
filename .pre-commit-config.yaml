@@ -62,9 +62,5 @@ repos:
         entry: pylint
         language: python
         types: [python]
-        args:
-          [
-            "-sn",
-            "--rcfile=pylintrc",
-          ]
+        args: [-sn, --rcfile=pylintrc]
         additional_dependencies: [pylint]

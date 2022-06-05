@@ -993,6 +993,18 @@ class IStructure(SiteCollection, MSONable):
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
+    @property
+    def pbc(self) -> tuple[bool, bool, bool]:
+        """
+        Returns the periodicity of the structure.
+        """
+        return self._lattice.pbc
+
+    @property
+    def is_3d_periodic(self) -> bool:
+        """True if the Lattice is periodic in all directions."""
+        return self._lattice.is_3d_periodic
+
     def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0) -> tuple[str, int]:
         """
         Convenience method to quickly get the spacegroup of a structure.
@@ -1342,7 +1354,7 @@ class IStructure(SiteCollection, MSONable):
                 cart_coords,
                 site_coords,
                 r=r,
-                pbc=np.array([1, 1, 1], dtype=int),
+                pbc=np.array(self.pbc, dtype=int),
                 lattice=lattice_matrix,
                 tol=numerical_tol,
             )
@@ -1661,7 +1673,7 @@ class IStructure(SiteCollection, MSONable):
             self.cart_coords,
             site_coords,
             r=r,
-            pbc=True,
+            pbc=self.pbc,
             numerical_tol=numerical_tol,
             lattice=self.lattice,
         )
@@ -1974,7 +1986,7 @@ class IStructure(SiteCollection, MSONable):
 
         vec = end_coords - start_coords
         if pbc:
-            vec -= np.round(vec)
+            vec[:, self.pbc] -= np.round(vec[:, self.pbc])
         sp = self.species_and_occu
         structs = []
 
@@ -2251,6 +2263,7 @@ class IStructure(SiteCollection, MSONable):
 
         outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("pbc   : " + " ".join([str(p).rjust(10) for p in self.lattice.pbc]))
         if self._charge:
             if self._charge >= 0:
                 outs.append(f"Overall Charge: +{self._charge}")
@@ -2388,13 +2401,14 @@ class IStructure(SiteCollection, MSONable):
         return df
 
     @classmethod
-    def from_dict(cls, d, fmt=None):
+    def from_dict(cls, d: dict[str, Any], fmt: Literal["abivars"] | None = None):
         """
         Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
 
         Args:
             d (dict): Dict representation of structure.
+            fmt ('abivars' | None): Use structure_from_abivars() to parse the dict. Defaults to None.
 
         Returns:
             Structure object
@@ -2409,7 +2423,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge", None)
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, fmt: str = None, filename=None, **kwargs) -> str | None:
+    def to(self, fmt: str = None, filename: str = None, **kwargs) -> str | None:
         """
         Outputs the structure to a file or string.
 
@@ -3798,7 +3812,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 fcoords = self._lattice.get_fractional_coords(site.coords + vector)
             if to_unit_cell:
-                fcoords = np.mod(fcoords, 1)
+                fcoords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, fcoords)]
             self._sites[i].frac_coords = fcoords
 
     def rotate_sites(
