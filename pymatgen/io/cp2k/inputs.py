@@ -131,7 +131,7 @@ class Keyword(MSONable):
         """
         String representation of Keyword
         """
-        return self.__str__()
+        return str(self)
 
     @classmethod
     def from_dict(cls, d):
@@ -160,7 +160,7 @@ class Keyword(MSONable):
             Keyword or None
         """
         s = s.strip()
-        if s.__contains__("!") or s.__contains__("#"):
+        if ("!" in s) or ("#" in s):
             s, description = re.split("(?:!|#)", s)
             description = description.strip()
         else:
@@ -228,7 +228,7 @@ class KeywordList(MSONable):
         """
         String representation of Keyword
         """
-        return " \n".join(["\t" * indent + k.__str__() for k in self.keywords])
+        return " \n".join(["\t" * indent + str(k) for k in self.keywords])
 
     def verbosity(self, verbosity):
         """
@@ -389,7 +389,7 @@ class Section(MSONable):
         Add another keyword to the current section
         """
         assert isinstance(other, (Keyword, KeywordList))
-        self.__add__(other)
+        self + other
 
     def get(self, d, default=None):
         """
@@ -531,7 +531,7 @@ class Section(MSONable):
         Insert a new section as a subsection of the current one
         """
         assert isinstance(d, (Section, SectionList))
-        self.subsections[d.alias or d.name] = d.__deepcopy__()
+        self.subsections[d.alias or d.name] = copy.deepcopy(d)
 
     def check(self, path: str):
         """
