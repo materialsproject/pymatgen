@@ -1096,10 +1096,7 @@ class DopingTransformation(AbstractTransformation):
                     ndopant = common_charge / ox_diff
                     nx_to_remove = common_charge / vac_ox
                     nx = supercell.composition[sp_to_remove]
-                    logger.info(
-                        "Doping %d %s with %s and removing %d %s."
-                        % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
-                    )
+                    logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                     supercell.replace_species(
                         {
                             sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},

@@ -1969,8 +1969,8 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS.keys()):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            ' "{}" in "BV_PARAMS"dictionary'
-            " provided by pymatgen".format(el_symbol)
+            f' "{el_symbol}" in "BV_PARAMS"dictionary'
+            " provided by pymatgen"
         )
 
     return BV_PARAMS[el]

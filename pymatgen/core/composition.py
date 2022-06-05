@@ -464,7 +464,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             str: Same as output __str__() but without spaces.
         """
-        return re.sub(r"\s+", "", self.__str__())
+        return re.sub(r"\s+", "", str(self))
 
     @property
     def num_atoms(self) -> float:

@@ -198,7 +198,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         No arg needed.
         """
 
-    def apply_transformation(self, structure):  # pylint: disable=R0201
+    def apply_transformation(self, structure):
         """
         Apply the transformation.
 

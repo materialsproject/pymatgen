@@ -2510,7 +2510,7 @@ class IStructure(SiteCollection, MSONable):
         if filename:
             writer.write_file(filename)
             return None
-        return writer.__str__()
+        return str(writer)
 
     @classmethod
     def from_str(
