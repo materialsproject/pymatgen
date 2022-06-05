@@ -1418,8 +1418,8 @@ class IStructure(SiteCollection, MSONable):
 
         if not sgp.is_compatible(latt):
             raise ValueError(
-                "Supplied lattice with parameters %s is incompatible with "
-                "supplied spacegroup %s!" % (latt.parameters, sgp.symbol)
+                f"Supplied lattice with parameters {latt.parameters} is incompatible with "
+                f"supplied spacegroup {sgp.symbol}!"
             )
 
         # get a list of neighbors up to distance r
@@ -4122,8 +4122,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         if spin_multiplicity:
             if self._charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    "Charge of {} and spin multiplicity of {} is"
-                    " not possible for this molecule".format(self._charge, spin_multiplicity)
+                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is"
+                    " not possible for this molecule"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:

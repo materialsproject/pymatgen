@@ -1,22 +1,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import warnings
-
-"""
-Created on Mar 19, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
-
 import os
 import unittest
+import warnings
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path

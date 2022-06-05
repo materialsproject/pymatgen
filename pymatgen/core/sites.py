@@ -160,7 +160,7 @@ class Site(collections.abc.Hashable, MSONable):
         String representation of species on the site.
         """
         if self.is_ordered:
-            return list(self.species.keys())[0].__str__()
+            return str(list(self.species.keys())[0])
         sorted_species = sorted(self.species.keys())
         return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
 
@@ -223,7 +223,7 @@ class Site(collections.abc.Hashable, MSONable):
         return el in self.species
 
     def __repr__(self):
-        return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(self.species_string, *self.coords)
+        return f"Site: {self.species_string} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
 
     def __lt__(self, other):
         """
@@ -587,8 +587,10 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, {:.4f}]".format(
-            self.species_string, self.coords[0], self.coords[1], self.coords[2], *self._frac_coords
+        return (
+            f"PeriodicSite: {self.species_string} "
+            f"({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f}) "
+            f"[{self._frac_coords[0]:.4f}, {self._frac_coords[1]:.4f}, {self._frac_coords[2]:.4f}]"
         )
 
     def as_dict(self, verbosity: int = 0) -> dict:

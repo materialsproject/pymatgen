@@ -1139,9 +1139,9 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     compat.get_adjustments(e, mixing_state)
             elif e.parameters["run_type"] == "GGA":
-                assert compat.get_adjustments(e, mixing_state) == []
+                assert not compat.get_adjustments(e, mixing_state)
             else:
-                assert compat.get_adjustments(e, mixing_state) != []
+                assert compat.get_adjustments(e, mixing_state)
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = compat.process_entries(ms_complete.all_entries)
@@ -1192,10 +1192,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                     compat.get_adjustments(e, state_data)
             else:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
-                    assert compat.get_adjustments(e, state_data) == []
+                    assert not compat.get_adjustments(e, state_data)
 
         for e in ms_complete.scan_entries:
-            assert compat.get_adjustments(e, state_data) == []
+            assert not compat.get_adjustments(e, state_data)
 
     def test_no_mixing_data(self, ms_complete):
         """
@@ -1266,7 +1266,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert all(state_data["hull_energy_2"].notna())
 
         for e in ms_complete.scan_entries:
-            assert compat.get_adjustments(e, state_data) == []
+            assert not compat.get_adjustments(e, state_data)
 
         for e in ms_complete.gga_entries:
             if e.entry_id == "gga-6":
@@ -1668,9 +1668,6 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         with pytest.raises(CompatibilityError, match="energy has been modified"):
             mixing_scheme_no_compat.get_adjustments(e, state_data)
-
-        # with pytest.warns(UserWarning, match="energy has been modified"):
-        #     mixing_scheme_no_compat.process_entries(ms_complete.all_entries, clean=False, mixing_state_data=state_data)
 
     def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
         """

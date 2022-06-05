@@ -70,7 +70,7 @@ class Tensor(np.ndarray, MSONable):
                 "Pymatgen only supports 3-dimensional tensors, "
                 "and default tensor constructor uses standard "
                 "notation. To construct from voigt notation, use"
-                " {}.from_voigt".format(obj.__class__.__name__)
+                f" {obj.__class__.__name__}.from_voigt"
             )
         return obj
 
