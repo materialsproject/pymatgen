@@ -1463,7 +1463,7 @@ class StructureGraph(MSONable):
             # PeriodicSite should have a proper __hash__() value,
             # using its frac_coords as a convenient key
             mapping = {tuple(site.frac_coords): self.structure.index(site) for site in other.structure}
-            other_sorted = other.__copy__()
+            other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
             edges = {(u, v, d["to_jimage"]) for u, v, d in self.graph.edges(keys=False, data=True)}
@@ -2923,7 +2923,7 @@ class MoleculeGraph(MSONable):
             # PeriodicSite should have a proper __hash__() value,
             # using its frac_coords as a convenient key
             mapping = {tuple(site.frac_coords): self.molecule.index(site) for site in other.molecule}
-            other_sorted = other.__copy__()
+            other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
             edges = {(u, v, d.get("to_jimage", (0, 0, 0))) for u, v, d in self.graph.edges(keys=False, data=True)}

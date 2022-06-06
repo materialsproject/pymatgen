@@ -190,7 +190,7 @@ class Vacancy(Defect):
             periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
-        if not len(poss_deflist):
+        if len(poss_deflist) == 0:
             raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Vacancy object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
@@ -284,7 +284,7 @@ class Substitution(Defect):
             periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
-        if not len(poss_deflist):
+        if len(poss_deflist) == 0:
             raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Substitution object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]

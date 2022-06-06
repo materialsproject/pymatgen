@@ -155,4 +155,4 @@ class XYZ:
             filename: File name of output file.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))

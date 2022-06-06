@@ -91,7 +91,7 @@ class AbstractRatioFunction:
                         'Option "{}" not allowed for function "{}" in RatioFunction of '
                         'type "{}"'.format(key, self.function, type(self).__name__)
                     )
-                self.__setattr__(key, val)
+                setattr(self, key, val)
 
     def evaluate(self, value):
         """Evaluate the ratio function for the given value.
