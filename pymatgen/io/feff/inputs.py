@@ -660,7 +660,7 @@ class Tags(dict):
             filename: filename and path to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__() + "\n")
+            f.write(str(self) + "\n")
 
     @staticmethod
     def from_file(filename="feff.inp"):

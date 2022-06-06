@@ -190,7 +190,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             }.items():
                 if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(v.__str__())
+                        f.write(str(v))
         else:
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)

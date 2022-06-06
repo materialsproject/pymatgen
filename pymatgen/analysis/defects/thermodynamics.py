@@ -231,7 +231,7 @@ class DefectPhaseDiagram(MSONable):
             str_index_list = [str(ind) for ind in sorted(index_list)]
             track_name = defects[0].name + "@" + str("-".join(str_index_list))
 
-            if len(ints_and_facets):
+            if len(ints_and_facets) > 0:
                 # Unpack into lists
                 _, facets = zip(*ints_and_facets)
                 # Map of transition level: charge states
@@ -658,7 +658,7 @@ class DefectPhaseDiagram(MSONable):
                     if chg_ent.charge == chargeset[0]:
                         form_en = chg_ent.formation_energy(chemical_potentials=mu_elts, fermi_level=x_val)
                 y_trans.append(form_en)
-            if len(x_trans):
+            if len(x_trans) > 0:
                 plt.plot(
                     x_trans,
                     y_trans,

@@ -1039,7 +1039,7 @@ class MagneticStructureEnumerator:
                         if duplicate_checker.matches_ordering(check_structure):
                             structures_to_remove.append(check_idx)
 
-        if len(structures_to_remove):
+        if len(structures_to_remove) == 0:
             self.logger.info(f"Removing {len(structures_to_remove)} duplicate ordered structures")
             ordered_structures = [s for idx, s in enumerate(ordered_structures) if idx not in structures_to_remove]
             ordered_structures_origins = [

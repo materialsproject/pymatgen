@@ -468,9 +468,9 @@ class Section(MSONable):
         """
         for k, v in d2.items():
             if isinstance(v, (str, float, int, bool)):
-                d1.__setitem__(k, Keyword(k, v), strict=strict)
+                d1.__setitem__(k, Keyword(k, v), strict=strict)  # pylint: disable=C2801
             elif isinstance(v, (Keyword, KeywordList)):
-                d1.__setitem__(k, v, strict=strict)
+                d1.__setitem__(k, v, strict=strict)  # pylint: disable=C2801
             elif isinstance(v, dict):
                 tmp = [_ for _ in d1.subsections if k.upper() == _.upper()]
                 if not tmp:
