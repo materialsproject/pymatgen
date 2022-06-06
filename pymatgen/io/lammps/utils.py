@@ -292,10 +292,7 @@ class PackmolRunner:
 
                 inp.write("\n")
                 inp.write(
-                    "structure {}.{}\n".format(
-                        os.path.join(input_dir, str(idx)),
-                        self.control_params["filetype"],
-                    )
+                    f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n"
                 )
                 for k, v in self.param_list[idx].items():
                     inp.write(f"  {k} {self._format_param_val(v)}\n")
@@ -460,10 +457,10 @@ class LammpsRunner:
         self.lammps_bin = bin.split()
         if not which(self.lammps_bin[-1]):
             raise RuntimeError(
-                "LammpsRunner requires the executable {} to be in the path. "
+                f"LammpsRunner requires the executable {self.lammps_bin[-1]} to be in the path. "
                 "Please download and install LAMMPS from "
                 "https://www.lammps.org/. "
-                "Don't forget to add the binary to your path".format(self.lammps_bin[-1])
+                "Don't forget to add the binary to your path"
             )
         self.input_filename = input_filename
 
