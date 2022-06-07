@@ -801,7 +801,7 @@ class HeisenbergScreener:
         #             remove_list.append(i)
 
         # Remove duplicates
-        if len(remove_list) == 0:
+        if len(remove_list) > 0:
             ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
             energies = [e for i, e in enumerate(energies) if i not in remove_list]
 
@@ -925,8 +925,8 @@ class HeisenbergModel(MSONable):
         """
 
         d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["@version"] = __version__
         d["formula"] = self.formula
         d["structures"] = [s.as_dict() for s in self.structures]
