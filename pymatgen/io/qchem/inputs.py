@@ -334,9 +334,7 @@ class QCInput(InputFile):
         else:
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
-                mol_list.append(
-                    f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}"
-                )
+                mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
         mol_list.append("$end")
         return "\n".join(mol_list)
 

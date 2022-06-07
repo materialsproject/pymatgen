@@ -291,9 +291,7 @@ class PackmolRunner:
                     )
 
                 inp.write("\n")
-                inp.write(
-                    f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n"
-                )
+                inp.write(f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n")
                 for k, v in self.param_list[idx].items():
                     inp.write(f"  {k} {self._format_param_val(v)}\n")
                 inp.write("end structure\n")
