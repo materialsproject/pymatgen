@@ -776,8 +776,7 @@ class DictSet(VaspInputSet):
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max(i_species.enmax for i_species in self.get_vasp_input().potcar)
-        #
+            encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
 
         _CUTOF = [
             np.sqrt(encut / _RYTOEV) / (2 * _PI / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc
