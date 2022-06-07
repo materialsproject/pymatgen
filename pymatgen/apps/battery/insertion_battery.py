@@ -314,7 +314,7 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(self.__class__.from_entries(all_entries, self.working_ion_entry))
+                battery_list.append(type(self).from_entries(all_entries, self.working_ion_entry))
         return battery_list
 
     def get_summary_dict(self, print_subelectrodes=True) -> dict:
@@ -401,8 +401,8 @@ class InsertionElectrode(AbstractElectrode):
         Returns: MSONAble dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entries": [entry.as_dict() for entry in self.get_all_entries()],
             "working_ion_entry": self.working_ion_entry.as_dict(),
         }

@@ -141,7 +141,7 @@ if __name__ == "__main__":
         # Printing all symbols
         print("Coordination geometries using a separation plane algorithm :")
         print(tabulate.tabulate(sepplane_cgs_grid, tablefmt="grid"))
-        print("")
+        print()
 
         # Define the coordination geometry
         cg_symbol = input(
@@ -267,7 +267,7 @@ if __name__ == "__main__":
             algo.explicit_permutations = np.array(algo.explicit_permutations)
             print(f"Explicit permutations found ({len(algo.explicit_permutations):d})")
             print(algo.explicit_permutations)
-            print("")
+            print()
             # Setup the permutations for the next optimization
             algo._permutations = algo.explicit_permutations
 
@@ -432,7 +432,7 @@ if __name__ == "__main__":
             explicit_optimized_permutations = [list(perm) for perm in perms_used.keys()]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
-            print("")
+            print()
             test = input(f'Set optimized permutations for algorithm {ialgo:d} ? ("y" to confirm)')
             if test == "y":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
@@ -445,6 +445,5 @@ if __name__ == "__main__":
             newgeom_dir = "new_geometry_files"
             if not os.path.exists(newgeom_dir):
                 os.makedirs(newgeom_dir)
-            f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
-            json.dump(cg.as_dict(), f)
-            f.close()
+            with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
+                json.dump(cg.as_dict(), f)

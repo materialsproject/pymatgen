@@ -80,8 +80,8 @@ class Nwchem2Fiesta(MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "filename": self.filename,
             "folder": self.folder,
         }
@@ -183,8 +183,8 @@ class FiestaRun(MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "log_file": self.log_file,
             "grid": self.grid,
             "folder": self.folder,
@@ -568,7 +568,7 @@ $geometry
         :param filename: Filename
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def as_dict(self):
         """

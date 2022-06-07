@@ -51,7 +51,7 @@ class Stringify:
         :return: A pretty string representation. By default, the __str__ output is used, but this method can be
             overridden if a different representation from default is desired.
         """
-        return self.__str__()
+        return str(self)
 
     def to_latex_string(self) -> str:
         """

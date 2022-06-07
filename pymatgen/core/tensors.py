@@ -3,7 +3,7 @@
 
 """
 This module provides a base class for tensor-like objects and methods for
-basic tensor manipulation.  It also provides a class, SquareTensor,
+basic tensor manipulation. It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
 
@@ -43,7 +43,7 @@ class Tensor(np.ndarray, MSONable):
 
     def __new__(cls, input_array, vscale=None, check_rank=None):
         """
-        Create a Tensor object.  Note that the constructor uses __new__
+        Create a Tensor object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
@@ -69,8 +69,8 @@ class Tensor(np.ndarray, MSONable):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, "
                 "and default tensor constructor uses standard "
-                "notation.  To construct from voigt notation, use"
-                " {}.from_voigt".format(obj.__class__.__name__)
+                "notation. To construct from voigt notation, use"
+                f" {obj.__class__.__name__}.from_voigt"
             )
         return obj
 
@@ -99,7 +99,7 @@ class Tensor(np.ndarray, MSONable):
         return hash(self.tostring())
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.__str__()})"
+        return f"{type(self).__name__}({self.__str__()})"
 
     def zeroed(self, tol=1e-3):
         """
@@ -157,7 +157,7 @@ class Tensor(np.ndarray, MSONable):
     def project(self, n):
         """
         Convenience method for projection of a tensor into a
-        vector.  Returns the tensor dotted into a unit vector
+        vector. Returns the tensor dotted into a unit vector
         along the input n.
 
         Args:
@@ -197,7 +197,7 @@ class Tensor(np.ndarray, MSONable):
             voigt (bool): whether to get grouped indices
                 of voigt or full notation tensor, defaults
                 to false
-            **kwargs: keyword args for np.isclose.  Can take atol
+            **kwargs: keyword args for np.isclose. Can take atol
                 and rtol for absolute and relative tolerance, e. g.
 
                 >>> tensor.group_array_indices(atol=1e-8)
@@ -240,7 +240,7 @@ class Tensor(np.ndarray, MSONable):
             zero_index (bool): whether to set initial index to zero,
                 defaults to false, since tensor notations tend to use
                 one-indexing, rather than zero indexing like python
-            **kwargs: keyword args for np.isclose.  Can take atol
+            **kwargs: keyword args for np.isclose. Can take atol
                 and rtol for absolute and relative tolerance, e. g.
 
                 >>> tensor.get_symbol_dict(atol=1e-8)
@@ -312,7 +312,7 @@ class Tensor(np.ndarray, MSONable):
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
         new_v = sum(np.transpose(v, ind) for ind in perms) / len(perms)
-        return self.__class__.from_voigt(new_v)
+        return type(self).from_voigt(new_v)
 
     def is_symmetric(self, tol=1e-5):
         """
@@ -568,7 +568,7 @@ class Tensor(np.ndarray, MSONable):
             structure (Structure): structure to base population
                 or fit_to_structure on
             voigt_rank (int): full tensor rank to indicate the
-                shape of the resulting tensor.  This is necessary
+                shape of the resulting tensor. This is necessary
                 if one provides a set of indices more minimal than
                 the shape of the tensor they want, e.g.
                 Tensor.from_values_indices((0, 0), 100)
@@ -678,7 +678,7 @@ class Tensor(np.ndarray, MSONable):
 
         Args:
             voigt (bool): flag for whether to store entries in
-                voigt-notation.  Defaults to false, as information
+                voigt-notation. Defaults to false, as information
                 may be lost in conversion.
 
         Returns (Dict):
@@ -687,8 +687,8 @@ class Tensor(np.ndarray, MSONable):
         """
         input_array = self.voigt if voigt else self
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "input_array": input_array.tolist(),
         }
         if voigt:
@@ -851,8 +851,8 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         tensor_list = self.voigt if voigt else self
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "tensor_list": [t.tolist() for t in tensor_list],
         }
         if voigt:
@@ -881,9 +881,9 @@ class SquareTensor(Tensor):
 
     def __new__(cls, input_array, vscale=None):
         """
-        Create a SquareTensor object.  Note that the constructor uses __new__
+        Create a SquareTensor object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.  Error is thrown when the class is
+        subclassing numpy ndarrays. Error is thrown when the class is
         initialized with non-square matrix.
 
         Args:
@@ -1032,7 +1032,7 @@ class TensorMapping(collections.abc.MutableMapping):
     equality to keys for getting and setting items.
 
     This is intended primarily for convenience with things like
-    stress-strain pairs and fitting data manipulation.  In general,
+    stress-strain pairs and fitting data manipulation. In general,
     it is significantly less robust than a typical hashing
     and should be used with care.
 

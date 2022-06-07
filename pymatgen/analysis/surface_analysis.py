@@ -149,7 +149,7 @@ class SlabEntry(ComputedStructureEntry):
         Returns dict which contains Slab Entry data.
         """
 
-        d = {"@module": self.__class__.__module__, "@class": self.__class__.__name__}
+        d = {"@module": type(self).__module__, "@class": type(self).__name__}
         d["structure"] = self.structure
         d["energy"] = self.energy
         d["miller_index"] = self.miller_index

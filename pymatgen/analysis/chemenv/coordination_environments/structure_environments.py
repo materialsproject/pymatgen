@@ -9,14 +9,7 @@ on the StructureEnvironments object. Basically, the LightStructureEnvironments p
 and possibly some fraction corresponding to these.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
+from __future__ import annotations
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -32,6 +25,15 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 allcg = AllCoordinationGeometries()
 symbol_cn_mapping = allcg.get_symbol_cn_mapping()
@@ -402,7 +404,7 @@ class StructureEnvironments(MSONable):
 
         def as_dict(self):
             """
-            A JSON serializable dict representation of the NeighborsSet.
+            A JSON-serializable dict representation of the NeighborsSet.
             """
             return {
                 "isite": self.isite,
@@ -413,7 +415,7 @@ class StructureEnvironments(MSONable):
         @classmethod
         def from_dict(cls, dd, structure, detailed_voronoi):
             """
-            Reconstructs the NeighborsSet algorithm from its JSON serializable dict representation, together with
+            Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
 
             As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
@@ -421,7 +423,7 @@ class StructureEnvironments(MSONable):
             reconstructing itself. These two are both in the StructureEnvironments object.
 
             Args:
-                dd: a JSON serializable dict representation of a NeighborsSet.
+                dd: a JSON-serializable dict representation of a NeighborsSet.
                 structure: The structure.
                 detailed_voronoi: The Voronoi object containing all the neighboring atoms from which the subset of
                     neighbors for this NeighborsSet is extracted.
@@ -1329,8 +1331,8 @@ class StructureEnvironments(MSONable):
         ]
 
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "voronoi": self.voronoi.as_dict(),
             "valences": self.valences,
             "sites_map": self.sites_map,
@@ -1482,7 +1484,7 @@ class LightStructureEnvironments(MSONable):
             ]
 
         @property
-        def neighb_indices_and_images(self):
+        def neighb_indices_and_images(self) -> list[dict[str, int]]:
             """
             List of indices and images with respect to the original unit cell sites for this NeighborsSet.
             """
@@ -1494,10 +1496,10 @@ class LightStructureEnvironments(MSONable):
                 for inb in self.all_nbs_sites_indices_unsorted
             ]
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self.all_nbs_sites_indices)
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return len(self.all_nbs_sites_indices)
 
         def __eq__(self, other):
@@ -1507,27 +1509,25 @@ class LightStructureEnvironments(MSONable):
             return not self == other
 
         def __str__(self):
-            out = f"Neighbors Set for site #{self.isite:d} :\n"
-            out += f" - Coordination number : {len(self):d}\n"
-            out += " - Neighbors sites indices : {}\n".format(
-                ", ".join([f"{nb_list_index:d}" for nb_list_index in self.all_nbs_sites_indices])
+            return (
+                f"Neighbors Set for site #{self.isite:d} :\n"
+                f" - Coordination number : {len(self):d}\n"
+                f" - Neighbors sites indices : {', '.join(f'{nb_idxs:d}' for nb_idxs in self.all_nbs_sites_indices)}\n"
             )
-            return out
 
         def as_dict(self):
             """
-            A JSON serializable dict representation of the NeighborsSet.
+            A JSON-serializable dict representation of the NeighborsSet.
             """
             return {
                 "isite": self.isite,
                 "all_nbs_sites_indices": self.all_nbs_sites_indices_unsorted,
             }
-            # 'all_nbs_sites_indices_unsorted': self.all_nbs_sites_indices_unsorted}
 
         @classmethod
         def from_dict(cls, dd, structure, all_nbs_sites):
             """
-            Reconstructs the NeighborsSet algorithm from its JSON serializable dict representation, together with
+            Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
 
             As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
@@ -1535,7 +1535,7 @@ class LightStructureEnvironments(MSONable):
             reconstructing itself. These two are both in the LightStructureEnvironments object.
 
             Args:
-                dd: a JSON serializable dict representation of a NeighborsSet.
+                dd: a JSON-serializable dict representation of a NeighborsSet.
                 structure: The structure.
                 all_nbs_sites: The list of all the possible neighbors for a given site.
 
@@ -2087,8 +2087,8 @@ class LightStructureEnvironments(MSONable):
             Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "strategy": self.strategy.as_dict(),
             "structure": self.structure.as_dict(),
             "coordination_environments": self.coordination_environments,
@@ -2417,8 +2417,8 @@ class ChemicalEnvironments(MSONable):
             A dictionary representation of the ChemicalEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "coord_geoms": jsanitize(self.coord_geoms),
         }
 

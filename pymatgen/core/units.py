@@ -410,7 +410,6 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        # print(self.__dict__)
         # FIXME
         # There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -544,10 +543,7 @@ class ArrayWithUnit(np.ndarray):
         return self._unit
 
     def __reduce__(self):
-        # print("in reduce")
         reduce = list(super().__reduce__())
-        # print("unit",self._unit)
-        # print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
         return tuple(reduce)
 

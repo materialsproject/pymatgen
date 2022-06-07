@@ -215,7 +215,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
     def test_use_of_coop(self):
         with self.assertRaises(ValueError):
-            test = LobsterNeighbors(
+            _ = LobsterNeighbors(
                 are_coops=True,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
                 structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
@@ -226,7 +226,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
     def test_cation_anion_mode_without_ions(self):
         with self.assertRaises(ValueError) as err:
-            test = LobsterNeighbors(
+            _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
                 structure=Structure.from_file(os.path.join(test_dir_env, "../POSCAR")),
@@ -237,7 +237,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             str(err.exception), "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
         )
         with self.assertRaises(ValueError) as err:
-            test = LobsterNeighbors(
+            _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
                 structure=Structure.from_file(os.path.join(test_dir_env, "../POSCAR")),
@@ -251,7 +251,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
     def test_wrong_additional_correction(self):
         with self.assertRaises(ValueError):
-            test = LobsterNeighbors(
+            _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
                 structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),

@@ -9,7 +9,7 @@ pymatgen.analysis.path_finder
 -----------------------------
 
 The path finder code, which finds diffusion paths through a structure based on
-a given potential field, is written by the Ceder group at UC Berkley::
+a given potential field, is written by the Ceder group at UC Berkeley::
 
     Rong, Z., Kitchaev, D., Canepa, P., Huang, W., & Ceder, G. (2016).
     An efficient algorithm for finding the minimum energy path for cation

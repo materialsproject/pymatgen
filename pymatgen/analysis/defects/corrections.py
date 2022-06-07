@@ -113,9 +113,9 @@ class FreysoldtCorrection(DefectCorrection):
         """
 
         if self.axis is None:
-            list_axis_grid = np.array(entry.parameters["axis_grid"])
-            list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
-            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
+            list_axis_grid = np.array(entry.parameters["axis_grid"], dtype=object)
+            list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"], dtype=object)
+            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"], dtype=object)
             list_axes = range(len(list_axis_grid))
         else:
             list_axes = np.array(self.axis)
@@ -625,7 +625,7 @@ class KumagaiCorrection(DefectCorrection):
                     "".format(dist_to_defect, sampling_radius)
                 )
 
-        if len(for_correction):
+        if len(for_correction) > 0:
             pot_alignment = np.mean(for_correction)
         else:
             logger.info("No atoms sampled for_correction radius! Assigning potential alignment value of 0.")

@@ -176,7 +176,7 @@ class ConversionElectrode(AbstractElectrode):
         """
         Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
-        a subelectrode that is essentially on the same path.  For example, a
+        a subelectrode that is essentially on the same path. For example, a
         ConversionElectrode formed by starting from an FePO4 composition would
         be a super_electrode of a ConversionElectrode formed from an LiFePO4
         composition.
@@ -228,18 +228,11 @@ class ConversionElectrode(AbstractElectrode):
 
     def __repr__(self):
         output = [
-            "Conversion electrode with formula {} and nsteps {}".format(
-                self.initial_comp.reduced_formula, self.num_steps
-            ),
-            "Avg voltage {} V, min voltage {} V, max voltage {} V".format(
-                self.get_average_voltage(), self.min_voltage, self.max_voltage
-            ),
-            "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l".format(
-                self.get_capacity_grav(), self.get_capacity_vol()
-            ),
-            "Specific energy {} Wh/kg, energy density {} Wh/l".format(
-                self.get_specific_energy(), self.get_energy_density()
-            ),
+            f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
+            f"Avg voltage {self.get_average_voltage()} V, min voltage {self.min_voltage} V, "
+            f"max voltage {self.max_voltage} V",
+            f"Capacity (grav.) {self.get_capacity_grav()} mAh/g, capacity (vol.) {self.get_capacity_vol()} Ah/l",
+            f"Specific energy {self.get_specific_energy()} Wh/kg, energy density {self.get_energy_density()} Wh/l",
         ]
         return "\n".join(output)
 
@@ -374,8 +367,8 @@ class ConversionVoltagePair(AbstractVoltagePair):
         frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
 
         rxn = rxn
-        entries_charge = step2["entries"]
-        entries_discharge = step1["entries"]
+        entries_charge = step1["entries"]
+        entries_discharge = step2["entries"]
 
         return ConversionVoltagePair(  # pylint: disable=E1123
             rxn=rxn,

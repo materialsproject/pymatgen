@@ -231,29 +231,19 @@ class Cohpcar:
         ]
 
         line_new = line.rsplit("(", 1)
-        # bondnumber = line[0].replace("->", ":").replace(".", ":").split(':')[1]
         length = float(line_new[-1][:-1])
 
         sites = line_new[0].replace("->", ":").split(":")[1:3]
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
 
-        # species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
             orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]  # type: Any
-            orb_label = "%d%s-%d%s" % (
-                orbitals[0][0],
-                orbitals[0][1].name,
-                orbitals[1][0],
-                orbitals[1][1].name,
-            )  # type: Any
+            orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: Any
 
         else:
             orbitals = None
             orb_label = None
-
-        # a label based on the species alone is not feasible, there can be more than one bond for each atom combination
-        # label = "%s" % (bondnumber)
 
         bond_data = {
             "length": length,
@@ -333,7 +323,7 @@ class Icohplist:
 
         # check if orbitalwise ICOHPLIST
         # include case when there is only one ICOHP!!!
-        if len(data) > 2 and "_" in data[2].split()[1]:
+        if len(data) > 2 and "_" in data[1].split()[1]:
             self.orbitalwise = True
             warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
         else:

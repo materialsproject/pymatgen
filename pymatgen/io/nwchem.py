@@ -188,8 +188,8 @@ $theory_spec
         Returns: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "title": self.title,
@@ -398,7 +398,7 @@ class NwInput(MSONable):
             filename (str): Filename
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def as_dict(self):
         """

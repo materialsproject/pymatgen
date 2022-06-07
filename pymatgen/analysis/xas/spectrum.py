@@ -93,12 +93,9 @@ class XAS(Spectrum):
             raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
 
     def __str__(self):
-        return "{} {} Edge {} for {}: {}".format(
-            self.absorbing_element,
-            self.edge,
-            self.spectrum_type,
-            self.structure.composition.reduced_formula,
-            super().__str__(),
+        return (
+            f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
+            f"for {self.structure.composition.reduced_formula}: {super().__str__()}"
         )
 
     def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:

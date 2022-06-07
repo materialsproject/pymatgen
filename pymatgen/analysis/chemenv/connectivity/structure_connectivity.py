@@ -356,8 +356,8 @@ class StructureConnectivity(MSONable):
 
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "light_structure_environments": self.light_structure_environments.as_dict(),
             "connectivity_graph": jsanitize(nx.to_dict_of_dicts(self._graph)),
             "environment_subgraphs": {

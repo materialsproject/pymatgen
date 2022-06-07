@@ -11,8 +11,8 @@ Only point particle styles are supported for now (atom_style in angle,
 atomic, bond, charge, full and molecular only). See the pages below for
 more info.
 
-    http://lammps.sandia.gov/doc/atom_style.html
-    http://lammps.sandia.gov/doc/read_data.html
+    https://docs.lammps.org/atom_style.html
+    https://docs.lammps.org/read_data.html
 
 """
 
@@ -24,6 +24,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
@@ -167,7 +168,7 @@ class LammpsBox(MSONable):
             String representation
 
         """
-        ph = "{:.%df}" % significant_figures
+        ph = f"{{:.{significant_figures}f}}"
         lines = []
         for bound, d in zip(self.bounds, "xyz"):
             fillers = bound + [d] * 2
@@ -352,7 +353,7 @@ class LammpsData(MSONable):
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
-                use False to speedup the process. Otherwise the
+                use False to speed up the process. Otherwise, the
                 default is recommended.
 
         Returns:
@@ -393,19 +394,19 @@ class LammpsData(MSONable):
                     counts[kw.lower()] = len(self.topology[kw])
 
         all_stats = list(counts.values()) + list(types.values())
-        stats_template = "{:>%d}  {}" % len(str(max(all_stats)))
-        count_lines = [stats_template.format(v, k) for k, v in counts.items()]
-        type_lines = [stats_template.format(v, k + " types") for k, v in types.items()]
+        right_indent = len(str(max(all_stats)))
+        count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
+        type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
         stats = "\n".join(count_lines + [""] + type_lines)
 
         def map_coords(q):
-            return ("{:.%df}" % distance).format(q)
+            return f"{q:.{distance}f}"
 
         def map_velos(q):
-            return ("{:.%df}" % velocity).format(q)
+            return f"{q:.{velocity}f}"
 
         def map_charges(q):
-            return ("{:.%df}" % charge).format(q)
+            return f"{q:.{charge}f}"
 
         float_format = "{:.9f}".format
         float_format_2 = "{:.1f}".format
@@ -664,7 +665,7 @@ class LammpsData(MSONable):
                 True.
 
         """
-        with open(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
@@ -1041,7 +1042,7 @@ class ForceField(MSONable):
             topo_coeffs (dict): Dict with force field coefficients for
                 molecular topologies. Optional with default
                 to None. All four valid keys listed below are optional.
-                Each value is a list of dicts with non optional keys
+                Each value is a list of dicts with non-optional keys
                 "coeffs" and "types", and related class2 force field
                 keywords as optional keys.
                 {
@@ -1118,11 +1119,7 @@ class ForceField(MSONable):
             id_df = pd.DataFrame(ids, columns=["id1", "id2"])
             pair_df = pd.concat([id_df, pair_df], axis=1)
         else:
-            raise ValueError(
-                "Expecting {} Pair Coeffs or "
-                "{} PairIJ Coeffs for {} atom types,"
-                " got {}".format(nm, ncomb, nm, npair)
-            )
+            raise ValueError(f"Expecting {nm} Pair Coeffs or {ncomb} PairIJ Coeffs for {nm} atom types, got {npair}")
         return {kw: pair_df}
 
     def _process_topo(self, kw):
@@ -1384,7 +1381,7 @@ class CombinedData(LammpsData):
             pandas.DataFrame
 
         """
-        with open(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
@@ -1467,7 +1464,7 @@ class CombinedData(LammpsData):
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
-                use False to speedup the process. Otherwise the
+                use False to speed up the process. Otherwise, the
                 default is recommended.
 
         Returns:

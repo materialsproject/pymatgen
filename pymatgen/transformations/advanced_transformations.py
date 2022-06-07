@@ -46,7 +46,7 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 try:
-    import hiphive  # type: ignore
+    import hiphive
 except ImportError:
     hiphive = None
 
@@ -1096,10 +1096,7 @@ class DopingTransformation(AbstractTransformation):
                     ndopant = common_charge / ox_diff
                     nx_to_remove = common_charge / vac_ox
                     nx = supercell.composition[sp_to_remove]
-                    logger.info(
-                        "Doping %d %s with %s and removing %d %s."
-                        % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
-                    )
+                    logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                     supercell.replace_species(
                         {
                             sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},
@@ -1564,7 +1561,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             # round the entries of T and force T to be nonsingular
             self.transformation_matrix = _round_and_make_arr_singular(self.transformation_matrix)  # type: ignore
 
-            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs  # type: ignore
+            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
 
             # Find the shortest dimension length and direction
             a = proposed_sc_lat_vecs[0]
@@ -2148,7 +2145,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
 
     Rattling atom `i` is carried out as a Monte Carlo move that is accepted with
     a probability determined from the minimum interatomic distance
-    :math:`d_{ij}`.  If :math:`\\min(d_{ij})` is smaller than :math:`d_{min}`
+    :math:`d_{ij}`. If :math:`\\min(d_{ij})` is smaller than :math:`d_{min}`
     the move is only accepted with a low probability.
 
     This process is repeated for each atom a number of times meaning
@@ -2194,7 +2191,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         Returns:
             Structure with sites perturbed.
         """
-        from hiphive.structure_generation.rattle import mc_rattle  # type: ignore
+        from hiphive.structure_generation.rattle import mc_rattle
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
         seed = self.random_state.randint(1, 1000000000)

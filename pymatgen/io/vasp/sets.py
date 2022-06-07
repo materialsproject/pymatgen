@@ -5,7 +5,7 @@
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
 of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
-high throughput project.  The basic concept behind an input set is to specify
+high throughput project. The basic concept behind an input set is to specify
 a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
@@ -190,7 +190,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             }.items():
                 if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(v.__str__())
+                        f.write(str(v))
         else:
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
@@ -198,11 +198,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         cifname = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
+            cifname = Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif")
             s.to(filename=cifname)
 
         if zip_output:
-            filename = self.__class__.__name__ + ".zip"
+            filename = type(self).__name__ + ".zip"
             with ZipFile(os.path.join(output_dir, filename), "w") as zip:
                 for file in [
                     "INCAR",
@@ -399,9 +399,7 @@ class DictSet(VaspInputSet):
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
                 raise KeyError(
-                    "Invalid or unsupported van-der-Waals "
-                    "functional. Supported functionals are "
-                    "%s." % vdw_par.keys()
+                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {vdw_par.keys()}."
                 )
         # read the POTCAR_FUNCTIONAL from the .yaml
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
@@ -715,10 +713,10 @@ class DictSet(VaspInputSet):
         return int(nbands)
 
     def __str__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def __repr__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def write_input(
         self,
@@ -1941,7 +1939,9 @@ class MPNMRSet(MPStaticSet):
 
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
-            quad_efg = [Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None)) for p in self.poscar.site_symbols]
+            quad_efg = [
+                float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))) for p in self.poscar.site_symbols
+            ]
 
             incar.update(
                 {
@@ -2694,7 +2694,7 @@ class MVLNPTMDSet(MITMDSet):
 
         # NPT-AIMD default settings
         defaults = {
-            "IALGO": 48,
+            "ALGO": "Fast",
             "ISIF": 3,
             "LANGEVIN_GAMMA": [10] * structure.ntypesp,
             "LANGEVIN_GAMMA_L": 1,

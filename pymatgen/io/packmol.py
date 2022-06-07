@@ -20,10 +20,10 @@ executable to the PATH environment variable.
 import os
 import subprocess
 from pathlib import Path
+from shutil import which
 from typing import Dict, List, Optional, Union
 
 import numpy as np
-from monty.os.path import which
 
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputGenerator, InputSet

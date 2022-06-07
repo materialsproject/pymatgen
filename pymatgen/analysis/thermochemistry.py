@@ -95,8 +95,8 @@ class ThermoData:
         Returns: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "type": self.type,
             "formula": self.formula,
             "compound_name": self.compound_name,
@@ -124,11 +124,7 @@ class ThermoData:
         return "\n".join(output)
 
     def __str__(self):
-        return "{}_{}_{} = {}, Valid T : {}, Ref = {}".format(
-            self.type,
-            self.formula,
-            self.phaseinfo,
-            self.value,
-            self.temp_range,
-            self.ref,
+        return (
+            f"{self.type}_{self.formula}_{self.phaseinfo} = {self.value}, Valid T : {self.temp_range}, "
+            f"Ref = {self.ref}"
         )

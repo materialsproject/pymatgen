@@ -12,7 +12,7 @@ import warnings
 
 import numpy as np
 from monty.json import MSONable
-from scipy.constants.codata import value as _cd
+from scipy.constants import value as _cd
 from scipy.signal import hilbert
 
 from pymatgen.core.periodic_table import get_el_sp
@@ -80,7 +80,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
@@ -120,7 +120,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
 
         # find index of fermi energy
         i_fermi = 0
@@ -388,11 +388,11 @@ class Dos(MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of Dos.
+        JSON-serializable dict representation of Dos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
@@ -610,11 +610,11 @@ class FermiDos(Dos, MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of Dos.
+        JSON-serializable dict representation of Dos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
@@ -956,7 +956,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected skewness in eV
         """
 
         skewness = self.get_n_moment(
@@ -991,7 +991,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected kurtosis in eV
         """
 
         kurtosis = (
@@ -1058,7 +1058,6 @@ class CompleteDos(Dos):
         densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
-        energies = dos.energies - dos.efermi
         if erange:
             densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
@@ -1182,11 +1181,11 @@ class CompleteDos(Dos):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of CompleteDos.
+        JSON-serializable dict representation of CompleteDos.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
             "energies": self.energies.tolist(),

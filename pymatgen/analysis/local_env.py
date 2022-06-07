@@ -1969,8 +1969,8 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS.keys()):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            ' "{}" in "BV_PARAMS"dictionary'
-            " provided by pymatgen".format(el_symbol)
+            f' "{el_symbol}" in "BV_PARAMS"dictionary'
+            " provided by pymatgen"
         )
 
     return BV_PARAMS[el]
@@ -2039,8 +2039,8 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10.0
     Returns the motif type of the site with index n in structure struct;
     currently featuring "tetrahedral", "octahedral", "bcc", and "cp"
     (close-packed: fcc and hcp) as well as "square pyramidal" and
-    "trigonal bipyramidal".  If the site is not recognized,
-    "unrecognized" is returned.  If a site should be assigned to two
+    "trigonal bipyramidal". If the site is not recognized,
+    "unrecognized" is returned. If a site should be assigned to two
     different motifs, "multiple assignments" is returned.
 
     Args:
@@ -2395,7 +2395,7 @@ class LocalStructOrderParams:
             thetas ([float]): polar angles of all neighbors in radians.
             phis ([float]): azimuth angles of all neighbors in radians.
                 The list of
-                azimuth angles of all neighbors in radians.  The list of
+                azimuth angles of all neighbors in radians. The list of
                 azimuth angles is expected to have the same size as the
                 list of polar angles; otherwise, a ValueError is raised.
                 Also, the two lists of angles have to be coherent in
@@ -2428,9 +2428,9 @@ class LocalStructOrderParams:
     def get_q2(self, thetas=None, phis=None):
         """
         Calculates the value of the bond orientational order parameter of
-        weight l=2.  If the function is called with non-empty lists of
+        weight l=2. If the function is called with non-empty lists of
         polar and azimuthal angles the corresponding trigonometric terms
-        are computed afresh.  Otherwise, it is expected that the
+        are computed afresh. Otherwise, it is expected that the
         compute_trigonometric_terms function has been just called.
 
         Args:
@@ -2495,9 +2495,9 @@ class LocalStructOrderParams:
     def get_q4(self, thetas=None, phis=None):
         """
         Calculates the value of the bond orientational order parameter of
-        weight l=4.  If the function is called with non-empty lists of
+        weight l=4. If the function is called with non-empty lists of
         polar and azimuthal angles the corresponding trigonometric terms
-        are computed afresh.  Otherwise, it is expected that the
+        are computed afresh. Otherwise, it is expected that the
         compute_trigonometric_terms function has been just called.
 
         Args:
@@ -2603,9 +2603,9 @@ class LocalStructOrderParams:
     def get_q6(self, thetas=None, phis=None):
         """
         Calculates the value of the bond orientational order parameter of
-        weight l=6.  If the function is called with non-empty lists of
+        weight l=6. If the function is called with non-empty lists of
         polar and azimuthal angles the corresponding trigonometric terms
-        are computed afresh.  Otherwise, it is expected that the
+        are computed afresh. Otherwise, it is expected that the
         compute_trigonometric_terms function has been just called.
 
         Args:
@@ -2812,7 +2812,7 @@ class LocalStructOrderParams:
             structure (Structure): input structure.
             n (int): index of site in input structure,
                 for which OPs are to be
-                calculated.  Note that we do not use the sites iterator
+                calculated. Note that we do not use the sites iterator
                 here, but directly access sites via struct[index].
             indices_neighs ([int]): list of indices of those neighbors
                 in Structure object
@@ -2823,9 +2823,9 @@ class LocalStructOrderParams:
                 vs constant cutoff radius if cutoff was positive).
                 We do not use information about the underlying
                 structure lattice if the neighbor indices are explicitly
-                provided.  This has two important consequences.  First,
+                provided. This has two important consequences. First,
                 the input Structure object can, in fact, be a
-                simple list of Site objects.  Second, no nearest images
+                simple list of Site objects. Second, no nearest images
                 of neighbors are determined when providing an index list.
                 Note furthermore that this neighbor
                 determination type ignores the optional target_spec
@@ -2841,9 +2841,9 @@ class LocalStructOrderParams:
                 structure.
 
         Returns:
-            [floats]: representing order parameters.  Should it not be
+            [floats]: representing order parameters. Should it not be
             possible to compute a given OP for a conceptual reason, the
-            corresponding entry is None instead of a float.  For Steinhardt
+            corresponding entry is None instead of a float. For Steinhardt
             et al.'s bond orientational OPs and the other geometric OPs
             ("tet", "oct", "bcc", etc.),
             this can happen if there is a single

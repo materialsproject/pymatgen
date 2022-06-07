@@ -1,6 +1,51 @@
 Change log
 ==========
 
+v2022.5.19
+----------
+* Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
+
+v2022.5.18.1
+------------
+* Initial support for parsing ML MD runs from vasprun.xml (@shyuep).
+
+v2022.5.18
+----------
+* Bug fix for sulfide_type. Sometimes symmetry analysis fails because of tolerance issues. A fallback to analyze all sites.
+
+v2022.5.17
+----------
+* PR #2518 from @JaGeo. Fixed wrong line in ICOHPLIST.lobster being read to assess whether orbitalwise interactions are included in these files.
+* PR #2520 from @arosen93. Adds a new property to the `PointGroupAnalyzer`: the rotational symmetry number.
+* PR #2522 from @jmmshn. Fixes PD JSON serialization. 
+* PR #2514 from @qianchenqc. Replaced the IALGO tag with ALGO as recommended in the vasp documentation https://www.vasp.at/wiki/index.php/IALGO.
+* PR #2404 from @nheinsdorf. Added a method that gets all the neighbors up a maximum distance for a Structure, and groups these 'bonds' according to their symmetry. 
+* PR #2509 from @jacksund Fix NMR Set.
+
+v2022.4.26
+----------
+* Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (@@fraricci)
+* Removed complex numbers from the definition of WSWQ (@jmmshn)
+* MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
+  This avoids the MPRester constantly rewriting a config file and causing users' pymatgen to completely fail.
+
+v2022.4.19
+----------
+* Fix for discharged and charged entries in conversion battery. (@peikai)`pylint` in `.pre-commit-config.yaml`.
+* Allow skipping of structure reduction in StructureMatcher.group_structures (@lan496)
+* Return NotImplemented for composition comparison methods. (@janosh)
+* BSPlotter bug fixes (@fraricci)
+* Misc bug fixes and deprecation fixes.
+
+v2022.3.29
+----------
+* Major update to CP2K module, PR #2475 from @nwinner
+* Bug fix to remove problematic import, PR #2477 from @mkhorton
+
+v2022.3.24
+----------
+* Emergency bugfix release to fix circular import (@janosh)
+
 v2022.3.22
 ----------
 * Support kwargs for ASE adaptor. (@arosen93)
@@ -48,7 +93,7 @@ v2022.2.1
 * Bigfix for gzipped DOSCAR (@JaGeo)
 * Updates for QChem Support (@samblau)
 * QuantumEspresso k-grid fix input fix. (@vorwerkc)
-* `Entry.__repr__()` now ouputs name where available. (@janosh)
+* `Entry.__repr__()` now outputs name where available. (@janosh)
 * Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93)
 * `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
 * Improved parsing of coupled cluster calculations in QChem (@espottesmith).
@@ -111,7 +156,7 @@ Welcome to new contributor @e-kwsm!
 v2022.0.16
 ----------
 
-* Fix to allow PhaseDiagram to be JSON serializable with computed data cached (@mkhorton, #2276)
+* Fix to allow PhaseDiagram to be JSON-serializable with computed data cached (@mkhorton, #2276)
 * Temporarily revert #2239 pending investigation into slow-down in some nearest neighbor finding routines. This does not affect the behavior of any of these classes.
 
 
@@ -133,7 +178,7 @@ you are acknowledged appropriately by filling out the linked form.
 * Improve appearance of periodic table heatmap (@penicillin0, #2272)
 * Small improvements to battery classes (@jmmshn, #2262)
 * Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
-* Fix for bad param in OPTIMADE reponse fields (@ml-evs, #2244)
+* Fix for bad param in OPTIMADE response fields (@ml-evs, #2244)
 * Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
 * Fix for Moladaptor (@orioncohen, #2269)
 * Fix for incorrect Potcar hash warnings (@mkhorton, #2273)
@@ -585,7 +630,7 @@ v2019.10.2
 ----------
 * IRSpectra class (@henriquemiranda)
 * Much faster get_neighbors written in Cython (@chc273).
-* VolumetricData allows for sum or substraction of data with different
+* VolumetricData allows for sum or subtraction of data with different
   structures, with warnings.
 
 v2019.9.16
@@ -849,7 +894,7 @@ v2018.9.19
 * Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
 * New features and fixes to `chemenv` analysis module (@davidwaroquiers)
 * Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
-* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fixes to `Defect` objects, including allowing rotational supercell transformations (@dbroberg)
 * Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
 * Added '@' notation parsing in `Composition` (@tamuhey)
 * BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
@@ -910,7 +955,7 @@ v2018.5.21
 
 v2018.5.14
 ----------
-* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+* Dash docs now available for pymatgen. See pymatgen.org "Offline docs" section
   for details.
 * Better CrystalNN. (Anubhav Jain)
 * Fixes for elastic module. (Joseph Montoya)
@@ -1263,7 +1308,7 @@ v4.5.4
 v4.5.3
 ------
 * Added an alternative interstitial finder that works with a grid-based structure-motif search. (Nils Zimmermann)
-* Optionnal possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)
+* Optional possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)
 * Read intensity and normal modes for Gaussian. (Germain Salvato Vallverdu)
 * Minor bug fixes.
 
@@ -1276,7 +1321,7 @@ v4.5.1
 * You can now specify a different default functional choice for pymatgen by
   setting PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer
   functional sets, you need to specify PBE_52 or PBE_54 for example.
-* Swtich to ISYM 3 by default for HSE.
+* Switch to ISYM 3 by default for HSE.
 * Updates to FEFF>
 * Misc bug fixes and startup speed improvements.
 
@@ -1494,7 +1539,7 @@ v3.5.0
 v3.4.0
 ------
 * 10-100x speed up to Structure copying and Site init, which means many
-  functionality has seen signifcant speed improvement (e.g., structure
+  functionality has seen significant speed improvement (e.g., structure
   matching).
 * Convenience method Structure.matches now perform similarity matching
   for Structures.
@@ -1513,7 +1558,7 @@ v3.3.5
 * Added interpolation failure warnings and smooth tolerance for
   scipy.interpolate.splrep in bandstructures (Tess).
 * Added DiffusionAnalyzer.get_framework_rms_plot.
-* Complete rewrite of Procar class to use ND array access and zero-based
+* Complete rewrite of Procar class to use NDarray access and zero-based
   indexing.
 * OrderParameters class for analysis of local structural features
   (Nils Zimmermann).
@@ -2079,7 +2124,7 @@ v2.7.1
   immutability) which will perform exactly the same way as the previous
   classes. With this change, the :mod:`pymatgen.core.structure_modifier`
   module is now deprecated and will be removed in a future version.
-* read_structure and write_structure now supports pymatgen's json serialized
+* read_structure and write_structure now supports pymatgen's JSON-serialized
   structures.
 * read_mol and write_mol functions now available (analogues of
   read_structure and write_structure for molecules)
@@ -2228,7 +2273,7 @@ v2.3.1
   data by running through the x-axis first, followed by y, then z.
 * Bug fix for reverse_readline so that it works for gzipped and bzipped
   strucutures (courtesy of Anubhav Jain).
-* Fix "lossy" composition to_dict method.  Now composition.to_dict properly
+* Fix "lossy" composition to_dict method. Now composition.to_dict properly
   returns a correct species string as a key for compositions using species,
   instead of just the element symbols.
 * Miscellaneous bug fixes.

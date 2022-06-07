@@ -193,7 +193,7 @@ class ElasticTensorTest(PymatgenTest):
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]
         stresses = self.toec_dict["stresses"]
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True):
             et = ElasticTensor.from_independent_strains(strains, stresses)
         self.assertArrayAlmostEqual(et.voigt, self.toec_dict["C2_raw"], decimal=-1)
 
@@ -294,11 +294,15 @@ class ElasticTensorExpansionTest(PymatgenTest):
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
         self.assertAlmostEqual(gp, 2.59631832)
-        gpt = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
+        _ = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
 
     def test_thermal_expansion_coeff(self):
         # TODO get rid of duplicates
         alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300, mode="dulong-petit")
+        alpha_dp_ground_truth = 6.3471959e-07 * np.ones((3, 3))
+        alpha_dp_ground_truth[np.diag_indices(3)] = 2.2875769e-7
+        self.assertArrayAlmostEqual(alpha_dp_ground_truth, alpha_dp, decimal=4)
+
         alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, mode="debye")
         alpha_comp = 5.9435148e-7 * np.ones((3, 3))
         alpha_comp[np.diag_indices(3)] = 21.4533472e-06

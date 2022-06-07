@@ -12,14 +12,15 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
-import pytest  # type: ignore
-from _pytest.monkeypatch import MonkeyPatch  # type: ignore
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.units import FloatWithUnit
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
@@ -926,7 +927,7 @@ class MVLNPTMDSetTest(PymatgenTest):
         self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
         enmax = max(npt_set.potcar[i].keywords["ENMAX"] for i in range(self.struct.ntypesp))
         self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
-        self.assertEqual(incar["IALGO"], 48)
+        self.assertEqual(incar["ALGO"], "Fast")
         self.assertEqual(incar["ISIF"], 3)
         self.assertEqual(incar["MDALGO"], 3)
         self.assertEqual(incar["SMASS"], 0)
@@ -1054,6 +1055,9 @@ class MPNMRSetTest(PymatgenTest):
         vis = MPNMRSet(structure, mode="efg")
         self.assertFalse(vis.incar.get("LCHIMAG", None))
         self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+        for q in vis.incar["QUAD_EFG"]:
+            self.assertTrue(isinstance(q, float))
+            self.assertFalse(isinstance(q, FloatWithUnit))
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
         self.assertFalse(vis.incar.get("LCHIMAG", None))

@@ -16,16 +16,19 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.operations import SymmOp
 from pymatgen.util.string import Stringify
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    # don't import at runtime to avoid circular import
+    from pymatgen.core.lattice import Lattice
+    from pymatgen.core.operations import SymmOp
+    from pymatgen.util.typing import ArrayLike
 
 SYMM_DATA = None
 
@@ -137,6 +140,8 @@ class PointGroup(SymmetryGroup):
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
         """
+        from pymatgen.core.operations import SymmOp
+
         self.symbol = int_symbol
         self.generators = [
             _get_symm_data("generator_matrices")[c] for c in _get_symm_data("point_group_encoding")[int_symbol]
@@ -241,6 +246,7 @@ class SpaceGroup(SymmetryGroup):
                 classmethod. Alternative origin choices can be indicated by a
                 translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
+        from pymatgen.core.operations import SymmOp
 
         int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
@@ -355,6 +361,8 @@ class SpaceGroup(SymmetryGroup):
         Full set of symmetry operations as matrices. Lazily initialized as
         generation sometimes takes a bit of time.
         """
+        from pymatgen.core.operations import SymmOp
+
         if self._symmetry_ops is None:
             self._symmetry_ops = {SymmOp(m) for m in self._generate_full_symmetry_ops()}
         return self._symmetry_ops
