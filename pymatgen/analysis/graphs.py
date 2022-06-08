@@ -612,10 +612,8 @@ class StructureGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index, edge_index)
             else:
                 raise ValueError(
-                    "Edge cannot be broken between {} and {};\
-                                no edge exists between those sites.".format(
-                        from_index, to_index
-                    )
+                    f"Edge cannot be broken between {from_index} and {to_index}; "
+                    f"no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices):
@@ -1338,9 +1336,7 @@ class StructureGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += "{:4}  {:4}  {:12}  {:.3e}\n".format(
-                    u, v, str(data.get("to_jimage", (0, 0, 0))), data.get("weight", 0)
-                )
+                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
                 s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}\n"
@@ -1969,10 +1965,8 @@ class MoleculeGraph(MSONable):
         # ensure that edge exists before attempting to change it
         if not existing_edge:
             raise ValueError(
-                "Edge between {} and {} cannot be altered;\
-                                no edge exists between those sites.".format(
-                    from_index, to_index
-                )
+                f"Edge between {from_index} and {to_index} cannot be altered; "
+                f"no edge exists between those sites."
             )
 
         # Third index should always be 0 because there should only be one edge between any two nodes
@@ -2010,10 +2004,8 @@ class MoleculeGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index)
             else:
                 raise ValueError(
-                    "Edge cannot be broken between {} and {};\
-                                no edge exists between those sites.".format(
-                        from_index, to_index
-                    )
+                    f"Edge cannot be broken between {from_index} and {to_index}; "
+                    f"no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices):

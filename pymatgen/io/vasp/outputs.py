@@ -3729,16 +3729,15 @@ class VolumetricData(MSONable):
 
             lines = comment + "\n"
             lines += "   1.00000000000000\n"
-            latt = self.structure.lattice.matrix
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0, :])
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
+            for vec in self.structure.lattice.matrix:
+                lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
                 lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
             lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
             lines += "Direct\n"
             for site in self.structure:
-                lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+                a, b, c = site.frac_coords
+                lines += f"{a:%10.6f}{b:%10.6f}{c:%10.6f}\n"
             lines += " \n"
             f.write(lines)
             a = self.dim
@@ -4918,8 +4917,8 @@ class Wavecar:
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
                 print(
-                    "kpoints = {}, bands = {}, energy cutoff = {}, fermi "
-                    "energy= {:.04f}\n".format(self.nk, self.nb, self.encut, self.efermi)
+                    f"kpoints = {self.nk}, bands = {self.nb}, energy cutoff = {self.encut}, fermi "
+                    f"energy= {self.efermi:.04f}\n"
                 )
                 print(f"primitive lattice vectors = \n{self.a}")
 
