@@ -393,8 +393,7 @@ class MPRester:
         element_list = self.get_data(material_id, prop="elements")[0]["elements"]
         if absorbing_element not in element_list:
             raise ValueError(
-                "{} element not contained in corresponding structure with "
-                "mp_id: {}".format(absorbing_element, material_id)
+                f"{absorbing_element} element not contained in corresponding structure with mp_id: {material_id}"
             )
         data = self._make_request(
             f"/materials/{material_id}/xas/{absorbing_element}",
@@ -1050,7 +1049,7 @@ class MPRester:
                         num_tries += 1
                         print(
                             "Unknown server error. Trying again in five "
-                            "seconds (will try at most {} times)...".format(max_tries_per_chunk)
+                            f"seconds (will try at most {max_tries_per_chunk} times)..."
                         )
                         sleep(5)
             progress_bar.update(len(chunk))
