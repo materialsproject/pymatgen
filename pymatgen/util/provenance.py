@@ -241,8 +241,7 @@ class StructureNL:
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars "
-                f", you have {len(references)}"
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
             )
 
         self.references = references
@@ -260,8 +259,8 @@ class StructureNL:
         self.data = data if data else {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
             raise ValueError(
-                f"The data dict exceeds the maximum size limit of {MAX_DATA_SIZE}"
-                f" bytes (you have {sys.getsizeof(data)})"
+                f"The data dict exceeds the maximum size limit of {MAX_DATA_SIZE} "
+                f"bytes (you have {sys.getsizeof(data)})"
             )
 
         for k, v in self.data.items():
