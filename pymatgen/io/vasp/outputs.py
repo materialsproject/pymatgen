@@ -3737,7 +3737,7 @@ class VolumetricData(MSONable):
             lines += "Direct\n"
             for site in self.structure:
                 a, b, c = site.frac_coords
-                lines += f"{a:%10.6f}{b:%10.6f}{c:%10.6f}\n"
+                lines += f"{a:10.6f}{b:10.6f}{c:10.6f}\n"
             lines += " \n"
             f.write(lines)
             a = self.dim
