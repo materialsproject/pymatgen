@@ -375,7 +375,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
                     combined = {
                         "start_index": branch["start_index"],
                         "end_index": next_branch["end_index"],
-                        "name": "{}-{}".format(branch["name"].split("-")[0], next_branch["name"].split("-")[1]),
+                        "name": f"{branch['name'].split('-')[0]}-{next_branch['name'].split('-')[1]}",
                     }
                     processed.append(branch["name"])
                     processed.append(next_branch["name"])

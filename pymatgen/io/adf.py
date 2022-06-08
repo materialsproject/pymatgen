@@ -182,7 +182,10 @@ class AdfKey(MSONable):
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(subkey.name, *subkey.options)
+                    s += (
+                        f"{subkey.name:2s}  {subkey.options[0]: 14.8f}"
+                        f"    {subkey.options[1]: 14.8f}    {subkey.options[2]: 14.8f}\n"
+                    )
             else:
                 for subkey in self.subkeys:
                     s += str(subkey)
@@ -581,19 +584,12 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = """TITLE {title}\n
-{units}
-{xc}
-{basis_set}
-{scf}
-{geo}""".format(
-            title=self.title,
-            units=str(self.units),
-            xc=str(self.xc),
-            basis_set=str(self.basis_set),
-            scf=str(self.scf),
-            geo=str(self.geo),
-        )
+        s = f"""TITLE {self.title}\n
+{str(self.units)}
+{str(self.xc)}
+{str(self.basis_set)}
+{str(self.scf)}
+{str(self.geo)}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):

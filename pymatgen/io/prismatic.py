@@ -32,9 +32,7 @@ class Prismatic:
         for site in self.structure:
             for sp, occu in site.species.items():
                 x, y, z = site.coords
-                lines.append(
-                    f"{sp.Z} {x} {y} {z} {occu} {site.properties.get('thermal_sigma', 0)}"
-                )
+                lines.append(f"{sp.Z} {x} {y} {z} {occu} {site.properties.get('thermal_sigma', 0)}")
 
         lines.append("-1")
 

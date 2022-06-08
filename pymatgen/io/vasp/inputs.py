@@ -1820,12 +1820,10 @@ class PotcarSingle:
             )
         elif not self.identify_potcar(mode="file")[0]:
             warnings.warn(
-                "POTCAR with symbol {} has metadata that does not match\
+                f"POTCAR with symbol {self.symbol} has metadata that does not match\
                           any VASP POTCAR known to pymatgen. The data in this\
                           POTCAR is known to match the following functionals:\
-                          {}".format(
-                    self.symbol, self.identify_potcar(mode="data")[0]
-                ),
+                          {self.identify_potcar(mode='data')[0]}",
                 UnknownPotcarWarning,
             )
 
