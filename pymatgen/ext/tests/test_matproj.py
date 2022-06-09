@@ -82,7 +82,7 @@ class MPResterTest(PymatgenTest):
             "total_magnetization",
         }
         mpid = "mp-1143"
-        vals = requests.get(f"http://www.materialsproject.org/materials/{mpid}/json/")
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mpid}/json/")
         expected_vals = vals.json()
 
         for prop in props:
