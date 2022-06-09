@@ -93,6 +93,9 @@ class MPRester:
 
     For more advanced uses of the Materials API, please consult the API
     documentation at https://github.com/materialsproject/mapidoc.
+
+    Note that this class is for the *legacy* API. Upcoming changes to the
+    Materials Project api are described at https://materialsproject.org/api.
     """
 
     supported_properties = (
@@ -158,7 +161,7 @@ class MPRester:
                 their setups and MPRester can then be called without any arguments.
             endpoint (str): Url of endpoint to access the MaterialsProject REST
                 interface. Defaults to the standard Materials Project REST
-                address at "https://materialsproject.org/rest/v2", but
+                address at "https://legacy.materialsproject.org/rest/v2", but
                 can be changed to other urls implementing a similar interface.
             notify_db_version (bool): If True, the current MP database version will
                 be retrieved and logged locally in the ~/.pmgrc.yaml. If the database
@@ -180,9 +183,9 @@ class MPRester:
         if endpoint is not None:
             self.preamble = endpoint
         else:
-            self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://materialsproject.org/rest/v2")
+            self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://legacy.materialsproject.org/rest/v2")
 
-        if self.preamble != "https://materialsproject.org/rest/v2":
+        if self.preamble != "https://legacy.materialsproject.org/rest/v2":
             warnings.warn(f"Non-default endpoint used: {self.preamble}")
 
         self.session = requests.Session()
