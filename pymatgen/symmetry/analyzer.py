@@ -1273,6 +1273,18 @@ class PointGroupAnalyzer:
         """
         return generate_full_symmops(self.symmops, self.tol)
 
+    def get_rotational_symmetry_number(self):
+        """
+        Return the rotational symmetry number.
+        """
+        symm_ops = self.get_symmetry_operations()
+        symm_number = 0
+        for symm in symm_ops:
+            rot = symm.rotation_matrix
+            if np.abs(np.linalg.det(rot) - 1) < 1e-4:
+                symm_number += 1
+        return symm_number
+
     def is_valid_op(self, symmop):
         """
         Check if a particular symmetry operation is a valid symmetry operation

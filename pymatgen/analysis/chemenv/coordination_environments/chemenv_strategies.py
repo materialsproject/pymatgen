@@ -420,7 +420,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param option_value: Value for this option.
         :return: None
         """
-        self.__setattr__(option_name, option_value)
+        setattr(self, option_name, option_value)
 
     def setup_options(self, all_options_dict):
         """Set up options for this strategy based on a dict.

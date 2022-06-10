@@ -1845,7 +1845,7 @@ class KPathLatimerMunro(KPathBase):
                 gH.append(op1)
 
         for op in gH:
-            opH = [op.__mul__(h) for h in H]
+            opH = [op * h for h in H]
             is_coset_factor = True
             for op1 in opH:
                 for op2 in H:

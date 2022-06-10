@@ -595,17 +595,17 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
             for ea in adjustments:
                 # Has this correction already been applied?
-                if (ea.name, ea.cls, ea.value) in [(ea.name, ea.cls, ea.value) for ea in entry.energy_adjustments]:
+                if (ea.name, ea.cls, ea.value) in [(ea2.name, ea2.cls, ea2.value) for ea2 in entry.energy_adjustments]:
                     # we already applied this exact correction. Do nothing.
                     pass
-                elif (ea.name, ea.cls) in [(ea.name, ea.cls) for ea in entry.energy_adjustments]:
+                elif (ea.name, ea.cls) in [(ea2.name, ea2.cls) for ea2 in entry.energy_adjustments]:
                     # we already applied a correction with the same name
                     # but a different value. Something is wrong.
                     ignore_entry = True
                     warnings.warn(
-                        "Entry {} already has an energy adjustment called {}, but its "
-                        "value differs from the value of {:.3f} calculated here. This "
-                        "Entry will be discarded.".format(entry.entry_id, ea.name, ea.value)
+                        f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
+                        f"value differs from the value of {ea.value:.3f} calculated here. This "
+                        "Entry will be discarded."
                     )
                 else:
                     # Add the correction to the energy_adjustments list
@@ -627,11 +627,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entry: A ComputedEntry.
         """
         print(
-            "The uncorrected energy of {} is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.composition,
-                entry.uncorrected_energy,
-                entry.uncorrected_energy / entry.composition.num_atoms,
-            )
+            f"The uncorrected energy of {entry.composition} is {entry.uncorrected_energy:.3f} eV "
+            f"({entry.uncorrected_energy / entry.composition.num_atoms:.3f} eV/atom)."
         )
 
         if len(entry.energy_adjustments) > 0:
@@ -641,11 +638,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 
-        print(
-            "The final energy after adjustments is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.energy, entry.energy_per_atom
-            )
-        )
+        print(f"The final energy after adjustments is {entry.energy:.3f} eV ({entry.energy_per_atom:.3f} eV/atom).")
 
 
 class CorrectionsList(Compatibility):
@@ -933,9 +926,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         """
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError(
-                "Entry {} has invalid run type {}. Must be GGA or GGA+U. Discarding.".format(
-                    entry.entry_id, entry.parameters.get("run_type")
-                )
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
+                f"Must be GGA or GGA+U. Discarding."
             )
 
         # check the POTCAR symbols
@@ -1257,10 +1249,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
             warnings.warn(
-                "You did not provide the required O2 and H2O energies. {} "
+                f"You did not provide the required O2 and H2O energies. {type(self).__name__} "
                 "needs these energies in order to compute the appropriate energy adjustments. It will try "
                 "to determine the values from ComputedEntry for O2 and H2O passed to process_entries, but "
-                "will fail if these entries are not provided.".format(type(self).__name__)
+                "will fail if these entries are not provided."
             )
 
         # Standard state entropy of molecular-like compounds at 298K (-T delta S)
@@ -1295,10 +1287,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         if self.o2_energy is None or self.h2o_energy is None or self.h2o_adjustments is None:
             raise CompatibilityError(
                 "You did not provide the required O2 and H2O energies. "
-                "{} needs these energies in order to compute "
+                f"{type(self).__name__} needs these energies in order to compute "
                 "the appropriate energy adjustments. Either specify the energies as arguments "
-                "to {}.__init__ or run process_entries on a list that includes ComputedEntry for "
-                "the ground state of O2 and H2O.".format(type(self).__name__, type(self).__name__)
+                f"to {type(self).__name__}.__init__ or run process_entries on a list that includes ComputedEntry for "
+                "the ground state of O2 and H2O."
             )
 
         # compute the free energies of H2 and H2O (eV/atom) to guarantee that the

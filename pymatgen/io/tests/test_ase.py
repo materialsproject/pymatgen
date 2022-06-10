@@ -178,11 +178,13 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(structure.site_properties["magmom"], mags)
         self.assertTrue("final_magmom" not in structure.site_properties)
+        self.assertTrue("initial_magmoms" not in structure.site_properties)
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(structure.site_properties["final_magmom"], atoms.get_magnetic_moments().tolist())
         self.assertTrue("magmom" not in structure.site_properties)
+        self.assertTrue("initial_magmoms" not in structure.site_properties)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_dyn(self):

@@ -550,13 +550,8 @@ class Critic2Analysis(MSONable):
                                 "interested in rings/cages."
                             )
                             logger.debug(
-                                "Duplicate edge between points {} (unique point {})"
-                                "and {} ({}).".format(
-                                    idx,
-                                    self.nodes[idx]["unique_idx"],
-                                    idx2,
-                                    self.nodes[idx2]["unique_idx"],
-                                )
+                                f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
+                                f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
                             )
         # and remove any duplicate bonds present
         for idx in idx_to_delete:
@@ -704,8 +699,8 @@ class Critic2Analysis(MSONable):
 
         if len(node_mapping) != len(self.structure):
             warnings.warn(
-                "Check that all sites in input structure ({}) have "
-                "been detected by critic2 ({}).".format(len(self.structure), len(node_mapping))
+                f"Check that all sites in input structure ({len(self.structure)}) have "
+                f"been detected by critic2 ({ len(node_mapping)})."
             )
 
         self.nodes = {node_mapping.get(idx, idx): node for idx, node in self.nodes.items()}
@@ -742,9 +737,7 @@ class Critic2Analysis(MSONable):
         for idx, site in enumerate(yt["structure"]["cell_atoms"]):
             if not np.allclose(structure[idx].frac_coords, site["fractional_coordinates"]):
                 raise IndexError(
-                    "Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(
-                        structure[idx], site
-                    )
+                    f"Site in structure doesn't seem to match site in YT integration:\n{structure[idx]}\n{site}"
                 )
             volume, charge = get_volume_and_charge(site["nonequivalent_id"])
             volumes.append(volume)
@@ -754,9 +747,8 @@ class Critic2Analysis(MSONable):
                     charge_transfer.append(charge - zpsp[structure[idx].species_string])
                 else:
                     raise ValueError(
-                        "ZPSP argument does not seem compatible with species in structure ({}): {}".format(
-                            structure[idx].species_string, zpsp
-                        )
+                        f"ZPSP argument does not seem compatible with species in structure "
+                        f"({structure[idx].species_string}): {zpsp}"
                     )
 
         structure = structure.copy()

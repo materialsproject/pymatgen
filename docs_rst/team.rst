@@ -1158,7 +1158,7 @@ List of Developers (A–Z)
    :alt: ORCID profile for 0000-0002-6665-1274
 
 | **Weitang Li** |liwt31| |0000-0002-8739-641X|
-| Tsinghua Univeristy
+| Tsinghua University
 .. |liwt31| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:liwt31
    :width: 16

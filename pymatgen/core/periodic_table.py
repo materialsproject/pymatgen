@@ -1463,7 +1463,7 @@ class DummySpecies(Species):
         the symbol. The expectation is that someone would be an actual dummy
         to use atomic numbers for a Dummy specie.
         """
-        return self.symbol.__hash__()
+        return hash(self.symbol)
 
     @property
     def oxi_state(self) -> float | None:

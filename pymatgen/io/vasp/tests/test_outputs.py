@@ -57,6 +57,15 @@ class VasprunTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_vasprun_ml(self):
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.ml_md")
+        self.assertEqual(len(v.md_data), 100)
+        for d in v.md_data:
+            self.assertIn("structure", d)
+            self.assertIn("forces", d)
+            self.assertIn("energy", d)
+        self.assertAlmostEqual(v.md_data[-1]["energy"]["total"], -491.51831988)
+
     def test_bad_random_seed(self):
         _ = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
 

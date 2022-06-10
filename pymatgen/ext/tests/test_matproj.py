@@ -82,7 +82,7 @@ class MPResterTest(PymatgenTest):
             "total_magnetization",
         }
         mpid = "mp-1143"
-        vals = requests.get(f"http://www.materialsproject.org/materials/{mpid}/json/")
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mpid}/json/")
         expected_vals = vals.json()
 
         for prop in props:
@@ -156,6 +156,9 @@ class MPResterTest(PymatgenTest):
         e1 = {i.entry_id for i in entries}
         e2 = {i.entry_id for i in entries2}
         self.assertTrue(e1 == e2)
+
+        stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
+        self.assertTrue(len(stable_entries) < len(entries))
 
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")

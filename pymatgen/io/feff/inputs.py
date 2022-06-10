@@ -660,7 +660,7 @@ class Tags(dict):
             filename: filename and path to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__() + "\n")
+            f.write(str(self) + "\n")
 
     @staticmethod
     def from_file(filename="feff.inp"):
@@ -986,7 +986,8 @@ class Paths(MSONable):
             lines.append("x y z ipot label")
             for l in legs:
                 coords = self.atoms.cluster[l].coords.tolist()
-                tmp = "{:.6f} {:.6f} {:.6f}".format(*tuple(coords))
+
+                tmp = f"{coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f}"
                 element = str(self.atoms.cluster[l].specie.name)
                 # the potential index for the absorbing atom(the one at the cluster origin) is 0
                 potential = 0 if np.linalg.norm(coords) <= 1e-6 else self.atoms.pot_dict[element]

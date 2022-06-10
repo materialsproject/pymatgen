@@ -165,8 +165,9 @@ class GrandPotPDEntry(PDEntry):
 
     def __repr__(self):
         chempot_str = " ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
-        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
-            self.original_entry.composition, self.original_entry.energy, chempot_str
+        return (
+            f"GrandPotPDEntry with original composition {self.original_entry.composition}, "
+            f"energy = {self.original_entry.energy:.4f}, {chempot_str}"
         )
 
     def as_dict(self):
@@ -358,6 +359,8 @@ class PhaseDiagram(MSONable):
         self.entries = entries
         if computed_data is None:
             computed_data = self._compute()
+        else:
+            computed_data = MontyDecoder().process_decoded(computed_data)
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -580,7 +583,7 @@ class PhaseDiagram(MSONable):
             f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
         ]
 
-        if not len(all_facets):
+        if not all_facets:
             raise RuntimeError(f"No facets found for comp = {comp}")
 
         return all_facets
@@ -1511,14 +1514,12 @@ class ReactionDiagram:
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
                     logger.debug(
-                        "Reactants = %s"
-                        % (
-                            ", ".join(
-                                [
-                                    entry1.composition.reduced_formula,
-                                    entry2.composition.reduced_formula,
-                                ]
-                            )
+                        "Reactants = "
+                        + ", ".join(
+                            [
+                                entry1.composition.reduced_formula,
+                                entry2.composition.reduced_formula,
+                            ]
                         )
                     )
                     logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
@@ -2977,9 +2978,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
 
     if (nameup not in ordering) or (nameright not in ordering) or (nameleft not in ordering):
         raise ValueError(
-            'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{'
-            'right}"'
-            " should be in ordering : {ord}".format(up=nameup, left=nameleft, right=nameright, ord=ordering)
+            f'Error in ordering_phase_diagram : \n"{nameup}", "{nameleft}" and "{nameright}"'
+            f" should be in ordering : {ordering}"
         )
 
     cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)

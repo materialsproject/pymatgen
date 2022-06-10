@@ -184,9 +184,9 @@ class BabelMolAdaptor:
         ff = ob.OBForceField_FindType(forcefield)
         if ff == 0:
             warnings.warn(
-                "This input forcefield {} is not supported "
+                f"This input forcefield {forcefield} is not supported "
                 "in openbabel. The forcefield will be reset as "
-                "default 'mmff94' for now.".format(forcefield)
+                "default 'mmff94' for now."
             )
             ff = ob.OBForceField_FindType("mmff94")
 
@@ -194,12 +194,12 @@ class BabelMolAdaptor:
             rotor_search = getattr(ff, algo)
         except AttributeError:
             warnings.warn(
-                "This input conformer search algorithm {} is not "
+                f"This input conformer search algorithm {algo} is not "
                 "supported in openbabel. Options are "
                 "'SystematicRotorSearch', 'RandomRotorSearch' "
                 "and 'WeightedRotorSearch'. "
                 "The algorithm will be reset as default "
-                "'WeightedRotorSearch' for now.".format(algo)
+                "'WeightedRotorSearch' for now."
             )
             rotor_search = ff.WeightedRotorSearch
         rotor_search(*rotor_args)
@@ -266,8 +266,8 @@ class BabelMolAdaptor:
         ff = ob.OBForceField_FindType(forcefield)
         if ff == 0:
             print(
-                "Could not find forcefield {} in openbabel, the forcefield "
-                "will be reset as default 'mmff94'".format(forcefield)
+                f"Could not find forcefield {forcefield} in openbabel, the forcefield "
+                "will be reset as default 'mmff94'"
             )
             ff = ob.OBForceField_FindType("mmff94")
 

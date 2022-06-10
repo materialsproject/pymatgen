@@ -56,6 +56,15 @@ class IStructureTest(PymatgenTest):
         )
         self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
 
+        self.lattice_pbc = Lattice(
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ],
+            pbc=(True, True, False),
+        )
+
     @unittest.skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
@@ -330,6 +339,14 @@ class IStructureTest(PymatgenTest):
         coordinate = [(0.252100, 0.252100, 0.252100), (0.500000, 0.244900, -0.244900)]
         s = Structure.from_spacegroup("R32:R", lattice, species, coordinate)
         self.assertEqual(s.formula, "Ni3 S2")
+
+        # test pbc
+        coords = [[0.85, 0.85, 0.85]]
+        coords2 = [[0.25, 0.25, 0.25]]
+        struct_pbc = IStructure(self.lattice_pbc, ["Si"], coords)
+        struct2_pbc = IStructure(self.lattice_pbc, ["Si"], coords2)
+        int_s_pbc = struct_pbc.interpolate(struct2_pbc, nimages=2)
+        self.assertArrayAlmostEqual(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
 
     def test_interpolate_lattice(self):
         coords = []
@@ -680,6 +697,13 @@ Direct
         self.assertEqual(s, self.struct)
         os.remove("POSCAR.testing.gz")
 
+    def test_pbc(self):
+        self.assertArrayEqual(self.struct.pbc, (True, True, True))
+        self.assertTrue(self.struct.is_3d_periodic)
+        struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
+        self.assertArrayEqual(struct_pbc.pbc, (True, True, False))
+        self.assertFalse(struct_pbc.is_3d_periodic)
+
 
 class StructureTest(PymatgenTest):
     def setUp(self):
@@ -942,6 +966,11 @@ class StructureTest(PymatgenTest):
 
         self.structure.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=False)
         self.assertArrayAlmostEqual(self.structure.frac_coords[0], [1.00187517, 1.25665291, 1.15946374])
+
+        lattice_pbc = Lattice(self.structure.lattice.matrix, pbc=(True, True, False))
+        struct_pbc = Structure(lattice_pbc, ["Si"], [[0.75, 0.75, 0.75]])
+        struct_pbc.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=True)
+        self.assertArrayAlmostEqual(struct_pbc.frac_coords[0], [0.25, 0.25, 1.25])
 
     def test_rotate_sites(self):
         self.structure.rotate_sites(

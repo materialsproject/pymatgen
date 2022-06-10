@@ -742,7 +742,7 @@ class Incar(dict, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename: PathLike) -> Incar:
@@ -1507,10 +1507,10 @@ class Kpoints(MSONable):
             filename (str): Filename to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
@@ -1820,12 +1820,10 @@ class PotcarSingle:
             )
         elif not self.identify_potcar(mode="file")[0]:
             warnings.warn(
-                "POTCAR with symbol {} has metadata that does not match\
+                f"POTCAR with symbol {self.symbol} has metadata that does not match\
                           any VASP POTCAR known to pymatgen. The data in this\
                           POTCAR is known to match the following functionals:\
-                          {}".format(
-                    self.symbol, self.identify_potcar(mode="data")[0]
-                ),
+                          {self.identify_potcar(mode='data')[0]}",
                 UnknownPotcarWarning,
             )
 
@@ -1856,7 +1854,7 @@ class PotcarSingle:
         :param filename: Filename
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename: str) -> PotcarSingle:
@@ -2258,7 +2256,7 @@ class Potcar(list, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @property
     def symbols(self):
@@ -2371,7 +2369,7 @@ class VaspInput(dict, MSONable):
         for k, v in self.items():
             if v is not None:
                 with zopen(os.path.join(output_dir, k), "wt") as f:
-                    f.write(v.__str__())
+                    f.write(str(v))
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):

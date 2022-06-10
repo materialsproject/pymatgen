@@ -163,11 +163,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                     time_reversal=time_reversal,
                 )
                 # store string representation, e.g. (2x|1/2,1/2,1/2)'
-                seitz = "({}|{},{},{})".format(
-                    point_operator["symbol"],
-                    Fraction(translation_vec[0]),
-                    Fraction(translation_vec[1]),
-                    Fraction(translation_vec[2]),
+                seitz = (
+                    f"({point_operator['symbol']}|"
+                    f"{Fraction(translation_vec[0])},{Fraction(translation_vec[1])},{Fraction(translation_vec[2])})"
                 )
                 if time_reversal == -1:
                     seitz += "'"
@@ -208,9 +206,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                         [s[15], s[18], s[21]],
                     ]
                     # store string representation, e.g. (x,y,z;mx,my,mz)
-                    wyckoff_str = "({};{})".format(
-                        transformation_to_string(matrix, translation_vec),
-                        transformation_to_string(matrix_magmom, c="m"),
+                    wyckoff_str = (
+                        f"({transformation_to_string(matrix, translation_vec)};"
+                        f"{transformation_to_string(matrix_magmom, c='m')})"
                     )
                     sites.append(
                         {
@@ -241,11 +239,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                 lattice.append(
                     {
                         "vector": [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
-                        "str": "({},{},{})+".format(
-                            Fraction(r[0] / r[3]).limit_denominator(),
-                            Fraction(r[1] / r[3]).limit_denominator(),
-                            Fraction(r[2] / r[3]).limit_denominator(),
-                        ),
+                        "str": f"({Fraction(r[0] / r[3]).limit_denominator()},"
+                        f"{Fraction(r[1] / r[3]).limit_denominator()},"
+                        f"{Fraction(r[2] / r[3]).limit_denominator()})+",
                     }
                 )
 
@@ -261,10 +257,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             p = [b[9] / b[12], b[10] / b[12], b[11] / b[12]]
             P = np.array(P).transpose()
             P_string = transformation_to_string(P, components=("a", "b", "c"))
-            p_string = "{},{},{}".format(
-                Fraction(p[0]).limit_denominator(),
-                Fraction(p[1]).limit_denominator(),
-                Fraction(p[2]).limit_denominator(),
+            p_string = (
+                f"{Fraction(p[0]).limit_denominator()},"
+                f"{Fraction(p[1]).limit_denominator()},"
+                f"{Fraction(p[2]).limit_denominator()}"
             )
             return P_string + ";" + p_string
 
@@ -451,7 +447,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # indicate if non-standard setting specified
         if self.jf != JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0"):
             description += "Non-standard setting: .....\n"
-            description += self.jf.__repr__()
+            description += repr(self.jf)
             description += "\n\nStandard setting information: \n"
 
         desc["magtype"] = self._data["magtype"]

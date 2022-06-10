@@ -8,6 +8,8 @@ from numbers import Number
 from pathlib import Path
 
 import numpy as np
+from monty.serialization import dumpfn, loadfn
+from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
@@ -596,6 +598,11 @@ class PhaseDiagramTest(unittest.TestCase):
         new_dd = new_pd.as_dict()
         self.assertEqual(new_dd, dd)
         self.assertIsInstance(pd.to_json(), str)
+
+    def test_read_json(self):
+        with ScratchDir("."):
+            dumpfn(self.pd, "pd.json")
+            loadfn("pd.json")
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):

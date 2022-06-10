@@ -268,15 +268,8 @@ class BoltztrapRunner(MSONable):
                             "eV",
                         ).to("Ry")
                     )
-                    f.write(
-                        "%12.8f %12.8f %12.8f %d\n"
-                        % (
-                            kpt.frac_coords[0],
-                            kpt.frac_coords[1],
-                            kpt.frac_coords[2],
-                            len(eigs),
-                        )
-                    )
+                    a, b, c = kpt.frac_coords
+                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
                     for e in eigs:
                         f.write(f"{sign * float(e):18.8f}\n")
 
@@ -305,16 +298,8 @@ class BoltztrapRunner(MSONable):
                     if self.run_type == "DOS" and self._bs.is_spin_polarized:
                         eigs.insert(0, self._ll)
                         eigs.append(self._hl)
-
-                    f.write(
-                        "%12.8f %12.8f %12.8f %d\n"
-                        % (
-                            kpt.frac_coords[0],
-                            kpt.frac_coords[1],
-                            kpt.frac_coords[2],
-                            len(eigs),
-                        )
-                    )
+                    a, b, c = kpt.frac_coords
+                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
 
                     for e in eigs:
                         f.write(f"{float(e):18.8f}\n")
@@ -332,12 +317,7 @@ class BoltztrapRunner(MSONable):
 
         with open(output_file, "w") as f:
             if self._symprec is not None:
-                f.write(
-                    "{} {}\n".format(
-                        self._bs.structure.composition.formula,
-                        sym.get_space_group_symbol(),
-                    )
-                )
+                f.write(f"{self._bs.structure.composition.formula} {sym.get_space_group_symbol()}\n")
             elif self._symprec is None:
                 f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
 
@@ -415,16 +395,8 @@ class BoltztrapRunner(MSONable):
                             if self.run_type == "DOS" and self._bs.is_spin_polarized:
                                 tmp_proj.insert(0, self._ll)
                                 tmp_proj.append(self._hl)
-
-                            f.write(
-                                "%12.8f %12.8f %12.8f %d\n"
-                                % (
-                                    kpt.frac_coords[0],
-                                    kpt.frac_coords[1],
-                                    kpt.frac_coords[2],
-                                    len(tmp_proj),
-                                )
-                            )
+                            a, b, c = kpt.frac_coords
+                            f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
                             for t in tmp_proj:
                                 f.write(f"{float(t):18.8f}\n")
         with open(output_file_def, "w") as f:
@@ -480,13 +452,10 @@ class BoltztrapRunner(MSONable):
                     "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
-                    "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "
+                    f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} "
+                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} "
+                    f"{self._nelec:6.1f}     # Fermilevel (Ry),energygrid,energy "
                     "span around Fermilevel, number of electrons\n"
-                    % (
-                        Energy(self.energy_grid, "eV").to("Ry"),
-                        Energy(self.energy_span_around_fermi, "eV").to("Ry"),
-                        self._nelec,
-                    )
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -539,14 +508,11 @@ class BoltztrapRunner(MSONable):
                     "idebug setgap shiftgap \n"
                 )
                 fout.write(
-                    "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy "
+                    f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} "
+                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} "
+                    f"{self._nelec:6.1f}     # Fermilevel (Ry),energygrid,energy "
                     "span around Fermilevel, "
                     "number of electrons\n"
-                    % (
-                        Energy(self.energy_grid, "eV").to("Ry"),
-                        Energy(self.energy_span_around_fermi, "eV").to("Ry"),
-                        self._nelec,
-                    )
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -2337,7 +2303,7 @@ def read_cube_file(filename):
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
         nlines_data = len(energy_data)
         last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
-        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
+        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)  # pylint: disable=E1121
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
 
