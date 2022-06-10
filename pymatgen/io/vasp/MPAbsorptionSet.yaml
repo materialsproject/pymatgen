@@ -17,8 +17,7 @@ INCAR:
   NELM: 100
   ISPIN: 2
   PREC: Accurate
-  ALGO: Exact,
-  LOPTICS: True,
+  LOPTICS: True
   CSHIFT: 0.1
   NEDOS: 2001
 KPOINTS:
