@@ -2,6 +2,9 @@ name: Testing Windows
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     # prevent this action from running on forks
