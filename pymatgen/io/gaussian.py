@@ -129,7 +129,7 @@ class GaussianInput:
             route_parameters: Additional route parameters as a dict. For example,
                 {'SP':"", "SCF":"Tight"}
             input_parameters: Additional input parameters for run as a dict. Used
-                for example, in PCM calculations.  E.g., {"EPS":12}
+                for example, in PCM calculations. E.g., {"EPS":12}
             link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
             dieze_tag: # preceding the route line. E.g. "#p"
             gen_basis: allows a user-specified basis set to be used in a Gaussian
@@ -146,8 +146,8 @@ class GaussianInput:
                 self.spin_multiplicity = spin_multiplicity
                 if (nelectrons + spin_multiplicity) % 2 != 1:
                     raise ValueError(
-                        "Charge of {} and spin multiplicity of {} is"
-                        " not possible for this molecule".format(self.charge, spin_multiplicity)
+                        f"Charge of {self.charge} and spin multiplicity of {spin_multiplicity} is"
+                        " not possible for this molecule"
                     )
             else:
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
@@ -413,7 +413,7 @@ class GaussianInput:
 
     def get_cart_coords(self):
         """
-        Return the cartesian coordinates of the molecule
+        Return the Cartesian coordinates of the molecule
         """
 
         def to_s(x):
@@ -431,7 +431,7 @@ class GaussianInput:
         """
         Return GaussianInput string
 
-        Option: when cart_coords is set to True return the cartesian coordinates
+        Option: when cart_coords is set to True return the Cartesian coordinates
                 instead of the z-matrix
 
         """
@@ -500,8 +500,8 @@ class GaussianInput:
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "molecule": self.molecule.as_dict(),
             "functional": self.functional,
             "basis_set": self.basis_set,
@@ -575,7 +575,7 @@ class GaussianOutput:
 
     .. attribute:: cart_forces
 
-        All cartesian forces from the calculation.
+        All Cartesian forces from the calculation.
 
     .. attribute:: frequencies
 
@@ -1195,7 +1195,7 @@ class GaussianOutput:
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         structure = self.final_structure
         d = {
@@ -1238,8 +1238,8 @@ class GaussianOutput:
         }
 
         d["output"] = vout
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
 
         return d
 

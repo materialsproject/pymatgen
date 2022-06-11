@@ -13,15 +13,20 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import ExplicitPermutationsAlgorithm
-
-import numpy as np
 import itertools
 import json
 import os
+
+import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+    ExplicitPermutationsAlgorithm,
+)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
+    LocalGeometryFinder,
+)
 
 
 class Algo:
@@ -94,6 +99,5 @@ if __name__ == "__main__":
         newgeom_dir = "new_geometry_files"
         if not os.path.exists(newgeom_dir):
             os.makedirs(newgeom_dir)
-        f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
-        json.dump(cg.as_dict(), f)
-        f.close()
+        with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
+            json.dump(cg.as_dict(), f)

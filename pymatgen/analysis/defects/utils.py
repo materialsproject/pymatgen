@@ -58,7 +58,7 @@ invang_to_ev = 3.80986
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
-for cn, di in cn_opt_params.items():  # type: ignore
+for cn, di in cn_opt_params.items():
     for mot, li in di.items():
         motif_cn_op[mot] = {"cn": int(cn), "optype": li[0]}
         motif_cn_op[mot]["params"] = deepcopy(li[1]) if len(li) > 1 else None
@@ -207,7 +207,7 @@ class StructureMotifInterstitial:
     Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (e.g., tetrahedra, octahedra). The algorithm is called InFiT
     (Interstitialcy Finding Tool), it was introducted by
     Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
     and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
@@ -237,14 +237,14 @@ class StructureMotifInterstitial:
                 distinct interstitial sites are to be found.
             inter_elem (string): element symbol of desired interstitial.
             motif_types ([string]): list of structure motif types that are
-                to be considered.  Permissible types are:
+                to be considered. Permissible types are:
                 tet (tetrahedron), oct (octahedron).
             op_threshs ([float]): threshold values for the underlying order
                 parameters to still recognize a given structural motif
                 (i.e., for an OP value >= threshold the coordination pattern
                 match is positive, for OP < threshold the match is
                 negative.
-            dl (float): grid fineness in Angstrom.  The input
+            dl (float): grid fineness in Angstrom. The input
                 structure is divided into a grid of dimension
                 a/dl x b/dl x c/dl along the three crystallographic
                 directions, with a, b, and c being the lengths of
@@ -586,7 +586,7 @@ class TopographyAnalyzer:
                 determine if something are actually periodic boundary images of
                 each other. Default is usually fine.
             max_cell_range (int): This is the range of periodic images to
-                construct the Voronoi tesselation. A value of 1 means that we
+                construct the Voronoi tessellation. A value of 1 means that we
                 include all points from (x +- 1, y +- 1, z+- 1) in the
                 voronoi construction. This is because the Voronoi poly
                 extends beyond the standard unit cell because of PBC.
@@ -1383,7 +1383,7 @@ def generic_groupby(list_in, comp=operator.eq):
         if ls1 is not None:
             continue
         list_out[i1] = label_num
-        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:  # noqa
+        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:
             if comp(list_in[i1], list_in[i2]):
                 if list_out[i2] is None:
                     list_out[i2] = list_out[i1]
@@ -1507,7 +1507,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                         recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)

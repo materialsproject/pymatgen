@@ -91,8 +91,8 @@ class LammpsDump(MSONable):
         Returns: MSONable dict
         """
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["timestep"] = self.timestep
         d["natoms"] = self.natoms
         d["box"] = self.box.as_dict()
@@ -115,8 +115,7 @@ def parse_lammps_dumps(file_pattern):
     """
     files = glob.glob(file_pattern)
     if len(files) > 1:
-        pattern = r"%s" % file_pattern.replace("*", "([0-9]+)")
-        pattern = pattern.replace("\\", "\\\\")
+        pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
     for fname in files:

@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides input and output from the CSSR file format.
 """
@@ -37,9 +36,11 @@ class Cssr:
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "{:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1".format(*self.structure.lattice.angles),
+            f"{a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.2f} {beta:.2f} {gamma:.2f} SPGR =  1 P 1    OPT = 1",
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]

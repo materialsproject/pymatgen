@@ -109,7 +109,7 @@ def make_dash(ctx):
     #     for l in f:
     #         l = l.strip()
     #         if l.startswith("<version>"):
-    #             xml.append("<version>%s</version>" % version)
+    #             xml.append(f"<version>{version}</version>")
     #         else:
     #             xml.append(l)
     # with open("docs/pymatgen.xml", "wt") as f:
@@ -128,7 +128,7 @@ def contribute_dash(ctx, version):
             data["version"] = version
         with open("docset.json", "wt") as f:
             json.dump(data, f, indent=4)
-        ctx.run('git commit --no-verify -a -m "Update to v%s"' % version)
+        ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
     ctx.run("rm pymatgen.tgz")
 
@@ -137,8 +137,8 @@ def contribute_dash(ctx, version):
 def submit_dash_pr(ctx, version):
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
         payload = {
-            "title": "Update pymatgen docset to v%s" % version,
-            "body": "Update pymatgen docset to v%s" % version,
+            "title": f"Update pymatgen docset to v{version}",
+            "body": f"Update pymatgen docset to v{version}",
             "head": "Dash-User-Contributions:master",
             "base": "master",
         }
@@ -178,14 +178,14 @@ def publish(ctx):
 def set_ver(ctx, version):
     with open("pymatgen/core/__init__.py") as f:
         contents = f.read()
-        contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % version, contents)
+        contents = re.sub(r"__version__ = .*\n", f'__version__ = "{version}"\n', contents)
 
     with open("pymatgen/core/__init__.py", "wt") as f:
         f.write(contents)
 
     with open("setup.py") as f:
         contents = f.read()
-        contents = re.sub(r"version=([^,]+),", 'version="%s",' % version, contents)
+        contents = re.sub(r"version=([^,]+),", f'version="{version}",', contents)
 
     with open("setup.py", "wt") as f:
         f.write(contents)
@@ -253,7 +253,7 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d")
 
     :param ctx:
     """
-    output = subprocess.check_output(["git", "log", "--pretty=format:%s", "v%s..HEAD" % CURRENT_VER])
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{CURRENT_VER}..HEAD"])
     lines = []
     misc = []
     for l in output.decode("utf-8").strip().split("\n"):
@@ -276,7 +276,7 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d")
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    head = "\n\nv%s\n" % version + "-" * (len(version) + 1) + "\n"
+    head = f"\n\nv{version}\n" + "-" * (len(version) + 1) + "\n"
     toks.insert(-1, head + "\n".join(lines))
     if not sim:
         with open("CHANGES.rst", "w") as f:
@@ -325,4 +325,4 @@ def open_doc(ctx):
 @task
 def lint(ctx):
     for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
-        ctx.run("%s pymatgen" % cmd)
+        ctx.run(f"{cmd} pymatgen")

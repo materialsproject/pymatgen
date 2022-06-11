@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
@@ -33,7 +32,7 @@ class Stress(SquareTensor):
 
     def __new__(cls, stress_matrix):
         """
-        Create a Stress object.  Note that the constructor uses __new__
+        Create a Stress object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 

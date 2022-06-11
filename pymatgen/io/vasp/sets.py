@@ -5,7 +5,7 @@
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
 of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
-high throughput project.  The basic concept behind an input set is to specify
+high throughput project. The basic concept behind an input set is to specify
 a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
@@ -38,6 +38,8 @@ The above are recommendations. The following are UNBREAKABLE rules:
    ensures the as_dict and from_dict work correctly.
 """
 
+from __future__ import annotations
+
 import abc
 import glob
 import itertools
@@ -48,7 +50,7 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import List, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -122,14 +124,10 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         for psingle in potcar:
             if self.potcar_functional not in psingle.identify_potcar()[0]:
                 warnings.warn(
-                    "POTCAR data with symbol {} is not known by pymatgen to\
-                    correspond with the selected potcar_functional {}. This POTCAR\
-                    is known to correspond with functionals {}. Please verify that\
-                    you are using the right POTCARs!".format(
-                        psingle.symbol,
-                        self.potcar_functional,
-                        psingle.identify_potcar(mode="data")[0],
-                    ),
+                    f"POTCAR data with symbol {psingle.symbol} is not known by pymatgen to\
+                    correspond with the selected potcar_functional {self.potcar_functional}. This POTCAR\
+                    is known to correspond with functionals {psingle.identify_potcar(mode='data')[0]}. "
+                    f"Please verify that you are using the right POTCARs!",
                     BadInputSetWarning,
                 )
 
@@ -188,7 +186,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             }.items():
                 if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(v.__str__())
+                        f.write(str(v))
         else:
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
@@ -196,11 +194,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         cifname = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
+            cifname = Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif")
             s.to(filename=cifname)
 
         if zip_output:
-            filename = self.__class__.__name__ + ".zip"
+            filename = type(self).__name__ + ".zip"
             with ZipFile(os.path.join(output_dir, filename), "w") as zip:
                 for file in [
                     "INCAR",
@@ -397,9 +395,7 @@ class DictSet(VaspInputSet):
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
                 raise KeyError(
-                    "Invalid or unsupported van-der-Waals "
-                    "functional. Supported functionals are "
-                    "%s." % vdw_par.keys()
+                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {vdw_par.keys()}."
                 )
         # read the POTCAR_FUNCTIONAL from the .yaml
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
@@ -638,7 +634,7 @@ class DictSet(VaspInputSet):
         return nelect
 
     @property
-    def kpoints(self) -> Union[Kpoints, None]:
+    def kpoints(self) -> Kpoints | None:
         """
         Returns a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
@@ -713,10 +709,10 @@ class DictSet(VaspInputSet):
         return int(nbands)
 
     def __str__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def __repr__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def write_input(
         self,
@@ -753,15 +749,15 @@ class DictSet(VaspInputSet):
             with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
 
-    def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
+    def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> tuple:
         """
         Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
 
         Args:
             max_prime_factor (int): the valid prime factors of the grid size in each direction
-                                    VASP has many different setting for this to handle many compiling options.
-                                    For typical MPI options all prime factors up to 7 are allowed
+                VASP has many different setting for this to handle many compiling options.
+                For typical MPI options all prime factors up to 7 are allowed
         """
 
         # TODO throw error for Ultrasoft potentials
@@ -776,8 +772,7 @@ class DictSet(VaspInputSet):
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max(i_species.enmax for i_species in self.get_vasp_input().potcar)
-        #
+            encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
 
         _CUTOF = [
             np.sqrt(encut / _RYTOEV) / (2 * _PI / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc
@@ -839,7 +834,7 @@ def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool 
     raise ValueError("No factorable number found, not possible.")
 
 
-def primes_less_than(max_val: int) -> List[int]:
+def primes_less_than(max_val: int) -> list[int]:
     """
     Get the primes less than or equal to the max value
     """
@@ -1161,7 +1156,7 @@ class MPStaticSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Optional[Kpoints]:
+    def kpoints(self) -> Kpoints | None:
         """
         :return: Kpoints
         """
@@ -1622,7 +1617,7 @@ class MPNonSCFSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Optional[Kpoints]:
+    def kpoints(self) -> Kpoints | None:
         """
         :return: Kpoints
         """
@@ -1939,7 +1934,9 @@ class MPNMRSet(MPStaticSet):
 
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
-            quad_efg = [Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None)) for p in self.poscar.site_symbols]
+            quad_efg = [
+                float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))) for p in self.poscar.site_symbols
+            ]
 
             incar.update(
                 {
@@ -2023,7 +2020,7 @@ class MVLGWSet(DictSet):
         ncores=16,
         **kwargs,
     ):
-        r"""
+        """
         Args:
             structure (Structure): Input structure.
             prev_incar (Incar/string): Incar file from previous run.
@@ -2268,7 +2265,7 @@ class MVLGBSet(MPRelaxSet):
     """
 
     def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
-        r"""
+        """
 
         Args:
             structure(Structure): provide the structure
@@ -2515,7 +2512,7 @@ class MITMDSet(MITRelaxSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
-        r"""
+        """
 
         Args:
             structure (Structure): Input structure.
@@ -2596,7 +2593,7 @@ class MPMDSet(MPRelaxSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): Input structure.
             start_temp (int): Starting temperature.
@@ -2676,7 +2673,7 @@ class MVLNPTMDSet(MITMDSet):
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): input structure.
             start_temp (int): Starting temperature.
@@ -2692,7 +2689,7 @@ class MVLNPTMDSet(MITMDSet):
 
         # NPT-AIMD default settings
         defaults = {
-            "IALGO": 48,
+            "ALGO": "Fast",
             "ISIF": 3,
             "LANGEVIN_GAMMA": [10] * structure.ntypesp,
             "LANGEVIN_GAMMA_L": 1,
@@ -2733,7 +2730,7 @@ class MVLScanRelaxSet(MPRelaxSet):
     """
 
     def __init__(self, structure, **kwargs):
-        r"""
+        """
         Args:
             structure (Structure): input structure.
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile

@@ -22,7 +22,7 @@ from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
-    from seekpath import get_path  # type: ignore
+    from seekpath import get_path
 except ImportError:
     get_path = None
 
@@ -97,7 +97,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
-        the kpoints along the paths in cartesian coordinates
+        the kpoints along the paths in Cartesian coordinates
         together with the labels for symmetry points -Wei.
         """
         list_k_points = []
@@ -215,9 +215,9 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.orc()
 
             elif "F" in spg_symbol:
-                if 1 / a ** 2 > 1 / b ** 2 + 1 / c ** 2:
+                if 1 / a**2 > 1 / b**2 + 1 / c**2:
                     self._kpath = self.orcf1(a, b, c)
-                elif 1 / a ** 2 < 1 / b ** 2 + 1 / c ** 2:
+                elif 1 / a**2 < 1 / b**2 + 1 / c**2:
                     self._kpath = self.orcf2(a, b, c)
                 else:
                     self._kpath = self.orcf3(a, b, c)
@@ -255,11 +255,11 @@ class KPathSetyawanCurtarolo(KPathBase):
                 if kgamma == 90:
                     self._kpath = self.mclc2(a, b, c, alpha * pi / 180)
                 if kgamma < 90:
-                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 < 1:
+                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 < 1:
                         self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
-                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 == 1:
+                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 == 1:
                         self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
-                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
+                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
                 warn(f"Unexpected value for spg_symbol: {spg_symbol}")
@@ -376,7 +376,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         BCT1 Path
         """
         self.name = "BCT1"
-        eta = (1 + c ** 2 / a ** 2) / 4.0
+        eta = (1 + c**2 / a**2) / 4.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "M": np.array([-0.5, 0.5, 0.5]),
@@ -394,8 +394,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         BCT2 Path
         """
         self.name = "BCT2"
-        eta = (1 + a ** 2 / c ** 2) / 4.0
-        zeta = a ** 2 / (2 * c ** 2)
+        eta = (1 + a**2 / c**2) / 4.0
+        zeta = a**2 / (2 * c**2)
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "N": np.array([0.0, 0.5, 0.0]),
@@ -453,8 +453,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORFC1 Path
         """
         self.name = "ORCF1"
-        zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
-        eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
+        zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
+        eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
 
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -480,9 +480,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORFC2 Path
         """
         self.name = "ORCF2"
-        phi = (1 + c ** 2 / b ** 2 - c ** 2 / a ** 2) / 4
-        eta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
-        delta = (1 + b ** 2 / a ** 2 - b ** 2 / c ** 2) / 4
+        phi = (1 + c**2 / b**2 - c**2 / a**2) / 4
+        eta = (1 + a**2 / b**2 - a**2 / c**2) / 4
+        delta = (1 + b**2 / a**2 - b**2 / c**2) / 4
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "C": np.array([0.5, 0.5 - eta, 1 - eta]),
@@ -510,8 +510,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORFC3 Path
         """
         self.name = "ORCF3"
-        zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
-        eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
+        zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
+        eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([0.5, 0.5 + zeta, zeta]),
@@ -535,10 +535,10 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORCI Path
         """
         self.name = "ORCI"
-        zeta = (1 + a ** 2 / c ** 2) / 4
-        eta = (1 + b ** 2 / c ** 2) / 4
-        delta = (b ** 2 - a ** 2) / (4 * c ** 2)
-        mu = (a ** 2 + b ** 2) / (4 * c ** 2)
+        zeta = (1 + a**2 / c**2) / 4
+        eta = (1 + b**2 / c**2) / 4
+        delta = (b**2 - a**2) / (4 * c**2)
+        mu = (a**2 + b**2) / (4 * c**2)
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "L": np.array([-mu, mu, 0.5 - delta]),
@@ -566,7 +566,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         ORCC Path
         """
         self.name = "ORCC"
-        zeta = (1 + a ** 2 / b ** 2) / 4
+        zeta = (1 + a**2 / b**2) / 4
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([zeta, zeta, 0.5]),
@@ -706,7 +706,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        psi = 0.75 - a ** 2 / (4 * b ** 2 * sin(alpha) ** 2)
+        psi = 0.75 - a**2 / (4 * b**2 * sin(alpha) ** 2)
         phi = psi + (0.75 - psi) * b * cos(alpha) / c
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -742,7 +742,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        psi = 0.75 - a ** 2 / (4 * b ** 2 * sin(alpha) ** 2)
+        psi = 0.75 - a**2 / (4 * b**2 * sin(alpha) ** 2)
         phi = psi + (0.75 - psi) * b * cos(alpha) / c
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -775,8 +775,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         MCLC3 Path
         """
         self.name = "MCLC3"
-        mu = (1 + b ** 2 / a ** 2) / 4.0
-        delta = b * c * cos(alpha) / (2 * a ** 2)
+        mu = (1 + b**2 / a**2) / 4.0
+        delta = b * c * cos(alpha) / (2 * a**2)
         zeta = mu - 0.25 + (1 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
@@ -812,8 +812,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         MCLC4 Path
         """
         self.name = "MCLC4"
-        mu = (1 + b ** 2 / a ** 2) / 4.0
-        delta = b * c * cos(alpha) / (2 * a ** 2)
+        mu = (1 + b**2 / a**2) / 4.0
+        delta = b * c * cos(alpha) / (2 * a**2)
         zeta = mu - 0.25 + (1 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
@@ -849,12 +849,12 @@ class KPathSetyawanCurtarolo(KPathBase):
         MCLC5 Path
         """
         self.name = "MCLC5"
-        zeta = (b ** 2 / a ** 2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
+        zeta = (b**2 / a**2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        mu = eta / 2 + b ** 2 / (4 * a ** 2) - b * c * cos(alpha) / (2 * a ** 2)
+        mu = eta / 2 + b**2 / (4 * a**2) - b * c * cos(alpha) / (2 * a**2)
         nu = 2 * mu - zeta
-        rho = 1 - zeta * a ** 2 / b ** 2
-        omega = (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2) * c / (2 * b * cos(alpha))
+        rho = 1 - zeta * a**2 / b**2
+        omega = (4 * nu - 1 - b**2 * sin(alpha) ** 2 / a**2) * c / (2 * b * cos(alpha))
         delta = zeta * c * cos(alpha) / b + omega / 2 - 0.25
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -1167,8 +1167,8 @@ class KPathLatimerMunro(KPathBase):
         # 1: Get lattices of real and reciprocal structures, and reciprocal
         # point group, and Brillouin zone (BZ)
 
-        V = self._latt.matrix.T  # fractional real space to cartesian real space
-        # fractional reciprocal space to cartesian reciprocal space
+        V = self._latt.matrix.T  # fractional real space to Cartesian real space
+        # fractional reciprocal space to Cartesian reciprocal space
         W = self._rec_lattice.matrix.T
         # fractional real space to fractional reciprocal space
         A = np.dot(np.linalg.inv(W), V)
@@ -1476,7 +1476,7 @@ class KPathLatimerMunro(KPathBase):
         face_center_inds = []
         bz_as_key_point_inds = []
 
-        # pymatgen gives BZ in cartesian coordinates; convert to fractional in
+        # pymatgen gives BZ in Cartesian coordinates; convert to fractional in
         # the primitive basis for reciprocal space
         for (i, facet) in enumerate(bz):
             for (j, vert) in enumerate(facet):
@@ -1845,7 +1845,7 @@ class KPathLatimerMunro(KPathBase):
                 gH.append(op1)
 
         for op in gH:
-            opH = [op.__mul__(h) for h in H]
+            opH = [op * h for h in H]
             is_coset_factor = True
             for op1 in opH:
                 for op2 in H:

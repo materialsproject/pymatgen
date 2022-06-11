@@ -1,32 +1,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import warnings
-
-"""
-Created on Mar 19, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
-
 import os
 import unittest
-import pytest  # type: ignore
-
+import warnings
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
+
+import pytest
 from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import (
     MU_H2O,
@@ -2407,7 +2394,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
         self.assertAlmostEqual(
             entry_fluoride_corrected.correction_uncertainty,
-            sqrt((3 * 0.0026) ** 2 + 0.0101 ** 2),
+            sqrt((3 * 0.0026) ** 2 + 0.0101**2),
         )
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)

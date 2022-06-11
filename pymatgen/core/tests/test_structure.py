@@ -6,10 +6,10 @@ import random
 import unittest
 import warnings
 from pathlib import Path
+from shutil import which
 
 import numpy as np
 import pytest
-from monty.os.path import which
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -55,6 +55,15 @@ class IStructureTest(PymatgenTest):
             validate_proximity=True,
         )
         self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
+
+        self.lattice_pbc = Lattice(
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ],
+            pbc=(True, True, False),
+        )
 
     @unittest.skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -331,6 +340,14 @@ class IStructureTest(PymatgenTest):
         s = Structure.from_spacegroup("R32:R", lattice, species, coordinate)
         self.assertEqual(s.formula, "Ni3 S2")
 
+        # test pbc
+        coords = [[0.85, 0.85, 0.85]]
+        coords2 = [[0.25, 0.25, 0.25]]
+        struct_pbc = IStructure(self.lattice_pbc, ["Si"], coords)
+        struct2_pbc = IStructure(self.lattice_pbc, ["Si"], coords2)
+        int_s_pbc = struct_pbc.interpolate(struct2_pbc, nimages=2)
+        self.assertArrayAlmostEqual(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
+
     def test_interpolate_lattice(self):
         coords = []
         coords.append([0, 0, 0])
@@ -506,6 +523,81 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assertArrayAlmostEqual(sorted(c_distances), sorted(p_distances))
 
+    # @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
+    # def test_get_all_neighbors_crosscheck_old(self):
+    #     warnings.simplefilter("ignore")
+    #     for i in range(100):
+    #         alpha, beta = np.random.rand(2) * 90
+    #         a, b, c = 3 + np.random.rand(3) * 5
+    #         species = ["H"] * 5
+    #         frac_coords = np.random.rand(5, 3)
+    #         try:
+    #             latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+    #             s = Structure.from_spacegroup("P1", latt,
+    #                                           species, frac_coords)
+    #             for nn_new, nn_old in zip(s.get_all_neighbors(4),
+    #                                       s.get_all_neighbors_old(4)):
+    #                 sites1 = [i[0] for i in nn_new]
+    #                 sites2 = [i[0] for i in nn_old]
+    #                 self.assertEqual(set(sites1), set(sites2))
+    #             break
+    #         except Exception as ex:
+    #             pass
+    #     else:
+    #         raise ValueError("No valid structure tested.")
+    #
+    #     from pymatgen.electronic_structure.core import Spin
+    #     d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+    #         'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
+    #                    [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461,
+    #                    'c': 7.6637,
+    #         'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
+    #         {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
+    #          'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
+    #          'label': 'Mn0+,spin=-1',
+    #          'properties': {}},
+    #         {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}],
+    #          'abc': [1.232595164407831e-32, 0.5, 0.5],
+    #          'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
+    #     struct = Structure.from_dict(d)
+    #     self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
+    #                      set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
+    #
+    #     warnings.simplefilter("default")
+
+    def test_get_symmetric_neighbor_list(self):
+        # tetragonal group with all bonds related by symmetry
+        s = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
+        c_indices, p_indices, offsets, distances, s_indices, symops = s.get_symmetric_neighbor_list(0.8, sg=100)
+        self.assertTrue(len(np.unique(s_indices)) == 1)
+        self.assertTrue(s_indices[0] == 0)
+        self.assertTrue((~np.isnan(s_indices)).all())
+        self.assertTrue((symops[0].affine_matrix == np.eye(4)).all())
+        # now more complicated example with bonds of same length but with different symmetry
+        s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ["Cu"], [[0.0, 0.0, 0.0]])
+        c_indices2, p_indices2, offsets2, distances2, s_indices2, symops2 = s2.get_symmetric_neighbor_list(7, sg=198)
+        self.assertTrue(len(np.unique(s_indices2)) == 2)
+        self.assertTrue(len(s_indices2) == 48)
+        self.assertTrue(len(s_indices2[s_indices2 == 0]) == len(s_indices2[s_indices2 == 1]))
+        self.assertTrue(s_indices2[0] == 0)
+        self.assertTrue(s_indices2[24] == 1)
+        self.assertTrue(np.isclose(distances2[0], distances2[24]))
+        self.assertTrue((symops2[0].affine_matrix == np.eye(4)).all())
+        self.assertTrue((symops2[24].affine_matrix == np.eye(4)).all())
+        from_a2 = s2[c_indices2[0]].frac_coords
+        to_a2 = s2[p_indices2[0]].frac_coords
+        r_a2 = offsets2[0]
+        from_b2 = s2[c_indices2[1]].frac_coords
+        to_b2 = s2[p_indices2[1]].frac_coords
+        r_b2 = offsets2[1]
+        self.assertTrue(symops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2))
+        self.assertTrue(symops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2))
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(
+            7, sg=198, unique=True
+        )
+        self.assertTrue((np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2)).all())
+        self.assertTrue((np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2)).all())
+
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(
             Lattice.cubic(2),
@@ -587,19 +679,30 @@ Direct
         self.assertTrue(os.path.exists("Si_testing.yaml"))
         s = Structure.from_file("Si_testing.yaml")
         self.assertEqual(s, self.struct)
-
-        self.assertRaises(ValueError, self.struct.to, filename="whatever")
-        self.assertRaises(ValueError, self.struct.to, fmt="badformat")
-
         # Test Path support.
         s = Structure.from_file(Path("Si_testing.yaml"))
         self.assertEqual(s, self.struct)
-        os.remove("Si_testing.yaml")
+
+        # Test .yml extension works too.
+        os.replace("Si_testing.yaml", "Si_testing.yml")
+        s = Structure.from_file("Si_testing.yml")
+        self.assertEqual(s, self.struct)
+        os.remove("Si_testing.yml")
+
+        self.assertRaises(ValueError, self.struct.to, filename="whatever")
+        self.assertRaises(ValueError, self.struct.to, fmt="badformat")
 
         self.struct.to(filename="POSCAR.testing.gz")
         s = Structure.from_file("POSCAR.testing.gz")
         self.assertEqual(s, self.struct)
         os.remove("POSCAR.testing.gz")
+
+    def test_pbc(self):
+        self.assertArrayEqual(self.struct.pbc, (True, True, True))
+        self.assertTrue(self.struct.is_3d_periodic)
+        struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
+        self.assertArrayEqual(struct_pbc.pbc, (True, True, False))
+        self.assertFalse(struct_pbc.is_3d_periodic)
 
 
 class StructureTest(PymatgenTest):
@@ -847,7 +950,7 @@ class StructureTest(PymatgenTest):
 
     def test_scale_lattice(self):
         initial_coord = self.structure[1].coords
-        self.structure.scale_lattice(self.structure.volume * 1.01 ** 3)
+        self.structure.scale_lattice(self.structure.volume * 1.01**3)
         self.assertArrayAlmostEqual(
             self.structure.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516),
@@ -863,6 +966,11 @@ class StructureTest(PymatgenTest):
 
         self.structure.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=False)
         self.assertArrayAlmostEqual(self.structure.frac_coords[0], [1.00187517, 1.25665291, 1.15946374])
+
+        lattice_pbc = Lattice(self.structure.lattice.matrix, pbc=(True, True, False))
+        struct_pbc = Structure(lattice_pbc, ["Si"], [[0.75, 0.75, 0.75]])
+        struct_pbc.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=True)
+        self.assertArrayAlmostEqual(struct_pbc.frac_coords[0], [0.25, 0.25, 1.25])
 
     def test_rotate_sites(self):
         self.structure.rotate_sites(
@@ -1405,6 +1513,19 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]], spin_multiplicity=3)
         self.assertEqual(mol.spin_multiplicity, 3)
 
+    def test_no_spin_check(self):
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+        ]
+        with pytest.raises(ValueError):
+            mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+        mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
+        self.assertEqual(mol.spin_multiplicity, 1)
+        self.assertEqual(mol.charge, 0)
+
     def test_equal(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         self.assertNotEqual(mol, self.mol)
@@ -1617,6 +1738,25 @@ class MoleculeTest(PymatgenTest):
         cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         self.assertEqual(mol.formula, "H8 C2")
         self.assertEqual(cluster.formula, "H4 C1")
+
+    def test_no_spin_check(self):
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+        ]
+        with pytest.raises(ValueError):
+            mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+        mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
+        with pytest.raises(ValueError):
+            mol_valid.set_charge_and_spin(0, 1)
+        mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
+        self.assertEqual(mol.spin_multiplicity, 1)
+        self.assertEqual(mol.charge, 0)
+        mol.set_charge_and_spin(0, 3)
+        self.assertEqual(mol.charge, 0)
+        self.assertEqual(mol.spin_multiplicity, 3)
 
 
 if __name__ == "__main__":

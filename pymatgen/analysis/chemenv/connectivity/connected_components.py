@@ -742,13 +742,8 @@ class ConnectedComponent(MSONable):
                 # Loop on neighbors of a node (from the tree used)
                 for inode_neighbor, node_neighbor in enumerate(node_neighbors):
                     logging.debug(
-                        "    Testing neighbor #{:d}/{:d} ({}) of node #{:d} ({})".format(
-                            inode_neighbor,
-                            len(node_neighbors),
-                            node_neighbor,
-                            inode,
-                            node,
-                        )
+                        f"    Testing neighbor #{inode_neighbor:d}/{len(node_neighbors):d} ({node_neighbor}) of "
+                        f"node #{inode:d} ({node})"
                     )
                     already_inside = False
                     ddeltas = []
@@ -766,9 +761,7 @@ class ConnectedComponent(MSONable):
                                     raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
                     logging.debug(
-                        "        ddeltas : {}".format(
-                            ", ".join(["({})".format(", ".join(str(ddd) for ddd in dd)) for dd in ddeltas])
-                        )
+                        "        ddeltas : " + ", ".join([f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas])
                     )
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError("Should not have more than one 000 delta ...")
@@ -783,12 +776,8 @@ class ConnectedComponent(MSONable):
                         nbunch=[node_neighbor], data=True, keys=True
                     )
                     logging.debug(
-                        "            Delta image from node {} to neighbor {} : "
-                        "{}".format(
-                            str(node),
-                            str(node_neighbor),
-                            "({})".format(", ".join([str(iii) for iii in myddelta])),
-                        )
+                        f"            Delta image from node {str(node)} to neighbor {str(node_neighbor)} : "
+                        f"({', '.join([str(iii) for iii in myddelta])})"
                     )
                     # Loop on the edges of this neighbor
                     for n1, n2, key, edata in node_neighbor_edges:
@@ -806,12 +795,8 @@ class ConnectedComponent(MSONable):
                             else:
                                 raise ValueError("DUHH")
                             logging.debug(
-                                "                  {} to node {} now has delta "
-                                "{}".format(
-                                    str(n1),
-                                    str(n2),
-                                    str(centered_connected_subgraph[n1][n2][key]["delta"]),
-                                )
+                                f"                  {n1} to node {n2} now has delta "
+                                f"{centered_connected_subgraph[n1][n2][key]['delta']}"
                             )
                 new_current_nodes.extend(node_neighbors)
                 nodes_traversed.extend(node_neighbors)
@@ -871,7 +856,7 @@ class ConnectedComponent(MSONable):
             edata (dict): Edge data dictionary with possibly the above tuples as lists.
 
         Returns:
-            dict: Edge data dictionary with the lists tranformed back into tuples when applicable.
+            dict: Edge data dictionary with the lists transformed back into tuples when applicable.
         """
         edata["delta"] = tuple(edata["delta"])
         edata["ligands"] = [tuple([lig[0], tuple(lig[1]), tuple(lig[2])]) for lig in edata["ligands"]]
@@ -898,8 +883,8 @@ class ConnectedComponent(MSONable):
                     ied = self._edgekey_to_edgedictkey(ie)
                     new_dict_of_dicts[in1][in2][ied] = jsanitize(edge_data)
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "nodes": {strindex: (node.as_dict(), data) for strindex, (node, data) in nodes.items()},
             "graph": new_dict_of_dicts,
         }

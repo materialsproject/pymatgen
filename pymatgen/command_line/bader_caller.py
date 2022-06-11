@@ -6,8 +6,8 @@ This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.
 
 This module depends on a compiled bader executable available in the path.
-Please download the library at http://theory.cm.utexas.edu/vasp/bader/ and
-follow the instructions to compile the executable.
+Please download the library at http://theory.cm.utexas.edu/henkelman/code/bader/
+and follow the instructions to compile the executable.
 
 If you use this module, please cite the following:
 
@@ -20,11 +20,11 @@ import os
 import shutil
 import subprocess
 import warnings
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.io import zopen
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.io.cube import Cube

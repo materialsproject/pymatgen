@@ -17,10 +17,10 @@ import pandas as pd
 from monty.json import MSONable, jsanitize
 from monty.serialization import dumpfn
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "ncfrey"
@@ -400,7 +400,7 @@ class HeisenbergMapper:
             return ex_params
 
         # Solve eigenvalue problem for more than 1 NN interaction
-        H = ex_mat.loc[:, ex_mat.columns != "E"].values
+        H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype("float64")
         H_inv = np.linalg.inv(H)
         j_ij = np.dot(H_inv, E)
 
@@ -509,7 +509,7 @@ class HeisenbergMapper:
         # fm_e = fm_e / len(magmoms)
         # afm_e = afm_e / len(afm_magmoms)
 
-        m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
+        m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
 
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
@@ -521,7 +521,7 @@ class HeisenbergMapper:
             logging.warning(iamthedanger)
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        j_avg = delta_e / (m_avg ** 2)  # eV / magnetic ion
+        j_avg = delta_e / (m_avg**2)  # eV / magnetic ion
         j_avg *= 1000  # meV / ion
 
         return j_avg
@@ -801,7 +801,7 @@ class HeisenbergScreener:
         #             remove_list.append(i)
 
         # Remove duplicates
-        if len(remove_list):
+        if len(remove_list) > 0:
             ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
             energies = [e for i, e in enumerate(energies) if i not in remove_list]
 

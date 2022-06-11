@@ -5,13 +5,15 @@
 Parsers for Qchem output files.
 """
 
+from __future__ import annotations
+
 import copy
 import logging
 import math
 import os
 import re
 import warnings
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 
 import networkx as nx
 import numpy as np
@@ -269,6 +271,8 @@ class QCOutput(MSONable):
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*opt"}).get("key")
         if self.data.get("optimization", []):
+            # Determine if the calculation is using the new geometry optimizer
+            self.data["new_optimizer"] = read_pattern(self.text, {"key": r"(?i)\s*geom_opt2\s*(?:=)*\s*3"}).get("key")
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output
@@ -477,6 +481,7 @@ class QCOutput(MSONable):
                 r"(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*"
                 r"(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*"
                 r"(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*"
+                r"(?:\s+Done GDM. Switching to DIIS)*"
                 r"(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*"
                 r"(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
                 r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, "
@@ -626,116 +631,82 @@ class QCOutput(MSONable):
             self.data["warnings"]["mkl"] = True
 
         # Check if the job is being hindered by a lack of analytical derivatives
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"Starting finite difference calculation for IDERIV"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"Starting finite difference calculation for IDERIV"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["missing_analytical_derivates"] = True
 
         # Check if the job is complaining about MO files of inconsistent size
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"Inconsistent size for SCF MO coefficient file"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"Inconsistent size for SCF MO coefficient file"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["inconsistent_size"] = True
 
         # Check for AO linear depend
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"Linear dependence detected in AO basis"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
             self.data["warnings"]["linear_dependence"] = True
 
         # Check for Hessian without desired local structure
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*WARNING\*\* Hessian does not have the Desired Local Structure"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*WARNING\*\* Hessian does not have the Desired Local Structure"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["hessian_local_structure"] = True
 
         # Check if GetCART cycle iterations ever exceeded
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*\*ERROR\*\*\* Exceeded allowed number of iterative cycles in GetCART"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*\*ERROR\*\*\* Exceeded allowed number of iterative cycles in GetCART"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["GetCART_cycles"] = True
 
         # Check for problems with internal coordinates
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*WARNING\*\* Problems with Internal Coordinates"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*WARNING\*\* Problems with Internal Coordinates"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["internal_coordinates"] = True
 
         # Check for problem with eigenvalue magnitude
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
             self.data["warnings"]["eigenvalue_magnitude"] = True
 
         # Check for problem with hereditary postivive definiteness
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*WARNING\*\* Hereditary positive definiteness endangered"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*WARNING\*\* Hereditary positive definiteness endangered"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["positive_definiteness_endangered"] = True
 
         # Check if there were problems with a colinear bend
-        if (
-            read_pattern(
-                self.text,
-                {
-                    "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+"
-                    r"But No atom available to define colinear bend"
-                },
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {
+                "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+"
+                r"But No atom available to define colinear bend"
+            },
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["colinear_bend"] = True
 
         # Check if there were problems diagonalizing B*B(t)
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*\*ERROR\*\*\* Unable to Diagonalize B\*B\(t\) in <MakeNIC>"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*\*ERROR\*\*\* Unable to Diagonalize B\*B\(t\) in <MakeNIC>"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["diagonalizing_BBt"] = True
 
     def _read_geometries(self):
@@ -743,10 +714,14 @@ class QCOutput(MSONable):
         Parses all geometries from an optimization trajectory.
         """
         geoms = []
-        header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-        table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
-
+        if self.data.get("new_optimizer") is None:
+            header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
+        else:  # pylint: disable=line-too-long
+            header_pattern = r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         parsed_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         for ii, parsed_geometry in enumerate(parsed_geometries):
             if not parsed_geometry:
@@ -764,10 +739,16 @@ class QCOutput(MSONable):
             )
 
         # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-        header_pattern = r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-        table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Z-matrix Print:"
-
+        if self.data.get("new_optimizer") is None:
+            header_pattern = (
+                r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            )
+            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer_pattern = r"\s+Z-matrix Print:"
+        else:  # pylint: disable=line-too-long
+            header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
         if not parsed_optimized_geometries:
@@ -883,9 +864,21 @@ class QCOutput(MSONable):
             self.data["CDS_gradients"] = None
 
     def _read_optimization_data(self):
-        temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
+        if self.data.get("new_optimizer") is None:
+            temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
+        else:
+            temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
+                "key"
+            )
+            # Formatting of the new optimizer means we need to prepend the first energy
+            if temp_energy_trajectory is not None:
+                temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
+            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                "key"
+            ) == [[]]:
+                self.data["errors"] += ["back_transform_error"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
             for ii, entry in enumerate(temp_energy_trajectory):
@@ -900,30 +893,34 @@ class QCOutput(MSONable):
             self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
             # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-            # to be determined.
+            # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0
                 and self.data.get("optimized_geometry") is None
                 and len(self.data.get("optimized_zmat")) == 0
             ):
-                if (
-                    read_pattern(
-                        self.text,
-                        {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
-                        terminate_on_match=True,
-                    ).get("key")
-                    == [[]]
-                ):
+                if read_pattern(
+                    self.text,
+                    {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
+                    terminate_on_match=True,
+                ).get("key") == [[]]:
                     self.data["errors"] += ["out_of_opt_cycles"]
-                elif (
-                    read_pattern(
-                        self.text,
-                        {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
-                        terminate_on_match=True,
-                    ).get("key")
-                    == [[]]
-                ):
+                elif read_pattern(
+                    self.text,
+                    {"key": r"Maximum number of iterations reached during minimization algorithm"},
+                    terminate_on_match=True,
+                ).get("key") == [[]]:
+                    self.data["errors"] += ["out_of_opt_cycles"]
+                elif read_pattern(
+                    self.text,
+                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                    terminate_on_match=True,
+                ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
+                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                    "key"
+                ) == [[]]:
+                    self.data["errors"] += ["back_transform_error"]
 
     def _read_frequency_data(self):
         """
@@ -1323,67 +1320,49 @@ class QCOutput(MSONable):
         """
         Parses potential errors that can cause jobs to crash
         """
-        if (
-            read_pattern(
-                self.text,
-                {"key": r"Coordinates do not transform within specified threshold"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        if read_pattern(
+            self.text,
+            {"key": r"Coordinates do not transform within specified threshold"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["failed_to_transform_coords"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"The Q\-Chem input file has failed to pass inspection"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"The Q\-Chem input file has failed to pass inspection"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["input_file_error"]
         elif read_pattern(self.text, {"key": r"Error opening input stream"}, terminate_on_match=True).get("key") == [
             []
         ]:
             self.data["errors"] += ["failed_to_read_input"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"FileMan error: End of file reached prematurely"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"FileMan error: End of file reached prematurely"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["premature_end_FileMan_error"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"need to increase the array of NLebdevPts"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"need to increase the array of NLebdevPts"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["NLebdevPts"]
         elif read_pattern(self.text, {"key": r"method not available"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["method_not_available"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"Could not find \$molecule section in ParseQInput"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"Could not find \$molecule section in ParseQInput"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["read_molecule_error"]
         elif read_pattern(self.text, {"key": r"Welcome to Q-Chem"}, terminate_on_match=True).get("key") != [[]]:
             self.data["errors"] += ["never_called_qchem"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"\*\*\*ERROR\*\*\* Hessian Appears to have all zero or negative eigenvalues"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"\*\*\*ERROR\*\*\* Hessian Appears to have all zero or negative eigenvalues"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["hessian_eigenvalue_error"]
         elif read_pattern(self.text, {"key": r"FlexNet Licensing error"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["licensing_error"]
@@ -1391,51 +1370,50 @@ class QCOutput(MSONable):
             []
         ]:
             self.data["errors"] += ["licensing_error"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"Could not open driver file in ReadDriverFromDisk"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"Could not open driver file in ReadDriverFromDisk"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["driver_error"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"Basis not supported for the above atom"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
             self.data["errors"] += ["basis_not_supported"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"Unable to find relaxed density"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"Out of Iterations- IterZ"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
-        elif (
-            read_pattern(
-                self.text,
-                {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
-                terminate_on_match=True,
-            ).get("key")
-            == [[]]
-        ):
+        elif read_pattern(
+            self.text,
+            {"key": r"RUN_NBO6 \(rem variable\) is not correct"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["errors"] += ["bad_old_nbo6_rem"]
+        elif read_pattern(
+            self.text,
+            {"key": r"NBO_EXTERNAL \(rem variable\) is not correct"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["errors"] += ["bad_new_nbo_external_rem"]
+        elif read_pattern(
+            self.text,
+            {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["gdm_neg_precon_error"]
+        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["esp_chg_fit_error"]
+        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["mem_static_too_small"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,
@@ -1495,7 +1473,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
             )
             special_elements = []
 
-    special_sites: List[List] = [[], []]
+    special_sites: list[list] = [[], []]
     for ii, mol in enumerate(mol_list):
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
@@ -1503,7 +1481,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
                 special_sites[ii].append([jj, site, distances])
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
-                mol.__delitem__(jj)
+                del mol[jj]
 
     # Can add logic to check the distances in the future if desired
 
@@ -1523,7 +1501,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     return "bond_change"
 
 
-def jump_to_header(lines: List[str], header: str) -> List[str]:
+def jump_to_header(lines: list[str], header: str) -> list[str]:
     """
     Given a list of lines, truncate the start of the list so that the first line
     of the new list contains the header.
@@ -1595,7 +1573,7 @@ def z_int(string: str) -> int:
         return -1
 
 
-def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
+def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the natural populations section of NBO output.
 
@@ -1658,7 +1636,7 @@ def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
     return pop_dfs
 
 
-def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
+def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the hybridization character section of NBO output.
 
@@ -1708,6 +1686,8 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                 if "NHO DIRECTIONALITY AND BOND BENDING" in line:
                     break
                 if "Archival summary:" in line:
+                    break
+                if "3-Center, 4-Electron A:-B-:C Hyperbonds (A-B :C <=> A: B-C)" in line:
                     break
 
                 # Lone pair
@@ -1804,7 +1784,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
     return lp_and_bd_dfs
 
 
-def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
+def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the perturbation energy section of NBO output.
 
@@ -1858,6 +1838,8 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                     continue
                 if "None" in line:
                     continue
+                if "3C" in line:
+                    continue
 
                 # Extract the values
                 entry = {}  # type: Dict[str, Union[str, int, float]]
@@ -1894,7 +1876,13 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                     entry["acceptor atom 1 number"] = int(line[44:47].strip())
                     entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
                     entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
-                    entry["perturbation energy"] = float(line[53:63].strip())
+                    try:
+                        entry["perturbation energy"] = float(line[53:63].strip())
+                    except ValueError:
+                        if line[53:63].strip() == "*******":
+                            entry["perturbation energy"] = float("inf")
+                        else:
+                            raise ValueError("Unknown value error in parsing perturbation energy")
                     entry["energy difference"] = float(line[63:71].strip())
                     entry["fock matrix element"] = float(line[71:79].strip())
                 e2_data.append(entry)
@@ -1905,7 +1893,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
     return e2_dfs
 
 
-def nbo_parser(filename: str) -> Dict[str, List[pd.DataFrame]]:
+def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     """
     Parse all the important sections of NBO output.
 

@@ -55,14 +55,14 @@ class AbstractEnvironmentNode(MSONable):
 
     def __lt__(self, other):
         # This simple "Less Than" operator allows to strictly sort environment nodes in a graph.
-        # This is useful (and actually neeeded) in the definition of the cycles but does not have
+        # This is useful (and actually needed) in the definition of the cycles but does not have
         # any real meaning of a "lower value" environment node.
         return self.isite < other.isite
 
     def everything_equal(self, other):
         """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
         as well as the central site itself."""
-        return self.__eq__(other) and self.central_site == other.central_site
+        return self == other and self.central_site == other.central_site
 
     @property
     @abc.abstractmethod

@@ -3,11 +3,14 @@
 """
 Classes for writing XTB input files
 """
+
+from __future__ import annotations
+
 import logging
 import os
-from typing import Dict, Optional, Union, List
 
 from monty.json import MSONable
+
 from pymatgen.core import Molecule
 
 __author__ = "Alex Epstein"
@@ -32,8 +35,8 @@ class CRESTInput(MSONable):
         self,
         molecule: Molecule,
         working_dir: str = ".",
-        coords_filename: Optional[str] = "crest_in.xyz",
-        constraints: Optional[Dict[str, Union[List[int], float]]] = None,
+        coords_filename: str | None = "crest_in.xyz",
+        constraints: dict[str, list[int] | float] | None = None,
     ):
         """
 

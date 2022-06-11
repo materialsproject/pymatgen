@@ -4,7 +4,7 @@
 """
 Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 """
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 import numpy as np
 from monty.dev import requires
@@ -17,7 +17,10 @@ from pymatgen.phonon.bandstructure import (
     PhononBandStructureSymmLine,
 )
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
-from pymatgen.phonon.gruneisen import GruneisenParameter, GruneisenPhononBandStructureSymmLine
+from pymatgen.phonon.gruneisen import (
+    GruneisenParameter,
+    GruneisenPhononBandStructureSymmLine,
+)
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 try:
@@ -30,7 +33,7 @@ except ImportError:
     PhonopyAtoms = None
 
 
-@requires(Phonopy, "phonopy not installed!")  # type: ignore
+@requires(Phonopy, "phonopy not installed!")
 def get_pmg_structure(phonopy_structure):
     """
     Convert a PhonopyAtoms object to pymatgen Structure object.
@@ -55,7 +58,7 @@ def get_pmg_structure(phonopy_structure):
     )
 
 
-@requires(Phonopy, "phonopy not installed!")  # type: ignore
+@requires(Phonopy, "phonopy not installed!")
 def get_phonopy_structure(pmg_structure):
     """
     Convert a pymatgen Structure object to a PhonopyAtoms object.

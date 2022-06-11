@@ -609,7 +609,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__setitem__(key, value)
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}>"
+        return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_string()
@@ -827,7 +827,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             )
 
     def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        r"""
+        """
         String representation.
 
         Args:
@@ -1159,7 +1159,7 @@ class BasicMultiDataset:
         if m is None:
             raise AttributeError(
                 "Cannot find attribute %s. Tried in %s and then in BasicAbinitInput object"
-                % (self.__class__.__name__, name)
+                % (type(self).__name__, name)
             )
         isattr = not callable(m)
 
@@ -1298,8 +1298,7 @@ class BasicMultiDataset:
                     exclude=global_vars,
                 )
                 if s:
-                    header = len(header) * "#" + "\n" + header + "\n" + len(header) * "#" + "\n"
-                    s = "\n" + header + s + "\n"
+                    s = f"\n{len(header) * '#'}\n{header}\n{len(header) * '#'}\n{s}\n"
 
                 lines.append(s)
 

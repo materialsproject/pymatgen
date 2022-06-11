@@ -11,8 +11,8 @@ Only point particle styles are supported for now (atom_style in angle,
 atomic, bond, charge, full and molecular only). See the pages below for
 more info.
 
-    http://lammps.sandia.gov/doc/atom_style.html
-    http://lammps.sandia.gov/doc/read_data.html
+    https://docs.lammps.org/atom_style.html
+    https://docs.lammps.org/read_data.html
 
 """
 
@@ -24,7 +24,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from monty.dev import deprecated
+from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
@@ -168,7 +168,7 @@ class LammpsBox(MSONable):
             String representation
 
         """
-        ph = "{:.%df}" % significant_figures
+        ph = f"{{:.{significant_figures}f}}"
         lines = []
         for bound, d in zip(self.bounds, "xyz"):
             fillers = bound + [d] * 2
@@ -225,10 +225,10 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
     xhi = a + xlo
     m = lattice.matrix
     xy = np.dot(m[1], m[0] / a)
-    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    yhi = np.sqrt(b**2 - xy**2) + ylo
     xz = np.dot(m[2], m[0] / a)
     yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
-    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    zhi = np.sqrt(c**2 - xz**2 - yz**2) + zlo
     tilt = None if lattice.is_orthogonal else [xy, xz, yz]
     rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0], [xy, yhi - ylo, 0], [xz, yz, zhi - zlo]], m)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
@@ -353,7 +353,7 @@ class LammpsData(MSONable):
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
-                use False to speedup the process. Otherwise the
+                use False to speed up the process. Otherwise, the
                 default is recommended.
 
         Returns:
@@ -394,19 +394,19 @@ class LammpsData(MSONable):
                     counts[kw.lower()] = len(self.topology[kw])
 
         all_stats = list(counts.values()) + list(types.values())
-        stats_template = "{:>%d}  {}" % len(str(max(all_stats)))
-        count_lines = [stats_template.format(v, k) for k, v in counts.items()]
-        type_lines = [stats_template.format(v, k + " types") for k, v in types.items()]
+        right_indent = len(str(max(all_stats)))
+        count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
+        type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
         stats = "\n".join(count_lines + [""] + type_lines)
 
         def map_coords(q):
-            return ("{:.%df}" % distance).format(q)
+            return f"{q:.{distance}f}"
 
         def map_velos(q):
-            return ("{:.%df}" % velocity).format(q)
+            return f"{q:.{velocity}f}"
 
         def map_charges(q):
-            return ("{:.%df}" % charge).format(q)
+            return f"{q:.{charge}f}"
 
         float_format = "{:.9f}".format
         float_format_2 = "{:.1f}".format
@@ -665,7 +665,7 @@ class LammpsData(MSONable):
                 True.
 
         """
-        with open(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
@@ -1042,7 +1042,7 @@ class ForceField(MSONable):
             topo_coeffs (dict): Dict with force field coefficients for
                 molecular topologies. Optional with default
                 to None. All four valid keys listed below are optional.
-                Each value is a list of dicts with non optional keys
+                Each value is a list of dicts with non-optional keys
                 "coeffs" and "types", and related class2 force field
                 keywords as optional keys.
                 {
@@ -1119,11 +1119,7 @@ class ForceField(MSONable):
             id_df = pd.DataFrame(ids, columns=["id1", "id2"])
             pair_df = pd.concat([id_df, pair_df], axis=1)
         else:
-            raise ValueError(
-                "Expecting {} Pair Coeffs or "
-                "{} PairIJ Coeffs for {} atom types,"
-                " got {}".format(nm, ncomb, nm, npair)
-            )
+            raise ValueError(f"Expecting {nm} Pair Coeffs or {ncomb} PairIJ Coeffs for {nm} atom types, got {npair}")
         return {kw: pair_df}
 
     def _process_topo(self, kw):
@@ -1385,7 +1381,7 @@ class CombinedData(LammpsData):
             pandas.DataFrame
 
         """
-        with open(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
@@ -1468,7 +1464,7 @@ class CombinedData(LammpsData):
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
-                use False to speedup the process. Otherwise the
+                use False to speed up the process. Otherwise, the
                 default is recommended.
 
         Returns:
@@ -1509,54 +1505,3 @@ class CombinedData(LammpsData):
         if self.topology:
             items["topology"] = {k: v.copy() for k, v in self.topology.items() if k in SECTION_KEYWORDS["topology"]}
         return LammpsData(**items)
-
-
-@deprecated(
-    LammpsData.from_structure,
-    "structure_2_lmpdata has been deprecated in favor of LammpsData.from_structure",
-)
-def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge", is_sort=False):
-    """
-    Converts a structure to a LammpsData object with no force field
-    parameters and topologies.
-
-    Args:
-        structure (Structure): Input structure.
-        ff_elements ([str]): List of strings of elements that must be
-            present due to force field settings but not necessarily in
-            the structure. Default to None.
-        atom_style (str): Choose between "atomic" (neutral) and
-            "charge" (charged). Default to "charge".
-        is_sort (bool): whether to sort the structure sites
-    Returns:
-        LammpsData
-
-    """
-    if is_sort:
-        s = structure.get_sorted_structure()
-    else:
-        s = structure.copy()
-
-    a, b, c = s.lattice.abc
-    m = s.lattice.matrix
-    xhi = a
-    xy = np.dot(m[1], m[0] / xhi)
-    yhi = np.sqrt(b ** 2 - xy ** 2)
-    xz = np.dot(m[2], m[0] / xhi)
-    yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
-    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
-    box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
-    box_tilt = [xy, xz, yz]
-    box_tilt = None if not any(box_tilt) else box_tilt
-    box = LammpsBox(box_bounds, box_tilt)
-    new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-    s.lattice = new_latt
-
-    symbols = list(s.symbol_set)
-    if ff_elements:
-        symbols.extend(ff_elements)
-    elements = sorted(Element(el) for el in set(symbols))
-    mass_info = [tuple([i.symbol] * 2) for i in elements]
-    ff = ForceField(mass_info)
-    topo = Topology(s)
-    return LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)

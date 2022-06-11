@@ -32,7 +32,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API, Crystallography Open
    Database and other external data sources.
 
-As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule follows closely that of the Scientific
+As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.
@@ -63,7 +63,7 @@ modifications. MPRester should now be imported from `pymatgen.ext.matproj`. All 
 `Element`, `Species`, `Lattice`, `Structure`, etc. should be imported from `pymatgen.core`. There are a few simple ways
 you can respond to this change:
 
-* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<=2022.0.0 since all
+* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<2022.0.0 since all
   the imports were already available in previous versions), you need to replace all instances of
   `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`, followed by replacing all instances
   of `from pymatgen import` with `from pymatgen.core import`. These two steps have to be done in that sequence, since
@@ -362,7 +362,7 @@ Here are some quick examples of the core capabilities and objects:
     1 Cl     0.510000     0.510000     0.510000
     2 Cs     0.000000     0.000000     0.000000
     >>>
-    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # Molecules function similarly, but with Site and Cartesian coords.
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]

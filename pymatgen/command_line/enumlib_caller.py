@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module implements an interface to enumlib, Gus Hart"s excellent Fortran
+This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables enum.x and
@@ -34,12 +34,12 @@ import logging
 import math
 import re
 import subprocess
+from shutil import which
 from threading import Timer
 
 import numpy as np
 from monty.dev import requires
 from monty.fractions import lcm
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.periodic_table import DummySpecies
@@ -158,11 +158,8 @@ class EnumlibAdaptor:
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug(
-            "Spacegroup {} ({}) with {} distinct sites".format(
-                fitter.get_space_group_symbol(),
-                fitter.get_space_group_number(),
-                len(symmetrized_structure.equivalent_sites),
-            )
+            f"Spacegroup {fitter.get_space_group_symbol()} ({fitter.get_space_group_number()}) "
+            f"with {len(symmetrized_structure.equivalent_sites)} distinct sites"
         )
 
         """

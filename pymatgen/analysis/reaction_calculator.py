@@ -206,7 +206,7 @@ class BalancedReaction(MSONable):
             elif amt > cls.TOLERANCE:
                 product_str.append(f"{amt:.4g} {formula}")
 
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+        return f"{' + '.join(reactant_str)} -> {' + '.join(product_str)}"
 
     @classmethod
     def _str_from_comp(cls, coeffs, compositions, reduce=False):
@@ -236,7 +236,7 @@ class BalancedReaction(MSONable):
         relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
         comp = sum(relevant_comp, Composition())
         entry = ComputedEntry(0.5 * comp, self.calculate_energy(energies))
-        entry.name = self.__str__()
+        entry.name = str(self)
         return entry
 
     def as_dict(self):
@@ -245,8 +245,8 @@ class BalancedReaction(MSONable):
             A dictionary representation of BalancedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": {str(comp): coeff for comp, coeff in self.reactants_coeffs.items()},
             "products": {str(comp): coeff for comp, coeff in self.products_coeffs.items()},
         }
@@ -300,7 +300,7 @@ class Reaction(BalancedReaction):
     def __init__(self, reactants, products):
         """
         Reactants and products to be specified as list of
-        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
+        pymatgen.core.structure.Composition. e.g., [comp1, comp2]
 
         Args:
             reactants ([Composition]): List of reactants.
@@ -383,8 +383,8 @@ class Reaction(BalancedReaction):
             A dictionary representation of Reaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [comp.as_dict() for comp in self._input_reactants],
             "products": [comp.as_dict() for comp in self._input_products],
         }
@@ -494,8 +494,8 @@ class ComputedReaction(Reaction):
             A dictionary representation of ComputedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [e.as_dict() for e in self._reactant_entries],
             "products": [e.as_dict() for e in self._product_entries],
         }

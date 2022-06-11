@@ -150,6 +150,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         sections, info, cpu_time, wall_time = None, None, None, None
         data = {}
+        parser_failed = False
         inside, has_timer = 0, False
         for line in fh:
             # print(line.strip())
@@ -168,7 +169,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             elif line.startswith(self.END_TAG):
                 inside = 0
                 timer = AbinitTimer(sections, info, cpu_time, wall_time)
-                mpi_rank = info["mpi_rank"]
+                mpi_rank = info["mpi_rank"]  # pylint: disable=E1136
                 data[mpi_rank] = timer
 
             elif inside:
@@ -671,14 +672,10 @@ class AbinitTimer:
         self.fname = info["fname"].strip()
 
     def __str__(self):
-        string = "file=%s, wall_time=%.1f, mpi_nprocs=%d, omp_nthreads=%d" % (
-            self.fname,
-            self.wall_time,
-            self.mpi_nprocs,
-            self.omp_nthreads,
+        return (
+            f"file={self.fname}, wall_time={self.wall_time:.1f}, "
+            f"mpi_nprocs={self.mpi_nprocs}, omp_nthreads={self.omp_nthreads}"
         )
-        # string += ", rank = " + self.mpi_rank
-        return string
 
     @property
     def ncpus(self):

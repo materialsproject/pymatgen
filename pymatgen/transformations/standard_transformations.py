@@ -64,8 +64,9 @@ class RotationTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Rotation Transformation about axis " + "{} with angle = {:.4f} {}".format(
-            self.axis, self.angle, "radians" if self.angle_in_radians else "degrees"
+        return (
+            f"Rotation Transformation about axis {self.axis} with angle = "
+            f"{self.angle:.4f} {'radians' if self.angle_in_radians else 'degrees'}"
         )
 
     def __repr__(self):
@@ -197,7 +198,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         No arg needed.
         """
 
-    def apply_transformation(self, structure):  # pylint: disable=R0201
+    def apply_transformation(self, structure):
         """
         Apply the transformation.
 
@@ -504,7 +505,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     approximately 5,000,000 permutations per minute.
 
     Also, simple rounding of the occupancies are performed, with no attempt
-    made to achieve a target composition.  This is usually not a problem for
+    made to achieve a target composition. This is usually not a problem for
     most ordering problems, but there can be times where rounding errors may
     result in structures that do not have the desired composition.
     This second step will be implemented in the next iteration of the code.
@@ -708,7 +709,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
         Args:
             tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.5, 0, 0.5] in cartesian coordinates will be
+                site. For example, [0.5, 0, 0.5] in Cartesian coordinates will be
                 considered to be on the same coordinates as [0, 0, 0] for a
                 tolerance of 0.5. Defaults to 0.5.
         """

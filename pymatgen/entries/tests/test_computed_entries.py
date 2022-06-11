@@ -2,9 +2,9 @@
 # Distributed under the terms of the MIT License.
 
 
+import copy
 import json
 import os
-import copy
 import unittest
 from collections import defaultdict
 
@@ -32,7 +32,7 @@ vasprun = Vasprun(filepath)
 def test_energyadjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
-    assert ea.cls == {}
+    assert not ea.cls
     ead = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())

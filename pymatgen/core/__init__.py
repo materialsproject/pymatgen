@@ -7,6 +7,7 @@ operations on them.
 """
 
 import os
+import warnings
 
 from ruamel.yaml import YAML
 
@@ -22,9 +23,9 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.1.24"
+__version__ = "2022.5.26"
 
-yaml = YAML()
+
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
@@ -38,17 +39,18 @@ def _load_pmg_settings():
             d["PMG_" + k] = v
 
     # Override anything in env vars with that in yml file
-    try:
-        with open(SETTINGS_FILE) as f:
-            d_yml = yaml.load(f)
-        d.update(d_yml)
-    except (OSError, TypeError):
-        # If there are any errors, default to using environment variables
-        # if present.
-        pass
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            yaml = YAML()
+            with open(SETTINGS_FILE) as f:
+                d_yml = yaml.load(f)
+            d.update(d_yml)
+        except Exception as ex:
+            # If there are any errors, default to using environment variables
+            # if present.
+            warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
 
-    d = d or {}
-    return dict(d)
+    return d
 
 
 SETTINGS = _load_pmg_settings()

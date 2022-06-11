@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides plotting capabilities for battery related applications.
 """
@@ -16,6 +15,7 @@ __date__ = "Jul 12, 2012"
 
 
 import plotly.graph_objects as go
+
 from pymatgen.util.plotting import pretty_plot
 
 

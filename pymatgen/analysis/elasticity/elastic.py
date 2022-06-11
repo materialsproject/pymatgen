@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
@@ -142,10 +141,10 @@ class ElasticTensor(NthOrderElasticTensor):
 
     def __new__(cls, input_array, tol=1e-4):
         """
-        Create an ElasticTensor object.  The constructor throws an error if
+        Create an ElasticTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3x3, i. e. in true
-        tensor notation.  Issues a warning if the input_matrix argument does
-        not satisfy standard symmetries.  Note that the constructor uses
+        tensor notation. Issues a warning if the input_matrix argument does
+        not satisfy standard symmetries. Note that the constructor uses
         __new__ rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
@@ -368,7 +367,7 @@ class ElasticTensor(NthOrderElasticTensor):
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
-        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod ** 0.5
+        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod**0.5
 
     @raise_error_if_unphysical
     def cahill_thermalcond(self, structure):
@@ -400,8 +399,8 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
-        vm = 3 ** (1.0 / 3.0) * (1 / vl ** 3 + 2 / vt ** 3) ** (-1.0 / 3.0)
-        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi ** 2 / v0) ** (1.0 / 3.0)
+        vm = 3 ** (1.0 / 3.0) * (1 / vl**3 + 2 / vt**3) ** (-1.0 / 3.0)
+        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1.0 / 3.0)
         return td
 
     @property
@@ -478,7 +477,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def from_pseudoinverse(cls, strains, stresses):
         """
         Class method to fit an elastic tensor from stress/strain
-        data.  Method uses Moore-Penrose pseudoinverse to invert
+        data. Method uses Moore-Penrose pseudoinverse to invert
         the s = C*e equation with elastic tensor, stress, and
         strain in voigt notation
 
@@ -734,9 +733,9 @@ class ElasticTensorExpansion(TensorCollection):
             t_ratio = temperature / td
 
             def integrand(x):
-                return (x ** 4 * np.exp(x)) / (np.exp(x) - 1) ** 2
+                return (x**4 * np.exp(x)) / (np.exp(x) - 1) ** 2
 
-            cv = 9 * 8.314 * t_ratio ** 3 * quad(integrand, 0, t_ratio ** -1)[0]
+            cv = 9 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
@@ -866,7 +865,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on
     central-difference derivatives with respect to distinct
-    strain states.  The algorithm is summarized as follows:
+    strain states. The algorithm is summarized as follows:
 
     1. Identify distinct strain states as sets of indices
        for which nonzero strain values exist, typically
@@ -889,12 +888,12 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
         strains (nx3x3 array-like): Array of 3x3 strains
             to use in fitting of ECs
         stresses (nx3x3 array-like): Array of 3x3 stresses
-            to use in fitting ECs.  These should be PK2 stresses.
+            to use in fitting ECs. These should be PK2 stresses.
         eq_stress (3x3 array-like): stress corresponding to
             equilibrium strain (i. e. "0" strain state).
             If not specified, function will try to find
             the state in the list of provided stresses
-            and strains.  If not found, defaults to 0.
+            and strains. If not found, defaults to 0.
         tol (float): value for which strains below
             are ignored in identifying strain states.
 

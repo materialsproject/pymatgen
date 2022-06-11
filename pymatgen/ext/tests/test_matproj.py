@@ -6,12 +6,13 @@ import unittest
 import warnings
 
 import requests
+from ruamel.yaml import YAML
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core import SETTINGS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition, Structure
 from pymatgen.electronic_structure.bandstructure import (
@@ -21,14 +22,16 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
-
-website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+try:
+    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+except requests.exceptions.ConnectionError:
+    website_is_up = False
 
 
 @unittest.skipIf(
@@ -79,7 +82,7 @@ class MPResterTest(PymatgenTest):
             "total_magnetization",
         }
         mpid = "mp-1143"
-        vals = requests.get(f"http://www.materialsproject.org/materials/{mpid}/json/")
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mpid}/json/")
         expected_vals = vals.json()
 
         for prop in props:
@@ -153,6 +156,9 @@ class MPResterTest(PymatgenTest):
         e1 = {i.entry_id for i in entries}
         e2 = {i.entry_id for i in entries2}
         self.assertTrue(e1 == e2)
+
+        stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
+        self.assertTrue(len(stable_entries) < len(entries))
 
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
@@ -293,7 +299,7 @@ class MPResterTest(PymatgenTest):
         # so4_two_minus = pbx_entries[9]
         # self.assertAlmostEqual(so4_two_minus.energy, 0.301511, places=3)
 
-        # Ensure entries are pourbaix compatible
+        # Ensure entries are Pourbaix compatible
         PourbaixDiagram(pbx_entries)
 
     def test_get_exp_entry(self):
@@ -475,8 +481,8 @@ class MPResterTest(PymatgenTest):
             db_version = mpr.get_database_version()
 
         self.assertIsInstance(db_version, str)
-
-        with open(SETTINGS_FILE) as f:
+        yaml = YAML()
+        with open(MP_LOG_FILE) as f:
             d = yaml.load(f)
 
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
@@ -485,13 +491,13 @@ class MPResterTest(PymatgenTest):
     def test_pourbaix_heavy(self):
 
         entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 
     def test_pourbaix_mpr_pipeline(self):
 
