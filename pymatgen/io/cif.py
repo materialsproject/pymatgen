@@ -1002,9 +1002,9 @@ class CifParser:
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
-                "Some occupancies ({}) sum to > 1! If they are within "
+                f"Some occupancies ({sum_occu}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
-                "The current occupancy_tolerance is set to: {}".format(sum_occu, self._occupancy_tolerance)
+                f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )
             warnings.warn(msg)
             self.warnings.append(msg)
@@ -1218,10 +1218,7 @@ class CifParser:
 
             # convert to bibtex page range format, use empty string if not specified
             if ("page_first" in bibtex_entry) or ("page_last" in bibtex_entry):
-                bibtex_entry["pages"] = "{}--{}".format(
-                    bibtex_entry.get("page_first", ""),
-                    bibtex_entry.get("page_last", ""),
-                )
+                bibtex_entry["pages"] = bibtex_entry.get("page_first", "") + "--" + bibtex_entry.get("page_last", "")
                 bibtex_entry.pop("page_first", None)  # and remove page_first, page_list if present
                 bibtex_entry.pop("page_last", None)
 

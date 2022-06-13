@@ -31,16 +31,8 @@ class Prismatic:
         lines = [self.comment, f"{l.a} {l.b} {l.c}"]
         for site in self.structure:
             for sp, occu in site.species.items():
-                lines.append(
-                    "{} {} {} {} {} {}".format(
-                        sp.Z,
-                        site.coords[0],
-                        site.coords[1],
-                        site.coords[2],
-                        occu,
-                        site.properties.get("thermal_sigma", 0),
-                    )
-                )
+                x, y, z = site.coords
+                lines.append(f"{sp.Z} {x} {y} {z} {occu} {site.properties.get('thermal_sigma', 0)}")
 
         lines.append("-1")
 

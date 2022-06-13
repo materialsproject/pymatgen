@@ -2,6 +2,9 @@ name: Linting
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     # prevent this action from running on forks
