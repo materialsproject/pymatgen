@@ -821,7 +821,7 @@ class GrainBoundaryGenerator:
         lat_type = self.lat_type
         if lat_type in ("t", "h"):
             # For tetragonal and hexagonal system, ratio = c2 / a2.
-            a, c = (structure.lattice.a, structure.lattice.c)
+            a, _, c = structure.lattice.lengths
             if c > a:
                 frac = Fraction(c**2 / a**2).limit_denominator(max_denominator)
                 ratio = [frac.numerator, frac.denominator]
@@ -2332,11 +2332,11 @@ class GrainBoundaryGenerator:
         """
         miller = [None] * 3
         index = []
-        for i, value in enumerate(vec):
+        for idx, value in enumerate(vec):
             if abs(value) < 1.0e-8:
-                miller[i] = 0
+                miller[idx] = 0
             else:
-                index.append(i)
+                index.append(idx)
         if len(index) == 1:
             miller[index[0]] = 1
         else:
@@ -2344,7 +2344,7 @@ class GrainBoundaryGenerator:
             true_index = index[min_index]
             index.pop(min_index)
             frac = []
-            for i, value in enumerate(index):
+            for value in index:
                 frac.append(Fraction(vec[value] / vec[true_index]).limit_denominator(100))
             if len(index) == 1:
                 miller[true_index] = frac[0].denominator

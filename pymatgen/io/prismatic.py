@@ -27,8 +27,8 @@ class Prismatic:
         but has specific requirements for extra fields, headers, etc.
         """
 
-        l = self.structure.lattice
-        lines = [self.comment, f"{l.a} {l.b} {l.c}"]
+        lattice = self.structure.lattice
+        lines = [self.comment, " ".join(lattice.lengths)]
         for site in self.structure:
             for sp, occu in site.species.items():
                 x, y, z = site.coords

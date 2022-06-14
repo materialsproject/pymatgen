@@ -738,7 +738,7 @@ class LobsterNeighbors(NearNeighbors):
         list_icohps = []
         list_lengths = []
         list_keys = []
-        for isite, site in enumerate(self.structure):
+        for isite in range(len(self.structure)):
 
             icohps = self._get_icohps(
                 icohpcollection=self.Icohpcollection,

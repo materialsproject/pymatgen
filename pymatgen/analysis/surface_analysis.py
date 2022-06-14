@@ -1703,13 +1703,13 @@ class WorkFunctionAnalyzer:
             Used to handle pbc for noncontiguous slab layers
         :return: WorkFunctionAnalyzer
         """
-        p = Poscar.from_file(poscar_filename)
-        l = Locpot.from_file(locpot_filename)
-        o = Outcar(outcar_filename)
+        poscar = Poscar.from_file(poscar_filename)
+        locpot = Locpot.from_file(locpot_filename)
+        outcar = Outcar(outcar_filename)
         return WorkFunctionAnalyzer(
-            p.structure,
-            l.get_average_along_axis(2),
-            o.efermi,
+            poscar.structure,
+            locpot.get_average_along_axis(2),
+            outcar.efermi,
             shift=shift,
             blength=blength,
         )

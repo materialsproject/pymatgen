@@ -2341,11 +2341,11 @@ class BSDOSPlotter:
         x_distances_list = []
         prev_right_klabel = None  # used to determine which branches require a midline separator
 
-        for idx, l in enumerate(bs.branches):
+        for branch in bs.branches:
             x_distances = []
 
             # get left and right kpoint labels of this branch
-            left_k, right_k = l["name"].split("-")
+            left_k, right_k = branch["name"].split("-")
 
             # add $ notation for LaTeX kpoint labels
             if left_k[0] == "\\" or "_" in left_k:
@@ -2365,16 +2365,16 @@ class BSDOSPlotter:
             prev_right_klabel = right_k
 
             # add x-coordinates for labels
-            left_kpoint = bs.kpoints[l["start_index"]].cart_coords
-            right_kpoint = bs.kpoints[l["end_index"]].cart_coords
+            left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
+            right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
             xlabel_distances.append(xlabel_distances[-1] + distance)
 
             # add x-coordinates for kpoint data
-            npts = l["end_index"] - l["start_index"]
+            npts = branch["end_index"] - branch["start_index"]
             distance_interval = distance / npts
             x_distances.append(xlabel_distances[-2])
-            for i in range(npts):
+            for _ in range(npts):
                 x_distances.append(x_distances[-1] + distance_interval)
             x_distances_list.append(x_distances)
 

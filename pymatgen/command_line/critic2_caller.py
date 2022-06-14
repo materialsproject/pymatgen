@@ -661,19 +661,19 @@ class Critic2Analysis(MSONable):
             for p in cpreport["critical_points"]["nonequivalent_cps"]
         ]
 
-        for idx, p in enumerate(cpreport["critical_points"]["cell_cps"]):
+        for point in cpreport["critical_points"]["cell_cps"]:
             self._add_node(
-                idx=p["id"] - 1,
-                unique_idx=p["nonequivalent_id"] - 1,
-                frac_coords=p["fractional_coordinates"],
+                idx=point["id"] - 1,
+                unique_idx=point["nonequivalent_id"] - 1,
+                frac_coords=point["fractional_coordinates"],
             )
-            if "attractors" in p:
+            if "attractors" in point:
                 self._add_edge(
-                    idx=p["id"] - 1,
-                    from_idx=int(p["attractors"][0]["cell_id"]) - 1,
-                    from_lvec=p["attractors"][0]["lvec"],
-                    to_idx=int(p["attractors"][1]["cell_id"]) - 1,
-                    to_lvec=p["attractors"][1]["lvec"],
+                    idx=point["id"] - 1,
+                    from_idx=int(point["attractors"][0]["cell_id"]) - 1,
+                    from_lvec=point["attractors"][0]["lvec"],
+                    to_idx=int(point["attractors"][1]["cell_id"]) - 1,
+                    to_lvec=point["attractors"][1]["lvec"],
                 )
 
     def _remap_indices(self):

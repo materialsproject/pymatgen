@@ -1553,22 +1553,22 @@ def cluster_sites(mol, tol, give_only_index=False):
 
     f = spcluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
     clustered_dists = defaultdict(list)
-    for i, site in enumerate(mol):
-        clustered_dists[f[i]].append(dists[i])
+    for idx in range(len(mol)):
+        clustered_dists[f[idx]].append(dists[idx])
     avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
     clustered_sites = defaultdict(list)
     origin_site = None
-    for i, site in enumerate(mol):
-        if avg_dist[f[i]] < tol:
+    for idx, site in enumerate(mol):
+        if avg_dist[f[idx]] < tol:
             if give_only_index:
-                origin_site = i
+                origin_site = idx
             else:
                 origin_site = site
         else:
             if give_only_index:
-                clustered_sites[(avg_dist[f[i]], site.species)].append(i)
+                clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
             else:
-                clustered_sites[(avg_dist[f[i]], site.species)].append(site)
+                clustered_sites[(avg_dist[f[idx]], site.species)].append(site)
     return origin_site, clustered_sites
 
 

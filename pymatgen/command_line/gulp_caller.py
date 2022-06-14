@@ -259,12 +259,12 @@ class GulpIO:
 
     @staticmethod
     def structure_lines(
-        structure,
-        cell_flg=True,
-        frac_flg=True,
-        anion_shell_flg=True,
-        cation_shell_flg=False,
-        symm_flg=True,
+        structure: Structure,
+        cell_flg: bool = True,
+        frac_flg: bool = True,
+        anion_shell_flg: bool = True,
+        cation_shell_flg: bool = False,
+        symm_flg: bool = True,
     ):
         """
         Generates GULP input string corresponding to pymatgen structure.
@@ -292,8 +292,10 @@ class GulpIO:
         gin = ""
         if cell_flg:
             gin += "cell\n"
-            l = structure.lattice
-            lat_str = f"{l.a:6f} {l.b:6f} {l.c:6f} {l.alpha:6f} {l.beta:6f} {l.gamma:6f}"
+            lattice = structure.lattice
+            alpha, beta, gamma = lattice.angles
+            a, b, c = lattice.lengths
+            lat_str = f"{a:6f} {b:6f} {c:6f} {alpha:6f} {beta:6f} {gamma:6f}"
             gin += lat_str + "\n"
 
         if frac_flg:

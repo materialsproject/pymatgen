@@ -367,19 +367,19 @@ class WulffShape:
         prev = None
         while len(lines) > 0:
             if prev is None:
-                l = lines.pop(0)
+                line = lines.pop(0)
             else:
-                for i, l in enumerate(lines):
-                    if prev in l:
-                        l = lines.pop(i)
-                        if l[1] == prev:
-                            l.reverse()
+                for i, line in enumerate(lines):
+                    if prev in line:
+                        line = lines.pop(i)
+                        if line[1] == prev:
+                            line.reverse()
                         break
             # make sure the lines are connected one by one.
             # find the way covering all pts and facets
-            pt.append(self.wulff_pt_list[l[0]].tolist())
-            pt.append(self.wulff_pt_list[l[1]].tolist())
-            prev = l[1]
+            pt.append(self.wulff_pt_list[line[0]].tolist())
+            pt.append(self.wulff_pt_list[line[1]].tolist())
+            prev = line[1]
 
         return pt
 
