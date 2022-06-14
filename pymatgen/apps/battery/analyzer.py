@@ -50,8 +50,8 @@ class BatteryAnalyzer:
 
         if not isinstance(working_ion, Element):
             self.working_ion = Element(working_ion)
-        if self.working_ion.symbol in oxi_override:
-            self.working_ion_charge = oxi_override[self.working_ion.symbol]
+        if self.working_ion.symbol in self.oxi_override:
+            self.working_ion_charge = self.oxi_override[self.working_ion.symbol]
         elif self.working_ion.symbol in ["H", "C", "N", "O", "F", "S", "Cl", "Se", "Br", "Te", "I"]:
             self.working_ion_charge = self.working_ion.min_oxidation_state
         else:
