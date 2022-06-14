@@ -8,9 +8,10 @@ rather than site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
+from __future__ import annotations
+
 import logging
 from fractions import Fraction
-from typing import Optional, Union
 
 from numpy import around
 
@@ -299,7 +300,7 @@ class SubstitutionTransformation(AbstractTransformation):
     This transformation substitutes species for one another.
     """
 
-    def __init__(self, species_map):
+    def __init__(self, species_map: dict[str, str]) -> None:
         """
         Args:
             species_map: A dict or list of tuples containing the species mapping in
@@ -315,7 +316,7 @@ class SubstitutionTransformation(AbstractTransformation):
             if isinstance(v, (tuple, list)):
                 self._species_map[k] = dict(v)
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure) -> Structure:
         """
         Apply the transformation.
 
@@ -441,7 +442,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self.fraction_to_remove = fraction_to_remove
         self.algo = algo
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Apply the transformation.
 
@@ -541,7 +542,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
@@ -809,7 +810,7 @@ class PerturbStructureTransformation(AbstractTransformation):
     def __init__(
         self,
         distance: float = 0.01,
-        min_distance: Optional[Union[int, float]] = None,
+        min_distance: int | float | None = None,
     ):
         """
         Args:

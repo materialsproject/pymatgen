@@ -28,6 +28,7 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -442,8 +443,8 @@ class StructureMotifInterstitial:
 
         if verbose:
             print(
-                "Initial trial sites: {}\nAfter clustering: {}\n"
-                "After symmetry pruning: {}".format(len(trialsites), len(include), len(include) - len(discard))
+                f"Initial trial sites: {len(trialsites),}\nAfter clustering: {len(include),}\n"
+                f"After symmetry pruning: {len(include) - len(discard)}"
             )
         for i in include:
             if i not in discard:
@@ -874,7 +875,7 @@ class VoronoiPolyhedron:
     Convenience container for a voronoi point in PBC and its associated polyhedron.
     """
 
-    def __init__(self, lattice, frac_coords, polyhedron_indices, all_coords, name=None):
+    def __init__(self, lattice: Lattice, frac_coords, polyhedron_indices, all_coords, name=None):
         """
         :param lattice:
         :param frac_coords:
@@ -1450,8 +1451,7 @@ def tune_for_gamma(lattice, epsilon):
     real_set = real_set[0]
 
     logger.debug(
-        "First approach with gamma ={}\nProduced {} real vecs and {} recip "
-        "vecs.".format(gamma, len(real_set), len(recip_set))
+        f"First approach with gamma ={gamma}\nProduced {len(real_set)} real vecs and {len(recip_set)} recip vecs."
     )
 
     while float(len(real_set)) / len(recip_set) > 1.05 or float(len(recip_set)) / len(real_set) > 1.05:

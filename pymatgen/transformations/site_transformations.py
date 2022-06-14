@@ -18,6 +18,7 @@ from monty.json import MSONable
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
@@ -316,7 +317,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.algo = algo
         self.logger = logging.getLogger(type(self).__name__)
 
-    def _best_first_ordering(self, structure, num_remove_dict):
+    def _best_first_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing best first ordering")
         starttime = time.time()
         self.logger.debug("Performing initial ewald sum...")
@@ -351,7 +352,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug(f"Minimizing Ewald took {time.time() - starttime} seconds.")
         return [{"energy": sum(sum(ematrix)), "structure": s.get_sorted_structure()}]
 
-    def _complete_ordering(self, structure, num_remove_dict):
+    def _complete_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
         all_structures = []
         symprec = 0.2
@@ -402,7 +403,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         all_structures = sorted(all_structures, key=lambda s: s["energy"])
         return all_structures
 
-    def _fast_ordering(self, structure, num_remove_dict, num_to_return=1):
+    def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald
         sums of the potential structures. This is on the order of 4 orders of
@@ -467,7 +468,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Apply the transformation.
 

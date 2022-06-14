@@ -27,15 +27,16 @@ from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
+from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
 except Exception:
-    ob = None
+    openbabel = None
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
 __author__ += "Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
@@ -247,7 +248,7 @@ class NearNeighbors:
         """
         raise NotImplementedError("extend_structures_molecule is not defined!")
 
-    def get_cn(self, structure, n, use_weights=False):
+    def get_cn(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of site with index n in structure.
 
@@ -265,7 +266,7 @@ class NearNeighbors:
         siw = self.get_nn_info(structure, n)
         return sum(e["weight"] for e in siw) if use_weights else len(siw)
 
-    def get_cn_dict(self, structure, n, use_weights=False):
+    def get_cn_dict(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of each element bonded to site with index n in structure
 
@@ -298,7 +299,7 @@ class NearNeighbors:
                     cn_dict[site_element] += 1
         return cn_dict
 
-    def get_nn(self, structure, n):
+    def get_nn(self, structure: Structure, n: int):
         """
         Get near neighbors of site with index n in structure.
 
@@ -312,7 +313,7 @@ class NearNeighbors:
 
         return [e["site"] for e in self.get_nn_info(structure, n)]
 
-    def get_weights_of_nn_sites(self, structure, n):
+    def get_weights_of_nn_sites(self, structure: Structure, n: int):
         """
         Get weight associated with each near neighbor of site with
         index n in structure.
@@ -326,7 +327,7 @@ class NearNeighbors:
 
         return [e["weight"] for e in self.get_nn_info(structure, n)]
 
-    def get_nn_images(self, structure, n):
+    def get_nn_images(self, structure: Structure, n: int):
         """
         Get image location of all near neighbors of site with index n in
         structure.
@@ -342,28 +343,25 @@ class NearNeighbors:
 
         return [e["image"] for e in self.get_nn_info(structure, n)]
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n.
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 information.
 
         Returns:
-            siw (list of dicts): each dictionary provides information
-                about a single near neighbor, where key 'site' gives
-                access to the corresponding Site object, 'image' gives
-                the image location, and 'weight' provides the weight
-                that a given near-neighbor site contributes
-                to the coordination number (1 or smaller), 'site_index'
-                gives index of the corresponding site in
-                the original structure.
+            siw (list[dict]): each dictionary provides information
+                about a single near neighbor, where key 'site' gives access to the
+                corresponding Site object, 'image' gives the image location, and
+                'weight' provides the weight that a given near-neighbor site contributes
+                to the coordination number (1 or smaller), 'site_index' gives index of
+                the corresponding site in the original structure.
         """
-
-        raise NotImplementedError("get_nn_info(structure, n)" " is not defined!")
+        raise NotImplementedError("get_nn_info(structure, n) is not defined!")
 
     def get_all_nn_info(self, structure):
         """Get a listing of all neighbors for all sites in a structure
@@ -374,10 +372,9 @@ class NearNeighbors:
             List of NN site information for each site in the structure. Each
                 entry has the same format as `get_nn_info`
         """
-
         return [self.get_nn_info(structure, n) for n in range(len(structure))]
 
-    def get_nn_shell_info(self, structure, site_idx, shell):
+    def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
 
         Determines all non-backtracking paths through the neighbor network
@@ -542,7 +539,7 @@ class NearNeighbors:
                     return i
         raise Exception("Site not found!")
 
-    def get_bonded_structure(self, structure, decorate=False, weights=True):
+    def get_bonded_structure(self, structure: Structure, decorate=False, weights=True):
         """
         Obtain a StructureGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -574,7 +571,7 @@ class NearNeighbors:
 
         return sg
 
-    def get_local_order_parameters(self, structure, n):
+    def get_local_order_parameters(self, structure: Structure, n: int):
         """
         Calculate those local structure order parameters for
         the given site whose ideal CN corresponds to the
@@ -670,7 +667,7 @@ class VoronoiNN(NearNeighbors):
         """
         return False
 
-    def get_voronoi_polyhedra(self, structure, n):
+    def get_voronoi_polyhedra(self, structure: Structure, n: int):
         """
         Gives a weighted polyhedra around a site.
 
@@ -720,7 +717,7 @@ class VoronoiNN(NearNeighbors):
                 voro = Voronoi(qvoronoi_input)  # can give seg fault if cutoff is too small
 
                 # Extract data about the site in question
-                cell_info = self._extract_cell_info(structure, 0, neighbors, targets, voro, self.compute_adj_neighbors)
+                cell_info = self._extract_cell_info(0, neighbors, targets, voro, self.compute_adj_neighbors)
                 break
 
             except RuntimeError as e:
@@ -796,15 +793,13 @@ class VoronoiNN(NearNeighbors):
 
         # Get the information for each neighbor
         return [
-            self._extract_cell_info(structure, i, sites, targets, voro, self.compute_adj_neighbors)
-            for i in root_images.tolist()
+            self._extract_cell_info(i, sites, targets, voro, self.compute_adj_neighbors) for i in root_images.tolist()
         ]
 
-    def _extract_cell_info(self, structure, site_idx, sites, targets, voro, compute_adj_neighbors=False):
+    def _extract_cell_info(self, site_idx, sites, targets, voro, compute_adj_neighbors=False):
         """Get the information about a certain atom from the results of a tessellation
 
         Args:
-            structure (Structure) - Structure being assessed
             site_idx (int) - Index of the atom in question
             sites ([Site]) - List of all sites in the tessellation
             targets ([Element]) - Target elements
@@ -842,7 +837,7 @@ class VoronoiNN(NearNeighbors):
                     if self.allow_pathological:
                         continue
 
-                    raise RuntimeError("This structure is pathological, infinite vertex in the voronoi construction")
+                    raise RuntimeError("This structure is pathological, infinite vertex in the Voronoi construction")
 
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
@@ -887,37 +882,37 @@ class VoronoiNN(NearNeighbors):
                     results[other_site]["verts"] = vind
 
         # all sites should have at least two connected ridges in periodic system
-        if not results:
+        if len(results) == 0:
             raise ValueError("No Voronoi neighbors found for site - try increasing cutoff")
 
         # Get only target elements
-        resultweighted = {}
-        for nn_index, nstats in results.items():
+        result_weighted = {}
+        for nn_index, nn_stats in results.items():
             # Check if this is a target site
-            nn = nstats["site"]
+            nn = nn_stats["site"]
             if nn.is_ordered:
                 if nn.specie in targets:
-                    resultweighted[nn_index] = nstats
-            else:  # is nn site is disordered
+                    result_weighted[nn_index] = nn_stats
+            else:  # if nn site is disordered
                 for disordered_sp in nn.species.keys():
                     if disordered_sp in targets:
-                        resultweighted[nn_index] = nstats
+                        result_weighted[nn_index] = nn_stats
 
         # If desired, determine which neighbors are adjacent
         if compute_adj_neighbors:
             # Initialize storage for the adjacent neighbors
-            adj_neighbors = {i: [] for i in resultweighted.keys()}
+            adj_neighbors = {i: [] for i in result_weighted.keys()}
 
             # Find the neighbors that are adjacent by finding those
             #  that contain exactly two vertices
-            for a_ind, a_nninfo in resultweighted.items():
+            for a_ind, a_nn_info in result_weighted.items():
                 # Get the indices for this site
-                a_verts = set(a_nninfo["verts"])
+                a_verts = set(a_nn_info["verts"])
 
                 # Loop over all neighbors that have an index lower that this one
                 # The goal here is to exploit the fact that neighbor adjacency is
                 # symmetric (if A is adj to B, B is adj to A)
-                for b_ind, b_nninfo in resultweighted.items():
+                for b_ind, b_nninfo in result_weighted.items():
                     if b_ind > a_ind:
                         continue
                     if len(a_verts.intersection(b_nninfo["verts"])) == 2:
@@ -926,11 +921,11 @@ class VoronoiNN(NearNeighbors):
 
             # Store the results in the nn_info
             for key, neighbors in adj_neighbors.items():
-                resultweighted[key]["adj_neighbors"] = neighbors
+                result_weighted[key]["adj_neighbors"] = neighbors
 
-        return resultweighted
+        return result_weighted
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure
@@ -964,7 +959,7 @@ class VoronoiNN(NearNeighbors):
         all_voro_cells = self.get_all_voronoi_polyhedra(structure)
         return [self._extract_nn_info(structure, cell) for cell in all_voro_cells]
 
-    def _extract_nn_info(self, structure, nns):
+    def _extract_nn_info(self, structure: Structure, nns):
         """Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors
 
         Args:
@@ -1220,7 +1215,7 @@ class JmolNN(NearNeighbors):
         """
         return sqrt((self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the bond identification
@@ -1312,7 +1307,7 @@ class MinimumDistanceNN(NearNeighbors):
         """
         return True
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the closest neighbor
@@ -1370,7 +1365,7 @@ class OpenBabelNN(NearNeighbors):
     """
 
     @requires(
-        ob,
+        openbabel,
         "BabelMolAdaptor requires openbabel to be installed with "
         "Python bindings. Please get it at http://openbabel.org "
         "(version >=3.0.0).",
@@ -1408,7 +1403,7 @@ class OpenBabelNN(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites and weights (orders) of bonds for a given
         atom.
@@ -1431,11 +1426,11 @@ class OpenBabelNN(NearNeighbors):
         # Get only the atom of interest
         site_atom = [
             a
-            for i, a in enumerate(ob.OBMolAtomDFSIter(obmol))
+            for i, a in enumerate(openbabel.OBMolAtomDFSIter(obmol))
             if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
         ][0]
 
-        for neighbor in ob.OBAtomAtomIter(site_atom):
+        for neighbor in openbabel.OBAtomAtomIter(site_atom):
             coords = [neighbor.GetX(), neighbor.GetY(), neighbor.GetZ()]
             site = [a for a in structure if list(a.coords) == coords][0]
             index = structure.index(site)
@@ -1459,7 +1454,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure, decorate=False):
+    def get_bonded_structure(self, structure: Structure, decorate=False):
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1489,7 +1484,7 @@ class OpenBabelNN(NearNeighbors):
 
         return mg
 
-    def get_nn_shell_info(self, structure, site_idx, shell):
+    def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
 
         Determines all non-backtracking paths through the neighbor network
@@ -1575,7 +1570,7 @@ class CovalentBondNN(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites and weights (orders) of bonds for a given
         atom.
@@ -1619,7 +1614,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure, decorate=False):
+    def get_bonded_structure(self, structure: Structure, decorate=False):
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class.
@@ -1648,7 +1643,7 @@ class CovalentBondNN(NearNeighbors):
 
         return mg
 
-    def get_nn_shell_info(self, structure, site_idx, shell):
+    def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
 
         Determines all non-backtracking paths through the neighbor network
@@ -1733,7 +1728,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         """
         return True
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the closest relative
@@ -1820,7 +1815,7 @@ class MinimumVIRENN(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the closest relative
@@ -2804,7 +2799,7 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
-    def get_order_parameters(self, structure, n, indices_neighs=None, tol=0.0, target_spec=None):
+    def get_order_parameters(self, structure: Structure, n, indices_neighs=None, tol=0.0, target_spec=None):
         """
         Compute all order parameters of site n.
 
@@ -3387,7 +3382,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure.
@@ -3460,7 +3455,7 @@ class BrunnerNN_relative(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure.
@@ -3533,7 +3528,7 @@ class BrunnerNN_real(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure.
@@ -3630,7 +3625,7 @@ class EconNN(NearNeighbors):
         """
         return True
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure.
@@ -3750,13 +3745,12 @@ def _get_mean_fictive_ionic_radius(
 
 class CrystalNN(NearNeighbors):
     """
-    This is custom near neighbor method intended for use in all kinds of
-    periodic structures (metals, minerals, porous structures, etc). It is based
-    on a Voronoi algorithm and uses the solid angle weights to determine the
-    probability of various coordination environments. The algorithm can also
-    modify probability using smooth distance cutoffs as well as Pauling
-    electronegativity differences. The output can either be the most probable
-    coordination environment or a weighted list of coordination environments.
+    This is a custom near-neighbor method intended for use in all kinds of periodic structures
+    (metals, minerals, porous structures, etc). It is based on a Voronoi algorithm and uses the
+    solid angle weights to determine the probability of various coordination environments. The
+    algorithm can also modify probability using smooth distance cutoffs as well as Pauling
+    electronegativity differences. The output can either be the most probable coordination
+    environment or a weighted list of coordination environments.
     """
 
     NNData = namedtuple("NNData", ["all_nninfo", "cn_weights", "cn_nninfo"])
@@ -3823,7 +3817,7 @@ class CrystalNN(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int = None) -> list[dict]:
         """
         Get all near-neighbor information.
         Args:
@@ -3831,14 +3825,12 @@ class CrystalNN(NearNeighbors):
             n: (int) index of target site
 
         Returns:
-            siw (list of dicts): each dictionary provides information
-                about a single near neighbor, where key 'site' gives
-                access to the corresponding Site object, 'image' gives
-                the image location, and 'weight' provides the weight
-                that a given near-neighbor site contributes
-                to the coordination number (1 or smaller), 'site_index'
-                gives index of the corresponding site in
-                the original structure.
+            siw (list[dict]): each dictionary provides information
+                about a single near neighbor, where key 'site' gives access to the
+                corresponding Site object, 'image' gives the image location, and
+                'weight' provides the weight that a given near-neighbor site contributes
+                to the coordination number (1 or smaller), 'site_index' gives index of
+                the corresponding site in the original structure.
         """
 
         nndata = self.get_nn_data(structure, n)
@@ -3861,7 +3853,7 @@ class CrystalNN(NearNeighbors):
 
         return nndata.all_nninfo
 
-    def get_nn_data(self, structure, n, length=None):
+    def get_nn_data(self, structure: Structure, n, length=None):
         """
         The main logic of the method to compute near neighbor.
 
@@ -3992,7 +3984,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure, n, use_weights=False):
+    def get_cn(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of site with index n in structure.
 
@@ -4011,7 +4003,7 @@ class CrystalNN(NearNeighbors):
 
         return super().get_cn(structure, n, use_weights)
 
-    def get_cn_dict(self, structure, n, use_weights=False):
+    def get_cn_dict(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of each element bonded to site with index n in structure
 
@@ -4216,7 +4208,7 @@ class CutOffDictNN(NearNeighbors):
 
         raise ValueError(f"Unrecognised preset: {preset}")
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure.
@@ -4299,7 +4291,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure, decorate=False):
+    def get_bonded_structure(self, structure: Structure, decorate=False):
         """
         :param structure: Input structure
         :param decorate: Whether to decorate the structure
@@ -4326,7 +4318,7 @@ class Critic2NN(NearNeighbors):
 
         return sg
 
-    def get_nn_info(self, structure, n):
+    def get_nn_info(self, structure: Structure, n: int):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n in structure.
@@ -4354,7 +4346,7 @@ class Critic2NN(NearNeighbors):
         ]
 
 
-def metal_edge_extender(mol_graph):
+def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
     """
     Function to identify and add missed coordinate bond edges for metals
 

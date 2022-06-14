@@ -14,6 +14,7 @@ import numpy as np
 import scipy
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 __author__ = "Joseph Montoya"
@@ -105,7 +106,7 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, structure, norm_strains=None, shear_strains=None, symmetry=False):
+    def __init__(self, structure: Structure, norm_strains=None, shear_strains=None, symmetry=False):
         """
         constructs the deformed geometries of a structure. Generates
         m + n deformed structures according to the supplied parameters.

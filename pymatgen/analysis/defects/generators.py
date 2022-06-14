@@ -5,6 +5,8 @@
 This module defines classes to generate point defect structures
 """
 
+from __future__ import annotations
+
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -18,6 +20,7 @@ from pymatgen.analysis.defects.utils import (
 )
 from pymatgen.analysis.structure_matcher import PointDefectComparator
 from pymatgen.core import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -58,7 +61,7 @@ class VacancyGenerator(DefectGenerator):
     equivalent sites
     """
 
-    def __init__(self, structure, include_bv_charge=False):
+    def __init__(self, structure: Structure, include_bv_charge=False):
         """
         Initializes a Vacancy Generator
         Args:
@@ -100,7 +103,7 @@ class SubstitutionGenerator(DefectGenerator):
     equivalent sites
     """
 
-    def __init__(self, structure, element):
+    def __init__(self, structure: Structure, element):
         """
         Initializes a Substitution Generator
         note: an Antisite is considered a type of substitution
@@ -155,7 +158,7 @@ class InterstitialGenerator(DefectGenerator):
     (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
     """
 
-    def __init__(self, structure, element):
+    def __init__(self, structure: Structure, element):
         """
         Initializes an Interstitial generator using structure motifs
         Args:
@@ -201,7 +204,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
     Generator for interstitials based on a simple Voronoi analysis
     """
 
-    def __init__(self, structure, element):
+    def __init__(self, structure: Structure, element):
         """
         Initializes an Interstitial generator using Voronoi sites
         Args:

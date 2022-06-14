@@ -54,6 +54,7 @@ from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 
@@ -425,7 +426,7 @@ class Critic2Analysis(MSONable):
     Class to process the standard output from critic2 into pymatgen-compatible objects.
     """
 
-    def __init__(self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
+    def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -710,7 +711,7 @@ class Critic2Analysis(MSONable):
             edge["to_idx"] = node_mapping.get(edge["to_idx"], edge["to_idx"])
 
     @staticmethod
-    def _annotate_structure_with_yt(yt, structure, zpsp):
+    def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
 
         volume_idx = None
         charge_idx = None

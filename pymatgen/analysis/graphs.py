@@ -110,7 +110,7 @@ class StructureGraph(MSONable):
     kind of information that connects two Sites.
     """
 
-    def __init__(self, structure, graph_data=None):
+    def __init__(self, structure: Structure, graph_data=None):
         """
         If constructing this class manually, use the `with_empty_graph`
         method or `with_local_env_strategy` method (using an algorithm
@@ -161,7 +161,7 @@ class StructureGraph(MSONable):
                 d["from_jimage"] = tuple(d["from_jimage"])
 
     @classmethod
-    def with_empty_graph(cls, structure, name="bonds", edge_weight_name=None, edge_weight_units=None):
+    def with_empty_graph(cls, structure: Structure, name="bonds", edge_weight_name=None, edge_weight_units=None):
         """
         Constructor for StructureGraph, returns a StructureGraph
         object with an empty graph (no edges, only nodes defined

@@ -26,11 +26,11 @@ from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
 
     have_babel = True
 except ImportError:
-    ob = None
+    openbabel = None
     have_babel = False
 
 from .utils import process_parsed_coords, read_pattern, read_table_pattern

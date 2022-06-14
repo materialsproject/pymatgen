@@ -17,6 +17,8 @@ References are::
     Computer Physics Communications, 175, 67-71
 """
 
+from __future__ import annotations
+
 import logging
 import math
 import os
@@ -33,6 +35,7 @@ from scipy import constants
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
 from pymatgen.electronic_structure.core import Orbital
@@ -878,7 +881,7 @@ class BoltztrapAnalyzer:
         self._bz_kpoints = bz_kpoints
         self.fermi_surface_data = fermi_surface_data
 
-    def get_symm_bands(self, structure, efermi, kpt_line=None, labels_dict=None):
+    def get_symm_bands(self, structure: Structure, efermi, kpt_line=None, labels_dict=None):
         """
         Function useful to read bands from Boltztrap output and get a
         BandStructureSymmLine object comparable with that one from a DFT
@@ -1641,7 +1644,7 @@ class BoltztrapAnalyzer:
                         raise ValueError(f"Unknown output format: {output}")
         return result
 
-    def get_complete_dos(self, structure, analyzer_for_second_spin=None):
+    def get_complete_dos(self, structure: Structure, analyzer_for_second_spin=None):
         """
         Gives a CompleteDos object with the DOS from the interpolated
         projected band structure

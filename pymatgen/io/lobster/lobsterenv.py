@@ -22,6 +22,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
 )
 from pymatgen.analysis.local_env import NearNeighbors
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
@@ -182,7 +183,7 @@ class LobsterNeighbors(NearNeighbors):
 
         return set(anion_species)
 
-    def get_nn_info(self, structure, n, use_weights=False):
+    def get_nn_info(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of site with index n in structure.
 
@@ -1126,7 +1127,14 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
     @classmethod
     def from_Lobster(
-        cls, list_ce_symbol, list_csm, list_permutation, list_neighsite, list_neighisite, structure, valences=None
+        cls,
+        list_ce_symbol,
+        list_csm,
+        list_permutation,
+        list_neighsite,
+        list_neighisite,
+        structure: Structure,
+        valences=None,
     ):
         """
         will set up a LightStructureEnvironments from Lobster

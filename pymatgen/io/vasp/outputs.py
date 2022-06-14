@@ -3493,7 +3493,7 @@ class VolumetricData(MSONable):
         Total number of grid points in volumetric data.
     """
 
-    def __init__(self, structure, data, distance_matrix=None, data_aug=None):
+    def __init__(self, structure: Structure, data, distance_matrix=None, data_aug=None):
         """
         Typically, this constructor is not used directly and the static
         from_file constructor is used. This constructor is designed to allow

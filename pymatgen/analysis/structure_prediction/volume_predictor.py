@@ -52,7 +52,7 @@ class RLSVolumePredictor:
         self.radii_type = radii_type
         self.use_bv = use_bv
 
-    def predict(self, structure, ref_structure):
+    def predict(self, structure: Structure, ref_structure):
         """
         Given a structure, returns the predicted volume.
 
@@ -121,7 +121,7 @@ class RLSVolumePredictor:
 
         raise ValueError("Cannot find volume scaling based on radii choices specified!")
 
-    def get_predicted_structure(self, structure, ref_structure):
+    def get_predicted_structure(self, structure: Structure, ref_structure):
         """
         Given a structure, returns back the structure scaled to predicted
         volume.
@@ -167,7 +167,7 @@ class DLSVolumePredictor:
         self.min_scaling = min_scaling
         self.max_scaling = max_scaling
 
-    def predict(self, structure, icsd_vol=False):
+    def predict(self, structure: Structure, icsd_vol=False):
         """
         Given a structure, returns the predicted volume.
 
@@ -234,7 +234,7 @@ class DLSVolumePredictor:
 
         return structure.volume * volume_factor
 
-    def get_predicted_structure(self, structure, icsd_vol=False):
+    def get_predicted_structure(self, structure: Structure, icsd_vol=False):
         """
         Given a structure, returns back the structure scaled to predicted
         volume.

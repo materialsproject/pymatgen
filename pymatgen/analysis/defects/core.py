@@ -34,7 +34,7 @@ class Defect(MSONable, metaclass=ABCMeta):
     Abstract class for a single point defect
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, multiplicity=None):
         """
         Initializes an abstract defect
 
@@ -310,7 +310,7 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, site_name="", multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, site_name="", multiplicity=None):
         """
         Initializes an interstial defect.
         Args:

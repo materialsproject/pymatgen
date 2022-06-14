@@ -128,7 +128,7 @@ class SuperTransformation(AbstractTransformation):
         self._transformations = transformations
         self.nstructures_per_trans = nstructures_per_trans
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Applies the transformation.
 
@@ -218,7 +218,7 @@ class MultipleSubstitutionTransformation:
         self.charge_balance_species = charge_balance_species
         self.order = order
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Applies the transformation.
 
@@ -355,7 +355,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Returns either a single ordered structure or a sequence of all ordered
         structures.
@@ -498,7 +498,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Applies the transformation.
 
@@ -825,7 +825,7 @@ class MagOrderingTransformation(AbstractTransformation):
         logger.debug(f"Structure with spin magnitudes:\n{structure}")
         return structure
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Apply MagOrderTransformation to an input structure.
         :param structure: Any ordered structure.
@@ -1001,7 +1001,7 @@ class DopingTransformation(AbstractTransformation):
         self.allowed_doping_species = allowed_doping_species
         self.kwargs = kwargs
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Args:
             structure (Structure): Input structure to dope
@@ -1246,7 +1246,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
         """
         self.max_sites_to_merge = max_sites_to_merge
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Args:
             structure: ordered structure
@@ -1672,7 +1672,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
         self.reorient = reorient
         self.find_args = find_args
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
 
         Args:
@@ -1836,7 +1836,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         self.range_tol = range_tol
         self.dist_from_surf = dist_from_surf
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
 
         Args:
@@ -2017,7 +2017,7 @@ class SQSTransformation(AbstractTransformation):
 
         return clusters
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Applies SQS transformation
         Args:

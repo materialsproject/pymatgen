@@ -29,11 +29,11 @@ from monty.dev import requires
 from monty.json import MSONable
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
 
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
-    ob = None
+    openbabel = None
 
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
@@ -140,16 +140,16 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         if h1 != h2:
             return None, None
 
-        query = ob.CompileMoleculeQuery(obmol1)
-        isomapper = ob.OBIsomorphismMapper.GetInstance(query)
-        isomorph = ob.vvpairUIntUInt()
+        query = openbabel.CompileMoleculeQuery(obmol1)
+        isomapper = openbabel.OBIsomorphismMapper.GetInstance(query)
+        isomorph = openbabel.vvpairUIntUInt()
         isomapper.MapAll(obmol2, isomorph)
 
         sorted_isomorph = [sorted(x, key=lambda morp: morp[0]) for x in isomorph]
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = obmol1
-        aligner = ob.OBAlign(True, False)
+        aligner = openbabel.OBAlign(True, False)
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -161,7 +161,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             elements2 = InchiMolAtomMapper._get_elements(obmol2, label2)
             if elements1 != elements2:
                 continue
-            vmol2 = ob.OBMol()
+            vmol2 = openbabel.OBMol()
             for i in label2:
                 vmol2.AddAtom(obmol2.GetAtom(i))
             aligner.SetTargetMol(vmol2)
@@ -176,9 +176,9 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         """
         Return inchi as molecular hash
         """
-        obconv = ob.OBConversion()
+        obconv = openbabel.OBConversion()
         obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
@@ -255,10 +255,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             original label
             List of equivalent atoms.
         """
-        obconv = ob.OBConversion()
+        obconv = openbabel.OBConversion()
         obconv.SetOutFormat("inchi")
-        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.AddOption("a", openbabel.OBConversion.OUTOPTIONS)
+        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(
             r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
@@ -314,7 +314,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             The virtual molecule
         """
-        vmol = ob.OBMol()
+        vmol = openbabel.OBMol()
 
         non_unique_atoms = {a for g in eq_atoms for a in g}
         all_atoms = set(range(1, len(ilabels) + 1))
@@ -380,20 +380,20 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             # used to align, but match by positions
             a2.SetVector(oa2.GetVector())
 
-        aligner = ob.OBAlign(False, False)
+        aligner = openbabel.OBAlign(False, False)
         aligner.SetRefMol(vmol1)
         aligner.SetTargetMol(vmol2)
         aligner.Align()
         aligner.UpdateCoords(vmol2)
 
-        canon_mol1 = ob.OBMol()
+        canon_mol1 = openbabel.OBMol()
         for i in ilabel1:
             oa1 = mol1.GetAtom(i)
             a1 = canon_mol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
 
-        aligned_mol2 = ob.OBMol()
+        aligned_mol2 = openbabel.OBMol()
         for i in range(nvirtual + 1, nvirtual + nheavy + 1):
             oa2 = vmol2.GetAtom(i)
             a2 = aligned_mol2.NewAtom()
@@ -447,20 +447,20 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         label1 = heavy_indices1 + tuple(hydrogen_atoms1)
         label2 = heavy_indices2 + tuple(hydrogen_atoms2)
 
-        cmol1 = ob.OBMol()
+        cmol1 = openbabel.OBMol()
         for i in label1:
             oa1 = mol1.GetAtom(i)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
-        cmol2 = ob.OBMol()
+        cmol2 = openbabel.OBMol()
         for i in label2:
             oa2 = mol2.GetAtom(i)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = ob.OBAlign(False, False)
+        aligner = openbabel.OBAlign(False, False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -587,7 +587,7 @@ class MoleculeMatcher(MSONable):
     """
 
     @requires(
-        ob,
+        openbabel,
         "BabelMolAdaptor requires openbabel to be installed with "
         "Python bindings. Please get it at http://openbabel.org "
         "(version >=3.0.0).",
@@ -650,20 +650,20 @@ class MoleculeMatcher(MSONable):
         obmol1 = BabelMolAdaptor(mol1).openbabel_mol
         obmol2 = BabelMolAdaptor(mol2).openbabel_mol
 
-        cmol1 = ob.OBMol()
+        cmol1 = openbabel.OBMol()
         for i in clabel1:
             oa1 = obmol1.GetAtom(i)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
-        cmol2 = ob.OBMol()
+        cmol2 = openbabel.OBMol()
         for i in clabel2:
             oa2 = obmol2.GetAtom(i)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = ob.OBAlign(True, False)
+        aligner = openbabel.OBAlign(True, False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()

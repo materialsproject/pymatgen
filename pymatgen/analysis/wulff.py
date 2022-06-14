@@ -25,6 +25,7 @@ import numpy as np
 import plotly.graph_objs as go
 from scipy.spatial import ConvexHull
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
@@ -165,7 +166,7 @@ class WulffShape:
 
     """
 
-    def __init__(self, lattice, miller_list, e_surf_list, symprec=1e-5):
+    def __init__(self, lattice: Lattice, miller_list, e_surf_list, symprec=1e-5):
         """
         Args:
             lattice: Lattice object of the conventional unit cell

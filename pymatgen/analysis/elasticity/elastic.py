@@ -18,6 +18,7 @@ from scipy.special import factorial
 
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import (
     DEFAULT_QUAD,
     SquareTensor,
@@ -441,7 +442,7 @@ class ElasticTensor(NthOrderElasticTensor):
         ]
         return {prop: getattr(self, prop) for prop in props}
 
-    def get_structure_property_dict(self, structure, include_base_props=True, ignore_errors=False):
+    def get_structure_property_dict(self, structure: Structure, include_base_props=True, ignore_errors=False):
         """
         returns a dictionary of properties derived from the elastic tensor
         and an associated structure
@@ -670,7 +671,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.0
 
-    def get_heat_capacity(self, temperature, structure, n, u, cutoff=1e2):
+    def get_heat_capacity(self, temperature, structure: Structure, n, u, cutoff=1e2):
         """
         Gets the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
@@ -694,7 +695,7 @@ class ElasticTensorExpansion(TensorCollection):
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1) ** 2
         return c * 6.022e23
 
-    def omega(self, structure, n, u):
+    def omega(self, structure: Structure, n, u):
         """
         Finds directional frequency contribution to the heat
         capacity from direction and polarization
@@ -713,7 +714,7 @@ class ElasticTensorExpansion(TensorCollection):
         vel = (1e9 * self[0].einsum_sequence([n, u, n, u]) / (weight / vol)) ** 0.5
         return vel / l0
 
-    def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
+    def thermal_expansion_coeff(self, structure: Structure, temperature, mode="debye"):
         """
         Gets thermal expansion coefficient from third-order constants.
 

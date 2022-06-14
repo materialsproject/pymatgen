@@ -46,6 +46,7 @@ from sympy.solvers import linsolve, solve
 
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
@@ -1464,7 +1465,7 @@ class WorkFunctionAnalyzer:
         The average locpot of the slab region along the c direction
     """
 
-    def __init__(self, structure, locpot_along_c, efermi, shift=0, blength=3.5):
+    def __init__(self, structure: Structure, locpot_along_c, efermi, shift=0, blength=3.5):
         """
         Initializes the WorkFunctionAnalyzer class.
 

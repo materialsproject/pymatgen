@@ -73,7 +73,7 @@ def zval_dict_from_potcar(potcar):
     return zval_dict
 
 
-def calc_ionic(site, structure, zval):
+def calc_ionic(site, structure: Structure, zval):
     """
     Calculate the ionic dipole moment using ZVAL from pseudopotential
 

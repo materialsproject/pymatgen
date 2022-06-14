@@ -381,7 +381,7 @@ class GulpIO:
             return gin + "\n"
         raise GulpError("GULP Library not found")
 
-    def buckingham_input(self, structure, keywords, library=None, uc=True, valence_dict=None):
+    def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
         from library.
@@ -473,7 +473,7 @@ class GulpIO:
                 gin += bpl.spring_dict[key]
         return gin
 
-    def tersoff_input(self, structure, periodic=False, uc=True, *keywords):
+    def tersoff_input(self, structure: Structure, periodic=False, uc=True, *keywords):
         """
         Gets a GULP input with Tersoff potential for an oxide structure
 

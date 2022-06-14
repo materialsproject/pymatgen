@@ -865,7 +865,7 @@ class MITRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MITRelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -885,7 +885,7 @@ class MPRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -925,7 +925,7 @@ class MPScanRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
 
-    def __init__(self, structure, bandgap=0, **kwargs):
+    def __init__(self, structure: Structure, bandgap=0, **kwargs):
         """
         Args:
             structure (Structure): Input structure.
@@ -1014,7 +1014,7 @@ class MPMetalRelaxSet(MPRelaxSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -1032,7 +1032,7 @@ class MPHSERelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -1232,7 +1232,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     (SCAN) metaGGA functional.
     """
 
-    def __init__(self, structure, bandgap=0, prev_incar=None, lepsilon=False, lcalcpol=False, **kwargs):
+    def __init__(self, structure: Structure, bandgap=0, prev_incar=None, lepsilon=False, lcalcpol=False, **kwargs):
         """
         Args:
             structure (Structure): Structure from previous run.
@@ -1892,7 +1892,9 @@ class MPNMRSet(MPStaticSet):
     Init a MPNMRSet.
     """
 
-    def __init__(self, structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs):
+    def __init__(
+        self, structure: Structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs
+    ):
         """
         Args:
             structure (Structure): Structure to compute
@@ -1973,7 +1975,7 @@ class MVLElasticSet(MPRelaxSet):
     elastic constants.
     """
 
-    def __init__(self, structure, potim=0.015, **kwargs):
+    def __init__(self, structure: Structure, potim=0.015, **kwargs):
         """
         Args:
             scale (float): POTIM parameter. The default of 0.015 is usually fine,
@@ -2163,7 +2165,14 @@ class MVLSlabSet(MPRelaxSet):
     """
 
     def __init__(
-        self, structure, k_product=50, bulk=False, auto_dipole=False, set_mix=True, sort_structure=True, **kwargs
+        self,
+        structure: Structure,
+        k_product=50,
+        bulk=False,
+        auto_dipole=False,
+        set_mix=True,
+        sort_structure=True,
+        **kwargs,
     ):
         """
         :param structure: Structure
@@ -2264,7 +2273,7 @@ class MVLGBSet(MPRelaxSet):
     or bulk.
     """
 
-    def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
+    def __init__(self, structure: Structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
         """
 
         Args:
@@ -2370,7 +2379,7 @@ class MVLRelax52Set(DictSet):
 
     CONFIG = _load_yaml_config("MVLRelax52Set")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         Args:
             structure (Structure): input structure.
@@ -2511,7 +2520,7 @@ class MITMDSet(MITRelaxSet):
     runs.
     """
 
-    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
+    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
         """
 
         Args:
@@ -2592,7 +2601,7 @@ class MPMDSet(MPRelaxSet):
     Precision remains normal, to increase accuracy of stress tensor.
     """
 
-    def __init__(self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
+    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
         """
         Args:
             structure (Structure): Input structure.
@@ -2672,7 +2681,7 @@ class MVLNPTMDSet(MITMDSet):
         value of ENCUT, which is 1.5 * ENMAX.
     """
 
-    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
+    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
         """
         Args:
             structure (Structure): input structure.
@@ -2729,7 +2738,7 @@ class MVLScanRelaxSet(MPRelaxSet):
             kinetic energy density (partial)
     """
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         Args:
             structure (Structure): input structure.

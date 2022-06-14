@@ -11,6 +11,7 @@ from math import asin, cos, degrees, pi, radians, sin
 
 import numpy as np
 
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from .core import (
@@ -65,7 +66,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
-    def get_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
+    def get_pattern(self, structure: Structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the powder neutron diffraction pattern for a structure.
 

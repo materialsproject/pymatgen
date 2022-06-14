@@ -490,7 +490,7 @@ class LocalGeometryFinder:
         """
         return self.structure
 
-    def set_structure(self, lattice, species, coords, coords_are_cartesian):
+    def set_structure(self, lattice: Lattice, species, coords, coords_are_cartesian):
         """
         Sets up the pymatgen structure for which the coordination geometries have to be identified starting from the
         lattice, the species and the coordinates

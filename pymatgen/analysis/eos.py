@@ -8,6 +8,8 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
 """
 
+from __future__ import annotations
+
 import logging
 import warnings
 from abc import ABCMeta, abstractmethod

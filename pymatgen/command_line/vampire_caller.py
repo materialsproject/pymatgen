@@ -16,6 +16,8 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
+from __future__ import annotations
+
 import logging
 import subprocess
 from shutil import which

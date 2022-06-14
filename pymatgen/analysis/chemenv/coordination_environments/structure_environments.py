@@ -51,7 +51,7 @@ class StructureEnvironments(MSONable):
         Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).
         """
 
-        def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
+        def __init__(self, structure: Structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             """
             Constructor for NeighborsSet.
 
@@ -397,9 +397,8 @@ class StructureEnvironments(MSONable):
         def __str__(self):
             out = f"Neighbors Set for site #{self.isite:d} :\n"
             out += f" - Coordination number : {len(self):d}\n"
-            out += " - Voronoi indices : {}\n".format(
-                ", ".join([f"{site_voronoi_index:d}" for site_voronoi_index in self.site_voronoi_indices])
-            )
+            voro_indices = ", ".join(f"{site_voronoi_index:d}" for site_voronoi_index in self.site_voronoi_indices)
+            out += f" - Voronoi indices : {voro_indices}\n"
             return out
 
         def as_dict(self):
@@ -413,7 +412,7 @@ class StructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dd, structure, detailed_voronoi):
+        def from_dict(cls, dd, structure: Structure, detailed_voronoi):
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
@@ -1251,8 +1250,7 @@ class StructureEnvironments(MSONable):
                         if self_ce.is_close_to(other_ce):
                             differences.append(
                                 {
-                                    "difference": "ce_list[isite={:d}][cn={:d}]"
-                                    "[inb_set={:d}]".format(isite, cn, inb_set_self),
+                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
                                     "comparison": "__eq__",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1261,8 +1259,7 @@ class StructureEnvironments(MSONable):
                         else:
                             differences.append(
                                 {
-                                    "difference": "ce_list[isite={:d}][cn={:d}]"
-                                    "[inb_set={:d}]".format(isite, cn, inb_set_self),
+                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
                                     "comparison": "is_close_to",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1436,7 +1433,7 @@ class LightStructureEnvironments(MSONable):
         container is not part of the LightStructureEnvironments object).
         """
 
-        def __init__(self, structure, isite, all_nbs_sites, all_nbs_sites_indices):
+        def __init__(self, structure: Structure, isite, all_nbs_sites, all_nbs_sites_indices):
             """
             Constructor for NeighborsSet.
 
@@ -1525,7 +1522,7 @@ class LightStructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dd, structure, all_nbs_sites):
+        def from_dict(cls, dd, structure: Structure, all_nbs_sites):
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
