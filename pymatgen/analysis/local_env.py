@@ -27,7 +27,7 @@ from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
-from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite, Site
@@ -539,7 +539,9 @@ class NearNeighbors:
                     return i
         raise Exception("Site not found!")
 
-    def get_bonded_structure(self, structure: Structure, decorate=False, weights=True):
+    def get_bonded_structure(
+        self, structure: Structure, decorate: bool = False, weights: bool = True
+    ) -> StructureGraph:
         """
         Obtain a StructureGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -555,10 +557,6 @@ class NearNeighbors:
 
         Returns: a pymatgen.analysis.graphs.StructureGraph object
         """
-
-        # requires optional dependency which is why it's not a top-level import
-        from pymatgen.analysis.graphs import StructureGraph
-
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -845,9 +843,9 @@ class VoronoiNN(NearNeighbors):
 
                 # Compute the volume of associated with this face
                 volume = 0
-                #  qvoronoi returns vertices in CCW order, so I can break
-                #   the face up in to segments (0,1,2), (0,2,3), ... to compute
-                #   its area where each number is a vertex size
+                # qvoronoi returns vertices in CCW order, so I can break
+                # the face up in to segments (0,1,2), (0,2,3), ... to compute
+                # its area where each number is a vertex size
                 for j, k in zip(vind[1:], vind[2:]):
                     volume += vol_tetra(
                         center_coords,
@@ -1454,7 +1452,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate=False):
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1468,10 +1466,6 @@ class OpenBabelNN(NearNeighbors):
 
         Returns: a pymatgen.analysis.graphs.MoleculeGraph object
         """
-
-        # requires optional dependency which is why it's not a top-level import
-        from pymatgen.analysis.graphs import MoleculeGraph
-
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -1614,7 +1608,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate=False):
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class.
@@ -2936,7 +2930,7 @@ class LocalStructOrderParams:
         if self._boops:
             thetas = []
             phis = []
-            for j, vec in enumerate(rijnorm):
+            for vec in rijnorm:
 
                 # z is North pole --> theta between vec and (0, 0, 1)^T.
                 # Because vec is normalized, dot product is simply vec[2].
@@ -3321,7 +3315,7 @@ class LocalStructOrderParams:
 
             # Compute height, side and diagonal length estimates.
             neighscent = np.array([0.0, 0.0, 0.0])
-            for j, neigh in enumerate(neighsites):
+            for neigh in neighsites:
                 neighscent = neighscent + neigh.coords
             if nneigh > 0:
                 neighscent = neighscent / float(nneigh)
@@ -4291,7 +4285,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate=False):
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         :param structure: Input structure
         :param decorate: Whether to decorate the structure
@@ -4358,7 +4352,7 @@ def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
             metal bonds (if any found) added
 
     """
-    metal_sites = {"Li": {}, "Mg": {}, "Ca": {}, "Zn": {}, "B": {}, "Al": {}}
+    metal_sites: dict[str, dict] = {"Li": {}, "Mg": {}, "Ca": {}, "Zn": {}, "B": {}, "Al": {}}
     coordinators = ["O", "N", "F", "S", "Cl"]
     num_new_edges = 0
     for idx in mol_graph.graph.nodes():
@@ -4366,7 +4360,7 @@ def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
             metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [
                 site[2] for site in mol_graph.get_connected_sites(idx)
             ]
-    for metal, sites in metal_sites.items():
+    for sites in metal_sites.values():
         for idx, indices in sites.items():
             for ii, site in enumerate(mol_graph.molecule):
                 if ii != idx and ii not in indices:
@@ -4380,7 +4374,7 @@ def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
         for indices in sites.values():
             total_metal_edges += len(indices)
     if total_metal_edges == 0:
-        for metal, sites in metal_sites.items():
+        for sites in metal_sites.values():
             for idx, indices in sites.items():
                 for ii, site in enumerate(mol_graph.molecule):
                     if ii != idx and ii not in indices:

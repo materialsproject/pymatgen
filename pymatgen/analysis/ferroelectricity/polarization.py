@@ -291,9 +291,7 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                lattice = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(lattice) * units.ravel()[i]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
         #  convert polarizations to polar lattice
         elif convert_to_muC_per_cm2 and all_in_polar:
             abc = [lattice.abc for lattice in lattices]
@@ -302,10 +300,8 @@ class Polarization:
             p_tot *= abc[-1] / volumes[-1] * e_to_muC * cm2_to_A2  # to muC / cm^2
             for i in range(L):
                 lattice = lattices[-1]  # Use polar lattice
-                lattice = lattice.lengths
-                a = lattice.angles
                 # Use polar units (volume)
-                lattices[i] = Lattice.from_parameters(*(np.array(lattice) * units.ravel()[-1]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
         d_structs = []
         sites = []

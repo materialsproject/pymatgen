@@ -27,6 +27,7 @@ import spglib
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
@@ -59,7 +60,7 @@ class SpacegroupAnalyzer:
         self._siteprops = structure.site_properties
         latt = structure.lattice.matrix
         positions = structure.frac_coords
-        unique_species = []
+        unique_species: list[Element | Species] = []
         zs = []
         magmoms = []
 
