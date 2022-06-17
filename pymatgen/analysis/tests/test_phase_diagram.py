@@ -6,7 +6,6 @@ import unittest
 import warnings
 from numbers import Number
 from pathlib import Path
-from collections import OrderedDict
 
 import numpy as np
 from monty.serialization import dumpfn, loadfn
@@ -15,8 +14,8 @@ from monty.tempfile import ScratchDir
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
-    PatchedPhaseDiagram,
     GrandPotPDEntry,
+    PatchedPhaseDiagram,
     PDEntry,
     PDPlotter,
     PhaseDiagram,
