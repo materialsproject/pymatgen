@@ -859,9 +859,9 @@ class PhaseDiagram(MSONable):
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
-                    f"There are {len(competing_entries)} competing entries "
-                    f"for {entry.composition} - Calculating inner hull to discard "
-                    "additional unstable entries"
+                f"There are {len(competing_entries)} competing entries "
+                f"for {entry.composition} - Calculating inner hull to discard "
+                "additional unstable entries"
             )
 
             reduced_space = (
@@ -878,9 +878,9 @@ class PhaseDiagram(MSONable):
 
         if len(competing_entries) > space_limit:
             warnings.warn(
-                    f"There are {len(competing_entries)} competing entries "
-                    f"for {entry.composition} - Using SLSQP to find "
-                    "decomposition likely to be slow"
+                f"There are {len(competing_entries)} competing entries "
+                f"for {entry.composition} - Using SLSQP to find "
+                "decomposition likely to be slow"
             )
 
         decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
