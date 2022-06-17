@@ -225,7 +225,7 @@ class PWInput:
             filename (str): The string filename to output to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename):

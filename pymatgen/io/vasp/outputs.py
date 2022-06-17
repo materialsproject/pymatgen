@@ -4,6 +4,7 @@
 """
 Classes for reading/manipulating/writing VASP output files.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -203,7 +204,7 @@ class Vasprun(MSONable):
 
         Final projected magnetisation as a numpy array with the shape (nkpoints, nbands,
         natoms, norbitals, 3). Where the last axis is the contribution in the 3
-        cartesian directions. This attribute is only set if spin-orbit coupling
+        Cartesian directions. This attribute is only set if spin-orbit coupling
         (LSORBIT = True) or non-collinear magnetism (LNONCOLLINEAR = True) is turned
         on in the INCAR.
 
@@ -239,6 +240,28 @@ class Vasprun(MSONable):
 
         Normal mode eigen vectors.
         3D numpy array of shape (3*natoms, natoms, 3).
+
+    .. attribute:: md_data
+
+        Available only for ML MD runs, i.e., INCAR with ML_LMLFF = .TRUE.
+        md_data is a list of dict with the following format:
+
+        [
+            {
+                'energy': {
+                    'e_0_energy': -525.07195568,
+                    'e_fr_energy': -525.07195568,
+                    'e_wo_entrp': -525.07195568,
+                    'kinetic': 3.17809233,
+                    'lattice kinetic': 0.0,
+                    'nosekinetic': 1.323e-05,
+                    'nosepot': 0.0,
+                    'total': -521.89385012
+                    },
+                'forces': [[0.17677989, 0.48309874, 1.85806696], ...],
+                'structure': Structure object
+            }
+        ]
 
     **Vasp inputs**
 
@@ -391,7 +414,10 @@ class Vasprun(MSONable):
         self.projected_magnetisation = None
         self.dielectric_data = {}
         self.other_dielectric = {}
+        self.incar = {}
         ionic_steps = []
+
+        md_data = []
         parsed_header = False
         try:
             for event, elem in ET.iterparse(stream):
@@ -477,6 +503,16 @@ class Vasprun(MSONable):
                         phonon_eigenvectors.append(np.array(ev).reshape(natoms, 3))
                     self.normalmode_eigenvals = np.array(eigenvalues)
                     self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
+                elif self.incar.get("ML_LMLFF"):
+                    if tag == "structure" and elem.attrib.get("name") is None:
+                        md_data.append({})
+                        md_data[-1]["structure"] = self._parse_structure(elem)
+                    elif tag == "varray" and elem.attrib.get("name") == "forces":
+                        md_data[-1]["forces"] = _parse_varray(elem)
+                    elif tag == "energy":
+                        d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
+                        if "kinetic" in d:
+                            md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
         except ET.ParseError as ex:
             if self.exception_on_bad_xml:
                 raise ex
@@ -485,6 +521,7 @@ class Vasprun(MSONable):
                 UserWarning,
             )
         self.ionic_steps = ionic_steps
+        self.md_data = md_data
         self.vasp_version = self.generator["version"]
 
     @property
@@ -950,12 +987,12 @@ class Vasprun(MSONable):
                 projections=p_eigenvals,
             )
         return BandStructure(
-            kpoints,
-            eigenvals,
+            kpoints,  # type: ignore
+            eigenvals,  # type: ignore
             lattice_new,
             e_fermi,
             structure=self.final_structure,
-            projections=p_eigenvals,
+            projections=p_eigenvals,  # type: ignore
         )
 
     @property
@@ -1134,7 +1171,7 @@ class Vasprun(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = {
             "vasp_version": self.vasp_version,
@@ -1457,7 +1494,7 @@ class Vasprun(MSONable):
         if len(proj_eigen) > 2:
             # non-collinear magentism (also spin-orbit coupling) enabled, last three
             # "spin channels" are the projected magnetisation of the orbitals in the
-            # x, y, and z cartesian coordinates
+            # x, y, and z Cartesian coordinates
             proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)
             proj_eigen = {Spin.up: proj_eigen[1]}
         else:
@@ -1566,7 +1603,7 @@ class BSVasprun(Vasprun):
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         d = {
             "vasp_version": self.vasp_version,
@@ -1646,7 +1683,7 @@ class Outcar:
 
         Magnetization on each ion as a tuple of dict, e.g.,
         ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... )
-        Note that this data is not always present.  LORBIT must be set to some
+        Note that this data is not always present. LORBIT must be set to some
         other value than the default.
 
     .. attribute:: chemical_shielding
@@ -1685,7 +1722,7 @@ class Outcar:
 
         Charge on each ion as a tuple of dict, e.g.,
         ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
-        Note that this data is not always present.  LORBIT must be set to some
+        Note that this data is not always present. LORBIT must be set to some
         other value than the default.
 
     .. attribute:: is_stopped
@@ -2073,9 +2110,9 @@ class Outcar:
             "Ediel_sol",
         ]:
             if k == "PAW double counting":
-                self.read_pattern({k: r"%s\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)" % (k)})
+                self.read_pattern({k: rf"{k}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
             else:
-                self.read_pattern({k: r"%s\s+=\s+([\d\-\.]+)" % (k)})
+                self.read_pattern({k: rf"{k}\s+=\s+([\d\-\.]+)"})
             if not self.data[k]:
                 continue
             final_energy_contribs[k] = sum(float(f) for f in self.data[k][-1])
@@ -3141,7 +3178,20 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-        except Exception:
+            # fix polarization units in new versions of vasp
+            regex = r"^.*Ionic dipole moment: .*"
+            search = [[regex, None, lambda x, y: x.append(y.group(0))]]
+            r = micro_pyawk(self.filename, search, [])
+
+            if "|e|" in r[0]:
+                self.p_elec *= -1
+                self.p_ion *= -1
+                if self.spin and not self.noncollinear:
+                    self.p_sp1 *= -1
+                    self.p_sp2 *= -1
+
+        except Exception as ex:
+            print(ex.args)
             raise Exception("LCALCPOL OUTCAR could not be parsed.")
 
     def read_pseudo_zval(self):
@@ -3263,8 +3313,8 @@ class Outcar:
         :return: MSONAble dict.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "run_stats": self.run_stats,
             "magnetization": self.magnetization,
@@ -3443,7 +3493,8 @@ class VolumetricData(MSONable):
 
         Args:
             structure: Structure associated with the volumetric data
-            data: Actual volumetric data.
+            data: Actual volumetric data. If the data is provided as in list format,
+                it will be converted into an np.array automatically
             data_aug: Any extra information associated with volumetric data
                 (typically augmentation charges)
             distance_matrix: A pre-computed distance matrix if available.
@@ -3453,8 +3504,9 @@ class VolumetricData(MSONable):
         self.structure = structure
         self.is_spin_polarized = len(data) >= 2
         self.is_soc = len(data) >= 4
-        self.dim = data["total"].shape
-        self.data = data
+        # convert data to numpy arrays incase they were jsanitized as lists
+        self.data = {k: np.array(v) for k, v in data.items()}
+        self.dim = self.data["total"].shape
         self.data_aug = data_aug if data_aug else {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
@@ -3475,7 +3527,7 @@ class VolumetricData(MSONable):
         """
         The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
-        instead of the total and diff.  Note that by definition, a
+        instead of the total and diff. Note that by definition, a
         non-spin-polarized run would have Spin.up data == Spin.down data.
         """
         if not self._spin_data:
@@ -3677,16 +3729,15 @@ class VolumetricData(MSONable):
 
             lines = comment + "\n"
             lines += "   1.00000000000000\n"
-            latt = self.structure.lattice.matrix
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0, :])
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
+            for vec in self.structure.lattice.matrix:
+                lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
                 lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
             lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
             lines += "Direct\n"
             for site in self.structure:
-                lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+                a, b, c = site.frac_coords
+                lines += f"{a:10.6f}{b:10.6f}{c:10.6f}\n"
             lines += " \n"
             f.write(lines)
             a = self.dim
@@ -4187,7 +4238,7 @@ class Procar:
 
 class Oszicar:
     """
-    A basic parser for an OSZICAR output from VASP.  In general, while the
+    A basic parser for an OSZICAR output from VASP. In general, while the
     OSZICAR is useful for a quick look at the output from a VASP run, we
     recommend that you use the Vasprun parser instead, which gives far richer
     information about a run.
@@ -4866,8 +4917,8 @@ class Wavecar:
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
                 print(
-                    "kpoints = {}, bands = {}, energy cutoff = {}, fermi "
-                    "energy= {:.04f}\n".format(self.nk, self.nb, self.encut, self.efermi)
+                    f"kpoints = {self.nk}, bands = {self.nb}, energy cutoff = {self.encut}, fermi "
+                    f"energy= {self.efermi:.04f}\n"
                 )
                 print(f"primitive lattice vectors = \n{self.a}")
 
@@ -5558,8 +5609,7 @@ class Waveder:
                     suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
                     if abs(prefix) - abs(suffix):
                         raise RuntimeError(
-                            "Read wrong amount of bytes.\n"
-                            "Expected: %d, read: %d, suffix: %d." % (prefix, len(data), suffix)
+                            f"Read wrong amount of bytes.\nExpected: {prefix}, read: {len(data)}, suffix: {suffix}."
                         )
                     if prefix > 0:
                         break
@@ -5612,13 +5662,13 @@ class Waveder:
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
         Method returning a value
-        between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
+        between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
         Args:
             band_i (Integer): Index of band i
             band_j (Integer): Index of band j
             kpoint (Integer): Index of k-point
             spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of cartesian direction (0,1,2)
+            cart_dir (Integer): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value
@@ -5652,12 +5702,19 @@ class WSWQ(MSONable):
     The indices of WSWQ.data are:
         [spin][kpoint][band_i][band_j]
 
+    Attributes:
+        nspin: Number of spin channels
+        nkpoints: Number of k-points
+        nbands: Number of bands
+        me_real: Real part of the overlap matrix elements
+        me_imag: Imaginary part of the overlap matrix elements
     """
 
     nspin: int
     nkpoints: int
     nbands: int
-    data: np.ndarray
+    me_real: np.ndarray
+    me_imag: np.ndarray
 
     @classmethod
     def from_file(cls, filename):
@@ -5694,7 +5751,7 @@ class WSWQ(MSONable):
         # NOTE: loop order (slow->fast) spin -> kpoint -> j -> i
         data = data.reshape((nspin, nkpoints, nbands, nbands))
         data = np.swapaxes(data, 2, 3)  # swap i and j
-        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, data=data)
+        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, me_real=np.real(data), me_imag=np.imag(data))
 
 
 class UnconvergedVASPWarning(Warning):

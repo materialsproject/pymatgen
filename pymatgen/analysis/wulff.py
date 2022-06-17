@@ -590,7 +590,8 @@ class WulffShape:
             tri_indices = np.array(list(itertools.combinations(index_list, 3))).T
             hkl = self.miller_list[plane.index]
             hkl = unicodeify_spacegroup("(" + "%s" * len(hkl) % hkl + ")")
-            color = "rgba(%.5f, %.5f, %.5f, %.5f)" % tuple(np.array(plane_color) * 255)
+            cs = tuple(np.array(plane_color) * 255)
+            color = f"rgba({cs[0]:.5f}, {cs[1]:.5f}, {cs[2]:.5f}, {cs[3]:.5f})"
 
             # note hoverinfo is incompatible with latex, need unicode instead
             planes_data.append(
@@ -603,7 +604,7 @@ class WulffShape:
                     k=tri_indices[2],
                     hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
-                    text=[r"Miller index: %s" % hkl] * len(x_pts),
+                    text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
                     name="",
                 )
@@ -625,7 +626,7 @@ class WulffShape:
             z=[0],
             colorbar=go.ColorBar(
                 title={
-                    "text": r"Surface energy %s" % units,
+                    "text": f"Surface energy {units}",
                     "side": "right",
                     "font": {"size": 25},
                 },

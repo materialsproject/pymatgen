@@ -224,11 +224,7 @@ class ExcitingInput(MSONable):
         basis = new_struct.lattice.matrix
         for i in range(3):
             basevect = ET.SubElement(crystal, "basevect")
-            basevect.text = "{:16.8f} {:16.8f} {:16.8f}".format(
-                basis[i][0],
-                basis[i][1],
-                basis[i][2],
-            )
+            basevect.text = f"{basis[i][0]:16.8f} {basis[i][1]:16.8f} {basis[i][2]:16.8f}"
         # write atomic positions for each species
         index = 0
         for i in sorted(new_struct.types_of_species, key=lambda el: el.X):
@@ -236,12 +232,9 @@ class ExcitingInput(MSONable):
             sites = new_struct.indices_from_symbol(i.symbol)
 
             for j in sites:
-                coord = "{:16.8f} {:16.8f} {:16.8f}".format(
-                    new_struct[j].frac_coords[0],
-                    new_struct[j].frac_coords[1],
-                    new_struct[j].frac_coords[2],
-                )
-                # obtain cartesian coords from fractional ones if needed
+                fc = new_struct[j].frac_coords
+                coord = f"{fc[0]:16.8f} {fc[1]:16.8f} {fc[2]:16.8f}"
+                # obtain Cartesian coords from fractional ones if needed
                 if cartesian:
                     coord2 = []
                     for k in range(3):

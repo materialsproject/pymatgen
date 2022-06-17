@@ -20,10 +20,12 @@ References:
 
 """
 
+from __future__ import annotations
+
 import json
 import os
 import warnings
-from typing import List, Literal, Tuple, Union
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -136,7 +138,7 @@ class InterfacialReactivity(MSONable):
                 self.e1 = self._get_entry_energy(self.pd, self.comp1)
                 self.e2 = self._get_entry_energy(self.pd, self.comp2)
 
-    def get_kinks(self) -> List[Tuple[int, float, float, Reaction, float]]:
+    def get_kinks(self) -> list[tuple[int, float, float, Reaction, float]]:
         """
         Finds all the kinks in mixing ratio where reaction products changes
         along the tie-line of composition self.c1 and composition self.c2.
@@ -193,7 +195,7 @@ class InterfacialReactivity(MSONable):
 
         return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula))
 
-    def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Union[Figure, plt.Figure]:
+    def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
         Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2
         tie line.
@@ -284,7 +286,7 @@ class InterfacialReactivity(MSONable):
         """
         return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
-    def _get_reactants(self, x: float) -> List[Composition]:
+    def _get_reactants(self, x: float) -> list[Composition]:
         """Returns a list of relevant reactant compositions given an x coordinate"""
         # Uses original composition for reactants.
         if np.isclose(x, 0):
@@ -340,7 +342,7 @@ class InterfacialReactivity(MSONable):
 
     def _get_plotly_figure(self) -> Figure:
         """Returns a Plotly figure of reaction kinks diagram"""
-        kinks = map(list, zip(*self.get_kinks()))  # type: ignore
+        kinks = map(list, zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
         lines = Scatter(
@@ -409,7 +411,7 @@ class InterfacialReactivity(MSONable):
         pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
-        kinks = list(zip(*self.get_kinks()))  # type: ignore
+        kinks = list(zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
         plt.plot(x, energy, "o-", markersize=8, c="navy", zorder=1)
@@ -417,11 +419,7 @@ class InterfacialReactivity(MSONable):
 
         for x_coord, y_coord, rxn in zip(x, energy, reactions):
             products = ", ".join(
-                [
-                    latexify(p.reduced_formula)
-                    for p in rxn.products  # type: ignore
-                    if not np.isclose(rxn.get_coeff(p), 0)  # type: ignore
-                ]
+                [latexify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
             plt.annotate(
                 products,
@@ -460,7 +458,7 @@ class InterfacialReactivity(MSONable):
         return title
 
     @staticmethod
-    def _get_plotly_annotations(x: List[float], y: List[float], reactions: List[Reaction]):
+    def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
         """Returns dictionary of annotations for the Plotly figure layout"""
         annotations = []
         for x_coord, y_coord, rxn in zip(x, y, reactions):
@@ -714,7 +712,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
             (f"{self.c2_original.reduced_formula} ({unit})", energy2),
         ]
 
-    def _get_reactants(self, x: float) -> List[Composition]:
+    def _get_reactants(self, x: float) -> list[Composition]:
         """Returns a list of relevant reactant compositions given an x coordinate"""
         reactants = super()._get_reactants(x)
         reactants += [Composition(e.symbol) for e, v in self.pd.chempots.items()]

@@ -18,7 +18,7 @@ Si_structure = Structure(
 
 nonsense_Structure = Structure(
     lattice=[[-1.0, -10.0, -100.0], [0.1, 0.01, 0.001], [7.0, 11.0, 21.0]],
-    species=["X"],
+    species=["H"],
     coords=[[-1, -1, -1]],
 )
 

@@ -357,17 +357,43 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
+        num_branches = len(bandstructure.branches)
+        new_branches = []
+
+        # This ensures proper format of bandstructure.branches
+        processed = []
+        for ind in range(num_branches):
+            branch = bandstructure.branches[ind]
+
+            if branch["name"] not in processed:
+
+                if tuple(branch["name"].split("-")) in plot_axis:
+                    new_branches.append(branch)
+                    processed.append(branch["name"])
+                else:
+                    next_branch = bandstructure.branches[ind + 1]
+                    combined = {
+                        "start_index": branch["start_index"],
+                        "end_index": next_branch["end_index"],
+                        "name": f"{branch['name'].split('-')[0]}-{next_branch['name'].split('-')[1]}",
+                    }
+                    processed.append(branch["name"])
+                    processed.append(next_branch["name"])
+
+                    new_branches.append(combined)
+
+        # Obtain new values
         for entry in distances_map:
+
+            branch = new_branches[entry[0]]
+
             if not entry[1]:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["start_index"]
                 stop = branch["end_index"] + 1
                 step = 1
-
             else:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["end_index"]
-                stop = branch["start_index"] - 1
+                stop = branch["start_index"] - 1 if branch["start_index"] != 0 else None
                 step = -1
 
             # kpoints

@@ -7,6 +7,8 @@ Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
 SpaceGroup data as published in his textbook "Structure of Materials".
 """
 
+from __future__ import annotations
+
 import os
 import re
 import warnings
@@ -14,13 +16,19 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
+from typing import TYPE_CHECKING, Literal, overload
 
 import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.core.operations import SymmOp
 from pymatgen.util.string import Stringify
+
+if TYPE_CHECKING:
+    # don't import at runtime to avoid circular import
+    from pymatgen.core.lattice import Lattice
+    from pymatgen.core.operations import SymmOp
+    from pymatgen.util.typing import ArrayLike
 
 SYMM_DATA = None
 
@@ -34,32 +42,44 @@ def _get_symm_data(name):
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
     """
-    Abstract class representation a symmetry group.
+    Abstract class representing a symmetry group.
     """
 
     @property
     @abstractmethod
-    def symmetry_ops(self):
+    def symmetry_ops(self) -> set[SymmOp]:
         """
-        :return: List of symmetry operations
+        Returns:
+            List of symmetry operations associated with the group.
         """
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, SymmOp):
+            return NotImplemented
+
         for i in self.symmetry_ops:
             if np.allclose(i.affine_matrix, item.affine_matrix):
                 return True
         return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self.__len__()
 
-    def __getitem__(self, item):
-        return self.symmetry_ops[item]
+    @overload
+    def __getitem__(self, item: int) -> SymmOp:
+        ...
 
-    def __len__(self):
+    @overload
+    def __getitem__(self, item: slice) -> Sequence[SymmOp]:
+        ...
+
+    def __getitem__(self, item: int | slice) -> SymmOp | Sequence[SymmOp]:
+        return list(self.symmetry_ops)[item]
+
+    def __len__(self) -> int:
         return len(self.symmetry_ops)
 
-    def is_subgroup(self, supergroup):
+    def is_subgroup(self, supergroup: SymmetryGroup) -> bool:
         """
         True if this group is a subgroup of the supplied group.
 
@@ -72,7 +92,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
-    def is_supergroup(self, subgroup):
+    def is_supergroup(self, subgroup: SymmetryGroup) -> bool:
         """
         True if this group is a supergroup of the supplied group.
 
@@ -113,13 +133,15 @@ class PointGroup(SymmetryGroup):
         Full set of symmetry operations as matrices.
     """
 
-    def __init__(self, int_symbol):
+    def __init__(self, int_symbol: str) -> None:
         """
         Initializes a Point Group from its international symbol.
 
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
         """
+        from pymatgen.core.operations import SymmOp
+
         self.symbol = int_symbol
         self.generators = [
             _get_symm_data("generator_matrices")[c] for c in _get_symm_data("point_group_encoding")[int_symbol]
@@ -128,13 +150,14 @@ class PointGroup(SymmetryGroup):
         self.order = len(self._symmetry_ops)
 
     @property
-    def symmetry_ops(self):
+    def symmetry_ops(self) -> set[SymmOp]:
         """
-        :return: List of symmetry operations for SpaceGroup
+        Returns:
+            List of symmetry operations associated with the group.
         """
         return self._symmetry_ops
 
-    def _generate_full_symmetry_ops(self):
+    def _generate_full_symmetry_ops(self) -> list[SymmOp]:
         symm_ops = list(self.generators)
         new_ops = self.generators
         while len(new_ops) > 0:
@@ -147,7 +170,7 @@ class PointGroup(SymmetryGroup):
             new_ops = gen_ops
         return symm_ops
 
-    def get_orbit(self, p, tol=1e-5):
+    def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[ArrayLike]:
         """
         Returns the orbit for a point.
 
@@ -160,7 +183,7 @@ class PointGroup(SymmetryGroup):
         Returns:
             ([array]) Orbit for point.
         """
-        orbit = []
+        orbit: list[ArrayLike] = []
         for o in self.symmetry_ops:
             pp = o.operate(p)
             if not in_array_list(orbit, pp, tol=tol):
@@ -206,7 +229,7 @@ class SpaceGroup(SymmetryGroup):
     translations = {k: Fraction(v) for k, v in _get_symm_data("translations").items()}
     full_sg_mapping = {v["full_symbol"]: k for k, v in _get_symm_data("space_group_encoding").items()}
 
-    def __init__(self, int_symbol):
+    def __init__(self, int_symbol: str) -> None:
         """
         Initializes a Space Group from its full or abbreviated international
         symbol. Only standard settings are supported.
@@ -216,19 +239,22 @@ class SpaceGroup(SymmetryGroup):
                 Hermann-Mauguin Symbol ("Pmmm") or abbreviated symbol. The
                 notation is a LaTeX-like string, with screw axes being
                 represented by an underscore. For example, "P6_3/mmc".
-                Alternative settings can be access by adding a ":identifier".
+                Alternative settings can be accessed by adding a ":identifier".
                 For example, the hexagonal setting  for rhombohedral cells can be
                 accessed by adding a ":H", e.g., "R-3m:H". To find out all
-                possible settings for a spacegroup, use the get_settings
+                possible settings for a spacegroup, use the get_settings()
                 classmethod. Alternative origin choices can be indicated by a
                 translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
+        from pymatgen.core.operations import SymmOp
 
         int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
         elif int_symbol in SpaceGroup.full_sg_mapping:
             int_symbol = SpaceGroup.full_sg_mapping[int_symbol]
+
+        self._symmetry_ops: set[SymmOp] | None
 
         for spg in SpaceGroup.SYMM_OPS:
             if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
@@ -242,7 +268,7 @@ class SpaceGroup(SymmetryGroup):
                     self.point_group = spg["schoenflies"]
                 self.int_number = spg["number"]
                 self.order = len(ops)
-                self._symmetry_ops = ops
+                self._symmetry_ops = {*ops}
                 break
         else:
             if int_symbol not in SpaceGroup.sgencoding:
@@ -273,7 +299,7 @@ class SpaceGroup(SymmetryGroup):
 
             self._symmetry_ops = None
 
-    def _generate_full_symmetry_ops(self):
+    def _generate_full_symmetry_ops(self) -> list[SymmOp]:
         symm_ops = np.array(self.generators)
         for op in symm_ops:
             op[0:3, 3] = np.mod(op[0:3, 3], 1)
@@ -294,7 +320,7 @@ class SpaceGroup(SymmetryGroup):
         return symm_ops
 
     @classmethod
-    def get_settings(cls, int_symbol):
+    def get_settings(cls, int_symbol: str) -> set[str]:
         """
         Returns all the settings for a particular international symbol.
 
@@ -304,6 +330,8 @@ class SpaceGroup(SymmetryGroup):
                 notation is a LaTeX-like string, with screw axes being
                 represented by an underscore. For example, "P6_3/mmc".
 
+        Returns:
+            set[str]: All possible settings for the given international symbol.
         """
         symbols = []
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
@@ -328,16 +356,18 @@ class SpaceGroup(SymmetryGroup):
         return set(symbols)
 
     @property
-    def symmetry_ops(self):
+    def symmetry_ops(self) -> set[SymmOp]:
         """
         Full set of symmetry operations as matrices. Lazily initialized as
         generation sometimes takes a bit of time.
         """
+        from pymatgen.core.operations import SymmOp
+
         if self._symmetry_ops is None:
-            self._symmetry_ops = [SymmOp(m) for m in self._generate_full_symmetry_ops()]
+            self._symmetry_ops = {SymmOp(m) for m in self._generate_full_symmetry_ops()}
         return self._symmetry_ops
 
-    def get_orbit(self, p, tol=1e-5):
+    def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[ArrayLike]:
         """
         Returns the orbit for a point.
 
@@ -350,7 +380,7 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             ([array]) Orbit for point.
         """
-        orbit = []
+        orbit: list[ArrayLike] = []
         for o in self.symmetry_ops:
             pp = o.operate(p)
             pp = np.mod(np.round(pp, decimals=10), 1)
@@ -358,7 +388,7 @@ class SpaceGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
-    def is_compatible(self, lattice, tol=1e-5, angle_tol=5):
+    def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
         """
         Checks whether a particular lattice is compatible with the
         *conventional* unit cell.
@@ -422,9 +452,12 @@ class SpaceGroup(SymmetryGroup):
         return True
 
     @property
-    def crystal_system(self):
+    def crystal_system(
+        self,
+    ) -> Literal["cubic", "hexagonal", "trigonal", "tetragonal", "orthorhombic", "monoclinic", "triclinic"]:
         """
-        :return: Crystal system for space group.
+        Returns:
+            str: Crystal system of the space group, e.g., cubic, hexagonal, etc.
         """
         i = self.int_number
         if i <= 2:
@@ -441,7 +474,7 @@ class SpaceGroup(SymmetryGroup):
             return "hexagonal"
         return "cubic"
 
-    def is_subgroup(self, supergroup):
+    def is_subgroup(self, supergroup: SymmetryGroup) -> bool:
         """
         True if this space group is a subgroup of the supplied group.
 
@@ -451,10 +484,13 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             True if this space group is a subgroup of the supplied group.
         """
+        if not isinstance(supergroup, SpaceGroup):
+            return NotImplemented
+
         if len(supergroup.symmetry_ops) < len(self.symmetry_ops):
             return False
 
-        groups = [[supergroup.int_number]]
+        groups = [{supergroup.int_number}]
         all_groups = [supergroup.int_number]
         max_subgroups = {int(k): v for k, v in _get_symm_data("maximal_subgroups").items()}
         while True:
@@ -471,7 +507,7 @@ class SpaceGroup(SymmetryGroup):
             all_groups.extend(new_sub_groups)
         return False
 
-    def is_supergroup(self, subgroup):
+    def is_supergroup(self, subgroup: SymmetryGroup) -> bool:
         """
         True if this space group is a supergroup of the supplied group.
 
@@ -484,7 +520,7 @@ class SpaceGroup(SymmetryGroup):
         return subgroup.is_subgroup(self)
 
     @classmethod
-    def from_int_number(cls, int_number, hexagonal=True):
+    def from_int_number(cls, int_number: int, hexagonal: bool = True) -> SpaceGroup:
         """
         Obtains a SpaceGroup from its international number.
 
@@ -501,21 +537,20 @@ class SpaceGroup(SymmetryGroup):
             sym += ":R"
         return SpaceGroup(sym)
 
-    def __str__(self):
-        return "Spacegroup %s with international number %d and order %d" % (
-            self.symbol,
-            self.int_number,
-            len(self.symmetry_ops),
+    def __str__(self) -> str:
+        return (
+            f"Spacegroup {self.symbol} with international number {self.int_number} and order {len(self.symmetry_ops)}"
         )
 
-    def to_pretty_string(self):
+    def to_pretty_string(self) -> str:
         """
-        :return: Spacegroup string.
+        Returns:
+            (str): A pretty string representation of the space group.
         """
         return self.symbol
 
 
-def sg_symbol_from_int_number(int_number, hexagonal=True):
+def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
     """
     Obtains a SpaceGroup name from its international number.
 
@@ -544,7 +579,7 @@ def sg_symbol_from_int_number(int_number, hexagonal=True):
     return syms.pop()
 
 
-def in_array_list(array_list, a, tol=1e-5):
+def in_array_list(array_list: list[ArrayLike], a: ArrayLike, tol: float = 1e-5) -> bool:
     """
     Extremely efficient nd-array comparison using numpy's broadcasting. This
     function checks if a particular array a, is present in a list of arrays.

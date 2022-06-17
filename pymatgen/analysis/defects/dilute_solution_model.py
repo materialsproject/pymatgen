@@ -101,7 +101,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     # c0 = np.diag(multiplicity)
     c0 = np.diag(np.ones(n))
-    mu = [Symbol("mu" + i.__str__()) for i in range(m)]
+    mu = [Symbol(f"mu{i}") for i in range(m)]
 
     # Generate maps for hashing
     # Generate specie->mu map and use it for site->mu map
@@ -343,7 +343,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     if not trial_chem_pot:
         # Try computing mus by assuming one of the defects is dominant at 0.01
-        # concen.  First vacancy is tried and then antisite
+        # concen. First vacancy is tried and then antisite
 
         # Generate trial mus assuming vacancy as dominant defect
         # for specie-0 at lower yval
@@ -368,7 +368,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                     mu_vals = [float(mu_val) for mu_val in mu_vals]
                 break
             except Exception:  # Go for antisite as dominant defect
-                mu_gs = [Symbol("mu_gs" + j.__str__()) for j in range(m)]
+                mu_gs = [Symbol(f"mu_gs{j}") for j in range(m)]
 
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])]
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)
@@ -1070,7 +1070,7 @@ def solute_site_preference_finder(
 
     if not trial_chem_pot:
         # Try computing mus by assuming one of the defects is dominant at 0.01
-        # concen.  First vacancy is tried and then antisite
+        # concen. First vacancy is tried and then antisite
 
         # Generate trial mus assuming vacancy as dominant defect
         # for specie-0 at lower yval
@@ -1096,7 +1096,7 @@ def solute_site_preference_finder(
                 compute_solute_mu_by_lin_search(host_mu_vals)
                 break
             except Exception:  # Go for antisite as dominant defect
-                mu_gs = [Symbol("mu_gs" + j.__str__()) for j in range(m - 1)]
+                mu_gs = [Symbol(f"mu_gs{j}") for j in range(m - 1)]
 
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])]
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)

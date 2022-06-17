@@ -2,6 +2,9 @@ name: Linting
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     # prevent this action from running on forks
@@ -13,8 +16,6 @@ jobs:
         python-version: [3.9]
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:

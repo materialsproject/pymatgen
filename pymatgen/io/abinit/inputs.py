@@ -609,7 +609,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__setitem__(key, value)
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}>"
+        return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_string()
@@ -1159,7 +1159,7 @@ class BasicMultiDataset:
         if m is None:
             raise AttributeError(
                 "Cannot find attribute %s. Tried in %s and then in BasicAbinitInput object"
-                % (self.__class__.__name__, name)
+                % (type(self).__name__, name)
             )
         isattr = not callable(m)
 

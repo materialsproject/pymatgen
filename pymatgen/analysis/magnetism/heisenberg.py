@@ -801,7 +801,7 @@ class HeisenbergScreener:
         #             remove_list.append(i)
 
         # Remove duplicates
-        if len(remove_list):
+        if len(remove_list) > 0:
             ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
             energies = [e for i, e in enumerate(energies) if i not in remove_list]
 

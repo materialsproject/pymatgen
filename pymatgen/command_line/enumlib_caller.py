@@ -158,11 +158,8 @@ class EnumlibAdaptor:
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug(
-            "Spacegroup {} ({}) with {} distinct sites".format(
-                fitter.get_space_group_symbol(),
-                fitter.get_space_group_number(),
-                len(symmetrized_structure.equivalent_sites),
-            )
+            f"Spacegroup {fitter.get_space_group_symbol()} ({fitter.get_space_group_number()}) "
+            f"with {len(symmetrized_structure.equivalent_sites)} distinct sites"
         )
 
         """

@@ -75,7 +75,7 @@ class PDEntry(Entry):
         name = ""
         if self.name != self.composition.reduced_formula:
             name = f" ({self.name})"
-        return f"{self.__class__.__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
+        return f"{type(self).__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
 
     @property
     def energy(self) -> float:
@@ -179,8 +179,8 @@ class GrandPotPDEntry(PDEntry):
             MSONable dictionary representation of GrandPotPDEntry
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entry": self.original_entry.as_dict(),
             "chempots": {el.symbol: u for el, u in self.chempots.items()},
             "name": self.name,
@@ -267,8 +267,8 @@ class TransformedPDEntry(PDEntry):
             MSONable dictionary representation of TransformedPDEntry
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "sp_mapping": self.sp_mapping,
         }
         d.update(self.original_entry.as_dict())
@@ -357,6 +357,8 @@ class PhaseDiagram(MSONable):
         self.entries = entries
         if computed_data is None:
             computed_data = self._compute()
+        else:
+            computed_data = MontyDecoder().process_decoded(computed_data)
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -375,8 +377,8 @@ class PhaseDiagram(MSONable):
             MSONable dictionary representation of PhaseDiagram
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
             "computed_data": self.computed_data,
@@ -604,7 +606,7 @@ class PhaseDiagram(MSONable):
             f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
         ]
 
-        if not len(all_facets):
+        if not all_facets:
             raise RuntimeError(f"No facets found for comp = {comp}")
 
         return all_facets
@@ -1322,8 +1324,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             MSONable dictionary representation of GrandPotentialPhaseDiagram
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "chempots": self.chempots,
             "elements": [e.as_dict() for e in self.elements],
@@ -1424,8 +1426,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
             MSONable dictionary representation of CompoundPhaseDiagram
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "original_entries": [e.as_dict() for e in self.original_entries],
             "terminal_compositions": [c.as_dict() for c in self.terminal_compositions],
             "normalize_terminal_compositions": self.normalize_terminals,
@@ -1837,12 +1839,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "{} {} + {} {} -> ".format(
-                            fmt(c1),
-                            r1.reduced_formula,
-                            fmt(c2),
-                            r2.reduced_formula,
-                        )
+                        rxn_str = f"{fmt(c1)} {r1.reduced_formula} + {fmt(c2)} {r2.reduced_formula} -> "
                         products = []
                         product_entries = []
 
@@ -1866,14 +1863,12 @@ class ReactionDiagram:
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
                     logger.debug(
-                        "Reactants = %s"
-                        % (
-                            ", ".join(
-                                [
-                                    entry1.composition.reduced_formula,
-                                    entry2.composition.reduced_formula,
-                                ]
-                            )
+                        "Reactants = "
+                        + ", ".join(
+                            [
+                                entry1.composition.reduced_formula,
+                                entry2.composition.reduced_formula,
+                            ]
                         )
                     )
                     logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
@@ -2476,7 +2471,7 @@ class PDPlotter:
 
     def _get_3d_plot(self, label_stable=True):
         """
-        Shows the plot using pylab.  Usually I won"t do imports in methods,
+        Shows the plot using pylab. Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
@@ -3232,7 +3227,7 @@ class PDPlotter:
 
 def uniquelines(q):
     """
-    Given all the facets, convert it into a set of unique lines.  Specifically
+    Given all the facets, convert it into a set of unique lines. Specifically
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
@@ -3241,7 +3236,7 @@ def uniquelines(q):
 
     Returns:
         setoflines:
-            A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)
+            A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
     """
     setoflines = set()
     for facets in q:

@@ -554,7 +554,7 @@ class Tags(dict):
 
     def __setitem__(self, key, val):
         """
-        Add parameter-val pair.  Warns if parameter is not in list of valid
+        Add parameter-val pair. Warns if parameter is not in list of valid
         Feff tags. Also cleans the parameter and val by stripping leading and
         trailing white spaces.
 
@@ -577,8 +577,8 @@ class Tags(dict):
             Dictionary of parameters from fefftags object
         """
         tags_dict = dict(self)
-        tags_dict["@module"] = self.__class__.__module__
-        tags_dict["@class"] = self.__class__.__name__
+        tags_dict["@module"] = type(self).__module__
+        tags_dict["@class"] = type(self).__name__
         return tags_dict
 
     @staticmethod
@@ -600,7 +600,7 @@ class Tags(dict):
 
     def get_string(self, sort_keys=False, pretty=False):
         """
-        Returns a string representation of the Tags.  The reason why this
+        Returns a string representation of the Tags. The reason why this
         method is different from the __str__ method is to provide options
         for pretty printing.
 
@@ -660,7 +660,7 @@ class Tags(dict):
             filename: filename and path to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__() + "\n")
+            f.write(str(self) + "\n")
 
     @staticmethod
     def from_file(filename="feff.inp"):
@@ -770,7 +770,7 @@ class Tags(dict):
 
     def diff(self, other):
         """
-        Diff function.  Compares two PARAMETER files and indicates which
+        Diff function. Compares two PARAMETER files and indicates which
         parameters are the same and which are not. Useful for checking whether
         two runs were done using the same parameters.
 
@@ -986,7 +986,8 @@ class Paths(MSONable):
             lines.append("x y z ipot label")
             for l in legs:
                 coords = self.atoms.cluster[l].coords.tolist()
-                tmp = "{:.6f} {:.6f} {:.6f}".format(*tuple(coords))
+
+                tmp = f"{coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f}"
                 element = str(self.atoms.cluster[l].specie.name)
                 # the potential index for the absorbing atom(the one at the cluster origin) is 0
                 potential = 0 if np.linalg.norm(coords) <= 1e-6 else self.atoms.pot_dict[element]

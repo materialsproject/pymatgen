@@ -21,7 +21,7 @@ class XYZ:
 
     .. note::
         Exporting periodic structures in the XYZ format will lose information
-        about the periodicity. Essentially, only cartesian coordinates are
+        about the periodicity. Essentially, only Cartesian coordinates are
         written in this format and no information is retained about the
         lattice.
     """
@@ -155,4 +155,4 @@ class XYZ:
             filename: File name of output file.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))

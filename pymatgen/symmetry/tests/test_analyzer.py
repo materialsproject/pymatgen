@@ -169,7 +169,6 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
         self.assertEqual(symm_struct.wyckoff_symbols[0], "16h")
-        # self.assertEqual(symm_struct[0].wyckoff, "16h")
 
         # Check copying
         self.assertEqual(symm_struct.copy(), symm_struct)
@@ -529,6 +528,9 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(CH4)
         self.assertEqual(a.sch_symbol, "Td")
         self.assertEqual(len(a.get_pointgroup()), 24)
+        self.assertEqual(a.get_rotational_symmetry_number(), 12)
+        a = PointGroupAnalyzer(H2O)
+        self.assertEqual(a.get_rotational_symmetry_number(), 2)
         a = PointGroupAnalyzer(PF6)
         self.assertEqual(a.sch_symbol, "Oh")
         self.assertEqual(len(a.get_pointgroup()), 48)

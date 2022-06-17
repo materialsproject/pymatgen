@@ -190,8 +190,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -226,8 +226,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "angle_tolerance": self._angle_tolerance,
         }
 
@@ -719,8 +719,8 @@ class MoleculeMatcher(MSONable):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "tolerance": self._tolerance,
             "mapper": self._mapper.as_dict(),
         }
@@ -894,8 +894,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(
-                "The number of all possible permutations "
-                "({}) is not feasible to run this method!".format(total_permutations)
+                "The number of all possible permutations " f"({total_permutations}) is not feasible to run this method!"
             )
 
         p_coord, q_coord = p.cart_coords, q.cart_coords

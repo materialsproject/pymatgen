@@ -436,6 +436,17 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized"),
             are_cobis=True,
         )
+        # make sure the correct line is read to check if this is a orbitalwise ICOBILIST
+        self.icobi_orbitalwise_add = Icohplist(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.additional_case"),
+            are_cobis=True,
+        )
+        self.icobi_orbitalwise_spinpolarized_add = Icohplist(
+            filename=os.path.join(
+                PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized.additional_case"
+            ),
+            are_cobis=True,
+        )
 
     def test_attributes(self):
         self.assertFalse(self.icohp_bise.are_coops)
@@ -463,6 +474,9 @@ class IcohplistTest(unittest.TestCase):
         self.assertFalse(self.icobi.orbitalwise)
 
         self.assertTrue(self.icobi_orbitalwise_spinpolarized.orbitalwise)
+
+        self.assertTrue(self.icobi_orbitalwise_add.orbitalwise)
+        self.assertTrue(self.icobi_orbitalwise_spinpolarized_add.orbitalwise)
 
     def test_values(self):
         icohplist_bise = {
@@ -618,6 +632,7 @@ class IcohplistTest(unittest.TestCase):
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
+        self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
         self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)

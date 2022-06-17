@@ -80,8 +80,8 @@ class Nwchem2Fiesta(MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "filename": self.filename,
             "folder": self.folder,
         }
@@ -183,8 +183,8 @@ class FiestaRun(MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "log_file": self.log_file,
             "grid": self.grid,
             "folder": self.folder,
@@ -430,15 +430,12 @@ class FiestaInput(MSONable):
         o.append("Reading infos on system:")
         o.append("")
         o.append(
-            " Number of atoms = {} ; number of species = {}".format(
-                int(self._mol.composition.num_atoms), len(self._mol.symbol_set)
-            )
+            f" Number of atoms = {self._mol.composition.num_atoms} ; number of species = {len(self._mol.symbol_set)}"
         )
         o.append(f" Number of valence bands = {int(self._mol.nelectrons / 2)}")
         o.append(
-            " Sigma grid specs: n_grid = {} ;  dE_grid = {} (eV)".format(
-                self.correlation_grid["n_grid"], self.correlation_grid["dE_grid"]
-            )
+            f" Sigma grid specs: n_grid = {self.correlation_grid['n_grid']} ;  "
+            f"dE_grid = {self.correlation_grid['dE_grid']} (eV)"
         )
         if int(self.Exc_DFT_option["rdVxcpsi"]) == 1:
             o.append(" Exchange and correlation energy read from Vxcpsi.mat")
@@ -447,24 +444,21 @@ class FiestaInput(MSONable):
 
         if self.COHSEX_options["eigMethod"] == "C":
             o.append(
-                " Correcting  {} valence bands and   {} conduction bands at COHSEX level".format(
-                    self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
-                )
+                f" Correcting  {self.COHSEX_options['nv_cohsex']} valence bands and  "
+                f"{self.COHSEX_options['nc_cohsex']} conduction bands at COHSEX level"
             )
             o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal COHSEX iterations")
         elif self.COHSEX_options["eigMethod"] == "HF":
             o.append(
-                " Correcting  {} valence bands and   {} conduction bands at HF level".format(
-                    self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
-                )
+                f" Correcting  {self.COHSEX_options['nv_cohsex']} valence bands and  "
+                f"{self.COHSEX_options['nc_cohsex']} conduction bands at HF level"
             )
             o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal HF iterations")
 
         o.append(f" Using resolution of identity : {self.COHSEX_options['resMethod']}")
         o.append(
-            " Correcting  {} valence bands and  {} conduction bands at GW level".format(
-                self.GW_options["nv_corr"], self.GW_options["nc_corr"]
-            )
+            f" Correcting  {self.GW_options['nv_corr']} valence bands and "
+            f"{self.GW_options['nc_corr']} conduction bands at GW level"
         )
         o.append(f" Performing   {self.GW_options['nit_gw']} GW iterations")
 
@@ -568,7 +562,7 @@ $geometry
         :param filename: Filename
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def as_dict(self):
         """

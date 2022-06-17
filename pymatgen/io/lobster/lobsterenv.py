@@ -119,9 +119,18 @@ class LobsterNeighbors(NearNeighbors):
                 except ValueError:
                     self.valences = None
                     if additional_condition in [1, 3, 5, 6]:
-                        print("Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work")
+                        raise ValueError(
+                            "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+                        )
         else:
             self.valences = valences
+        if np.allclose(np.array(self.valences), np.zeros(np.array(self.valences).shape)) and additional_condition in [
+            1,
+            3,
+            5,
+            6,
+        ]:
+            raise ValueError("All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work")
 
         if limits is None:
             self.lowerlimit = None
@@ -1218,8 +1227,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         :return: Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "strategy": self.strategy,
             "structure": self.structure.as_dict(),
             "coordination_environments": self.coordination_environments,

@@ -410,7 +410,6 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        # print(self.__dict__)
         # FIXME
         # There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -426,11 +425,9 @@ class FloatWithUnit(float):
     def __getstate__(self):
         state = self.__dict__.copy()
         state["val"] = float(self)
-        # print("in getstate %s" % state)
         return state
 
     def __setstate__(self, state):
-        # print("in setstate %s" % state)
         self._unit = state["_unit"]
 
     @property
@@ -546,10 +543,7 @@ class ArrayWithUnit(np.ndarray):
         return self._unit
 
     def __reduce__(self):
-        # print("in reduce")
         reduce = list(super().__reduce__())
-        # print("unit",self._unit)
-        # print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
         return tuple(reduce)
 
@@ -788,7 +782,7 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
-    if isinstance(obj, collections.Mapping):
+    if isinstance(obj, collections.abc.Mapping):
         return {k: obj_with_unit(v, unit) for k, v in obj.items()}
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 

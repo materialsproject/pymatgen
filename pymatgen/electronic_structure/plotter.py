@@ -633,6 +633,9 @@ class BSPlotter:
             if not data["is_metal"]:
                 cbm_max.append(data["cbm"][0][1])
                 vbm_min.append(data["vbm"][0][1])
+            else:
+                cbm_max.append(bs.efermi)
+                vbm_min.append(bs.efermi)
 
             for sp in bs.bands.keys():
                 ls = "-" if str(sp) == "1" else "--"
@@ -1254,8 +1257,8 @@ class BSPlotterProjected(BSPlotter):
                     )
                 if index > num_branches or index < 1:
                     raise ValueError(
-                        "You give a incorrect index of symmetry lines: %s. The index should be in "
-                        "range of [1, %s]." % (str(index), str(num_branches))
+                        f"You give a incorrect index of symmetry lines: {index}. The index should be in range of "
+                        f"[1, {num_branches}]."
                     )
                 indices.append(index - 1)
         else:
@@ -1607,12 +1610,11 @@ class BSPlotterProjected(BSPlotter):
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
         dictpa, sum_atoms, number_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"Number of subfigures: {str(number_figs)}")
+        print(f"Number of subfigures: {number_figs}")
         if number_figs > 9:
             print(
-                "The number of sub-figures %s might be too manny and the implementation might take a long time.\n"
-                "A smaller number or a plot with selected symmetry lines (selected_branches) might be better.\n"
-                % str(number_figs)
+                f"The number of sub-figures {number_figs} might be too manny and the implementation might take a long "
+                f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
         from pymatgen.util.plotting import pretty_plot
 
@@ -1758,8 +1760,7 @@ class BSPlotterProjected(BSPlotter):
                     for orb in dictio[elt]:
                         if not isinstance(orb, str):
                             raise ValueError(
-                                "The invalid format of orbitals is in 'dictio[%s]': %s. "
-                                "They should be string." % (elt, str(orb))
+                                f"The invalid format of orbitals is in 'dictio[{elt}]': {orb}. They should be string."
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
@@ -1787,8 +1788,8 @@ class BSPlotterProjected(BSPlotter):
                         for orb in sum_morbs[elt]:
                             if not isinstance(orb, str):
                                 raise TypeError(
-                                    "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
-                                    "They should be string." % (elt, str(orb))
+                                    f"The invalid format of orbitals is in 'sum_morbs[{elt}]': {orb}. "
+                                    "They should be string."
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
@@ -1804,8 +1805,8 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictio.keys():
                         raise ValueError(
-                            "You cannot sum projection over orbitals of atoms '%s' because they are not "
-                            "mentioned in 'dictio'." % elt
+                            f"You cannot sum projection over orbitals of atoms '{elt}' because they are not "
+                            "mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_morbs' as a key: {elt}")
@@ -1815,8 +1816,7 @@ class BSPlotterProjected(BSPlotter):
                 if len(dictio[elt][0]) > 1:
                     if elt in sum_morbs.keys():
                         raise ValueError(
-                            "You cannot sum projection over one individual orbital '%s' of '%s'."
-                            % (dictio[elt][0], elt)
+                            f"You cannot sum projection over one individual orbital '{dictio[elt][0]}' of '{elt}'."
                         )
                 else:
                     if sum_morbs is None:
@@ -1895,7 +1895,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0] == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
                         if isinstance(number, str):
@@ -1942,7 +1942,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):  # pylint: disable=C0200
-                            if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
+                            if list(_sites[i]._species.keys())[0] == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
                             if isinstance(number, str):
@@ -1956,8 +1956,8 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                                 if number not in dictpa[elt]:
                                     raise ValueError(
-                                        "You cannot sum projection with atom number '%s' because it is not "
-                                        "mentioned in dicpta[%s]" % (str(number), elt)
+                                        f"You cannot sum projection with atom number '{number}' because it is not "
+                                        f"mentioned in dicpta[{elt}]"
                                     )
                             else:
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
@@ -1970,8 +1970,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictpa.keys():
                         raise ValueError(
-                            "You cannot sum projection over atoms '%s' because it is not "
-                            "mentioned in 'dictio'." % elt
+                            f"You cannot sum projection over atoms '{elt}' because it is not mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_atoms' as a key: {elt}")
@@ -2068,7 +2067,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0] == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2117,7 +2116,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0] == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2215,10 +2214,7 @@ class BSPlotterProjected(BSPlotter):
                     if n_ticks["label"][i] == n_ticks["label"][i - 1]:
                         logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
                     else:
-                        logger.debug(
-                            "Adding a line at {d}"
-                            " for label {l}".format(d=n_ticks["distance"][i], l=n_ticks["label"][i])
-                        )
+                        logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
                         plt.axvline(n_ticks["distance"][i], color="k")
                 else:
                     logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
@@ -2490,7 +2486,7 @@ class BSDOSPlotter:
                         spd_dos = dos.get_spd_dos()
                         for idx, orb in enumerate([OrbitalType.s, OrbitalType.p, OrbitalType.d, OrbitalType.f]):
                             if orb in spd_dos:
-                                dos_densities = spd_dos[orb].densities[spin] * int(spin)  # type: ignore
+                                dos_densities = spd_dos[orb].densities[spin] * int(spin)
                                 label = orb if spin == Spin.up else None  # type: ignore
                                 dos_ax.plot(
                                     dos_densities,
@@ -2579,7 +2575,7 @@ class BSDOSPlotter:
         """
         from matplotlib.collections import LineCollection
 
-        pts = np.array([k, e]).T.reshape(-1, 1, 2)
+        pts = np.array([k, e]).T.reshape(-1, 1, 2)  # pylint: disable=E1121
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         nseg = len(k) - 1
@@ -3933,7 +3929,7 @@ def plot_fermi_surface(
         cbm (bool): Boolean value to specify if the considered band is a
             conduction band or not
         multiple_figure (bool): If True a figure for each energy level will be
-            shown.  If False all the surfaces will be shown in the same figure.
+            shown. If False all the surfaces will be shown in the same figure.
             In this last case, tune the transparency factor.
         mlab_figure (mayavi.mlab.figure): A previous figure to plot a new
             surface on.
@@ -4167,9 +4163,9 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
 
     Args:
         line: list of coordinates.
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
@@ -4205,9 +4201,9 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwa
 
     Args:
         labels: dict containing the label as a key and the coordinates as value.
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing.
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
@@ -4245,12 +4241,12 @@ def fold_point(p, lattice, coords_are_cartesian=False):
 
     Args:
         p: coordinates of one point
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
 
     Returns:
-        The cartesian coordinates folded inside the first Brillouin zone
+        The Cartesian coordinates folded inside the first Brillouin zone
     """
 
     if coords_are_cartesian:
@@ -4284,9 +4280,9 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
     Args:
         points: list of coordinates
-        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        lattice: Lattice object used to convert from reciprocal to Cartesian coordinates
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
@@ -4365,7 +4361,7 @@ def plot_brillouin_zone(
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
         coords_are_cartesian: Set to True if you are providing
-            coordinates in cartesian coordinates. Defaults to False.
+            coordinates in Cartesian coordinates. Defaults to False.
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         kwargs: provided by add_fig_kwargs decorator
 
@@ -4430,7 +4426,7 @@ def plot_ellipsoid(
         rescale: factor for size scaling of the ellipsoid
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
-                              cartesian coordinates. Defaults to False.
+                              Cartesian coordinates. Defaults to False.
         kwargs: kwargs passed to the matplotlib function 'plot_wireframe'.
                 Color defaults to blue, rstride and cstride
                 default to 4, alpha defaults to 0.2.
