@@ -746,26 +746,34 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Composition: New object with elements remapped according to elem_map.
         """
 
-        # drop inapplicable substitutions
-        invalid_elems = [key for key in elem_map if key not in self]
-        if invalid_elems:
+        to_be_substituted = {get_el_sp(el) for el in elem_map.keys()}
+        if not to_be_substituted.issubset(self.keys()):
             warnings.warn(
                 "Some elements to be substituted are not present in composition. Please check your input. "
-                f"Problematic element = {invalid_elems}; {self}"
+                f"Elements/Species to be substituted = {to_be_substituted}; {self}"
             )
-        for elem in invalid_elems:
-            elem_map.pop(elem)
 
-        new_comp = self.as_dict()
-
-        for old_elem, new_elem in elem_map.items():
-            amount = new_comp.pop(old_elem)
-
-            if isinstance(new_elem, dict):
-                for el, factor in new_elem.items():
-                    new_comp[el] = factor * amount
+        new_comp = collections.defaultdict(float)
+        for el, amt in self.items():
+            if el in to_be_substituted:
+                new_sp = elem_map[str(el)]
+                if isinstance(new_sp, dict):
+                    for el, factor in new_sp.items():
+                        if get_el_sp(el) in to_be_substituted:
+                            raise ValueError(
+                                f"You cannot have the same element ({el}) in both the keys and values "
+                                f"of the substitution!"
+                            )
+                        new_comp[el] += factor * amt
+                else:
+                    if get_el_sp(new_sp) in to_be_substituted:
+                        raise ValueError(
+                            f"You cannot have the same element ({el}) in both the keys and values "
+                            f"of the substitution!"
+                        )
+                    new_comp[new_sp] += amt
             else:
-                new_comp[new_elem] = amount
+                new_comp[el] += amt
 
         return Composition(new_comp)
 

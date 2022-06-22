@@ -666,6 +666,15 @@ class CompositionTest(PymatgenTest):
         # leaves the composition unchanged when replacing non-existent species
         self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
 
+        c = Composition("Ca2NF")
+
+        c2 = c.replace({"Ca": "Sr", "N": "O", "F": "O"})
+        self.assertEqual(c2.formula, "Sr2 O2")
+
+        self.assertRaises(ValueError, c.replace, {"Ca": "Sr", "N": "F", "F": "Cl"})
+
+        self.assertRaises(ValueError, c.replace, {"N": {"F": 0.1}, "F": "Cl"})
+
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
