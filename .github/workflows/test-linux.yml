@@ -75,19 +75,19 @@ jobs:
       - name: Install Coverage
         run: pip install coverage
       - name: Download coverage-1
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-1
       - name: Download coverage-2
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-2
       - name: Download coverage-3
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-3
       - name: Download coverage-4
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-4
       - name: Run coverage
