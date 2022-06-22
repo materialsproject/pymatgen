@@ -667,13 +667,15 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
 
         c = Composition("Ca2NF")
-
         c2 = c.replace({"Ca": "Sr", "N": "O", "F": "O"})
         self.assertEqual(c2.formula, "Sr2 O2")
+        c = Composition("Ca2NF")
+        c2 = c.replace({"Ca": "Sr", "N": "F", "F": "Cl"})
+        self.assertEqual(c2.reduced_formula, "Sr2ClF")
 
-        self.assertRaises(ValueError, c.replace, {"Ca": "Sr", "N": "F", "F": "Cl"})
-
-        self.assertRaises(ValueError, c.replace, {"N": {"F": 0.1}, "F": "Cl"})
+        c = Composition("Ca2NF")
+        c2 = c.replace({"N": {"F": 0.1}, "F": "Cl"})
+        self.assertEqual(c2.reduced_formula, "Ca2Cl1F0.1")
 
 
 class ChemicalPotentialTest(unittest.TestCase):

@@ -759,9 +759,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 new_sp = substitution[el1]
                 for el2, factor in new_sp.items():
                     if get_el_sp(el2) in substitution.keys():
-                        raise ValueError(
-                            f"You cannot have the same element ({el2}) in both the keys and values "
-                            f"of the substitution!"
+                        warnings.warn(
+                            f"Same element ({el2}) in both the keys and values of the substitution!"
                         )
                     new_comp[el2] += factor * amt
             else:
