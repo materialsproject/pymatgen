@@ -753,7 +753,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 f"Elements/Species to be substituted = {substitution.keys()}; {self}"
             )
 
-        new_comp = collections.defaultdict(float)
+        new_comp = collections.defaultdict(float)  # type: ignore
         for el1, amt in self.items():
             if el1 in substitution:
                 new_sp = substitution[el1]
