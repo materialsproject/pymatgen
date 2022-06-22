@@ -666,6 +666,21 @@ class CompositionTest(PymatgenTest):
         # leaves the composition unchanged when replacing non-existent species
         self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
 
+        # check for complex substitutions where element is involved at
+        # multiple places
+        Ca2NF = Composition("Ca2NF")
+        example_sub_1 = {"Ca": "Sr", "N": "O", "F": "O"}
+        c_new_1 = Ca2NF.replace(example_sub_1)
+        assert c_new_1 == Composition("Sr2O2")
+
+        example_sub_2 = {"Ca": "Sr", "N": "F", "F": "Cl"}
+        c_new_2 = Ca2NF.replace(example_sub_2)
+        assert c_new_2 == Composition("Sr2ClF")
+
+        example_sub_3 = {"Ca": "Sr", "N": "F", "F": "N"}
+        c_new_3 = Ca2NF.replace(example_sub_3)
+        assert c_new_3 == Composition("Sr2NF")
+
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
