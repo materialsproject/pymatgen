@@ -666,16 +666,26 @@ class CompositionTest(PymatgenTest):
         # leaves the composition unchanged when replacing non-existent species
         self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
 
-        c = Composition("Ca2NF")
-        c2 = c.replace({"Ca": "Sr", "N": "O", "F": "O"})
-        self.assertEqual(c2.formula, "Sr2 O2")
-        c = Composition("Ca2NF")
-        c2 = c.replace({"Ca": "Sr", "N": "F", "F": "Cl"})
-        self.assertEqual(c2.reduced_formula, "Sr2ClF")
+        # check for complex substitutions where element is involved at
+        # multiple places
+        Ca2NF = Composition("Ca2NF")
+        example_sub_1 = {"Ca": "Sr", "N": "O", "F": "O"}
+        c_new_1 = Ca2NF.replace(example_sub_1)
+        assert c_new_1 == Composition("Sr2O2")
 
-        c = Composition("Ca2NF")
-        c2 = c.replace({"N": {"F": 0.1}, "F": "Cl"})
-        self.assertEqual(c2.reduced_formula, "Ca2Cl1F0.1")
+        example_sub_2 = {"Ca": "Sr", "N": "F", "F": "Cl"}
+        c_new_2 = Ca2NF.replace(example_sub_2)
+        assert c_new_2 == Composition("Sr2ClF")
+
+        example_sub_3 = {"Ca": "Sr", "N": "F", "F": "N"}
+        c_new_3 = Ca2NF.replace(example_sub_3)
+        assert c_new_3 == Composition("Sr2NF")
+
+        # Check with oxidation-state decorated compositions
+        Ca2NF_oxi = Ca2NF.add_charges_from_oxi_state_guesses()
+        example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
+        c_new_4 = Ca2NF_oxi.replace(example_sub_4)
+        assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
 
 
 class ChemicalPotentialTest(unittest.TestCase):

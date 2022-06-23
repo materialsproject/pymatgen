@@ -746,23 +746,44 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Composition: New object with elements remapped according to elem_map.
         """
 
-        substitution = {get_el_sp(el): Composition(v) for el, v in elem_map.items()}
-        if not set(substitution.keys()).issubset(self.keys()):
+        # drop inapplicable substitutions
+        invalid_elems = [key for key in elem_map if key not in self]
+        if invalid_elems:
             warnings.warn(
                 "Some elements to be substituted are not present in composition. Please check your input. "
-                f"Elements/Species to be substituted = {substitution.keys()}; {self}"
+                f"Problematic element = {invalid_elems}; {self}"
             )
+        for elem in invalid_elems:
+            elem_map.pop(elem)
 
-        new_comp = collections.defaultdict(float)  # type: ignore
-        for el1, amt in self.items():
-            if el1 in substitution:
-                new_sp = substitution[el1]
-                for el2, factor in new_sp.items():
-                    if get_el_sp(el2) in substitution.keys():
-                        warnings.warn(f"Same element ({el2}) in both the keys and values of the substitution!")
-                    new_comp[el2] += factor * amt
+        # start with elements that remain unchanged (not in elem_map)
+        new_comp = {elem: amount for elem, amount in self.as_dict().items() if elem not in elem_map}
+
+        for old_elem, new_elem in elem_map.items():
+
+            amount = self[old_elem]
+
+            # build a dictionary of substitutions to be made
+            subs = {}
+            if isinstance(new_elem, dict):
+                for el, factor in new_elem.items():
+                    subs[el] = factor * amount
             else:
-                new_comp[el1] += amt
+                subs = {new_elem: amount}
+
+            # and apply the substitutions to the new composition
+            for el, amt in subs.items():
+                if el in new_comp:
+                    new_comp[el] += amt
+                else:
+                    new_comp[el] = amt
+
+                # check for ambiguous input (see issue #2553)
+                if el in self.keys():
+                    warnings.warn(
+                        f"Same element ({el}) in both the keys and values of the substitution!"
+                        "This can be ambiguous, so be sure to check your result."
+                    )
 
         return Composition(new_comp)
 
