@@ -681,6 +681,12 @@ class CompositionTest(PymatgenTest):
         c_new_3 = Ca2NF.replace(example_sub_3)
         assert c_new_3 == Composition("Sr2NF")
 
+        # Check with oxidation-state decorated compositions
+        Ca2NF_oxi = Ca2NF.add_charges_from_oxi_state_guesses()
+        example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
+        c_new_4 = Ca2NF_oxi.replace(example_sub_4)
+        assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
+
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):

@@ -763,6 +763,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
             amount = self[old_elem]
 
+            # build a dictionary of substitutions to be made
             subs = {}
             if isinstance(new_elem, dict):
                 for el, factor in new_elem.items():
@@ -770,11 +771,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             else:
                 subs = {new_elem: amount}
 
+            # and apply the substitutions to the new composition
             for el, amt in subs.items():
                 if el in new_comp:
                     new_comp[el] += amt
                 else:
                     new_comp[el] = amt
+
+                # check for ambiguous input (see issue #2553)
+                if el in self.keys():
+                    warnings.warn(
+                        f"Same element ({el}) in both the keys and values of the substitution!"
+                        "This can be ambiguous, so be sure to check your result."
+                    )
 
         return Composition(new_comp)
 
