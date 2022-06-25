@@ -32,6 +32,7 @@ from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
+from pymatgen.util.typing import ArrayLike
 
 try:
     from openbabel import openbabel
@@ -541,7 +542,7 @@ class NearNeighbors:
 
     def get_bonded_structure(
         self, structure: Structure, decorate: bool = False, weights: bool = True
-    ) -> StructureGraph:
+    ) -> StructureGraph | MoleculeGraph:
         """
         Obtain a StructureGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1452,7 +1453,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1608,7 +1609,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class.
@@ -2436,7 +2437,7 @@ class LocalStructOrderParams:
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
 
-        sqrt_15_2pi = sqrt(15.0 / (2.0 * pi))
+        sqrt_15_2pi = sqrt(15.0 / (2 * pi))
         sqrt_5_pi = sqrt(5.0 / pi)
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
@@ -2461,7 +2462,7 @@ class LocalStructOrderParams:
         # Y_2_0
         real = imag = 0.0
         for i in nnn_range:
-            real += 0.25 * sqrt_5_pi * (3.0 * self._pow_cos_t[2][i] - 1.0)
+            real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][i] - 1.0)
         acc += real * real
 
         # Y_2_1
@@ -2478,7 +2479,7 @@ class LocalStructOrderParams:
             imag += pre_y_2_2[i] * self._sin_n_p[2][i]
         acc += real * real + imag * imag
 
-        q2 = sqrt(4.0 * pi * acc / (5.0 * float(nnn * nnn)))
+        q2 = sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
         return q2
 
     def get_q4(self, thetas=None, phis=None):
@@ -2507,18 +2508,18 @@ class LocalStructOrderParams:
         i8_3 = 3.0 / 8.0
 
         sqrt_35_pi = sqrt(35.0 / pi)
-        sqrt_35_2pi = sqrt(35.0 / (2.0 * pi))
+        sqrt_35_2pi = sqrt(35.0 / (2 * pi))
         sqrt_5_pi = sqrt(5.0 / pi)
-        sqrt_5_2pi = sqrt(5.0 / (2.0 * pi))
+        sqrt_5_2pi = sqrt(5.0 / (2 * pi))
         sqrt_1_pi = sqrt(1.0 / pi)
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
         pre_y_4_3 = [i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1])]
         pre_y_4_2 = [
-            i8_3 * sqrt_5_2pi * val[0] * (7.0 * val[1] - 1.0) for val in zip(self._pow_sin_t[2], self._pow_cos_t[2])
+            i8_3 * sqrt_5_2pi * val[0] * (7 * val[1] - 1.0) for val in zip(self._pow_sin_t[2], self._pow_cos_t[2])
         ]
         pre_y_4_1 = [
-            i8_3 * sqrt_5_pi * val[0] * (7.0 * val[1] - 3.0 * val[2])
+            i8_3 * sqrt_5_pi * val[0] * (7 * val[1] - 3 * val[2])
             for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1])
         ]
 
@@ -2555,7 +2556,7 @@ class LocalStructOrderParams:
         # Y_4_0
         real = imag = 0.0
         for i in nnn_range:
-            real += i16_3 * sqrt_1_pi * (35.0 * self._pow_cos_t[4][i] - 30.0 * self._pow_cos_t[2][i] + 3.0)
+            real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][i] - 30 * self._pow_cos_t[2][i] + 3.0)
         acc += real * real
 
         # Y_4_1
@@ -2586,7 +2587,7 @@ class LocalStructOrderParams:
             imag += pre_y_4_4[i] * self._sin_n_p[4][i]
         acc += real * real + imag * imag
 
-        q4 = sqrt(4.0 * pi * acc / (9.0 * float(nnn * nnn)))
+        q4 = sqrt(4 * pi * acc / (9 * float(nnn * nnn)))
         return q4
 
     def get_q6(self, thetas=None, phis=None):
@@ -2618,26 +2619,26 @@ class LocalStructOrderParams:
 
         sqrt_3003_pi = sqrt(3003.0 / pi)
         sqrt_1001_pi = sqrt(1001.0 / pi)
-        sqrt_91_2pi = sqrt(91.0 / (2.0 * pi))
+        sqrt_91_2pi = sqrt(91.0 / (2 * pi))
         sqrt_1365_pi = sqrt(1365.0 / pi)
-        sqrt_273_2pi = sqrt(273.0 / (2.0 * pi))
+        sqrt_273_2pi = sqrt(273.0 / (2 * pi))
         sqrt_13_pi = sqrt(13.0 / pi)
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
         pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
         pre_y_6_4 = [
-            i32_3 * sqrt_91_2pi * val[0] * (11.0 * val[1] - 1.0) for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])
+            i32_3 * sqrt_91_2pi * val[0] * (11 * val[1] - 1.0) for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])
         ]
         pre_y_6_3 = [
-            i32 * sqrt_1365_pi * val[0] * (11.0 * val[1] - 3.0 * val[2])
+            i32 * sqrt_1365_pi * val[0] * (11 * val[1] - 3 * val[2])
             for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1])
         ]
         pre_y_6_2 = [
-            i64 * sqrt_1365_pi * val[0] * (33.0 * val[1] - 18.0 * val[2] + 1.0)
+            i64 * sqrt_1365_pi * val[0] * (33 * val[1] - 18 * val[2] + 1.0)
             for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2])
         ]
         pre_y_6_1 = [
-            i16 * sqrt_273_2pi * val[0] * (33.0 * val[1] - 30.0 * val[2] + 5.0 * val[3])
+            i16 * sqrt_273_2pi * val[0] * (33 * val[1] - 30 * val[2] + 5 * val[3])
             for val in zip(
                 self._pow_sin_t[1],
                 self._pow_cos_t[5],
@@ -2703,7 +2704,7 @@ class LocalStructOrderParams:
             real += (
                 i32
                 * sqrt_13_pi
-                * (231.0 * self._pow_cos_t[6][i] - 315.0 * self._pow_cos_t[4][i] + 105.0 * self._pow_cos_t[2][i] - 5.0)
+                * (231 * self._pow_cos_t[6][i] - 315 * self._pow_cos_t[4][i] + 105 * self._pow_cos_t[2][i] - 5.0)
             )
         acc += real * real
 
@@ -2755,7 +2756,7 @@ class LocalStructOrderParams:
             imag += pre_y_6_6[i] * self._sin_n_p[6][i]
         acc += real * real + imag * imag
 
-        q6 = sqrt(4.0 * pi * acc / (13.0 * float(nnn * nnn)))
+        q6 = sqrt(4 * pi * acc / (13 * float(nnn * nnn)))
         return q6
 
     def get_type(self, index):
@@ -2883,19 +2884,19 @@ class LocalStructOrderParams:
         self._last_nneigh = nneigh
 
         # Prepare angle calculations, if applicable.
-        rij = []
-        rjk = []
-        rijnorm = []
-        rjknorm = []
-        dist = []
-        distjk_unique = []
-        distjk = []
+        rij: list[ArrayLike] = []
+        rjk: list[list[ArrayLike]] = []
+        rijnorm: list[list[float]] = []
+        rjknorm: list[list[float]] = []
+        dist: list[float] = []
+        distjk_unique: list[float] = []
+        distjk: list[list[float]] = []
         centvec = centsite.coords
         if self._computerijs:
             for j, neigh in enumerate(neighsites):
                 rij.append(neigh.coords - centvec)
                 dist.append(np.linalg.norm(rij[j]))
-                rijnorm.append(rij[j] / dist[j])
+                rijnorm.append(rij[j] / dist[j])  # type: ignore
         if self._computerjks:
             for j, neigh in enumerate(neighsites):
                 rjk.append([])
@@ -2968,8 +2969,8 @@ class LocalStructOrderParams:
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak = [0.0 for t in self._types]  # not used by all OPs
-            qsptheta = [[[] for j in range(nneigh)] for t in self._types]
-            norms = [[[] for j in range(nneigh)] for t in self._types]
+            qsptheta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
+            norms = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
             ipi = 1.0 / pi
             piover2 = pi / 2.0
             onethird = 1.0 / 3.0
@@ -3173,7 +3174,7 @@ class LocalStructOrderParams:
                                                     fac = -1.0
                                                 tmp = (thetam - piover2) / asin(1 / 3)
                                                 qsptheta[i][j][kc] += (
-                                                    fac * cos(3.0 * phi) * fac_bcc * tmp * exp(-0.5 * tmp * tmp)
+                                                    fac * cos(3 * phi) * fac_bcc * tmp * exp(-0.5 * tmp * tmp)
                                                 )
                                                 norms[i][j][kc] += 1
                                         elif t == "see_saw_rect":
@@ -3253,7 +3254,7 @@ class LocalStructOrderParams:
                     for j in range(nneigh):
                         ops[i] += sum(qsptheta[i][j])
                         tmp_norm += float(sum(norms[i][j]))
-                    ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None
+                    ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore
                 elif t in [
                     "T",
                     "tri_pyr",
@@ -3274,7 +3275,7 @@ class LocalStructOrderParams:
                     "hex_plan_max",
                     "sq_face_cap_trig_pris",
                 ]:
-                    ops[i] = None
+                    ops[i] = None  # type: ignore
                     if nneigh > 1:
                         for j in range(nneigh):
                             for k in range(len(qsptheta[i][j])):
@@ -3286,9 +3287,10 @@ class LocalStructOrderParams:
                     ops[i] = 0.0
                     for j in range(nneigh):
                         ops[i] += sum(qsptheta[i][j])
-                    ops[i] = (
-                        ops[i] / float(0.5 * float(nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) if nneigh > 3 else None
-                    )
+                    if nneigh > 3:
+                        ops[i] = ops[i] / float(0.5 * float(nneigh * (6 + (nneigh - 2) * (nneigh - 3))))
+                    else:
+                        ops[i] = None  # type: ignore
                 elif t == "sq_pyr_legacy":
                     if nneigh > 1:
                         dmean = np.mean(dist)
@@ -3301,7 +3303,7 @@ class LocalStructOrderParams:
                         ops[i] = acc * ops[i] / float(nneigh)
                         # nneigh * (nneigh - 1))
                     else:
-                        ops[i] = None
+                        ops[i] = None  # type: ignore
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
@@ -3326,14 +3328,14 @@ class LocalStructOrderParams:
             for i, t in enumerate(self._types):
                 if t in ("reg_tri", "sq"):
                     if nneigh < 3:
-                        ops[i] = None
+                        ops[i] = None  # type: ignore
                     else:
                         ops[i] = 1.0
                         if t == "reg_tri":
-                            a = 2.0 * asin(b / (2.0 * sqrt(h * h + (b / (2.0 * cos(3.0 * pi / 18.0))) ** 2.0)))
+                            a = 2 * asin(b / (2 * sqrt(h * h + (b / (2 * cos(3 * pi / 18))) ** 2)))  # type: ignore
                             nmax = 3
                         elif t == "sq":
-                            a = 2.0 * asin(b / (2.0 * sqrt(h * h + dhalf * dhalf)))
+                            a = 2 * asin(b / (2 * sqrt(h * h + dhalf * dhalf)))  # type: ignore
                             nmax = 4
                         for j in range(min([nneigh, nmax])):
                             ops[i] = ops[i] * exp(-0.5 * ((aijs[j] - a) * self._params[i][0]) ** 2)
@@ -3927,7 +3929,7 @@ class CrystalNN(NearNeighbors):
                     d = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
 
                 dist = np.linalg.norm(structure[n].coords - entry["site"].coords)
-                dist_weight = 0
+                dist_weight: float = 0
 
                 cutoff_low = d + self.distance_cutoffs[0]
                 cutoff_high = d + self.distance_cutoffs[1]
@@ -3951,7 +3953,7 @@ class CrystalNN(NearNeighbors):
         nn = [x for x in nn if x["weight"] > 0]
 
         # get the transition distances, i.e. all distinct weights
-        dist_bins = []
+        dist_bins: list[float] = []
         for entry in nn:
             if not dist_bins or dist_bins[-1] != entry["weight"]:
                 dist_bins.append(entry["weight"])
@@ -4285,13 +4287,15 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore
         """
-        :param structure: Input structure
-        :param decorate: Whether to decorate the structure
-        :return: Bonded structure
-        """
+        Args:
+            structure (Structure): Input structure
+            decorate (bool, optional): Whether to decorate the structure. Defaults to False.
 
+        Returns:
+            StructureGraph: Bonded structure
+        """
         # not a top-level import because critic2 is an optional
         # dependency, only want to raise an import error if
         # Critic2NN() is used

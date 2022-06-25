@@ -424,7 +424,7 @@ class Vasprun(MSONable):
         md_data = []
         parsed_header = False
         try:
-            for event, elem in ET.iterparse(stream):
+            for _, elem in ET.iterparse(stream):
                 tag = elem.tag
                 if not parsed_header:
                     if tag == "generator":
@@ -811,11 +811,9 @@ class Vasprun(MSONable):
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(
-        self, inc_structure=True, parameters=None, data=None, entry_id=f"vasprun-{datetime.datetime.now()}"
-    ):
+    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str = None):
         """
-        Returns a ComputedEntry or ComputedStructureEntry from the vasprun.
+        Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
         Args:
             inc_structure (bool): Set to True if you want
@@ -827,12 +825,14 @@ class Vasprun(MSONable):
                 necessary for typical post-processing will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the Vasprun object.
-            entry_id (object): Specify an entry id for the ComputedEntry. Defaults to
+            entry_id (str): Specify an entry id for the ComputedEntry. Defaults to
                 "vasprun-{current datetime}"
 
         Returns:
             ComputedStructureEntry/ComputedEntry
         """
+        if entry_id is None:
+            entry_id = f"vasprun-{datetime.datetime.now()}"
         param_names = {
             "is_hubbard",
             "hubbards",
@@ -1023,7 +1023,7 @@ class Vasprun(MSONable):
         if self.separate_spins and len(self.eigenvalues.keys()) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
-        for spin, d in self.eigenvalues.items():
+        for d in self.eigenvalues.values():
             if self.separate_spins:
                 vbm = -float("inf")
                 cbm = float("inf")
@@ -1491,9 +1491,9 @@ class Vasprun(MSONable):
             spin = int(re.match(r"spin(\d+)", s.attrib["comment"]).group(1))
 
             # Force spin to be +1 or -1
-            for kpt, ss in enumerate(s.findall("set")):
+            for ss in s.findall("set"):
                 dk = []
-                for band, sss in enumerate(ss.findall("set")):
+                for sss in ss.findall("set"):
                     db = _parse_varray(sss)
                     dk.append(db)
                 proj_eigen[spin].append(dk)
@@ -1575,7 +1575,7 @@ class BSVasprun(Vasprun):
             parsed_header = False
             self.eigenvalues = None
             self.projected_eigenvalues = None
-            for event, elem in ET.iterparse(f):
+            for _, elem in ET.iterparse(f):
                 tag = elem.tag
                 if not parsed_header:
                     if tag == "generator":
@@ -1663,9 +1663,7 @@ class BSVasprun(Vasprun):
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
 
             if self.projected_eigenvalues:
-                peigen = []
-                for i in range(len(eigen)):
-                    peigen.append({})
+                peigen = [{} for _ in eigen]
                 for spin, v in self.projected_eigenvalues.items():
                     for kpoint_index, vv in enumerate(v):
                         if str(spin) not in peigen[kpoint_index]:
@@ -3518,7 +3516,7 @@ class VolumetricData(MSONable):
         self.data_aug = data_aug if data_aug else {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
-        self._spin_data = {}
+        self._spin_data: dict[Spin, float] = {}
         self._distance_matrix = {} if not distance_matrix else distance_matrix
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
@@ -3917,7 +3915,7 @@ class VolumetricData(MSONable):
             ds = f.create_dataset("species", (len(self.structure.species),), dtype=dt)
             ds[...] = [str(sp) for sp in self.structure.species]
             grp = f.create_group("vdata")
-            for k, v in self.data.items():
+            for k in self.data:
                 ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
                 ds[...] = self.data[k]
             f.attrs["name"] = self.name
@@ -4638,7 +4636,7 @@ class Xdatcar:
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
-                    for (i, site) in enumerate(structure):
+                    for site in structure:
                         coords = site.frac_coords
                         line = " ".join([format_str.format(c) for c in coords])
                         lines.append(line)
@@ -4646,7 +4644,7 @@ class Xdatcar:
             else:
                 if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
-                    for (i, site) in enumerate(structure):
+                    for site in structure:
                         coords = site.frac_coords
                         line = " ".join([format_str.format(c) for c in coords])
                         lines.append(line)
@@ -5473,7 +5471,7 @@ class Eigenval:
         if self.separate_spins and len(self.eigenvalues.keys()) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
-        for spin, d in self.eigenvalues.items():
+        for d in self.eigenvalues.values():
             if self.separate_spins:
                 vbm = -float("inf")
                 cbm = float("inf")

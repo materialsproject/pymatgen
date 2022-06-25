@@ -32,7 +32,7 @@ class Prismatic:
         """
 
         lattice = self.structure.lattice
-        lines = [self.comment, " ".join(lattice.lengths)]
+        lines = [self.comment, " ".join(map(str, lattice.lengths))]
         for site in self.structure:
             for sp, occu in site.species.items():
                 x, y, z = site.coords

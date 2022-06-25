@@ -472,8 +472,8 @@ class Critic2Analysis(MSONable):
         self._yt = yt
         self._zpsp = zpsp
 
-        self.nodes = {}
-        self.edges = {}
+        self.nodes: dict[int, dict] = {}
+        self.edges: dict[int, dict] = {}
 
         if yt:
             self.structure = self._annotate_structure_with_yt(yt, structure, zpsp)
@@ -607,10 +607,10 @@ class Critic2Analysis(MSONable):
 
         return sg
 
-    def get_critical_point_for_site(self, n):
+    def get_critical_point_for_site(self, n: int):
         """
         Args:
-            n: Site index n
+            n (int): Site index
 
         Returns: A CriticalPoint instance
         """
