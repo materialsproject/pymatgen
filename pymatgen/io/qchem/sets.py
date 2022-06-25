@@ -176,7 +176,7 @@ class QChemDictSet(QCInput):
         myrem["xc_grid"] = "3"
         myrem["thresh"] = "14"
         myrem["s2thresh"] = "16"
-        if self.scf_algorithm = "custom_gdm_diis":
+        if self.scf_algorithm == "custom_gdm_diis":
             myrem["gen_scfman_hybrid_algo"] = "true"
             myrem["gen_scfman_algo_1"] = "gdm"
             myrem["gen_scfman_conv_1"] = "4"
