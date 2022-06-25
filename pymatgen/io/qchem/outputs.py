@@ -728,61 +728,64 @@ class QCOutput(MSONable):
                 geoms.append(None)
             else:
                 geoms.append(process_parsed_coords(parsed_geometry))
-        self.data["geometries"] = geoms
-        self.data["last_geometry"] = geoms[-1]
-        if self.data.get("charge") is not None:
-            self.data["molecule_from_last_geometry"] = Molecule(
-                species=self.data.get("species"),
-                coords=self.data.get("last_geometry"),
-                charge=self.data.get("charge"),
-                spin_multiplicity=self.data.get("multiplicity"),
-            )
-
-        # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-        if self.data.get("new_optimizer") is None:
-            header_pattern = (
-                r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-            )
-            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-            footer_pattern = r"\s+Z-matrix Print:"
-        else:  # pylint: disable=line-too-long
-            header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
-            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
-            footer_pattern = r"\s*-+"
-        parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-
-        if not parsed_optimized_geometries:
-            self.data["optimized_geometry"] = None
-            header_pattern = (
-                r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
-                r"Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
-            )
-            table_pattern = (
-                r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)"
-                r"(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
-            )
-            footer_pattern = r"^\$end\n"
-
-            self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        else:
-            self.data["optimized_geometry"] = process_parsed_coords(parsed_optimized_geometries[0])
-            self.data["optimized_geometries"] = [process_parsed_coords(i) for i in parsed_optimized_geometries]
+        if len(geoms) >= 1:
+            self.data["geometries"] = geoms
+            self.data["last_geometry"] = geoms[-1]
             if self.data.get("charge") is not None:
-                self.data["molecule_from_optimized_geometry"] = Molecule(
+                self.data["molecule_from_last_geometry"] = Molecule(
                     species=self.data.get("species"),
-                    coords=self.data.get("optimized_geometry"),
+                    coords=self.data.get("last_geometry"),
                     charge=self.data.get("charge"),
                     spin_multiplicity=self.data.get("multiplicity"),
                 )
-                self.data["molecules_from_optimized_geometries"] = []
-                for geom in self.data["optimized_geometries"]:
-                    mol = Molecule(
+
+            # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
+            if self.data.get("new_optimizer") is None:
+                header_pattern = (
+                    r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+                )
+                table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+                footer_pattern = r"\s+Z-matrix Print:"
+            else:  # pylint: disable=line-too-long
+                header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+                table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+                footer_pattern = r"\s*-+"
+            parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
+            if not parsed_optimized_geometries:
+                self.data["optimized_geometry"] = None
+                header_pattern = (
+                    r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
+                    r"Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
+                )
+                table_pattern = (
+                    r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)"
+                    r"(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
+                )
+                footer_pattern = r"^\$end\n"
+
+                self.data["optimized_zmat"] = read_table_pattern(
+                    self.text, header_pattern, table_pattern, footer_pattern
+                )
+            else:
+                self.data["optimized_geometry"] = process_parsed_coords(parsed_optimized_geometries[0])
+                self.data["optimized_geometries"] = [process_parsed_coords(i) for i in parsed_optimized_geometries]
+                if self.data.get("charge") is not None:
+                    self.data["molecule_from_optimized_geometry"] = Molecule(
                         species=self.data.get("species"),
-                        coords=geom,
+                        coords=self.data.get("optimized_geometry"),
                         charge=self.data.get("charge"),
                         spin_multiplicity=self.data.get("multiplicity"),
                     )
-                    self.data["molecules_from_optimized_geometries"].append(mol)
+                    self.data["molecules_from_optimized_geometries"] = []
+                    for geom in self.data["optimized_geometries"]:
+                        mol = Molecule(
+                            species=self.data.get("species"),
+                            coords=geom,
+                            charge=self.data.get("charge"),
+                            spin_multiplicity=self.data.get("multiplicity"),
+                        )
+                        self.data["molecules_from_optimized_geometries"].append(mol)
 
     def _get_grad_format_length(self, header):
         """
@@ -817,39 +820,7 @@ class QCOutput(MSONable):
                 grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
 
         parsed_gradients = read_table_pattern(self.text, grad_header_pattern, grad_table_pattern, footer_pattern)
-        sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
-        for ii, grad in enumerate(parsed_gradients):
-            for jj in range(int(len(grad) / 3)):
-                for kk in range(grad_format_length):
-                    if grad[jj * 3][kk] != "None":
-                        sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
-                        sorted_gradients[ii][jj * grad_format_length + kk][1] = grad[jj * 3 + 1][kk]
-                        sorted_gradients[ii][jj * grad_format_length + kk][2] = grad[jj * 3 + 2][kk]
-
-        self.data["gradients"] = sorted_gradients
-
-        if self.data["solvent_method"] is not None:
-            header_pattern = r"total gradient after adding PCM contribution --\s+-+\s+Atom\s+X\s+Y\s+Z\s+-+"
-            table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s"
-            footer_pattern = r"-+"
-
-            parsed_gradients = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-
-            pcm_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
-            for ii, grad in enumerate(parsed_gradients):
-                for jj, entry in enumerate(grad):
-                    for kk, val in enumerate(entry):
-                        pcm_gradients[ii][jj][kk] = float(val)
-
-            self.data["pcm_gradients"] = pcm_gradients
-        else:
-            self.data["pcm_gradients"] = None
-
-        if read_pattern(self.text, {"key": r"Gradient of CDS energy"}, terminate_on_match=True).get("key") == [[]]:
-            header_pattern = r"Gradient of CDS energy"
-
-            parsed_gradients = read_table_pattern(self.text, header_pattern, grad_table_pattern, grad_header_pattern)
-
+        if len(parsed_gradients) >= 1:
             sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
             for ii, grad in enumerate(parsed_gradients):
                 for jj in range(int(len(grad) / 3)):
@@ -859,9 +830,44 @@ class QCOutput(MSONable):
                             sorted_gradients[ii][jj * grad_format_length + kk][1] = grad[jj * 3 + 1][kk]
                             sorted_gradients[ii][jj * grad_format_length + kk][2] = grad[jj * 3 + 2][kk]
 
-            self.data["CDS_gradients"] = sorted_gradients
-        else:
-            self.data["CDS_gradients"] = None
+            self.data["gradients"] = sorted_gradients
+
+            if self.data["solvent_method"] is not None:
+                header_pattern = r"total gradient after adding PCM contribution --\s+-+\s+Atom\s+X\s+Y\s+Z\s+-+"
+                table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s"
+                footer_pattern = r"-+"
+
+                parsed_gradients = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
+                pcm_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
+                for ii, grad in enumerate(parsed_gradients):
+                    for jj, entry in enumerate(grad):
+                        for kk, val in enumerate(entry):
+                            pcm_gradients[ii][jj][kk] = float(val)
+
+                self.data["pcm_gradients"] = pcm_gradients
+            else:
+                self.data["pcm_gradients"] = None
+
+            if read_pattern(self.text, {"key": r"Gradient of CDS energy"}, terminate_on_match=True).get("key") == [[]]:
+                header_pattern = r"Gradient of CDS energy"
+
+                parsed_gradients = read_table_pattern(
+                    self.text, header_pattern, grad_table_pattern, grad_header_pattern
+                )
+
+                sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
+                for ii, grad in enumerate(parsed_gradients):
+                    for jj in range(int(len(grad) / 3)):
+                        for kk in range(grad_format_length):
+                            if grad[jj * 3][kk] != "None":
+                                sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
+                                sorted_gradients[ii][jj * grad_format_length + kk][1] = grad[jj * 3 + 1][kk]
+                                sorted_gradients[ii][jj * grad_format_length + kk][2] = grad[jj * 3 + 2][kk]
+
+                self.data["CDS_gradients"] = sorted_gradients
+            else:
+                self.data["CDS_gradients"] = None
 
     def _read_optimization_data(self):
         if self.data.get("new_optimizer") is None:
@@ -873,6 +879,8 @@ class QCOutput(MSONable):
             # Formatting of the new optimizer means we need to prepend the first energy
             if temp_energy_trajectory is not None:
                 temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
+        self._read_geometries()
+        self._read_gradients()
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
             if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
@@ -884,13 +892,11 @@ class QCOutput(MSONable):
             for ii, entry in enumerate(temp_energy_trajectory):
                 real_energy_trajectory[ii] = float(entry[0])
             self.data["energy_trajectory"] = real_energy_trajectory
-            self._read_geometries()
             if have_babel:
                 self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"],
                 )
-            self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
             # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
             # to be determined or if a back transform error was encountered.
