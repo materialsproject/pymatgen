@@ -51,7 +51,7 @@ class Stringify:
         :return: A pretty string representation. By default, the __str__ output is used, but this method can be
             overridden if a different representation from default is desired.
         """
-        return self.__str__()
+        return str(self)
 
     def to_latex_string(self) -> str:
         """
@@ -412,10 +412,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
-    remainder = "{}-{}".format(
-        formula_double_format(total_disordered_occu, ignore_ones=False),
-        "-".join(symbols),
-    )
+    remainder = formula_double_format(total_disordered_occu, ignore_ones=False) + "-" + "-".join(symbols)
 
     for sp, occu in comp:
         sp = str(sp)

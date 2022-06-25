@@ -1268,8 +1268,8 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                     parent.current_structure = parent.structures[parent.istruct]
                     parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                     parent.display_info(
-                        "Animated movie : structure {:d}/{:d} "
-                        "(loop {:d}/{:d})".format(istruct + 1, len(parent.structures), iloop + 1, nloops)
+                        f"Animated movie : structure {istruct + 1}/{len(parent.structures)} "
+                        f"(loop {iloop + 1}/{nloops})"
                     )
                     parent.ren_win.Render()
                 time.sleep(tloops)

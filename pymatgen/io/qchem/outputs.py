@@ -1481,7 +1481,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
                 special_sites[ii].append([jj, site, distances])
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
-                mol.__delitem__(jj)
+                del mol[jj]
 
     # Can add logic to check the distances in the future if desired
 

@@ -274,8 +274,8 @@ $theory_spec
             spin_multiplicity = spin_multiplicity
             if (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    "Charge of {} and spin multiplicity of {} is"
-                    " not possible for this molecule".format(charge, spin_multiplicity)
+                    f"Charge of {charge} and spin multiplicity of {spin_multiplicity} is"
+                    " not possible for this molecule"
                 )
         elif charge == mol.charge:
             spin_multiplicity = mol.spin_multiplicity
@@ -398,7 +398,7 @@ class NwInput(MSONable):
             filename (str): Filename
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def as_dict(self):
         """

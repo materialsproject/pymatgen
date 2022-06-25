@@ -270,13 +270,9 @@ class PourbaixEntry(MSONable, Stringify):
         return self.entry.name
 
     def __repr__(self):
-        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {} ".format(
-            self.entry.composition,
-            self.energy,
-            self.npH,
-            self.nPhi,
-            self.nH2O,
-            self.entry_id,
+        return (
+            f"Pourbaix Entry : {self.entry.composition} with energy = {self.energy:.4f}, npH = {self.npH}, "
+            f"nPhi = {self.nPhi}, nH2O = {self.nH2O}, entry_id = {self.entry_id} "
         )
 
     def __str__(self):
@@ -346,10 +342,8 @@ class MultiEntry(PourbaixEntry):
 
     def __repr__(self):
         return (
-            "Multiple Pourbaix Entry: energy = {:.4f}, npH = {}, nPhi = {}, "
-            "nH2O = {}, entry_id = {}, species: {}".format(
-                self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id, self.name
-            )
+            f"Multiple Pourbaix Entry: energy = {self.energy:.4f}, npH = {self.npH}, nPhi = {self.nPhi}, "
+            f"nH2O = {self.nH2O}, entry_id = {self.entry_id}, species: {self.name}"
         )
 
     def __str__(self):

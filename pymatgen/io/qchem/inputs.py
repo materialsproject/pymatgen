@@ -150,7 +150,7 @@ class QCInput(InputFile):
         """
         Return a string representation of an entire input file.
         """
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         combined_list = []
@@ -209,9 +209,9 @@ class QCInput(InputFile):
         multi_job_string = ""
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
-                multi_job_string += job_i.__str__() + "\n@@@\n\n"
+                multi_job_string += str(job_i) + "\n@@@\n\n"
             else:
-                multi_job_string += job_i.__str__()
+                multi_job_string += str(job_i)
         return multi_job_string
 
     @classmethod
@@ -334,11 +334,7 @@ class QCInput(InputFile):
         else:
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
-                mol_list.append(
-                    " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
-                        atom=site.species_string, x=site.x, y=site.y, z=site.z
-                    )
-                )
+                mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
         mol_list.append("$end")
         return "\n".join(mol_list)
 

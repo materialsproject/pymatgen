@@ -108,7 +108,7 @@ class CovalentBond:
             return False
         if default_bl:
             return dist < (1 + tol) * default_bl
-        raise ValueError("No bond data for elements {} - {}".format(*syms))
+        raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
     def __repr__(self):
         return f"Covalent bond between {self.site1} and {self.site2}"
@@ -140,7 +140,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
         return bond_lengths[syms].copy()
     if default_bl is not None:
         return {1: default_bl}
-    raise ValueError("No bond data for elements {} - {}".format(*syms))
+    raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
 
 def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | None = None):

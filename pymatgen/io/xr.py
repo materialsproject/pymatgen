@@ -43,9 +43,11 @@ class Xr:
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "pymatgen   {:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.3f} {:.3f} {:.3f}".format(*self.structure.lattice.angles),
+            f"pymatgen   {a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.3f} {beta:.3f} {gamma:.3f}",
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]

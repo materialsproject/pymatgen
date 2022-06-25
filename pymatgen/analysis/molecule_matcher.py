@@ -894,8 +894,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(
-                "The number of all possible permutations "
-                "({}) is not feasible to run this method!".format(total_permutations)
+                "The number of all possible permutations " f"({total_permutations}) is not feasible to run this method!"
             )
 
         p_coord, q_coord = p.cart_coords, q.cart_coords

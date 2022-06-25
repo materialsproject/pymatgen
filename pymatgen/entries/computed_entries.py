@@ -289,9 +289,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanaion of how the energy adjustment is calculated.
         """
-        return self.description + " ({:.4f} eV/K/atom x {} K x {} atoms)".format(
-            self._adj_per_deg, self.temp, self.n_atoms
-        )
+        return self.description + f" ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -346,9 +344,9 @@ class ComputedEntry(Entry):
         if correction != 0.0:
             if energy_adjustments:
                 raise ValueError(
-                    "Argument conflict! Setting correction = {:.3f} conflicts "
+                    f"Argument conflict! Setting correction = {correction:.3f} conflicts "
                     "with setting energy_adjustments. Specify one or the "
-                    "other.".format(correction)
+                    "other."
                 )
 
             self.correction = correction
@@ -461,15 +459,9 @@ class ComputedEntry(Entry):
     def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
         output = [
-            "{} {:<10} - {:<12} ({})".format(
-                self.entry_id,
-                type(self).__name__,
-                self.composition.formula,
-                self.composition.reduced_formula,
-            ),
-            "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format(
-                "Energy (Uncorrected)", self._energy, self._energy / n_atoms
-            ),
+            f"{self.entry_id} {type(self).__name__:<10} "
+            f"- {self.composition.formula:<12} ({self.composition.reduced_formula})",
+            f"{'Energy (Uncorrected)':<24} = {self._energy:<9.4f} eV ({self._energy / n_atoms:<8.4f} eV/atom)",
             f"{'Correction':<24} = {self.correction:<9.4f} eV ({self.correction / n_atoms:<8.4f} eV/atom)",
             f"{'Energy (Final)':<24} = {self.energy:<9.4f} eV ({self.energy_per_atom:<8.4f} eV/atom)",
             "Energy Adjustments:",

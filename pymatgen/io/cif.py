@@ -131,7 +131,7 @@ class CifBlock:
         return s
 
     def _format_field(self, v):
-        v = v.__str__().strip()
+        v = str(v).strip()
         if len(v) > self.maxlen:
             return ";\n" + textwrap.fill(v, self.maxlen) + "\n;"
         # add quotes if necessary
@@ -937,7 +937,7 @@ class CifParser:
                 inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
                 # can't use if inds, because python is dumb and np.array([0]) evaluates
                 # to False
-                if len(inds):
+                if len(inds) > 0:
                     return keys[inds[0]]
             return False
 
@@ -1002,9 +1002,9 @@ class CifParser:
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
-                "Some occupancies ({}) sum to > 1! If they are within "
+                f"Some occupancies ({sum_occu}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
-                "The current occupancy_tolerance is set to: {}".format(sum_occu, self._occupancy_tolerance)
+                f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )
             warnings.warn(msg)
             self.warnings.append(msg)
@@ -1218,10 +1218,7 @@ class CifParser:
 
             # convert to bibtex page range format, use empty string if not specified
             if ("page_first" in bibtex_entry) or ("page_last" in bibtex_entry):
-                bibtex_entry["pages"] = "{}--{}".format(
-                    bibtex_entry.get("page_first", ""),
-                    bibtex_entry.get("page_last", ""),
-                )
+                bibtex_entry["pages"] = bibtex_entry.get("page_first", "") + "--" + bibtex_entry.get("page_last", "")
                 bibtex_entry.pop("page_first", None)  # and remove page_first, page_list if present
                 bibtex_entry.pop("page_last", None)
 
@@ -1332,7 +1329,7 @@ class CifWriter:
         loops.append(["_symmetry_equiv_pos_site_id", "_symmetry_equiv_pos_as_xyz"])
 
         try:
-            symbol_to_oxinum = {el.__str__(): float(el.oxi_state) for el in sorted(comp.elements)}
+            symbol_to_oxinum = {str(el): float(el.oxi_state) for el in sorted(comp.elements)}
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
@@ -1354,13 +1351,13 @@ class CifWriter:
         if symprec is None:
             for site in struct:
                 for sp, occu in sorted(site.species.items()):
-                    atom_site_type_symbol.append(sp.__str__())
+                    atom_site_type_symbol.append(str(sp))
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append(f"{sp.symbol}{count}")
-                    atom_site_occupancy.append(occu.__str__())
+                    atom_site_occupancy.append(str(occu))
 
                     magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
                     if write_magmoms and abs(magmom) > 0:
@@ -1391,13 +1388,13 @@ class CifWriter:
                 ),
             ):
                 for sp, occu in site.species.items():
-                    atom_site_type_symbol.append(sp.__str__())
+                    atom_site_type_symbol.append(str(sp))
                     atom_site_symmetry_multiplicity.append(f"{mult}")
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append(f"{sp.symbol}{count}")
-                    atom_site_occupancy.append(occu.__str__())
+                    atom_site_occupancy.append(str(occu))
                     count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
@@ -1446,14 +1443,14 @@ class CifWriter:
         """
         Returns the cif as a string.
         """
-        return self._cf.__str__()
+        return str(self._cf)
 
     def write_file(self, filename):
         """
         Write the cif file.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
 
 def str2float(text):

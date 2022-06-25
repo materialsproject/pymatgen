@@ -625,7 +625,7 @@ class KumagaiCorrection(DefectCorrection):
                     "".format(dist_to_defect, sampling_radius)
                 )
 
-        if len(for_correction):
+        if len(for_correction) > 0:
             pot_alignment = np.mean(for_correction)
         else:
             logger.info("No atoms sampled for_correction radius! Assigning potential alignment value of 0.")

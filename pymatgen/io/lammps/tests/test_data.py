@@ -825,19 +825,19 @@ class FuncTest(unittest.TestCase):
 class CombinedDataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data"))
-        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data"))
+        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data.gz"))
+        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data.gz"))
         cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data"))
         cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data"))
-        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
+        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz.gz"))
         cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz"))
         cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz"))
         cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz"))
         cls.ec_fec1 = CombinedData.from_files(
-            os.path.join(test_dir, "ec_fec.xyz"),
+            os.path.join(test_dir, "ec_fec.xyz.gz"),
             [1200, 300],
-            os.path.join(test_dir, "ec.data"),
-            os.path.join(test_dir, "fec.data"),
+            os.path.join(test_dir, "ec.data.gz"),
+            os.path.join(test_dir, "fec.data.gz"),
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()

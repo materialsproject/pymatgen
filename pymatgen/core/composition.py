@@ -464,7 +464,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             str: Same as output __str__() but without spaces.
         """
-        return re.sub(r"\s+", "", self.__str__())
+        return re.sub(r"\s+", "", str(self))
 
     @property
     def num_atoms(self) -> float:
@@ -756,16 +756,34 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for elem in invalid_elems:
             elem_map.pop(elem)
 
-        new_comp = self.as_dict()
+        # start with elements that remain unchanged (not in elem_map)
+        new_comp = {elem: amount for elem, amount in self.as_dict().items() if elem not in elem_map}
 
         for old_elem, new_elem in elem_map.items():
-            amount = new_comp.pop(old_elem)
 
+            amount = self[old_elem]
+
+            # build a dictionary of substitutions to be made
+            subs = {}
             if isinstance(new_elem, dict):
                 for el, factor in new_elem.items():
-                    new_comp[el] = factor * amount
+                    subs[el] = factor * amount
             else:
-                new_comp[new_elem] = amount
+                subs = {new_elem: amount}
+
+            # and apply the substitutions to the new composition
+            for el, amt in subs.items():
+                if el in new_comp:
+                    new_comp[el] += amt
+                else:
+                    new_comp[el] = amt
+
+                # check for ambiguous input (see issue #2553)
+                if el in self.keys():
+                    warnings.warn(
+                        f"Same element ({el}) in both the keys and values of the substitution!"
+                        "This can be ambiguous, so be sure to check your result."
+                    )
 
         return Composition(new_comp)
 

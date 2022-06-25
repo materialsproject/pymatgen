@@ -124,14 +124,10 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         for psingle in potcar:
             if self.potcar_functional not in psingle.identify_potcar()[0]:
                 warnings.warn(
-                    "POTCAR data with symbol {} is not known by pymatgen to\
-                    correspond with the selected potcar_functional {}. This POTCAR\
-                    is known to correspond with functionals {}. Please verify that\
-                    you are using the right POTCARs!".format(
-                        psingle.symbol,
-                        self.potcar_functional,
-                        psingle.identify_potcar(mode="data")[0],
-                    ),
+                    f"POTCAR data with symbol {psingle.symbol} is not known by pymatgen to\
+                    correspond with the selected potcar_functional {self.potcar_functional}. This POTCAR\
+                    is known to correspond with functionals {psingle.identify_potcar(mode='data')[0]}. "
+                    f"Please verify that you are using the right POTCARs!",
                     BadInputSetWarning,
                 )
 
@@ -190,7 +186,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             }.items():
                 if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(v.__str__())
+                        f.write(str(v))
         else:
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
@@ -776,8 +772,7 @@ class DictSet(VaspInputSet):
         if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
             encut = self.incar["ENCUT"]
         else:
-            encut = max(i_species.enmax for i_species in self.get_vasp_input().potcar)
-        #
+            encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
 
         _CUTOF = [
             np.sqrt(encut / _RYTOEV) / (2 * _PI / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc

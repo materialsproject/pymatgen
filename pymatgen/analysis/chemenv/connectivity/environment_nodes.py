@@ -62,7 +62,7 @@ class AbstractEnvironmentNode(MSONable):
     def everything_equal(self, other):
         """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
         as well as the central site itself."""
-        return self.__eq__(other) and self.central_site == other.central_site
+        return self == other and self.central_site == other.central_site
 
     @property
     @abc.abstractmethod
