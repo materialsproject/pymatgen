@@ -58,7 +58,7 @@ invang_to_ev = 3.80986
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
-for cn, di in cn_opt_params.items():  # type: ignore
+for cn, di in cn_opt_params.items():
     for mot, li in di.items():
         motif_cn_op[mot] = {"cn": int(cn), "optype": li[0]}
         motif_cn_op[mot]["params"] = deepcopy(li[1]) if len(li) > 1 else None
@@ -207,7 +207,7 @@ class StructureMotifInterstitial:
     Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (e.g., tetrahedra, octahedra). The algorithm is called InFiT
     (Interstitialcy Finding Tool), it was introducted by
     Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
     and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
@@ -237,14 +237,14 @@ class StructureMotifInterstitial:
                 distinct interstitial sites are to be found.
             inter_elem (string): element symbol of desired interstitial.
             motif_types ([string]): list of structure motif types that are
-                to be considered.  Permissible types are:
+                to be considered. Permissible types are:
                 tet (tetrahedron), oct (octahedron).
             op_threshs ([float]): threshold values for the underlying order
                 parameters to still recognize a given structural motif
                 (i.e., for an OP value >= threshold the coordination pattern
                 match is positive, for OP < threshold the match is
                 negative.
-            dl (float): grid fineness in Angstrom.  The input
+            dl (float): grid fineness in Angstrom. The input
                 structure is divided into a grid of dimension
                 a/dl x b/dl x c/dl along the three crystallographic
                 directions, with a, b, and c being the lengths of
@@ -586,7 +586,7 @@ class TopographyAnalyzer:
                 determine if something are actually periodic boundary images of
                 each other. Default is usually fine.
             max_cell_range (int): This is the range of periodic images to
-                construct the Voronoi tesselation. A value of 1 means that we
+                construct the Voronoi tessellation. A value of 1 means that we
                 include all points from (x +- 1, y +- 1, z+- 1) in the
                 voronoi construction. This is because the Voronoi poly
                 extends beyond the standard unit cell because of PBC.
@@ -655,7 +655,7 @@ class TopographyAnalyzer:
             for v in vs:
                 node_points_map[v].update(pts)
 
-        logger.debug("%d total Voronoi vertices" % len(voro.vertices))
+        logger.debug(f"{len(voro.vertices)} total Voronoi vertices")
 
         # Vnodes store all the valid voronoi polyhedra. Cation vnodes store
         # the voronoi polyhedra that are already occupied by existing cations.
@@ -687,7 +687,7 @@ class TopographyAnalyzer:
                     if ref is None:
                         vnodes.append(poly)
 
-        logger.debug("%d voronoi vertices in cell." % len(vnodes))
+        logger.debug(f"{len(vnodes)} voronoi vertices in cell.")
 
         # Eliminate all voronoi nodes which are closest to existing cations.
         if len(cations) > 0:
@@ -701,7 +701,7 @@ class TopographyAnalyzer:
             cation_vnodes = [v for i, v in enumerate(vnodes) if i in indices]
             vnodes = [v for i, v in enumerate(vnodes) if i not in indices]
 
-        logger.debug("%d vertices in cell not with cation." % len(vnodes))
+        logger.debug(f"{len(vnodes)} vertices in cell not with cation.")
         self.coords = coords
         self.vnodes = vnodes
         self.cation_vnodes = cation_vnodes
@@ -759,7 +759,7 @@ class TopographyAnalyzer:
                     frac_coords.append(fcoords + image)
             merged_vnodes.append(VoronoiPolyhedron(lattice, np.average(frac_coords, axis=0), poly_indices, self.coords))
         self.vnodes = merged_vnodes
-        logger.debug("%d vertices after combination." % len(self.vnodes))
+        logger.debug(f"{len(self.vnodes)} vertices after combination.")
 
     def remove_collisions(self, min_dist=0.5):
         """
@@ -802,7 +802,7 @@ class TopographyAnalyzer:
             return min(all_dist)
 
         voro = [s.frac_coords for s in self.vnodes]
-        print("Min dist between voronoi vertices centers = %.4f" % get_min_dist(voro))
+        print(f"Min dist between voronoi vertices centers = {get_min_dist(voro):.4f}")
 
         def get_non_framework_dist(fcoords):
             cations = [site.frac_coords for site in self.non_framework]
@@ -813,7 +813,7 @@ class TopographyAnalyzer:
             return np.linalg.norm(min_dist), min(min_dist), max(min_dist)
 
         print(len(self.non_framework))
-        print("MSE dist voro = %s" % str(get_non_framework_dist(voro)))
+        print(f"MSE dist voro = {str(get_non_framework_dist(voro))}")
 
     def write_topology(self, fname="Topo.cif"):
         """
@@ -924,7 +924,7 @@ class VoronoiPolyhedron:
         return calculate_vol(self.polyhedron_coords)
 
     def __str__(self):
-        return "Voronoi polyhedron %s" % self.name
+        return f"Voronoi polyhedron {self.name}"
 
 
 class ChargeDensityAnalyzer(MSONable):
@@ -1383,7 +1383,7 @@ def generic_groupby(list_in, comp=operator.eq):
         if ls1 is not None:
             continue
         list_out[i1] = label_num
-        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:  # noqa
+        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:
             if comp(list_in[i1], list_in[i2]):
                 if list_out[i2] is None:
                     list_out[i2] = list_out[i1]
@@ -1507,7 +1507,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                         recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)

@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
@@ -10,6 +9,16 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Tuple
+
+from monty.json import MSONable
+from scipy.constants import N_A
+
+from pymatgen.core import Composition, Element
+from pymatgen.entries.computed_entries import ComputedEntry
+
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -17,16 +26,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
-
-from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import Dict, Tuple
-
-from monty.json import MSONable
-from scipy.constants import N_A
-
-from pymatgen.core import Composition, Element
-from pymatgen.entries.computed_entries import ComputedEntry
 
 
 @dataclass
@@ -136,7 +135,7 @@ class AbstractElectrode(Sequence, MSONable):
         framework_formula: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Tuple[AbstractVoltagePair]
+    voltage_pairs: Tuple[AbstractVoltagePair, ...]
     working_ion_entry: ComputedEntry
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
@@ -257,7 +256,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         NotImplementedError(
             "The get_sub_electrodes function must be implemented for each concrete electrode "
-            f"class {self.__class__.__name__,}"
+            f"class {type(self).__name__,}"
         )
 
     def get_average_voltage(self, min_voltage=None, max_voltage=None):
@@ -392,7 +391,7 @@ class AbstractElectrode(Sequence, MSONable):
         max_voltage = max_voltage if max_voltage is not None else self.max_voltage
         return list(filter(lambda p: min_voltage <= p.voltage <= max_voltage, self.voltage_pairs))
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
 

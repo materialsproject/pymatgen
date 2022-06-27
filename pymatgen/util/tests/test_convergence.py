@@ -16,8 +16,6 @@ class ConvergenceTest(PymatgenTest):
             determine_convergence(xs, ys, name="name", tol=0.1, plots=False),
             [True, 4, 6, 3, 6.0, 0.091269841269839724],
         )
-        # self.assertTrue(os.path.isfile('name.fitdat'))
-        # self.assertTrue(os.path.isfile('plot-fits'))
         # another converging example
         ys = [1 / 1, 1 / 2, 1 / 3, 1 / 4, 1 / 5, 1 / 6]
         self.assertEqual(
@@ -36,9 +34,3 @@ class ConvergenceTest(PymatgenTest):
             determine_convergence(xs, ys, name="name", tol=0.01, plots=False),
             [False, numpy.inf, None, None, 11.368169147574115, None],
         )
-        # os.remove('name.fitdat')
-        # os.remove('plot-fits')
-        # files = os.listdir('.')
-        # for f in files:
-        #    if f.startswith("convdat.") or f.endswith(".gif"):
-        #        os.remove(f)

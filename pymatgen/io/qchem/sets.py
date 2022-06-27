@@ -5,21 +5,17 @@
 Input sets for Qchem
 """
 
+from __future__ import annotations
+
 import logging
 import os
-import sys
-from typing import Dict, List, Optional
+from typing import Literal
 
 from monty.io import zopen
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2021, The Materials Project"
@@ -40,16 +36,17 @@ class QChemDictSet(QCInput):
         basis_set: str,
         scf_algorithm: str,
         dft_rung: int = 4,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
-        scan_variables: Optional[Dict[str, List]] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        opt_variables: dict[str, list] | None = None,
+        scan_variables: dict[str, list] | None = None,
+        max_scf_cycles: int = 100,
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        new_geom_opt: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -95,11 +92,18 @@ class QChemDictSet(QCInput):
                 Note that the total number of variable (sum of lengths of all lists) CANNOT be more than two.
 
                 Ex. scan_variables = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
-            nbo_params (list): A list of strings for the desired NBO params. If an empty list is passed,
-                default NBO analysis will be performed. (Default: False)
+            nbo_params (dict): A dict containing the desired NBO params. Note that a key:value pair of
+                "version":7 will trigger NBO7 analysis. Otherwise, NBO5 analysis will be performed,
+                including if an empty dict is passed. Besides a key of "version", all other key:value
+                pairs will be written into the $nbo section of the QChem input file. (Default: False)
+            new_geom_opt (dict): A dict containing parameters for the $geom_opt section of the QChem
+                input file, which control the new geometry optimizer available starting in version 5.4.2.
+                Note that the new optimizer remains under development and not officially released.
+                Further note that even passig an empty dictionary will trigger the new optimizer.
+                (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -135,6 +139,7 @@ class QChemDictSet(QCInput):
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
         self.nbo_params = nbo_params
+        self.new_geom_opt = new_geom_opt
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
 
@@ -169,6 +174,8 @@ class QChemDictSet(QCInput):
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
         myrem["gen_scfman"] = "true"
         myrem["xc_grid"] = "3"
+        myrem["thresh"] = "14"
+        myrem["s2thresh"] = "16"
         myrem["scf_algorithm"] = self.scf_algorithm
         myrem["resp_charges"] = "true"
         myrem["symmetry"] = "false"
@@ -220,8 +227,30 @@ class QChemDictSet(QCInput):
             myrem["plots"] = "true"
             myrem["make_cube_files"] = "true"
 
+        mynbo = self.nbo_params
         if self.nbo_params is not None:
             myrem["nbo"] = "true"
+            if "version" in self.nbo_params:
+                if self.nbo_params["version"] == 7:
+                    myrem["nbo_external"] = "true"
+                else:
+                    raise RuntimeError("nbo params version should only be set to 7! Exiting...")
+            mynbo = {}
+            for key in self.nbo_params:
+                if key != "version":
+                    mynbo[key] = self.nbo_params[key]
+
+        my_geom_opt = self.new_geom_opt
+        if self.new_geom_opt is not None:
+            myrem["geom_opt2"] = "3"
+            if "maxiter" in self.new_geom_opt:
+                if self.new_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
+                    raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
+            else:
+                self.new_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
+            my_geom_opt = {}
+            for key in self.new_geom_opt:
+                my_geom_opt[key] = self.new_geom_opt[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -256,9 +285,19 @@ class QChemDictSet(QCInput):
                     for k, v in temp_plots.items():
                         myplots[k] = v
                 if sec == "nbo":
-                    temp_plots = lower_and_check_unique(sec_dict)
-                    for k, v in temp_plots.items():
-                        myplots[k] = v
+                    if mynbo is None:
+                        raise RuntimeError("Can't overwrite nbo params when NBO is not being run! Exiting...")
+                    temp_nbo = lower_and_check_unique(sec_dict)
+                    for k, v in temp_nbo.items():
+                        mynbo[k] = v
+                if sec == "geom_opt":
+                    if my_geom_opt is None:
+                        raise RuntimeError(
+                            "Can't overwrite geom_opt params when not using the new optimizer! Exiting..."
+                        )
+                    temp_geomopt = lower_and_check_unique(sec_dict)
+                    for k, v in temp_geomopt.items():
+                        my_geom_opt[k] = v
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -275,7 +314,8 @@ class QChemDictSet(QCInput):
             van_der_waals=myvdw,
             vdw_mode=self.vdw_mode,
             plots=myplots,
-            nbo=self.nbo_params,
+            nbo=mynbo,
+            geom_opt=my_geom_opt,
         )
 
     def write(self, input_file: str):
@@ -300,13 +340,13 @@ class SinglePointSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        max_scf_cycles: int = 100,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -341,7 +381,7 @@ class SinglePointSet(QChemDictSet):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -395,15 +435,16 @@ class OptSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        max_scf_cycles: int = 100,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
+        nbo_params: dict | None = None,
+        opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
-        overwrite_inputs: Optional[Dict] = None,
+        new_geom_opt: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -438,7 +479,7 @@ class OptSet(QChemDictSet):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
@@ -480,6 +521,7 @@ class OptSet(QChemDictSet):
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
+            new_geom_opt=new_geom_opt,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -496,15 +538,15 @@ class TransitionStateSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        max_scf_cycles: int = 100,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
+        nbo_params: dict | None = None,
+        opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
-        overwrite_inputs: Optional[Dict] = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode="atomic",
     ):
         """
@@ -536,7 +578,7 @@ class TransitionStateSet(QChemDictSet):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
@@ -594,13 +636,13 @@ class ForceSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        max_scf_cycles: int = 100,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -632,7 +674,7 @@ class ForceSet(QChemDictSet):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
@@ -687,13 +729,13 @@ class FreqSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        max_scf_cycles: int = 100,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -725,7 +767,7 @@ class FreqSet(QChemDictSet):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
@@ -786,15 +828,15 @@ class PESScanSet(QChemDictSet):
         basis_set: str = "def2-tzvppd",
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
-        pcm_dielectric: Optional[float] = None,
-        smd_solvent: Optional[str] = None,
-        custom_smd: Optional[str] = None,
-        max_scf_cycles: int = 200,
+        pcm_dielectric: float | None = None,
+        smd_solvent: str | None = None,
+        custom_smd: str | None = None,
+        max_scf_cycles: int = 100,
         plot_cubes: bool = False,
-        nbo_params: Optional[Dict] = None,
-        opt_variables: Optional[Dict[str, List]] = None,
-        scan_variables: Optional[Dict[str, List]] = None,
-        overwrite_inputs: Optional[Dict] = None,
+        nbo_params: dict | None = None,
+        opt_variables: dict[str, list] | None = None,
+        scan_variables: dict[str, list] | None = None,
+        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
         """
@@ -838,7 +880,7 @@ class PESScanSet(QChemDictSet):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
-            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.

@@ -355,6 +355,9 @@ class CompositionTest(PymatgenTest):
             "Incorrect composition after addition!",
         )
 
+        foo = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(foo), NotImplemented)
+
     def test_sub(self):
         self.assertEqual(
             (self.comp[0] - Composition("Li2O")).formula,
@@ -370,6 +373,9 @@ class CompositionTest(PymatgenTest):
         c2 = Composition({"S": 1})
         self.assertEqual(len((c1 - c2).elements), 1)
 
+        foo = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(foo), NotImplemented)
+
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
         self.assertEqual((3 * self.comp[1]).formula, "Li9 Fe3 P3 O15")
@@ -378,6 +384,8 @@ class CompositionTest(PymatgenTest):
         self.assertEqual((self.comp[0] / 4).formula, "Li0.75 Fe0.5 P0.75 O3")
 
     def test_equals(self):
+        # generate randomized compositions for robustness (tests might pass for specific elements
+        # but fail for others)
         random_z = random.randint(1, 92)
         fixed_el = Element.from_Z(random_z)
         other_z = random.randint(1, 92)
@@ -394,6 +402,10 @@ class CompositionTest(PymatgenTest):
             "Composition equality test failed. " + f"{comp1.formula} should be equal to {comp2.formula}",
         )
         self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
+
+        c1, c2 = self.comp[:2]
+        self.assertTrue(c1 == c1)
+        self.assertFalse(c1 == c2)
 
     def test_hash_robustness(self):
         c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
@@ -417,6 +429,11 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(c3 < c1)
         self.assertTrue(c4 > c1)
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]), [c3, c1, c1_1, c4, c2])
+
+        foo = Element("Fe")
+        self.assertEqual(c1.__eq__(foo), NotImplemented)
+        self.assertEqual(c1.__ne__(foo), NotImplemented)
+        self.assertEqual(c1.__lt__(foo), NotImplemented)
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
@@ -649,6 +666,27 @@ class CompositionTest(PymatgenTest):
         # leaves the composition unchanged when replacing non-existent species
         self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
 
+        # check for complex substitutions where element is involved at
+        # multiple places
+        Ca2NF = Composition("Ca2NF")
+        example_sub_1 = {"Ca": "Sr", "N": "O", "F": "O"}
+        c_new_1 = Ca2NF.replace(example_sub_1)
+        assert c_new_1 == Composition("Sr2O2")
+
+        example_sub_2 = {"Ca": "Sr", "N": "F", "F": "Cl"}
+        c_new_2 = Ca2NF.replace(example_sub_2)
+        assert c_new_2 == Composition("Sr2ClF")
+
+        example_sub_3 = {"Ca": "Sr", "N": "F", "F": "N"}
+        c_new_3 = Ca2NF.replace(example_sub_3)
+        assert c_new_3 == Composition("Sr2NF")
+
+        # Check with oxidation-state decorated compositions
+        Ca2NF_oxi = Ca2NF.add_charges_from_oxi_state_guesses()
+        example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
+        c_new_4 = Ca2NF_oxi.replace(example_sub_4)
+        assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
+
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
@@ -670,14 +708,14 @@ class ChemicalPotentialTest(unittest.TestCase):
         self.assertRaises(ValueError, fepot.get_energy, feo2)
 
         # test multiplication
-        self.assertRaises(NotImplementedError, lambda: (pots * pots))
+        self.assertEqual(pots.__mul__(pots), NotImplemented)
         self.assertDictEqual(pots * 2, potsx2)
         self.assertDictEqual(2 * pots, potsx2)
 
         # test division
         self.assertDictEqual(potsx2 / 2, pots)
-        self.assertRaises(NotImplementedError, lambda: (pots / pots))
-        self.assertRaises(NotImplementedError, lambda: (pots / feo2))
+        self.assertEqual(pots.__div__(pots), NotImplemented)
+        self.assertEqual(pots.__div__(feo2), NotImplemented)
 
         # test add/subtract
         self.assertDictEqual(pots + pots, potsx2)

@@ -3,7 +3,6 @@
 
 
 import pickle
-import timeit
 
 import numpy as np
 
@@ -203,6 +202,12 @@ class PeriodicSiteTest(PymatgenTest):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 0.46]
+        self.assertArrayAlmostEqual(site.frac_coords, val)
+
+        lattice_pbc = Lattice(self.lattice.matrix, pbc=(True, True, False))
+        site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), lattice_pbc)
+        site.to_unit_cell(in_place=True)
+        val = [0.25, 0.35, 4.46]
         self.assertArrayAlmostEqual(site.frac_coords, val)
 
     def test_setters(self):

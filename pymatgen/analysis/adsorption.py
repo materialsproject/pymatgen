@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides classes used to enumerate surface sites
 and to find adsorption sites on slabs
@@ -17,10 +16,10 @@ from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
 from pymatgen import vis
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
@@ -106,7 +105,7 @@ class AdsorbateSiteFinder:
             selective dynamics (bool): whether to assign surface sites
                 to selective dynamics
             undercoord_threshold (float): threshold of "undercoordation"
-                to use for the assignment of surface sites.  Default is
+                to use for the assignment of surface sites. Default is
                 0.1, for which surface sites will be designated if they
                 are 10% less coordinated than their bulk counterpart
         """
@@ -238,8 +237,8 @@ class AdsorbateSiteFinder:
         no_obtuse_hollow=True,
     ):
         """
-        Finds surface sites according to the above algorithm.  Returns
-        a list of corresponding cartesian coordinates.
+        Finds surface sites according to the above algorithm. Returns
+        a list of corresponding Cartesian coordinates.
 
         Args:
             distance (float): distance from the coordinating ensemble
@@ -317,7 +316,7 @@ class AdsorbateSiteFinder:
         symmetrically equivalent duplicates
 
         Args:
-            coords_set: coordinate set in cartesian coordinates
+            coords_set: coordinate set in Cartesian coordinates
             threshold: tolerance for distance equivalence, used
                 as input to in_coord_list_pbc for dupl. checking
         """
@@ -357,7 +356,7 @@ class AdsorbateSiteFinder:
     def ensemble_center(cls, site_list, indices, cartesian=True):
         """
         Finds the center of an ensemble of sites selected from
-        a list of sites.  Helper method for the find_adsorption_sites
+        a list of sites. Helper method for the find_adsorption_sites
         algorithm.
 
         Args:
@@ -365,7 +364,7 @@ class AdsorbateSiteFinder:
             indices (list of ints): list of ints from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
-                cartesian coordinate
+                Cartesian coordinate
         """
         if cartesian:
             return np.average([site_list[i].coords for i in indices], axis=0)
@@ -374,7 +373,7 @@ class AdsorbateSiteFinder:
 
     def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """
-        Adds an adsorbate at a particular coordinate.  Adsorbate
+        Adds an adsorbate at a particular coordinate. Adsorbate
         represented by a Molecule object and is translated to (0, 0, 0) if
         translate is True, or positioned relative to the input adsorbate
         coordinate if translate is False.
@@ -446,7 +445,7 @@ class AdsorbateSiteFinder:
     ):
         """
         Function that generates all adsorption structures for a given
-        molecular adsorbate.  Can take repeat argument or minimum
+        molecular adsorbate. Can take repeat argument or minimum
         length/width of precursor slab as an input
 
         Args:
@@ -572,7 +571,7 @@ class AdsorbateSiteFinder:
 
         target_species = target_species or []
 
-        # Get symmetrized structure in case we want to substitue both sides
+        # Get symmetrized structure in case we want to substitute both sides
         sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
 
         # Define a function for substituting a site
@@ -583,7 +582,7 @@ class AdsorbateSiteFinder:
                 # Find an equivalent site on the other surface
                 eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
                 for ii in eq_indices:
-                    if "%.6f" % (sym_slab[ii].frac_coords[2]) != "%.6f" % (site.frac_coords[2]):
+                    if f"{sym_slab[ii].frac_coords[2]:.6f}" != f"{site.frac_coords[2]:.6f}":
                         props["surface_properties"][ii] = "substitute"
                         slab.replace(ii, atom)
                         break
@@ -640,7 +639,7 @@ def get_rot(slab):
 
 def put_coord_inside(lattice, cart_coordinate):
     """
-    converts a cartesian coordinate such that it is inside the unit cell.
+    converts a Cartesian coordinate such that it is inside the unit cell.
     """
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])
@@ -708,9 +707,9 @@ def plot_slab(
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
-        r = sites[n].specie.atomic_radius * scale
+        r = sites[n].species.elements[0].atomic_radius * scale
         ax.add_patch(patches.Circle(coord[:2] - lattsum * (repeat // 2), r, color="w", zorder=2 * n))
-        color = color_dict[sites[n].species_string]
+        color = color_dict[sites[n].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
                 coord[:2] - lattsum * (repeat // 2),

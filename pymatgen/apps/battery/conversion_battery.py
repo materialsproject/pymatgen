@@ -4,10 +4,12 @@
 """
 This module contains the classes to build a ConversionElectrode.
 """
-from typing import Iterable, Dict
-from dataclasses import dataclass
 
-from monty.dev import deprecated
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Iterable
+
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -174,7 +176,7 @@ class ConversionElectrode(AbstractElectrode):
         """
         Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
-        a subelectrode that is essentially on the same path.  For example, a
+        a subelectrode that is essentially on the same path. For example, a
         ConversionElectrode formed by starting from an FePO4 composition would
         be a super_electrode of a ConversionElectrode formed from an LiFePO4
         composition.
@@ -226,27 +228,20 @@ class ConversionElectrode(AbstractElectrode):
 
     def __repr__(self):
         output = [
-            "Conversion electrode with formula {} and nsteps {}".format(
-                self.initial_comp.reduced_formula, self.num_steps
-            ),
-            "Avg voltage {} V, min voltage {} V, max voltage {} V".format(
-                self.get_average_voltage(), self.min_voltage, self.max_voltage
-            ),
-            "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l".format(
-                self.get_capacity_grav(), self.get_capacity_vol()
-            ),
-            "Specific energy {} Wh/kg, energy density {} Wh/l".format(
-                self.get_specific_energy(), self.get_energy_density()
-            ),
+            f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
+            f"Avg voltage {self.get_average_voltage()} V, min voltage {self.min_voltage} V, "
+            f"max voltage {self.max_voltage} V",
+            f"Capacity (grav.) {self.get_capacity_grav()} mAh/g, capacity (vol.) {self.get_capacity_vol()} Ah/l",
+            f"Specific energy {self.get_specific_energy()} Wh/kg, energy density {self.get_energy_density()} Wh/l",
         ]
         return "\n".join(output)
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
         Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
-        The current methode will be called from within super().get_summary_dict.
+        The current method will be called from within super().get_summary_dict.
 
         Args:
             print_subelectrodes: Also print data on all the possible
@@ -273,67 +268,6 @@ class ConversionElectrode(AbstractElectrode):
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
-        return d
-
-    @deprecated(
-        replacement=get_summary_dict,
-        message="Name and logic changed, will be as_dict_summary will be removed in the futurn.",
-    )
-    def as_dict_summary(self, print_subelectrodes=True):
-        """
-        Args:
-            print_subelectrodes:
-                Also print data on all the possible subelectrodes
-
-        Returns:
-            a summary of this electrode"s properties in dictionary format
-        """
-
-        d = {}
-        framework_comp = Composition(
-            {k: v for k, v in self.initial_comp.items() if k.symbol != self.working_ion.symbol}
-        )
-
-        d["framework"] = framework_comp.to_data_dict
-        d["framework_pretty"] = framework_comp.reduced_formula
-        d["average_voltage"] = self.get_average_voltage()
-        d["max_voltage"] = self.max_voltage
-        d["min_voltage"] = self.min_voltage
-        d["max_delta_volume"] = self.max_delta_volume
-        d["max_instability"] = 0
-        d["max_voltage_step"] = self.max_voltage_step
-        d["nsteps"] = self.num_steps
-        d["capacity_grav"] = self.get_capacity_grav()
-        d["capacity_vol"] = self.get_capacity_vol()
-        d["energy_grav"] = self.get_specific_energy()
-        d["energy_vol"] = self.get_energy_density()
-        d["working_ion"] = self.working_ion.symbol
-        d["reactions"] = []
-        d["reactant_compositions"] = []
-        comps = []
-        frac = []
-        for pair in self.voltage_pairs:
-            rxn = pair.rxn
-            frac.append(pair.frac_charge)
-            frac.append(pair.frac_discharge)
-            d["reactions"].append(str(rxn))
-            for i, v in enumerate(rxn.coeffs):
-                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
-                    comps.append(rxn.all_comp[i])
-                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
-                    reduced_comp = rxn.all_comp[i].reduced_composition
-                    comp_dict = reduced_comp.as_dict()
-                    d["reactant_compositions"].append(comp_dict)
-        d["fracA_charge"] = min(frac)
-        d["fracA_discharge"] = max(frac)
-        d["nsteps"] = self.num_steps
-        if print_subelectrodes:
-
-            def f_dict(c):
-                return c.get_summary_dict(print_subelectrodes=False)
-
-            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
-            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
         return d
 
 
@@ -433,8 +367,8 @@ class ConversionVoltagePair(AbstractVoltagePair):
         frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
 
         rxn = rxn
-        entries_charge = step2["entries"]
-        entries_discharge = step1["entries"]
+        entries_charge = step1["entries"]
+        entries_discharge = step2["entries"]
 
         return ConversionVoltagePair(  # pylint: disable=E1123
             rxn=rxn,

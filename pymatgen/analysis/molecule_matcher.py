@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides classes to perform fitting of molecule with arbitrary
 atom orders.
@@ -69,7 +68,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             order.
             (None, None) if unform atom is not available.
         """
-        pass
 
     @abc.abstractmethod
     def get_molecule_hash(self, mol):
@@ -83,7 +81,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         Returns:
             A hashable object. Examples can be string formulas, etc.
         """
-        pass
 
     @classmethod
     def from_dict(cls, d):
@@ -193,8 +190,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -229,8 +226,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "angle_tolerance": self._angle_tolerance,
         }
 
@@ -363,7 +360,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 OBMol object
             ilabel1: inchi label map of the first molecule
             ilabel2: inchi label map of the second molecule
-            eq_atoms: equivalent atom lables
+            eq_atoms: equivalent atom labels
 
         Return:
             corrected inchi labels of heavy atoms of the second molecule
@@ -722,8 +719,8 @@ class MoleculeMatcher(MSONable):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "tolerance": self._tolerance,
             "mapper": self._mapper.as_dict(),
         }
@@ -897,8 +894,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(
-                "The number of all possible permutations "
-                "({}) is not feasible to run this method!".format(total_permutations)
+                "The number of all possible permutations " f"({total_permutations}) is not feasible to run this method!"
             )
 
         p_coord, q_coord = p.cart_coords, q.cart_coords
@@ -963,7 +959,7 @@ class BruteForceOrderMatcher(KabschMatcher):
     @staticmethod
     def permutations(atoms):
         """Generates all the possible permutations of atom order. To achieve better
-        performance all tha cases where the atoms are different has been ignored.
+        performance all the cases where the atoms are different has been ignored.
         """
         element_iterators = [itertools.permutations(np.where(atoms == element)[0]) for element in np.unique(atoms)]
 
@@ -1293,7 +1289,7 @@ class GeneticOrderMatcher(KabschMatcher):
         if sorted(p_atoms) != sorted(q_atoms):
             raise ValueError("The number of the same species aren't matching!")
 
-        # starting maches (only based on element)
+        # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
 
         for i in range(1, self.N):

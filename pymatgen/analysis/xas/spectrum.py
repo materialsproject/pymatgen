@@ -4,10 +4,12 @@
 """
 This module defines classes to represent all xas and stitching methods
 """
+
+from __future__ import annotations
+
 import math
-import sys
 import warnings
-from typing import List
+from typing import List, Literal
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -15,11 +17,6 @@ from scipy.interpolate import interp1d
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -62,9 +59,6 @@ class XAS(Spectrum):
 
     .. attribute: absorbing_index
         The absorbing_index of the spectrum
-
-
-
     """
 
     XLABEL = "Energy"
@@ -99,15 +93,12 @@ class XAS(Spectrum):
             raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
 
     def __str__(self):
-        return "{} {} Edge {} for {}: {}".format(
-            self.absorbing_element,
-            self.edge,
-            self.spectrum_type,
-            self.structure.composition.reduced_formula,
-            super().__str__(),
+        return (
+            f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
+            f"for {self.structure.composition.reduced_formula}: {super().__str__()}"
         )
 
-    def stitch(self, other: "XAS", num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> "XAS":
+    def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:
         """
         Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
         spectrum depending on the mode.
@@ -190,7 +181,7 @@ class XAS(Spectrum):
             wavenumber_final = np.linspace(min(wavenumber), max(wavenumber), num=num_samples)
             mu_final = f_final(wavenumber_final)
             energy_final = [
-                3.8537 * i ** 2 + xanes.e0 if i > 0 else -3.8537 * i ** 2 + xanes.e0 for i in wavenumber_final
+                3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final
             ]
 
             return XAS(
@@ -235,7 +226,7 @@ class XAS(Spectrum):
         raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
 
 
-def site_weighted_spectrum(xas_list: List["XAS"], num_samples: int = 500) -> "XAS":
+def site_weighted_spectrum(xas_list: list[XAS], num_samples: int = 500) -> XAS:
     """
     Obtain site-weighted XAS object based on site multiplicity for each
     absorbing index and its corresponding site-wise spectrum.

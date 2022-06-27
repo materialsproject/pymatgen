@@ -12,13 +12,15 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
-import pytest  # type: ignore
-from _pytest.monkeypatch import MonkeyPatch  # type: ignore
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
+from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.units import FloatWithUnit
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
@@ -46,7 +48,6 @@ from pymatgen.io.vasp.sets import (
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
-    loadfn,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -78,7 +79,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPSCANRelaxSet.yaml": "dfa9fee19178cb38c6a121ce6096db40693478e8",
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
         self.assertDictEqual(
@@ -926,7 +927,7 @@ class MVLNPTMDSetTest(PymatgenTest):
         self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
         enmax = max(npt_set.potcar[i].keywords["ENMAX"] for i in range(self.struct.ntypesp))
         self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
-        self.assertEqual(incar["IALGO"], 48)
+        self.assertEqual(incar["ALGO"], "Fast")
         self.assertEqual(incar["ISIF"], 3)
         self.assertEqual(incar["MDALGO"], 3)
         self.assertEqual(incar["SMASS"], 0)
@@ -1054,6 +1055,9 @@ class MPNMRSetTest(PymatgenTest):
         vis = MPNMRSet(structure, mode="efg")
         self.assertFalse(vis.incar.get("LCHIMAG", None))
         self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+        for q in vis.incar["QUAD_EFG"]:
+            self.assertTrue(isinstance(q, float))
+            self.assertFalse(isinstance(q, FloatWithUnit))
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
         self.assertFalse(vis.incar.get("LCHIMAG", None))

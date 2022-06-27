@@ -41,8 +41,7 @@ class AbstractRatioFunction:
         """
         if function not in self.ALLOWED_FUNCTIONS:
             raise ValueError(
-                'Function "{}" is not allowed in RatioFunction of '
-                'type "{}"'.format(function, self.__class__.__name__)
+                'Function "{}" is not allowed in RatioFunction of ' 'type "{}"'.format(function, type(self).__name__)
             )
         self.eval = object.__getattribute__(self, function)
         self.function = function
@@ -83,16 +82,16 @@ class AbstractRatioFunction:
                         missing = "only {} were provided.".format(" and ".join([missing1, f'"{optgiven[-1]}"']))
                 raise ValueError(
                     '{} should be provided for function "{}" in RatioFunction of '
-                    'type "{}" while {}'.format(opts, self.function, self.__class__.__name__, missing)
+                    'type "{}" while {}'.format(opts, self.function, type(self).__name__, missing)
                 )
             # Setup the options and raise an error if a wrong option is provided
             for key, val in options_dict.items():
                 if key not in function_options:
                     raise ValueError(
                         'Option "{}" not allowed for function "{}" in RatioFunction of '
-                        'type "{}"'.format(key, self.function, self.__class__.__name__)
+                        'type "{}"'.format(key, self.function, type(self).__name__)
                     )
-                self.__setattr__(key, val)
+                setattr(self, key, val)
 
     def evaluate(self, value):
         """Evaluate the ratio function for the given value.

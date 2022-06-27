@@ -241,8 +241,7 @@ class StructureNL:
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                "The BibTeX string must be fewer than {} chars "
-                ", you have {}".format(MAX_BIBTEX_CHARS, len(references))
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
             )
 
         self.references = references
@@ -254,14 +253,14 @@ class StructureNL:
         # check remarks limit
         for r in self.remarks:
             if len(r) > 140:
-                raise ValueError("The remark exceeds the maximum size of" "140 characters: {}".format(r))
+                raise ValueError(f"The remark exceeds the maximum size of140 characters: {r}")
 
         # check data limit
         self.data = data if data else {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
             raise ValueError(
-                "The data dict exceeds the maximum size limit of"
-                " {} bytes (you have {})".format(MAX_DATA_SIZE, sys.getsizeof(data))
+                f"The data dict exceeds the maximum size limit of {MAX_DATA_SIZE} "
+                f"bytes (you have {sys.getsizeof(data)})"
             )
 
         for k, v in self.data.items():
@@ -269,8 +268,7 @@ class StructureNL:
                 raise ValueError(
                     "data must contain properly namespaced data "
                     "with keys starting with an underscore. The "
-                    "key {} does not start with an underscore.",
-                    format(k),
+                    f"key {k} does not start with an underscore."
                 )
 
         # check for valid history nodes
@@ -288,8 +286,8 @@ class StructureNL:
         Returns: MSONable dict
         """
         d = self.structure.as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["about"] = {
             "authors": [a.as_dict() for a in self.authors],
             "projects": self.projects,

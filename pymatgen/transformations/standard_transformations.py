@@ -64,8 +64,9 @@ class RotationTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Rotation Transformation about axis " + "{} with angle = {:.4f} {}".format(
-            self.axis, self.angle, "radians" if self.angle_in_radians else "degrees"
+        return (
+            f"Rotation Transformation about axis {self.axis} with angle = "
+            f"{self.angle:.4f} {'radians' if self.angle_in_radians else 'degrees'}"
         )
 
     def __repr__(self):
@@ -196,9 +197,8 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         """
         No arg needed.
         """
-        pass
 
-    def apply_transformation(self, structure):  # pylint: disable=R0201
+    def apply_transformation(self, structure):
         """
         Apply the transformation.
 
@@ -505,7 +505,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     approximately 5,000,000 permutations per minute.
 
     Also, simple rounding of the occupancies are performed, with no attempt
-    made to achieve a target composition.  This is usually not a problem for
+    made to achieve a target composition. This is usually not a problem for
     most ordering problems, but there can be times where rounding errors may
     result in structures that do not have the desired composition.
     This second step will be implemented in the next iteration of the code.
@@ -577,7 +577,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {"%s0+" % k.symbol: v for k, v in site.species.items()}
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}
 
         equivalent_sites = []
         exemplars = []
@@ -709,7 +709,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
         Args:
             tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.5, 0, 0.5] in cartesian coordinates will be
+                site. For example, [0.5, 0, 0.5] in Cartesian coordinates will be
                 considered to be on the same coordinates as [0, 0, 0] for a
                 tolerance of 0.5. Defaults to 0.5.
         """
@@ -1010,7 +1010,7 @@ class ChargedCellTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "Structure with charge " + f"{self.charge}"
+        return f"Structure with charge {self.charge}"
 
     def __repr__(self):
         return self.__str__()

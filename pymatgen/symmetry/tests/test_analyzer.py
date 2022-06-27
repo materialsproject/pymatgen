@@ -2,9 +2,9 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-from pathlib import Path
 import os
+import unittest
+
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
@@ -19,7 +19,6 @@ from pymatgen.symmetry.analyzer import (
     iterative_symmetrize,
 )
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
@@ -127,6 +126,15 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual("orthorhombic", crystal_system)
         self.assertEqual("tetragonal", self.disordered_sg.get_crystal_system())
 
+        orig_spg = self.sg._space_group_data["number"]
+        self.sg._space_group_data["number"] = 0
+        try:
+            crystal_system = self.sg.get_crystal_system()
+        except ValueError as exc:
+            self.assertEqual(str(exc), "Received invalid space group 0")
+        finally:
+            self.sg._space_group_data["number"] = orig_spg
+
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
@@ -161,7 +169,6 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
         self.assertEqual(symm_struct.wyckoff_symbols[0], "16h")
-        # self.assertEqual(symm_struct[0].wyckoff, "16h")
 
         # Check copying
         self.assertEqual(symm_struct.copy(), symm_struct)
@@ -521,6 +528,9 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(CH4)
         self.assertEqual(a.sch_symbol, "Td")
         self.assertEqual(len(a.get_pointgroup()), 24)
+        self.assertEqual(a.get_rotational_symmetry_number(), 12)
+        a = PointGroupAnalyzer(H2O)
+        self.assertEqual(a.get_rotational_symmetry_number(), 2)
         a = PointGroupAnalyzer(PF6)
         self.assertEqual(a.sch_symbol, "Oh")
         self.assertEqual(len(a.get_pointgroup()), 48)
@@ -628,7 +638,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         coords = sym_mol.cart_coords
         for i, eq_set in eq_sets.items():
             for j in eq_set:
-                rotated = np.dot(ops[i][j], coords[i])
+                _ = np.dot(ops[i][j], coords[i])
                 self.assertTrue(np.allclose(np.dot(ops[i][j], coords[i]), coords[j]))
 
     def test_symmetrize_molecule2(self):

@@ -12,7 +12,9 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 
 if __name__ == "__main__":
 

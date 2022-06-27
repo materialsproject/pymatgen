@@ -21,6 +21,8 @@ class LatticeTestCase(PymatgenTest):
         self.hexagonal = Lattice.hexagonal(10, 20)
         self.rhombohedral = Lattice.rhombohedral(10, 77)
 
+        self.cubic_partial_pbc = Lattice.cubic(10.0, pbc=(True, True, False))
+
         family_names = [
             "cubic",
             "tetragonal",
@@ -51,6 +53,7 @@ class LatticeTestCase(PymatgenTest):
         a = 9.026
         lattice = Lattice.cubic(a)
         self.assertIsNotNone(lattice, "Initialization from new_cubic failed")
+        self.assertArrayEqual(lattice.pbc, (True, True, True))
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
         for i in range(0, 3):
             for j in range(0, 3):
@@ -60,10 +63,12 @@ class LatticeTestCase(PymatgenTest):
                     5,
                     "Inconsistent matrix from two inits!",
                 )
+        self.assertArrayEqual(self.cubic_partial_pbc.pbc, (True, True, False))
 
     def test_copy(self):
         cubic_copy = self.cubic.copy()
         self.assertTrue(cubic_copy == self.cubic)
+        self.assertTrue(self.cubic_partial_pbc.copy() == self.cubic_partial_pbc)
         self.assertFalse(cubic_copy._matrix is self.cubic._matrix)
 
     def test_get_cartesian_or_frac_coord(self):
@@ -102,7 +107,7 @@ class LatticeTestCase(PymatgenTest):
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1, 2, 3)
-        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a ** 2)) ** (-1 / 2)
+        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
         self.assertEqual(dhkl, cubic_copy.d_hkl(hkl))
 
     def test_reciprocal_lattice(self):
@@ -400,6 +405,11 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(len(result), 552)
         self.assertEqual(len(result[0]), 4)  # coords, dists, ind, supercell
 
+        # test pbc
+        latt_pbc = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]], pbc=(True, True, False))
+        fcoords, dists, inds, images = latt_pbc.get_points_in_sphere(pts, [0, 0, 0], 0.20001, zip_results=False)
+        self.assertEqual(len(fcoords), 6)
+
     def test_get_all_distances(self):
         fcoords = np.array(
             [
@@ -430,6 +440,19 @@ class LatticeTestCase(PymatgenTest):
         f2 = [0, 0, 10]
         self.assertEqual(lattice.get_all_distances(f1, f2)[0, 0], 0)
 
+        # test pbc
+        lattice_pbc = Lattice.from_parameters(8, 8, 4, 90, 76, 58, pbc=(True, True, False))
+        expected_pbc = np.array(
+            [
+                [0.000, 3.015, 4.072, 3.519, 4.089],
+                [3.015, 0.000, 3.207, 1.131, 4.453],
+                [4.072, 3.207, 0.000, 2.251, 3.578],
+                [3.519, 1.131, 2.251, 0.000, 4.235],
+            ]
+        )
+        output3 = lattice_pbc.get_all_distances(fcoords[:-1], fcoords)
+        self.assertArrayAlmostEqual(output3, expected_pbc, 3)
+
     def test_monoclinic(self):
         a, b, c, alpha, beta, gamma = self.monoclinic.parameters
         self.assertNotAlmostEqual(beta, 90)
@@ -449,28 +472,27 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
 
-    # def test_get_distance_and_image_strict(self):
-    #     for count in range(10):
-    #         lengths = [np.random.randint(1, 100) for i in range(3)]
-    #         lattice = [np.random.rand(3) * lengths[i]
-    #                    for i in range(3)]
-    #         lattice = Lattice(np.array(lattice))
-    #
-    #         f1 = np.random.rand(3)
-    #         f2 = np.random.rand(3)
-    #
-    #         scope = list(range(-3, 4))
-    #         min_image_dist = (float("inf"), None)
-    #         for image in itertools.product(scope, scope, scope):
-    #             cart = lattice.get_cartesian_coords(f1 - (f2 + image))
-    #             dist = np.dot(cart, cart) ** 0.5
-    #             if dist < min_image_dist[0]:
-    #                 min_image_dist = (dist, image)
-    #
-    #         pmg_result = lattice.get_distance_and_image(f1, f2)
-    #         self.assertGreaterEqual(min_image_dist[0] + 1e-7, pmg_result[0])
-    #         if abs(min_image_dist[0] - pmg_result[0]) < 1e-12:
-    #             self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
+    def test_get_distance_and_image_strict(self):
+        for count in range(10):
+            lengths = [np.random.randint(1, 100) for i in range(3)]
+            lattice = [np.random.rand(3) * lengths[i] for i in range(3)]
+            lattice = Lattice(np.array(lattice))
+
+            f1 = np.random.rand(3)
+            f2 = np.random.rand(3)
+
+            scope = list(range(-3, 4))
+            min_image_dist = (float("inf"), None)
+            for image in itertools.product(scope, scope, scope):
+                cart = lattice.get_cartesian_coords(f1 - (f2 + image))
+                dist = np.dot(cart, cart) ** 0.5
+                if dist < min_image_dist[0]:
+                    min_image_dist = (dist, image)
+
+            pmg_result = lattice.get_distance_and_image(f1, f2)
+            self.assertGreaterEqual(min_image_dist[0] + 1e-7, pmg_result[0])
+            if abs(min_image_dist[0] - pmg_result[0]) < 1e-12:
+                self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
 
     def test_lll_basis(self):
         a = np.array([1.0, 0.1, 0.0])
@@ -581,18 +603,22 @@ class LatticeTestCase(PymatgenTest):
         a1 = 10
         np.testing.assert_array_almost_equal(
             Lattice.cubic(a1).selling_vector.round(4),
-            np.array([0, 0, 0, -(a1 ** 2), -(a1 ** 2), -(a1 ** 2)]),
+            np.array([0, 0, 0, -(a1**2), -(a1**2), -(a1**2)]),
         )
         a2, c2 = 5, 8
         np.testing.assert_array_almost_equal(
             Lattice.tetragonal(a2, c2).selling_vector.round(4),
-            np.array([0, 0, 0, -(a2 ** 2), -(a2 ** 2), -(c2 ** 2)]),
+            np.array([0, 0, 0, -(a2**2), -(a2**2), -(c2**2)]),
         )
         a3, b3, c3 = 4, 6, 7
         np.testing.assert_array_almost_equal(
             Lattice.orthorhombic(a3, b3, c3).selling_vector.round(4),
-            np.array([0, 0, 0, -(a3 ** 2), -(b3 ** 2), -(c3 ** 2)]),
+            np.array([0, 0, 0, -(a3**2), -(b3**2), -(c3**2)]),
         )
+
+    def test_is_3d_periodic(self):
+        self.assertTrue(self.cubic.is_3d_periodic)
+        self.assertFalse(self.cubic_partial_pbc.is_3d_periodic)
 
 
 if __name__ == "__main__":

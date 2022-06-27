@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -29,9 +28,9 @@ but the mixing scheme is design to be able to mix any two functionals.
 Most mixing states are subsets of the `ms_complete` mixing state. `ms_complete`
 was crafted to capture most of the scenarios that may be encountered when mixing
 ComputedStructureEntry from different functionals. It comprises a complete binary
-phase diagram, with all entries present as both GGA and R2SCAN calculations. 
+phase diagram, with all entries present as both GGA and R2SCAN calculations.
 
-Note that these entries are inspired by, but NOT equivalent to, the real SnBr2 phase 
+Note that these entries are inspired by, but NOT equivalent to, the real SnBr2 phase
 diagram. Rather than use real energies or structures, arbitrary energies and structures
 have been used to keep this test file cleaner and easier to understand. The Bromine
 structures are the one exception to this. These structures are taken from real calculations
@@ -116,9 +115,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import Compatibility, CompatibilityError
 from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
-    CompositionEnergyAdjustment,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 
@@ -1140,9 +1139,9 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     compat.get_adjustments(e, mixing_state)
             elif e.parameters["run_type"] == "GGA":
-                assert compat.get_adjustments(e, mixing_state) == []
+                assert not compat.get_adjustments(e, mixing_state)
             else:
-                assert compat.get_adjustments(e, mixing_state) != []
+                assert compat.get_adjustments(e, mixing_state)
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = compat.process_entries(ms_complete.all_entries)
@@ -1193,10 +1192,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                     compat.get_adjustments(e, state_data)
             else:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
-                    assert compat.get_adjustments(e, state_data) == []
+                    assert not compat.get_adjustments(e, state_data)
 
         for e in ms_complete.scan_entries:
-            assert compat.get_adjustments(e, state_data) == []
+            assert not compat.get_adjustments(e, state_data)
 
     def test_no_mixing_data(self, ms_complete):
         """
@@ -1267,7 +1266,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert all(state_data["hull_energy_2"].notna())
 
         for e in ms_complete.scan_entries:
-            assert compat.get_adjustments(e, state_data) == []
+            assert not compat.get_adjustments(e, state_data)
 
         for e in ms_complete.gga_entries:
             if e.entry_id == "gga-6":
@@ -1669,9 +1668,6 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         with pytest.raises(CompatibilityError, match="energy has been modified"):
             mixing_scheme_no_compat.get_adjustments(e, state_data)
-
-        # with pytest.warns(UserWarning, match="energy has been modified"):
-        #     mixing_scheme_no_compat.process_entries(ms_complete.all_entries, clean=False, mixing_state_data=state_data)
 
     def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
         """

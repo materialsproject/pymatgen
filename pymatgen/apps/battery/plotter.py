@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides plotting capabilities for battery related applications.
 """
@@ -15,9 +14,8 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 12, 2012"
 
 
-from collections import OrderedDict
-
 import plotly.graph_objects as go
+
 from pymatgen.util.plotting import pretty_plot
 
 
@@ -36,7 +34,7 @@ class VoltageProfilePlotter:
             - frac_x: the atomic fraction of the working ion
             hide_negative: If True only plot the voltage steps above zero
         """
-        self._electrodes = OrderedDict()
+        self._electrodes = {}
         self.xaxis = xaxis
         self.hide_negative = hide_negative
 
@@ -151,7 +149,15 @@ class VoltageProfilePlotter:
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
-            data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
+            # add Nones to x and y so vertical connecting lines are not plotted
+            plot_x, plot_y = [x[0]], [y[0]]
+            for i in range(1, len(x)):
+                if x[i - 1] == x[i]:
+                    plot_x.append(None)
+                    plot_y.append(None)
+                plot_x.append(x[i])
+                plot_y.append(y[i])
+            data.append(go.Scatter(x=plot_x, y=plot_y, name=label, hovertemplate=hover_temp))
 
         fig = go.Figure(
             data=data,

@@ -12,12 +12,14 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import SEPARATION_PLANE
-from pymatgen.analysis.chemenv.utils.scripts_utils import visualize
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-
 import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    SEPARATION_PLANE,
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
+from pymatgen.analysis.chemenv.utils.scripts_utils import visualize
 
 if __name__ == "__main__":
     print(
@@ -50,7 +52,7 @@ if __name__ == "__main__":
         for ialgo, algo in enumerate(cg.algorithms):
             print(f"Algorithm #{ialgo:d} :")
             print(algo)
-            print("")
+            print()
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):

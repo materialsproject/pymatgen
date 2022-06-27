@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2022.1.24
+v2022.5.19
 ----------
-* Misc bug fixes, e.g., handling of yaml files and type check for MAGMOM flag.
+* Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).

@@ -5,9 +5,9 @@ import json
 import os
 import unittest
 import warnings
+from shutil import which
 
 import scipy
-from monty.os.path import which
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine

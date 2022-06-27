@@ -1,29 +1,29 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module defines utility classes and functions.
 """
 
 import os
 import tempfile
+from shutil import which
 from subprocess import PIPE, Popen
 
 import numpy as np
+from monty.dev import deprecated
+from monty.tempfile import ScratchDir
+
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Molecule
+from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.packmol import PackmolBoxGen
+from pymatgen.util.coord import get_angle
 
 try:
     from openbabel import pybel as pb
 except ImportError:
     pb = None
-
-from monty.os.path import which
-from monty.tempfile import ScratchDir
-
-from pymatgen.core.structure import Molecule
-from pymatgen.core.operations import SymmOp
-from pymatgen.io.babel import BabelMolAdaptor
-from pymatgen.util.coord import get_angle
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
@@ -171,6 +171,7 @@ class Polymer:
             self.end += len(self.monomer)
 
 
+@deprecated(PackmolBoxGen, "PackmolRunner is being phased out in favor of the packmol I/O class.")
 class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of
@@ -229,7 +230,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
+            self.control_params["output"] = f"{output_file.split('.')[0]}.{self.control_params['filetype']}"
         if self.boxit:
             self._set_box()
 
@@ -256,7 +257,7 @@ class PackmolRunner:
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
-            net_volume += (length ** 3.0) * float(self.param_list[idx]["number"])
+            net_volume += (length**3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
@@ -275,7 +276,7 @@ class PackmolRunner:
             # the molecule id and the corresponding filename in the packmol
             # input file.
             for idx, mol in enumerate(self.mols):
-                filename = os.path.join(input_dir, "{}.{}".format(idx, self.control_params["filetype"]))
+                filename = os.path.join(input_dir, f"{idx}.{self.control_params['filetype']}")
                 # pdb
                 if self.control_params["filetype"] == "pdb":
                     self.write_pdb(mol, filename, num=idx + 1)
@@ -290,12 +291,7 @@ class PackmolRunner:
                     )
 
                 inp.write("\n")
-                inp.write(
-                    "structure {}.{}\n".format(
-                        os.path.join(input_dir, str(idx)),
-                        self.control_params["filetype"],
-                    )
-                )
+                inp.write(f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n")
                 for k, v in self.param_list[idx].items():
                     inp.write(f"  {k} {self._format_param_val(v)}\n")
                 inp.write("end structure\n")
@@ -307,7 +303,7 @@ class PackmolRunner:
 
         Args:
             site_property (str): if set then the specified site property
-                for the the final packed molecule will be restored.
+                for the final packed molecule will be restored.
 
         Returns:
                 Molecule object
@@ -321,7 +317,7 @@ class PackmolRunner:
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
-                print("packed molecule written to {}".format(self.control_params["output"]))
+                print(f"packed molecule written to {self.control_params['output']}")
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
@@ -459,10 +455,10 @@ class LammpsRunner:
         self.lammps_bin = bin.split()
         if not which(self.lammps_bin[-1]):
             raise RuntimeError(
-                "LammpsRunner requires the executable {} to be in the path. "
+                f"LammpsRunner requires the executable {self.lammps_bin[-1]} to be in the path. "
                 "Please download and install LAMMPS from "
-                "http://lammps.sandia.gov. "
-                "Don't forget to add the binary to your path".format(self.lammps_bin[-1])
+                "https://www.lammps.org/. "
+                "Don't forget to add the binary to your path"
             )
         self.input_filename = input_filename
 
@@ -471,7 +467,7 @@ class LammpsRunner:
         Write the input/data files and run LAMMPS.
         """
         lammps_cmd = self.lammps_bin + ["-in", self.input_filename]
-        print("Running: {}".format(" ".join(lammps_cmd)))
+        print(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:
             (stdout, stderr) = p.communicate()
         return stdout, stderr

@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
 """
@@ -696,13 +695,13 @@ class DetailedVoronoiContainer(MSONable):
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         elif plot_type["distance_parameter"][0] == "initial_inverse3_opposite":
-            ddinv = [1.0 / dist ** 3.0 for dist in dd]
+            ddinv = [1.0 / dist**3.0 for dist in dd]
             ddinv.append(0.0)
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the distance is not implemented".format(plot_type["distance_parameter"])
+                f"Plotting type \"{plot_type['distance_parameter']}\" for the distance is not implemented"
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -715,7 +714,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the angle is not implemented".format(plot_type["angle_parameter"])
+                f"Plotting type \"{plot_type['angle_parameter']}\" for the angle is not implemented"
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -851,7 +850,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -910,7 +909,7 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -962,8 +961,8 @@ class DetailedVoronoiContainer(MSONable):
         """
         bson_nb_voro_list2 = self.to_bson_voronoi_list2()
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "bson_nb_voro_list2": bson_nb_voro_list2,
             # "neighbors_lists": self.neighbors_lists,
             "structure": self.structure.as_dict(),

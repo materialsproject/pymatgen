@@ -348,7 +348,7 @@ class WulffShape:
         )
 
     def show(self, *args, **kwargs):
-        r"""
+        """
         Show the Wulff plot.
 
         Args:
@@ -405,7 +405,7 @@ class WulffShape:
         Args:
             color_set: default is 'PuBu'
             grid_off (bool): default is True
-            axis_off (bool): default is Ture
+            axis_off (bool): default is True
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
             off_color: Default color for facets not present on the Wulff shape.
@@ -519,7 +519,7 @@ class WulffShape:
                 orientation="vertical",
             )
             units = "$J/m^2$" if units_in_JPERM2 else r"$eV/\AA^2$"
-            cbar.set_label("Surface Energies (%s)" % (units), fontsize=25)
+            cbar.set_label(f"Surface Energies ({units})", fontsize=25)
 
         if grid_off:
             ax.grid("off")
@@ -590,7 +590,8 @@ class WulffShape:
             tri_indices = np.array(list(itertools.combinations(index_list, 3))).T
             hkl = self.miller_list[plane.index]
             hkl = unicodeify_spacegroup("(" + "%s" * len(hkl) % hkl + ")")
-            color = "rgba(%.5f, %.5f, %.5f, %.5f)" % tuple(np.array(plane_color) * 255)
+            cs = tuple(np.array(plane_color) * 255)
+            color = f"rgba({cs[0]:.5f}, {cs[1]:.5f}, {cs[2]:.5f}, {cs[3]:.5f})"
 
             # note hoverinfo is incompatible with latex, need unicode instead
             planes_data.append(
@@ -601,9 +602,9 @@ class WulffShape:
                     i=tri_indices[0],
                     j=tri_indices[1],
                     k=tri_indices[2],
-                    hovertemplate="<br>%{text}<br>" + "{}={:.3f} {}<br>".format("\u03b3", plane.e_surf, units),
+                    hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
-                    text=[r"Miller index: %s" % hkl] * len(x_pts),
+                    text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
                     name="",
                 )
@@ -614,7 +615,7 @@ class WulffShape:
             c = [norm_e, color]
             if c not in color_scale:
                 color_scale.append(c)
-                ticktext.append("%.3f" % plane.e_surf)
+                ticktext.append(f"{plane.e_surf:.3f}")
                 tickvals.append(norm_e)
 
         # Add colorbar
@@ -625,7 +626,7 @@ class WulffShape:
             z=[0],
             colorbar=go.ColorBar(
                 title={
-                    "text": r"Surface energy %s" % units,
+                    "text": f"Surface energy {units}",
                     "side": "right",
                     "font": {"size": 25},
                 },

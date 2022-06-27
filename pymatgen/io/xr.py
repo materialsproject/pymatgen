@@ -1,7 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 This module provides input and output mechanisms
 for the xr file format, which is a modified CSSR
@@ -44,9 +43,11 @@ class Xr:
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "pymatgen   {:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.3f} {:.3f} {:.3f}".format(*self.structure.lattice.angles),
+            f"pymatgen   {a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.3f} {beta:.3f} {gamma:.3f}",
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
@@ -78,7 +79,7 @@ class Xr:
         Args:
             string (str): string representation of an Xr object.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default).  Otherwise,
+                    positions if set to True (default). Otherwise,
                     use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
                     between cell parameters (lengths and angles) from
@@ -153,7 +154,7 @@ class Xr:
         Args:
             filename (str): name of file to read from.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default).  Otherwise,
+                    positions if set to True (default). Otherwise,
                     use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
                     between cell parameters (lengths and angles) from

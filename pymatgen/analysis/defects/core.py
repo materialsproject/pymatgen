@@ -86,7 +86,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return self._multiplicity
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def defect_composition(self):
         """
@@ -103,7 +103,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def name(self):
         """
@@ -190,7 +190,7 @@ class Vacancy(Defect):
             periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
-        if not len(poss_deflist):
+        if len(poss_deflist) == 0:
             raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Vacancy object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
@@ -284,7 +284,7 @@ class Substitution(Defect):
             periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
-        if not len(poss_deflist):
+        if len(poss_deflist) == 0:
             raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Substitution object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
@@ -448,7 +448,7 @@ def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
     # copy bulk structure to make saturated interstitial structure out of
     # artificially lower distance_tolerance to allow for distinct interstitials
     # with lower symmetry to be replicated - This is OK because one would never
-    # actually use this structure for a practical calcualtion...
+    # actually use this structure for a practical calculation...
     saturated_defect_struct = interstitial_def.bulk_structure.copy()
     saturated_defect_struct.DISTANCE_TOLERANCE = dist_tol
 
@@ -530,11 +530,11 @@ class DefectEntry(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of DefectEntry
+        JSON-serializable dict representation of DefectEntry
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "defect": self.defect.as_dict(),
             "uncorrected_energy": self.uncorrected_energy,
             "corrections": self.corrections,

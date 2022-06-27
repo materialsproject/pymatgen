@@ -10,7 +10,7 @@ import os
 import re
 import textwrap
 import warnings
-from collections import OrderedDict, deque
+from collections import deque
 from functools import partial
 from inspect import getfullargspec as getargspec
 from io import StringIO
@@ -70,13 +70,10 @@ class CifBlock:
     def __init__(self, data, loops, header):
         """
         Args:
-            data: dict or OrderedDict of data to go into the cif. Values should
-                    be convertible to string, or lists of these if the key is
-                    in a loop
-            loops: list of lists of keys, grouped by which loop they should
-                    appear in
-            header: name of the block (appears after the data_ on the first
-                line)
+            data: dict of data to go into the cif. Values should be convertible to string,
+                or lists of these if the key is in a loop
+            loops: list of lists of keys, grouped by which loop they should appear in
+            header: name of the block (appears after the data_ on the first line)
         """
         self.loops = loops
         self.data = data
@@ -134,7 +131,7 @@ class CifBlock:
         return s
 
     def _format_field(self, v):
-        v = v.__str__().strip()
+        v = str(v).strip()
         if len(v) > self.maxlen:
             return ";\n" + textwrap.fill(v, self.maxlen) + "\n;"
         # add quotes if necessary
@@ -197,7 +194,7 @@ class CifBlock:
         """
         q = cls._process_string(string)
         header = q.popleft()[0][5:]
-        data = OrderedDict()
+        data = {}
         loops = []
         while q:
             s = q.popleft()
@@ -229,7 +226,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn("Possible issue in cif file at line: {}".format("".join(s).strip()))
+                warnings.warn(f"Possible issue in cif file at line: {''.join(s).strip()}")
         return cls(data, loops, header)
 
 
@@ -241,7 +238,7 @@ class CifFile:
     def __init__(self, data, orig_string=None, comment=None):
         """
         Args:
-            data (OrderedDict): Of CifBlock objects.å
+            data (dict): Of CifBlock objects.
             orig_string (str): The original cif string.
             comment (str): Comment string.
         """
@@ -250,7 +247,7 @@ class CifFile:
         self.comment = comment or "# generated using pymatgen"
 
     def __str__(self):
-        s = ["%s" % v for v in self.data.values()]
+        s = [f"{v}" for v in self.data.values()]
         return self.comment + "\n" + "\n".join(s) + "\n"
 
     @classmethod
@@ -261,7 +258,7 @@ class CifFile:
         :param string: String representation.
         :return: CifFile
         """
-        d = OrderedDict()
+        d = {}
         for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
 
             # Skip over Cif block that contains powder diffraction data.
@@ -342,7 +339,7 @@ class CifParser:
             structure (heuristic).
             """
             # Doesn't seem to be a canonical way to test if magCIF file
-            # describes incommensurate strucure or not, so instead check
+            # describes incommensurate structure or not, so instead check
             # for common datanames
             if not self.feature_flags["magcif"]:
                 return False
@@ -517,8 +514,7 @@ class CifParser:
                 "_atom_site_moment_label",
             ]
 
-            # cannot mutate OrderedDict during enumeration,
-            # so store changes we want to make
+            # cannot mutate dict during enumeration, so store changes we want to make
             changes_to_make = {}
 
             for original_key in data.data:
@@ -559,7 +555,7 @@ class CifParser:
                     try:
                         frac = str2float(frac)
                     except Exception:
-                        # co-ordinate might not be defined e.g. '?'
+                        # coordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
                         if abs(1 - frac / comparison_frac) < 1e-4:
@@ -695,6 +691,7 @@ class CifParser:
                 "_symmetry_space_group_name_h-m_",
             ]:
                 sg = data.data.get(symmetry_label)
+                msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
                 if sg:
                     sg = sub_spgrp(sg)
@@ -702,10 +699,7 @@ class CifParser:
                         spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
-                            msg = (
-                                "No _symmetry_equiv_pos_as_xyz type key found. "
-                                "Spacegroup from %s used." % symmetry_label
-                            )
+                            msg = msg_template.format(symmetry_label)
                             warnings.warn(msg)
                             self.warnings.append(msg)
                             break
@@ -718,10 +712,7 @@ class CifParser:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s) for s in xyz]
-                                msg = (
-                                    "No _symmetry_equiv_pos_as_xyz type key found. "
-                                    "Spacegroup from %s used." % symmetry_label
-                                )
+                                msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break
@@ -904,7 +895,7 @@ class CifParser:
             if m:
                 parsed_sym = m.group()
 
-        if parsed_sym is not None and (m_sp or not re.match(fr"{parsed_sym}\d*", sym)):
+        if parsed_sym is not None and (m_sp or not re.match(rf"{parsed_sym}\d*", sym)):
             msg = f"{sym} parsed as {parsed_sym}"
             warnings.warn(msg)
             self.warnings.append(msg)
@@ -935,8 +926,8 @@ class CifParser:
 
         oxi_states = self.parse_oxi_states(data)
 
-        coord_to_species = OrderedDict()
-        coord_to_magmoms = OrderedDict()
+        coord_to_species = {}
+        coord_to_magmoms = {}
 
         def get_matching_coord(coord):
             keys = list(coord_to_species.keys())
@@ -946,7 +937,7 @@ class CifParser:
                 inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
                 # can't use if inds, because python is dumb and np.array([0]) evaluates
                 # to False
-                if len(inds):
+                if len(inds) > 0:
                     return keys[inds[0]]
             return False
 
@@ -1011,9 +1002,9 @@ class CifParser:
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
-                "Some occupancies ({}) sum to > 1! If they are within "
+                f"Some occupancies ({sum_occu}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
-                "The current occupancy_tolerance is set to: {}".format(sum_occu, self._occupancy_tolerance)
+                f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )
             warnings.warn(msg)
             self.warnings.append(msg)
@@ -1032,7 +1023,7 @@ class CifParser:
                     # moments as Species 'spin' property, instead of site
                     # property, but this introduces ambiguities for end user
                     # (such as unintended use of `spin` and Species will have
-                    # fictious oxidation state).
+                    # fictitious oxidation state).
                     raise NotImplementedError("Disordered magnetic structures not currently supported.")
 
         if coord_to_species.items():
@@ -1156,12 +1147,12 @@ class CifParser:
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 self.warnings.append(str(exc))
-                warnings.warn("No structure parsed for %d structure in CIF. Section of CIF file below." % (i + 1))
+                warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
                 warnings.warn(str(d))
-                warnings.warn("Error is %s." % str(exc))
+                warnings.warn(f"Error is {str(exc)}.")
 
         if self.warnings:
-            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
+            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
@@ -1227,10 +1218,7 @@ class CifParser:
 
             # convert to bibtex page range format, use empty string if not specified
             if ("page_first" in bibtex_entry) or ("page_last" in bibtex_entry):
-                bibtex_entry["pages"] = "{}--{}".format(
-                    bibtex_entry.get("page_first", ""),
-                    bibtex_entry.get("page_last", ""),
-                )
+                bibtex_entry["pages"] = bibtex_entry.get("page_first", "") + "--" + bibtex_entry.get("page_last", "")
                 bibtex_entry.pop("page_first", None)  # and remove page_first, page_list if present
                 bibtex_entry.pop("page_last", None)
 
@@ -1243,7 +1231,7 @@ class CifParser:
         """
         :return: MSONable dict
         """
-        d = OrderedDict()
+        d = {}
         for k, v in self._cif.data.items():
             d[k] = {}
             for k2, v2 in v.data.items():
@@ -1293,9 +1281,9 @@ class CifWriter:
             warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None
 
-        format_str = "{:.%df}" % significant_figures
+        format_str = f"{{:.{significant_figures}f}}"
 
-        block = OrderedDict()
+        block = {}
         loops = []
         spacegroup = ("P 1", 1)
         if symprec is not None:
@@ -1335,18 +1323,18 @@ class CifWriter:
                 symmops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
 
             ops = [op.as_xyz_string() for op in symmops]
-            block["_symmetry_equiv_pos_site_id"] = ["%d" % i for i in range(1, len(ops) + 1)]
+            block["_symmetry_equiv_pos_site_id"] = [f"{i}" for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
 
         loops.append(["_symmetry_equiv_pos_site_id", "_symmetry_equiv_pos_as_xyz"])
 
         try:
-            symbol_to_oxinum = OrderedDict([(el.__str__(), float(el.oxi_state)) for el in sorted(comp.elements)])
+            symbol_to_oxinum = {str(el): float(el.oxi_state) for el in sorted(comp.elements)}
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
         except (TypeError, AttributeError):
-            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in sorted(comp.elements)])
+            symbol_to_oxinum = {el.symbol: 0 for el in sorted(comp.elements)}
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []
@@ -1363,13 +1351,13 @@ class CifWriter:
         if symprec is None:
             for site in struct:
                 for sp, occu in sorted(site.species.items()):
-                    atom_site_type_symbol.append(sp.__str__())
+                    atom_site_type_symbol.append(str(sp))
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append(f"{sp.symbol}{count}")
-                    atom_site_occupancy.append(occu.__str__())
+                    atom_site_occupancy.append(str(occu))
 
                     magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
                     if write_magmoms and abs(magmom) > 0:
@@ -1400,13 +1388,13 @@ class CifWriter:
                 ),
             ):
                 for sp, occu in site.species.items():
-                    atom_site_type_symbol.append(sp.__str__())
-                    atom_site_symmetry_multiplicity.append("%d" % mult)
+                    atom_site_type_symbol.append(str(sp))
+                    atom_site_symmetry_multiplicity.append(f"{mult}")
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append(f"{sp.symbol}{count}")
-                    atom_site_occupancy.append(occu.__str__())
+                    atom_site_occupancy.append(str(occu))
                     count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
@@ -1440,7 +1428,7 @@ class CifWriter:
                     "_atom_site_moment_crystalaxis_z",
                 ]
             )
-        d = OrderedDict()
+        d = {}
         d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
         self._cf = CifFile(d)
 
@@ -1455,14 +1443,14 @@ class CifWriter:
         """
         Returns the cif as a string.
         """
-        return self._cf.__str__()
+        return str(self._cf)
 
     def write_file(self, filename):
         """
         Write the cif file.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
 
 def str2float(text):

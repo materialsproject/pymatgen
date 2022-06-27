@@ -13,7 +13,10 @@ from monty.json import MSONable
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import amu_to_kg
-from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
+from pymatgen.phonon.bandstructure import (
+    PhononBandStructure,
+    PhononBandStructureSymmLine,
+)
 from pymatgen.phonon.dos import PhononDos
 
 try:
@@ -90,28 +93,28 @@ class GruneisenParameter(MSONable):
         if t is None:
             t = self.acoustic_debye_temp
 
-        w = self.frequencies
+        w = self.frequencies  # in THz
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(
-            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2)
         )  # in eV
 
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma ** 2
+            gamma = gamma**2
 
         if limit_frequencies == "debye":
-            adt = self.acoustic_debye_temp
-            ind = np.where((w >= 0) & (w <= adt * const.value("Boltzmann constant in Hz/K")))
+            acoustic_debye_freq = self.acoustic_debye_temp * const.value("Boltzmann constant in Hz/K") / const.tera
+            ind = np.where((w >= 0) & (w <= acoustic_debye_freq))
         elif limit_frequencies == "acoustic":
             w_acoustic = w[:, :3]
             ind = np.where(w_acoustic >= 0)
         elif limit_frequencies is None:
             ind = np.where(w >= 0)
         else:
-            raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies")
+            raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies.")
 
         weights = self.multiplicities
         g = np.dot(weights[ind[0]], np.multiply(cv, gamma)[ind]).sum() / np.dot(weights[ind[0]], cv[ind]).sum()
@@ -149,9 +152,9 @@ class GruneisenParameter(MSONable):
             theta_d = self.acoustic_debye_temp
         mean_g = self.average_gruneisen(t=theta_d, squared=squared, limit_frequencies=limit_frequencies)
 
-        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi ** 3 * (1 - 0.514 * mean_g ** -1 + 0.228 * mean_g ** -2))
+        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi**3 * (1 - 0.514 * mean_g**-1 + 0.228 * mean_g**-2))
         f2 = (const.k * theta_d / const.hbar) ** 2
-        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g ** 2)
+        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g**2)
         k = f1 * f2 * f3
 
         if t is not None:
@@ -200,7 +203,7 @@ class GruneisenParameter(MSONable):
         f_mesh = self.tdos.frequency_points * const.tera
         dos = self.tdos.dos
 
-        i_a = UnivariateSpline(f_mesh, dos * f_mesh ** 2, s=0).integral(f_mesh[0], f_mesh[-1])
+        i_a = UnivariateSpline(f_mesh, dos * f_mesh**2, s=0).integral(f_mesh[0], f_mesh[-1])
         i_b = UnivariateSpline(f_mesh, dos, s=0).integral(f_mesh[0], f_mesh[-1])
 
         integrals = i_a / i_b
@@ -269,13 +272,13 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient.
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
-                he First index of the array refers to the band, the second to the index
+                The first index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
@@ -304,8 +307,8 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "qpoints": [],
         }
@@ -383,13 +386,13 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
-                he First index of the array refers to the band, the second to the index
+                The first index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we

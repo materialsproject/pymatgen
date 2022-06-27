@@ -4,10 +4,10 @@
 This module provides
 """
 
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 
 from monty.functools import lazy_property
-from monty.json import MSONable  # , MontyEncoder
+from monty.json import MSONable
 from monty.string import is_string
 
 from pymatgen.core.libxcfunc import LibxcFunc
@@ -75,26 +75,25 @@ class XcFunc(MSONable):
     type_name = namedtuple("type_name", "type, name")
 
     xcf = LibxcFunc
-    defined_aliases = OrderedDict(
-        [  # (x, c) --> type_name
-            # LDAs
-            ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),  # ixc 7
-            ((xcf.LDA_X, xcf.LDA_C_PW_MOD), type_name("LDA", "PW_MOD")),
-            ((xcf.LDA_X, xcf.LDA_C_PZ), type_name("LDA", "PZ")),  # ixc 2
-            ((xcf.LDA_X, xcf.LDA_C_WIGNER), type_name("LDA", "W")),  # ixc 4
-            ((xcf.LDA_X, xcf.LDA_C_HL), type_name("LDA", "HL")),  # ixc 5
-            ((xcf.LDA_X, xcf.LDA_C_GL), type_name("LDA", "GL")),
-            ((xcf.LDA_X, xcf.LDA_C_VWN), type_name("LDA", "VWN")),
-            # GGAs
-            ((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
-            ((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
-            ((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),  # ixc 15
-            ((xcf.GGA_X_PBE_R, xcf.GGA_C_PBE), type_name("GGA", "revPBE")),  # ixc 14
-            ((xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL), type_name("GGA", "PBEsol")),
-            ((xcf.GGA_X_AM05, xcf.GGA_C_AM05), type_name("GGA", "AM05")),
-            ((xcf.GGA_X_B88, xcf.GGA_C_LYP), type_name("GGA", "BLYP")),
-        ]
-    )
+    defined_aliases = {  # (x, c) --> type_name
+        # LDAs
+        (xcf.LDA_X, xcf.LDA_C_PW): type_name("LDA", "PW"),  # ixc 7
+        (xcf.LDA_X, xcf.LDA_C_PW_MOD): type_name("LDA", "PW_MOD"),
+        (xcf.LDA_X, xcf.LDA_C_PZ): type_name("LDA", "PZ"),  # ixc 2
+        (xcf.LDA_X, xcf.LDA_C_WIGNER): type_name("LDA", "W"),  # ixc 4
+        (xcf.LDA_X, xcf.LDA_C_HL): type_name("LDA", "HL"),  # ixc 5
+        (xcf.LDA_X, xcf.LDA_C_GL): type_name("LDA", "GL"),
+        (xcf.LDA_X, xcf.LDA_C_VWN): type_name("LDA", "VWN"),
+        # GGAs
+        (xcf.GGA_X_PW91, xcf.GGA_C_PW91): type_name("GGA", "PW91"),
+        (xcf.GGA_X_PBE, xcf.GGA_C_PBE): type_name("GGA", "PBE"),
+        (xcf.GGA_X_RPBE, xcf.GGA_C_PBE): type_name("GGA", "RPBE"),  # ixc 15
+        (xcf.GGA_X_PBE_R, xcf.GGA_C_PBE): type_name("GGA", "revPBE"),  # ixc 14
+        (xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL): type_name("GGA", "PBEsol"),
+        (xcf.GGA_X_AM05, xcf.GGA_C_AM05): type_name("GGA", "AM05"),
+        (xcf.GGA_X_B88, xcf.GGA_C_LYP): type_name("GGA", "BLYP"),
+    }
+
     del type_name
 
     # Correspondence between Abinit ixc notation and libxc notation.
@@ -137,9 +136,6 @@ class XcFunc(MSONable):
             return cls(**cls.abinitixc_to_libxc[ixc])
 
         # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
-        # ixc = str(ixc)
-        # assert len(ixc[1:]) == 6
-        # first, last = ixc[1:4], ixc[4:]
         ixc = abs(ixc)
         first = ixc // 1000
         last = ixc - first * 1000
@@ -161,22 +157,19 @@ class XcFunc(MSONable):
         for k, nt in cls.defined_aliases.items():
             if typ is not None and typ != nt.type:
                 continue
-            # print(name, nt.name)
             if name == nt.name:
                 if len(k) == 1:
                     return cls(xc=k)
                 if len(k) == 2:
                     return cls(x=k[0], c=k[1])
-                raise ValueError("Wrong key: %s" % k)
+                raise ValueError(f"Wrong key: {k}")
 
         # At this point, we should have something in the form
-        # name="GGA_X_PBE+GGA_C_PBE" or  name=""LDA_XC_TETER93"
+        # name="GGA_X_PBE+GGA_C_PBE" or name=""LDA_XC_TETER93"
         if "+" in name:
-            # if typ is not None: raise ValueError("typ: `%s` but name: `%s`" % (typ, name))
             x, c = (s.strip() for s in name.split("+"))
             x, c = LibxcFunc[x], LibxcFunc[c]
             return cls(x=x, c=c)
-        # if typ is not None: raise ValueError("typ: `%s` but name: `%s`" % (typ, name))
         xc = LibxcFunc[name]
         return cls(xc=xc)
 
@@ -191,8 +184,7 @@ class XcFunc(MSONable):
         """
         Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
         """
-        d = {"@module": self.__class__.__module__, "@class": self.__class__.__name__}
-        # print("in as_dict", type(self.x), type(self.c), type(self.xc))
+        d = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             d["x"] = self.x.as_dict()
         if self.c is not None:
@@ -200,12 +192,6 @@ class XcFunc(MSONable):
         if self.xc is not None:
             d["xc"] = self.xc.as_dict()
         return d
-
-    # def to_json(self):
-    #    """
-    #    Returns a json string representation of the MSONable object.
-    #    """
-    #    return json.dumps(self.as_dict()) #, cls=MontyEncoder)
 
     def __init__(self, xc=None, x=None, c=None):
         """
@@ -238,7 +224,7 @@ class XcFunc(MSONable):
         return "+".join([self.x.family, self.c.family])
 
     @lazy_property
-    def name(self):
+    def name(self) -> str:
         """
         The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME
@@ -252,8 +238,8 @@ class XcFunc(MSONable):
             return self.xc.name
         return "+".join([self.x.name, self.c.name])
 
-    def __repr__(self):
-        return "%s" % self.name
+    def __repr__(self) -> str:
+        return str(self.name)
 
     def __hash__(self):
         return hash(self.name)
@@ -268,12 +254,3 @@ class XcFunc(MSONable):
 
     def __ne__(self, other):
         return not self == other
-
-    # @property
-    # def refs(self):
-
-    # def info_dict()
-    #    if self.xc is not None:
-    #        return {"xc", self.xc.info_dict}
-    #    else:
-    #        return {"x", self.x.info_dict, "c", self.c.info_dict}

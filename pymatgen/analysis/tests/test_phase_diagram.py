@@ -6,12 +6,10 @@ import unittest
 import warnings
 from numbers import Number
 from pathlib import Path
-from collections import OrderedDict
-import json
-
-from monty.json import MontyEncoder, MontyDecoder
 
 import numpy as np
+from monty.serialization import dumpfn, loadfn
+from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
@@ -37,7 +35,7 @@ module_dir = Path(__file__).absolute().parent
 class PDEntryTest(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
-        self.entry = PDEntry(comp, 53)
+        self.entry = PDEntry(comp, 53, name="mp-757614")
         self.gpentry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
 
     def test_get_energy(self):
@@ -52,8 +50,8 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(self.gpentry.energy_per_atom, 50.0 / 2, "Wrong energy per atom!")
 
     def test_get_name(self):
-        self.assertEqual(self.entry.name, "LiFeO2", "Wrong name!")
-        self.assertEqual(self.gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(self.entry.name, "mp-757614", "Wrong name!")
+        self.assertEqual(self.gpentry.name, "mp-757614", "Wrong name!")
 
     def test_get_composition(self):
         comp = self.entry.composition
@@ -72,10 +70,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(entry.name, "mp-757614", "Wrong name!")
         self.assertEqual(entry.energy_per_atom, 53.0 / 4)
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        self.assertEqual(gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(gpentry.name, "mp-757614", "Wrong name!")
         self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
 
         d_anon = d.copy()
@@ -86,7 +84,11 @@ class PDEntryTest(unittest.TestCase):
             self.fail("Should not need to supply name!")
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entry))
+        self.assertEqual(str(self.entry), "PDEntry : Li1 Fe1 O2 (mp-757614) with energy = 53.0000")
+        pde = self.entry.as_dict()
+        del pde["name"]
+        pde = PDEntry.from_dict(pde)
+        self.assertEqual(str(pde), "PDEntry : Li1 Fe1 O2 with energy = 53.0000")
 
     def test_read_csv(self):
         entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
@@ -102,7 +104,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = ["Li2O", "FeO", "LiO8"]
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
-        sp_mapping = OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
@@ -286,7 +288,6 @@ class PhaseDiagramTest(unittest.TestCase):
                     self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d, 7)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
-                pass
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
@@ -598,6 +599,11 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertEqual(new_dd, dd)
         self.assertIsInstance(pd.to_json(), str)
 
+    def test_read_json(self):
+        with ScratchDir("."):
+            dumpfn(self.pd, "pd.json")
+            loadfn("pd.json")
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
@@ -683,21 +689,24 @@ class ReactionDiagramTest(unittest.TestCase):
             self.assertIn(Element.C, e.composition)
             self.assertIn(Element.P, e.composition)
             self.assertIn(Element.H, e.composition)
-        # formed_formula = [e.composition.reduced_formula for e in
-        #                   self.rd.rxn_entries]
+        # formed_formula = [e.composition.reduced_formula for e in self.rd.rxn_entries]
         # expected_formula = [
-        #     'V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829',
-        #     'V0.125P0.125H0.05C0.0375O0.6625',
-        #     'V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626',
-        #     'V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598',
-        #     'V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056',
-        #     'V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845',
-        #     'V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516',
-        #     'V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824',
-        #     'V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521']
-        #
+        #     "V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829",
+        #     "V0.125P0.125H0.05C0.0375O0.6625",
+        #     "V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626",
+        #     "V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598",
+        #     "V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056",
+        #     "V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845",
+        #     "V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516",
+        #     "V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824",
+        #     "V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521",
+        # ]
+
+        # # Please do not uncomment this test. This test is far too fragile because of numerical precision errors.
+        # # Unless someone wants to make an effort to write a PROPER test which do not fail with changes in
+        # # OS or numpy versions, DO NOT UNCOMMENT!
         # for formula in expected_formula:
-        #     self.assertTrue(formula in formed_formula, "%s not in %s" % (formed_formula, expected_formula))
+        #     self.assertTrue(formula in formed_formula, f"{formed_formula} not in {expected_formula}")
 
 
 class PDPlotterTest(unittest.TestCase):

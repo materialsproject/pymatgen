@@ -147,7 +147,7 @@ class InterstitialGenerator(DefectGenerator):
     Generator for interstitials at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (e.g., tetrahedra, octahedra). The algorithm is called InFiT
     (Interstitialcy Finding Tool), it was introducted by
     Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
     and Maciej Haranczyk (Front. Mater., 4, 34, 2017),

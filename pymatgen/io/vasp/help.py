@@ -54,7 +54,7 @@ class VaspDoc:
             Help text.
         """
         tag = tag.upper()
-        r = requests.get("http://www.vasp.at/wiki/index.php/%s" % tag, verify=False)
+        r = requests.get(f"http://www.vasp.at/wiki/index.php/{tag}", verify=False)
         soup = BeautifulSoup(r.text)
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
