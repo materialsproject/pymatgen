@@ -286,6 +286,7 @@ class StructureGraph(MSONable):
                     to_index=neighbor["site_index"],
                     to_jimage=neighbor["image"],
                     weight=neighbor["weight"] if weights else None,
+                    edge_properties=neighbor["edge_properties"],
                     warn_duplicates=False,
                 )
 

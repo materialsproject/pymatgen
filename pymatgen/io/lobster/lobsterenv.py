@@ -646,6 +646,7 @@ class LobsterNeighbors(NearNeighbors):
         additional_condition=0,
         perc_strength_ICOHP=0.15,
         adapt_extremum_to_add_cond=False,
+        weight=None
     ):
         """
 
@@ -660,6 +661,7 @@ class LobsterNeighbors(NearNeighbors):
             that are still considered for the evalulation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
             extremum
+
         Returns:
 
         """
@@ -710,13 +712,14 @@ class LobsterNeighbors(NearNeighbors):
                         )
                     ),
                     "weight": 1,
+                    "edge_properties":{"ICOHP": self.list_icohps[ineighbors][ineighbor]},
                     "site_index": [
                         isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
                     ][0],
                 }
-                for neighbor in neighbors
+                for ineighbor, neighbor in enumerate(neighbors)
             ]
-            for neighbors in self.list_neighsite
+            for ineighbors, neighbors in enumerate(self.list_neighsite)
         ]
 
     def _find_environments(self, additional_condition, lowerlimit, upperlimit, only_bonds_to):
