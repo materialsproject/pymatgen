@@ -33,7 +33,13 @@ except ImportError:
     ob = None
     have_babel = False
 
-from .utils import process_parsed_coords, read_pattern, read_table_pattern
+from .utils import (
+    process_parsed_coords,
+    process_parsed_fock_matrix,
+    read_matrix_pattern,
+    read_pattern,
+    read_table_pattern,
+)
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -107,6 +113,17 @@ class QCOutput(MSONable):
             {"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"},
             terminate_on_match=True,
         ).get("key")
+
+        # Get the value of scf_final_print in the output file
+        scf_final_print = read_pattern(
+            self.text,
+            {"key": r"scf_final_print\s*=\s*(\d+)"},
+            terminate_on_match=True,
+        ).get("key")
+        if scf_final_print is not None:
+            self.data["scf_final_print"] = int(scf_final_print[0][0])
+        else:
+            self.data["scf_final_print"] = 0
 
         # Check if calculation uses GEN_SCFMAN, multiple potential output formats
         self.data["using_GEN_SCFMAN"] = read_pattern(
@@ -334,6 +351,14 @@ class QCOutput(MSONable):
         if self.data.get("force_job", []):
             self._read_force_data()
 
+        # Read in the eigenvalues from the output file
+        if self.data["scf_final_print"] >= 1:
+            self._read_eigenvalues()
+
+        # Read the Fock matrix from the output file
+        if self.data["scf_final_print"] >= 3:
+            self._read_fock_matrix()
+
         # Check if the calculation is a PES scan. If so, parse the relevant output
         self.data["scan_job"] = read_pattern(
             self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*pes_scan"}, terminate_on_match=True
@@ -375,6 +400,83 @@ class QCOutput(MSONable):
             if not keep_sub_files:
                 os.remove(filename + "." + str(i))
         return to_return
+
+    def _read_eigenvalues(self):
+        """Parse the orbital energies from the output file. An array of the
+        dimensions of the number of orbitals used in the calculation is stored."""
+
+        # Find the pattern corresponding to the "Final Alpha MO Eigenvalues" section
+        header_pattern = r"Final Alpha MO Eigenvalues"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers.
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            # Since this is a spin-paired calculation, there will be
+            # only a single list of orbital energies (denoted as alpha)
+            # in the input file. The footer will then correspond
+            # to the next section, which is the MO coefficients.
+            footer_pattern = r"Final Alpha MO Coefficients+\s*"
+        else:
+            spin_unrestricted = True
+            # It is an unrestricted calculation, so there will be two sets
+            # of eigenvalues. First parse the alpha eigenvalues.
+            footer_pattern = r"Final Beta MO Eigenvalues"
+        # Common for both spin restricted and unrestricted calculations is the alpha eigenvalues.
+        alpha_eigenvalues = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        # The beta eigenvalues are only present if this is a spin-unrestricted calculation.
+        if spin_unrestricted:
+            header_pattern = r"Final Beta MO Eigenvalues"
+            footer_pattern = r"Final Alpha MO Coefficients+\s*"
+            beta_eigenvalues = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        self.data["alpha_eigenvalues"] = alpha_eigenvalues
+
+        if spin_unrestricted:
+            self.data["beta_eigenvalues"] = beta_eigenvalues
+
+    def _read_fock_matrix(self):
+        """Parses the Fock matrix. The matrix is read in whole
+        from the output file and then transformed into the right dimensions."""
+
+        # The header is the same for both spin-restricted and spin-unrestricted calculations.
+        header_pattern = r"Final Alpha Fock Matrix"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            footer_pattern = "SCF time:"
+        else:
+            spin_unrestricted = True
+            footer_pattern = "Final Beta Fock Matrix"
+        # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
+        alpha_fock_matrix = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        # The beta Fock matrix is only present if this is a spin-unrestricted calculation.
+        if spin_unrestricted:
+            header_pattern = r"Final Beta Fock Matrix"
+            footer_pattern = "SCF time:"
+            beta_fock_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        # Convert the matrices to the right dimension. Right now they are simply
+        # one massive list of numbers, but we need to split them into a matrix. The
+        # Fock matrix must always be a square matrix and as a result, we have to
+        # modify the dimensions.
+        alpha_fock_matrix = process_parsed_fock_matrix(alpha_fock_matrix)
+        self.data["alpha_fock_matrix"] = alpha_fock_matrix
+
+        if spin_unrestricted:
+            # Perform the same transformation for the beta Fock matrix.
+            beta_fock_matrix = process_parsed_fock_matrix(beta_fock_matrix)
+            self.data["beta_fock_matrix"] = beta_fock_matrix
 
     def _read_charge_and_multiplicity(self):
         """
