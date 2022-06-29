@@ -48,6 +48,7 @@ class Trajectory(MSONable):
         lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray,
         species: list[str | Element | Species | DummySpecies | Composition],
         frac_coords: list[list[Vector3D]] | np.ndarray,
+        *,
         constant_lattice: bool = True,
         site_properties: Optional[list[dict[str, Sequence[Any]]]] = None,
         frame_properties: Optional[list[dict[str, Any]]] = None,
@@ -191,17 +192,19 @@ class Trajectory(MSONable):
             # will have moved 0.03*c, but if we only subtract the positions, we would
             # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
             # this by adding or subtracting 1 from the value
-            displacements = [np.subtract(item, np.round(item)) for item in displacements]
+            displacements = [np.subtract(d, np.around(d)) for d in displacements]
 
             self.frac_coords = displacements
             self.coords_are_displacement = True
 
     def extend(self, trajectory: Trajectory):
         """
-        Concatenate another trajectory.
+        Append a trajectory to the current one.
+
+        The lattice, coords, and all other properties are combined.
 
         Args:
-            trajectory: Trajectory to add.
+            trajectory: Trajectory to append.
         """
         if self.time_step != trajectory.time_step:
             raise ValueError(
@@ -210,11 +213,16 @@ class Trajectory(MSONable):
             )
 
         if self.species != trajectory.species:
-            raise ValueError("Cannot extend trajectory: species in trajectory do not match.")
+            raise ValueError(
+                "Cannot extend trajectory. Species in the trajectories are "
+                f"incompatible: {self.species} and {trajectory.species}."
+            )
 
         # Ensure both trajectories are in positions before combining
         self.to_positions()
         trajectory.to_positions()
+
+        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
 
         self.site_properties = self._combine_site_props(
             self.site_properties,
@@ -229,7 +237,6 @@ class Trajectory(MSONable):
             len(trajectory),
         )
 
-        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
         self.lattice, self.constant_lattice = self._combine_lattice(
             self.lattice,
             trajectory.lattice,
@@ -237,24 +244,26 @@ class Trajectory(MSONable):
             len(trajectory),
         )
 
-    @property
-    def num_frames(self):
-        return len(self.frac_coords)
-
     def __iter__(self):
-        for i in range(self.num_frames):
+        """
+        Iterator of the trajectory, yielding a pymatgen structure for each frame.
+        """
+        for i in range(len(self)):
             yield self[i]
 
     def __len__(self):
-        return self.num_frames
+        """
+        Number of frames in the trajectory.
+        """
+        return len(self.frac_coords)
 
-    def __getitem__(self, frames: int | slice) -> Trajectory | Structure:
+    def __getitem__(self, frames: int | slice) -> Structure | Trajectory:
         """
         Get a subset of the trajectory.
 
-        The output depends on the type of the input `frames`. If a slice is given,
-        return a new trajectory with the given subset of frames; if an int is given,
-        return a structure.
+        The output depends on the type of the input `frames`. If an int is given, return
+        a pymatgen Structure at the specified frame. If a slice is given, return a new
+        trajectory with the given subset of frames.
 
         Args:
             frames: Indices of the trajectory to return.
@@ -262,6 +271,7 @@ class Trajectory(MSONable):
         Return:
             Subset of trajectory
         """
+
         # If trajectory is in displacement mode, return the displacements at that frame
         if self.coords_are_displacement:
             if isinstance(frames, int):
@@ -353,20 +363,21 @@ class Trajectory(MSONable):
             )
         raise Exception("Given accessor is not of type int, slice, tuple, list, or array")
 
-    def copy(self):
+    def copy(self) -> Trajectory:
         """
-        :return: Copy of Trajectory.
+        Copy of Trajectory.
         """
         return Trajectory(
             self.lattice,
             self.species,
             self.frac_coords,
-            time_step=self.time_step,
+            constant_lattice=self.constant_lattice,
             site_properties=self.site_properties,
             frame_properties=self.frame_properties,
-            constant_lattice=self.constant_lattice,
+            time_step=self.time_step,
             coords_are_displacement=False,
             base_positions=self.base_positions,
+            **self.kwargs,
         )
 
     @classmethod
@@ -377,8 +388,8 @@ class Trajectory(MSONable):
 
         Args:
             structures (list): list of pymatgen Structure objects.
-            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
-                simulation. True results in
+            constant_lattice (bool): Whether the lattice changes during the simulation,
+            such as in an NPT MD simulation. True results in
         Returns:
             (Trajectory)
         """
@@ -404,8 +415,9 @@ class Trajectory(MSONable):
         Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
         Args:
             filename (str): The filename to read from.
-            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
-                simulation. True results in
+            constant_lattice (bool): Whether the lattice changes during the simulation,
+            such as in an NPT MD simulation. True results in
+
         Returns:
             (Trajectory)
         """
@@ -421,23 +433,24 @@ class Trajectory(MSONable):
 
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONAble dict.
         """
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
+            "lattice": self.lattice.tolist(),
             "species": self.species,
-            "time_step": self.time_step,
+            "frac_coords": self.frac_coords.tolist(),
+            "constant_lattice": self.constant_lattice,
             "site_properties": self.site_properties,
             "frame_properties": self.frame_properties,
-            "constant_lattice": self.constant_lattice,
+            "time_step": self.time_step,
             "coords_are_displacement": self.coords_are_displacement,
             "base_positions": self.base_positions,
+            "kwargs": self.kwargs,
         }
-        d["lattice"] = self.lattice.tolist()
-        d["frac_coords"] = self.frac_coords.tolist()
 
         return d
 
@@ -540,14 +553,19 @@ class Trajectory(MSONable):
 
         return new_frame_props
 
-    def write_Xdatcar(self, filename: str = "XDATCAR", system: str = None, significant_figures: int = 6):
+    def write_Xdatcar(
+        self,
+        filename: str = "XDATCAR",
+        system: str = None,
+        significant_figures: int = 6,
+    ):
         """
         Writes Xdatcar to a file. The supported kwargs are the same as those for
         the Xdatcar_from_structs.get_string method and are passed through directly.
 
         Args:
-            filename: name of file (It's prudent to end the filename with 'XDATCAR',
-                as most visualization and analysis software require this for autodetection)
+            filename: name of file (It's prudent to end the filename with 'XDATCAR', as
+                most visualization and analysis software require this for autodetection)
             system: Description of system
             significant_figures: Significant figures in the output file
         """
@@ -592,3 +610,21 @@ class Trajectory(MSONable):
 
         with zopen(filename, "wt") as f:
             f.write(xdatcar_string)
+
+
+def _collate(x: Any, y: Any) -> Any:
+    """
+    Collate two data containers x and y of the same data structure.
+
+    Support data structure include tuple, list, and dict.
+
+    Based on the default_collate function in PyTorch at:
+    https://github.com/pytorch/pytorch/blob/da61ec2a4a3e7149a0cea6538d57f73412cc433b/torch/utils/data/_utils/collate.py#L84
+
+    Args:
+        x: the first data container.
+        y: the second data container.
+
+    Returns:
+        Combined data.
+    """
