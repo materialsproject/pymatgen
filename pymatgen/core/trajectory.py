@@ -2,7 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module provides classes used to define a MD trajectory.
+This module provides classes to define a simulation trajectory, which could come from
+either relaxation or molecular dynamics.
 """
 
 from __future__ import annotations
@@ -27,9 +28,12 @@ from pymatgen.core.structure import (
 )
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
-__author__ = "Eric Sivonxay, Shyam Dwaraknath"
-__version__ = "0.0"
-__date__ = "Jan 25, 2019"
+__author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen"
+__version__ = "0.1"
+__date__ = "Jun 29, 2022"
+
+Vector3D = tuple[float, float, float]
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 
 
 class Trajectory(MSONable):
@@ -41,26 +45,31 @@ class Trajectory(MSONable):
 
     def __init__(
         self,
-        lattice: Lattice | list[Lattice] | np.ndarray,
+        lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray,
         species: list[str | Element | Species | DummySpecies | Composition],
-        frac_coords: list[Sequence[Sequence[float]]] | np.ndarray,
-        time_step: int | float = 2,
-        site_properties: Optional[list[dict[str, Sequence[Any]]]] = None,
-        frame_properties: Optional[dict[str, Sequence[Any]]] = None,
+        frac_coords: list[list[Vector3D]] | np.ndarray,
         constant_lattice: bool = True,
+        site_properties: Optional[list[dict[str, Sequence[Any]]]] = None,
+        frame_properties: Optional[list[dict[str, Any]]] = None,
+        time_step: Optional[int | float] = None,
         coords_are_displacement: bool = False,
-        base_positions: Sequence[Sequence[float]] = None,
+        base_positions: list[list[Vector3D]] = None,
+        **kwargs,
     ):
         """
         Create a trajectory of N species with M frames (steps).
 
+        In below, `N` denotes the number of sites in the structure, and `M` denotes the
+        number of frames in the trajectory.
+
         Args:
             lattice: shape (3, 3) or (M, 3, 3). Lattice of the structures in the
-                trajectory. The shape depends on the value of `constant_lattice`.
+                trajectory; should be used together with `constant_lattice`.
                 If `constant_lattice=True`, this should be a single lattice that is
                 common for all structures in the trajectory (e.g. in an NVT run).
                 If `constant_lattice=False`, this should be a list of lattices,
-                each for one structure in the trajectory (e.g. in an NPT run).
+                each for one structure in the trajectory (e.g. in an NPT run or a
+                relaxation that allows changing the cell size).
             species: shape (N,). List of species on each site. Can take in flexible
                 input, including:
                 i.  A sequence of element / species specified either as string
@@ -69,27 +78,31 @@ class Trajectory(MSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            frac_coords: shape (M, N, 3). List of fractional coordinates of each
-                species.
-            time_step: Timestep of simulation in femto-seconds.
-            site_properties: Properties associated with the sites as a list of
-                dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
-                The list should have a length of M, with each dict for a frame. Each
-                sequence in a dict should have a length of N, one for each specie in
-                the structure.
-            frame_properties: Properties associated each frame of in trajectory, such
-                as energy and pressure. Each key value pair of the dict species the
-                name and value of a property. The value should have a length of M,
-                one component for each frame.
-            constant_lattice: Whether the lattice changes during the simulation. See
-                `lattice`.
-            coords_are_displacement: Whether supplied coordinates are given in
-                displacements (True) or positions (False).
-            base_positions: shape (N, 3). The starting positions of all atoms in
+            frac_coords: shape (M, N, 3). fractional coordinates of the sites.
+            constant_lattice: Whether the lattice changes during the simulation.
+                Should be used together with `lattice`. See usage there.
+            time_step: Timestep of MD simulation in femto-seconds. Should be `None`
+                for relaxation trajectory.
+            site_properties: Properties associated with the sites. This should be a
+                sequence of `M` dicts, with each dict providing the site properties for
+                a frame. Each value in a dict should be a sequence of length `N`, giving
+                the properties of the `N` sites. For example, for a trajectory with
+                `M=2` and `N=4`, the `site_properties` can be:
+                [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
+            frame_properties: Properties associated with the structure (e.g. total
+                energy). This should be a sequence of `M` dicts, with each dict
+                providing the properties for a frame. For example, for a trajectory with
+                `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
+            coords_are_displacement: Whether `frac_coords` are given in displacements
+                (True) or positions (False). Note, if this is `True`, `frac_coords`
+                of a frame (say i) should be relative to the previous frame (i.e.
+                i-1), but not relative to the `base_position`.
+            base_positions: shape (N, 3). The starting positions of all atoms in the
                 trajectory. Used to reconstruct positions when converting from
                 displacements to positions. Only needs to be specified if
                 `coords_are_displacement=True`. Defaults to the first index of
-                `frac_coords` if `coords_are_displacement=False`.
+                `frac_coords` when `coords_are_displacement=False`.
+            kwargs: additional properties of the trajectory.
         """
 
         if isinstance(lattice, Lattice):
@@ -99,18 +112,15 @@ class Trajectory(MSONable):
         lattice = np.asarray(lattice)
 
         if not constant_lattice and lattice.shape == (3, 3):
-            num_frames = len(frac_coords)
-            self.lattice = [lattice for _ in range(num_frames)]
+            self.lattice = np.tile(lattice, (len(frac_coords), 1, 1))
             warnings.warn(
-                "`constant_lattice=False`, but only get a single `lattice`. "
+                "Get `constant_lattice=False`, but only get a single `lattice`. "
                 "Use this single `lattice` as the lattice for all frames."
             )
         else:
             self.lattice = lattice
 
         self.constant_lattice = constant_lattice
-
-        self.frac_coords = np.asarray(frac_coords)
 
         if coords_are_displacement:
             if base_positions is None:
@@ -124,37 +134,48 @@ class Trajectory(MSONable):
         self.coords_are_displacement = coords_are_displacement
 
         self.species = species
-        self.time_step = time_step
+        self.frac_coords = np.asarray(frac_coords)
         self.site_properties = site_properties
         self.frame_properties = frame_properties
+        self.time_step = time_step
+        self.kwargs = kwargs
 
     def get_structure(self, i: int) -> Structure:
         """
         Get structure at specified index.
 
         Args:
-            i: Index of structure
+            i: Index of structure.
 
         Returns:
-            pymatgen Structure object
+            A pymatgen Structure object.
         """
         return self[i]
 
     def to_positions(self):
         """
-        Converts fractional coordinates of trajectory into positions.
+        Convert displacements between consecutive frames into positions.
+
+        `base_positions` and `frac_coords` should both be in fractional coords or
+        absolute coords.
+
+        This is the opposite operation of `to_displacements()`.
         """
         if self.coords_are_displacement:
             cumulative_displacements = np.cumsum(self.frac_coords, axis=0)
             positions = self.base_positions + cumulative_displacements
-            # TODO this whole class is dealing with abs coords not frac coords, right?
             self.frac_coords = positions
             self.coords_are_displacement = False
 
     def to_displacements(self):
         """
-        Converts position coordinates of trajectory into displacements between
-        consecutive frames.
+        Converts positions of trajectory into displacements between consecutive frames.
+
+        `base_positions` and `frac_coords` should both be in fractional coords. Does
+        not work for absolute coords because the atoms are to be wrapped into the
+        simulation box.
+
+        This is the opposite operation of `to_positions()`.
         """
         if not self.coords_are_displacement:
 
@@ -164,8 +185,12 @@ class Trajectory(MSONable):
             )
             displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
 
-            # TODO what is this doing
-            # Deal with PBC
+            # Deal with PBC.
+            # For example - If in one frame an atom has fractional coordinates of
+            # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
+            # will have moved 0.03*c, but if we only subtract the positions, we would
+            # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
+            # this by adding or subtracting 1 from the value
             displacements = [np.subtract(item, np.round(item)) for item in displacements]
 
             self.frac_coords = displacements
