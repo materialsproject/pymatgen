@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, Union
 
 import numpy as np
 from monty.io import zopen
@@ -34,6 +34,7 @@ __date__ = "Jun 29, 2022"
 
 Vector3D = tuple[float, float, float]
 Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
+SitePropsType = Union[list[dict[str, Sequence[Any]], dict[str, Sequence[Any]]]]
 
 
 class Trajectory(MSONable):
@@ -51,7 +52,7 @@ class Trajectory(MSONable):
         frac_coords: list[list[Vector3D]] | np.ndarray,
         *,
         constant_lattice: bool = True,
-        site_properties: Optional[list[dict[str, Sequence[Any]]]] = None,
+        site_properties: Optional[SitePropsType] = None,
         frame_properties: Optional[list[dict[str, Any]]] = None,
         time_step: Optional[int | float] = None,
         coords_are_displacement: bool = False,
@@ -83,11 +84,15 @@ class Trajectory(MSONable):
             time_step: Timestep of MD simulation in femto-seconds. Should be `None`
                 for relaxation trajectory.
             site_properties: Properties associated with the sites. This should be a
-                sequence of `M` dicts, with each dict providing the site properties for
-                a frame. Each value in a dict should be a sequence of length `N`, giving
-                the properties of the `N` sites. For example, for a trajectory with
-                `M=2` and `N=4`, the `site_properties` can be:
-                [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
+                list of `M` dicts for a single dict. If a list of dicts, each provides
+                the site properties for a frame. Each value in a dict should be a
+                sequence of length `N`, giving the properties of the `N` sites.
+                For example, for a trajectory with `M=2` and `N=4`, the
+                `site_properties` can be: [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
+                If a single dict, the site properties in the dict apply to all frames
+                in the trajectory. For example, for a trajectory with `M=2` and `N=4`,
+                {"magmom":[2,2,2,2]} means that, through the entire trajectory,
+                the magmom are kept constant at 2 for all four atoms.
             frame_properties: Properties associated with the structure (e.g. total
                 energy). This should be a sequence of `M` dicts, with each dict
                 providing the properties for a frame. For example, for a trajectory with
@@ -135,12 +140,10 @@ class Trajectory(MSONable):
         self.frac_coords = np.asarray(frac_coords)
         self.time_step = time_step
 
-        if site_properties is not None:
-            self._check_site_props(site_properties)
+        self._check_site_props(site_properties)
         self.site_properties = site_properties
 
-        if self.frame_properties is not None:
-            self._check_frame_props(frame_properties)
+        self._check_frame_props(frame_properties)
         self.frame_properties = frame_properties
 
     def get_structure(self, i: int) -> Structure:
@@ -549,6 +552,41 @@ class Trajectory(MSONable):
         return lat, constant_lat
 
     @staticmethod
+    def _combine_site_props(prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int):
+        """
+        Combine site properties.
+
+        Either one of prop1 and prop2 can be None, dict, or a list of dict. And we
+        consider all combinations of them.
+        """
+
+        # special cases
+
+        if prop1 is None and prop2 is None:
+            return None
+
+        if isinstance(prop1, dict) and isinstance(prop2, dict) and prop1 == prop2:
+            return prop1
+
+        # general case
+
+        assert prop1 is None or isinstance(prop1, (list, dict))
+        assert prop2 is None or isinstance(prop2, (list, dict))
+
+        prop1_candidates = {
+            "NoneType": [None] * len1,
+            "dict": [prop1] * len1,
+            "list": prop1,
+        }
+        prop2_candidates = {
+            "NoneType": [None] * len2,
+            "dict": [prop2] * len2,
+            "list": prop2,
+        }
+
+        return prop1_candidates[prop1.__class__.__name__] + prop2_candidates[prop2.__class__.__name__]
+
+    @staticmethod
     def _combine_props(prop1: list | None, prop2: list | None, len1: int, len2: int) -> list | None:
         """
         Combine properties.
@@ -562,13 +600,19 @@ class Trajectory(MSONable):
         else:
             return list(prop1) + list(prop2)
 
-    def _check_site_props(self, site_props: list[dict[str, Sequence[Any]]]):
+    def _check_site_props(self, site_props: SitePropsType):
         """
         Check data shape of site properties.
         """
-        assert len(site_props) == len(
-            self
-        ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
+        if site_props is None:
+            return
+
+        if isinstance(site_props, dict):
+            site_props = [site_props]
+        else:
+            assert len(site_props) == len(
+                self
+            ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
 
         num_sites = len(self.frac_coords[0])
         for d in site_props:
@@ -582,6 +626,9 @@ class Trajectory(MSONable):
         """
         Check data shape of site properties.
         """
+        if frame_props is None:
+            return
+
         assert len(frame_props) == len(
             self
         ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
