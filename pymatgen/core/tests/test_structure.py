@@ -468,7 +468,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(nn), 47)
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
-        for i in range(len(s)):
+        for i, _ in enumerate(s):
             self.assertEqual(4, len(all_nn[i][0]))
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
@@ -1411,7 +1411,7 @@ Sites (5)
 2 H     1.026719     0.000000    -0.363000
 3 H    -0.513360    -0.889165    -0.363000
 4 H    -0.513360     0.889165    -0.363000"""
-        self.assertEqual(self.mol.__str__(), ans)
+        self.assertEqual(str(self.mol), ans)
         ans = """Molecule Summary
 Site: C (0.0000, 0.0000, 0.0000)
 Site: H (0.0000, 0.0000, 1.0890)
@@ -1568,7 +1568,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
         # test warning when writing charged molecule to .xyz
         m_charged = Molecule([Element("K")], [[0, 0, 0]], charge=1)
-        with pytest.warns(UserWarning, match="the XYZ format does not store charge"):
+        with pytest.warns(UserWarning, match="the XYZ format only stores atomic positions, not charge."):
             m_charged.to(fmt="xyz")
 
         self.mol.to(filename="CH4_testing.xyz")
@@ -1765,6 +1765,5 @@ class MoleculeTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
 
     unittest.main()
