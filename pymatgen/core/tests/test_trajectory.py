@@ -26,6 +26,16 @@ class TrajectoryTest(PymatgenTest):
 
         return all(i == j for i, j in zip(self.traj, traj_2))
 
+    def _get_lattice_species_and_coords(self):
+        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        species = ["Si", "Si"]
+        frac_coords = [
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
+            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
+        ]
+        return lattice, species, frac_coords
+
     def test_single_index_slice(self):
         self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
 
@@ -56,7 +66,7 @@ class TrajectoryTest(PymatgenTest):
             self.assertTrue(False)
 
     def test_conversion(self):
-        # Convert to displacements and back. Check structures
+        # Convert to displacements and back, and then check structures.
         self.traj.to_displacements()
         self.traj.to_positions()
 
@@ -67,14 +77,9 @@ class TrajectoryTest(PymatgenTest):
         self.assertTrue(all([i == j for i, j in zip(self.traj, traj_copy)]))
 
     def test_site_properties(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
-        site_properties = [
+        lattice, species, frac_coords = self._get_lattice_species_and_coords()
+
+        props = [
             {
                 "selective_dynamics": [[True, True, True], [False, False, False]],
                 "magmom": [5, 5],
@@ -88,50 +93,28 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj = Trajectory(lattice, species, frac_coords, site_properties=site_properties)
+        traj = Trajectory(lattice, species, frac_coords, site_properties=props)
 
         # compare the overall site properties list
-        self.assertEqual(traj.site_properties, site_properties)
-        # # compare the site properties after slicing
-        self.assertEqual(traj[0].site_properties, site_properties[0])
-        self.assertEqual(traj[1:].site_properties, site_properties[1:])
+        self.assertEqual(traj.site_properties, props)
+
+        # compare the site properties after slicing
+        self.assertEqual(traj[0].site_properties, props[0])
+        self.assertEqual(traj[1:].site_properties, props[1:])
 
     def test_frame_properties(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
-        site_properties = [
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[False, False, False], [False, False, False]],
-                "magmom": [6, 6],
-            },
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-        ]
-        frame_properties = {"energy_per_atom": [-3.0001, -3.0971, -3.0465]}
+        lattice, species, frac_coords = self._get_lattice_species_and_coords()
 
-        traj = Trajectory(
-            lattice,
-            species,
-            frac_coords,
-            site_properties=site_properties,
-            frame_properties=frame_properties,
-        )
-        # compare the overall site properties list
-        self.assertEqual(traj.frame_properties, frame_properties)
+        props = [{"energy_per_atom": e} for e in [-3.0001, -3.0971, -3.0465]]
+
+        traj = Trajectory(lattice, species, frac_coords, frame_properties=props)
+
+        # compare the overall site properties
+        self.assertEqual(traj.frame_properties, props)
+
         # compare the site properties after slicing
-        expected_output = {"energy_per_atom": [-3.0971, -3.0465]}
-        self.assertEqual(traj[1:].frame_properties, expected_output)
+        expected = props[1:]
+        self.assertEqual(traj[1:].frame_properties, expected)
 
     def test_extend(self):
         traj = self.traj.copy()
@@ -157,14 +140,7 @@ class TrajectoryTest(PymatgenTest):
         self.assertTrue(compatible_success and incompatible_test_success)
 
     def test_extend_site_props(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
-
+        lattice, species, frac_coords = self._get_lattice_species_and_coords()
         num_frames = len(frac_coords)
 
         props_1 = {
@@ -256,13 +232,7 @@ class TrajectoryTest(PymatgenTest):
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
     def test_extend_frame_props(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
+        lattice, species, frac_coords = self._get_lattice_species_and_coords()
 
         energy_1 = [-3, -3.9, -4.1]
         energy_2 = [-4.2, -4.25, -4.3]
@@ -303,6 +273,7 @@ class TrajectoryTest(PymatgenTest):
         poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structures = [poscar.structure]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
+
         for i in range(10):
             displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
@@ -334,6 +305,7 @@ class TrajectoryTest(PymatgenTest):
 
         # Check if the file is written correctly when lattice is not constant.
         traj.write_Xdatcar(filename="traj_test_XDATCAR")
+
         # Load trajectory from written xdatcar and compare to original
         written_traj = Trajectory.from_file("traj_test_XDATCAR", constant_lattice=False)
         self._check_traj_equality(traj, written_traj)
@@ -346,6 +318,7 @@ class TrajectoryTest(PymatgenTest):
 
     def test_xdatcar_write(self):
         self.traj.write_Xdatcar(filename="traj_test_XDATCAR")
+
         # Load trajectory from written xdatcar and compare to original
         written_traj = Trajectory.from_file("traj_test_XDATCAR")
         self._check_traj_equality(self.traj, written_traj)
