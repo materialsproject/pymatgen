@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Union
 
 import numpy as np
 from monty.io import zopen
@@ -34,7 +34,7 @@ __date__ = "Jun 29, 2022"
 
 Vector3D = tuple[float, float, float]
 Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[list[dict[str, Sequence[Any]], dict[str, Sequence[Any]]]]
+SitePropsType = Union[list[dict[Any, list[Any]]], dict[Any, list[Any]]]
 
 
 class Trajectory(MSONable):
@@ -51,12 +51,12 @@ class Trajectory(MSONable):
         species: list[str | Element | Species | DummySpecies | Composition],
         frac_coords: list[list[Vector3D]] | np.ndarray,
         *,
-        site_properties: Optional[SitePropsType] = None,
-        frame_properties: Optional[list[dict[str, Any]]] = None,
+        site_properties: SitePropsType | None = None,
+        frame_properties: list[dict] | None = None,
         constant_lattice: bool = True,
-        time_step: Optional[int | float] = None,
+        time_step: int | float | None = None,
         coords_are_displacement: bool = False,
-        base_positions: list[list[Vector3D]] = None,
+        base_positions: list[list[Vector3D]] | np.ndarray | None = None,
     ):
         """
         In below, `N` denotes the number of sites in the structure, and `M` denotes the
@@ -111,7 +111,7 @@ class Trajectory(MSONable):
         if isinstance(lattice, Lattice):
             lattice = lattice.matrix
         elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
-            lattice = [x.matrix for x in lattice]
+            lattice = [x.matrix for x in lattice]  # type: ignore
         lattice = np.asarray(lattice)
 
         if not constant_lattice and lattice.shape == (3, 3):
@@ -310,23 +310,25 @@ class Trajectory(MSONable):
 
         # If trajectory is in positions mode, return a structure for the given frame
         # or trajectory for the given frames
+
         if isinstance(frames, int):
+            # For integer input, return the structure at that frame
+
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
 
-            # For integer input, return the structure at that timestep
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
-            site_properties = self.site_properties[frames] if self.site_properties else None
 
             return Structure(
                 Lattice(lattice),
                 self.species,
                 self.frac_coords[frames],
-                site_properties=site_properties,
+                site_properties=self._get_site_props(frames),  # type: ignore
                 to_unit_cell=True,
             )
 
         elif isinstance(frames, (slice, list, np.ndarray)):
+            # For slicer input, return a trajectory
 
             if isinstance(frames, slice):
                 start, stop, step = frames.indices(len(self))
@@ -334,17 +336,13 @@ class Trajectory(MSONable):
             else:
                 # Get rid of frames that exceed trajectory length
                 selected = [i for i in frames if i < len(self)]
+
                 if len(selected) < len(frames):
                     bad_frames = [i for i in frames if i > len(self)]
                     raise IndexError(f"Frame index {bad_frames} out of range.")
 
             lattice = self.lattice if self.constant_lattice else self.lattice[selected]
             frac_coords = self.frac_coords[selected]
-
-            if self.site_properties is not None:
-                site_properties = [self.site_properties[i] for i in selected]
-            else:
-                site_properties = None
 
             if self.frame_properties is not None:
                 frame_properties = [self.frame_properties[i] for i in selected]
@@ -355,7 +353,7 @@ class Trajectory(MSONable):
                 lattice,
                 self.species,
                 frac_coords,
-                site_properties=site_properties,
+                site_properties=self._get_site_props(selected),
                 frame_properties=frame_properties,
                 constant_lattice=self.constant_lattice,
                 time_step=self.time_step,
@@ -488,13 +486,13 @@ class Trajectory(MSONable):
         else:
             lattice = [structure.lattice.matrix for structure in structures]
 
-        speices = structures[0].species
+        species = structures[0].species
         frac_coords = [structure.frac_coords for structure in structures]
         site_properties = [structure.site_properties for structure in structures]
 
         return cls(
             lattice,
-            speices,
+            species,  # type: ignore
             frac_coords,
             site_properties=site_properties,
             constant_lattice=constant_lattice,
@@ -576,34 +574,36 @@ class Trajectory(MSONable):
         assert prop1 is None or isinstance(prop1, (list, dict))
         assert prop2 is None or isinstance(prop2, (list, dict))
 
-        prop1_candidates = {
+        p1_candidates = {
             "NoneType": [None] * len1,
             "dict": [prop1] * len1,
             "list": prop1,
         }
-        prop2_candidates = {
+        p2_candidates = {
             "NoneType": [None] * len2,
             "dict": [prop2] * len2,
             "list": prop2,
         }
+        p1_selected: list = p1_candidates[prop1.__class__.__name__]  # type: ignore
+        p2_selected: list = p2_candidates[prop2.__class__.__name__]  # type: ignore
 
-        return prop1_candidates[prop1.__class__.__name__] + prop2_candidates[prop2.__class__.__name__]
+        return p1_selected + p2_selected
 
     @staticmethod
-    def _combine_frame_props(prop1: list | None, prop2: list | None, len1: int, len2: int) -> list | None:
+    def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
         """
         Combine frame properties.
         """
         if prop1 is None and prop2 is None:
             return None
         elif prop1 is None:
-            return [None] * len(range(len1)) + list(prop2)
+            return [None] * len1 + list(prop2)  # type: ignore
         elif prop2 is None:
-            return list(prop1) + [None] * len(range(len2))
+            return list(prop1) + [None] * len2  # type: ignore
         else:
-            return list(prop1) + list(prop2)
+            return list(prop1) + list(prop2)  # type:ignore
 
-    def _check_site_props(self, site_props: SitePropsType):
+    def _check_site_props(self, site_props: SitePropsType | None):
         """
         Check data shape of site properties.
         """
@@ -625,7 +625,7 @@ class Trajectory(MSONable):
                     f"number of sites in the structure {num_sites}."
                 )
 
-    def _check_frame_props(self, frame_props: list[dict[str, Any]]):
+    def _check_frame_props(self, frame_props: list[dict] | None):
         """
         Check data shape of site properties.
         """
@@ -635,3 +635,22 @@ class Trajectory(MSONable):
         assert len(frame_props) == len(
             self
         ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
+
+    def _get_site_props(self, frames: int | list[int]) -> SitePropsType | None:
+        """
+        Slice site properties.
+        """
+
+        if self.site_properties is None:
+            return None
+        elif isinstance(self.site_properties, dict):
+            return self.site_properties
+        elif isinstance(self.site_properties, list):
+            if isinstance(frames, int):
+                return self.site_properties[frames]
+            elif isinstance(frames, list):
+                return [self.site_properties[i] for i in frames]
+            else:
+                raise ValueError("Unexpected frames type.")
+        else:
+            raise ValueError("Unexpected site_properties type.")
