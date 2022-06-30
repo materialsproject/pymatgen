@@ -292,21 +292,20 @@ class Trajectory(MSONable):
                     raise ValueError(f"Selected frame {frames} exceeds trajectory length {len(self)}")
                 return self.frac_coords[frames]
 
-            elif isinstance(frames, slice):
+            if isinstance(frames, slice):
                 return self.frac_coords[frames]
 
-            elif isinstance(frames, (list, np.ndarray)):
+            if isinstance(frames, (list, np.ndarray)):
                 # Get rid of frames that exceed trajectory length
                 selected = [i for i in frames if i < len(self)]
                 if len(selected) < len(frames):
                     bad_frames = [i for i in frames if i > len(self)]
                     raise IndexError(f"Frame index {bad_frames} out of range.")
                 return self.frac_coords[selected]
-            else:
-                raise ValueError(
-                    f"Expect accessor (i.e. frames) to be of type int, slice, "
-                    f"list or np.array; but got {type(frames)}."
-                )
+
+            raise ValueError(
+                f"Expect accessor (i.e. frames) to be of type int, slice, list or np.array; but got {type(frames)}."
+            )
 
         # If trajectory is in positions mode, return a structure for the given frame
         # or trajectory for the given frames
@@ -327,7 +326,7 @@ class Trajectory(MSONable):
                 to_unit_cell=True,
             )
 
-        elif isinstance(frames, (slice, list, np.ndarray)):
+        if isinstance(frames, (slice, list, np.ndarray)):
             # For slicer input, return a trajectory
 
             if isinstance(frames, slice):
@@ -360,9 +359,9 @@ class Trajectory(MSONable):
                 coords_are_displacement=False,
                 base_positions=self.base_positions,
             )
-        else:
-            supported = [int, slice, list or np.ndarray]
-            raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
+
+        supported = [int, slice, list or np.ndarray]
+        raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
     # TODO, Do we need this? why not use copy.deepcopy if one wants a copy
     def copy(self) -> Trajectory:
@@ -596,12 +595,11 @@ class Trajectory(MSONable):
         """
         if prop1 is None and prop2 is None:
             return None
-        elif prop1 is None:
+        if prop1 is None:
             return [None] * len1 + list(prop2)  # type: ignore
-        elif prop2 is None:
+        if prop2 is None:
             return list(prop1) + [None] * len2  # type: ignore
-        else:
-            return list(prop1) + list(prop2)  # type:ignore
+        return list(prop1) + list(prop2)  # type:ignore
 
     def _check_site_props(self, site_props: SitePropsType | None):
         """
@@ -643,14 +641,12 @@ class Trajectory(MSONable):
 
         if self.site_properties is None:
             return None
-        elif isinstance(self.site_properties, dict):
+        if isinstance(self.site_properties, dict):
             return self.site_properties
-        elif isinstance(self.site_properties, list):
+        if isinstance(self.site_properties, list):
             if isinstance(frames, int):
                 return self.site_properties[frames]
-            elif isinstance(frames, list):
+            if isinstance(frames, list):
                 return [self.site_properties[i] for i in frames]
-            else:
-                raise ValueError("Unexpected frames type.")
-        else:
-            raise ValueError("Unexpected site_properties type.")
+            raise ValueError("Unexpected frames type.")
+        raise ValueError("Unexpected site_properties type.")
