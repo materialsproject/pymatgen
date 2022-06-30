@@ -17,6 +17,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     symmetry_measure,
 )
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.structure import Structure, Lattice
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,
@@ -96,6 +97,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertEqual(self.lgf.icentral_site, 0)
         self.assertEqual(self.lgf.indices, [4, 6, 3, 1, 2, 5])
 
+
         LiFePO4_struct = self.get_structure("LiFePO4")
         isite = 10
         envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
@@ -106,6 +108,12 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             np.array([6.88012571, -5.79877503, -3.73177541]),
             np.array([6.90041188, -3.32797839, -3.71812416]),
         ]
+
+        # test to check that one can pass voronoi_distance_cutoff
+        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        self.lgf.setup_structure(structure=struct)
+        self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
+
         self.lgf.setup_structure(LiFePO4_struct)
         self.lgf.setup_local_geometry(isite, coords=nbs_coords)
 
