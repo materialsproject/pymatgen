@@ -15,7 +15,6 @@ __date__ = "Feb 20, 2016"
 
 import logging
 import time
-import warnings
 
 import numpy as np
 from monty.json import MSONable
@@ -144,7 +143,7 @@ class DetailedVoronoiContainer(MSONable):
         self.voronoi_list_coords = [None] * len(self.structure)
         logging.debug("Getting all neighbors in structure")
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
-        size_neighbors=[(not len(neigh) > 3) for neigh in struct_neighbors]
+        size_neighbors = [(not len(neigh) > 3) for neigh in struct_neighbors]
         if np.any(size_neighbors):
             logging.debug("Please consider increasing voronoi_distance_cutoff")
         t1 = time.process_time()

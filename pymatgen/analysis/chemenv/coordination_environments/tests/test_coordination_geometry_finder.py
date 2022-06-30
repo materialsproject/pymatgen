@@ -16,8 +16,8 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     LocalGeometryFinder,
     symmetry_measure,
 )
+from pymatgen.core.structure import Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Structure, Lattice
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,
@@ -96,7 +96,6 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.lgf.setup_explicit_indices_local_geometry(explicit_indices=[3, 5, 2, 0, 1, 4])
         self.assertEqual(self.lgf.icentral_site, 0)
         self.assertEqual(self.lgf.indices, [4, 6, 3, 1, 2, 5])
-
 
         LiFePO4_struct = self.get_structure("LiFePO4")
         isite = 10
