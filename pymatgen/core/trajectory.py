@@ -51,10 +51,10 @@ class Trajectory(MSONable):
         species: list[str | Element | Species | DummySpecies | Composition],
         frac_coords: list[list[Vector3D]] | np.ndarray,
         *,
-        site_properties: Optional[SitePropsType] = None,
-        frame_properties: Optional[list[dict[str, Any]]] = None,
+        site_properties: SitePropsType | None = None,
+        frame_properties: list[dict[str, Any]] | None = None,
         constant_lattice: bool = True,
-        time_step: Optional[int | float] = None,
+        time_step: int | float | None = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] = None,
     ):
