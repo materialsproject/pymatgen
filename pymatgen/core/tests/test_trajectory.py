@@ -183,20 +183,16 @@ class TrajectoryTest(PymatgenTest):
         ]
 
         # Trajectories with constant site properties
-        site_properties_1 = [
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            }
-        ]
+        site_properties_1 = {
+            "selective_dynamics": [[True, True, True], [False, False, False]],
+            "magmom": [5, 5],
+        }
         traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
-        site_properties_2 = [
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            }
-        ]
+        site_properties_2 = {
+            "selective_dynamics": [[True, True, True], [False, False, False]],
+            "magmom": [5, 5],
+        }
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties

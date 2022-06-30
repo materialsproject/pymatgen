@@ -229,12 +229,13 @@ class Trajectory(MSONable):
 
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
 
-        self.site_properties = self._combine_props(
+        self.site_properties = self._combine_site_props(
             self.site_properties,
             trajectory.site_properties,
             len(self),
             len(trajectory),
         )
+
         self.frame_properties = self._combine_props(
             self.frame_properties,
             trajectory.frame_properties,
@@ -556,8 +557,8 @@ class Trajectory(MSONable):
         """
         Combine site properties.
 
-        Either one of prop1 and prop2 can be None, dict, or a list of dict. And we
-        consider all combinations of them.
+        Either one of prop1 or prop2 can be None, dict, or a list of dict. All
+        possibilities of combining them are considered.
         """
 
         # special cases
