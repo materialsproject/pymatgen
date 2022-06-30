@@ -135,6 +135,20 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             self.assertEqual(Element(k).row, v)
 
+    def test_from_name(self):
+        testsets = {
+            "H": "hydrogen",
+            "He": "Helium",
+            "Li": "lithium",
+            "O": "Oxygen",
+            "Fe": "Iron",
+            "La": "lanthanum",
+            "Ce": "Cerium",
+            "U": "Uranium",
+        }
+        for k, v in testsets.items():
+            self.assertEqual(ElementBase.from_name(v), Element(k))
+
     def test_from_row_and_group(self):
         testsets = {
             "H": (1, 1),
