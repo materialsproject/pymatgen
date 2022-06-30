@@ -97,6 +97,11 @@ class IonTest(unittest.TestCase):
         self.assertEqual(comp.alphabetical_formula, "Fe6 Li8 (aq)")
         self.assertEqual(comp.formula, "Li8 Fe6 (aq)")
 
+    def test_oxi_state_guesses(self):
+        i = Ion.from_formula("SO4-2")
+        assert i.oxi_state_guesses()[0].get("S") == 6
+        assert i.oxi_state_guesses()[0].get("O") == -2
+
     def test_alphabetical_formula(self):
         correct_formulas = [
             "Li1 +1",
@@ -129,7 +134,7 @@ class IonTest(unittest.TestCase):
             "A+2",
             "ABC(aq)",
         ]
-        for i in range(len(self.comp)):
+        for i, _ in enumerate(self.comp):
             self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
 
     def test_from_dict(self):
@@ -167,7 +172,7 @@ class IonTest(unittest.TestCase):
             comp2,
             "Composition equality test failed. " + f"{comp1.formula} should be equal to {comp2.formula}",
         )
-        self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
+        self.assertEqual(hash(comp1), hash(comp2), "Hashcode equality test failed!")
 
     def test_equality(self):
         self.assertTrue(self.comp[0] == (self.comp[0]))
