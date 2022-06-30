@@ -563,6 +563,7 @@ class LocalGeometryFinder:
         get_from_hints=False,
         voronoi_normalized_distance_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_distance_tolerance"],
         voronoi_normalized_angle_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_angle_tolerance"],
+        voronoi_distance_cutoff=None,
         recompute=None,
         optimization=PRESETS["DEFAULT"]["optimization"],
     ):
@@ -592,6 +593,8 @@ class LocalGeometryFinder:
             neighbors sets
         :param voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
             neighbors sets
+        :param voronoi_distance_cutoff: determines distance of considered neighbors. Especially important to increase it
+            for molecules in a box.
         :param recompute: whether to recompute the sites already computed (when initial_structure_environments
             is not None)
         :param optimization: optimization algorithm
@@ -673,6 +676,8 @@ class LocalGeometryFinder:
             normalized_angle_tolerance = DetailedVoronoiContainer.default_normalized_angle_tolerance
         else:
             normalized_angle_tolerance = voronoi_normalized_angle_tolerance
+        if voronoi_distance_cutoff is None:
+            voronoi_distance_cutoff = DetailedVoronoiContainer.default_voronoi_cutoff
         self.detailed_voronoi = DetailedVoronoiContainer(
             self.structure,
             isites=sites_indices,
@@ -682,6 +687,7 @@ class LocalGeometryFinder:
             additional_conditions=additional_conditions,
             normalized_distance_tolerance=normalized_distance_tolerance,
             normalized_angle_tolerance=normalized_angle_tolerance,
+            voronoi_cutoff=voronoi_distance_cutoff,
         )
         logging.debug("DetailedVoronoiContainer has been set up")
 
