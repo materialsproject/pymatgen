@@ -2782,7 +2782,7 @@ class IMolecule(SiteCollection, MSONable):
         if self.species == [Element("O"), Element("O")] and self.charge == 0 and self._spin_multiplicity != 3:
             warnings.warn(
                 f"You have specified a spin multiplicity of {self._spin_multiplicity} for "
-                "an O2 molecule; however the ground state of molecular O2 has a spin multiplicity of 3."
+                "an O2 molecule; however the ground state of molecular O2 has a spin multiplicity of 3. "
                 "If this was intentional, you can safely ignore this message."
             )
 
