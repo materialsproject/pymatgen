@@ -51,9 +51,9 @@ class Trajectory(MSONable):
         species: list[str | Element | Species | DummySpecies | Composition],
         frac_coords: list[list[Vector3D]] | np.ndarray,
         *,
-        constant_lattice: bool = True,
         site_properties: Optional[SitePropsType] = None,
         frame_properties: Optional[list[dict[str, Any]]] = None,
+        constant_lattice: bool = True,
         time_step: Optional[int | float] = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] = None,
@@ -79,10 +79,6 @@ class Trajectory(MSONable):
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             frac_coords: shape (M, N, 3). fractional coordinates of the sites.
-            constant_lattice: Whether the lattice changes during the simulation.
-                Should be used together with `lattice`. See usage there.
-            time_step: Timestep of MD simulation in femto-seconds. Should be `None`
-                for relaxation trajectory.
             site_properties: Properties associated with the sites. This should be a
                 list of `M` dicts for a single dict. If a list of dicts, each provides
                 the site properties for a frame. Each value in a dict should be a
@@ -97,6 +93,10 @@ class Trajectory(MSONable):
                 energy). This should be a sequence of `M` dicts, with each dict
                 providing the properties for a frame. For example, for a trajectory with
                 `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
+            constant_lattice: Whether the lattice changes during the simulation.
+                Should be used together with `lattice`. See usage there.
+            time_step: Timestep of MD simulation in femto-seconds. Should be `None`
+                for relaxation trajectory.
             coords_are_displacement: Whether `frac_coords` are given in displacements
                 (True) or positions (False). Note, if this is `True`, `frac_coords`
                 of a frame (say i) should be relative to the previous frame (i.e.
@@ -227,8 +227,6 @@ class Trajectory(MSONable):
         self.to_positions()
         trajectory.to_positions()
 
-        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
-
         self.site_properties = self._combine_site_props(
             self.site_properties,
             trajectory.site_properties,
@@ -236,7 +234,7 @@ class Trajectory(MSONable):
             len(trajectory),
         )
 
-        self.frame_properties = self._combine_props(
+        self.frame_properties = self._combine_frame_props(
             self.frame_properties,
             trajectory.frame_properties,
             len(self),
@@ -249,6 +247,10 @@ class Trajectory(MSONable):
             len(self),
             len(trajectory),
         )
+
+        # Note, this should be after the other self._combine... method calls, since
+        # len(self) is used there.
+        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
 
     def __iter__(self):
         """
@@ -353,12 +355,12 @@ class Trajectory(MSONable):
                 lattice,
                 self.species,
                 frac_coords,
-                constant_lattice=self.constant_lattice,
                 site_properties=site_properties,
                 frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                time_step=self.time_step,
                 coords_are_displacement=False,
                 base_positions=self.base_positions,
-                time_step=self.time_step,
             )
         else:
             supported = [int, slice, list or np.ndarray]
@@ -373,9 +375,9 @@ class Trajectory(MSONable):
             self.lattice,
             self.species,
             self.frac_coords,
-            constant_lattice=self.constant_lattice,
             site_properties=self.site_properties,
             frame_properties=self.frame_properties,
+            constant_lattice=self.constant_lattice,
             time_step=self.time_step,
             coords_are_displacement=False,
             base_positions=self.base_positions,
@@ -452,9 +454,9 @@ class Trajectory(MSONable):
             "lattice": self.lattice.tolist(),
             "species": self.species,
             "frac_coords": self.frac_coords.tolist(),
-            "constant_lattice": self.constant_lattice,
             "site_properties": self.site_properties,
             "frame_properties": self.frame_properties,
+            "constant_lattice": self.constant_lattice,
             "time_step": self.time_step,
             "coords_are_displacement": self.coords_are_displacement,
             "base_positions": self.base_positions,
@@ -588,9 +590,9 @@ class Trajectory(MSONable):
         return prop1_candidates[prop1.__class__.__name__] + prop2_candidates[prop2.__class__.__name__]
 
     @staticmethod
-    def _combine_props(prop1: list | None, prop2: list | None, len1: int, len2: int) -> list | None:
+    def _combine_frame_props(prop1: list | None, prop2: list | None, len1: int, len2: int) -> list | None:
         """
-        Combine properties.
+        Combine frame properties.
         """
         if prop1 is None and prop2 is None:
             return None

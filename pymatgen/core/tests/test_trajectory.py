@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 
 import numpy as np
 
@@ -155,7 +156,7 @@ class TrajectoryTest(PymatgenTest):
 
         self.assertTrue(compatible_success and incompatible_test_success)
 
-    def test_extend_no_site_props(self):
+    def test_extend_site_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         species = ["Si", "Si"]
         frac_coords = [
@@ -164,109 +165,17 @@ class TrajectoryTest(PymatgenTest):
             [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
         ]
 
-        # Trajectory with no site_properties
-        traj_1 = Trajectory(lattice, species, frac_coords)
-        traj_2 = Trajectory(lattice, species, frac_coords)
+        num_frames = len(frac_coords)
 
-        # Test combining two trajectories with no site properties
-        traj_combined = traj_1.copy()
-        traj_combined.extend(traj_2)
-        self.assertEqual(traj_combined.site_properties, None)
-
-    def test_extend_equivalent_site_props(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
-
-        # Trajectories with constant site properties
-        site_properties_1 = {
+        props_1 = {
+            "selective_dynamics": [[False, False, False], [False, False, False]],
+            "magmom": [5, 5],
+        }
+        props_2 = {
             "selective_dynamics": [[True, True, True], [False, False, False]],
             "magmom": [5, 5],
         }
-        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
-
-        site_properties_2 = {
-            "selective_dynamics": [[True, True, True], [False, False, False]],
-            "magmom": [5, 5],
-        }
-        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
-
-        # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.copy()
-        traj_combined.extend(traj_2)
-        self.assertEqual(traj_combined.site_properties, site_properties_1)
-
-    def test_extend_inequivalent_site_props(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
-
-        # Trajectories with constant site properties
-        site_properties_1 = [
-            {
-                "selective_dynamics": [[False, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            }
-        ]
-        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
-
-        site_properties_2 = [
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            }
-        ]
-        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
-
-        # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.copy()
-        traj_combined.extend(traj_2)
-        expected_site_props = [
-            {
-                "selective_dynamics": [[False, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[False, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[False, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-        ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
-
-        # Trajectory with const site_properties and trajectory with changing site properties
-        site_properties_1 = [
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            }
-        ]
-        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
-
-        site_properties_2 = [
+        props_3 = [
             {
                 "selective_dynamics": [[False, True, True], [False, False, False]],
                 "magmom": [5, 5],
@@ -280,151 +189,71 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
-        # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.copy()
-        traj_combined.extend(traj_2)
-        expected_site_props = [
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[False, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-        ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=props_1)
+        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=props_2)
+        traj_3 = Trajectory(lattice, species, frac_coords, site_properties=props_3)
+        traj_4 = Trajectory(lattice, species, frac_coords, site_properties=None)
 
-        # The other way around
-        traj_combined = traj_2.copy()
+        # const & const (both constant and the same site properties)
+        traj_combined = deepcopy(traj_1)
         traj_combined.extend(traj_1)
-        expected_site_props = [
-            {
-                "selective_dynamics": [[False, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-        ]
+        expected_site_props = props_1
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-        # Trajectory with no and trajectory with changing site properties
-        site_properties_1 = None
-        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
-
-        site_properties_2 = [
-            {
-                "selective_dynamics": [[False, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-        ]
-        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
-
-        # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.copy()
+        # const & const (both constant but different site properties)
+        traj_combined = deepcopy(traj_1)
         traj_combined.extend(traj_2)
-        expected_site_props = [
-            None,
-            None,
-            None,
-            {
-                "selective_dynamics": [[False, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-        ]
+        expected_site_props = [props_1] * num_frames + [props_2] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-        # The other way around
-        traj_combined = traj_2.copy()
+        # const & changing
+        traj_combined = deepcopy(traj_1)
+        traj_combined.extend(traj_3)
+        expected_site_props = [props_1] * num_frames + props_3
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
+
+        # const & none
+        traj_combined = deepcopy(traj_1)
+        traj_combined.extend(traj_4)
+        expected_site_props = [props_1] * num_frames + [None] * num_frames
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
+
+        # changing & const
+        traj_combined = deepcopy(traj_3)
         traj_combined.extend(traj_1)
-        expected_site_props = [
-            {
-                "selective_dynamics": [[False, True, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, False, True], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            {
-                "selective_dynamics": [[True, True, False], [False, False, False]],
-                "magmom": [5, 5],
-            },
-            None,
-            None,
-            None,
-        ]
+        expected_site_props = props_3 + [props_1] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-    def test_extend_no_frame_props(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
+        # changing & changing
+        traj_combined = deepcopy(traj_3)
+        traj_combined.extend(traj_3)
+        expected_site_props = props_3 + props_3
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-        # Trajectory with no site_properties
-        traj_1 = Trajectory(lattice, species, frac_coords)
-        traj_2 = Trajectory(lattice, species, frac_coords)
+        # changing & none
+        traj_combined = deepcopy(traj_3)
+        traj_combined.extend(traj_4)
+        expected_site_props = props_3 + [None] * num_frames
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-        # Test combining two trajectories with no site properties
-        traj_combined = traj_1.copy()
-        traj_combined.extend(traj_2)
-        self.assertEqual(traj_combined.frame_properties, None)
+        # none & const
+        traj_combined = deepcopy(traj_4)
+        traj_combined.extend(traj_1)
+        expected_site_props = [None] * num_frames + [props_1] * num_frames
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
+
+        # none & changing
+        traj_combined = deepcopy(traj_4)
+        traj_combined.extend(traj_3)
+        expected_site_props = [None] * num_frames + props_3
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
+
+        # none & none
+        traj_combined = deepcopy(traj_4)
+        traj_combined.extend(traj_4)
+        expected_site_props = None
+        self.assertEqual(traj_combined.site_properties, expected_site_props)
 
     def test_extend_frame_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -435,29 +264,37 @@ class TrajectoryTest(PymatgenTest):
             [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
         ]
 
-        # Trajectories with constant site properties
-        frame_properties_1 = {"energy": [-3, -3.9, -4.1]}
-        traj_1 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_1)
+        energy_1 = [-3, -3.9, -4.1]
+        energy_2 = [-4.2, -4.25, -4.3]
+        pressure_2 = [2, 2.5, 2.5]
 
-        frame_properties_2 = {"energy": [-4.2, -4.25, -4.3]}
-        traj_2 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_2)
+        # energy only properties
+        props_1 = [{"energy": e} for e in energy_1]
+        traj_1 = Trajectory(lattice, species, frac_coords, frame_properties=props_1)
 
-        # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.copy()
+        # energy and pressure properties
+        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2)]
+        traj_2 = Trajectory(lattice, species, frac_coords, frame_properties=props_2)
+
+        # no properties
+        traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=None)
+
+        # test combining two with different properties
+        traj_combined = deepcopy(traj_1)
         traj_combined.extend(traj_2)
-        expected_frame_properties = {"energy": [-3, -3.9, -4.1, -4.2, -4.25, -4.3]}
-        self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
+        expected_props = props_1 + props_2
+        self.assertEqual(traj_combined.frame_properties, expected_props)
 
-        # Mismatched frame propertied
-        frame_properties_3 = {"energy": [-4.2, -4.25, -4.3], "pressure": [2, 2.5, 2.5]}
-        traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_3)
-        traj_combined = traj_1.copy()
+        # test combining two where one has properties and the other does not
+        traj_combined = deepcopy(traj_1)
         traj_combined.extend(traj_3)
-        expected_frame_properties = {
-            "energy": [-3, -3.9, -4.1, -4.2, -4.25, -4.3],
-            "pressure": [None, None, None, 2, 2.5, 2.5],
-        }
-        self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
+        expected_props = props_1 + [None] * len(frac_coords)
+        self.assertEqual(traj_combined.frame_properties, expected_props)
+
+        # test combining two both of which have no properties
+        traj_combined = deepcopy(traj_3)
+        traj_combined.extend(traj_3)
+        self.assertEqual(traj_combined.frame_properties, None)
 
     def test_length(self):
         self.assertTrue(len(self.traj) == len(self.structures))
