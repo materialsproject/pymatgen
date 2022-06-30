@@ -2778,6 +2778,14 @@ class IMolecule(SiteCollection, MSONable):
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
+        # Remind user about the unusual spin multiplicity of ground state O2
+        if self.species == [Element("O"), Element("O")] and self.charge == 0 and self._spin_multiplicity != 3:
+            warnings.warn(
+                f"You have specified a spin multiplicity of {self._spin_multiplicity} for "
+                "an O2 molecule; however the ground state of molecular O2 has a spin multiplicity of 3."
+                "If this was intentional, you can safely ignore this message."
+            )
+
     @property
     def charge(self) -> float:
         """
