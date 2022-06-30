@@ -9,9 +9,9 @@ either relaxation or molecular dynamics.
 from __future__ import annotations
 
 import itertools
-import os
 import warnings
 from fnmatch import fnmatch
+from pathlib import Path
 from typing import Any, Optional, Sequence
 
 import numpy as np
@@ -38,9 +38,10 @@ Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 
 class Trajectory(MSONable):
     """
-    Trajectory object that stores structural information related to an MD simulation.
+    Trajectory of a relaxation or molecular dynamics simulation.
 
-    Provides basic functions such as slicing trajectory or obtaining displacements.
+    Provides basic functions such as slicing trajectory, combining trajectories, and
+    obtaining displacements.
     """
 
     def __init__(
@@ -55,11 +56,8 @@ class Trajectory(MSONable):
         time_step: Optional[int | float] = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] = None,
-        **kwargs,
     ):
         """
-        Create a trajectory of N species with M frames (steps).
-
         In below, `N` denotes the number of sites in the structure, and `M` denotes the
         number of frames in the trajectory.
 
@@ -103,7 +101,6 @@ class Trajectory(MSONable):
                 displacements to positions. Only needs to be specified if
                 `coords_are_displacement=True`. Defaults to the first index of
                 `frac_coords` when `coords_are_displacement=False`.
-            kwargs: additional properties of the trajectory.
         """
 
         if isinstance(lattice, Lattice):
@@ -136,10 +133,15 @@ class Trajectory(MSONable):
 
         self.species = species
         self.frac_coords = np.asarray(frac_coords)
-        self.site_properties = site_properties
-        self.frame_properties = frame_properties
         self.time_step = time_step
-        self.kwargs = kwargs
+
+        if site_properties is not None:
+            self._check_site_props(site_properties)
+        self.site_properties = site_properties
+
+        if self.frame_properties is not None:
+            self._check_frame_props(frame_properties)
+        self.frame_properties = frame_properties
 
     def get_structure(self, i: int) -> Structure:
         """
@@ -191,7 +193,7 @@ class Trajectory(MSONable):
             # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
             # will have moved 0.03*c, but if we only subtract the positions, we would
             # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
-            # this by adding or subtracting 1 from the value
+            # this by adding or subtracting 1 from the value.
             displacements = [np.subtract(d, np.around(d)) for d in displacements]
 
             self.frac_coords = displacements
@@ -224,13 +226,13 @@ class Trajectory(MSONable):
 
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
 
-        self.site_properties = self._combine_site_props(
+        self.site_properties = self._combine_props(
             self.site_properties,
             trajectory.site_properties,
             len(self),
             len(trajectory),
         )
-        self.frame_properties = self._combine_frame_props(
+        self.frame_properties = self._combine_props(
             self.frame_properties,
             trajectory.frame_properties,
             len(self),
@@ -257,13 +259,13 @@ class Trajectory(MSONable):
         """
         return len(self.frac_coords)
 
-    def __getitem__(self, frames: int | slice) -> Structure | Trajectory:
+    def __getitem__(self, frames: int | slice | list[int]) -> Structure | Trajectory:
         """
         Get a subset of the trajectory.
 
         The output depends on the type of the input `frames`. If an int is given, return
-        a pymatgen Structure at the specified frame. If a slice is given, return a new
-        trajectory with the given subset of frames.
+        a pymatgen Structure at the specified frame. If a list or a slice, return a new
+        trajectory with a subset of frames.
 
         Args:
             frames: Indices of the trajectory to return.
@@ -272,33 +274,44 @@ class Trajectory(MSONable):
             Subset of trajectory
         """
 
+        # TODO, This function is heavily overloaded, would be great to always return
+        #  structure and trajectory, if coords_are_displacement is true, convert coords
+        #  to positions, and then return structure and trajectory.
+        #  So, in brief remove the stuff in this if statement
         # If trajectory is in displacement mode, return the displacements at that frame
         if self.coords_are_displacement:
-            if isinstance(frames, int):
-                if frames >= np.shape(self.frac_coords)[0]:
-                    raise ValueError("Selected frame exceeds trajectory length")
-                # For integer input, return the displacements at that timestep
-                return self.frac_coords[frames]
-            if isinstance(frames, slice):
-                # For slice input, return a list of the displacements
-                start, stop, step = frames.indices(len(self))
-                return [self.frac_coords[i] for i in range(start, stop, step)]
-            if isinstance(frames, (list, np.ndarray)):
-                # For list input, return a list of the displacements
-                pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
-                if len(pruned_frames) < len(frames):
-                    warnings.warn("Some or all selected frames exceed trajectory length")
-                return [self.frac_coords[i] for i in pruned_frames]
-            raise Exception("Given accessor is not of type int, slice, list, or array")
 
-        # If trajectory is in positions mode, return a structure for the given frame or trajectory for the given frames
+            if isinstance(frames, int):
+                if frames >= len(self):
+                    raise ValueError(f"Selected frame {frames} exceeds trajectory length {len(self)}")
+                return self.frac_coords[frames]
+
+            elif isinstance(frames, slice):
+                return self.frac_coords[frames]
+
+            elif isinstance(frames, (list, np.ndarray)):
+                # Get rid of frames that exceed trajectory length
+                selected = [i for i in frames if i < len(self)]
+                if len(selected) < len(frames):
+                    bad_frames = [i for i in frames if i > len(self)]
+                    raise IndexError(f"Frame index {bad_frames} out of range.")
+                return self.frac_coords[selected]
+            else:
+                raise ValueError(
+                    f"Expect accessor (i.e. frames) to be of type int, slice, "
+                    f"list or np.array; but got {type(frames)}."
+                )
+
+        # If trajectory is in positions mode, return a structure for the given frame
+        # or trajectory for the given frames
         if isinstance(frames, int):
-            if frames >= np.shape(self.frac_coords)[0]:
-                raise ValueError("Selected frame exceeds trajectory length")
+            if frames >= len(self):
+                raise IndexError(f"Frame index {frames} out of range.")
+
             # For integer input, return the structure at that timestep
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
             site_properties = self.site_properties[frames] if self.site_properties else None
-            site_properties = self.site_properties[frames] if self.site_properties else None
+
             return Structure(
                 Lattice(lattice),
                 self.species,
@@ -306,63 +319,48 @@ class Trajectory(MSONable):
                 site_properties=site_properties,
                 to_unit_cell=True,
             )
-        if isinstance(frames, slice):
-            # For slice input, return a trajectory of the sliced time
-            start, stop, step = frames.indices(len(self))
-            pruned_frames = range(start, stop, step)
-            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
-            frac_coords = [self.frac_coords[i] for i in pruned_frames]
-            if self.site_properties is not None:
-                site_properties = [self.site_properties[i] for i in pruned_frames]
-            else:
-                site_properties = None
-            if self.frame_properties is not None:
-                frame_properties = {}
-                for key, item in self.frame_properties.items():
-                    frame_properties[key] = [item[i] for i in pruned_frames]
-            else:
-                frame_properties = None
-            return Trajectory(
-                lattice,
-                self.species,
-                frac_coords,
-                time_step=self.time_step,
-                site_properties=site_properties,
-                frame_properties=frame_properties,
-                constant_lattice=self.constant_lattice,
-                coords_are_displacement=False,
-                base_positions=self.base_positions,
-            )
-        if isinstance(frames, (list, np.ndarray)):
-            # For list input, return a trajectory of the specified times
-            pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
-            if len(pruned_frames) < len(frames):
-                warnings.warn("Some or all selected frames exceed trajectory length")
-            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
-            frac_coords = [self.frac_coords[i] for i in pruned_frames]
-            if self.site_properties is not None:
-                site_properties = [self.site_properties[i] for i in pruned_frames]
-            else:
-                site_properties = None
-            if self.frame_properties is not None:
-                frame_properties = {}
-                for key, item in self.frame_properties.items():
-                    frame_properties[key] = [item[i] for i in pruned_frames]
-            else:
-                frame_properties = None
-            return Trajectory(
-                lattice,
-                self.species,
-                frac_coords,
-                time_step=self.time_step,
-                site_properties=site_properties,
-                frame_properties=frame_properties,
-                constant_lattice=self.constant_lattice,
-                coords_are_displacement=False,
-                base_positions=self.base_positions,
-            )
-        raise Exception("Given accessor is not of type int, slice, tuple, list, or array")
 
+        elif isinstance(frames, (slice, list, np.ndarray)):
+
+            if isinstance(frames, slice):
+                start, stop, step = frames.indices(len(self))
+                selected = list(range(start, stop, step))
+            else:
+                # Get rid of frames that exceed trajectory length
+                selected = [i for i in frames if i < len(self)]
+                if len(selected) < len(frames):
+                    bad_frames = [i for i in frames if i > len(self)]
+                    raise IndexError(f"Frame index {bad_frames} out of range.")
+
+            lattice = self.lattice if self.constant_lattice else self.lattice[selected]
+            frac_coords = self.frac_coords[selected]
+
+            if self.site_properties is not None:
+                site_properties = [self.site_properties[i] for i in selected]
+            else:
+                site_properties = None
+
+            if self.frame_properties is not None:
+                frame_properties = [self.frame_properties[i] for i in selected]
+            else:
+                frame_properties = None
+
+            return Trajectory(
+                lattice,
+                self.species,
+                frac_coords,
+                constant_lattice=self.constant_lattice,
+                site_properties=site_properties,
+                frame_properties=frame_properties,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+                time_step=self.time_step,
+            )
+        else:
+            supported = [int, slice, list or np.ndarray]
+            raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
+
+    # TODO, Do we need this? why not use copy.deepcopy if one wants a copy
     def copy(self) -> Trajectory:
         """
         Copy of Trajectory.
@@ -377,197 +375,26 @@ class Trajectory(MSONable):
             time_step=self.time_step,
             coords_are_displacement=False,
             base_positions=self.base_positions,
-            **self.kwargs,
         )
-
-    @classmethod
-    def from_structures(cls, structures, constant_lattice=True, **kwargs):
-        """
-        Convenience constructor to obtain trajectory from a list of structures.
-        Note: Assumes no atoms removed during simulation
-
-        Args:
-            structures (list): list of pymatgen Structure objects.
-            constant_lattice (bool): Whether the lattice changes during the simulation,
-            such as in an NPT MD simulation. True results in
-        Returns:
-            (Trajectory)
-        """
-        frac_coords = [structure.frac_coords for structure in structures]
-        if constant_lattice:
-            lattice = structures[0].lattice.matrix
-        else:
-            lattice = [structure.lattice.matrix for structure in structures]
-
-        site_properties = [structure.site_properties for structure in structures]
-        return cls(
-            lattice,
-            structures[0].species,
-            frac_coords,
-            site_properties=site_properties,
-            constant_lattice=constant_lattice,
-            **kwargs,
-        )
-
-    @classmethod
-    def from_file(cls, filename, constant_lattice=True, **kwargs):
-        """
-        Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
-        Args:
-            filename (str): The filename to read from.
-            constant_lattice (bool): Whether the lattice changes during the simulation,
-            such as in an NPT MD simulation. True results in
-
-        Returns:
-            (Trajectory)
-        """
-        # TODO: Support other filetypes
-
-        fname = os.path.basename(filename)
-        if fnmatch(fname, "*XDATCAR*"):
-            structures = Xdatcar(filename).structures
-        elif fnmatch(fname, "vasprun*.xml*"):
-            structures = Vasprun(filename).structures
-        else:
-            raise ValueError("Unsupported file")
-
-        return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
-
-    def as_dict(self) -> dict:
-        """
-        :return: MSONAble dict.
-        """
-        d = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-            "lattice": self.lattice.tolist(),
-            "species": self.species,
-            "frac_coords": self.frac_coords.tolist(),
-            "constant_lattice": self.constant_lattice,
-            "site_properties": self.site_properties,
-            "frame_properties": self.frame_properties,
-            "time_step": self.time_step,
-            "coords_are_displacement": self.coords_are_displacement,
-            "base_positions": self.base_positions,
-            "kwargs": self.kwargs,
-        }
-
-        return d
-
-    @staticmethod
-    def _combine_lattice(attr_1, attr_2, len_1, len_2):
-        """
-        Helper function to combine trajectory properties such as site_properties or lattice
-        """
-        if np.shape(attr_1) == (3, 3) and np.shape(attr_2) == (3, 3):
-            attribute = attr_1
-            attribute_constant = True
-        elif np.shape(attr_1) == 3 and np.shape(attr_2) == 3:
-            attribute = np.concatenate((attr_1, attr_2), axis=0)
-            attribute_constant = False
-        else:
-            attribute = [attr_1.copy()] * len_1 if isinstance(attr_1, list) else attr_1.copy()
-            attribute.extend([attr_2.copy()] * len_2 if isinstance(attr_2, list) else attr_2.copy())
-            attribute_constant = False
-
-        return attribute, attribute_constant
-
-    @staticmethod
-    def _combine_site_props(attr_1, attr_2, len_1, len_2):
-        """
-        Helper function to combine site properties of 2 trajectories
-        """
-        if attr_1 is None and attr_2 is None:
-            return None
-        if attr_1 is None or attr_2 is None:
-            new_site_properties = []
-            if attr_1 is None:
-                new_site_properties.extend([None for i in range(len_1)])
-            elif len(attr_1) == 1:
-                new_site_properties.extend([attr_1[0] for i in range(len_1)])
-            elif len(attr_1) > 1:
-                new_site_properties.extend(attr_1)
-
-            if attr_2 is None:
-                new_site_properties.extend([None for i in range(len_2)])
-            elif len(attr_2) == 1:
-                new_site_properties.extend([attr_2[0] for i in range(len_2)])
-            elif len(attr_2) > 1:
-                new_site_properties.extend(attr_2)
-
-            return new_site_properties
-        if len(attr_1) == 1 and len(attr_2) == 1:
-            # If both properties lists are do not change within their respective trajectory
-            if attr_1 == attr_2:
-                # If both site_properties are the same, only store one
-                return attr_1
-            new_site_properties = [attr_1[0] for i in range(len_1)]
-            new_site_properties.extend([attr_2[0] for i in range(len_2)])
-            return new_site_properties
-        if len(attr_1) > 1 and len(attr_2) > 1:
-            # Both properties have site properties that change within the trajectory, concat both together
-            return [*attr_1, *attr_2]
-
-        new_site_properties = []
-        if attr_1 is None:
-            new_site_properties.extend([None for i in range(len_1)])
-        elif len(attr_1) == 1:
-            new_site_properties.extend([attr_1[0] for i in range(len_1)])
-        elif len(attr_1) > 1:
-            new_site_properties.extend(attr_1)
-
-        if attr_2 is None:
-            new_site_properties.extend([None for i in range(len_2)])
-        elif len(attr_2) == 1:
-            new_site_properties.extend([attr_2[0] for i in range(len_2)])
-        elif len(attr_2) > 1:
-            new_site_properties.extend(attr_2)
-
-        return new_site_properties
-
-    @staticmethod
-    def _combine_frame_props(attr_1, attr_2, len_1, len_2):
-        """
-        Helper function to combine frame properties such as energy or pressure
-        """
-        if attr_1 is None and attr_2 is None:
-            return None
-
-        # Find all common keys
-        all_keys = set(attr_1.keys()).union(set(attr_2.keys()))
-
-        # Initialize dict with the common keys
-        new_frame_props = dict(zip(all_keys, [[] for i in all_keys]))
-        for key in all_keys:
-            if key in attr_1.keys():
-                new_frame_props[key].extend(attr_1[key])
-            else:
-                # If key doesn't exist in the first trajectory, append None for each index
-                new_frame_props[key].extend([None for i in range(len_1)])
-
-            if key in attr_2.keys():
-                new_frame_props[key].extend(attr_2[key])
-            else:
-                # If key doesn't exist in the second trajectory, append None for each index
-                new_frame_props[key].extend([None for i in range(len_2)])
-
-        return new_frame_props
 
     def write_Xdatcar(
         self,
-        filename: str = "XDATCAR",
+        filename: str | Path = "XDATCAR",
         system: str = None,
         significant_figures: int = 6,
     ):
         """
-        Writes Xdatcar to a file. The supported kwargs are the same as those for
-        the Xdatcar_from_structs.get_string method and are passed through directly.
+        Writes to Xdatcar file.
+
+        The supported kwargs are the same as those for the
+        Xdatcar_from_structs.get_string method and are passed through directly.
 
         Args:
-            filename: name of file (It's prudent to end the filename with 'XDATCAR', as
-                most visualization and analysis software require this for autodetection)
-            system: Description of system
-            significant_figures: Significant figures in the output file
+            filename: Name of file to write.  It's prudent to end the filename with
+                'XDATCAR', as most visualization and analysis software require this
+                for autodetection.
+            system: Description of system (e.g. 2D MoS2).
+            significant_figures: Significant figures in the output file.
         """
 
         # Ensure trajectory is in position form
@@ -611,20 +438,150 @@ class Trajectory(MSONable):
         with zopen(filename, "wt") as f:
             f.write(xdatcar_string)
 
+    def as_dict(self) -> dict:
+        """
+        Return the trajectory as a MSONAble dict.
+        """
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "lattice": self.lattice.tolist(),
+            "species": self.species,
+            "frac_coords": self.frac_coords.tolist(),
+            "constant_lattice": self.constant_lattice,
+            "site_properties": self.site_properties,
+            "frame_properties": self.frame_properties,
+            "time_step": self.time_step,
+            "coords_are_displacement": self.coords_are_displacement,
+            "base_positions": self.base_positions,
+        }
 
-def _collate(x: Any, y: Any) -> Any:
-    """
-    Collate two data containers x and y of the same data structure.
+    @classmethod
+    def from_structures(
+        cls,
+        structures: list[Structure],
+        constant_lattice: bool = True,
+        **kwargs,
+    ) -> Trajectory:
+        """
+        Create trajectory from a list of structures.
 
-    Support data structure include tuple, list, and dict.
+        Note: Assumes no atoms removed during simulation.
 
-    Based on the default_collate function in PyTorch at:
-    https://github.com/pytorch/pytorch/blob/da61ec2a4a3e7149a0cea6538d57f73412cc433b/torch/utils/data/_utils/collate.py#L84
+        Args:
+            structures: pymatgen Structure objects.
+            constant_lattice: Whether the lattice changes during the simulation,
+                such as in an NPT MD simulation.
 
-    Args:
-        x: the first data container.
-        y: the second data container.
+        Returns:
+            A trajectory from the structures.
+        """
 
-    Returns:
-        Combined data.
-    """
+        if constant_lattice:
+            lattice = structures[0].lattice.matrix
+        else:
+            lattice = [structure.lattice.matrix for structure in structures]
+
+        speices = structures[0].species
+        frac_coords = [structure.frac_coords for structure in structures]
+        site_properties = [structure.site_properties for structure in structures]
+
+        return cls(
+            lattice,
+            speices,
+            frac_coords,
+            site_properties=site_properties,
+            constant_lattice=constant_lattice,
+            **kwargs,
+        )
+
+    @classmethod
+    def from_file(
+        cls,
+        filename: str | Path,
+        constant_lattice: bool = True,
+        **kwargs,
+    ) -> Trajectory:
+        """
+        Create trajectory from XDATCAR or vasprun.xml file.
+
+        Args:
+            filename: Path to the file to read from.
+            constant_lattice: Whether the lattice changes during the simulation,
+                such as in an NPT MD simulation.
+
+        Returns:
+            A trajectory from the file.
+        """
+
+        fname = Path(filename).expanduser().resolve().name
+
+        if fnmatch(fname, "*XDATCAR*"):
+            structures = Xdatcar(filename).structures
+        elif fnmatch(fname, "vasprun*.xml*"):
+            structures = Vasprun(filename).structures
+        else:
+            supported = ("XDATCAR", "vasprun.xml")
+            raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
+
+        return cls.from_structures(
+            structures,
+            constant_lattice=constant_lattice,
+            **kwargs,
+        )
+
+    @staticmethod
+    def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
+        """
+        Helper function to combine trajectory lattice.
+        """
+        if lat1.ndim == lat2.ndim == 2:
+            constant_lat = True
+            lat = lat1
+        else:
+            constant_lat = False
+            if lat1.ndim == 2:
+                lat1 = np.tile(lat1, (len1, 1, 1))
+            if lat2.ndim == 2:
+                lat2 = np.tile(lat2, (len2, 1, 1))
+            lat = np.concatenate((lat1, lat2))
+
+        return lat, constant_lat
+
+    @staticmethod
+    def _combine_props(prop1: list | None, prop2: list | None, len1: int, len2: int) -> list | None:
+        """
+        Combine properties.
+        """
+        if prop1 is None and prop2 is None:
+            return None
+        elif prop1 is None:
+            return [None] * len(range(len1)) + list(prop2)
+        elif prop2 is None:
+            return list(prop1) + [None] * len(range(len2))
+        else:
+            return list(prop1) + list(prop2)
+
+    def _check_site_props(self, site_props: list[dict[str, Sequence[Any]]]):
+        """
+        Check data shape of site properties.
+        """
+        assert len(site_props) == len(
+            self
+        ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
+
+        num_sites = len(self.frac_coords[0])
+        for d in site_props:
+            for k, v in d.items():
+                assert len(v) == num_sites, (
+                    f"Size of site property {k} {len(v)}) does not equal to the "
+                    f"number of sites in the structure {num_sites}."
+                )
+
+    def _check_frame_props(self, frame_props: list[dict[str, Any]]):
+        """
+        Check data shape of site properties.
+        """
+        assert len(frame_props) == len(
+            self
+        ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
