@@ -3219,6 +3219,12 @@ class IMolecule(SiteCollection, MSONable):
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename or "")
         if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
+            if self.charge != 0:
+                warnings.warn(
+                    f"Your molecule has a charge of {self.charge}, but the XYZ "
+                    "format only stores atomic positions, not charge. Using Molecule.from_file() "
+                    "with this file will result in an uncharged Molecule."
+                )
             writer = XYZ(self)
         elif any(fmt == r or fnmatch(fname.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)

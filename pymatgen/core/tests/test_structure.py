@@ -1566,6 +1566,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             self.assertEqual(m, self.mol)
             self.assertIsInstance(m, IMolecule)
 
+        # test warning when writing charged molecule to .xyz
+        m_charged = Molecule([Element("K")], [[0, 0, 0]], charge=1)
+        with pytest.warns(UserWarning, match="the XYZ format does not store charge"):
+            m_charged.to(fmt="xyz")
+
         self.mol.to(filename="CH4_testing.xyz")
         self.assertTrue(os.path.exists("CH4_testing.xyz"))
         os.remove("CH4_testing.xyz")
