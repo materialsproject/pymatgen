@@ -29,6 +29,7 @@ from pymatgen.io.vasp.sets import (
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,
+    MPAbsorptionSet,
     MPHSEBSSet,
     MPMetalRelaxSet,
     MPNMRSet,
@@ -45,7 +46,6 @@ from pymatgen.io.vasp.sets import (
     MVLRelax52Set,
     MVLScanRelaxSet,
     MVLSlabSet,
-    MPAbsorptionSet,
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
@@ -81,7 +81,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
-            "MPAbsorptionSet.yaml": "e86e405a014a7af41490cc7b99609f99f2ddd5b0"
+            "MPAbsorptionSet.yaml": "e86e405a014a7af41490cc7b99609f99f2ddd5b0",
         }
 
         self.assertDictEqual(
