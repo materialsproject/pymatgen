@@ -45,6 +45,7 @@ from pymatgen.io.vasp.sets import (
     MVLRelax52Set,
     MVLScanRelaxSet,
     MVLSlabSet,
+    MPAbsorptionSet,
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
@@ -80,6 +81,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
+            "MPAbsorptionSet.yaml": "e86e405a014a7af41490cc7b99609f99f2ddd5b0"
         }
 
         self.assertDictEqual(
@@ -1699,7 +1701,7 @@ class LobsterSetTest(PymatgenTest):
 class MPAbsorptionSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        file_path = self.TEST_FILES_DIR / "static/POSCAR"
+        file_path = self.TEST_FILES_DIR / "absorption/static/POSCAR"
         poscar = Poscar.from_file(file_path)
         self.structure = poscar.structure
         warnings.simplefilter("ignore")
@@ -1710,10 +1712,10 @@ class MPAbsorptionSetTest(PymatgenTest):
 
     def test_ipa(self):
         prev_run = self.TEST_FILES_DIR / "absorption/static"
-        absorptionipa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="IPA")
+        absorptionipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
         absorptionipa.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
-        self.assertEqual(absorptionipa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionipa.incar["NBANDS"], 32)
         self.assertEqual(absorptionipa.incar["ALGO"], "Exact")
         self.assertTrue(absorptionipa.incar["LOPTICS"])
 
@@ -1722,7 +1724,7 @@ class MPAbsorptionSetTest(PymatgenTest):
         absorptionipa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorptionipa.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
-        self.assertEqual(absorptionipa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionipa.incar["NBANDS"], 32)
         self.assertEqual(absorptionipa.incar["ALGO"], "Exact")
         self.assertTrue(absorptionipa.incar["LOPTICS"])
 

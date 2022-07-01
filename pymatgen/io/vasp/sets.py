@@ -3251,6 +3251,15 @@ class MPAbsorptionSet(MPRelaxSet):
             # self.nbands = int(np.ceil(self.nbands * self.nbands_factor / self.ncores) * self.ncores)
             self.nkred = vasprun.kpoints.kpts[0]
 
+        files_to_transfer = {}
+        if self.copy_wavecar:
+            for fname in ("WAVECAR", "WAVEDER"):
+                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                if w:
+                    files_to_transfer[fname] = str(w[-1])
+
+        self.files_to_transfer.update(files_to_transfer)
+
         return self
 
     @classmethod
