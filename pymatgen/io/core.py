@@ -50,6 +50,9 @@ class InputFile(MSONable):
 
     All InputFile classes must implement a get_string method, which
     is called by write_file.
+
+    If InputFile classes implement an __init__ method, they must assign all
+    arguments to __init__ as attributes.
     """
 
     @abc.abstractmethod
