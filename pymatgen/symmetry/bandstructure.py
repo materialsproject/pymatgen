@@ -31,16 +31,16 @@ __date__ = "March 2020"
 
 class HighSymmKpath(KPathBase):
     """
-    This class generates path along high symmetry lines in the
+    This class generates a path along high symmetry lines in the
     Brillouin zone according to different conventions.
     The class is designed to be used with a specific primitive
     cell setting. The definitions for the primitive cell
-    used can be found in: Computational Materials Science,
+    used can be found in Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.
     The space group analyzer can be used to produce the correct
-    primitive structure
-    (method get_primitive_standard_structure(international_monoclinic=False)).
-    Ensure input structure is correct before 'get_kpoints()' method is used.
+    primitive structure with method
+    get_primitive_standard_structure(international_monoclinic=False).
+    Ensure input structure is correct before using the 'get_kpoints()' method.
     See individual KPath classes for details on specific conventions.
     """
 
@@ -59,7 +59,7 @@ class HighSymmKpath(KPathBase):
             structure (Structure): Structure object
             has_magmoms (boolean): Whether the input structure contains
                 magnetic moments as site properties with the key 'magmom.'
-                Values may be in the form of 3-component vectors given in
+                Values may be in the form of 3-component vectors using
                 the basis of the input lattice vectors, in
                 which case the spin axis will default to a_3, the third
                 real-space lattice vector (this triggers a warning).
@@ -68,15 +68,15 @@ class HighSymmKpath(KPathBase):
                 should point. If all magnetic moments are provided as
                 vectors then this argument is not used.
             path_type (string): Chooses which convention to use to generate
-                the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma',
-                'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and
-                Latimer & Munro conventions. Choosing 'all' will generate one path
-                with points from all three conventions. Equivalent labels between
-                each will also be generated. Order will always be Latimer & Munro,
-                Setyawan & Curtarolo, and Hinuma et al. Lengths for each of the paths
+                the high-symmetry path. Options are 'setyawan_curtarolo', 'hinuma',
+                and 'latimer_munro' for the Setyawan-Curtarolo, Hinuma, and
+                Latimer-Munro conventions, respectively. Choosing 'all' will generate
+                one path with points from all three conventions. Equivalent labels between
+                each will also be generated. The order is always (1) Latimer-Munro,
+                (2) Setyawan-Curtarolo, and (3) Hinuma. Lengths for each of the paths
                 will also be generated and output as a list. Note for 'all' the user
-                will have to alter the labels on their own for plotting.
-            symprec (float): Tolerance for symmetry finding
+                will have to alter the labels his/her/theirself for plotting.
+            symprec (float): Tolerance for symmetry finding.
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine symmetric
                 equivalence of points and lines on the BZ.
@@ -160,8 +160,8 @@ class HighSymmKpath(KPathBase):
     def label_index(self):
         """
         Returns:
-        The correspondence between numbers and kpoint symbols for the
-        combined kpath generated when path_type = 'all'. None otherwise.
+        Correspondence between numbers and k-point symbols for the
+        combined k-path generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
 
@@ -169,9 +169,9 @@ class HighSymmKpath(KPathBase):
     def equiv_labels(self):
         """
         Returns:
-        The correspondence between the kpoint symbols in the Latimer and
-        Munro convention, Setyawan and Curtarolo, and Hinuma
-        conventions respectively. Only generated when path_type = 'all'.
+        Correspondence between the k-point symbols in the Latimer-
+        Munro convention, Setyawan-Curtarolo, and Hinuma
+        conventions. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
 
@@ -179,8 +179,8 @@ class HighSymmKpath(KPathBase):
     def path_lengths(self):
         """
         Returns:
-        List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
-        conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
+        List of lengths of the Latimer-Munro, Setyawan-Curtarolo, and Hinuma
+        conventions in the combined HighSymmKpath object when path_type = 'all'.
         None otherwise.
         """
         return self._path_lengths
@@ -188,7 +188,7 @@ class HighSymmKpath(KPathBase):
     def _get_lm_kpath(self, has_magmoms, magmom_axis, symprec, angle_tolerance, atol):
         """
         Returns:
-        Latimer and Munro k-path with labels.
+        Latimer-Munro k-path with labels.
         """
 
         return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
@@ -196,7 +196,7 @@ class HighSymmKpath(KPathBase):
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
         """
         Returns:
-        Setyawan and Curtarolo k-path with labels.
+        Setyawan-Curtarolo k-path with labels.
         """
         kpath = KPathSetyawanCurtarolo(self._structure, symprec, angle_tolerance, atol)
 
@@ -210,7 +210,7 @@ class HighSymmKpath(KPathBase):
     def _get_hin_kpath(self, symprec, angle_tolerance, atol, tri):
         """
         Returns:
-        Hinuma et al. k-path with labels.
+        Hinuma k-path with labels.
         """
         bs = KPathSeek(self._structure, symprec, angle_tolerance, atol, tri)
 
@@ -223,8 +223,8 @@ class HighSymmKpath(KPathBase):
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
         warn(
-            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
-of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "k-path using the Hinuma convention has been transformed to accord with the reciprocal lattice \
+basis vectors of the input structure. Use `KPathSeek` to generate the path using the basis in the original Hinuma et al. (2017) paper."
         )
 
         return bs
@@ -233,10 +233,10 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         """
         Returns:
         labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
-            If an exact kpoint match cannot be found, symmetric equivalency will be
+            If an exact k-point match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
             If an equivalent label can still not be found, or the point is not in
-            the explicit kpath, its equivalent label will be set to itself in the output.
+            the explicit k-path, its equivalent label will be set to itself in the output.
         """
 
         lm_path = lm_bs.kpath
@@ -309,9 +309,9 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         """
         Obtain a continuous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
-        odd-degree to ensure a Eulerian path can be formed. Initial
-        k-path must be able to be converted to a connected graph. See
-        npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+        odd degree to ensure a Eulerian path is formed. The initial
+        k-path must be convertible to a connected graph. See
+        npj Computational Materials, 6, 112 (2020). doi:10.1038/s41524-020-00383-7
         for more details.
 
         Args:
