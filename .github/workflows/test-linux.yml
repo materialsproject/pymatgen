@@ -58,7 +58,7 @@ jobs:
         run: |
           pytest ${{ matrix.pkg }} --cov=pymatgen
       - name: Upload coverage
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-${{ matrix.pkg_id }}
           path: .coverage
@@ -69,25 +69,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.9
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Install Coverage
         run: pip install coverage
       - name: Download coverage-1
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-1
       - name: Download coverage-2
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-2
       - name: Download coverage-3
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-3
       - name: Download coverage-4
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: coverage-4
       - name: Run coverage

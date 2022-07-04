@@ -603,10 +603,10 @@ class Vasprun(MSONable):
             def f(freq, real, imag):
                 """
                 The optical absorption coefficient calculated in terms of
-                equation
+                equation, the unit is in cm-1
                 """
-                hbar = 6.582119514e-16  # eV/K
-                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hbar * freq
+                hc = 1.23984 * 1e-4  # plank constant times speed of light, in the unit of eV*cm
+                coeff = np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
                 return coeff
 
             absorption_coeff = [
@@ -621,7 +621,11 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step
         """
-        final_esteps = self.ionic_steps[-1]["electronic_steps"]
+        if self.incar not in ["CHI"]:
+            final_esteps = self.ionic_steps[-1]["electronic_steps"]
+        else:
+            final_esteps = 0
+            # In a response function run there is no ionic steps, there is no scf step
         if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}

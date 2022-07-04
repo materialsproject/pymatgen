@@ -3,7 +3,7 @@
     "width": 800,
     "height": 800,
     "hovermode": "closest",
-    "paper_bgcolor": "rgba(0,0,0,0)",
+    "paper_bgcolor": "rgba(256,256,256,100)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "showlegend": true,
     "legend": {
@@ -19,7 +19,7 @@
     "width": 800,
     "height": 800,
     "hovermode": "closest",
-    "paper_bgcolor": "rgba(0,0,0,0)",
+    "paper_bgcolor": "rgba(256,256,256,100)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "showlegend": true,
     "legend": {
