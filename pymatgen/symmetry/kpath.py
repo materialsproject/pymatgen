@@ -943,8 +943,8 @@ class KPathSeek(KPathBase):
     It should be used with primitive structures that
     comply with the definition given in the paper.
     The symmetry is determined by spglib using the
-    SpacegroupAnalyzer class. k-points are generated using the 
-	get_kpoints() method for the reciprocal cell basis defined in the paper.
+    SpacegroupAnalyzer class. k-points are generated using the
+        get_kpoints() method for the reciprocal cell basis defined in the paper.
     """
 
     @requires(
@@ -1075,7 +1075,7 @@ class KPathLatimerMunro(KPathBase):
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
     upon application of lattice translations). There is no algorithm to
-	check for this, so if the input structure is
+        check for this, so if the input structure is
     incorrect, the class will output the incorrect k-path without
     any warning being issued.
     """
