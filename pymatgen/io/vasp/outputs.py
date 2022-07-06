@@ -401,7 +401,11 @@ class Vasprun(MSONable):
                 self.update_potcar_spec(parse_potcar_file)
                 self.update_charge_from_potcar(parse_potcar_file)
 
-        if self.incar.get("ALGO", "") not in ["CHI", "BSE"] and (not self.converged):
+        if (
+            self.incar.get("ALGO", "") not in ["CHI", "BSE"]
+            and (not self.converged)
+            and self.parameters.get("IBRION", -1) != 0
+        ):
             msg = f"{filename} is an unconverged VASP run.\n"
             msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
             msg += f"Ionic convergence reached: {self.converged_ionic}."
