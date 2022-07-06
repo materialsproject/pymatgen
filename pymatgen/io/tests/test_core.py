@@ -108,7 +108,7 @@ class TestInputSet:
         for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
             assert fname == exp_fname
             assert contents is exp_contents
-    
+
     def test_equality(self):
         sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
         sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
@@ -158,7 +158,7 @@ class TestInputSet:
             },
             kwarg1=1,
             kwarg2="hello",
-            kwarg3="goodbye"
+            kwarg3="goodbye",
         )
 
         assert inp_set == inp_set2
