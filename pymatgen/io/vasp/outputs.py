@@ -1171,7 +1171,7 @@ class Vasprun(MSONable):
             else:
                 nums = [len(list(g)) for _, g in itertools.groupby(self.atomic_symbols)]
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
-            charge = nelect - potcar_nelect
+            charge = potcar_nelect - nelect
 
             if charge:
                 for s in self.structures:
