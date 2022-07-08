@@ -871,7 +871,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 https://doi.org/10.1038/s41598-021-94550-5
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
-                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
+                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
             raise CompatibilityError(f"Invalid compat_type {compat_type}")
@@ -1198,7 +1198,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
         equilibria: Scheme to combine first-principles calculations of solids with
         experimental aqueous states, Phys. Rev. B - Condens. Matter Mater. Phys.
-        85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
+        85 (2012) 1-12. doi:10.1103/PhysRevB.85.235438.
     """
 
     def __init__(
