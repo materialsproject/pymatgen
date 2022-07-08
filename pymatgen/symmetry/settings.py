@@ -55,7 +55,7 @@ class JonesFaithfulTransformation:
         between magnetic and non-magnetic settings.
 
         See: International Tables for Crystallography (2016). Vol. A,
-        Chapter 1.5, pp. 75–106.
+        Chapter 1.5, pp. 75-106.
         """
         # using capital letters in violation of PEP8 to
         # be consistent with variables in supplied reference,
