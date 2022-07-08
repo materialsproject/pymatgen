@@ -13,7 +13,7 @@ citing the following work::
 as well as::
 
     Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
-    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
+    Surface Science, 2013, 617, 53-59, doi:10.1016/j.susc.2013.05.016.
 """
 
 import copy
@@ -1422,7 +1422,7 @@ class ReconstructionGenerator:
 
                         Wood, E. A. (1964). Vocabulary of surface
                         crystallography. Journal of Applied Physics, 35(4),
-                        1306–1312.
+                        1306-1312.
 
                     "transformation_matrix" (numpy array): A 3x3 matrix to
                         transform the slab. Only the a and b lattice vectors

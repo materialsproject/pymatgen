@@ -952,7 +952,7 @@ class MPScanRelaxSet(DictSet):
         References:
             [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of
             generalized Monkhorst-Pack grids through the use of informatics,
-            Phys. Rev. B. 93 (2016) 1–10. doi:10.1103/PhysRevB.93.155109.
+            Phys. Rev. B. 93 (2016) 1-10. doi:10.1103/PhysRevB.93.155109.
         """
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
