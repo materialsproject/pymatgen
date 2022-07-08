@@ -739,6 +739,8 @@ class VasprunTest(PymatgenTest):
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
         self.assertEqual(vasprun.structures[0].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
         vpath = self.TEST_FILES_DIR / "vasprun.split.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.split.charged.gz"
@@ -746,6 +748,8 @@ class VasprunTest(PymatgenTest):
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 0), 7)
         self.assertEqual(vasprun.structures[-1].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
     def test_kpointset_electronvelocities(self):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
