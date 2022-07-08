@@ -90,7 +90,7 @@ class VasprunTest(PymatgenTest):
     def test_optical_absorption_coeff(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
         absorption_coeff = v.optical_absorption_coeff
-        self.assertEqual(absorption_coeff[1], 24966408728.917931)
+        self.assertEqual(absorption_coeff[1], 0.13254281688694558)
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with self.assertRaises(NotImplementedError):
@@ -738,14 +738,18 @@ class VasprunTest(PymatgenTest):
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
-        self.assertEqual(vasprun.structures[0].charge, 1)
+        self.assertEqual(vasprun.structures[0].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
         vpath = self.TEST_FILES_DIR / "vasprun.split.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.split.charged.gz"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 0), 7)
-        self.assertEqual(vasprun.structures[-1].charge, 1)
+        self.assertEqual(vasprun.structures[-1].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
     def test_kpointset_electronvelocities(self):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"

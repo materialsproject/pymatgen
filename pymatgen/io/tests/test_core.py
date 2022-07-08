@@ -86,7 +86,8 @@ class TestInputSet:
         with pytest.raises(AttributeError):
             inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
-        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set, expected):
+
+        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
             assert fname == exp_fname
             assert contents is exp_contents
 
@@ -104,9 +105,66 @@ class TestInputSet:
 
         assert len(inp_set) == 2
         expected = [("cif1", sif1), ("cif3", sif3)]
-        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set, expected):
+        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
             assert fname == exp_fname
             assert contents is exp_contents
+
+    def test_equality(self):
+        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
+        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+
+        inp_set = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+            },
+            kwarg1=1,
+            kwarg2="hello",
+        )
+
+        inp_set2 = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+            },
+            kwarg1=1,
+            kwarg2="hello",
+        )
+
+        inp_set3 = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+                "cif3": sif3,
+            },
+            kwarg1=1,
+            kwarg2="hello",
+        )
+
+        inp_set4 = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+            },
+            kwarg1=1,
+            kwarg2="goodbye",
+        )
+
+        inp_set5 = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+            },
+            kwarg1=1,
+            kwarg2="hello",
+            kwarg3="goodbye",
+        )
+
+        assert inp_set == inp_set2
+        assert inp_set != inp_set3
+        assert inp_set != inp_set4
+        assert inp_set != inp_set5
 
     def test_msonable(self):
         sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
@@ -127,7 +185,7 @@ class TestInputSet:
         assert temp_inp_set.kwarg1 == 1
         assert temp_inp_set.kwarg2 == "hello"
         assert temp_inp_set._kwargs == inp_set._kwargs
-        for (fname, contents), (fname2, contents2) in zip(temp_inp_set, inp_set):
+        for (fname, contents), (fname2, contents2) in zip(temp_inp_set.items(), inp_set.items()):
             assert fname == fname2
             assert contents.structure == contents2.structure
 

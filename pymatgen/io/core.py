@@ -50,6 +50,9 @@ class InputFile(MSONable):
 
     All InputFile classes must implement a get_string method, which
     is called by write_file.
+
+    If InputFile classes implement an __init__ method, they must assign all
+    arguments to __init__ as attributes.
     """
 
     @abc.abstractmethod
@@ -141,7 +144,7 @@ class InputSet(MSONable, MutableMapping):
         return len(self.inputs.keys())
 
     def __iter__(self):
-        return iter(self.inputs.items())
+        return iter(self.inputs)
 
     def __getitem__(self, key):
         return self.inputs[key]
@@ -151,6 +154,9 @@ class InputSet(MSONable, MutableMapping):
 
     def __delitem__(self, key):
         del self.inputs[key]
+
+    def __eq__(self, other):
+        return (self.inputs == other.inputs) and (self.__dict__ == other.__dict__)
 
     def write_input(
         self,
