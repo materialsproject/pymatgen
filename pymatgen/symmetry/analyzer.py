@@ -12,6 +12,8 @@ v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
        as an interface to spglib for pymatgen Structures.
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import logging
@@ -1118,7 +1120,7 @@ class PointGroupAnalyzer:
                             self.symmops.append(op)
                             if len(self.rot_sym) > 1:
                                 mirror_type = "d"
-                                for v, r in self.rot_sym:
+                                for v, _ in self.rot_sym:
                                     if np.linalg.norm(v - axis) >= self.tol:
                                         if np.dot(v, normal) < self.tol:
                                             mirror_type = "v"

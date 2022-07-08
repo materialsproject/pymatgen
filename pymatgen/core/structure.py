@@ -457,17 +457,15 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for site in self.sites:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike]) -> None:
+    def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]]) -> None:
         """
         Swap species. Note that this method modifies the structure in place.
 
         Args:
-            species_mapping (dict): dict of species to swap. Species can be
-                elements too. E.g., {Element("Li"): Element("Na")} performs
-                a Li for Na substitution. The second species can be a
-                sp_and_occu dict. For example, a site with 0.5 Si that is
-                passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C.
+            species_mapping (dict): dict of species to swap. Species can be elements too. E.g.,
+                {Element("Li"): Element("Na")} performs a Li for Na substitution. The second species can
+                be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
+                {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
         """
 
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}

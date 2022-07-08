@@ -35,6 +35,7 @@ from scipy import constants
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
@@ -42,6 +43,7 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.typing import ArrayLike
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -905,30 +907,20 @@ class BoltztrapAnalyzer:
                 kpt_line = [kp.frac_coords for kp in kpt_line]
                 labels_dict = {k: labels_dict[k].frac_coords for k in labels_dict}
 
-            idx_list = []
-            #       kpt_dense=np.array([kp for kp in self._bz_kpoints])
-            for i, kp in enumerate(kpt_line):
-                w = []
+            _idx_list: list[tuple[int, ArrayLike]] = []
+            for idx, kp in enumerate(kpt_line):
+                w: list[bool] = []
                 prec = 1e-05
                 while len(w) == 0:
-                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]
+                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]  # type: ignore
                     prec *= 10
 
-                # print( prec )
-                idx_list.append([i, w[0]])
+                _idx_list.append((idx, w[0]))
 
-                # if len(w)>0:
-                #     idx_list.append([i,w[0]])
-                # else:
-                #     w=np.where(np.all(np.abs(kp.frac_coords-self._bz_kpoints)
-                # <[1e-04,1e-04,1e-04],axis=1))[0]
-                #     idx_list.append([i,w[0]])
+            idx_list = np.array(_idx_list)
 
-            idx_list = np.array(idx_list)
-            # print( idx_list.shape )
-
-            bands_dict = {Spin.up: (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T[:, idx_list[:, 1]].tolist()}
-            # bz_kpoints = bz_kpoints[idx_list[:,1]].tolist()
+            bz_bands_in_eV = (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T
+            bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}  # type: ignore
 
             sbs = BandStructureSymmLine(
                 kpt_line,
@@ -1646,14 +1638,16 @@ class BoltztrapAnalyzer:
 
     def get_complete_dos(self, structure: Structure, analyzer_for_second_spin=None):
         """
-        Gives a CompleteDos object with the DOS from the interpolated
-        projected band structure
+        Gives a CompleteDos object with the DOS from the interpolated projected band structure
+
         Args:
             the structure (necessary to identify sites for projection)
             analyzer_for_second_spin must be specified to have a
             CompleteDos with both Spin components
+
         Returns:
             a CompleteDos object
+
         Example of use in case of spin polarized case:
 
             BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
@@ -1663,9 +1657,8 @@ class BoltztrapAnalyzer:
             an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
 
             cdos=an_up.get_complete_dos(bs.structure,an_dw)
-
         """
-        pdoss = {}
+        pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, ArrayLike]]] = {}
         spin_1 = list(self.dos.densities.keys())[0]
 
         if analyzer_for_second_spin:
