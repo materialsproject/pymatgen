@@ -146,6 +146,7 @@ class QChemDictSet(QCInput):
         self.new_geom_opt = new_geom_opt
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
+        self.extra_scf_print = extra_scf_print
 
         pcm_defaults = {
             "heavypoints": "194",
