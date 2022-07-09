@@ -123,8 +123,8 @@ class DeformedStructureSet(collections.abc.Sequence):
         shear_strains = shear_strains or [-0.06, -0.03, 0.03, 0.06]
 
         self.undeformed_structure = structure
-        self.deformations = []
-        self.def_structs = []
+        self.deformations: list[Deformation] = []
+        self.def_structs: list[Structure] = []
 
         # Generate deformations
         for ind in [(0, 0), (1, 1), (2, 2)]:

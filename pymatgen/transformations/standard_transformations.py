@@ -22,12 +22,14 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import (
     PartialRemoveSitesTransformation,
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+from pymatgen.util.typing import SpeciesLike
 
 logger = logging.getLogger(__name__)
 
@@ -300,11 +302,14 @@ class SubstitutionTransformation(AbstractTransformation):
     This transformation substitutes species for one another.
     """
 
-    def __init__(self, species_map: dict[str, str]) -> None:
+    def __init__(
+        self,
+        species_map: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]] | list[tuple[SpeciesLike, SpeciesLike]],
+    ) -> None:
         """
         Args:
             species_map: A dict or list of tuples containing the species mapping in
-                string-string pairs. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
+                string-string pairs. E.g., {"Li": "Na"} or [("Fe2+","Mn2+")].
                 Multiple substitutions can be done. Overloaded to accept
                 sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
                 which substitutes a single species with multiple species to
@@ -314,7 +319,7 @@ class SubstitutionTransformation(AbstractTransformation):
         self._species_map = dict(species_map)
         for k, v in self._species_map.items():
             if isinstance(v, (tuple, list)):
-                self._species_map[k] = dict(v)
+                self._species_map[k] = dict(v)  # type: ignore
 
     def apply_transformation(self, structure: Structure) -> Structure:
         """
@@ -331,7 +336,7 @@ class SubstitutionTransformation(AbstractTransformation):
             if isinstance(v, dict):
                 value = {get_el_sp(x): y for x, y in v.items()}
             else:
-                value = get_el_sp(v)
+                value = get_el_sp(v)  # type: ignore
             species_map[get_el_sp(k)] = value
         s = structure.copy()
         s.replace_species(species_map)
@@ -414,7 +419,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
     Remove fraction of specie from a structure.
 
-    Requires an oxidation state decorated structure for ewald sum to be
+    Requires an oxidation state decorated structure for Ewald sum to be
     computed.
 
     Given that the solution to selecting the right removals is NP-hard, there
@@ -497,7 +502,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 class OrderDisorderedStructureTransformation(AbstractTransformation):
     """
     Order a disordered structure. The disordered structure must be oxidation
-    state decorated for ewald sum to be computed. No attempt is made to perform
+    state decorated for Ewald sum to be computed. No attempt is made to perform
     symmetry determination to reduce the number of combinations.
 
     Hence, attempting to performing ordering on a large number of disordered
@@ -580,8 +585,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             for i, site in enumerate(structure):
                 structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}
 
-        equivalent_sites = []
-        exemplars = []
+        equivalent_sites: list[list[int]] = []
+        exemplars: list[PeriodicSite] = []
         # generate list of equivalent sites to order
         # equivalency is determined by sp_and_occu and symmetry
         # if symmetrized structure is true
@@ -950,7 +955,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         species = [dict(sp) for sp in structure.species_and_occu]
 
         for sp in species:
-            for k, v in sp.items():
+            for k in sp:
                 old_occ = sp[k]
                 new_occ = float(Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
@@ -1063,7 +1068,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         self.params_percent_change = []
         for i, p in enumerate(relax_params):
-            self.params_percent_change.append(relax_params[i] / unrelax_params[i])
+            self.params_percent_change.append(p / unrelax_params[i])
 
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure

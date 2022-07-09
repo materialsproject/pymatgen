@@ -209,7 +209,7 @@ class BoltztrapRunner(MSONable):
         if self.run_type in ("DOS", "BANDS"):
             self._auto_set_energy_range()
         self.timeout = timeout
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
 
     def _auto_set_energy_range(self):
         """
@@ -626,13 +626,13 @@ class BoltztrapRunner(MSONable):
 
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
-                if time.time() - self.start_time > self.timeout:
+                if time.perf_counter() - self.start_time > self.timeout:
                     raise BoltztrapError(f"no doping convergence after timeout of {self.timeout} s")
 
                 logging.info(f"lpfac, energy_grid: {self.lpfac} {self.energy_grid}")
 
                 while self.lpfac <= max_lpfac and not converged:
-                    if time.time() - self.start_time > self.timeout:
+                    if time.perf_counter() - self.start_time > self.timeout:
                         raise BoltztrapError(f"no doping convergence after timeout of {self.timeout} s")
 
                     if write_input:

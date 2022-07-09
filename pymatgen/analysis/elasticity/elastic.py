@@ -6,6 +6,7 @@ This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
+from __future__ import annotations
 
 import itertools
 import warnings
@@ -442,7 +443,9 @@ class ElasticTensor(NthOrderElasticTensor):
         ]
         return {prop: getattr(self, prop) for prop in props}
 
-    def get_structure_property_dict(self, structure: Structure, include_base_props=True, ignore_errors=False):
+    def get_structure_property_dict(
+        self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
+    ) -> dict[str, float | Structure | None]:
         """
         returns a dictionary of properties derived from the elastic tensor
         and an associated structure
@@ -465,6 +468,7 @@ class ElasticTensor(NthOrderElasticTensor):
             "cahill_thermalcond",
             "debye_temperature",
         ]
+        sp_dict: dict[str, float | Structure | None]
         if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
             sp_dict = {prop: None for prop in s_props}
         else:
@@ -983,7 +987,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
         else:
             veq_stress = find_eq_stress(strains, stresses).voigt
 
-    for n, ind in enumerate(independent):
+    for ind in independent:
         # match strains with templates
         template = np.zeros(6, dtype=bool)
         np.put(template, ind, True)
@@ -1036,7 +1040,7 @@ def generate_pseudo(strain_states, order=3):
         for n, strain_v in enumerate(ni):
             # Get expressions
             exps = carr.copy()
-            for i in range(degree - 1):
+            for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
             exps /= np.math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]

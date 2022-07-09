@@ -138,7 +138,7 @@ class ValenceIonicRadiusEvaluator:
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(vnn.get_cn(self._structure, i)))
             try:
-                tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
+                tab_oxi_states = sorted(map(int, _ion_radii[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
@@ -150,7 +150,7 @@ class ValenceIonicRadiusEvaluator:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
                 except Exception:
-                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)].keys()))
+                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)]))
                     new_coord_no = nearest_key(tab_coords, coord_no)
                     i = 0
                     for val in tab_coords:
@@ -592,7 +592,7 @@ class NearNeighbors:
         cn = self.get_cn(structure, n)
         int_cn = [int(k_cn) for k_cn in cn_opt_params.keys()]
         if cn in int_cn:
-            names = list(cn_opt_params[cn].keys())
+            names = list(cn_opt_params[cn])
             types = []
             params = []
             for name in names:
@@ -1956,7 +1956,7 @@ def get_okeeffe_params(el_symbol):
     """
 
     el = Element(el_symbol)
-    if el not in list(BV_PARAMS.keys()):
+    if el not in list(BV_PARAMS):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
             f' "{el_symbol}" in "BV_PARAMS"dictionary'

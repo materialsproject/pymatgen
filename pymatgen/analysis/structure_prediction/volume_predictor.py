@@ -199,7 +199,7 @@ class DLSVolumePredictor:
                 r, k = bond_params[sp.symbol]["r"], bond_params[sp.symbol]["k"]
                 bp_dict[sp] = float(r) + float(k) * std_x
 
-        # Structure object that include only sites with known atomic radii.
+        # Structure object that includes only sites with known atomic radii.
         reduced_structure = Structure.from_sites(sub_sites)
         smallest_ratio = None
 
@@ -213,6 +213,7 @@ class DLSVolumePredictor:
                 if sp1 in bp_dict and sp2 in bp_dict:
                     expected_dist = bp_dict[sp1] + bp_dict[sp2]
                 else:
+                    assert sp1.atomic_radius is not None
                     expected_dist = sp1.atomic_radius + sp2.atomic_radius
 
                 if not smallest_ratio or nn.nn_distance / expected_dist < smallest_ratio:

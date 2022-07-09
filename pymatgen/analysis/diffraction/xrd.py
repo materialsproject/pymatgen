@@ -108,7 +108,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     """
 
     # Tuple of available radiation keywords.
-    AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
+    AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
     def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
         """
@@ -206,7 +206,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         fcoords = np.array(_fcoords)
         occus = np.array(_occus)
         dwfactors = np.array(_dwfactors)
-        peaks: dict[float, tuple[float, list[tuple[int, ...]], float]] = {}
+        peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
         two_thetas: list[float] = []
 
         for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
@@ -263,11 +263,11 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                     np.abs(np.subtract(two_thetas, two_theta)) < AbstractDiffractionPatternCalculator.TWO_THETA_TOL
                 )
                 if len(ind[0]) > 0:
-                    peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor  # type: ignore
-                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
+                    peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
+                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))  # type: ignore
                 else:
                     d_hkl = 1 / g_hkl
-                    peaks[two_theta] = (i_hkl * lorentz_factor, [tuple(hkl)], d_hkl)
+                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
@@ -276,10 +276,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         y = []
         hkls = []
         d_hkls = []
-        for k in sorted(peaks.keys()):
+        for k in sorted(peaks):
             v = peaks[k]
             fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
+            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:  # type: ignore
                 x.append(k)
                 y.append(v[0])
                 hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])

@@ -147,7 +147,7 @@ class StructureGraph(MSONable):
 
         # tidy up edge attr dicts, reading to/from json duplicates
         # information
-        for u, v, k, d in self.graph.edges(keys=True, data=True):
+        for _, _, _, d in self.graph.edges(keys=True, data=True):
             if "id" in d:
                 del d["id"]
             if "key" in d:
@@ -226,7 +226,7 @@ class StructureGraph(MSONable):
                 raise ValueError("Edges must be given as (from_index, to_index, from_image, to_image) tuples")
 
             if props is not None:
-                if "weight" in props.keys():
+                if "weight" in props:
                     weight = props["weight"]
                     del props["weight"]
                 else:
@@ -421,7 +421,7 @@ class StructureGraph(MSONable):
         # (site, jimage) pair
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data:
-            for key, d in existing_edge_data.items():
+            for d in existing_edge_data.values():
                 if d["to_jimage"] == to_jimage:
                     if warn_duplicates:
                         warnings.warn(
@@ -570,7 +570,7 @@ class StructureGraph(MSONable):
             self.graph[from_index][to_index][edge_index]["weight"] = new_weight
 
         if new_edge_properties is not None:
-            for prop in list(new_edge_properties.keys()):
+            for prop in list(new_edge_properties):
                 self.graph[from_index][to_index][edge_index][prop] = new_edge_properties[prop]
 
     def break_edge(self, from_index, to_index, to_jimage=None, allow_reverse=False):
@@ -710,16 +710,16 @@ class StructureGraph(MSONable):
         func_grp.remove_species("X")
 
         if graph_dict is not None:
-            for (u, v) in graph_dict.keys():
+            for (u, v) in graph_dict:
                 edge_props = graph_dict[(u, v)]
-                if "to_jimage" in edge_props.keys():
+                if "to_jimage" in edge_props:
                     to_jimage = edge_props["to_jimage"]
                     del edge_props["to_jimage"]
                 else:
                     # By default, assume that all edges should stay remain
                     # inside the initial image
                     to_jimage = (0, 0, 0)
-                if "weight" in edge_props.keys():
+                if "weight" in edge_props:
                     weight = edge_props["weight"]
                     del edge_props["weight"]
                 self.add_edge(
@@ -1148,7 +1148,7 @@ class StructureGraph(MSONable):
             # create a map of nodes from original graph to its image
             mapping = {n: n + len(new_sites) for n in range(len(self.structure))}
 
-            for idx, site in enumerate(self.structure):
+            for site in self.structure:
                 s = PeriodicSite(
                     site.species,
                     site.coords + v,
@@ -1290,8 +1290,8 @@ class StructureGraph(MSONable):
         logger.debug(f"Removing {len(edges_to_remove)} edges, adding {len(edges_to_add)} new edges.")
 
         # add/delete marked edges
-        for edges_to_remove in edges_to_remove:
-            new_g.remove_edge(*edges_to_remove)
+        for edge in edges_to_remove:
+            new_g.remove_edge(*edge)
         for (u, v, d) in edges_to_add:
             new_g.add_edge(u, v, **d)
 
@@ -1618,7 +1618,7 @@ class MoleculeGraph(MSONable):
 
         # tidy up edge attr dicts, reading to/from json duplicates
         # information
-        for u, v, k, d in self.graph.edges(keys=True, data=True):
+        for _, _, _, d in self.graph.edges(keys=True, data=True):
             if "id" in d:
                 del d["id"]
             if "key" in d:
@@ -1696,7 +1696,7 @@ class MoleculeGraph(MSONable):
                 raise ValueError("Edges must be given as (from_index, to_index) tuples")
 
             if props is not None:
-                if "weight" in props.keys():
+                if "weight" in props:
                     weight = props["weight"]
                     del props["weight"]
                 else:
@@ -1973,7 +1973,7 @@ class MoleculeGraph(MSONable):
             self.graph[from_index][to_index][0]["weight"] = new_weight
 
         if new_edge_properties is not None:
-            for prop in list(new_edge_properties.keys()):
+            for prop in new_edge_properties:
                 self.graph[from_index][to_index][0][prop] = new_edge_properties[prop]
 
     def break_edge(self, from_index, to_index, allow_reverse=False):
@@ -2077,7 +2077,7 @@ class MoleculeGraph(MSONable):
 
             properties = {}
             for prop_set in raw_props.values():
-                for prop in prop_set.keys():
+                for prop in prop_set:
                     if prop in properties:
                         properties[prop].append(prop_set[prop])
                     else:
@@ -2141,7 +2141,7 @@ class MoleculeGraph(MSONable):
 
         # alter any bonds before partition, to avoid remapping
         if alterations is not None:
-            for (u, v) in alterations.keys():
+            for (u, v) in alterations:
                 if "weight" in alterations[(u, v)]:
                     weight = alterations[(u, v)]["weight"]
                     del alterations[(u, v)]["weight"]
@@ -2295,7 +2295,7 @@ class MoleculeGraph(MSONable):
             for (u, v) in list(func_grp.graph.edges()):
                 edge_props = func_grp.graph.get_edge_data(u, v)[0]
                 weight = None
-                if "weight" in edge_props.keys():
+                if "weight" in edge_props:
                     weight = edge_props["weight"]
                     del edge_props["weight"]
                 self.add_edge(mapping[u], mapping[v], weight=weight, edge_properties=edge_props)
@@ -2317,9 +2317,9 @@ class MoleculeGraph(MSONable):
             func_grp.remove_species("X")
 
             if graph_dict is not None:
-                for (u, v) in graph_dict.keys():
+                for (u, v) in graph_dict:
                     edge_props = graph_dict[(u, v)]
-                    if "weight" in edge_props.keys():
+                    if "weight" in edge_props:
                         weight = edge_props["weight"]
                         del edge_props["weight"]
                     self.add_edge(
@@ -2338,7 +2338,7 @@ class MoleculeGraph(MSONable):
                 for (u, v) in list(graph.graph.edges()):
                     edge_props = graph.graph.get_edge_data(u, v)[0]
                     weight = None
-                    if "weight" in edge_props.keys():
+                    if "weight" in edge_props:
                         weight = edge_props["weight"]
                         del edge_props["weight"]
 
@@ -2428,7 +2428,7 @@ class MoleculeGraph(MSONable):
                 sizes[neighbor[2]] = len(nx.descendants(disconnected, neighbor[2]))
 
             keep = max(sizes, key=lambda x: sizes[x])
-            for i in sizes.keys():
+            for i in sizes:
                 if i != keep:
                     to_remove.add(i)
 

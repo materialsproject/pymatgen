@@ -619,7 +619,7 @@ class TopographyAnalyzer:
         # mapping all sites to the standard unit cell
         s = structure.copy()
         constrained_sites = []
-        for i, site in enumerate(s):
+        for site in s:
             if (
                 site.frac_coords[2] >= constrained_c_frac - thickness
                 and site.frac_coords[2] <= constrained_c_frac + thickness
@@ -1386,10 +1386,10 @@ def generic_groupby(list_in, comp=operator.eq):
         list_out[i1] = label_num
         for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:
             if comp(list_in[i1], list_in[i2]):
-                if list_out[i2] is None:
+                if ls2 is None:
                     list_out[i2] = list_out[i1]
                 else:
-                    list_out[i1] = list_out[i2]
+                    list_out[i1] = ls2
                     label_num -= 1
         label_num += 1
     return list_out
@@ -1442,7 +1442,7 @@ def tune_for_gamma(lattice, epsilon):
     number of reciprocal and real lattice vectors,
     given the suggested cut off radii by Kumagai and Oba
     """
-    logger.debug("Converging for ewald parameter...")
+    logger.debug("Converging for Ewald parameter...")
     prec = 25  # a reasonable precision to tune gamma for
 
     gamma = (2 * np.average(lattice.abc)) ** (-1 / 2.0)

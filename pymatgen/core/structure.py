@@ -277,7 +277,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         props = {}  # type: Dict[str, List]
         prop_keys = set()  # type: Set[str]
         for site in self:
-            prop_keys.update(site.properties.keys())
+            prop_keys.update(site.properties)
 
         for k in prop_keys:
             props[k] = [site.properties.get(k, None) for site in self]
@@ -469,8 +469,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
 
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
-        sp_to_replace = set(sp_mapping.keys())
-        sp_in_structure = set(self.composition.keys())
+        sp_to_replace = set(sp_mapping)
+        sp_in_structure = set(self.composition)
         if not sp_in_structure.issuperset(sp_to_replace):
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
@@ -2067,7 +2067,7 @@ class IStructure(SiteCollection, MSONable):
             if not use_site_props:
                 return site.species_string
             d = [site.species_string]
-            for k in sorted(site.properties.keys()):
+            for k in sorted(site.properties):
                 d.append(k + "=" + str(site.properties[k]))
             return ", ".join(d)
 
@@ -2270,7 +2270,7 @@ class IStructure(SiteCollection, MSONable):
         outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
-        keys = sorted(props.keys())
+        keys = sorted(props)
         for i, site in enumerate(self):
             row = [str(i), site.species_string]
             row.extend([to_s(j) for j in site.frac_coords])
@@ -2385,7 +2385,7 @@ class IStructure(SiteCollection, MSONable):
         """
         data = []
         site_properties = self.site_properties
-        prop_keys = list(site_properties.keys())
+        prop_keys = list(site_properties)
         for site in self:
             row = [site.species] + list(site.frac_coords) + list(site.coords)
             for k in prop_keys:

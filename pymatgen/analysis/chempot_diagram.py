@@ -102,7 +102,7 @@ class ChemicalPotentialDiagram(MSONable):
             raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")
 
         if len(self.el_refs) != self.dim:
-            missing = set(self.elements).difference(self.el_refs.keys())
+            missing = set(self.elements).difference(self.el_refs)
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
     def get_plot(
@@ -423,7 +423,7 @@ class ChemicalPotentialDiagram(MSONable):
         3-dimensional chemical potential diagram.
         """
         x, y, z = [], [], []
-        for phase, simplexes in domains.items():
+        for simplexes in domains.values():
             if simplexes:
                 for s in simplexes:
                     x.extend(s.coords[:, 0].tolist() + [None])
@@ -576,7 +576,7 @@ class ChemicalPotentialDiagram(MSONable):
         return axes_layout
 
     @property  # type: ignore
-    @lru_cache(maxsize=1)
+    @lru_cache(maxsize=1)  # noqa: B019 functools.lru_cache on methods can lead to memory leaks.
     def domains(self) -> dict[str, np.ndarray]:
         """Mapping of formulas to array of domain boundary points"""
         return self._get_domains()

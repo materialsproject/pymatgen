@@ -174,7 +174,7 @@ class FunctionalGroupExtractor:
 
             ons = len([n for n in neighbor_spec if n in ["O", "N", "S"]])
 
-            if len(neighbors.keys()) == 4 and ons >= 2:
+            if len(neighbors) == 4 and ons >= 2:
                 specials.add(node)
 
         # Condition four: oxirane/aziridine/thiirane rings
