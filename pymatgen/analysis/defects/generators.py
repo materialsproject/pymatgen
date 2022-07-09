@@ -147,15 +147,12 @@ class SubstitutionGenerator(DefectGenerator):
 
 class InterstitialGenerator(DefectGenerator):
     """
-    Generator for interstitials at positions
-    where the interstitialcy is coordinated by nearest neighbors
-    in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra). The algorithm is called InFiT
-    (Interstitialcy Finding Tool), it was introducted by
-    Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
-    and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
-    and it is used by the Python Charged Defect Toolkit
-    (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
+    Generator for interstitials at positions where the interstitialcy is coordinated by
+    nearest neighbors in a way that resembles basic structure motifs (e.g., tetrahedra,
+    octahedra). The algorithm is called InFiT (Interstitialcy Finding Tool), it was
+    introducted by Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain, and Maciej
+    Haranczyk (Front. Mater., 4, 34, 2017), and it is used by the Python Charged Defect
+    Toolkit (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
     """
 
     def __init__(self, structure: Structure, element):
@@ -169,19 +166,19 @@ class InterstitialGenerator(DefectGenerator):
         self.element = element
         interstitial_finder = StructureMotifInterstitial(self.structure, self.element)
 
-        self.unique_defect_seq = []
+        self.unique_defect_seq: list[Interstitial] = []
         # eliminate sublattice equivalent defects which may
         # have slipped through interstitial finder
         pdc = PointDefectComparator()
 
         for poss_site in interstitial_finder.enumerate_defectsites():
-            now_defect = Interstitial(self.structure, poss_site)
+            new_defect = Interstitial(self.structure, poss_site)
             append_defect = True
             for unique_defect in self.unique_defect_seq:
-                if pdc.are_equal(now_defect, unique_defect):
+                if pdc.are_equal(new_defect, unique_defect):
                     append_defect = False
             if append_defect:
-                self.unique_defect_seq.append(now_defect)
+                self.unique_defect_seq.append(new_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 
@@ -230,17 +227,17 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         # do additional screening for sublattice equivalent
         # defects which may have slipped through
         pdc = PointDefectComparator()
-        self.unique_defect_seq = []
+        self.unique_defect_seq: list[Interstitial] = []
         for poss_site_list in equiv_sites_list:
             poss_site = poss_site_list[0]
             if poss_site not in self.structure:
-                now_defect = Interstitial(self.structure, poss_site)
+                new_defect = Interstitial(self.structure, poss_site)
                 append_defect = True
                 for unique_defect in self.unique_defect_seq:
-                    if pdc.are_equal(now_defect, unique_defect):
+                    if pdc.are_equal(new_defect, unique_defect):
                         append_defect = False
                 if append_defect:
-                    self.unique_defect_seq.append(now_defect)
+                    self.unique_defect_seq.append(new_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 

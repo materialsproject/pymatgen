@@ -5,6 +5,8 @@
 This module implements an XRD pattern calculator.
 """
 
+from __future__ import annotations
+
 import json
 import os
 from math import asin, cos, degrees, pi, radians, sin
@@ -181,7 +183,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         # vectorized computation of atomic scattering factors later. Note that these are not
         # necessarily the same size as the structure as each partially occupied specie occupies its
         # own position in the flattened array.
-        _zs: list[int] = []
+        _zs = []
         _coeffs = []
         _fcoords = []
         _occus = []

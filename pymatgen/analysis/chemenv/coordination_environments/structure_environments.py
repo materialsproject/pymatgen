@@ -502,19 +502,19 @@ class StructureEnvironments(MSONable):
         distance_conditions = []
         for idp, dp_dict in enumerate(site_distance_parameters):
             distance_conditions.append([])
-            for inb, voro_nb_dict in enumerate(site_voronoi):
+            for inb, _ in enumerate(site_voronoi):
                 cond = inb in dp_dict["nb_indices"]
                 distance_conditions[idp].append(cond)
         # Precompute angle conditions
         angle_conditions = []
         for iap, ap_dict in enumerate(site_angle_parameters):
             angle_conditions.append([])
-            for inb, voro_nb_dict in enumerate(site_voronoi):
+            for inb, _ in enumerate(site_voronoi):
                 cond = inb in ap_dict["nb_indices"]
                 angle_conditions[iap].append(cond)
         # Precompute additional conditions
         precomputed_additional_conditions = {ac: [] for ac in additional_conditions}
-        for inb, voro_nb_dict in enumerate(site_voronoi):
+        for voro_nb_dict in site_voronoi:
             for ac in additional_conditions:
                 cond = self.AC.check_condition(
                     condition=ac,
@@ -1200,7 +1200,7 @@ class StructureEnvironments(MSONable):
                         "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "has_neighbors",
                         "self": "None",
-                        "other": set(other_site_nb_sets.keys()),
+                        "other": set(other_site_nb_sets),
                     }
                 )
                 continue
@@ -1209,13 +1209,13 @@ class StructureEnvironments(MSONable):
                     {
                         "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "has_neighbors",
-                        "self": set(self_site_nb_sets.keys()),
+                        "self": set(self_site_nb_sets),
                         "other": "None",
                     }
                 )
                 continue
-            self_site_cns = set(self_site_nb_sets.keys())
-            other_site_cns = set(other_site_nb_sets.keys())
+            self_site_cns = set(self_site_nb_sets)
+            other_site_cns = set(other_site_nb_sets)
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
@@ -1451,7 +1451,6 @@ class LightStructureEnvironments(MSONable):
                 raise ValueError("Set of neighbors contains duplicates !")
             self.all_nbs_sites_indices = sorted(myset)
             self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
-            self.all_nbs_sites_indices_and_image = []
 
         @property
         def neighb_coords(self):
@@ -1891,7 +1890,7 @@ class LightStructureEnvironments(MSONable):
         if self.statistics_dict is None:
             self.setup_statistic_lists()
         if statistics_fields == "ALL":
-            statistics_fields = list(self.statistics_dict.keys())
+            statistics_fields = list(self.statistics_dict)
         if bson_compatible:
             dd = jsanitize({field: self.statistics_dict[field] for field in statistics_fields})
         else:
@@ -2280,7 +2279,7 @@ class ChemicalEnvironments(MSONable):
                 "add_coord_geom",
                 f'Coordination geometry with mp_symbol "{mp_symbol}" is not valid',
             )
-        if mp_symbol in list(self.coord_geoms.keys()) and not override:
+        if mp_symbol in list(self.coord_geoms) and not override:
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
@@ -2315,7 +2314,7 @@ class ChemicalEnvironments(MSONable):
             break
         cn = symbol_cn_mapping[mp_symbol]
         out += f" => Coordination {cn} <=\n"
-        mp_symbols = list(self.coord_geoms.keys())
+        mp_symbols = list(self.coord_geoms)
         csms_wcs = [self.coord_geoms[mp_symbol]["other_symmetry_measures"]["csm_wcs_ctwcc"] for mp_symbol in mp_symbols]
         icsms_sorted = np.argsort(csms_wcs)
         mp_symbols = [mp_symbols[ii] for ii in icsms_sorted]
@@ -2343,7 +2342,7 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if the two ChemicalEnvironments objects are close to each other.
         """
-        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+        if set(self.coord_geoms) != set(other.coord_geoms):
             return False
         for mp_symbol, cg_dict_self in self.coord_geoms.items():
             cg_dict_other = other[mp_symbol]
@@ -2377,7 +2376,7 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+        if set(self.coord_geoms) != set(other.coord_geoms):
             return False
         for mp_symbol, cg_dict_self in self.coord_geoms.items():
             cg_dict_other = other.coord_geoms[mp_symbol]
