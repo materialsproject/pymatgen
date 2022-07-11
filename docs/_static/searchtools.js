@@ -4,7 +4,7 @@
  *
  * Sphinx JavaScript utilities for the full-text search.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -59,10 +59,10 @@ var Search = {
   _pulse_status : -1,
 
   htmlToText : function(htmlString) {
-      var virtualDocument = document.implementation.createHTMLDocument('virtual');
-      var htmlElement = $(htmlString, virtualDocument);
-      htmlElement.find('.headerlink').remove();
-      docContent = htmlElement.find('[role=main]')[0];
+      var htmlElement = document.createElement('span');
+      htmlElement.innerHTML = htmlString;
+      $(htmlElement).find('.headerlink').remove();
+      docContent = $(htmlElement).find('[role=main]')[0];
       if(docContent === undefined) {
           console.warn("Content block not found. Sphinx search tries to obtain it " +
                        "via '[role=main]'. Could you check your theme or template.");
@@ -166,12 +166,17 @@ var Search = {
           objectterms.push(tmp[i].toLowerCase());
       }
 
-      if ($u.indexOf(stopwords, tmp[i].toLowerCase()) != -1 || tmp[i] === "") {
+      if ($u.indexOf(stopwords, tmp[i].toLowerCase()) != -1 || tmp[i].match(/^\d+$/) ||
+          tmp[i] === "") {
         // skip this "word"
         continue;
       }
       // stem the word
       var word = stemmer.stemWord(tmp[i].toLowerCase());
+      // prevent stemmer from cutting word smaller than two chars
+      if(word.length < 3 && tmp[i].length >= 3) {
+        word = tmp[i];
+      }
       var toAppend;
       // select the correct list
       if (word[0] == '-') {
@@ -244,7 +249,7 @@ var Search = {
       // results left, load the summary and display it
       if (results.length) {
         var item = results.pop();
-        var listItem = $('<li></li>');
+        var listItem = $('<li style="display:none"></li>');
         var requestUrl = "";
         var linkUrl = "";
         if (DOCUMENTATION_OPTIONS.BUILDER === 'dirhtml') {
@@ -269,31 +274,28 @@ var Search = {
         if (item[3]) {
           listItem.append($('<span> (' + item[3] + ')</span>'));
           Search.output.append(listItem);
-          setTimeout(function() {
+          listItem.slideDown(5, function() {
             displayNextItem();
-          }, 5);
-        } else if (DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY) {
+          });
+        } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
           $.ajax({url: requestUrl,
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;
                     if (data !== '' && data !== undefined) {
-                      var summary = Search.makeSearchSummary(data, searchterms, hlterms);
-                      if (summary) {
-                        listItem.append(summary);
-                      }
+                      listItem.append(Search.makeSearchSummary(data, searchterms, hlterms));
                     }
                     Search.output.append(listItem);
-                    setTimeout(function() {
+                    listItem.slideDown(5, function() {
                       displayNextItem();
-                    }, 5);
+                    });
                   }});
         } else {
-          // just display title
+          // no source available, just display title
           Search.output.append(listItem);
-          setTimeout(function() {
+          listItem.slideDown(5, function() {
             displayNextItem();
-          }, 5);
+          });
         }
       }
       // search finished, update title and status message
@@ -324,9 +326,7 @@ var Search = {
     var results = [];
 
     for (var prefix in objects) {
-      for (var iMatch = 0; iMatch != objects[prefix].length; ++iMatch) {
-        var match = objects[prefix][iMatch];
-        var name = match[4];
+      for (var name in objects[prefix]) {
         var fullname = (prefix ? prefix + '.' : '') + name;
         var fullnameLower = fullname.toLowerCase()
         if (fullnameLower.indexOf(object) > -1) {
@@ -340,6 +340,7 @@ var Search = {
           } else if (parts[parts.length - 1].indexOf(object) > -1) {
             score += Scorer.objPartialMatch;
           }
+          var match = objects[prefix][name];
           var objname = objnames[match[1]][2];
           var title = titles[match[0]];
           // If more than one term searched for, we require other words to be
@@ -380,13 +381,6 @@ var Search = {
   },
 
   /**
-   * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-   */
-  escapeRegExp : function(string) {
-    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-  },
-
-  /**
    * search for full-text terms in the index
    */
   performTermsSearch : function(searchterms, excluded, terms, titleterms) {
@@ -409,14 +403,13 @@ var Search = {
       ];
       // add support for partial matches
       if (word.length > 2) {
-        var word_regex = this.escapeRegExp(word);
         for (var w in terms) {
-          if (w.match(word_regex) && !terms[word]) {
+          if (w.match(word) && !terms[word]) {
             _o.push({files: terms[w], score: Scorer.partialTerm})
           }
         }
         for (var w in titleterms) {
-          if (w.match(word_regex) && !titleterms[word]) {
+          if (w.match(word) && !titleterms[word]) {
               _o.push({files: titleterms[w], score: Scorer.partialTitle})
           }
         }
@@ -498,9 +491,6 @@ var Search = {
    */
   makeSearchSummary : function(htmlText, keywords, hlwords) {
     var text = Search.htmlToText(htmlText);
-    if (text == "") {
-      return null;
-    }
     var textLower = text.toLowerCase();
     var start = 0;
     $.each(keywords, function() {
@@ -512,7 +502,7 @@ var Search = {
     var excerpt = ((start > 0) ? '...' : '') +
       $.trim(text.substr(start, 240)) +
       ((start + 240 - text.length) ? '...' : '');
-    var rv = $('<p class="context"></p>').text(excerpt);
+    var rv = $('<div class="context"></div>').text(excerpt);
     $.each(hlwords, function() {
       rv = rv.highlightText(this, 'highlighted');
     });

@@ -1,8 +1,6 @@
 pymatgen.analysis namespace
 ===========================
 
-.. py:module:: pymatgen.analysis
-
 Subpackages
 -----------
 
@@ -33,7 +31,6 @@ Submodules
    pymatgen.analysis.bond_valence
    pymatgen.analysis.chempot_diagram
    pymatgen.analysis.cost
-   pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.dimensionality
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
