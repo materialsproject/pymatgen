@@ -7,8 +7,8 @@ import unittest
 
 import numpy as np
 
-from pymatgen.analysis.defects_old.core import DefectEntry, Interstitial, Vacancy
-from pymatgen.analysis.defects_old.defect_compatibility import DefectCompatibility
+from pymatgen.analysis.defects.core import DefectEntry, Interstitial, Vacancy
+from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
 from pymatgen.core import PeriodicSite
 from pymatgen.io.vasp import Outcar, Poscar, Vasprun
 from pymatgen.util.testing import PymatgenTest

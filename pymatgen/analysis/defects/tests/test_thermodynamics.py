@@ -7,8 +7,8 @@ import unittest
 
 from monty.serialization import loadfn
 
-from pymatgen.analysis.defects_old.core import DefectEntry
-from pymatgen.analysis.defects_old.thermodynamics import DefectPhaseDiagram
+from pymatgen.analysis.defects.core import DefectEntry
+from pymatgen.analysis.defects.thermodynamics import DefectPhaseDiagram
 from pymatgen.core import Element
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.util.testing import PymatgenTest

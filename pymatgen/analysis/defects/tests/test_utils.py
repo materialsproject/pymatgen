@@ -9,7 +9,7 @@ from collections import Counter
 
 import numpy as np
 
-from pymatgen.analysis.defects_old.utils import (
+from pymatgen.analysis.defects.utils import (
     ChargeDensityAnalyzer,
     ChargeInsertionAnalyzer,
     QModel,

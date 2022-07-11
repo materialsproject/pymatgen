@@ -12,8 +12,8 @@ import numpy as np
 import scipy
 from scipy import stats
 
-from pymatgen.analysis.defects_old.core import DefectCorrection
-from pymatgen.analysis.defects_old.utils import (
+from pymatgen.analysis.defects.core import DefectCorrection
+from pymatgen.analysis.defects.utils import (
     QModel,
     ang_to_bohr,
     converge,

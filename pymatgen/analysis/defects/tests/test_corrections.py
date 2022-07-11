@@ -7,14 +7,14 @@ import unittest
 
 import numpy as np
 
-from pymatgen.analysis.defects_old.core import DefectEntry, Vacancy
-from pymatgen.analysis.defects_old.corrections import (
+from pymatgen.analysis.defects.core import DefectEntry, Vacancy
+from pymatgen.analysis.defects.corrections import (
     BandEdgeShiftingCorrection,
     BandFillingCorrection,
     FreysoldtCorrection,
     KumagaiCorrection,
 )
-from pymatgen.analysis.defects_old.utils import generate_R_and_G_vecs
+from pymatgen.analysis.defects.utils import generate_R_and_G_vecs
 from pymatgen.core import Lattice
 from pymatgen.io.vasp import Outcar, Poscar, Vasprun
 from pymatgen.util.testing import PymatgenTest
