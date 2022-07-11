@@ -102,6 +102,8 @@ property_list = {
     "beta_fock_matrix",
     "alpha_eigenvalues",
     "beta_eigenvalues",
+    "alpha_coeff_matrix",
+    "beta_coeff_matrix",
 }
 
 if have_babel:

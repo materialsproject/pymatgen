@@ -358,6 +358,7 @@ class QCOutput(MSONable):
         # Read the Fock matrix from the output file
         if self.data["scf_final_print"] >= 3:
             self._read_fock_matrix()
+            self._read_coefficient_matrix()
 
         # Check if the calculation is a PES scan. If so, parse the relevant output
         self.data["scan_job"] = read_pattern(
@@ -477,6 +478,43 @@ class QCOutput(MSONable):
             # Perform the same transformation for the beta Fock matrix.
             beta_fock_matrix = process_parsed_fock_matrix(beta_fock_matrix)
             self.data["beta_fock_matrix"] = beta_fock_matrix
+
+    def _read_coefficient_matrix(self):
+        """Parses the coefficient matrix from the output file. Done is much
+        the same was as the Fock matrix."""
+        # The header is the same for both spin-restricted and spin-unrestricted calculations.
+        header_pattern = r"Final Alpha MO Coefficients"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            footer_pattern = "Final Alpha Density Matrix"
+        else:
+            spin_unrestricted = True
+            footer_pattern = "Final Beta MO Coefficients"
+        # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
+        alpha_coeff_matrix = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        if spin_unrestricted:
+            header_pattern = r"Final Beta MO Coefficients"
+            footer_pattern = "Final Alpha Density Matrix"
+            beta_coeff_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        # Convert the matrices to the right dimension. Right now they are simply
+        # one massive list of numbers, but we need to split them into a matrix. The
+        # Fock matrix must always be a square matrix and as a result, we have to
+        # modify the dimensions.
+        alpha_coeff_matrix = process_parsed_fock_matrix(alpha_coeff_matrix)
+        self.data["alpha_coeff_matrix"] = alpha_coeff_matrix
+
+        if spin_unrestricted:
+            # Perform the same transformation for the beta Fock matrix.
+            beta_coeff_matrix = process_parsed_fock_matrix(beta_coeff_matrix)
+            self.data["beta_coeff_matrix"] = beta_coeff_matrix
 
     def _read_charge_and_multiplicity(self):
         """
