@@ -10,8 +10,8 @@ import logging
 
 from monty.json import MSONable
 
-from pymatgen.analysis.defects.core import Vacancy
-from pymatgen.analysis.defects.corrections import (
+from pymatgen.analysis.defects_old.core import Vacancy
+from pymatgen.analysis.defects_old.corrections import (
     BandEdgeShiftingCorrection,
     BandFillingCorrection,
     FreysoldtCorrection,

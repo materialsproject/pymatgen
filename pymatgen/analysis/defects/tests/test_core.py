@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.analysis.defects.core import (
+from pymatgen.analysis.defects_old.core import (
     DefectEntry,
     Interstitial,
     Substitution,

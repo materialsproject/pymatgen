@@ -4,7 +4,7 @@
 
 import unittest
 
-from pymatgen.analysis.defects.generators import (
+from pymatgen.analysis.defects_old.generators import (
     InterstitialGenerator,
     SimpleChargeGenerator,
     SubstitutionGenerator,

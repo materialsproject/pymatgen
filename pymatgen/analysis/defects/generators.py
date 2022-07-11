@@ -11,12 +11,16 @@ from abc import ABCMeta, abstractmethod
 from monty.json import MSONable
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
-from pymatgen.analysis.defects.utils import (
+from pymatgen.analysis.defects_old.core import (
+    Interstitial,
+    PointDefectComparator,
+    Substitution,
+    Vacancy,
+)
+from pymatgen.analysis.defects_old.utils import (
     StructureMotifInterstitial,
     TopographyAnalyzer,
 )
-from pymatgen.analysis.structure_matcher import PointDefectComparator
 from pymatgen.core import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
