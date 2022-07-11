@@ -65,8 +65,8 @@ Windows and Linux.
 Recent Breaking Changes
 -----------------------
 
-Unreleased
-~~~~~~~~~~
+v2022.2.1
+~~~~~~~~~
 
 Removal of deprecated functions:
 
