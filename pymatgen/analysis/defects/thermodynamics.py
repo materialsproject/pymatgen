@@ -15,7 +15,7 @@ from monty.json import MSONable
 from scipy.optimize import bisect
 from scipy.spatial import HalfspaceIntersection
 
-from pymatgen.analysis.defects.core import DefectEntry, PointDefectComparator
+from pymatgen.analysis.defects_old.core import DefectEntry, PointDefectComparator
 from pymatgen.electronic_structure.dos import FermiDos
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
