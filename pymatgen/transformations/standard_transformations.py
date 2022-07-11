@@ -1113,3 +1113,45 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         Returns: False
         """
         return False
+
+
+class ApplyMagSymmOpTransformation(AbstractTransformation):
+    """ 
+    Transformation to apply magnetic space group symmetry operation.
+  
+    Args:
+        mag_op (pymatgen.core.operations.MagSymmOp): Magnetic space group operation.
+        fractional (bool): Whether the symmetry operation is applied in
+        fractional space. Defaults to True, i.e., symmetry operation
+        is applied in fractional coordinates.
+    """
+    def __init__(self, mag_op, fractional=True):
+        self.mag_op = mag_op
+        self.fractional= fractional
+
+    def apply_transformation(self, structure):
+        """
+        Returns a copy of structure, where magnetic space group operation was applied.
+
+        Arg:
+            structure (pymatgen.core.structure.Structure): Transformed copy of the structure.
+        """
+
+        new_structure = structure.copy()
+        # apply xyz op
+        new_structure.apply_operation(self.mag_op, fractional=self.fractional)
+        # back to unit cell
+        new_structure.translate_sites([i for i, _ in enumerate(new_structure.sites)]  , [1e-8,1e-8,1e-8])
+        # apply time rev symm
+        new_magmom_list = [self.mag_op.operate_magmom(site.properties["magmom"]) for site in new_structure.sites]
+        new_structure.add_site_property("magmom", new_magmom_list)
+    
+        return new_structure
+
+    @property
+    def is_one_to_many(self):
+      return False
+
+    @property
+    def inverse(self):
+      raise NotImplementedError()
