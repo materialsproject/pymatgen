@@ -4,9 +4,8 @@
 """
 Base classes representing defects.
 """
-
-
 import logging
+import warnings
 from abc import ABCMeta, abstractmethod
 from functools import lru_cache
 
@@ -18,6 +17,20 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.structure import PeriodicSite, Structure
 from pymatgen.core.units import kb
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+warnings.warn(
+    """
+    The pymatgen.analysis.defects module will be deprecated and replaced by a modified name-space
+    package in the near future.Currently, running `pip install pymatgen-analysis-defects` will install
+    the new package on top of the old one so the entire `pymatgen.analysis.defects` namespace will be replaced.
+
+    IMPORTANT: If you have already installed the new package and see this message it means the old package is
+    loaded first before the new package. This should not happen since the old package is an implicit namespace
+    package and should be loaded later. Please raise an issue on GitHub if that is the case.
+    """,
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
