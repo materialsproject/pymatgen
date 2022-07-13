@@ -15,8 +15,7 @@ from monty.json import MSONable
 from scipy.optimize import bisect
 from scipy.spatial import HalfspaceIntersection
 
-from pymatgen.analysis.defects.core import DefectEntry
-from pymatgen.analysis.structure_matcher import PointDefectComparator
+from pymatgen.analysis.defects.core import DefectEntry, PointDefectComparator
 from pymatgen.electronic_structure.dos import FermiDos
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -76,8 +75,8 @@ class DefectPhaseDiagram(MSONable):
         for ent_ind, ent in enumerate(self.entries):
             if "vbm" not in ent.parameters.keys() or ent.parameters["vbm"] != vbm:
                 logger.info(
-                    "Entry {} did not have vbm equal to given DefectPhaseDiagram value."
-                    " Manually overriding.".format(ent.name)
+                    f"Entry {ent.name} did not have vbm equal to given DefectPhaseDiagram value."
+                    " Manually overriding."
                 )
                 new_ent = ent.copy()
                 new_ent.parameters["vbm"] = vbm
@@ -258,17 +257,10 @@ class DefectPhaseDiagram(MSONable):
 
                     if name_stable_below_vbm != name_stable_above_cbm:
                         raise ValueError(
-                            "HalfSpace identified only one stable charge out of list: {}\n"
-                            "But {} is stable below vbm and {} is "
-                            "stable above cbm.\nList of VBM formation energies: {}\n"
-                            "List of CBM formation energies: {}"
-                            "".format(
-                                name_set,
-                                name_stable_below_vbm,
-                                name_stable_above_cbm,
-                                vb_list,
-                                cb_list,
-                            )
+                            f"HalfSpace identified only one stable charge out of list: {name_set}\n"
+                            f"But {name_stable_below_vbm} is stable below vbm and {name_stable_above_cbm} is "
+                            f"stable above cbm.\nList of VBM formation energies: {vb_list}\n"
+                            f"List of CBM formation energies: {cb_list}"
                         )
                     logger.info(f"{name_stable_below_vbm} is only stable defect out of {name_set}")
                     transition_level_map[track_name] = {}
@@ -528,8 +520,8 @@ class DefectPhaseDiagram(MSONable):
 
             if min_fl_formen < 0.0 and max_fl_formen < 0.0:
                 logger.error(
-                    "Formation energy is negative through entire gap for entry {} q={}."
-                    " Cannot return dopability limits.".format(def_entry.name, def_entry.charge)
+                    f"Formation energy is negative through entire gap for entry {def_entry.name} q={def_entry.charge}."
+                    " Cannot return dopability limits."
                 )
                 return None, None
             if np.sign(min_fl_formen) != np.sign(max_fl_formen):

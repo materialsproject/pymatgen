@@ -30,7 +30,7 @@ Welcome to new contributors @naveensrinivasan, @xivh, @dgaines2, @yang-ruoxi, @c
 * Documentation: Improve messages and warnings, PR #2572 and PR #2573 by @cajfisher
 * Documentation: fix typo, PR #2580 by @janosh
 
-Notice: functionality from pymatgen.analysis.defects will be incorporated into a separate add-on package in the future, 
+Notice: functionality from pymatgen.analysis.defects will be incorporated into a separate add-on package in the future,
 see deprecation notice.
 
 v2022.5.26
