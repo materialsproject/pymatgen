@@ -1,23 +1,42 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.qchem.sets module &mdash; pymatgen 2022.5.19 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.qchem.sets.html"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.qchem.sets module &mdash; pymatgen 2022.7.8 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.qchem.sets.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    <script src="_static/js/theme.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.qchem.utils module" href="pymatgen.io.qchem.utils.html" />
@@ -31,16 +50,33 @@
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
-                2022.5.19
+                2022.7.8
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -48,7 +84,17 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -86,40 +132,84 @@
 </li>
 </ul>
 
+            
+          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content style-external-links">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+        
           <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
+        
           <li><a href="pymatgen.io.qchem.html">pymatgen.io.qchem package</a> &raquo;</li>
+        
       <li>pymatgen.io.qchem.sets module</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+            
+            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.qchem.sets.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
-  <section id="module-pymatgen.io.qchem.sets">
-<span id="pymatgen-io-qchem-sets-module"></span><h1>pymatgen.io.qchem.sets module<a class="headerlink" href="#module-pymatgen.io.qchem.sets" title="Permalink to this headline"></a></h1>
+            
+  <div class="section" id="module-pymatgen.io.qchem.sets">
+<span id="pymatgen-io-qchem-sets-module"></span><h1>pymatgen.io.qchem.sets module<a class="headerlink" href="#module-pymatgen.io.qchem.sets" title="Permalink to this headline">¶</a></h1>
 <p>Input sets for Qchem</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.ForceSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ForceSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-tzvppd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'atomic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sequential'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L594-L684"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.ForceSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.ForceSet">
+<em class="property">class </em><code class="sig-name descname">ForceSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="p">:</span> <span class="n">Literal[‘atomic’, ‘sequential’]</span> <span class="o">=</span> <span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L628-L718"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.ForceSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a force (gradient) calculation</p>
 <dl class="field-list simple">
@@ -151,7 +241,7 @@ Must be given as a string of seven comma separated values in the following order
 “dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
 electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>geom_opt_max_cycles</strong> (<em>int</em>) – Maximum number of geometry optimization iterations. (Default: 200)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
@@ -166,7 +256,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
@@ -177,8 +267,8 @@ position of a single specific atom in the input structure.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.FreqSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FreqSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-tzvppd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'atomic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sequential'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L687-L777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.FreqSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.FreqSet">
+<em class="property">class </em><code class="sig-name descname">FreqSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="p">:</span> <span class="n">Literal[‘atomic’, ‘sequential’]</span> <span class="o">=</span> <span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L721-L811"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.FreqSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a frequency calculation</p>
 <dl class="field-list simple">
@@ -210,7 +300,7 @@ Must be given as a string of seven comma separated values in the following order
 “dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
 electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>geom_opt_max_cycles</strong> (<em>int</em>) – Maximum number of geometry optimization iterations. (Default: 200)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
@@ -225,7 +315,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
@@ -236,8 +326,8 @@ position of a single specific atom in the input structure.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.OptSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OptSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-tzvppd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_opt_max_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'atomic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sequential'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L395-L493"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.OptSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.OptSet">
+<em class="property">class </em><code class="sig-name descname">OptSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opt_variables</span><span class="p">:</span> <span class="n">dict[str, list] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">geom_opt_max_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">200</span></em>, <em class="sig-param"><span class="n">new_geom_opt</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="p">:</span> <span class="n">Literal[‘atomic’, ‘sequential’]</span> <span class="o">=</span> <span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L427-L527"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.OptSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a geometry optimization</p>
 <dl class="field-list simple">
@@ -272,7 +362,7 @@ Must be given as a string of seven comma separated values in the following order
 “dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
 electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>geom_opt_max_cycles</strong> (<em>int</em>) – Maximum number of geometry optimization iterations. (Default: 200)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
@@ -287,7 +377,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
@@ -298,8 +388,8 @@ position of a single specific atom in the input structure.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.PESScanSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PESScanSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-tzvppd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'atomic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sequential'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L780-L896"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.PESScanSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.PESScanSet">
+<em class="property">class </em><code class="sig-name descname">PESScanSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opt_variables</span><span class="p">:</span> <span class="n">dict[str, list] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scan_variables</span><span class="p">:</span> <span class="n">dict[str, list] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="p">:</span> <span class="n">Literal[‘atomic’, ‘sequential’]</span> <span class="o">=</span> <span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L814-L930"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.PESScanSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a potential energy surface scan (PES_SCAN) calculation,
 used primarily to identify possible transition states or to sample different
@@ -349,7 +439,7 @@ Must be given as a string of seven comma separated values in the following order
 “dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
 electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>geom_opt_max_cycles</strong> (<em>int</em>) – Maximum number of geometry optimization iterations. (Default: 200)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
@@ -364,7 +454,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies only if
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies only if
 you are using overwrite_inputs to add a $van_der_waals section to the input. In ‘atomic’ mode
 (default), dict keys represent the atomic number associated with each radius (e.g., ‘12’ = carbon).
 In ‘sequential’ mode, dict keys represent the sequential position of a single
@@ -375,8 +465,8 @@ specific atom in the input structure.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.QChemDictSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">QChemDictSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_opt_max_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'atomic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sequential'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L27-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.QChemDictSet">
+<em class="property">class </em><code class="sig-name descname">QChemDictSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">job_type</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">4</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opt_variables</span><span class="p">:</span> <span class="n">dict[str, list] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scan_variables</span><span class="p">:</span> <span class="n">dict[str, list] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">geom_opt_max_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">200</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">new_geom_opt</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="p">:</span> <span class="n">Literal[‘atomic’, ‘sequential’]</span> <span class="o">=</span> <span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L27-L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></code></a></p>
 <p>Build a QCInput given all the various input parameters. Can be extended by standard implementations below.</p>
 <dl class="field-list simple">
@@ -422,11 +512,18 @@ variable (stre, bend, tors) should be its own key in the dict, rather than each 
 Note that the total number of variable (sum of lengths of all lists) CANNOT be more than two.</p>
 <p>Ex. scan_variables = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 180 15”]}</p>
 </p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>geom_opt_max_cycles</strong> (<em>int</em>) – Maximum number of geometry optimization iterations. (Default: 200)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
-<li><p><strong>nbo_params</strong> (<em>list</em>) – A list of strings for the desired NBO params. If an empty list is passed,
-default NBO analysis will be performed. (Default: False)</p></li>
+<li><p><strong>nbo_params</strong> (<em>dict</em>) – A dict containing the desired NBO params. Note that a key:value pair of
+“version”:7 will trigger NBO7 analysis. Otherwise, NBO5 analysis will be performed,
+including if an empty dict is passed. Besides a key of “version”, all other key:value
+pairs will be written into the $nbo section of the QChem input file. (Default: False)</p></li>
+<li><p><strong>new_geom_opt</strong> (<em>dict</em>) – A dict containing parameters for the $geom_opt section of the QChem
+input file, which control the new geometry optimizer available starting in version 5.4.2.
+Note that the new optimizer remains under development and not officially released.
+Further note that even passig an empty dictionary will trigger the new optimizer.
+(Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
 The currently available sections (keys) are rem, pcm,
 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -439,7 +536,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
@@ -448,8 +545,8 @@ position of a single specific atom in the input structure.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.QChemDictSet.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L289-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet.write" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.QChemDictSet.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L321-L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet.write" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_file</strong> (<em>str</em>) – Filename</p>
@@ -460,8 +557,8 @@ position of a single specific atom in the input structure.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.SinglePointSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SinglePointSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-tzvppd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'atomic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sequential'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L300-L392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.SinglePointSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.SinglePointSet">
+<em class="property">class </em><code class="sig-name descname">SinglePointSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="p">:</span> <span class="n">Literal[‘atomic’, ‘sequential’]</span> <span class="o">=</span> <span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L332-L424"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.SinglePointSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a single point calculation</p>
 <dl class="field-list simple">
@@ -496,7 +593,7 @@ Must be given as a string of seven comma separated values in the following order
 “dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
 electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
 The currently available sections (keys) are rem, pcm,
@@ -510,7 +607,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
@@ -521,8 +618,8 @@ position of a single specific atom in the input structure.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.io.qchem.sets.TransitionStateSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TransitionStateSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-tzvppd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft_rung</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm_dielectric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smd_solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_smd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cubes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbo_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_opt_max_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/sets.py#L496-L591"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.TransitionStateSet" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.io.qchem.sets.TransitionStateSet">
+<em class="property">class </em><code class="sig-name descname">TransitionStateSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span><span class="p">:</span> <span class="n">Molecule</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="p">:</span> <span class="n">str | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">plot_cubes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nbo_params</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opt_variables</span><span class="p">:</span> <span class="n">dict[str, list] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">geom_opt_max_cycles</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">200</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="p">:</span> <span class="n">dict | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vdw_mode</span><span class="o">=</span><span class="default_value">'atomic'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/qchem/sets.py#L530-L625"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.TransitionStateSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a transition-state search</p>
 <dl class="field-list simple">
@@ -554,7 +651,7 @@ Must be given as a string of seven comma separated values in the following order
 “dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
 electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
-<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 200)</p></li>
+<li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>geom_opt_max_cycles</strong> (<em>int</em>) – Maximum number of geometry optimization iterations. (Default: 200)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
 <li><p><strong>overwrite_inputs</strong> (<em>dict</em>) – <p>Dictionary of QChem input sections to add or overwrite variables.
@@ -569,7 +666,7 @@ the default basis.</strong></p>
 the PCM “radii” setting to “read”.</strong></p>
 <p><strong>Note that all keys must be given as strings, even when they are numbers!</strong></p>
 </p></li>
-<li><p><strong>vdw_mode</strong> (<em>'atomic'</em><em> | </em><em>'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
+<li><p><strong>vdw_mode</strong> (<em>'atomic' | 'sequential'</em>) – Method of specifying custom van der Waals radii. Applies
 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
@@ -579,34 +676,46 @@ position of a single specific atom in the input structure.</p></li>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>
+           
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
-  </div>
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
+  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -14,7 +14,7 @@ consider citing the following works::
 
     Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
     stabilization of sodium oxides: Implications for Na-O2 batteries.
-    Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
+    Nano Letters, 14(2), 1016-1020. https://doi.org/10.1021/nl404557w
 
     and
 
@@ -479,7 +479,7 @@ class SurfaceEnergyPlotter:
         self.as_coeffs_dict = as_coeffs_dict
 
         list_of_chempots = []
-        for k, v in self.as_coeffs_dict.items():
+        for v in self.as_coeffs_dict.values():
             if type(v).__name__ == "float":
                 continue
             for du in v.keys():
@@ -718,7 +718,7 @@ class SurfaceEnergyPlotter:
         ref_delu,
         no_doped=True,
         no_clean=False,
-        delu_dict={},
+        delu_dict=None,
         miller_index=(),
         dmu_at_0=False,
         return_se_dict=False,
@@ -752,7 +752,8 @@ class SurfaceEnergyPlotter:
             return_se_dict (bool): Whether or not to return the corresponding
                 dictionary of surface energies
         """
-
+        if delu_dict is None:
+            delu_dict = {}
         chempot_range = sorted(chempot_range)
         stable_urange_dict, se_dict = {}, {}
 
@@ -885,7 +886,7 @@ class SurfaceEnergyPlotter:
         entry,
         ref_delu,
         chempot_range,
-        delu_dict={},
+        delu_dict=None,
         delu_default=0,
         label="",
         JPERM2=False,
@@ -915,7 +916,8 @@ class SurfaceEnergyPlotter:
         Returns:
             (Plot): Plot of surface energy vs chemical potential for one entry.
         """
-
+        if delu_dict is None:
+            delu_dict = {}
         chempot_range = sorted(chempot_range)
 
         # use dashed lines for slabs that are not stoichiometric
@@ -951,11 +953,11 @@ class SurfaceEnergyPlotter:
         ref_delu,
         chempot_range,
         miller_index=(),
-        delu_dict={},
+        delu_dict=None,
         delu_default=0,
         JPERM2=False,
         show_unstable=False,
-        ylim=[],
+        ylim=None,
         plt=None,
         no_clean=False,
         no_doped=False,
@@ -995,7 +997,8 @@ class SurfaceEnergyPlotter:
         Returns:
             (Plot): Plot of surface energy vs chempot for all entries.
         """
-
+        if delu_dict is None:
+            delu_dict = {}
         chempot_range = sorted(chempot_range)
 
         plt = pretty_plot(width=8, height=7) if not plt else plt
@@ -1008,11 +1011,7 @@ class SurfaceEnergyPlotter:
             # want to show the region where each slab is stable
             if not show_unstable:
                 stable_u_range_dict = self.stable_u_range_dict(
-                    chempot_range,
-                    ref_delu,
-                    no_doped=no_doped,
-                    delu_dict=delu_dict,
-                    miller_index=hkl,
+                    chempot_range, ref_delu, no_doped=no_doped, delu_dict=delu_dict, miller_index=hkl
                 )
 
             already_labelled = []
@@ -1110,7 +1109,7 @@ class SurfaceEnergyPlotter:
         return plt
 
     @staticmethod
-    def chempot_plot_addons(plt, xrange, ref_el, axes, pad=2.4, rect=[-0.047, 0, 0.84, 1], ylim=[]):
+    def chempot_plot_addons(plt, xrange, ref_el, axes, pad=2.4, rect=None, ylim=None):
         """
         Helper function to a chempot plot look nicer.
 
@@ -1136,7 +1135,7 @@ class SurfaceEnergyPlotter:
         plt.ylim(ylim)
         xlim = axes.get_xlim()
         plt.xlim(xlim)
-        plt.tight_layout(pad=pad, rect=rect)
+        plt.tight_layout(pad=pad, rect=rect or [-0.047, 0, 0.84, 1])
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
         plt.plot([xrange[1], xrange[1]], ylim, "--k")
         xy = [np.mean([xrange[1]]), np.mean(ylim)]
@@ -1729,7 +1728,7 @@ class NanoscaleStability:
 
         Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
             stabilization of sodium oxides: Implications for Na-O2
-            batteries. Nano Letters, 14(2), 1016–1020.
+            batteries. Nano Letters, 14(2), 1016-1020.
             https://doi.org/10.1021/nl404557w
 
     .. attribute:: se_analyzers
@@ -1750,7 +1749,7 @@ class NanoscaleStability:
         self.se_analyzers = se_analyzers
         self.symprec = symprec
 
-    def solve_equilibrium_point(self, analyzer1, analyzer2, delu_dict={}, delu_default=0, units="nanometers"):
+    def solve_equilibrium_point(self, analyzer1, analyzer2, delu_dict=None, delu_default=0, units="nanometers"):
         """
         Gives the radial size of two particles where equilibrium is reached
             between both particles. NOTE: the solution here is not the same
@@ -1774,8 +1773,12 @@ class NanoscaleStability:
         """
 
         # Set up
-        wulff1 = analyzer1.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
-        wulff2 = analyzer2.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
+        wulff1 = analyzer1.wulff_from_chempot(
+            delu_dict=delu_dict or {}, delu_default=delu_default, symprec=self.symprec
+        )
+        wulff2 = analyzer2.wulff_from_chempot(
+            delu_dict=delu_dict or {}, delu_default=delu_default, symprec=self.symprec
+        )
 
         # Now calculate r
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy

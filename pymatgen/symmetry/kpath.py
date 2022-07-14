@@ -939,17 +939,13 @@ class KPathSetyawanCurtarolo(KPathBase):
 
 class KPathSeek(KPathBase):
     """
-    This class looks for a path along high-symmetry lines in
-    the Brillouin sone.
-    It is based on Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F.,
-    & Tanaka, I. (2017). Band structure diagram paths based on
-    crystallography. Computational Materials Science, 128, 140–184.
-    https://doi.org/10.1016/j.commatsci.2016.10.015
-    It should be used with primitive structures that
-    comply with the definition given in the paper.
-    The symmetry is determined by spglib using the
-    SpacegroupAnalyzer class. k-points are generated using the
-        get_kpoints() method for the reciprocal cell basis defined in the paper.
+    This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
+    Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F., & Tanaka, I. (2017). Band structure diagram paths
+    based on crystallography. Computational Materials Science, 128, 140-184.
+    https://doi.org/10.1016/j.commatsci.2016.10.015. It should be used with primitive structures that
+    comply with the definition given in the paper. The symmetry is determined by spglib using the
+    SpacegroupAnalyzer class. k-points are generated using the get_kpoints() method for the
+    reciprocal cell basis defined in the paper.
     """
 
     @requires(

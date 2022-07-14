@@ -1300,7 +1300,7 @@ class BoltztrapAnalyzer:
         X. (2014).
         How Does Chemistry Influence Electron Effective Mass in Oxides?
         A High-Throughput Computational Analysis. Chemistry of Materials,
-        26(19), 5447–5458. doi:10.1021/cm404079a
+        26(19), 5447-5458. doi:10.1021/cm404079a
 
         or
 

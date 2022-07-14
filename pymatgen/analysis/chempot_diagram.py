@@ -11,7 +11,7 @@ For more information, please cite/reference the paper below:
     Todd, P. K., McDermott, M. J., Rom, C. L., Corrao, A. A., Denney, J. J., Dwaraknath,
     S. S.,  Khalifah, P. G., Persson, K. A., & Neilson, J. R. (2021). Selectivity in
     Yttrium Manganese Oxide Synthesis via Local Chemical Potentials in Hyperdimensional
-    Phase Space. Journal of the American Chemical Society, 143(37), 15185–15194.
+    Phase Space. Journal of the American Chemical Society, 143(37), 15185-15194.
     https://doi.org/10.1021/jacs.1c06229
 
 Please also consider referencing the original 1999 paper by H. Yokokawa,
@@ -60,7 +60,7 @@ class ChemicalPotentialDiagram(MSONable):
         Todd, P. K., McDermott, M. J., Rom, C. L., Corrao, A. A., Denney, J. J., Dwaraknath,
         S. S.,  Khalifah, P. G., Persson, K. A., & Neilson, J. R. (2021). Selectivity in
         Yttrium Manganese Oxide Synthesis via Local Chemical Potentials in Hyperdimensional
-        Phase Space. Journal of the American Chemical Society, 143(37), 15185–15194.
+        Phase Space. Journal of the American Chemical Society, 143(37), 15185-15194.
         https://doi.org/10.1021/jacs.1c06229
     """
 

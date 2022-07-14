@@ -27,7 +27,7 @@ STATS_ENV_PAPER = (
     "\n"
     "D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier,\n"
     '"ChemEnv: a fast and robust coordination environment identification tool",\n'
-    "Acta Cryst. B 2020, 76, pp 683–695\n."
+    "Acta Cryst. B 2020, 76, pp 683-695\n."
     "DOI: 10.1107/S2052520620007994\n"
 )
 

@@ -4,7 +4,7 @@
 import unittest
 
 from pymatgen.analysis.defects.core import Vacancy
-from pymatgen.transformations.defect_transformations import DefectTransformation
+from pymatgen.analysis.defects.defect_transformations import DefectTransformation
 from pymatgen.util.testing import PymatgenTest
 
 

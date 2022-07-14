@@ -7,11 +7,11 @@ If you use this module, please cite the following:
 David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
 Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
 "Statistical analysis of coordination environments in oxides",
-Chem. Mater., 2017, 29 (19), pp 8346–8360,
+Chem. Mater., 2017, 29 (19), pp 8346-8360,
 DOI: 10.1021/acs.chemmater.7b02766
 D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier
 "ChemEnv: a fast and robust coordination environment identification tool",
-Acta Cryst. B 2020, 76, pp 683–695,
+Acta Cryst. B 2020, 76, pp 683-695,
 DOI: 10.1107/S2052520620007994
 """
 
@@ -1102,14 +1102,8 @@ class LocalGeometryFinder:
         aa = 0.4
         bb = -0.2
         coords = []
-        for ii in range(coordination + 1):
-            coords.append(
-                aa
-                * np.random.random_sample(
-                    3,
-                )
-                + bb
-            )
+        for _ in range(coordination + 1):
+            coords.append(aa * np.random.random_sample(3) + bb)
         self.set_structure(
             lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float_),
             species=["Si"] * (coordination + 1),
@@ -1627,7 +1621,7 @@ class LocalGeometryFinder:
         local2perfect_maps = []
 
         if separation_plane_algo.separation in nb_set.separations:
-            for sep_indices, (local_plane, npsep) in nb_set.separations[separation_plane_algo.separation].items():
+            for local_plane, npsep in nb_set.separations[separation_plane_algo.separation].values():
                 cgsm = cgcsmoptim(
                     coordination_geometry=coordination_geometry,
                     sepplane=separation_plane_algo,
@@ -1826,7 +1820,7 @@ class LocalGeometryFinder:
 
             # plane_found = True
 
-            for i_sep_perm, sep_perm in enumerate(sep_perms):
+            for sep_perm in sep_perms:
                 perm1 = [separation_perm[ii] for ii in sep_perm]
                 pp = [perm1[ii] for ii in argref_separation]
                 # Skip permutations that have already been performed
@@ -1913,7 +1907,7 @@ class LocalGeometryFinder:
         else:
             sep_perms = sepplane.permutations
 
-        for i_sep_perm, sep_perm in enumerate(sep_perms):
+        for sep_perm in sep_perms:
             perm1 = [separation_perm[ii] for ii in sep_perm]
             pp = [perm1[ii] for ii in argref_separation]
 
