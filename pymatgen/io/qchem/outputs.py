@@ -181,6 +181,15 @@ class QCOutput(MSONable):
         else:
             self.data["final_energy"] = float(temp_final_energy[0][0])
 
+        if self.data["final_energy"] is None:
+            temp_dict = read_pattern(
+                self.text,
+                {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
+            )
+
+            if temp_dict.get("final_energy") is not None:
+                self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
+
         # Check if calculation is using dft_d and parse relevant info if so
         self.data["using_dft_d3"] = read_pattern(self.text, {"key": r"dft_d\s*= d3"}, terminate_on_match=True).get(
             "key"
@@ -325,8 +334,6 @@ class QCOutput(MSONable):
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*sp"},
             terminate_on_match=True,
         ).get("key")
-        if self.data.get("single_point_job", []):
-            self._read_single_point_data()
 
         # Check if the calculation is a force calculation. If so, parse the relevant output
         self.data["force_job"] = read_pattern(
@@ -1114,22 +1121,6 @@ class QCOutput(MSONable):
                 or len(self.data["IR_active"]) != freq_length
             ):
                 self.data["warnings"]["frequency_length_inconsistency"] = True
-
-    def _read_single_point_data(self):
-        """
-        Parses final free energy information from single-point calculations.
-        """
-        temp_dict = read_pattern(
-            self.text,
-            {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
-        )
-
-        if temp_dict.get("final_energy") is None:
-            self.data["final_energy"] = None
-        else:
-            # -1 in case of pcm
-            # Two lines will match the above; we want final calculation
-            self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
 
     def _read_force_data(self):
         self._read_gradients()
