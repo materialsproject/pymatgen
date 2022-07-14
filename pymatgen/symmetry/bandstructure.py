@@ -223,8 +223,8 @@ class HighSymmKpath(KPathBase):
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
         warn(
-            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
-of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
         )
 
         return bs

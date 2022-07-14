@@ -1,23 +1,42 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.entries.mixing_scheme module &mdash; pymatgen 2022.5.19 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-    <link rel="canonical" href="https://pymatgen.orgpymatgen.entries.mixing_scheme.html"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.entries.mixing_scheme module &mdash; pymatgen 2022.7.8 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.entries.mixing_scheme.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    <script src="_static/js/theme.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.ext namespace" href="pymatgen.ext.html" />
@@ -31,16 +50,33 @@
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
-                2022.5.19
+                2022.7.8
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -48,7 +84,17 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -86,40 +132,83 @@
 </li>
 </ul>
 
+            
+          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content style-external-links">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+        
           <li><a href="pymatgen.entries.html">pymatgen.entries package</a> &raquo;</li>
+        
       <li>pymatgen.entries.mixing_scheme module</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+            
+            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.entries.mixing_scheme.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
-  <section id="module-pymatgen.entries.mixing_scheme">
-<span id="pymatgen-entries-mixing-scheme-module"></span><h1>pymatgen.entries.mixing_scheme module<a class="headerlink" href="#module-pymatgen.entries.mixing_scheme" title="Permalink to this headline"></a></h1>
+            
+  <div class="section" id="module-pymatgen.entries.mixing_scheme">
+<span id="pymatgen-entries-mixing-scheme-module"></span><h1>pymatgen.entries.mixing_scheme module<a class="headerlink" href="#module-pymatgen.entries.mixing_scheme" title="Permalink to this headline">¶</a></h1>
 <p>This module implements Compatibility corrections for mixing runs of different
 functionals.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MaterialsProjectDFTMixingScheme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_matcher:</span> <span class="pre">StructureMatcher</span> <span class="pre">=</span> <span class="pre">&lt;pymatgen.analysis.structure_matcher.StructureMatcher</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_1:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GGA(+U)'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_2:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'R2SCAN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compat_1:</span> <span class="pre">Compatibility</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;pymatgen.entries.compatibility.cached_class.&lt;locals&gt;._decorated</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compat_2:</span> <span class="pre">Compatibility</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_matching:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../entries/mixing_scheme.py#L40-L761"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme">
+<em class="property">class </em><code class="sig-name descname">MaterialsProjectDFTMixingScheme</code><span class="sig-paren">(</span><em class="sig-param">structure_matcher: StructureMatcher = &lt;pymatgen.analysis.structure_matcher.StructureMatcher object&gt;</em>, <em class="sig-param">run_type_1: str = 'GGA(+U)'</em>, <em class="sig-param">run_type_2: str = 'R2SCAN'</em>, <em class="sig-param">compat_1: Compatibility | None = &lt;pymatgen.entries.compatibility.cached_class.&lt;locals&gt;._decorated object&gt;</em>, <em class="sig-param">compat_2: Compatibility | None = None</em>, <em class="sig-param">fuzzy_matching: bool = True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../entries/mixing_scheme.py#L40-L754"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></code></a></p>
 <p>This class implements the Materials Project mixing scheme, which allows mixing of
 energies from different DFT functionals. Note that this should only be used for
@@ -170,14 +259,14 @@ match.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../entries/mixing_scheme.py#L733-L761"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries">
+<em class="property">static </em><code class="sig-name descname">display_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../entries/mixing_scheme.py#L733-L754"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a pretty printout of key properties of a list of ComputedEntry</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments">
-<span class="sig-name descname"><span class="pre">get_adjustments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_state_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../entries/mixing_scheme.py#L253-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments">
+<code class="sig-name descname">get_adjustments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entry</span></em>, <em class="sig-param"><span class="n">mixing_state_data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../entries/mixing_scheme.py#L253-L455"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the corrections applied to a particular entry. Note that get_adjustments is not
 intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
 and it will pass the required arguments to get_adjustments.</p>
@@ -209,8 +298,8 @@ state data and the properties of the ComputedStructureEntry.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data">
-<span class="sig-name descname"><span class="pre">get_mixing_state_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../entries/mixing_scheme.py#L457-L579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data">
+<code class="sig-name descname">get_mixing_state_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span><span class="p">:</span> <span class="n">list<span class="p">[</span>ComputedStructureEntry<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">verbose</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../entries/mixing_scheme.py#L457-L579"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate internal state data to be passed to get_adjustments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -250,8 +339,8 @@ hull_energy_2: float or nan the energy of the run_type_1 hull at this compositio
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries">
-<span class="sig-name descname"><span class="pre">process_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">ComputedStructureEntry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_state_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../entries/mixing_scheme.py#L124-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries" title="Permalink to this definition"></a></dt>
+<dt id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries">
+<code class="sig-name descname">process_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span><span class="p">:</span> <span class="n">ComputedStructureEntry | ComputedEntry | list</span></em>, <em class="sig-param"><span class="n">clean</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">mixing_state_data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../entries/mixing_scheme.py#L124-L251"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a sequence of entries with the DFT mixing scheme. Note
 that this method will change the data of the original entries.</p>
 <dl class="field-list simple">
@@ -288,34 +377,46 @@ are not compatible are excluded.</p>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>
+           
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
-  </div>
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
+  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

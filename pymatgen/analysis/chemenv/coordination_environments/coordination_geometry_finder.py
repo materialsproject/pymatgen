@@ -7,11 +7,11 @@ If you use this module, please cite the following:
 David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
 Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
 "Statistical analysis of coordination environments in oxides",
-Chem. Mater., 2017, 29 (19), pp 8346–8360,
+Chem. Mater., 2017, 29 (19), pp 8346-8360,
 DOI: 10.1021/acs.chemmater.7b02766
 D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier
 "ChemEnv: a fast and robust coordination environment identification tool",
-Acta Cryst. B 2020, 76, pp 683–695,
+Acta Cryst. B 2020, 76, pp 683-695,
 DOI: 10.1107/S2052520620007994
 """
 
@@ -563,6 +563,7 @@ class LocalGeometryFinder:
         get_from_hints=False,
         voronoi_normalized_distance_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_distance_tolerance"],
         voronoi_normalized_angle_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_angle_tolerance"],
+        voronoi_distance_cutoff=None,
         recompute=None,
         optimization=PRESETS["DEFAULT"]["optimization"],
     ):
@@ -592,6 +593,8 @@ class LocalGeometryFinder:
             neighbors sets
         :param voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
             neighbors sets
+        :param voronoi_distance_cutoff: determines distance of considered neighbors. Especially important to increase it
+            for molecules in a box.
         :param recompute: whether to recompute the sites already computed (when initial_structure_environments
             is not None)
         :param optimization: optimization algorithm
@@ -673,6 +676,8 @@ class LocalGeometryFinder:
             normalized_angle_tolerance = DetailedVoronoiContainer.default_normalized_angle_tolerance
         else:
             normalized_angle_tolerance = voronoi_normalized_angle_tolerance
+        if voronoi_distance_cutoff is None:
+            voronoi_distance_cutoff = DetailedVoronoiContainer.default_voronoi_cutoff
         self.detailed_voronoi = DetailedVoronoiContainer(
             self.structure,
             isites=sites_indices,
@@ -682,6 +687,7 @@ class LocalGeometryFinder:
             additional_conditions=additional_conditions,
             normalized_distance_tolerance=normalized_distance_tolerance,
             normalized_angle_tolerance=normalized_angle_tolerance,
+            voronoi_cutoff=voronoi_distance_cutoff,
         )
         logging.debug("DetailedVoronoiContainer has been set up")
 

@@ -14,7 +14,7 @@ consider citing the following works::
 
     Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
     stabilization of sodium oxides: Implications for Na-O2 batteries.
-    Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
+    Nano Letters, 14(2), 1016-1020. https://doi.org/10.1021/nl404557w
 
     and
 
@@ -1728,7 +1728,7 @@ class NanoscaleStability:
 
         Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
             stabilization of sodium oxides: Implications for Na-O2
-            batteries. Nano Letters, 14(2), 1016–1020.
+            batteries. Nano Letters, 14(2), 1016-1020.
             https://doi.org/10.1021/nl404557w
 
     .. attribute:: se_analyzers

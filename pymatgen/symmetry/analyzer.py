@@ -307,7 +307,7 @@ class SpacegroupAnalyzer:
 
         Args:
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -336,7 +336,7 @@ class SpacegroupAnalyzer:
 
         Args:
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -444,7 +444,7 @@ class SpacegroupAnalyzer:
             international_monoclinic (bool): Whether to convert to proper international convention
                 such that beta is the non-right angle.
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -528,7 +528,7 @@ class SpacegroupAnalyzer:
             international_monoclinic (bool): Whether to convert to proper international convention
                 such that beta is the non-right angle.
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in

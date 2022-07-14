@@ -129,7 +129,7 @@ class FunctionalGroupExtractor:
         The conditions for marking carbon atoms are (quoted from Ertl):
             "- atoms connected by non-aromatic double or triple bond to any
             heteroatom
-            - atoms in nonaromatic carbon–carbon double or triple bonds
+            - atoms in nonaromatic carbon-carbon double or triple bonds
             - acetal carbons, i.e. sp3 carbons connected to two or more oxygens,
             nitrogens or sulfurs; these O, N or S atoms must have only single bonds
             - all atoms in oxirane, aziridine and thiirane rings"

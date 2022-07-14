@@ -442,8 +442,8 @@ class StructureMotifInterstitial:
 
         if verbose:
             print(
-                "Initial trial sites: {}\nAfter clustering: {}\n"
-                "After symmetry pruning: {}".format(len(trialsites), len(include), len(include) - len(discard))
+                f"Initial trial sites: {len(trialsites)}\nAfter clustering: {len(include)}\n"
+                f"After symmetry pruning: {len(include) - len(discard)}"
             )
         for i in include:
             if i not in discard:
@@ -1450,8 +1450,7 @@ def tune_for_gamma(lattice, epsilon):
     real_set = real_set[0]
 
     logger.debug(
-        "First approach with gamma ={}\nProduced {} real vecs and {} recip "
-        "vecs.".format(gamma, len(real_set), len(recip_set))
+        f"First approach with gamma ={gamma}\nProduced {len(real_set)} real vecs and {len(recip_set)} recip vecs."
     )
 
     while float(len(real_set)) / len(recip_set) > 1.05 or float(len(recip_set)) / len(real_set) > 1.05:

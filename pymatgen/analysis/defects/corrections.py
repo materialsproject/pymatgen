@@ -457,9 +457,7 @@ class KumagaiCorrection(DefectCorrection):
         # TODO: allow for larger prec_set to be tried if this fails
         if abs(es_corr[0] - es_corr[1]) > 0.0001:
             logger.debug(
-                "Es_corr summation not converged! ({} vs. {})\nTrying a larger prec_set...".format(
-                    es_corr[0], es_corr[1]
-                )
+                f"Es_corr summation not converged! ({es_corr[0]} vs. {es_corr[1]})\nTrying a larger prec_set..."
             )
             prec_set = [30, 35]
             g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(
@@ -614,15 +612,14 @@ class KumagaiCorrection(DefectCorrection):
 
             if dist_to_defect > sampling_radius:
                 logger.debug(
-                    "\tdistance to defect is {} which is outside minimum sampling "
-                    "radius {}".format(dist_to_defect, sampling_radius)
+                    f"\tdistance to defect is {dist_to_defect} which is outside minimum sampling "
+                    f"radius {sampling_radius}"
                 )
                 for_correction.append(Vqb - Vpc)
             else:
                 logger.debug(
-                    "\tdistance to defect is {} which is inside minimum sampling "
-                    "radius {} (so will not include for correction)"
-                    "".format(dist_to_defect, sampling_radius)
+                    f"\tdistance to defect is {dist_to_defect} which is inside minimum sampling "
+                    f"radius {sampling_radius} (so will not include for correction)"
                 )
 
         if len(for_correction) > 0:
