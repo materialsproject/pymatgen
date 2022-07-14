@@ -108,6 +108,9 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key")
 
+        if self.data["unrestricted"] is None and self.data["multiplicity"] != 1:
+            self.data["unrestricted"] = [[]]
+
         # Check if calculation uses GEN_SCFMAN, multiple potential output formats
         self.data["using_GEN_SCFMAN"] = read_pattern(
             self.text,
