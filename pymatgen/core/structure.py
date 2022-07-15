@@ -1052,7 +1052,7 @@ class IStructure(SiteCollection, MSONable):
             return False
         if len(self) != len(other):
             return False
-        if not hasattr(other, 'lattice'):
+        if not hasattr(other, "lattice"):
             return False
         if self.lattice != other.lattice:
             return False
