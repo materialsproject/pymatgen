@@ -407,7 +407,7 @@ class SpacegroupAnalyzer:
         shift = np.array([1 if i else 0 for i in is_shift])
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
-        grid_fractional_coords = grid / shift * (0.5, 0.5, 0.5)) / mesh
+        grid_fractional_coords = (grid + shift * (0.5, 0.5, 0.5)) / mesh
 
         return grid_fractional_coords, mapping
 
