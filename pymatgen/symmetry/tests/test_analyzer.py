@@ -214,7 +214,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(grid[1][0][1], 0.0)
         self.assertAlmostEqual(grid[1][0][2], 0.0)
         self.assertAlmostEqual(grid[1][1], 2)
-        
+
     def test_get_ir_reciprocal_mesh_map(self):
         mesh = (6, 6, 6)
         grid = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
