@@ -214,6 +214,16 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(grid[1][0][1], 0.0)
         self.assertAlmostEqual(grid[1][0][2], 0.0)
         self.assertAlmostEqual(grid[1][1], 2)
+        
+    def test_get_ir_reciprocal_mesh_map(self):
+        mesh = (6, 6, 6)
+        grid = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
+        full_grid, mapping = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
+        self.assertEqual(len(np.unique(mapping)), len(grid))
+        for i in np.unique(mapping):
+            self.assertAlmostequal(full_grid[i][0], grid[i][0][0]
+            self.assertAlmostequal(full_grid[i][1], grid[i][0][1]
+            self.assertAlmostequal(full_grid[i][2], grid[i][0][2]
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
