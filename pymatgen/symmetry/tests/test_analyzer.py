@@ -218,7 +218,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
     def test_get_ir_reciprocal_mesh_map(self):
         mesh = (6, 6, 6)
         grid = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
-        full_grid, mapping = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
+        full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
         self.assertEqual(len(np.unique(mapping)), len(grid))
         for i in np.unique(mapping):
             self.assertAlmostequal(full_grid[i][0], grid[i][0][0]
