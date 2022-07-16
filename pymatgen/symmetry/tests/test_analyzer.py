@@ -221,9 +221,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
         self.assertEqual(len(np.unique(mapping)), len(grid))
         for _, i in enumerate(np.unique(mapping)):
-            self.assertAlmostequal(full_grid[i][0], grid[_][0][0]
-            self.assertAlmostequal(full_grid[i][1], grid[_][0][1]
-            self.assertAlmostequal(full_grid[i][2], grid[_][0][2]
+            self.assertAlmostEqual(full_grid[i][0], grid[_][0][0]
+            self.assertAlmostEqual(full_grid[i][1], grid[_][0][1]
+            self.assertAlmostEqual(full_grid[i][2], grid[_][0][2]
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
