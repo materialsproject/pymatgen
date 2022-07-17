@@ -107,6 +107,12 @@ class QCOutput(MSONable):
             {"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"},
             terminate_on_match=True,
         ).get("key")
+        if not self.data["unrestricted"]:
+            self.data["unrestricted"] = read_pattern(
+                self.text,
+                {"key": r"unrestricted = true"},
+                terminate_on_match=True,
+            ).get("key")
 
         if self.data["unrestricted"] is None and self.data["multiplicity"] != 1:
             self.data["unrestricted"] = [[]]
