@@ -227,19 +227,6 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for gmatteo
 
-| **Matthew Horton** |mkhorton| |0000-0001-7777-8871| 
-| Lawrence Berkeley National Laboratory
-.. |mkhorton| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:mkhorton
-   :width: 16
-   :height: 16
-   :alt: GitHub profile for mkhorton
-.. |0000-0001-7777-8871| image:: _static/orcid.svg
-   :target: https://orcid.org/0000-0001-7777-8871
-   :width: 16
-   :height: 16
-   :alt: ORCID profile for 0000-0001-7777-8871
-
 | **Matthew McDermott** |mattmcdermott|
 | Lawrence Berkeley National Laboratory; University of California, Berkeley
 .. |mattmcdermott| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -1330,6 +1317,6 @@ Thanks
 
 Thanks also to:
 
-755452800, adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, bcamino, benedictsaunders, bernstei, blokhin, cajfisher, CifLord, ctoher, czhengsci, dcossey014, dgaines2, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, hongyi-zhao, jacksund, jan-janssen, jdagdelen, jmmshn, johnson1228, jonringer, JosephMontoya-TRI, josuav1, JSelf42, katherinelatimer2013, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, ltalirz, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nheinsdorf, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, robertcdickson, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, ShuaishuaiYuan, shyuep, smheidrich, sonium0, sudarshanv01, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xhqu1981, xivh, yang-ruoxi, yiming-xu, yimingchen-eng, YunxingZuo, zbwang, Zhuoying, zooks97
+755452800, adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, bcamino, benedictsaunders, bernstei, blokhin, cajfisher, CifLord, ctoher, czhengsci, dcossey014, dgaines2, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, hongyi-zhao, jacksund, jan-janssen, jdagdelen, jmmshn, johnson1228, jonringer, JosephMontoya-TRI, josuav1, JSelf42, katherinelatimer2013, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, ltalirz, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nheinsdorf, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, robertcdickson, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, ShuaishuaiYuan, smheidrich, sonium0, sudarshanv01, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xhqu1981, xivh, yang-ruoxi, yiming-xu, yimingchen-eng, YunxingZuo, zbwang, Zhuoying, zooks97
 
 These are developers who have contributed via GitHub but have not filled out the form linked above.
