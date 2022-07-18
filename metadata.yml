@@ -70,7 +70,7 @@ developers:
   email: ''
   first_name: Shreyas
   last_name: Cholia
-  orcid: https://orcid.org/0000-0002-4775-8201
+  orcid: 0000-0002-4775-8201
 - affilations: [National Institute of Standards and Technology]
   email: ''
   first_name: Kamal
@@ -247,7 +247,7 @@ developers:
   email: ''
   first_name: Michael
   last_name: Humbert
-  orcid: https://orcid.org/0000-0003-1966-6382
+  orcid: 0000-0003-1966-6382
 - affilations: [Toyota Research Institute]
   email: ''
   first_name: Linda
@@ -258,7 +258,7 @@ developers:
   email: ''
   first_name: Adam
   last_name: J. Jackson
-  orcid: https://orcid.org/0000-0001-5272-6530
+  orcid: 0000-0001-5272-6530
 - affilations: [University of Bath]
   email: ''
   first_name: Benjamin
@@ -283,7 +283,7 @@ developers:
   email: ''
   first_name: Jan
   last_name: 'Janssen '
-  orcid: https://orcid.org/0000-0001-9948-7119
+  orcid: 0000-0001-9948-7119
 - affilations: [RWTH Aachen, " Forschungszentrum J\xFClich"]
   email: ''
   first_name: Henning
@@ -394,7 +394,7 @@ developers:
   email: ''
   first_name: Tam
   last_name: Mayeshiba
-  orcid: https://orcid.org/0000-0003-3445-7925
+  orcid: 0000-0003-3445-7925
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley']
   email: ''
@@ -518,7 +518,7 @@ developers:
   email: ''
   first_name: Ann
   last_name: Rutt
-  orcid: https://orcid.org/0000-0001-6534-454X
+  orcid: 0000-0001-6534-454X
 - affilations: ['Department of Materials Science and Engineering, Massachusetts Institute
       of Technology']
   email: ''
@@ -529,7 +529,7 @@ developers:
   email: ''
   first_name: Jimmy-Xuan
   last_name: Shen
-  orcid: https://orcid.org/0000-0002-2743-7531
+  orcid: 0000-0002-2743-7531
 - affilations: [Kyoto University]
   email: ''
   first_name: Kohei
@@ -642,7 +642,7 @@ developers:
   email: ''
   first_name: Michael
   last_name: Wolloch
-  orcid: https://orcid.org/0000-0002-3419-5526
+  orcid: 0000-0002-3419-5526
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley', ' National Renewable Energy Laboratory']
   email: ''
