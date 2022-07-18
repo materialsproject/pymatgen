@@ -181,7 +181,7 @@
         
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
         
-          <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects package</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects namespace</a> &raquo;</li>
         
       <li>pymatgen.analysis.defects.utils module</li>
     
@@ -824,7 +824,7 @@ for both bulk and defect structures
 
 <dl class="py function">
 <dt id="pymatgen.analysis.defects.utils.generate_R_and_G_vecs">
-<code class="sig-name descname">generate_R_and_G_vecs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gamma</span></em>, <em class="sig-param"><span class="n">prec_set</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">epsilon</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/defects/utils.py#L1470-L1540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.generate_R_and_G_vecs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_R_and_G_vecs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gamma</span></em>, <em class="sig-param"><span class="n">prec_set</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">epsilon</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/defects/utils.py#L1469-L1539"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.generate_R_and_G_vecs" title="Permalink to this definition">¶</a></dt>
 <dd><p>This returns a set of real and reciprocal lattice vectors
 (and real/recip summation values)
 based on a list of precision values (prec_set)</p>
@@ -881,7 +881,7 @@ determined by a1, a2, a3 and whose magntidue is less than gcut^2.</p>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.defects.utils.tune_for_gamma">
-<code class="sig-name descname">tune_for_gamma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">epsilon</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/defects/utils.py#L1437-L1467"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.tune_for_gamma" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tune_for_gamma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">epsilon</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/defects/utils.py#L1437-L1466"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.tune_for_gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>This tunes the gamma parameter for Kumagai anisotropic
 Ewald calculation. Method is to find a gamma parameter which generates a similar
 number of reciprocal and real lattice vectors,
