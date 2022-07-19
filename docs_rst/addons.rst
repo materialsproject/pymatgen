@@ -11,7 +11,9 @@ release an add-on package.
 
 * `pymatgen-analysis-diffusion <http://pypi.org/project/pymatgen-analysis-diffusion/>`_: Provides modules for diffusion
   analysis, including path determination for NEB calculations, analysis of MD trajectories (RDF, van Hove, Arrhenius
-  plots, etc.)
+  plots, etc.). This package is maintained by the Materials Virtual Lab.
 
 * `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur/>`_: Provides modules for reading and writing
-  files used by the `fleur <www.flapw.de/>`_ DFT code
+  files used by the `fleur <www.flapw.de/>`_ DFT code. This package is maintained by the juDFT team.
+
+* `pymatgen-analysis-defects <https://pypi.org/project/pymatgen-analysis-defects/>`_: Provides functionality related to defect analysis. This package is maintained by Jimmy-Xuan Shen, and officially supported by the Materials Project.
