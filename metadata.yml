@@ -35,7 +35,7 @@ developers:
   email: ''
   first_name: Evgeny
   last_name: Blokhin
-  orcid: ''
+  orcid: 0000-0002-5333-3947
 - affilations: [The Pennsylvania State University]
   email: ''
   first_name: Brandon
@@ -60,7 +60,7 @@ developers:
   email: ''
   first_name: Bruno
   last_name: Camino
-  orcid: ''
+  orcid: 0000-0002-9569-2219
 - affilations: [Cornell University]
   email: ''
   first_name: Rees
@@ -76,11 +76,16 @@ developers:
   first_name: Xin
   last_name: Chen
   orcid: 0000-0001-9643-0870
+- affilations: ['University of California, San Diego']
+  email: ''
+  first_name: Yiming
+  last_name: Chen
+  orcid: 0000-0002-1501-5550
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Shreyas
   last_name: Cholia
-  orcid: ''
+  orcid: 0000-0002-4775-8201
 - affilations: [National Institute of Standards and Technology]
   email: ''
   first_name: Kamal
@@ -120,7 +125,7 @@ developers:
   email: ''
   first_name: Robert
   last_name: Dickson
-  orcid: ''
+  orcid: 0000-0003-3007-808X
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley']
   email: ''
@@ -172,7 +177,7 @@ developers:
   email: ''
   first_name: Dale
   last_name: Gaines II
-  orcid: ''
+  orcid: 0000-0001-9280-1240
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Alex
@@ -273,7 +278,7 @@ developers:
   email: ''
   first_name: Michael
   last_name: Humbert
-  orcid: ''
+  orcid: 0000-0003-1966-6382
 - affilations: [Toyota Research Institute]
   email: ''
   first_name: Linda
@@ -284,7 +289,7 @@ developers:
   email: ''
   first_name: Adam
   last_name: J. Jackson
-  orcid: ''
+  orcid: 0000-0001-5272-6530
 - affilations: [University of Bath]
   email: ''
   first_name: Benjamin
@@ -309,12 +314,12 @@ developers:
   email: ''
   first_name: Jan
   last_name: Janssen
-  orcid: ''
+  orcid: 0000-0001-9948-7119
 - affilations: ["Max-Planck-Institut f\xFCr Eisenforschung GmbH"]
   email: ''
   first_name: Jan
   last_name: 'Janssen '
-  orcid: ''
+  orcid: 0000-0001-9948-7119
 - affilations: [RWTH Aachen, " Forschungszentrum J\xFClich"]
   email: ''
   first_name: Henning
@@ -425,7 +430,7 @@ developers:
   email: ''
   first_name: Tam
   last_name: Mayeshiba
-  orcid: ''
+  orcid: 0000-0003-3445-7925
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley']
   email: ''
@@ -523,7 +528,7 @@ developers:
   email: ''
   first_name: Xiaohui
   last_name: Qu
-  orcid: ''
+  orcid: 0000-0001-5651-8405
 - affilations: ['Materials, Imperial College London', ' Chemistry, University College
       London', ' Thomas Young Centre']
   email: ''
@@ -554,7 +559,7 @@ developers:
   email: ''
   first_name: Ann
   last_name: Rutt
-  orcid: ''
+  orcid: 0000-0001-6534-454X
 - affilations: ['Department of Materials Science and Engineering, Massachusetts Institute
       of Technology']
   email: ''
@@ -565,7 +570,7 @@ developers:
   email: ''
   first_name: Jimmy-Xuan
   last_name: Shen
-  orcid: ''
+  orcid: 0000-0002-2743-7531
 - affilations: [Kyoto University]
   email: ''
   first_name: Kohei
@@ -597,12 +602,17 @@ developers:
   email: ''
   first_name: Jack
   last_name: Sundberg
-  orcid: ''
+  orcid: 0000-0001-5739-8919
 - affilations: ['High Energy Accelerator Research Organization, SOKENDAI']
   email: ''
   first_name: Yuta
   last_name: Suzuki
   orcid: 0000-0002-0019-4832
+- affilations: [Microsoft]
+  email: ''
+  first_name: Leopold
+  last_name: Talirz
+  orcid: 0000-0002-1524-5903
 - affilations: [PKSHA]
   email: ''
   first_name: Yohei
@@ -627,17 +637,17 @@ developers:
   email: ''
   first_name: Richard
   last_name: Tran
-  orcid: ''
+  orcid: 0000-0002-0308-2182
 - affilations: [ExoMatter GmbH]
   email: ''
   first_name: Josua
   last_name: Vieten
-  orcid: ''
+  orcid: 0000-0002-2060-2039
 - affilations: ['University of California, Berkeley']
   email: ''
   first_name: Sudarshan
   last_name: Vijay
-  orcid: ''
+  orcid: 0000-0001-8242-0161
 - affilations: ["Humboldt-Universit\xE4t zu Berlin"]
   email: ''
   first_name: Christian
@@ -674,6 +684,11 @@ developers:
   first_name: Logan
   last_name: Ward
   orcid: 0000-0002-1323-5939
+- affilations: ['Argonne National Laboratory ']
+  email: ''
+  first_name: Logan
+  last_name: 'Ward '
+  orcid: 0000-0002-1323-5939
 - affilations: ["Universit\xE9 catholique de Louvain"]
   email: ''
   first_name: David
@@ -704,7 +719,7 @@ developers:
   email: ''
   first_name: Michael
   last_name: Wolloch
-  orcid: ''
+  orcid: 0000-0002-3419-5526
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley', ' National Renewable Energy Laboratory']
   email: ''
@@ -721,6 +736,11 @@ developers:
   first_name: Yihan
   last_name: Xiao
   orcid: 0000-0002-4409-6898
+- affilations: [McGill University]
+  email: ''
+  first_name: Shuaishuai
+  last_name: Yuan
+  orcid: 0000-0001-8999-5814
 - affilations: ['Department of Chemistry, University of Bath']
   email: ''
   first_name: Pezhman
@@ -765,4 +785,4 @@ country_of_origin: "United States"
 licenses:
 - "MIT License"
 date_record_added: "2018-06-14"
-date_record_updated: "2022-07-18"
+date_record_updated: "2022-07-19"

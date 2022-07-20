@@ -227,19 +227,6 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for gmatteo
 
-| **Matthew Horton** |mkhorton| |0000-0001-7777-8871| 
-| Lawrence Berkeley National Laboratory
-.. |mkhorton| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:mkhorton
-   :width: 16
-   :height: 16
-   :alt: GitHub profile for mkhorton
-.. |0000-0001-7777-8871| image:: _static/orcid.svg
-   :target: https://orcid.org/0000-0001-7777-8871
-   :width: 16
-   :height: 16
-   :alt: ORCID profile for 0000-0001-7777-8871
-
 | **Matthew McDermott** |mattmcdermott|
 | Lawrence Berkeley National Laboratory; University of California, Berkeley
 .. |mattmcdermott| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -269,13 +256,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for tschaume
 
-| **Richard Tran** |CifLord|
+| **Richard Tran** |CifLord| |0000-0002-0308-2182| 
 | Carnegie Mellon University
 .. |CifLord| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:CifLord
    :width: 16
    :height: 16
    :alt: GitHub profile for CifLord
+.. |0000-0002-0308-2182| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-0308-2182
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-0308-2182
 
 | **Ryan Kingsbury** |rkingsbury| |0000-0002-7168-3967| 
 | Lawrence Berkeley National Laboratory
@@ -505,21 +497,31 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-2843-0876
 
-| **Jack Sundberg** |jacksund|
+| **Jack Sundberg** |jacksund| |0000-0001-5739-8919| 
 | University of North Carolina (Chapel Hill)
 .. |jacksund| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:jacksund
    :width: 16
    :height: 16
    :alt: GitHub profile for jacksund
+.. |0000-0001-5739-8919| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-5739-8919
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-5739-8919
 
-| **Jan Janssen** |jan-janssen|
+| **Jan Janssen** |jan-janssen| |0000-0001-9948-7119| 
 | Los Alamos National Laboratory
 .. |jan-janssen| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:jan-janssen
    :width: 16
    :height: 16
    :alt: GitHub profile for jan-janssen
+.. |0000-0001-9948-7119| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-9948-7119
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-9948-7119
 
 | **Janosh Riebesell** |janosh|
 | University of Cambridge
@@ -751,13 +753,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-2062-3809
 
-| **Xiaohui Qu** |xhqu1981|
+| **Xiaohui Qu** |xhqu1981| |0000-0001-5651-8405| 
 | Brookhaven National Laboratory
 .. |xhqu1981| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:xhqu1981
    :width: 16
    :height: 16
    :alt: GitHub profile for xhqu1981
+.. |0000-0001-5651-8405| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-5651-8405
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-5651-8405
 
 | **Yihan Xiao** |yihanxiao92| |0000-0002-4409-6898| 
 | University of California, Berkeley
@@ -771,6 +778,19 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0002-4409-6898
+
+| **Yiming Chen** |yimingchen-eng| |0000-0002-1501-5550| 
+| University of California, San Diego
+.. |yimingchen-eng| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:yimingchen-eng
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for yimingchen-eng
+.. |0000-0002-1501-5550| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-1501-5550
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-1501-5550
 
 | **Yu Hsuan Liang** |welltemperedpaprika|
 | University of California, Berkeley
@@ -905,13 +925,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-3264-8413
 
-| **Bruno Camino** |bcamino|
+| **Bruno Camino** |bcamino| |0000-0002-9569-2219| 
 | University College London
 .. |bcamino| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:bcamino
    :width: 16
    :height: 16
    :alt: GitHub profile for bcamino
+.. |0000-0002-9569-2219| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-9569-2219
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-9569-2219
 
 | **Conrad Cole** |darnoceloc|
 | University of Florida
@@ -921,13 +946,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for darnoceloc
 
-| **Dale Gaines II** |dgaines2|
+| **Dale Gaines II** |dgaines2| |0000-0001-9280-1240| 
 | Northwestern University
 .. |dgaines2| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:dgaines2
    :width: 16
    :height: 16
    :alt: GitHub profile for dgaines2
+.. |0000-0001-9280-1240| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-9280-1240
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-9280-1240
 
 | **Daniel Schwalbe-Koda** |dskoda| |0000-0001-9176-0854| 
 | Department of Materials Science and Engineering, Massachusetts Institute of Technology
@@ -976,13 +1006,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-6350-3559
 
-| **Evgeny Blokhin** |blokhin|
+| **Evgeny Blokhin** |blokhin| |0000-0002-5333-3947| 
 | Tilde Materials Informatics
 .. |blokhin| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:blokhin
    :width: 16
    :height: 16
    :alt: GitHub profile for blokhin
+.. |0000-0002-5333-3947| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-5333-3947
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-5333-3947
 
 | **Fanchen Meng** |FCMeng|
 | Brookhaven National Laboratory
@@ -1100,13 +1135,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-7615-997X
 
-| **Josua Vieten** |josuav1|
+| **Josua Vieten** |josuav1| |0000-0002-2060-2039| 
 | ExoMatter GmbH
 .. |josuav1| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:josuav1
    :width: 16
    :height: 16
    :alt: GitHub profile for josuav1
+.. |0000-0002-2060-2039| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-2060-2039
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-2060-2039
 
 | **Kai Pei** |peikai| |0000-0001-7378-9987| 
 | Frontier Institute of Science and Technology, Xi'an Jiaotong University; Massachusetts Institute of Technology
@@ -1141,6 +1181,19 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for kwaters4
+
+| **Leopold Talirz** |ltalirz| |0000-0002-1524-5903| 
+| Microsoft
+.. |ltalirz| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ltalirz
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for ltalirz
+.. |0000-0002-1524-5903| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-1524-5903
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-1524-5903
 
 | **Linda Hung** |LindaHung-TRI| |0000-0002-1578-6152| 
 | Toyota Research Institute
@@ -1278,13 +1331,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for rees-c
 
-| **Robert Dickson** |robertcdickson|
+| **Robert Dickson** |robertcdickson| |0000-0003-3007-808X| 
 | University of Liverpool
 .. |robertcdickson| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:robertcdickson
    :width: 16
    :height: 16
    :alt: GitHub profile for robertcdickson
+.. |0000-0003-3007-808X| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-3007-808X
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-3007-808X
 
 | **Saurabh Bajaj** |saurabh02|
 | Micron Technology Inc.
@@ -1307,6 +1365,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-4775-8201
 
+| **Shuaishuai Yuan** |ShuaishuaiYuan| |0000-0001-8999-5814| 
+| McGill University
+.. |ShuaishuaiYuan| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ShuaishuaiYuan
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for ShuaishuaiYuan
+.. |0000-0001-8999-5814| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-8999-5814
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-8999-5814
+
 | **Steven Zhu** |755452800|
 | UNNC
 .. |755452800| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -1315,13 +1386,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for 755452800
 
-| **Sudarshan Vijay** |sudarshanv01|
+| **Sudarshan Vijay** |sudarshanv01| |0000-0001-8242-0161| 
 | University of California, Berkeley
 .. |sudarshanv01| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:sudarshanv01
    :width: 16
    :height: 16
    :alt: GitHub profile for sudarshanv01
+.. |0000-0001-8242-0161| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-8242-0161
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-8242-0161
 
 | **Tam Mayeshiba** |cmgtam| |0000-0003-3445-7925| 
 | University of Wisconsin-Madison
@@ -1443,6 +1519,6 @@ Thanks
 
 Thanks also to:
 
-adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, benedictsaunders, bernstei, cajfisher, ctoher, czhengsci, dcossey014, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, jdagdelen, jmmshn, johnson1228, jonringer, JosephMontoya-TRI, JSelf42, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, ltalirz, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, ShuaishuaiYuan, smheidrich, sonium0, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xivh, yang-ruoxi, yiming-xu, yimingchen-eng, YunxingZuo, Zhuoying, zooks97
+adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, benedictsaunders, bernstei, cajfisher, ctoher, czhengsci, dcossey014, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, jdagdelen, jmmshn, johnson1228, jonringer, JosephMontoya-TRI, JSelf42, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, smheidrich, sonium0, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xivh, yang-ruoxi, yiming-xu, YunxingZuo, Zhuoying, zooks97
 
 These are developers who have contributed via GitHub but have not filled out the form linked above.
