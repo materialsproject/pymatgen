@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.cp2k.utils module &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>pymatgen.io.cp2k.utils module &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -209,7 +209,7 @@
 <p>Utility functions for assisting with cp2k IO</p>
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_aux_basis">
-<code class="sig-name descname">get_aux_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basis_type</span></em>, <em class="sig-param"><span class="n">default_basis_type</span><span class="o">=</span><span class="default_value">'cpFIT'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L161-L208"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_aux_basis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_aux_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basis_type</span></em>, <em class="sig-param"><span class="n">default_basis_type</span><span class="o">=</span><span class="default_value">'cpFIT'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L161-L208"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_aux_basis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get auxiliary basis info for a list of species.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -235,7 +235,7 @@ aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_basis_and_potential">
-<code class="sig-name descname">get_basis_and_potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">basis_and_potential_map</span></em>, <em class="sig-param"><span class="n">functional</span><span class="o">=</span><span class="default_value">'PBE'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L107-L158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_basis_and_potential" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_basis_and_potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">basis_and_potential_map</span></em>, <em class="sig-param"><span class="n">functional</span><span class="o">=</span><span class="default_value">'PBE'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L107-L158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_basis_and_potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve basis/potential dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -257,7 +257,7 @@ specifying how bases and/or potentials should be assigned</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_cutoff_from_basis">
-<code class="sig-name descname">get_cutoff_from_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">els</span></em>, <em class="sig-param"><span class="n">bases</span></em>, <em class="sig-param"><span class="n">rel_cutoff</span><span class="o">=</span><span class="default_value">50</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L261-L282"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_cutoff_from_basis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cutoff_from_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">els</span></em>, <em class="sig-param"><span class="n">bases</span></em>, <em class="sig-param"><span class="n">rel_cutoff</span><span class="o">=</span><span class="default_value">50</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L261-L282"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_cutoff_from_basis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the appropriate cutoff for the calculation given the elements/basis sets being used
 and the desired relative cutoff.</p>
 <dl class="field-list simple">
@@ -276,13 +276,13 @@ and the desired relative cutoff.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_truncated_coulomb_cutoff">
-<code class="sig-name descname">get_truncated_coulomb_cutoff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp_struct</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L321-L332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_truncated_coulomb_cutoff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_truncated_coulomb_cutoff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp_struct</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L321-L332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_truncated_coulomb_cutoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the truncated Coulomb cutoff for a given structure.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_unique_site_indices">
-<code class="sig-name descname">get_unique_site_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L211-L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_unique_site_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_unique_site_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L211-L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_unique_site_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get unique site indices for a structure according to site properties. Whatever site-property has the most
 unique values is used for indexing.</p>
 <p>For example, if you have magnetic CoO with half Co atoms having a positive moment, and the other
@@ -296,7 +296,7 @@ turned into CP2K input parameters, which are stored in parsable_site_properties.
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_xc_functionals">
-<code class="sig-name descname">get_xc_functionals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L290-L318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_xc_functionals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_xc_functionals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L290-L318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_xc_functionals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the XC functionals for a given functional name. This utility does
 not deal with defining hybrid functionals since those may or may not
 require ADMM, which is not supported by LibXC and so needs to be manually
@@ -310,7 +310,7 @@ defined.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.natural_keys">
-<code class="sig-name descname">natural_keys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/cp2k/utils.py#L94-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.natural_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">natural_keys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/cp2k/utils.py#L94-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.natural_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort text by numbers coming after an underscore with natural number
 convention,
 Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12]</p>

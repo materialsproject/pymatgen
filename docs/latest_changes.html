@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -171,36 +171,23 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2022-7-8">
-<h2>v2022.7.8<a class="headerlink" href="#v2022-7-8" title="Permalink to this headline">¶</a></h2>
-<p>Welcome to new contributors &#64;naveensrinivasan, &#64;xivh, &#64;dgaines2, &#64;yang-ruoxi, &#64;cajfisher and &#64;mjwen!</p>
+<div class="section" id="v2022-7-19">
+<h2>v2022.7.19<a class="headerlink" href="#v2022-7-19" title="Permalink to this headline">¶</a></h2>
+<p>This will be the final release with the pymatgen.analysis.defects
+module included in the standard pymatgen package. This release will
+include the older defects code by default, but can also be replaced with
+the newer defects code through installation of <code class="docutils literal notranslate"><span class="pre">pymatgen-analysis-defects</span></code>.</p>
+<p>Subsequent versions of pymatgen will require
+the additional installation of <a class="reference external" href="https://github.com/materialsproject/pymatgen-analysis-defects">pymatgen-analysis-defects</a> for all defect-related
+functionality via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pymatgen-analysis-defects</span></code>.</p>
+<p>Relevant imports will still be from the <code class="docutils literal notranslate"><span class="pre">pymatgen.analysis.defects</span></code> namespace but the code will now be maintained and developed in this separate repository.</p>
+<p>There will be significant changes to the defects code to support new functionality.Existing PyCDT users should use this version of pymatgen or older. Any questions
+about this change should be directed to Jimmy-Xuan Shen, &#64;jmmshn.</p>
+<p>For more information about other pymatgen “add-on” packages, please see
+<a class="reference external" href="https://pymatgen.org/addons.html">this page in our documentation</a>.</p>
 <ul class="simple">
-<li><p>New: Partial periodic boundary conditions, PR #2429 by &#64;gpetretto</p></li>
-<li><p>New: Element.from_name(), PR #2567 by &#64;rkingsbury</p></li>
-<li><p>New: Materials Project input set for absorption calculations, PR #2320 by &#64;yang-ruoxi</p></li>
-<li><p>Enhancement: compressed LAMMPS and XYZ files in pymatgen.io.lammps, PR #2538 by &#64;ab5424</p></li>
-<li><p>Enhancement: remove vertical lines from VoltageProfilePlotter.get_plotly_figure(), PR #2552 by &#64;acrutt</p></li>
-<li><p>Enhancement: chemical potential plot background color changed, PR #2559 &#64;jmmshn</p></li>
-<li><p>Enhancement: ability to change voronoi_distance_cutoff in ChemEnv, PR #2568 by &#64;JaGeo</p></li>
-<li><p>Enhancement: Ion.oxi_state_guesses will use correct charge by default, PR #2566 by &#64;rkingsbury</p></li>
-<li><p>Enhancement: Remove not converged warning for VASP AIMD runs, PR #2571 by &#64;mjwen</p></li>
-<li><p>Fix: generation of continuous line-mode band structures, PR #2533 by &#64;munrojm</p></li>
-<li><p>Fix: duplicate site properties for magnetic moments hwen using <cite>AseAtomsAdaptor</cite>, PR #2545 by &#64;arosen93</p></li>
-<li><p>Fix: bug in Grüneisen parameter calculation, PR #2543 by by &#64;ab5424</p></li>
-<li><p>Fix: allow a comment on final line of KPOINTS file, PR #2549 by &#64;xivh</p></li>
-<li><p>Fix: for <cite>Composition.replace</cite> with complex mappings, PR #2555 by &#64;jacksund</p></li>
-<li><p>Fix: Implement equality method and fix __iter__ for InputSet, PR #2575 by &#64;rkingsbury</p></li>
-<li><p>Fix: use negative charge convention for electron in “update_charge_from_potcar”, PR #2577 by &#64;jmmshn</p></li>
-<li><p>Fix: ensure charge is applied to initial and final structures parsed from vasprun.xml, PR #2579 by &#64;jmmshn</p></li>
-<li><p>Chore: Set permissions for GitHub actions, PR #2547 by &#64;naveensrinivasan</p></li>
-<li><p>Chore: Included GitHub actions in the Dependabot config, PR #2548 by by &#64;naveensrinivasan</p></li>
-<li><p>Documentation: fix typos in pymatgen.symmetry.analyzer docstrings, PR #2561 by &#64;dgaines2</p></li>
-<li><p>Documentation: clarification about usage of InputFile, PR #2570 by by &#64;orionarcher</p></li>
-<li><p>Documentation: Improve messages and warnings, PR #2572 and PR #2573 by &#64;cajfisher</p></li>
-<li><p>Documentation: fix typo, PR #2580 by &#64;janosh</p></li>
+<li><p>Preparation for the removal of the defects module, PR #2582 by &#64;jmmshn</p></li>
 </ul>
-<p>Notice: functionality from pymatgen.analysis.defects will be incorporated into a separate add-on package in the future,
-see deprecation notice.</p>
 </div>
 </div>
 

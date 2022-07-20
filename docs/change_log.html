@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-7-19">v2022.7.19</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-8">v2022.7.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-5-26">v2022.5.26</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-5-19">v2022.5.19</a></li>
@@ -484,6 +485,24 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2022-7-19">
+<h2>v2022.7.19<a class="headerlink" href="#v2022-7-19" title="Permalink to this headline">¶</a></h2>
+<p>This will be the final release with the pymatgen.analysis.defects
+module included in the standard pymatgen package. This release will
+include the older defects code by default, but can also be replaced with
+the newer defects code through installation of <code class="docutils literal notranslate"><span class="pre">pymatgen-analysis-defects</span></code>.</p>
+<p>Subsequent versions of pymatgen will require
+the additional installation of <a class="reference external" href="https://github.com/materialsproject/pymatgen-analysis-defects">pymatgen-analysis-defects</a> for all defect-related
+functionality via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pymatgen-analysis-defects</span></code>.</p>
+<p>Relevant imports will still be from the <code class="docutils literal notranslate"><span class="pre">pymatgen.analysis.defects</span></code> namespace but the code will now be maintained and developed in this separate repository.</p>
+<p>There will be significant changes to the defects code to support new functionality.Existing PyCDT users should use this version of pymatgen or older. Any questions
+about this change should be directed to Jimmy-Xuan Shen, &#64;jmmshn.</p>
+<p>For more information about other pymatgen “add-on” packages, please see
+<a class="reference external" href="https://pymatgen.org/addons.html">this page in our documentation</a>.</p>
+<ul class="simple">
+<li><p>Preparation for the removal of the defects module, PR #2582 by &#64;jmmshn</p></li>
+</ul>
+</div>
 <div class="section" id="v2022-7-8">
 <h2>v2022.7.8<a class="headerlink" href="#v2022-7-8" title="Permalink to this headline">¶</a></h2>
 <p>Welcome to new contributors &#64;naveensrinivasan, &#64;xivh, &#64;dgaines2, &#64;yang-ruoxi, &#64;cajfisher and &#64;mjwen!</p>

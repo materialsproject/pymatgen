@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.util.coord_cython module &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>pymatgen.util.coord_cython module &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -208,12 +208,16 @@
 boundary conditions or otherwise.</p>
 <dl class="py function">
 <dt id="pymatgen.util.coord_cython.coord_list_mapping_pbc">
-<code class="sig-name descname">coord_list_mapping_pbc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/util/coord_cython.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_cython.coord_list_mapping_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">coord_list_mapping_pbc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/util/coord_cython.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_cython.coord_list_mapping_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Superset cannot contain duplicate matching rows</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</p></li>
+<li><p><strong>pbc</strong> – a tuple defining the periodic boundary conditions along the three
+axis of the lattice.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of indices such that superset[indices] = subset</p>
@@ -223,13 +227,17 @@ Superset cannot contain duplicate matching rows</p>
 
 <dl class="py function">
 <dt id="pymatgen.util.coord_cython.is_coord_subset_pbc">
-<code class="sig-name descname">is_coord_subset_pbc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/util/coord_cython.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_cython.is_coord_subset_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_coord_subset_pbc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/util/coord_cython.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_cython.is_coord_subset_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if all fractional coords in subset are contained in superset.
 Allows specification of a mask determining pairs that are not
 allowed to match to each other</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</p></li>
+<li><p><strong>pbc</strong> – a tuple defining the periodic boundary conditions along the three
+axis of the lattice.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if all of subset is in superset.</p>
@@ -239,7 +247,7 @@ allowed to match to each other</p>
 
 <dl class="py function">
 <dt id="pymatgen.util.coord_cython.pbc_shortest_vectors">
-<code class="sig-name descname">pbc_shortest_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/util/coord_cython.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_cython.pbc_shortest_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pbc_shortest_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/util/coord_cython.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord_cython.pbc_shortest_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the shortest vectors between two lists of coordinates taking into
 account periodic boundary conditions and the lattice.</p>
 <dl class="field-list simple">

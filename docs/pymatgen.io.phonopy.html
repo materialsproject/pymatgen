@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.phonopy module &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>pymatgen.io.phonopy module &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>Module for interfacing with phonopy, see <a class="reference external" href="https://atztogo.github.io/phonopy/">https://atztogo.github.io/phonopy/</a></p>
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.eigvec_to_eigdispl">
-<code class="sig-name descname">eigvec_to_eigdispl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">frac_coords</span></em>, <em class="sig-param"><span class="n">mass</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L107-L126"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.eigvec_to_eigdispl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">eigvec_to_eigdispl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">frac_coords</span></em>, <em class="sig-param"><span class="n">mass</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L107-L126"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.eigvec_to_eigdispl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a single eigenvector to an eigendisplacement in the primitive cell
 according to the formula:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">frac_coords</span> \\<span class="n">dot</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">mass</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span>
@@ -229,7 +229,7 @@ multiplicative and phase factors are set to 1.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_complete_ph_dos">
-<code class="sig-name descname">get_complete_ph_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">partial_dos_path</span></em>, <em class="sig-param"><span class="n">phonopy_yaml_path</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L235-L257"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_complete_ph_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_complete_ph_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">partial_dos_path</span></em>, <em class="sig-param"><span class="n">phonopy_yaml_path</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L235-L257"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_complete_ph_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen CompletePhononDos from a partial_dos.dat and
 phonopy.yaml files.
 The second is produced when generating a Dos and is needed to extract
@@ -246,7 +246,7 @@ the structure.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_displaced_structures">
-<code class="sig-name descname">get_displaced_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L260-L315"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_displaced_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_displaced_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L260-L315"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_displaced_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of symmetrically inequivalent displaced structures for
 phonon calculations.</p>
 <dl class="field-list simple">
@@ -269,7 +269,7 @@ which the first element is the perfect supercell structure.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_gruneisen_ph_bs_symm_line">
-<code class="sig-name descname">get_gruneisen_ph_bs_symm_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gruneisen_path</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">structure_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L661-L682"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_gruneisen_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_gruneisen_ph_bs_symm_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gruneisen_path</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">structure_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L661-L682"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_gruneisen_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen GruneisenPhononBandStructure from a band.yaml file.
 The labels will be extracted from the dictionary, if present.
 If the ‘eigenvector’ key is found the eigendisplacements will be
@@ -298,7 +298,7 @@ These derivations occur because of very small frequencies
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_gruneisenparameter">
-<code class="sig-name descname">get_gruneisenparameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gruneisen_path</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">structure_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter" title="pymatgen.phonon.gruneisen.GruneisenParameter">pymatgen.phonon.gruneisen.GruneisenParameter</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L442-L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_gruneisenparameter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_gruneisenparameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gruneisen_path</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">structure_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter" title="pymatgen.phonon.gruneisen.GruneisenParameter">pymatgen.phonon.gruneisen.GruneisenParameter</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L442-L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_gruneisenparameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
 The order is structure &gt; structure path &gt; structure from gruneisen dict.
 Newer versions of phonopy include the structure in the yaml file,
@@ -317,7 +317,7 @@ the structure/structure_path is kept for compatibility.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_gs_ph_bs_symm_line_from_dict">
-<code class="sig-name descname">get_gs_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gruneisen_dict</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">structure_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine" title="pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine">pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L504-L638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_gs_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_gs_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gruneisen_dict</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">structure_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine" title="pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine">pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L504-L638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_gs_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
 extracted by the gruneisen.yaml file produced by phonopy. The labels
 will be extracted from the dictionary, if present. If the ‘eigenvector’
@@ -349,7 +349,7 @@ These derivations occur because of very small frequencies
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_ph_bs_symm_line">
-<code class="sig-name descname">get_ph_bs_symm_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands_path</span></em>, <em class="sig-param"><span class="n">has_nac</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L206-L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ph_bs_symm_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands_path</span></em>, <em class="sig-param"><span class="n">has_nac</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L206-L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononBandStructure from a band.yaml file.
 The labels will be extracted from the dictionary, if present.
 If the ‘eigenvector’  key is found the eigendisplacements will be
@@ -372,7 +372,7 @@ calculated according to the formula:
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict">
-<code class="sig-name descname">get_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands_dict</span></em>, <em class="sig-param"><span class="n">has_nac</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L129-L203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands_dict</span></em>, <em class="sig-param"><span class="n">has_nac</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L129-L203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononBandStructure object from the dictionary
 extracted by the band.yaml file produced by phonopy. The labels
 will be extracted from the dictionary, if present. If the ‘eigenvector’
@@ -397,7 +397,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_ph_dos">
-<code class="sig-name descname">get_ph_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">total_dos_path</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L224-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ph_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">total_dos_path</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L224-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononDos from a total_dos.dat file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -408,7 +408,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_phonon_band_structure_from_fc">
-<code class="sig-name descname">get_phonon_band_structure_from_fc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure">pymatgen.phonon.bandstructure.PhononBandStructure</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L368-L397"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_from_fc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_band_structure_from_fc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure">pymatgen.phonon.bandstructure.PhononBandStructure</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L368-L397"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_from_fc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a uniform phonon band structure from phonopy force constants.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -430,7 +430,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc">
-<code class="sig-name descname">get_phonon_band_structure_symm_line_from_fc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">pymatgen.phonon.bandstructure.PhononBandStructureSymmLine</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L400-L439"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_band_structure_symm_line_from_fc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">pymatgen.phonon.bandstructure.PhononBandStructureSymmLine</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L400-L439"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a phonon band structure along a high symmetry path from phonopy force
 constants.</p>
 <dl class="field-list simple">
@@ -454,7 +454,7 @@ the band structure path.</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_phonon_dos_from_fc">
-<code class="sig-name descname">get_phonon_dos_from_fc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos" title="pymatgen.phonon.dos.CompletePhononDos">pymatgen.phonon.dos.CompletePhononDos</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L318-L365"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_dos_from_fc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_dos_from_fc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos" title="pymatgen.phonon.dos.CompletePhononDos">pymatgen.phonon.dos.CompletePhononDos</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L318-L365"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_dos_from_fc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a projected phonon density of states from phonopy force constants.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -477,7 +477,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_phonopy_structure">
-<code class="sig-name descname">get_phonopy_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L61-L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonopy_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonopy_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L61-L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonopy_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pymatgen Structure object to a PhonopyAtoms object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -488,7 +488,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_pmg_structure">
-<code class="sig-name descname">get_pmg_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L36-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_pmg_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pmg_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L36-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_pmg_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a PhonopyAtoms object to pymatgen Structure object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -499,7 +499,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="py function">
 <dt id="pymatgen.io.phonopy.get_structure_from_dict">
-<code class="sig-name descname">get_structure_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/phonopy.py#L80-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_structure_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/phonopy.py#L80-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_structure_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts a structure from the dictionary extracted from the output
 files of phonopy like phonopy.yaml or band.yaml.
 Adds “phonopy_masses” in the site_properties of the structures.

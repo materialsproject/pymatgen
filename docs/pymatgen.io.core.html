@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.core module &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>pymatgen.io.core module &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -229,7 +229,7 @@ ensures the as_dict and from_dict work correctly.</p></li>
 </ol>
 <dl class="py class">
 <dt id="pymatgen.io.core.InputFile">
-<em class="property">class </em><code class="sig-name descname">InputFile</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L45-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">InputFile</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L45-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract base class to represent a single input file. Note that use
 of this class is optional; it is possible create an InputSet that
@@ -240,7 +240,7 @@ is called by write_file.</p>
 arguments to __init__ as attributes.</p>
 <dl class="py method">
 <dt id="pymatgen.io.core.InputFile.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L89-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L89-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an InputFile object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -254,7 +254,7 @@ arguments to __init__ as attributes.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.core.InputFile.from_string">
-<em class="property">abstract classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contents</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L76-L87"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contents</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L76-L87"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an InputFile object from a string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -268,13 +268,13 @@ arguments to __init__ as attributes.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.core.InputFile.get_string">
-<em class="property">abstract </em><code class="sig-name descname">get_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L58-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.get_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">get_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L58-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a string representation of an entire input file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.core.InputFile.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L64-L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L64-L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputFile.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -290,14 +290,14 @@ arguments to __init__ as attributes.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.core.InputGenerator">
-<em class="property">class </em><code class="sig-name descname">InputGenerator</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L230-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">InputGenerator</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L230-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>InputGenerator classes serve as generators for Input objects. They contain
 settings or sets of instructions for how to create Input from a set of
 coordinates or a previous calculation directory.</p>
 <dl class="py method">
 <dt id="pymatgen.io.core.InputGenerator.get_input_set">
-<em class="property">abstract </em><code class="sig-name descname">get_input_set</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.core.InputSet" title="pymatgen.io.core.InputSet">pymatgen.io.core.InputSet</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L237-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputGenerator.get_input_set" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">get_input_set</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.core.InputSet" title="pymatgen.io.core.InputSet">pymatgen.io.core.InputSet</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L237-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputGenerator.get_input_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate an InputSet object. Typically the first argument to this method
 will be a Structure or other form of atomic coordinates.</p>
 </dd></dl>
@@ -306,7 +306,7 @@ will be a Structure or other form of atomic coordinates.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.core.InputSet">
-<em class="property">class </em><code class="sig-name descname">InputSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span><span class="p">, </span>Union<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="#pymatgen.io.core.InputFile" title="pymatgen.io.core.InputFile">pymatgen.io.core.InputFile</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L105-L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">InputSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span><span class="p">, </span>Union<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="#pymatgen.io.core.InputFile" title="pymatgen.io.core.InputFile">pymatgen.io.core.InputFile</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L105-L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></p>
 <p>Abstract base class for all InputSet classes. InputSet are dict-like
 containers for all calculation input data.</p>
@@ -333,7 +333,7 @@ InputSet(inputs={}, foo=’bar’) will make InputSet.foo == ‘bar’.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.core.InputSet.from_directory">
-<em class="property">classmethod </em><code class="sig-name descname">from_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L210-L218"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet.from_directory" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L210-L218"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet.from_directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct an InputSet from a directory of one or more files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -344,7 +344,7 @@ InputSet(inputs={}, foo=’bar’) will make InputSet.foo == ‘bar’.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.core.InputSet.validate">
-<code class="sig-name descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L220-L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet.validate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L220-L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>A place to implement basic checks to verify the validity of an
 input set. Can be as simple or as complex as desired.</p>
 <p>Will raise a NotImplementedError unless overloaded by the inheriting class.</p>
@@ -352,7 +352,7 @@ input set. Can be as simple or as complex as desired.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.core.InputSet.write_input">
-<code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">make_dir</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">zip_inputs</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../io/core.py#L161-L208"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet.write_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.Path<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">make_dir</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">zip_inputs</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../io/core.py#L161-L208"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.core.InputSet.write_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write Inputs to one or more files</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

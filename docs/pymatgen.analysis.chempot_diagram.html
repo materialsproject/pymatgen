@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chempot_diagram module &mdash; pymatgen 2022.7.8 documentation</title>
+  <title>pymatgen.analysis.chempot_diagram module &mdash; pymatgen 2022.7.19 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2022.7.8
+                2022.7.19
               </div>
             
           
@@ -225,7 +225,7 @@ chemical reactions at interfaces between dissimilar materials.” JPE 20,
 </div></blockquote>
 <dl class="py class">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram">
-<em class="property">class </em><code class="sig-name descname">ChemicalPotentialDiagram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span><span class="p">:</span> <span class="n">list<span class="p">[</span>PDEntry<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">dict[Element, float] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_min_limit</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">- 50.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/chempot_diagram.py#L49-L624"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ChemicalPotentialDiagram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span><span class="p">:</span> <span class="n">list<span class="p">[</span>PDEntry<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">dict[Element, float] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_min_limit</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">- 50.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../analysis/chempot_diagram.py#L49-L624"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The chemical potential diagram is the mathematical dual to the compositional
 phase diagram. To create the diagram, convex minimization is
@@ -261,37 +261,37 @@ lower bound) for unspecified elements within the “limits” argument.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.border_hyperplanes">
-<em class="property">property </em><code class="sig-name descname">border_hyperplanes</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.border_hyperplanes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">border_hyperplanes</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.border_hyperplanes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns bordering hyperplanes</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.chemical_system">
-<em class="property">property </em><code class="sig-name descname">chemical_system</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.chemical_system" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">chemical_system</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.chemical_system" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the chemical system (A-B-C-…) of diagram object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.domains">
-<em class="property">property </em><code class="sig-name descname">domains</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.domains" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">domains</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.domains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mapping of formulas to array of domain boundary points</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.el_refs">
-<em class="property">property </em><code class="sig-name descname">el_refs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.el_refs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">el_refs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.el_refs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary of elements and reference entries</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.entry_dict">
-<em class="property">property </em><code class="sig-name descname">entry_dict</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.entry_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">entry_dict</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.entry_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mapping between reduced formula and ComputedEntry</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.get_plot">
-<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="p">:</span> <span class="n">list[Element | str] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_stable</span><span class="p">:</span> <span class="n">bool | None</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">formulas_to_draw</span><span class="p">:</span> <span class="n">list[str] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">draw_formula_meshes</span><span class="p">:</span> <span class="n">bool | None</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">draw_formula_lines</span><span class="p">:</span> <span class="n">bool | None</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">formula_colors</span><span class="p">:</span> <span class="n">list<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">['rgb(27,158,119)', 'rgb(217,95,2)', 'rgb(117,112,179)', 'rgb(231,41,138)', 'rgb(102,166,30)', 'rgb(230,171,2)', 'rgb(166,118,29)', 'rgb(102,102,102)']</span></em>, <em class="sig-param"><span class="n">element_padding</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">1.0</span></em><span class="sig-paren">)</span> &#x2192; Figure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/chempot_diagram.py#L108-L180"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="p">:</span> <span class="n">list[Element | str] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_stable</span><span class="p">:</span> <span class="n">bool | None</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">formulas_to_draw</span><span class="p">:</span> <span class="n">list[str] | None</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">draw_formula_meshes</span><span class="p">:</span> <span class="n">bool | None</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">draw_formula_lines</span><span class="p">:</span> <span class="n">bool | None</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">formula_colors</span><span class="p">:</span> <span class="n">list<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">['rgb(27,158,119)', 'rgb(217,95,2)', 'rgb(117,112,179)', 'rgb(231,41,138)', 'rgb(102,166,30)', 'rgb(230,171,2)', 'rgb(166,118,29)', 'rgb(102,102,102)']</span></em>, <em class="sig-param"><span class="n">element_padding</span><span class="p">:</span> <span class="n">float | None</span> <span class="o">=</span> <span class="default_value">1.0</span></em><span class="sig-paren">)</span> &#x2192; Figure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../analysis/chempot_diagram.py#L108-L180"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the 2-dimensional or 3-dimensional chemical potential diagram using an
 interactive Plotly interface.</p>
 <p>Elemental axes can be specified; if none provided, will automatically default
@@ -330,19 +330,19 @@ limits of the plot such that elemental domains have the specified padding
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.hyperplane_entries">
-<em class="property">property </em><code class="sig-name descname">hyperplane_entries</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.hyperplane_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">hyperplane_entries</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.hyperplane_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of entries corresponding to hyperplanes</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.hyperplanes">
-<em class="property">property </em><code class="sig-name descname">hyperplanes</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.hyperplanes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">hyperplanes</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.hyperplanes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns array of hyperplane data</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.lims">
-<em class="property">property </em><code class="sig-name descname">lims</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.lims" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lims</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/analysis/chempot_diagram.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram.lims" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns array of limits used in constructing hyperplanes</p>
 </dd></dl>
 
@@ -350,7 +350,7 @@ limits of the plot such that elemental domains have the specified padding
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chempot_diagram.get_2d_orthonormal_vector">
-<code class="sig-name descname">get_2d_orthonormal_vector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line_pts</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/chempot_diagram.py#L687-L712"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.get_2d_orthonormal_vector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_2d_orthonormal_vector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line_pts</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../analysis/chempot_diagram.py#L687-L712"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.get_2d_orthonormal_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a vector that is orthonormal to a line given by a set of points. Used
 for determining the location of an annotation on a 2-d chemical potential diagram.</p>
 <dl class="field-list simple">
@@ -364,7 +364,7 @@ coordinates of a line</p>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chempot_diagram.get_centroid_2d">
-<code class="sig-name descname">get_centroid_2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertices</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/chempot_diagram.py#L650-L684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.get_centroid_2d" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_centroid_2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertices</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../analysis/chempot_diagram.py#L650-L684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.get_centroid_2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>A barebones implementation of the formula for calculating the centroid of a 2D
 polygon. Useful for calculating the location of an annotation on a chemical
 potential domain within a 3D chemical potential diagram.</p>
@@ -382,7 +382,7 @@ circumfrentially</p>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chempot_diagram.simple_pca">
-<code class="sig-name descname">simple_pca</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">np.ndarray</span></em>, <em class="sig-param"><span class="n">k</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2</span></em><span class="sig-paren">)</span> &#x2192; tuple<span class="p">[</span>np.ndarray<span class="p">, </span>np.ndarray<span class="p">, </span>np.ndarray<span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../analysis/chempot_diagram.py#L627-L647"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.simple_pca" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">simple_pca</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">np.ndarray</span></em>, <em class="sig-param"><span class="n">k</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2</span></em><span class="sig-paren">)</span> &#x2192; tuple<span class="p">[</span>np.ndarray<span class="p">, </span>np.ndarray<span class="p">, </span>np.ndarray<span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.19/pymatgen/core/../analysis/chempot_diagram.py#L627-L647"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chempot_diagram.simple_pca" title="Permalink to this definition">¶</a></dt>
 <dd><p>A barebones implementation of principal component analysis (PCA) used in the
 ChemicalPotentialDiagram class for plotting.</p>
 <dl class="field-list simple">
