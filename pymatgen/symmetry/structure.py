@@ -56,10 +56,10 @@ class SymmetrizedStructure(Structure):
         equivalent_indices = [[] for _ in range(len(u))]  # type: ignore
         equivalent_sites = [[] for _ in range(len(u))]  # type: ignore
         wyckoff_symbols = [[] for _ in range(len(u))]  # type: ignore
-        for i, inv in enumerate(inv):
-            equivalent_indices[inv].append(i)
-            equivalent_sites[inv].append(self.sites[i])
-            wyckoff_symbols[inv].append(wyckoff_letters[i])
+        for i, inv_ in enumerate(inv):
+            equivalent_indices[inv_].append(i)
+            equivalent_sites[inv_].append(self.sites[i])
+            wyckoff_symbols[inv_].append(wyckoff_letters[i])
         self.equivalent_indices: list[int] = equivalent_indices  # type: ignore
         self.equivalent_sites: list[PeriodicSite] = equivalent_sites  # type: ignore
         self.wyckoff_letters = wyckoff_letters
@@ -137,8 +137,9 @@ class SymmetrizedStructure(Structure):
         """
         :return: MSONAble dict
         """
+        structure = Structure.from_sites(self.sites)
         return {
-            "structure": super().as_dict(),
+            "structure": structure.as_dict(),
             "spacegroup": self.spacegroup,
             "equivalent_positions": self.site_labels,
             "wyckoff_letters": self.wyckoff_letters,
