@@ -1045,14 +1045,12 @@ class IStructure(SiteCollection, MSONable):
             return m.fit(self, other)
         return m.fit_anonymous(self, other)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, IStructure):
+            return NotImplemented
         if other is self:
             return True
-        if other is None:
-            return False
         if len(self) != len(other):
-            return False
-        if not hasattr(other, "lattice"):
             return False
         if self.lattice != other.lattice:
             return False
