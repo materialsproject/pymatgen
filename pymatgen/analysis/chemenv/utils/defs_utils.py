@@ -5,6 +5,11 @@
 This module contains the definition of some objects used in the chemenv package.
 """
 
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
+    is_anion_cation_bond,
+)
+from pymatgen.core.structure import Structure
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -12,10 +17,6 @@ __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
-
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    is_anion_cation_bond,
-)
 
 STATS_ENV_PAPER = (
     "D. Waroquiers, X. Gonze, G.-M. Rignanese, C. Welker-Nieuwoudt, F. Rosowski,\n"
@@ -72,7 +73,7 @@ class AdditionalConditions:
 
     ALL = [NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB]
 
-    def check_condition(self, condition, structure, parameters):
+    def check_condition(self, condition, structure: Structure, parameters):
         """
         :param condition:
         :param structure:

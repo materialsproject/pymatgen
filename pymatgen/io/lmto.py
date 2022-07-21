@@ -33,7 +33,7 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure, header=None, version="LMASA-47"):
+    def __init__(self, structure: Structure, header=None, version="LMASA-47"):
         """
         Args:
             structure: The structure as a pymatgen Structure object.

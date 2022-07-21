@@ -6,6 +6,8 @@ This module implements DefectCompatibility analysis for consideration of
 defects
 """
 
+from __future__ import annotations
+
 import logging
 
 from monty.json import MSONable

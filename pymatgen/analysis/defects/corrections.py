@@ -5,6 +5,8 @@
 Implementation of defect correction methods.
 """
 
+from __future__ import annotations
+
 import logging
 
 import matplotlib.pyplot as plt
@@ -24,6 +26,7 @@ from pymatgen.analysis.defects.utils import (
     kumagai_to_V,
     tune_for_gamma,
 )
+from pymatgen.core.lattice import Lattice
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -163,7 +166,7 @@ class FreysoldtCorrection(DefectCorrection):
             "freysoldt_potential_alignment": pot_corr,
         }
 
-    def perform_es_corr(self, lattice, q, step=1e-4):
+    def perform_es_corr(self, lattice: Lattice, q, step=1e-4):
         """
         Perform Electrostatic Freysoldt Correction
         Args:

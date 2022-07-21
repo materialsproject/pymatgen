@@ -271,7 +271,7 @@ def add_electron_affinities():
         data.append(row)
     data.pop(0)
     ea = {int(r[0]): float(re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))) for r in data}
-    assert set(ea.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+    assert set(ea).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     print(ea)
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
@@ -305,7 +305,7 @@ def add_ionization_energies():
             data[Z].append(val)
     print(data)
     print(data[51])
-    assert set(data.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+    assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
         del v["Ionization energy"]

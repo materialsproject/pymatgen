@@ -5,10 +5,13 @@
 Provides classes for generating high-symmetry k-paths using different conventions.
 """
 
+from __future__ import annotations
+
 import abc
 import itertools
 import operator
 from math import ceil, cos, e, pi, sin, tan
+from typing import Any
 from warnings import warn
 
 import networkx as nx
@@ -19,7 +22,9 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.typing import SpeciesLike
 
 try:
     from seekpath import get_path
@@ -42,7 +47,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
         structure (Structure): Structure object.
@@ -56,7 +61,7 @@ class KPathBase(metaclass=abc.ABCMeta):
         self._structure = structure
         self._latt = self._structure.lattice
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
-        self._kpath = None
+        self._kpath: dict[str, Any] | None = None
 
         self._symprec = symprec
         self._atol = atol
@@ -148,7 +153,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     are returned for the reciprocal cell basis defined in the paper.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
         structure (Structure): Structure object.
@@ -947,7 +952,7 @@ class KPathSeek(KPathBase):
         get_path is not None,
         "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object
@@ -969,9 +974,9 @@ class KPathSeek(KPathBase):
 
         if not system_is_tri:
             warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
-            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])
+            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])  # type: ignore
 
-        unique_species = []
+        unique_species: list[SpeciesLike] = []
         numbers = []
 
         for species, g in itertools.groupby(site_data):
@@ -1294,7 +1299,7 @@ class KPathLatimerMunro(KPathBase):
         points_in_path_inds_unique = list(set(points_in_path_inds))
 
         orbit_cosines = []
-        for i, orbit in enumerate(key_points_inds_orbits[:-1]):
+        for orbit in key_points_inds_orbits[:-1]:
 
             orbit_cosines.append(
                 sorted(
@@ -1390,7 +1395,7 @@ class KPathLatimerMunro(KPathBase):
             nC2 = 0
             nC3 = 0
             nsig = 0
-            for j, opind in enumerate(little_group):
+            for opind in little_group:
                 op = self._rpg[opind]
                 if not (op == ID).all():
                     if (np.dot(op, op) == ID).all():
@@ -1560,7 +1565,7 @@ class KPathLatimerMunro(KPathBase):
         key_lines = []
         gamma_ind = len(key_points) - 1
 
-        for (i, facet_as_key_point_inds) in enumerate(bz_as_key_point_inds):
+        for facet_as_key_point_inds in bz_as_key_point_inds:
             facet_as_key_point_inds_bndy = facet_as_key_point_inds[: len(facet_as_key_point_inds) - 1]
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
@@ -1815,8 +1820,8 @@ class KPathLatimerMunro(KPathBase):
 
         if len(pos1) != len(pos2):
             return False
-        for i, v in enumerate(pos1):
-            if abs(pos1[i] - pos2[i]) > tolerance[i] and abs(pos1[i] - pos2[i]) < 1.0 - tolerance[i]:
+        for idx, p1 in enumerate(pos1):
+            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1.0 - tolerance[idx]:
                 return False
         return True
 
@@ -1825,7 +1830,7 @@ class KPathLatimerMunro(KPathBase):
         # in this implementation, G and H are lists of objects of type
         # SymmOp
         gH = []
-        for i, op1 in enumerate(G):
+        for op1 in G:
             in_H = False
             for op2 in H:
                 if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
