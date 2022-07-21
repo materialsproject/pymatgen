@@ -30,7 +30,9 @@ from typing import (
     Literal,
     Sequence,
     Set,
+    Sized,
     Union,
+    cast,
 )
 
 import numpy as np
@@ -1046,8 +1048,13 @@ class IStructure(SiteCollection, MSONable):
         return m.fit_anonymous(self, other)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, IStructure):
+
+        # check for valid operand following class Student example from official functools docs
+        # https://docs.python.org/3/library/functools.html#functools.total_ordering
+        if not hasattr(other, "lattice") or not isinstance(other, Sized):
             return NotImplemented
+        other = cast(Structure, other)  # silence mypy errors below
+
         if other is self:
             return True
         if len(self) != len(other):
