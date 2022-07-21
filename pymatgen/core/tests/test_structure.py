@@ -86,6 +86,18 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(df.attrs["Reduced Formula"], "Si")
         self.assertEqual(df.shape, (2, 8))
 
+    def test_equal(self):
+        struct = self.struct
+        self.assertTrue(struct == struct)
+        self.assertTrue(struct == struct.copy())
+        self.assertFalse(struct == 2 * struct)
+
+        self.assertFalse(struct == "a" * len(struct))  # GH-2584
+        self.assertFalse(struct is None)
+        self.assertFalse(struct == 42)  # GH-2587
+
+        self.assertTrue(struct == Structure.from_dict(struct.as_dict()))
+
     def test_matches(self):
         ss = self.struct * 2
         self.assertTrue(ss.matches(self.struct))
@@ -468,9 +480,9 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(nn), 47)
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
-        for i in range(len(s)):
-            self.assertEqual(4, len(all_nn[i][0]))
-            self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+        for idx, site in enumerate(s):
+            self.assertEqual(4, len(all_nn[idx][0]))
+            self.assertEqual(len(all_nn[idx]), len(s.get_neighbors(site, r)))
 
         for site, nns in zip(s, all_nn):
             for nn in nns:
@@ -1411,7 +1423,7 @@ Sites (5)
 2 H     1.026719     0.000000    -0.363000
 3 H    -0.513360    -0.889165    -0.363000
 4 H    -0.513360     0.889165    -0.363000"""
-        self.assertEqual(self.mol.__str__(), ans)
+        self.assertEqual(str(self.mol), ans)
         ans = """Molecule Summary
 Site: C (0.0000, 0.0000, 0.0000)
 Site: H (0.0000, 0.0000, 1.0890)
@@ -1760,6 +1772,4 @@ class MoleculeTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
-
     unittest.main()
