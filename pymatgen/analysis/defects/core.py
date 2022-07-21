@@ -25,7 +25,7 @@ warnings.warn(
     the new package on top of the old one so the entire `pymatgen.analysis.defects` namespace will be replaced.
 
     IMPORTANT: If you have already installed the new package and see this message it means the old package is
-    loaded first before the new package. See the documentation for more information, and raise an Issue on 
+    loaded first before the new package. See the documentation for more information, and raise an Issue on
     GitHub if this causes problems for your workflow.
     """,
     DeprecationWarning,
