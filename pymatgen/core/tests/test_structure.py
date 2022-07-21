@@ -98,6 +98,11 @@ class IStructureTest(PymatgenTest):
 
         self.assertTrue(struct == Structure.from_dict(struct.as_dict()))
 
+        struct_2 = Structure.from_sites(struct)
+        self.assertTrue(struct, struct_2)
+        struct_2.apply_strain(0.5)
+        self.assertNotEqual(struct, struct_2)
+
     def test_matches(self):
         ss = self.struct * 2
         self.assertTrue(ss.matches(self.struct))
@@ -1251,14 +1256,6 @@ class StructureTest(PymatgenTest):
         self.structure.add_site_property("hello", [1, 2])
         s = Structure.from_sites(self.structure, to_unit_cell=True)
         self.assertEqual(s.site_properties["hello"][1], 2)
-
-    def test_magic(self):
-        s = Structure.from_sites(self.structure)
-        self.assertEqual(s, self.structure)
-        self.assertNotEqual(s, None)
-        s.apply_strain(0.5)
-        self.assertNotEqual(s, self.structure)
-        self.assertNotEqual(self.structure * 2, self.structure)
 
     def test_charge(self):
         s = Structure.from_sites(self.structure)
