@@ -387,6 +387,30 @@ class SpacegroupAnalyzer:
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
+    def get_ir_reciprocal_mesh_map(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
+        """
+        Same as 'get_ir_reciprocal_mesh' but the full grid together with
+        the mapping that maps a reducible to an irreducible kpoint is
+        returned.
+
+        Args:
+            mesh (3x1 array): The number of kpoint for the mesh needed in
+                each direction
+            is_shift (3x1 array): Whether to shift the kpoint grid. (1, 1,
+            1) means all points are shifted by 0.5, 0.5, 0.5.
+
+        Returns:
+            A tuple containing two numpy.ndarray. The first is the mesh in
+            fractional coordinates and the second is an array of integers
+            that maps all the reducible kpoints from to irreducible ones.
+        """
+        shift = np.array([1 if i else 0 for i in is_shift])
+        mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
+
+        grid_fractional_coords = (grid + shift * (0.5, 0.5, 0.5)) / mesh
+
+        return grid_fractional_coords, mapping
+
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
         """
         Gives the transformation matrix to transform a conventional
