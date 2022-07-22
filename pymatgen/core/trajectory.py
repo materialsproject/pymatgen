@@ -280,38 +280,11 @@ class Trajectory(MSONable):
             Subset of trajectory
         """
 
-        # TODO, This function is heavily overloaded, would be great to always return
-        #  structure and trajectory, if coords_are_displacement is true, convert coords
-        #  to positions, and then return structure and trajectory.
-        #  So, in brief remove the stuff in this if statement
-        # If trajectory is in displacement mode, return the displacements at that frame
-        if self.coords_are_displacement:
+        # Convert to position mode if not ready
+        self.to_positions()
 
-            if isinstance(frames, int):
-                if frames >= len(self):
-                    raise ValueError(f"Selected frame {frames} exceeds trajectory length {len(self)}")
-                return self.frac_coords[frames]
-
-            if isinstance(frames, slice):
-                return self.frac_coords[frames]
-
-            if isinstance(frames, (list, np.ndarray)):
-                # Get rid of frames that exceed trajectory length
-                selected = [i for i in frames if i < len(self)]
-                if len(selected) < len(frames):
-                    bad_frames = [i for i in frames if i > len(self)]
-                    raise IndexError(f"Frame index {bad_frames} out of range.")
-                return self.frac_coords[selected]
-
-            raise ValueError(
-                f"Expect accessor (i.e. frames) to be of type int, slice, list or np.array; but got {type(frames)}."
-            )
-
-        # If trajectory is in positions mode, return a structure for the given frame
-        # or trajectory for the given frames
-
+        # For integer input, return the structure at that frame
         if isinstance(frames, int):
-            # For integer input, return the structure at that frame
 
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
@@ -326,8 +299,8 @@ class Trajectory(MSONable):
                 to_unit_cell=True,
             )
 
+        # For slice input, return a trajectory
         if isinstance(frames, (slice, list, np.ndarray)):
-            # For slicer input, return a trajectory
 
             if isinstance(frames, slice):
                 start, stop, step = frames.indices(len(self))
