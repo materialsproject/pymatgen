@@ -363,23 +363,6 @@ class Trajectory(MSONable):
         supported = [int, slice, list or np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
-    # TODO, Do we need this? why not use copy.deepcopy if one wants a copy
-    def copy(self) -> Trajectory:
-        """
-        Copy of Trajectory.
-        """
-        return Trajectory(
-            self.lattice,
-            self.species,
-            self.frac_coords,
-            site_properties=self.site_properties,
-            frame_properties=self.frame_properties,
-            constant_lattice=self.constant_lattice,
-            time_step=self.time_step,
-            coords_are_displacement=False,
-            base_positions=self.base_positions,
-        )
-
     def write_Xdatcar(
         self,
         filename: str | Path = "XDATCAR",
