@@ -1,5 +1,5 @@
+import copy
 import os
-from copy import deepcopy
 
 import numpy as np
 
@@ -27,13 +27,15 @@ class TrajectoryTest(PymatgenTest):
         return all(i == j for i, j in zip(self.traj, traj_2))
 
     def _get_lattice_species_and_coords(self):
-        lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
         species = ["Si", "Si"]
-        frac_coords = [
-            [[0, 0, 0], [0.5, 0.5, 0.5]],
-            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-        ]
+        frac_coords = np.asarray(
+            [
+                [[0, 0, 0], [0.5, 0.5, 0.5]],
+                [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
+                [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
+            ]
+        )
         return lattice, species, frac_coords
 
     def test_single_index_slice(self):
@@ -71,10 +73,6 @@ class TrajectoryTest(PymatgenTest):
         self.traj.to_positions()
 
         self.assertTrue(all([struct == self.structures[i] for i, struct in enumerate(self.traj)]))
-
-    def test_copy(self):
-        traj_copy = self.traj.copy()
-        self.assertTrue(all([i == j for i, j in zip(self.traj, traj_copy)]))
 
     def test_site_properties(self):
         lattice, species, frac_coords = self._get_lattice_species_and_coords()
@@ -117,7 +115,7 @@ class TrajectoryTest(PymatgenTest):
         self.assertEqual(traj[1:].frame_properties, expected)
 
     def test_extend(self):
-        traj = self.traj.copy()
+        traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
         compatible_traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_1"))
@@ -127,7 +125,7 @@ class TrajectoryTest(PymatgenTest):
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
-        traj = self.traj.copy()
+        traj = copy.deepcopy(self.traj)
         incompatible_traj = Trajectory.from_file(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_2")
         )
@@ -172,61 +170,61 @@ class TrajectoryTest(PymatgenTest):
         traj_4 = Trajectory(lattice, species, frac_coords, site_properties=None)
 
         # const & const (both constant and the same site properties)
-        traj_combined = deepcopy(traj_1)
+        traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_1)
         expected_site_props = props_1
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # const & const (both constant but different site properties)
-        traj_combined = deepcopy(traj_1)
+        traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_2)
         expected_site_props = [props_1] * num_frames + [props_2] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # const & changing
-        traj_combined = deepcopy(traj_1)
+        traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
         expected_site_props = [props_1] * num_frames + props_3
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # const & none
-        traj_combined = deepcopy(traj_1)
+        traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_4)
         expected_site_props = [props_1] * num_frames + [None] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # changing & const
-        traj_combined = deepcopy(traj_3)
+        traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_1)
         expected_site_props = props_3 + [props_1] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # changing & changing
-        traj_combined = deepcopy(traj_3)
+        traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_3)
         expected_site_props = props_3 + props_3
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # changing & none
-        traj_combined = deepcopy(traj_3)
+        traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_4)
         expected_site_props = props_3 + [None] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # none & const
-        traj_combined = deepcopy(traj_4)
+        traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_1)
         expected_site_props = [None] * num_frames + [props_1] * num_frames
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # none & changing
-        traj_combined = deepcopy(traj_4)
+        traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_3)
         expected_site_props = [None] * num_frames + props_3
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
         # none & none
-        traj_combined = deepcopy(traj_4)
+        traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_4)
         expected_site_props = None
         self.assertEqual(traj_combined.site_properties, expected_site_props)
@@ -250,19 +248,19 @@ class TrajectoryTest(PymatgenTest):
         traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=None)
 
         # test combining two with different properties
-        traj_combined = deepcopy(traj_1)
+        traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_2)
         expected_props = props_1 + props_2
         self.assertEqual(traj_combined.frame_properties, expected_props)
 
         # test combining two where one has properties and the other does not
-        traj_combined = deepcopy(traj_1)
+        traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
         expected_props = props_1 + [None] * len(frac_coords)
         self.assertEqual(traj_combined.frame_properties, expected_props)
 
         # test combining two both of which have no properties
-        traj_combined = deepcopy(traj_3)
+        traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_3)
         self.assertEqual(traj_combined.frame_properties, None)
 
