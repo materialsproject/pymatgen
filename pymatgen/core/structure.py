@@ -30,7 +30,9 @@ from typing import (
     Literal,
     Sequence,
     Set,
+    Sized,
     Union,
+    cast,
 )
 
 import numpy as np
@@ -277,7 +279,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         props = {}  # type: Dict[str, List]
         prop_keys = set()  # type: Set[str]
         for site in self:
-            prop_keys.update(site.properties.keys())
+            prop_keys.update(site.properties)
 
         for k in prop_keys:
             props[k] = [site.properties.get(k, None) for site in self]
@@ -457,22 +459,20 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for site in self.sites:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike]) -> None:
+    def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]]) -> None:
         """
         Swap species. Note that this method modifies the structure in place.
 
         Args:
-            species_mapping (dict): dict of species to swap. Species can be
-                elements too. E.g., {Element("Li"): Element("Na")} performs
-                a Li for Na substitution. The second species can be a
-                sp_and_occu dict. For example, a site with 0.5 Si that is
-                passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C.
+            species_mapping (dict): dict of species to swap. Species can be elements too. E.g.,
+                {Element("Li"): Element("Na")} performs a Li for Na substitution. The second species can
+                be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
+                {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
         """
 
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
-        sp_to_replace = set(sp_mapping.keys())
-        sp_in_structure = set(self.composition.keys())
+        sp_to_replace = set(sp_mapping)
+        sp_in_structure = set(self.composition)
         if not sp_in_structure.issuperset(sp_to_replace):
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
@@ -1045,14 +1045,17 @@ class IStructure(SiteCollection, MSONable):
             return m.fit(self, other)
         return m.fit_anonymous(self, other)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
+
+        # check for valid operand following class Student example from official functools docs
+        # https://docs.python.org/3/library/functools.html#functools.total_ordering
+        if not hasattr(other, "lattice") or not isinstance(other, Sized):
+            return NotImplemented
+        other = cast(Structure, other)  # silence mypy errors below
+
         if other is self:
             return True
-        if other is None:
-            return False
         if len(self) != len(other):
-            return False
-        if not hasattr(other, "lattice"):
             return False
         if self.lattice != other.lattice:
             return False
@@ -2071,7 +2074,7 @@ class IStructure(SiteCollection, MSONable):
             if not use_site_props:
                 return site.species_string
             d = [site.species_string]
-            for k in sorted(site.properties.keys()):
+            for k in sorted(site.properties):
                 d.append(k + "=" + str(site.properties[k]))
             return ", ".join(d)
 
@@ -2274,7 +2277,7 @@ class IStructure(SiteCollection, MSONable):
         outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
-        keys = sorted(props.keys())
+        keys = sorted(props)
         for i, site in enumerate(self):
             row = [str(i), site.species_string]
             row.extend([to_s(j) for j in site.frac_coords])
@@ -2389,7 +2392,7 @@ class IStructure(SiteCollection, MSONable):
         """
         data = []
         site_properties = self.site_properties
-        prop_keys = list(site_properties.keys())
+        prop_keys = list(site_properties)
         for site in self:
             row = [site.species] + list(site.frac_coords) + list(site.coords)
             for k in prop_keys:

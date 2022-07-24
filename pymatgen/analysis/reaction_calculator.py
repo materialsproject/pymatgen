@@ -5,6 +5,8 @@
 This module provides classes that define a chemical reaction.
 """
 
+from __future__ import annotations
+
 import logging
 import re
 from itertools import chain, combinations

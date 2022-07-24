@@ -5,6 +5,8 @@
 This module implements plotter for DOS and band structure.
 """
 
+from __future__ import annotations
+
 import logging
 from collections import namedtuple
 

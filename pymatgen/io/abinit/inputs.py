@@ -1083,7 +1083,7 @@ class BasicMultiDataset:
 
         return multi
 
-    def __init__(self, structure, pseudos, pseudo_dir="", ndtset=1):
+    def __init__(self, structure: Structure, pseudos, pseudo_dir="", ndtset=1):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
@@ -1158,8 +1158,7 @@ class BasicMultiDataset:
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(
-                "Cannot find attribute %s. Tried in %s and then in BasicAbinitInput object"
-                % (type(self).__name__, name)
+                f"Cannot find attribute {type(self).__name__}. Tried in {name} and then in BasicAbinitInput object"
             )
         isattr = not callable(m)
 

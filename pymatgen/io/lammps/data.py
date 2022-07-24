@@ -834,7 +834,7 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_structure(cls, structure, ff_elements=None, atom_style="charge", is_sort=False):
+    def from_structure(cls, structure: Structure, ff_elements=None, atom_style="charge", is_sort=False):
         """
         Simple constructor building LammpsData from a structure without
         force field parameters and topologies.

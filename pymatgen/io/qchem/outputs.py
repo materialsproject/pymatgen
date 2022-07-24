@@ -26,11 +26,11 @@ from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
 
     have_babel = True
 except ImportError:
-    ob = None
+    openbabel = None
     have_babel = False
 
 from .utils import process_parsed_coords, read_pattern, read_table_pattern
@@ -719,7 +719,10 @@ class QCOutput(MSONable):
             table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
         else:  # pylint: disable=line-too-long
-            header_pattern = r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            header_pattern = (
+                r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
+                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            )
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
         parsed_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
@@ -746,7 +749,10 @@ class QCOutput(MSONable):
             table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s+Z-matrix Print:"
         else:  # pylint: disable=line-too-long
-            header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            header_pattern = (
+                r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation "
+                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            )
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
         parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)

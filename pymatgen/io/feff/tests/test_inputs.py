@@ -378,8 +378,8 @@ class PathsTest(unittest.TestCase):
             "5.056157 2.964354 -2.082362 2 O",
             "0.000000 0.000000 0.000000 0 Fe",
         ]
-        ans = "\n".join(lines)
-        self.assertEqual(ans, str(self.paths))
+        answer = "\n".join(lines)
+        self.assertEqual(answer, str(self.paths))
 
 
 if __name__ == "__main__":

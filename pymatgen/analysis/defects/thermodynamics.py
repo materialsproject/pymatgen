@@ -5,6 +5,8 @@
 Defect thermodynamics, such as defect phase diagrams, etc.
 """
 
+from __future__ import annotations
+
 import logging
 from itertools import chain
 

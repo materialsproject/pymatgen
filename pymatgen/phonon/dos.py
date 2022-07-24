@@ -329,7 +329,7 @@ class CompletePhononDos(PhononDos):
         Dict of partial densities of the form {Site:Densities}
     """
 
-    def __init__(self, structure, total_dos, pdoss):
+    def __init__(self, structure: Structure, total_dos, pdoss):
         """
         Args:
             structure: Structure associated with this particular DOS.

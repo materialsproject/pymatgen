@@ -25,7 +25,7 @@ warnings.warn(
     the new package on top of the old one so the entire `pymatgen.analysis.defects` namespace will be replaced.
 
     IMPORTANT: If you have already installed the new package and see this message it means the old package is
-    loaded first before the new package. See the documentation for more information, and raise an Issue on 
+    loaded first before the new package. See the documentation for more information, and raise an Issue on
     GitHub if this causes problems for your workflow.
     """,
     DeprecationWarning,
@@ -48,7 +48,7 @@ class Defect(MSONable, metaclass=ABCMeta):
     Abstract class for a single point defect
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, multiplicity=None):
         """
         Initializes an abstract defect
 
@@ -225,7 +225,7 @@ class Substitution(Defect):
     """
 
     @property  # type: ignore
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def defect_composition(self):
         """
         Returns: Composition of defect.
@@ -306,7 +306,7 @@ class Substitution(Defect):
         return len(equivalent_sites)
 
     @property  # type: ignore
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def name(self):
         """
         Returns a name for this defect
@@ -324,7 +324,7 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, site_name="", multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, site_name="", multiplicity=None):
         """
         Initializes an interstial defect.
         Args:

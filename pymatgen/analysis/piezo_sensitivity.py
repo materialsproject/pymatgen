@@ -8,6 +8,7 @@ import numpy as np
 from monty.dev import requires
 
 import pymatgen.io.phonopy
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
@@ -31,7 +32,7 @@ class BornEffectiveCharge:
     This class describes the Nx3x3 born effective charge tensor
     """
 
-    def __init__(self, structure, bec, pointops, tol=1e-3):
+    def __init__(self, structure: Structure, bec, pointops, tol=1e-3):
         """
         Create an BornEffectiveChargeTensor object defined by a
         structure, point operations of the structure's atomic sites.
@@ -178,7 +179,7 @@ class InternalStrainTensor:
     structure, point operations of the structure's atomic sites.
     """
 
-    def __init__(self, structure, ist, pointops, tol=1e-3):
+    def __init__(self, structure: Structure, ist, pointops, tol=1e-3):
         """
         Create an InternalStrainTensor object.
 
@@ -277,7 +278,7 @@ class ForceConstantMatrix:
     shared symmetry operations between pairs of atomic sites.
     """
 
-    def __init__(self, structure, fcm, pointops, sharedops, tol=1e-3):
+    def __init__(self, structure: Structure, fcm, pointops, sharedops, tol=1e-3):
         """
         Create an ForceConstantMatrix object.
 

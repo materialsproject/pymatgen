@@ -4,6 +4,8 @@
 Implementation for get_environment CLI.
 """
 
+from __future__ import annotations
+
 import logging
 from argparse import ArgumentParser
 
