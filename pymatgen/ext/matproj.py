@@ -1773,6 +1773,9 @@ class MPRester2:
         self.session.close()
 
     def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+        """
+        Helper method to make the requests and perform decoding based on MSONable protocol.
+        """
         response = None
         url = self.preamble + sub_url
         try:
@@ -1794,9 +1797,19 @@ class MPRester2:
             msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
-    def get_structure_by_material_id(
-        self, material_id: str, final: bool = True, conventional_unit_cell: bool = False
-    ) -> Structure:
+    def get_summary_by_material_id(self, material_id: str) -> dict:
+        """
+        Get a data corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+
+        Returns:
+            Dict
+        """
+        return self.request(f"summary/{material_id}?_all_fields=True")["data"][0]
+
+    def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
         Get a Structure corresponding to a material_id.
 
@@ -1809,7 +1822,7 @@ class MPRester2:
         Returns:
             Structure object.
         """
-        prop = "structure" if final else "initial_structures"
+        prop = "structure"
         try:
             resp = self.request(f"materials/{material_id}?_fields={prop}")
             structure = resp["data"][0][prop]
@@ -1819,11 +1832,36 @@ class MPRester2:
                 "please let us know at matsci.org/materials-project"
             )
         if conventional_unit_cell:
-            if final:
-                return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
-            else:
-                return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structure]  # type: ignore
+            return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
+
+    def get_initial_structures_by_material_id(
+        self, material_id: str, conventional_unit_cell: bool = False
+    ) -> list[Structure]:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "initial_structures"
+        try:
+            resp = self.request(f"materials/{material_id}?_fields={prop}")
+            structures = resp["data"][0][prop]
+        except MPRestError:
+            raise MPRestError(
+                f"material_id {material_id} unknown, if this seems like an error "
+                "please let us know at matsci.org/materials-project"
+            )
+        if conventional_unit_cell:
+            return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
+        return structures
 
 
 class MPRestError(Exception):
