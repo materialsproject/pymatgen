@@ -1797,6 +1797,18 @@ class MPRester2:
             msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
+    def get_summary(self, criteria: dict) -> list[dict]:
+        """
+        Get a data corresponding to a criteria.
+
+        Args:
+            criteria (dict): Materials Project ID (e.g. mp-1234), e.g., {"formula": "Fe2O3,FeO"}
+
+        Returns:
+            List of dict of summary docs.
+        """
+        return self.request("summary?_all_fields=True", payload=criteria)["data"]
+
     def get_summary_by_material_id(self, material_id: str) -> dict:
         """
         Get a data corresponding to a material_id.
@@ -1823,14 +1835,8 @@ class MPRester2:
             Structure object.
         """
         prop = "structure"
-        try:
-            resp = self.request(f"materials/{material_id}?_fields={prop}")
-            structure = resp["data"][0][prop]
-        except MPRestError:
-            raise MPRestError(
-                f"material_id {material_id} unknown, if this seems like an error "
-                "please let us know at matsci.org/materials-project"
-            )
+        resp = self.request(f"materials/{material_id}?_fields={prop}")
+        structure = resp["data"][0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
@@ -1851,14 +1857,8 @@ class MPRester2:
             Structure object.
         """
         prop = "initial_structures"
-        try:
-            resp = self.request(f"materials/{material_id}?_fields={prop}")
-            structures = resp["data"][0][prop]
-        except MPRestError:
-            raise MPRestError(
-                f"material_id {material_id} unknown, if this seems like an error "
-                "please let us know at matsci.org/materials-project"
-            )
+        resp = self.request(f"materials/{material_id}?_fields={prop}")
+        structures = resp["data"][0][prop]
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
