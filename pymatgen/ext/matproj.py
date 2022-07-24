@@ -79,7 +79,7 @@ class TaskType(Enum):
     LDA_STATIC_DIEL = "LDA Static Dielectric"
 
 
-class MPRester:
+class MPResterOld:
     """
     A class to conveniently interface with the Materials Project REST
     interface. The recommended way to use MPRester is with the "with" context
@@ -1720,7 +1720,7 @@ class MPRester:
         return {"$or": list(map(parse_tok, toks))}
 
 
-class MPRester2:
+class MPResterNew:
     """
     A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
     need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
@@ -1870,6 +1870,21 @@ class MPRester2:
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
+
+
+API_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
+try:
+    session = requests.Session()
+    session.headers = {"x-api-key": API_KEY}
+    response = session.get("https://api.materialsproject.org/materials/mp-262?_fields=formula_pretty")
+    if response.status_code != 200:
+        print("API key not specfied or using old API key. Default to old MPRester")
+        MPRester = MPResterOld  # type: ignore
+    else:
+        MPRester = MPResterNew  # type: ignore
+except Exception:
+    print("API key not specfied or using old API key. Default to old MPRester")
+    MPRester = MPResterOld  # type: ignore
 
 
 class MPRestError(Exception):
