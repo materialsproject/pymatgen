@@ -1797,7 +1797,7 @@ class MPRester2:
             msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
-    def get_summary(self, criteria: dict) -> list[dict]:
+    def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """
         Get a data corresponding to a criteria.
 
@@ -1807,9 +1807,13 @@ class MPRester2:
         Returns:
             List of dict of summary docs.
         """
-        return self.request("summary?_all_fields=True", payload=criteria)["data"]
+        if fields is None:
+            get = "_all_fields=True"
+        else:
+            get = "_fields=" + ",".join(fields)
+        return self.request(f"summary?{get}", payload=criteria)["data"]
 
-    def get_summary_by_material_id(self, material_id: str) -> dict:
+    def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
         """
         Get a data corresponding to a material_id.
 
@@ -1819,7 +1823,11 @@ class MPRester2:
         Returns:
             Dict
         """
-        return self.request(f"summary/{material_id}?_all_fields=True")["data"][0]
+        if fields is None:
+            get = "_all_fields=True"
+        else:
+            get = "_fields=" + ",".join(fields)
+        return self.request(f"summary/{material_id}?{get}")["data"][0]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
