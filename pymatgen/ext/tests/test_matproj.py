@@ -22,7 +22,7 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPResterOld, MPRestError, TaskType
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -42,7 +42,7 @@ class MPResterOldTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.rester = MPResterOld()
+        self.rester = _MPResterLegacy()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -129,13 +129,13 @@ class MPResterOldTest(PymatgenTest):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_get_materials_id_references
-        m = MPResterOld()
+        m = _MPResterLegacy()
         data = m.get_materials_id_references("mp-123")
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_find_structure
-        m = MPResterOld()
+        m = _MPResterLegacy()
         ciffile = self.TEST_FILES_DIR / "Fe3O4.cif"
         data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
@@ -434,34 +434,34 @@ class MPResterOldTest(PymatgenTest):
         )
 
     def test_parse_criteria(self):
-        crit = MPResterOld.parse_criteria("mp-1234 Li-*")
+        crit = _MPResterLegacy.parse_criteria("mp-1234 Li-*")
         self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])
         self.assertIn({"task_id": "mp-1234"}, crit["$or"])
 
-        crit = MPResterOld.parse_criteria("Li2*")
+        crit = _MPResterLegacy.parse_criteria("Li2*")
         self.assertIn("Li2O", crit["pretty_formula"]["$in"])
         self.assertIn("Li2I", crit["pretty_formula"]["$in"])
         self.assertIn("CsLi2", crit["pretty_formula"]["$in"])
 
-        crit = MPResterOld.parse_criteria("Li-*-*")
+        crit = _MPResterLegacy.parse_criteria("Li-*-*")
         self.assertIn("Li-Re-Ru", crit["chemsys"]["$in"])
         self.assertNotIn("Li-Li", crit["chemsys"]["$in"])
 
-        comps = MPResterOld.parse_criteria("**O3")["pretty_formula"]["$in"]
+        comps = _MPResterLegacy.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
             self.assertEqual(len(Composition(c)), 3, f"Failed in {c}")
 
-        chemsys = MPResterOld.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
+        chemsys = _MPResterLegacy.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
-        comps = MPResterOld.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
+        comps = _MPResterLegacy.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
         self.assertEqual(len(comps), 3, comps)
 
         # Let's test some invalid symbols
 
-        self.assertRaises(ValueError, MPResterOld.parse_criteria, "li-fe")
-        self.assertRaises(ValueError, MPResterOld.parse_criteria, "LO2")
+        self.assertRaises(ValueError, _MPResterLegacy.parse_criteria, "li-fe")
+        self.assertRaises(ValueError, _MPResterLegacy.parse_criteria, "LO2")
 
-        crit = MPResterOld.parse_criteria("POPO2")
+        crit = _MPResterLegacy.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
 
     def test_include_user_agent(self):
@@ -472,12 +472,12 @@ class MPResterOldTest(PymatgenTest):
             headers["user-agent"],
         )
         self.assertIsNotNone(m, msg=f"Unexpected user-agent value {headers['user-agent']}")
-        self.rester = MPResterOld(include_user_agent=False)
+        self.rester = _MPResterLegacy(include_user_agent=False)
         self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
     def test_database_version(self):
 
-        with MPResterOld(notify_db_version=True) as mpr:
+        with _MPResterLegacy(notify_db_version=True) as mpr:
             db_version = mpr.get_database_version()
 
         self.assertIsInstance(db_version, str)

@@ -79,7 +79,7 @@ class TaskType(Enum):
     LDA_STATIC_DIEL = "LDA Static Dielectric"
 
 
-class MPResterOld:
+class _MPResterLegacy:
     """
     A class to conveniently interface with the Materials Project REST
     interface. The recommended way to use MPRester is with the "with" context
@@ -176,6 +176,14 @@ class MPResterOld:
                 is similar to what most web browsers send with each page request.
                 Set to False to disable the user agent.
         """
+        warnings.warn(
+            "You are using the legacy MPRester, which is deprecated. If you are not a power user, ie., you"
+            "do not have a lot of legacy code that uses many different MPRester methods, it is recommended "
+            "you get a new API key from the new Materials Project front end. Once you use get your new API"
+            "key, using the new API key will automatically route you to using the new MPRester."
+            "to the legacy MPRester.",
+            DeprecationWarning,
+        )
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -363,6 +371,9 @@ class MPResterOld:
             ([str]) List of all materials ids.
         """
         return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
+
+    # For backwards compatibility.
+    get_material_id = get_materials_ids
 
     def get_doc(self, materials_id):
         """
@@ -1720,7 +1731,7 @@ class MPResterOld:
         return {"$or": list(map(parse_tok, toks))}
 
 
-class MPResterNew:
+class _MPResterNew:
     """
     A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
     need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
@@ -1829,6 +1840,20 @@ class MPResterNew:
             get = "_fields=" + ",".join(fields)
         return self.request(f"summary/{material_id}?{get}")["data"][0]
 
+    get_doc = get_summary_by_material_id
+
+    def get_material_ids(self, formula):
+        """
+        Get all materials ids for a formula.
+
+        Args:
+            formula (str): A formula (e.g., Fe2O3).
+
+        Returns:
+            ([str]) List of all materials ids.
+        """
+        return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
+
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
         Get a Structure corresponding to a material_id.
@@ -1872,19 +1897,71 @@ class MPResterNew:
         return structures
 
 
-API_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
-try:
-    session = requests.Session()
-    session.headers = {"x-api-key": API_KEY}
-    response = session.get("https://api.materialsproject.org/materials/mp-262?_fields=formula_pretty")
-    if response.status_code != 200:
-        print("API key not specfied or using old API key. Default to old MPRester")
-        MPRester = MPResterOld  # type: ignore
-    else:
-        MPRester = MPResterNew  # type: ignore
-except Exception:
-    print("API key not specfied or using old API key. Default to old MPRester")
-    MPRester = MPResterOld  # type: ignore
+class MPRester:
+    """
+    A class to conveniently interface with the Materials Project REST
+    interface. The recommended way to use MPRester is with the "with" context
+    manager to ensure that sessions are properly closed after usage::
+
+        with MPRester("API_KEY") as m:
+            do_something
+
+    MPRester uses the "requests" package, which provides for HTTP connection
+    pooling. All connections are made via https for security.
+
+    For more advanced uses of the Materials API, please consult the API
+    documentation at https://github.com/materialsproject/mapidoc.
+
+    Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
+    providing backwards compatibility. Use it as you would with normal MPRester usage. If a new API key is detected,
+    the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. At the current moment, full parity between
+    old and new API MPRester has not been implemented. This will be resolved in the near future. It is not recommended,
+    but if you would like to select the specific version of the MPRester, you can call initialize either _MPResterNew
+    or _MPResterLegacy directly.
+    """
+
+    def __init__(self, *args, **kwargs):
+        r"""
+        Args:
+           *args: Pass through to either legacy or new MPRester.
+           **kwargs: Pass through to either legacy or new MPRester.
+        """
+        if len(args) > 0:
+            api_key = args[0]
+        else:
+            api_key = kwargs.get("api_key", None)
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+        if self.is_new_api():
+            self.mpr_mapped = _MPResterNew(*args, **kwargs)
+        else:
+            self.mpr_mapped = _MPResterLegacy(*args, **kwargs)
+
+    def __enter__(self):
+        return self.mpr_mapped
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.mpr_mapped.__exit__(exc_type, exc_val, exc_tb)
+
+    def is_new_api(self):
+        session = requests.Session()
+        session.headers = {"x-api-key": self.api_key}
+        try:
+            response = session.get("https://api.materialsproject.org/materials/mp-262?_fields=formula_pretty")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception:
+            return False
+
+    def __getattr__(self, name):
+        return getattr(self.mpr_mapped, name)
 
 
 class MPRestError(Exception):
