@@ -1720,6 +1720,109 @@ class MPRester:
         return {"$or": list(map(parse_tok, toks))}
 
 
+class MPRester2:
+    """
+    A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
+    need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
+    This is a basic implementation for now and features will be added soon. The current implementation is to enable
+    users with simple requirements use the API without having to install additional packages.
+
+    If you are a power user who needs the full functionality, please get the mp-api package instead.
+    """
+
+    def __init__(self, api_key: str = None, include_user_agent: bool = True) -> None:
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+        self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://api.materialsproject.org/")
+
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+        if include_user_agent:
+            pymatgen_info = f"pymatgen/{PMG_VERSION}"
+            python_info = f"Python/{sys.version.split()[0]}"
+            platform_info = f"{platform.system()}/{platform.release()}"
+            self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
+
+    def __enter__(self):
+        """
+        Support for "with" context.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Support for "with" context.
+        """
+        self.session.close()
+
+    def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+        response = None
+        url = self.preamble + sub_url
+        try:
+            if method == "POST":
+                response = self.session.post(url, data=payload, verify=True)
+            else:
+                response = self.session.get(url, params=payload, verify=True)
+            if response.status_code in [200, 400]:
+                if mp_decode:
+                    data = json.loads(response.text, cls=MontyDecoder)
+                else:
+                    data = json.loads(response.text)
+                return data
+                raise MPRestError(data["error"])
+
+            raise MPRestError(f"REST query returned with error status code {response.status_code}")
+
+        except Exception as ex:
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            raise MPRestError(msg)
+
+    def get_structure_by_material_id(
+        self, material_id: str, final: bool = True, conventional_unit_cell: bool = False
+    ) -> Structure:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "structure" if final else "initial_structures"
+        try:
+            resp = self.request(f"materials/{material_id}?_fields={prop}")
+            structure = resp["data"][0][prop]
+        except MPRestError:
+            raise MPRestError(
+                f"material_id {material_id} unknown, if this seems like an error "
+                "please let us know at matsci.org/materials-project"
+            )
+        if conventional_unit_cell:
+            structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+        return structure
+
+
 class MPRestError(Exception):
     """
     Exception class for MPRestAdaptor.
