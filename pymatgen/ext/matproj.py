@@ -1948,16 +1948,24 @@ class MPRester:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.mpr_mapped.__exit__(exc_type, exc_val, exc_tb)
 
-    def is_new_api(self):
+    def is_new_api(self) -> bool:
+        """
+        Checks whether API key belongs to new or legacy API.
+
+        Returns:
+            True if the API key is a valid one for the new Materials Project API.
+        """
         session = requests.Session()
         session.headers = {"x-api-key": self.api_key}
         try:
+            # This is a crude way to check the API key validity. But so be it for now.
             response = session.get("https://api.materialsproject.org/materials/mp-262?_fields=formula_pretty")
             if response.status_code == 200:
                 return True
             else:
                 return False
         except Exception:
+            # Default to legacy behavior on any errors.
             return False
 
     def __getattr__(self, name):
