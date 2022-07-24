@@ -1509,7 +1509,7 @@ class MPRester:
 
         if include_work_of_separation and material_id:
             list_of_gbs = self._make_request("/grain_boundaries", payload=payload)
-            for i, gb_dict in enumerate(list_of_gbs):
+            for _, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict["gb_energy"]
                 gb_plane_int = gb_dict["gb_plane"]
                 surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
@@ -1819,7 +1819,10 @@ class MPRester2:
                 "please let us know at matsci.org/materials-project"
             )
         if conventional_unit_cell:
-            structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+            if final:
+                return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+            else:
+                return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structure]  # type: ignore
         return structure
 
 

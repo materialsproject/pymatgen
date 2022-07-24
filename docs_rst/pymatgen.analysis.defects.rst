@@ -1,6 +1,8 @@
 pymatgen.analysis.defects namespace
 ===================================
 
+.. py:module:: pymatgen.analysis.defects
+
 Subpackages
 -----------
 

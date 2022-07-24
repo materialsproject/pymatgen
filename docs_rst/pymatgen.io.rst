@@ -1,6 +1,8 @@
 pymatgen.io namespace
 =====================
 
+.. py:module:: pymatgen.io
+
 Subpackages
 -----------
 
