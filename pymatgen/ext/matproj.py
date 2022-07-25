@@ -1896,6 +1896,94 @@ class _MPResterNew:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
 
+    def get_entries(
+        self,
+        criteria,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
+        sort_by_e_above_hull=False,
+    ):
+        """
+        Get a list of ComputedEntries or ComputedStructureEntries corresponding
+        to a chemical system, formula, or materials_id or full criteria.
+
+        Args:
+            criteria (dict): Mongo-style dict criteria.
+            compatible_only (bool): Whether to return only "compatible"
+                entries. Compatible entries are entries that have been
+                processed using the MaterialsProject2020Compatibility class,
+                which performs adjustments to allow mixing of GGA and GGA+U
+                calculations for more accurate phase diagrams and reaction
+                energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="initial",
+                ComputedStructureEntries with initial structures are returned.
+                Otherwise, ComputedStructureEntries with final structures
+                are returned.
+            property_data (list): Specify additional properties to include in
+                entry.data. If None, no data. Should be a subset of
+                supported_properties.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
+            sort_by_e_above_hull (bool): Whether to sort the list of entries by
+                e_above_hull (will query e_above_hull as a property_data if True).
+
+        Returns:
+            List of ComputedStructureEntry objects.
+        """
+        props = ["entries"]
+
+        r = self.request(f"materials?_fields={','.join(props)}", payload=criteria)
+        entries = []
+        for d in r["data"]:
+            entries.extend(d["entries"].values())
+        if compatible_only:
+            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+
+            # suppress the warning about missing oxidation states
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
+                entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+        return entries
+
+    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
+        r"""
+        Get a ComputedEntry corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project material_id (a string,
+                e.g., mp-1234).
+            *args: Pass-through to get_entries.
+            **kwargs: Pass-through to get_entries.
+
+        Returns:
+            ComputedStructureEntry object.
+        """
+
+        return self.get_entries({"task_ids": material_id}, *args, **kwargs)[0]
+
+    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+        """
+        Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
+        will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
+        Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
+
+        Args:
+            elements (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
+                symbols, e.g., ["Li", "Fe", "O"].
+            *args: Pass-through to get_entries.
+            **kwargs: Pass-through to get_entries.
+
+        Returns:
+            List of ComputedEntries.
+        """
+        criteria = {"chemsys": "-".join(sorted(elements))}
+
+        return self.get_entries(criteria, *args, **kwargs)
+
 
 def is_new_api(api_key) -> bool:
     """
@@ -1936,8 +2024,9 @@ class MPRester:
     Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
     providing backwards compatibility. Use it as you would with normal MPRester usage. If a new API key is detected,
     the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. At the current moment, full parity between
-    old and new API MPRester has not been implemented. This will be resolved in the near future. It is not recommended,
-    but if you would like to select the specific version of the MPRester, you can call initialize either _MPResterNew
+    old and new API MPRester has not been implemented. This will be resolved in the near future. Power users of the old
+    API should not use the new API until all such issues are resolved. It is not recommended, but if you would like to
+    select the specific version of the MPRester, you can initialize either _MPResterNew
     or _MPResterLegacy directly.
     """
 
