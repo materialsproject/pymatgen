@@ -177,12 +177,10 @@ class _MPResterLegacy:
                 Set to False to disable the user agent.
         """
         warnings.warn(
-            "You are using the legacy MPRester, which is deprecated. If you are not a power user, ie., you"
+            "You are using the legacy MPRester, which is deprecated. If you are not a power user, ie., you "
             "do not have a lot of legacy code that uses many different MPRester methods, it is recommended "
-            "you get a new API key from the new Materials Project front end. Once you use get your new API"
+            "you get a new API key from the new Materials Project front end. Once you use get your new API "
             "key, using the new API key will automatically route you to using the new MPRester."
-            "to the legacy MPRester.",
-            DeprecationWarning,
         )
         if api_key is not None:
             self.api_key = api_key
