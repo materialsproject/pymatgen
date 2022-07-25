@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2022.7.24
+v2022.7.25
 ----------
-* Initial implementation of MPRester2 with new API support. Basic functionality for now.
+* Implemented sufficient methods for new MPRester to cover about 70-80% of common use cases.
