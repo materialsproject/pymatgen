@@ -3991,6 +3991,58 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._charge = new_charge
 
+    def relax(
+        self,
+        calculator: str = "m3gnet",
+        relax_cell: bool = True,
+        stress_weight: float = 0.01,
+        steps: int = 500,
+        fmax: float = 0.1,
+        verbose: bool = False,
+    ) -> Structure:
+        """
+        Performs a crystal structure relaxation using some algorithm.
+
+        Args:
+            calculator: A string or an ASE calculator. Defaults to M3GNet universal potential.
+            relax_cell (bool): whether to relax the lattice cell
+            stress_weight (float): the stress weight for relaxation.
+            fmax (float): total force tolerance for relaxation convergence.
+                Here fmax is a sum of force and stress forces
+            steps (int): max number of steps for relaxation.
+            verbose (bool_
+
+        Returns: Relaxed structure
+        """
+        import contextlib
+        import io
+        import sys
+
+        from ase.constraints import ExpCellFilter
+        from ase.optimize.fire import FIRE
+        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        if calculator == "m3gnet":
+            potential = Potential(M3GNet.load())
+            calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
+
+        optimizer = FIRE
+        adaptor = AseAtomsAdaptor()
+        atoms = adaptor.get_atoms(self)
+        atoms.set_calculator(calculator)
+        stream = sys.stdout if verbose else io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            if relax_cell:
+                atoms = ExpCellFilter(atoms)
+            optimizer = optimizer(atoms)
+            optimizer.run(fmax=fmax, steps=steps)
+        if isinstance(atoms, ExpCellFilter):
+            atoms = atoms.atoms
+
+        return adaptor.get_structure(atoms)
+
 
 class Molecule(IMolecule, collections.abc.MutableSequence):
     """

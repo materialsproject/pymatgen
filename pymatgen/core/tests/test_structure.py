@@ -28,6 +28,11 @@ from pymatgen.util.testing import PymatgenTest
 enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")
 
+try:
+    import m3gnet
+except ImportError:
+    m3gnet = None
+
 
 class IStructureTest(PymatgenTest):
     def setUp(self):
@@ -1341,6 +1346,12 @@ class StructureTest(PymatgenTest):
             if site.specie.symbol == "C":
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 self.assertEqual(cluster.formula, "H4 C1")
+
+    @unittest.skipIf(m3gnet is None, "Relaxation test requires m3gnet.")
+    def test_relax(self):
+        structure = self.get_structure("Si")
+        relaxed = structure.relax()
+        self.assertAlmostEqual(relaxed.lattice.a, 3.849563, 4)
 
 
 class IMoleculeTest(PymatgenTest):
