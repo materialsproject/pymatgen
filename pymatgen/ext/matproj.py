@@ -1755,6 +1755,12 @@ class _MPResterNew:
                 is similar to what most web browsers send with each page request.
                 Set to False to disable the user agent.
         """
+        warnings.warn(
+            "You are using a new API key. This unofficial MPRester support for the new API is intended purely to "
+            "facilitate simple convenience queries in the interim. There are no plans to build this into a "
+            "full-featured API client. It is highly recommended that you install the mp-api package for full API "
+            "functionality."
+        )
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -1822,24 +1828,6 @@ class _MPResterNew:
             get = "_fields=" + ",".join(fields)
         return self.request(f"summary?{get}", payload=criteria)["data"]
 
-    def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
-        """
-        Get a data corresponding to a material_id.
-
-        Args:
-            material_id (str): Materials Project ID (e.g. mp-1234).
-
-        Returns:
-            Dict
-        """
-        if fields is None:
-            get = "_all_fields=True"
-        else:
-            get = "_fields=" + ",".join(fields)
-        return self.request(f"summary/{material_id}?{get}")["data"][0]
-
-    get_doc = get_summary_by_material_id
-
     def get_material_ids(self, formula):
         """
         Get all materials ids for a formula.
@@ -1871,116 +1859,6 @@ class _MPResterNew:
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
-
-    def get_initial_structures_by_material_id(
-        self, material_id: str, conventional_unit_cell: bool = False
-    ) -> list[Structure]:
-        """
-        Get a Structure corresponding to a material_id.
-
-        Args:
-            material_id (str): Materials Project ID (e.g. mp-1234).
-            final (bool): Whether to get the final structure, or the initial
-                (pre-relaxation) structures. Defaults to True.
-            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
-
-        Returns:
-            Structure object.
-        """
-        prop = "initial_structures"
-        resp = self.request(f"materials/{material_id}?_fields={prop}")
-        structures = resp["data"][0][prop]
-        if conventional_unit_cell:
-            return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
-        return structures
-
-    def get_entries(
-        self,
-        criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
-    ):
-        """
-        Get a list of ComputedEntries or ComputedStructureEntries corresponding
-        to a chemical system, formula, or materials_id or full criteria.
-
-        Args:
-            criteria (dict): Mongo-style dict criteria.
-            compatible_only (bool): Whether to return only "compatible"
-                entries. Compatible entries are entries that have been
-                processed using the MaterialsProject2020Compatibility class,
-                which performs adjustments to allow mixing of GGA and GGA+U
-                calculations for more accurate phase diagrams and reaction
-                energies.
-            inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="initial",
-                ComputedStructureEntries with initial structures are returned.
-                Otherwise, ComputedStructureEntries with final structures
-                are returned.
-            property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. Should be a subset of
-                supported_properties.
-            conventional_unit_cell (bool): Whether to get the standard
-                conventional unit cell
-            sort_by_e_above_hull (bool): Whether to sort the list of entries by
-                e_above_hull (will query e_above_hull as a property_data if True).
-
-        Returns:
-            List of ComputedStructureEntry objects.
-        """
-        props = ["entries"]
-
-        r = self.request(f"materials?_fields={','.join(props)}", payload=criteria)
-        entries = []
-        for d in r["data"]:
-            entries.extend(d["entries"].values())
-        if compatible_only:
-            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
-
-            # suppress the warning about missing oxidation states
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
-                entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
-        return entries
-
-    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
-        r"""
-        Get a ComputedEntry corresponding to a material_id.
-
-        Args:
-            material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
-            *args: Pass-through to get_entries.
-            **kwargs: Pass-through to get_entries.
-
-        Returns:
-            ComputedStructureEntry object.
-        """
-
-        return self.get_entries({"task_ids": material_id}, *args, **kwargs)[0]
-
-    def get_entries_in_chemsys(self, elements, *args, **kwargs):
-        """
-        Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
-        will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
-        Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
-
-        Args:
-            elements (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
-            *args: Pass-through to get_entries.
-            **kwargs: Pass-through to get_entries.
-
-        Returns:
-            List of ComputedEntries.
-        """
-        criteria = {"chemsys": "-".join(sorted(elements))}
-
-        return self.get_entries(criteria, *args, **kwargs)
 
 
 def is_new_api(api_key) -> bool:
