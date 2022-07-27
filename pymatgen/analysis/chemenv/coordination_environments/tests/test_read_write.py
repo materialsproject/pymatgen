@@ -173,13 +173,13 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertAlmostEqual(nb_set_info["distances_mean"], 1.62698328347)
 
         self.assertEqual(
-            nb_set.__str__(),
+            str(nb_set),
             "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n",
         )
 
-        self.assertFalse(nb_set.__ne__(nb_set))
+        self.assertFalse(nb_set != nb_set)
 
-        self.assertEqual(nb_set.__hash__(), 4)
+        self.assertEqual(hash(nb_set), 4)
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()

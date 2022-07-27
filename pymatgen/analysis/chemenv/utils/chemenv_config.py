@@ -103,7 +103,7 @@ class ChemEnvConfig:
         """
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
-        strategies = list(strategies_class_lookup.keys())
+        strategies = list(strategies_class_lookup)
         for idx, strategy in enumerate(strategies, 1):
             print(f" <{idx}> : {strategy}")
         test = input(" ... ")
@@ -140,11 +140,8 @@ class ChemEnvConfig:
         strategy_class = strategies_class_lookup[self.package_options["default_strategy"]["strategy"]]
         out += f"{strategy_class.STRATEGY_DESCRIPTION}\n"
         out += "   with options :\n"
-        for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
-            out += "     - {} : {}\n".format(
-                option,
-                self.package_options["default_strategy"]["strategy_options"][option],
-            )
+        for option in strategy_class.STRATEGY_OPTIONS:
+            out += f"     - {option} : {self.package_options['default_strategy']['strategy_options'][option]}\n"
         return out
 
     def save(self, root_dir=None):

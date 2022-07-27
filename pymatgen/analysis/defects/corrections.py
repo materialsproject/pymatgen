@@ -664,10 +664,12 @@ class KumagaiCorrection(DefectCorrection):
 
         return real_part
 
-    def get_recip_summation(self, gamma, recip_vectors, volume, r=[0.0, 0.0, 0.0]):
+    def get_recip_summation(self, gamma, recip_vectors, volume, r=None):
         """
         Get Reciprocal summation term from list of reciprocal-space vectors
         """
+        if r is None:
+            r = [0.0, 0.0, 0.0]
         recip_part = 0
 
         for g_vec in recip_vectors:
@@ -721,12 +723,12 @@ class KumagaiCorrection(DefectCorrection):
 
         distances, sample_region = [], []
         Vqb_list, Vpc_list, diff_list = [], [], []
-        for site_ind, site_dict in site_dict.items():
-            dist = site_dict["dist_to_defect"]
+        for site in site_dict.values():
+            dist = site["dist_to_defect"]
             distances.append(dist)
 
-            Vqb = site_dict["Vqb"]
-            Vpc = site_dict["Vpc"]
+            Vqb = site["Vqb"]
+            Vpc = site["Vpc"]
 
             Vqb_list.append(Vqb)
             Vpc_list.append(Vpc)
@@ -864,10 +866,10 @@ class BandFillingCorrection(DefectCorrection):
         self.metadata["num_elec_cbm"] = 0.0
 
         core_occupation_value = list(eigenvalues.values())[0][0][0][1]  # get occupation of a core eigenvalue
-        if len(eigenvalues.keys()) == 1:
+        if len(eigenvalues) == 1:
             # needed because occupation of non-spin calcs is sometimes still 1... should be 2
             spinfctr = 2.0 if core_occupation_value == 1.0 and not soc_calc else 1.0
-        elif len(eigenvalues.keys()) == 2:
+        elif len(eigenvalues) == 2:
             spinfctr = 1.0
         else:
             raise ValueError("Eigenvalue keys greater than 2")

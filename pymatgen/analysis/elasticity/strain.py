@@ -140,7 +140,7 @@ class DeformedStructureSet(collections.abc.Sequence):
         # Perform symmetry reduction if specified
         if symmetry:
             self.sym_dict = symmetry_reduce(self.deformations, structure)
-            self.deformations = list(self.sym_dict.keys())
+            self.deformations = list(self.sym_dict)
         self.deformed_structures = [defo.apply_to_structure(structure) for defo in self.deformations]
 
     def __iter__(self):

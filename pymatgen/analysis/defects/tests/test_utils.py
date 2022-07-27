@@ -220,8 +220,8 @@ class StructureMotifInterstitialTest(PymatgenTest):
         self.assertEqual("tetrahedral", self.smi.get_motif_type(0))
 
         elem_cn_dict = self.smi.get_coordinating_elements_cns(0)
-        self.assertEqual(len(list(elem_cn_dict.keys())), 1)
-        self.assertEqual(list(elem_cn_dict.keys())[0], "Si")
+        self.assertEqual(len(list(elem_cn_dict)), 1)
+        self.assertEqual(list(elem_cn_dict)[0], "Si")
         self.assertEqual(elem_cn_dict["Si"], 4)
 
         structs = self.smi.make_supercells_with_defects(np.array([1, 1, 1]))

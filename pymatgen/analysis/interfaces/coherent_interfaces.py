@@ -144,7 +144,7 @@ class CoherentInterfaceBuilder:
                 zip(film_terminations, film_shits), zip(sub_terminations, sub_shifts)
             )
         }
-        self.terminations = list(self._terminations.keys())
+        self.terminations = list(self._terminations)
 
     def get_interfaces(
         self,

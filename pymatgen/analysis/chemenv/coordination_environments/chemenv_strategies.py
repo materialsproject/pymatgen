@@ -447,7 +447,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         out += self.STRATEGY_DESCRIPTION
         out += "\n\n"
         out += f"  Options :\n  {'-' * 9}\n"
-        for option_name, option_dict in self.STRATEGY_OPTIONS.items():
+        for option_name in self.STRATEGY_OPTIONS:
             out += f"   - {option_name} : {getattr(self, option_name)}\n"
         return out
 
@@ -622,7 +622,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         eqsite_ps = nb_set.neighb_sites
 
         coordinated_neighbors = []
-        for ips, ps in enumerate(eqsite_ps):
+        for ps in eqsite_ps:
             coords = mysym.operate(ps.frac_coords + dequivsite) + dthissite
             ps_site = PeriodicSite(ps._species, coords, ps._lattice)
             coordinated_neighbors.append(ps_site)
@@ -920,7 +920,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         cn_map = self._get_map(isite)
         eqsite_ps = self.structure_environments.unique_coordinated_neighbors(isite, cn_map=cn_map)
         coordinated_neighbors = []
-        for ips, ps in enumerate(eqsite_ps):
+        for ps in eqsite_ps:
             coords = mysym.operate(ps.frac_coords + dequivsite) + dthissite
             ps_site = PeriodicSite(ps._species, coords, ps._lattice)
             coordinated_neighbors.append(ps_site)
@@ -1978,7 +1978,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         :return: CNBiasNbSetWeight.
         """
         initialization_options = {"type": "explicit"}
-        if set(cn_weights.keys()) != set(range(1, 14)):
+        if set(cn_weights) != set(range(1, 14)):
             raise ValueError("Weights should be provided for CN 1 to 13")
         return cls(cn_weights=cn_weights, initialization_options=initialization_options)
 
@@ -2406,7 +2406,7 @@ class DistanceNbSetWeight(NbSetWeight):
         if self.nbs_source == "nb_sets":
             all_nbs_voro_indices = set()
             for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
-                for inb_set2, nb_set2 in enumerate(nb_sets):
+                for nb_set2 in nb_sets:
                     if cn == cn2:
                         continue
                     all_nbs_voro_indices.update(nb_set2.site_voronoi_indices)
@@ -2483,7 +2483,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         if self.nbs_source == "nb_sets":
             all_nbs_voro_indices = set()
             for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
-                for inb_set2, nb_set2 in enumerate(nb_sets):
+                for nb_set2 in nb_sets:
                     if cn == cn2:
                         continue
                     all_nbs_voro_indices.update(nb_set2.site_voronoi_indices)
@@ -2604,7 +2604,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             return None
         cn_maps = []
         for cn, nb_sets in site_nb_sets.items():
-            for inb_set, nb_set in enumerate(nb_sets):
+            for inb_set, _ in enumerate(nb_sets):
                 # CHECK THE ADDITIONAL CONDITION HERE ?
                 cn_maps.append((cn, inb_set))
         weights_additional_info = {"weights": {isite: {}}}

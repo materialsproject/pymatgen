@@ -162,8 +162,8 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(val["freysoldt_electrostatic"], 0.975893)
         self.assertAlmostEqual(val["freysoldt_potential_alignment_correction"], 4.4700574)
         self.assertAlmostEqual(val["freysoldt_potalign"], 1.4900191)
-        self.assertTrue("pot_corr_uncertainty_md" in val.keys())
-        self.assertTrue("pot_plot_data" in val.keys())
+        self.assertTrue("pot_corr_uncertainty_md" in val)
+        self.assertTrue("pot_plot_data" in val)
 
     def test_perform_kumagai(self):
         de = DefectEntry(self.kumagai_vac, 0.0, parameters=self.kumagai_params)
@@ -174,8 +174,8 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(val["kumagai_electrostatic"], 0.88236299)
         self.assertAlmostEqual(val["kumagai_potential_alignment_correction"], 2.09704862)
         self.assertAlmostEqual(val["kumagai_potalign"], 0.69901620)
-        self.assertTrue("pot_corr_uncertainty_md" in val.keys())
-        self.assertTrue("pot_plot_data" in val.keys())
+        self.assertTrue("pot_corr_uncertainty_md" in val)
+        self.assertTrue("pot_plot_data" in val)
 
     def test_run_bandfilling(self):
         de = DefectEntry(

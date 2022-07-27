@@ -934,7 +934,7 @@ class PourbaixDiagram(MSONable):
         """
         Returns the stable entries in the Pourbaix diagram.
         """
-        return list(self._stable_domains.keys())
+        return list(self._stable_domains)
 
     @property
     def unstable_entries(self):

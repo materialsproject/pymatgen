@@ -363,7 +363,7 @@ class InterfacialReactivity(MSONable):
         rxn_min = reactions.pop(min_idx)
 
         labels = [
-            rf"{htmlify(str(r))} <br>" + "\u0394" + f"E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
+            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
             for r, e in zip(reactions, energy)
         ]
 
@@ -383,9 +383,7 @@ class InterfacialReactivity(MSONable):
             hoverlabel=dict(bgcolor="navy"),
         )
 
-        min_label = (
-            rf"{htmlify(str(rxn_min))} <br>" + "\u0394" + f"E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
-        )
+        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
 
         minimum = Scatter(
             x=[x_min],

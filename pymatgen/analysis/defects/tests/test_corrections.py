@@ -65,7 +65,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         # check that uncertainty metadata exists
         for ax in range(3):
             self.assertAlmostEqual(
-                set(fc.metadata["pot_corr_uncertainty_md"][ax].keys()),
+                set(fc.metadata["pot_corr_uncertainty_md"][ax]),
                 {"potcorr", "stats"},
             )
 
@@ -93,9 +93,9 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(de.parameters["potalign"], 1.1201751731915028)
 
         # test that metadata entries exist in defect entry
-        self.assertTrue("freysoldt_meta" in de.parameters.keys())
+        self.assertTrue("freysoldt_meta" in de.parameters)
         self.assertAlmostEqual(
-            set(de.parameters["freysoldt_meta"].keys()),
+            set(de.parameters["freysoldt_meta"]),
             {"pot_plot_data", "pot_corr_uncertainty_md"},
         )
 
@@ -200,7 +200,7 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         # check that uncertainty metadata exists
         self.assertAlmostEqual(
-            set(kc.metadata["pot_corr_uncertainty_md"].keys()),
+            set(kc.metadata["pot_corr_uncertainty_md"]),
             {"number_sampled", "stats"},
         )
 
@@ -257,7 +257,7 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         # test case with only one spin and eigen-occupations are 1.
         one_spin_eigen = hole_eigenvalues.copy()
-        del one_spin_eigen[list(eigenvalues.keys())[0]]
+        del one_spin_eigen[list(eigenvalues)[0]]
         bf_corr = bfc.perform_bandfill_corr(one_spin_eigen, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bf_corr, -0.14487501159000005)
 
