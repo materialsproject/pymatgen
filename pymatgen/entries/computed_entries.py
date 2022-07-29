@@ -338,7 +338,6 @@ class ComputedEntry(Entry):
             data: An optional dict of any additional data associated
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
-            file_path (str): File path from which data is taken.
         """
         super().__init__(composition, energy)
         self.energy_adjustments = energy_adjustments or []
@@ -357,7 +356,6 @@ class ComputedEntry(Entry):
         self.data = data or {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
-        self.file_path = file_path
 
     @property
     def uncorrected_energy(self) -> float:
@@ -621,7 +619,6 @@ class ComputedStructureEntry(ComputedEntry):
             data: An optional dict of any additional data associated
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
-            file_path (str): File path from which data is taken.
         """
         if composition:
             composition = Composition(composition)
@@ -643,7 +640,6 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id=entry_id,
         )
         self._structure = structure
-        self.file_path = file_path
 
     @property
     def structure(self) -> Structure:
