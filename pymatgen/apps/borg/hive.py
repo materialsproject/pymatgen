@@ -138,9 +138,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             return None
 
         self._data["file_path"] = file_path
-        entry = vasprun.get_computed_entry(
-            self._inc_structure, parameters=self._parameters, data=self._data
-        )
+        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
         return entry
