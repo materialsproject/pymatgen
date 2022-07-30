@@ -50,8 +50,8 @@ class SiteTest(PymatgenTest):
         self.assertEqual(site.species, self.dummy_site.species)
 
     def test_hash(self):
-        self.assertEqual(self.ordered_site.__hash__(), 26)
-        self.assertEqual(self.disordered_site.__hash__(), 51)
+        self.assertEqual(hash(self.ordered_site), 26)
+        self.assertEqual(hash(self.disordered_site), 51)
 
     def test_cmp(self):
         self.assertTrue(self.ordered_site > self.disordered_site)
@@ -178,10 +178,10 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_equality(self):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
-        self.assertTrue(self.site.__eq__(self.site))
-        self.assertFalse(other_site.__eq__(self.site))
-        self.assertFalse(self.site.__ne__(self.site))
-        self.assertTrue(other_site.__ne__(self.site))
+        self.assertTrue(self.site == self.site)
+        self.assertFalse(other_site == self.site)
+        self.assertFalse(self.site != self.site)
+        self.assertTrue(other_site != self.site)
 
     def test_as_from_dict(self):
         d = self.site2.as_dict()
@@ -235,7 +235,7 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_repr(self):
         self.assertEqual(
-            self.propertied_site.__repr__(),
+            repr(self.propertied_site),
             "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]",
         )
 

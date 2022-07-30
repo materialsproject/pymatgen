@@ -525,7 +525,7 @@ class DictSet(VaspInputSet):
                 incar[k] = v
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if not has_u:
-            for key in list(incar.keys()):
+            for key in list(incar):
                 if key.startswith("LDAU"):
                     del incar[key]
 
@@ -600,7 +600,7 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition.keys()):
+        if all(k.is_metal for k in structure.composition):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
                 warnings.warn(
                     "Relaxation of likely metal with ISMEAR < 1 "
@@ -1130,7 +1130,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings.keys()):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1281,7 +1281,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in list(self.user_incar_settings.keys()):
+        for k in list(self.user_incar_settings):
             # For user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:

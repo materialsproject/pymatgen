@@ -16,10 +16,7 @@ from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
-from pymatgen.core import units
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.core.units import ArrayWithUnit
+from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 from pymatgen.util.serialization import pmg_serialize
 
 
@@ -172,7 +169,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     )
 
 
-def species_by_znucl(structure):
+def species_by_znucl(structure: Structure) -> list[Species]:
     """
     Return list of unique specie found in structure **ordered according to sites**.
 
@@ -973,7 +970,7 @@ class KSampling(AbivarAble, MSONable):
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + f"{kppa} / atom"
+        comment = f"pymatge.io.abinit generated KPOINTS with grid density = {kppa} / atom"
 
         return cls(
             mode="monkhorst",

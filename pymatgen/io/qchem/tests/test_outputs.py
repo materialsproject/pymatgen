@@ -237,7 +237,7 @@ class TestQCOutput(PymatgenTest):
             print("Testing ", key)
             self._test_property(key, single_outs, multi_outs)
 
-    @unittest.skipIf((not (have_babel)), "OpenBabel not installed.")
+    @unittest.skipIf((not have_babel), "OpenBabel not installed.")
     def test_structural_change(self):
 
         t1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t1.xyz"))
@@ -278,15 +278,15 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(len(data["nbo_data"]["perturbation_energy"]), 2)
         self.assertEqual(data["nbo_data"]["natural_populations"][0]["Density"][5], -0.08624)
         self.assertEqual(data["nbo_data"]["hybridization_character"][-1]["atom 2 pol coeff"][35], "-0.7059")
-        next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"].keys())[-2]
+        next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"])[-2]
         self.assertEqual(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last], 0.071)
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0], "RY*")
 
     def test_NBO7_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9], 15.73)
-        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"].keys()), 84)
-        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"].keys()), 29)
+        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]), 84)
+        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]), 29)
 
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_2.qout")).data
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13], 32.93)
