@@ -106,11 +106,11 @@ class StructureEnvironmentsTest(PymatgenTest):
 
             self.assertEqual(len(se.differences_wrt(se)), 0)
 
-            self.assertFalse(se.__ne__(se))
+            self.assertFalse(se != se)
 
             ce = se.ce_list[isite][4][0]
 
-            self.assertTrue(ce.__len__(), 4)
+            self.assertTrue(len(ce), 4)
 
             symbol, mingeom = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
             self.assertEqual(symbol, "T:4")
@@ -130,16 +130,14 @@ class StructureEnvironmentsTest(PymatgenTest):
                 1.6270605877934026,
             )
 
-            ce_string = ce.__str__()
-
-            self.assertTrue("csm1 (with central site) : 0.00988" in ce_string)
-            self.assertTrue("csm2 (without central site) : 0.00981" in ce_string)
-            self.assertTrue("csm1 (with central site) : 12.987" in ce_string)
-            self.assertTrue("csm2 (without central site) : 11.827" in ce_string)
-            self.assertTrue("csm1 (with central site) : 32.466" in ce_string)
-            self.assertTrue("csm2 (without central site) : 32.466" in ce_string)
-            self.assertTrue("csm1 (with central site) : 34.644" in ce_string)
-            self.assertTrue("csm2 (without central site) : 32.466" in ce_string)
+            self.assertTrue("csm1 (with central site) : 0.00988" in str(ce))
+            self.assertTrue("csm2 (without central site) : 0.00981" in str(ce))
+            self.assertTrue("csm1 (with central site) : 12.987" in str(ce))
+            self.assertTrue("csm2 (without central site) : 11.827" in str(ce))
+            self.assertTrue("csm1 (with central site) : 32.466" in str(ce))
+            self.assertTrue("csm2 (without central site) : 32.466" in str(ce))
+            self.assertTrue("csm1 (with central site) : 34.644" in str(ce))
+            self.assertTrue("csm2 (without central site) : 32.466" in str(ce))
 
             mingeoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12.0)
             self.assertEqual(len(mingeoms), 2)
@@ -153,8 +151,8 @@ class StructureEnvironmentsTest(PymatgenTest):
             self.assertTrue(ce.is_close_to(ce2, rtol=0.01, atol=1e-4))
             self.assertFalse(ce.is_close_to(ce2, rtol=0.0, atol=1e-8))
 
-            self.assertFalse(ce.__eq__(ce2))
-            self.assertTrue(ce.__ne__(ce2))
+            self.assertFalse(ce == ce2)
+            self.assertTrue(ce != ce2)
 
     def test_light_structure_environments(self):
         with ScratchDir("."):
@@ -187,13 +185,13 @@ class StructureEnvironmentsTest(PymatgenTest):
             np.testing.assert_array_almost_equal(neighb_indices, [iai["index"] for iai in nb_iai])
             np.testing.assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
 
-            self.assertEqual(nb_set.__len__(), 4)
-            self.assertEqual(nb_set.__hash__(), 4)
+            self.assertEqual(len(nb_set), 4)
+            self.assertEqual(hash(nb_set), 4)
 
-            self.assertFalse(nb_set.__ne__(nb_set))
+            self.assertFalse(nb_set != nb_set)
 
             self.assertEqual(
-                nb_set.__str__(),
+                str(nb_set),
                 "Neighbors Set for site #6 :\n"
                 " - Coordination number : 4\n"
                 " - Neighbors sites indices : 0, 1, 2, 3\n",
@@ -244,7 +242,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             self.assertTrue(lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4"))
             self.assertFalse(lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4"))
             self.assertTrue(lse.uniquely_determines_coordination_environments)
-            self.assertFalse(lse.__ne__(lse))
+            self.assertFalse(lse != lse)
 
             envs = lse.strategy.get_site_coordination_environments(lse.structure[6])
             self.assertEqual(len(envs), 1)

@@ -225,7 +225,7 @@ class Substitution(Defect):
     """
 
     @property  # type: ignore
-    @lru_cache(1)  # noqa: B019
+    @lru_cache(1)
     def defect_composition(self):
         """
         Returns: Composition of defect.
@@ -306,7 +306,7 @@ class Substitution(Defect):
         return len(equivalent_sites)
 
     @property  # type: ignore
-    @lru_cache(1)  # noqa: B019
+    @lru_cache(1)
     def name(self):
         """
         Returns a name for this defect

@@ -228,11 +228,11 @@ class TransformedPDEntry(PDEntry):
         self.original_entry = entry
         self.sp_mapping = sp_mapping
 
-        self.rxn = Reaction(list(self.sp_mapping.keys()), [self._composition])
+        self.rxn = Reaction(list(self.sp_mapping), [self._composition])
         self.rxn.normalize_to(self.original_entry.composition)
 
         # NOTE We only allow reactions that have positive amounts of reactants.
-        if not all(self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping.keys()):
+        if not all(self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping):
             raise TransformedPDEntryError("Only reactions with positive amounts of reactants allowed")
 
     @property
@@ -419,7 +419,7 @@ class PhaseDiagram(MSONable):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs.keys())
+            missing = set(elements).difference(el_refs)
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         data = np.array(
@@ -779,7 +779,7 @@ class PhaseDiagram(MSONable):
         entry,
         space_limit=200,
         stable_only=False,
-        tols=[1e-8],
+        tols=(1e-8,),
         maxiter=1000,
     ):
         """
@@ -1295,7 +1295,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             elements = {els for e in entries for els in e.composition.elements}
 
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
-        elements = set(elements).difference(self.chempots.keys())
+        elements = set(elements).difference(self.chempots)
 
         all_entries = [
             GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
@@ -1934,7 +1934,7 @@ def get_facets(qhull_data, joggle=False):
 def _get_slsqp_decomp(
     comp,
     competing_entries,
-    tols=[1e-8],
+    tols=(1e-8,),
     maxiter=1000,
 ):
     """
@@ -1961,7 +1961,7 @@ def _get_slsqp_decomp(
 
     # Elemental amount present in given entry
     amts = comp.get_el_amt_dict()
-    chemical_space = tuple(amts.keys())
+    chemical_space = tuple(amts)
     b = np.array([amts[el] for el in chemical_space])
 
     # Elemental amounts present in competing entries
@@ -2491,7 +2491,7 @@ class PDPlotter:
                 markerfacecolor="r",
                 markersize=10,
             )
-        for coords in sorted(labels.keys()):
+        for coords in sorted(labels):
             entry = labels[coords]
             label = entry.name
             if label_stable:
@@ -2745,7 +2745,7 @@ class PDPlotter:
         energy_offset = -0.1 * self._min_energy
 
         if self._dim == 2:
-            min_energy_x = min(list(self.pd_plot_data[1].keys()), key=lambda c: c[1])[0]
+            min_energy_x = min(list(self.pd_plot_data[1]), key=lambda c: c[1])[0]
 
         for coords, entry in self.pd_plot_data[1].items():
             if entry.composition.is_element:  # taken care of by other function

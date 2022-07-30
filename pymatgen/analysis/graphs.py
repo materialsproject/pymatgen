@@ -870,7 +870,7 @@ class StructureGraph(MSONable):
         # graphs using matplotlib, these also work here. However,
         # a dedicated tool like GraphViz allows for much easier
         # control over graph appearance and also correctly displays
-        # mutli-graphs (matplotlib can superimpose multiple edges).
+        # multi-graphs (matplotlib can superimpose multiple edges).
 
         g = self.graph.copy()
 
@@ -1345,7 +1345,7 @@ class StructureGraph(MSONable):
 
     def __str__(self):
         s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure.__str__()}"
+        s += f"\nStructure: \n{self.structure}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
@@ -2605,7 +2605,7 @@ class MoleculeGraph(MSONable):
         # graphs using matplotlib, these also work here. However,
         # a dedicated tool like GraphViz allows for much easier
         # control over graph appearance and also correctly displays
-        # mutli-graphs (matplotlib can superimpose multiple edges).
+        # multi-graphs (matplotlib can superimpose multiple edges).
 
         g = self.graph.copy()
 
@@ -2782,7 +2782,7 @@ class MoleculeGraph(MSONable):
 
     def __str__(self) -> str:
         s = "Molecule Graph"
-        s += f"\nMolecule: \n{self.molecule.__str__()}"
+        s += f"\nMolecule: \n{self.molecule}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s

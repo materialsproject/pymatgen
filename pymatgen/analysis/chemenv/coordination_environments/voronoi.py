@@ -351,7 +351,7 @@ class DetailedVoronoiContainer(MSONable):
 
     def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
         additional_conditions = {ac: [] for ac in self.additional_conditions}
-        for ips, (ps, vals) in enumerate(voronoi):
+        for _, vals in voronoi:
             for ac in self.additional_conditions:
                 additional_conditions[ac].append(
                     self.AC.check_condition(
@@ -371,7 +371,7 @@ class DetailedVoronoiContainer(MSONable):
         for idp, dp_dict in enumerate(self.neighbors_normalized_distances[ivoronoi]):
             distance_conditions.append([])
             dp = dp_dict["max"]
-            for ips, (ps, vals) in enumerate(voronoi):
+            for _, vals in voronoi:
                 distance_conditions[idp].append(
                     vals["normalized_distance"] <= dp
                     or np.isclose(
@@ -388,7 +388,7 @@ class DetailedVoronoiContainer(MSONable):
         for iap, ap_dict in enumerate(self.neighbors_normalized_angles[ivoronoi]):
             angle_conditions.append([])
             ap = ap_dict["max"]
-            for ips, (ps, vals) in enumerate(voronoi):
+            for _, vals in voronoi:
                 angle_conditions[iap].append(
                     vals["normalized_angle"] >= ap
                     or np.isclose(
@@ -473,8 +473,8 @@ class DetailedVoronoiContainer(MSONable):
             }
         else:
             raise ValueError(
-                'Type "{}" for the surface calculation in DetailedVoronoiContainer '
-                "is invalid".format(surface_calculation_options["type"])
+                f'Type "{surface_calculation_options["type"]}" for the surface calculation in DetailedVoronoiContainer '
+                "is invalid"
             )
         max_dist = surface_calculation_options["distance_bounds"]["upper"] + 0.1
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(

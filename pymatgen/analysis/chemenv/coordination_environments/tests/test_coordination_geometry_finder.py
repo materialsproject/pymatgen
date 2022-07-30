@@ -61,7 +61,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
-        # self.assertEqual(abstract_geom.__str__(),
+        # self.assertEqual(str(abstract_geom)),
         #                  '\nAbstract Geometry with 3 points :\n'
         #                  '  [-1.    0.   -0.25]\n'
         #                  '  [ 1.    0.   -0.25]\n'
@@ -255,7 +255,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             abc = se_nohints.ce_list[0][12]
             abc.minimum_geometries()
         self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
-        self.assertTrue(set(se_nohints.ce_list[0].keys()).issubset(set(se_hints.ce_list[0].keys())))
+        self.assertTrue(set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0])))
 
 
 if __name__ == "__main__":
