@@ -632,7 +632,7 @@ class GrainBoundaryTransformationTest(PymatgenTest):
 
 class DisorderedOrderedTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        # non-sensical example just for testing purposes
+        # nonsensical example just for testing purposes
         struct = self.get_structure("BaNiO3")
 
         trans = DisorderOrderedTransformation()
