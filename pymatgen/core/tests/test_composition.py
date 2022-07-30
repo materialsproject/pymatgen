@@ -356,7 +356,7 @@ class CompositionTest(PymatgenTest):
         )
 
         Fe = Element("Fe")
-        self.assertEqual(self.comp[0] + Fe, NotImplemented)
+        self.assertEqual(self.comp[0].__add__(Fe), NotImplemented)  # pylint: disable=C2801
 
     def test_sub(self):
         self.assertEqual(
@@ -374,7 +374,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(len((c1 - c2).elements), 1)
 
         Fe = Element("Fe")
-        self.assertEqual(self.comp[0] + Fe, NotImplemented)
+        self.assertEqual(self.comp[0].__add__(Fe), NotImplemented)  # pylint: disable=C2801
 
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
@@ -431,9 +431,9 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]), [c3, c1, c1_1, c4, c2])
 
         Fe = Element("Fe")
-        self.assertEqual(c1 == Fe, NotImplemented)
-        self.assertEqual(c1 != Fe, NotImplemented)
-        self.assertEqual(c1 < Fe, NotImplemented)
+        self.assertFalse(c1 == Fe, NotImplemented)
+        self.assertTrue(c1 != Fe)
+        self.assertRaises(TypeError, lambda: c1 < Fe)
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
@@ -708,7 +708,7 @@ class ChemicalPotentialTest(unittest.TestCase):
         self.assertRaises(ValueError, fepot.get_energy, feo2)
 
         # test multiplication
-        self.assertEqual(pots * pots, NotImplemented)
+        self.assertRaises(TypeError, lambda: pots * pots)
         self.assertDictEqual(pots * 2, potsx2)
         self.assertDictEqual(2 * pots, potsx2)
 

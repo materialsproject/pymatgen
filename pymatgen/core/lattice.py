@@ -333,7 +333,7 @@ class Lattice(MSONable):
         pbc: tuple[bool, bool, bool] = (True, True, True),
     ):
         """
-        Create a Lattice using unit cell lengths and angles (in degrees).
+        Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
         Args:
             a (float): *a* lattice parameter.
@@ -1450,7 +1450,7 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))  # type: ignore
+        return float(np.sqrt(self.dot(coords, coords, frac_coords=frac_coords)))
 
     def get_points_in_sphere(
         self,
