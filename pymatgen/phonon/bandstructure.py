@@ -5,6 +5,7 @@
 This module provides classes to define a phonon band structure.
 """
 
+from __future__ import annotations
 
 import numpy as np
 from monty.json import MSONable

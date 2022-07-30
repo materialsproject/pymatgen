@@ -13,7 +13,7 @@ import math
 import os
 import re
 import warnings
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 import networkx as nx
 import numpy as np
@@ -726,7 +726,7 @@ class QCOutput(MSONable):
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
         parsed_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        for ii, parsed_geometry in enumerate(parsed_geometries):
+        for parsed_geometry in parsed_geometries:
             if not parsed_geometry:
                 geoms.append(None)
             else:
@@ -819,7 +819,7 @@ class QCOutput(MSONable):
             r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*" r"(\-?[\d\.]{9,12})"
         )
         if grad_format_length > 1:
-            for ii in range(1, grad_format_length):
+            for _ in range(1, grad_format_length):
                 grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
 
         parsed_gradients = read_table_pattern(self.text, grad_header_pattern, grad_table_pattern, footer_pattern)
@@ -1698,7 +1698,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    LPentry = {orbital: 0.0 for orbital in orbitals}  # type: Dict[str, Union[str, int, float]]
+                    LPentry: dict[str, str | int | float] = {orbital: 0.0 for orbital in orbitals}
                     LPentry["bond index"] = line[0:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
@@ -1725,9 +1725,9 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Bonding
                 if "BD" in line:
-                    BDentry = {
+                    BDentry: dict[str, str | int | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
-                    }  # type: Dict[str, Union[str, int, float]]
+                    }
                     BDentry["bond index"] = line[0:4].strip()
                     BDentry["occupancy"] = line[7:14].strip()
                     BDentry["type"] = line[16:19].strip()
@@ -1848,7 +1848,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry = {}  # type: Dict[str, Union[str, int, float]]
+                entry: dict[str, str | int | float] = {}
                 if line[4] == ".":
                     entry["donor bond index"] = int(line[0:4].strip())
                     entry["donor type"] = str(line[5:9].strip())

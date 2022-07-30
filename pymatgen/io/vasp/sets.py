@@ -50,7 +50,6 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -1398,9 +1397,9 @@ class MPHSEBSSet(MPHSERelaxSet):
         """
         :return: Kpoints
         """
-        kpts = []  # type: List[Union[int, float, None]]
-        weights = []  # type: List[Union[float, None]]
-        all_labels = []  # type: List[Union[str, None]]
+        kpts: list[int | float | None] = []
+        weights: list[float | None] = []
+        all_labels: list[str | None] = []
         structure = self.structure
 
         # for both modes, include the Uniform mesh w/standard weights
