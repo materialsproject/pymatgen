@@ -518,9 +518,9 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
-        if not set(strain_states) <= set(ss_dict.keys()):
+        if not set(strain_states) <= set(ss_dict):
             raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
-        if len(set(ss_dict.keys()) - set(strain_states)) > 0:
+        if len(set(ss_dict) - set(strain_states)) > 0:
             warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
         for i in range(6):
@@ -917,7 +917,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
             coef = get_diff_coeff(hvec, i)
             dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
-    m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
+    m, absent = generate_pseudo(list(strain_state_dict), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i + 1)
         svec = np.ravel(dei_dsi[i - 1].T)

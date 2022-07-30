@@ -50,7 +50,7 @@ class DefectTransformation(AbstractTransformation):
         return "Defect Transformation : " + ", ".join(inp_args)
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):

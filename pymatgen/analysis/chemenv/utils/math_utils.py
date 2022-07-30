@@ -83,7 +83,7 @@ def divisors(n):
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
+    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors)]
     listfactors = _cartesian_product(listexponents)
     for f in listfactors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))

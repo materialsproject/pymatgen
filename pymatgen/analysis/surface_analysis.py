@@ -132,7 +132,7 @@ class SlabEntry(ComputedStructureEntry):
         self.label = label
         self.adsorbates = [] if not adsorbates else adsorbates
         self.clean_entry = clean_entry
-        self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): ads for ads in self.adsorbates}
+        self.ads_entries_dict = {str(list(ads.composition.as_dict())[0]): ads for ads in self.adsorbates}
         self.mark = marker
         self.color = color
 
@@ -201,14 +201,14 @@ class SlabEntry(ComputedStructureEntry):
         ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
         slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
-            list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
-            if not any(el in list_els for el in ucell_entry.composition.as_dict().keys()):
+            list_els = [list(entry.composition.as_dict())[0] for entry in ref_entries]
+            if not any(el in list_els for el in ucell_entry.composition.as_dict()):
                 warnings.warn("Elemental references missing for the non-dopant species.")
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
-        ref_entries_dict = {str(list(ref.composition.as_dict().keys())[0]): ref for ref in ref_entries}
+        ref_entries_dict = {str(list(ref.composition.as_dict())[0]): ref for ref in ref_entries}
         ref_entries_dict.update(self.ads_entries_dict)
 
         # Calculate Gibbs free energy of the bulk per unit formula
@@ -269,7 +269,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         Returns the TOTAL number of adsorbates in the slab on BOTH sides
         """
-        return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict.keys())
+        return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict)
 
     @property
     def Nsurfs_ads_in_slab(self):
@@ -334,7 +334,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         Returns a slab with the adsorbates removed
         """
-        ads_strs = list(self.ads_entries_dict.keys())
+        ads_strs = list(self.ads_entries_dict)
         cleaned = self.structure.copy()
         cleaned.remove_species(ads_strs)
         return cleaned
@@ -350,7 +350,7 @@ class SlabEntry(ComputedStructureEntry):
             return self.data["label"]
 
         label = str(self.miller_index)
-        ads_strs = list(self.ads_entries_dict.keys())
+        ads_strs = list(self.ads_entries_dict)
 
         cleaned = self.cleaned_up_slab
         label += f" {cleaned.composition.reduced_composition}"
@@ -642,7 +642,7 @@ class SurfaceEnergyPlotter:
         axes = plt.gca()
 
         for hkl in self.all_slab_entries.keys():
-            clean_entry = list(self.all_slab_entries[hkl].keys())[0]
+            clean_entry = list(self.all_slab_entries[hkl])[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
             if all(a == 0 for a in hkl_area_dict[hkl]):
@@ -867,7 +867,7 @@ class SurfaceEnergyPlotter:
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
-            for i, clean in enumerate(self.all_slab_entries[hkl].keys()):
+            for i, clean in enumerate(self.all_slab_entries[hkl]):
                 c = copy.copy(color)
                 c[rgb_indices[2]] = clean_list[i]
                 color_dict[clean] = c
@@ -1100,7 +1100,7 @@ class SurfaceEnergyPlotter:
             monolayers, BEs = zip(*vals)
             plt.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
-        adsorbates = tuple(ads_entry.ads_entries_dict.keys())
+        adsorbates = tuple(ads_entry.ads_entries_dict)
         plt.xlabel(" %s" * len(adsorbates) % adsorbates + " Coverage (ML)")
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
         plt.legend()

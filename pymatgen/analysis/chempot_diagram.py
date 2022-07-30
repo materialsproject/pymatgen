@@ -576,7 +576,7 @@ class ChemicalPotentialDiagram(MSONable):
         return axes_layout
 
     @property  # type: ignore
-    @lru_cache(maxsize=1)  # noqa: B019 functools.lru_cache on methods can lead to memory leaks.
+    @lru_cache(maxsize=1)
     def domains(self) -> dict[str, np.ndarray]:
         """Mapping of formulas to array of domain boundary points"""
         return self._get_domains()

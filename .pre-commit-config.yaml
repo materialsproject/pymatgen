@@ -1,8 +1,5 @@
 exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
-default_language_version:
-  python: python3
-
 ci:
   autoupdate_schedule: monthly
   skip: [flake8, mypy, pylint]

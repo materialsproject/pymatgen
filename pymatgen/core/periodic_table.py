@@ -324,7 +324,7 @@ class ElementBase(Enum):
     @property
     def electron_affinity(self) -> float:
         """
-        First ionization energy of element.
+        The amount of energy released when an electron is attached to a neutral atom.
         """
         return self._data["Electron affinity"]
 

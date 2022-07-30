@@ -268,12 +268,12 @@ class StructureMotifInterstitial:
         self.cn_motif_lostop = {}
         self.target_cns = []
         for motif in self._motif_types:
-            if motif not in list(motif_cn_op.keys()):
+            if motif not in list(motif_cn_op):
                 raise RuntimeError(f"unsupported motif type: {motif}.")
             cn = int(motif_cn_op[motif]["cn"])
             if cn not in self.target_cns:
                 self.target_cns.append(cn)
-            if cn not in list(self.cn_motif_lostop.keys()):
+            if cn not in list(self.cn_motif_lostop):
                 self.cn_motif_lostop[cn] = {}
             tmp_optype = motif_cn_op[motif]["optype"]
             if tmp_optype == "tet_max":
@@ -345,7 +345,7 @@ class StructureMotifInterstitial:
                                     elem = site.specie.symbol
                                 else:
                                     elem = site.specie.element.symbol
-                                if elem in list(cns.keys()):
+                                if elem in list(cns):
                                     cns[elem] = cns[elem] + 1
                                 else:
                                     cns[elem] = 1
@@ -632,7 +632,7 @@ class TopographyAnalyzer:
         framework = []
         non_framework = []
         for site in structure:
-            if self.framework_ions.intersection(site.species.keys()):
+            if self.framework_ions.intersection(site.species):
                 framework.append(site)
             else:
                 non_framework.append(site)
@@ -692,9 +692,7 @@ class TopographyAnalyzer:
 
         # Eliminate all voronoi nodes which are closest to existing cations.
         if len(cations) > 0:
-            cation_coords = [
-                site.frac_coords for site in non_framework if self.cations.intersection(site.species.keys())
-            ]
+            cation_coords = [site.frac_coords for site in non_framework if self.cations.intersection(site.species)]
 
             vertex_fcoords = [v.frac_coords for v in vnodes]
             dist_matrix = lattice.get_all_distances(cation_coords, vertex_fcoords)

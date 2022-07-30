@@ -116,7 +116,7 @@ class StructureConnectivity(MSONable):
             nb_image_cell = nb_index_and_image["image_cell"]
             exists = False
             if np.allclose(nb_image_cell, np.zeros(3)):
-                for (isite1, ineighb1, data1) in existing_edges:
+                for _, ineighb1, data1 in existing_edges:
                     if np.allclose(data1["delta"], np.zeros(3)) and nb_index_unitcell == ineighb1:
                         exists = True
                         break
@@ -130,7 +130,7 @@ class StructureConnectivity(MSONable):
                                 exists = True
                                 break
                 else:
-                    for (isite1, ineighb1, data1) in existing_edges:
+                    for _, ineighb1, data1 in existing_edges:
                         if nb_index_unitcell == ineighb1:
                             if data1["start"] == isite:
                                 if np.allclose(data1["delta"], nb_image_cell):
@@ -217,13 +217,13 @@ class StructureConnectivity(MSONable):
         for inode1, node1 in enumerate(nodes):
             isite1 = node1.isite
             links_node1 = self._graph.edges(isite1, data=True)
-            for inode2, node2 in enumerate(nodes[inode1:]):
+            for node2 in nodes[inode1:]:
                 isite2 = node2.isite
                 links_node2 = self._graph.edges(isite2, data=True)
                 # We look for ligands that are common to both site1 and site2
                 connections_site1_site2 = {}
-                for (site1_1, ilig_site1, d1) in links_node1:
-                    for (site2_1, ilig_site2, d2) in links_node2:
+                for _, ilig_site1, d1 in links_node1:
+                    for _, ilig_site2, d2 in links_node2:
                         if ilig_site1 == ilig_site2:
                             delta_image = get_delta_image(isite1, isite2, d1, d2)
                             if isite1 == isite2 and np.all(delta_image == 0):
@@ -236,8 +236,8 @@ class StructureConnectivity(MSONable):
                 # Remove the double self-loops ...
                 if isite1 == isite2:
                     remove_deltas = []
-                    alldeltas = list(connections_site1_site2.keys())
-                    alldeltas2 = list(connections_site1_site2.keys())
+                    alldeltas = list(connections_site1_site2)
+                    alldeltas2 = list(connections_site1_site2)
                     if (0, 0, 0) in alldeltas:
                         alldeltas.remove((0, 0, 0))
                         alldeltas2.remove((0, 0, 0))
@@ -330,23 +330,13 @@ class StructureConnectivity(MSONable):
             for (n1, n2, data) in self.environment_subgraph().edges(node, data=True):
                 if n1.isite == data["start"]:
                     print(
-                        "  - {:d} by {:d} ligands ({:d} {:d} {:d})".format(
-                            n2.isite,
-                            len(data["ligands"]),
-                            data["delta"][0],
-                            data["delta"][1],
-                            data["delta"][2],
-                        )
+                        f"  - {n2.isite} by {len(data['ligands'])} ligands ({data['delta'][0]} "
+                        f"{data['delta'][1]} {data['delta'][2]})"
                     )
                 else:
                     print(
-                        "  - {:d} by {:d} ligands ({:d} {:d} {:d})".format(
-                            n2.isite,
-                            len(data["ligands"]),
-                            -data["delta"][0],
-                            -data["delta"][1],
-                            -data["delta"][2],
-                        )
+                        f"  - {n2.isite} by {len(data['ligands'])} ligands ({-data['delta'][0]} "
+                        f"{-data['delta'][1]} {-data['delta'][2]})"
                     )
 
     def as_dict(self):
