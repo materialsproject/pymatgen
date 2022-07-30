@@ -1436,7 +1436,7 @@ class Lattice(MSONable):
 
         return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
 
-    def norm(self, coords: ArrayLike, frac_coords: bool = True) -> float:
+    def norm(self, coords: ArrayLike, frac_coords: bool = True) -> np.ndarray:
         """
         Compute the norm of vector(s).
 
@@ -1450,7 +1450,7 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        return float(np.sqrt(self.dot(coords, coords, frac_coords=frac_coords)))
+        return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
 
     def get_points_in_sphere(
         self,
