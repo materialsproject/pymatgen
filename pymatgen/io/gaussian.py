@@ -986,7 +986,7 @@ class GaussianOutput:
                         self.molecular_orbital = mo
 
                     elif parse_freq:
-                        while line.strip() != "":  #  blank line
+                        while line.strip() != "":  # blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
                             for _ in ifreqs:
                                 frequencies.append(
