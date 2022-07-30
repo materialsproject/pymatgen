@@ -432,7 +432,7 @@ class CifParser:
                 # Below, we split the strings on ' + ' to
                 # check if the length (or number of elements) in the label and
                 # symbol are equal.
-                if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(el_row[idx].split(" + ")):
+                if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(el_row.split(" + ")):
 
                     # Dictionary to hold extracted elements and occupancies
                     els_occu = {}

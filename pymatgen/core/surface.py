@@ -473,7 +473,7 @@ class Slab(Structure):
             f"Slab Summary ({comp.formula})",
             f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
-            f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor.__str__()}",
+            f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
         ]
 
         def to_s(x):
@@ -845,16 +845,16 @@ class SlabGenerator:
         slab_scale_factor = []
         non_orth_ind = []
         eye = np.eye(3, dtype=int)
-        for i, j in enumerate(miller_index):
-            if j == 0:
+        for ii, jj in enumerate(miller_index):
+            if jj == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,
                 # in plane of surface. We will simply choose this lattice
                 # vector as one of the basis vectors.
-                slab_scale_factor.append(eye[i])
+                slab_scale_factor.append(eye[ii])
             else:
                 # Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, latt.matrix[i])) / latt.abc[i]
-                non_orth_ind.append((i, d))
+                d = abs(np.dot(normal, latt.matrix[ii])) / latt.abc[ii]
+                non_orth_ind.append((ii, d))
 
         # We want the vector that has maximum magnitude in the
         # direction of the surface normal as the c-direction.
@@ -863,10 +863,10 @@ class SlabGenerator:
 
         if len(non_orth_ind) > 1:
             lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
-            for (i, di), (j, dj) in itertools.combinations(non_orth_ind, 2):
+            for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
                 l = [0, 0, 0]
-                l[i] = -int(round(lcm_miller / miller_index[i]))
-                l[j] = int(round(lcm_miller / miller_index[j]))
+                l[ii] = -int(round(lcm_miller / miller_index[ii]))
+                l[jj] = int(round(lcm_miller / miller_index[jj]))
                 slab_scale_factor.append(l)
                 if len(slab_scale_factor) == 2:
                     break
@@ -1551,7 +1551,7 @@ class ReconstructionGenerator:
                     slab.symmetrically_add_atom(slab[0].specie, p)
 
             slab.reconstruction = self.name
-            setattr(slab, "recon_trans_matrix", self.trans_matrix)
+            slab.recon_trans_matrix = self.trans_matrix
 
             # Get the oriented_unit_cell with the same axb area.
             ouc = slab.oriented_unit_cell.copy()

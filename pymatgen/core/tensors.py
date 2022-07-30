@@ -100,7 +100,7 @@ class Tensor(np.ndarray, MSONable):
         return hash(self.tostring())
 
     def __repr__(self):
-        return f"{type(self).__name__}({self.__str__()})"
+        return f"{type(self).__name__}({self})"
 
     def zeroed(self, tol=1e-3):
         """
