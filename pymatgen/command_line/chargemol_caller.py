@@ -208,7 +208,7 @@ class ChargemolAnalysis:
                 rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
+                    f"Chargemol exited with return code {rs.returncode}. Please check your Chargemol installation."
                 )
 
             self._from_data_dir()
@@ -362,7 +362,7 @@ class ChargemolAnalysis:
     def _write_jobscript_for_chargemol(
         self,
         net_charge=0.0,
-        periodicity=[True, True, True],
+        periodicity=(True, True, True),
         method="ddec6",
         compute_bond_orders=True,
     ):
@@ -372,8 +372,8 @@ class ChargemolAnalysis:
         Args:
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
-            periodicity (list[bool]): Periodicity of the system.
-                Default: [True, True, True].
+            periodicity (tuple[bool]): Periodicity of the system.
+                Default: (True, True, True).
             method (str): Method to use for the analysis. Options include "ddec6"
             and "ddec3".
                 Default: "ddec6"
