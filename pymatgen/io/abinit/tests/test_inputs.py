@@ -170,7 +170,7 @@ class TestMultiDataset(PymatgenTest):
         assert len(multi) == 1 and multi.ndtset == 1
         assert multi.isnc
         for i, inp in enumerate(multi):
-            assert list(inp.keys()) == list(multi[i].keys())
+            assert list(inp) == list(multi[i])
 
         multi.addnew_from(0)
         assert multi.ndtset == 2 and multi[0] is not multi[1]

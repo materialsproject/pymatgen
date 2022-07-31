@@ -86,8 +86,8 @@ class RLSVolumePredictor:
                 ref_comp = ref_structure.composition
 
                 # Check if all the associated ionic radii are available.
-                if any(k.ionic_radius is None for k in list(comp.keys())) or any(
-                    k.ionic_radius is None for k in list(ref_comp.keys())
+                if any(k.ionic_radius is None for k in list(comp)) or any(
+                    k.ionic_radius is None for k in list(ref_comp)
                 ):
                     raise ValueError("Not all the ionic radii are available!")
 
@@ -187,7 +187,7 @@ class DLSVolumePredictor:
         # Record the "DLS estimated radius" from bond_params.
         bp_dict = {}
 
-        for sp in list(structure.composition.keys()):
+        for sp in list(structure.composition):
             if sp.atomic_radius:
                 sub_sites.extend([site for site in structure if site.specie == sp])
             else:

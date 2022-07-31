@@ -1726,4 +1726,4 @@ class PointGroupOperations(list):
         return self.sch_symbol
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)

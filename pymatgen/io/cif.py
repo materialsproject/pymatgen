@@ -432,9 +432,7 @@ class CifParser:
                 # Below, we split the strings on ' + ' to
                 # check if the length (or number of elements) in the label and
                 # symbol are equal.
-                if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(
-                    data["_atom_site_label"][idx].split(" + ")
-                ):
+                if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(el_row.split(" + ")):
 
                     # Dictionary to hold extracted elements and occupancies
                     els_occu = {}
@@ -883,7 +881,7 @@ class CifParser:
         # try with special symbols, otherwise check the first two letters,
         # then the first letter alone. If everything fails try extracting the
         # first letters.
-        m_sp = re.match("|".join(special.keys()), sym)
+        m_sp = re.match("|".join(special), sym)
         if m_sp:
             parsed_sym = special[m_sp.group()]
         elif Element.is_valid_symbol(sym[:2].title()):
@@ -930,7 +928,7 @@ class CifParser:
         coord_to_magmoms = {}
 
         def get_matching_coord(coord):
-            keys = list(coord_to_species.keys())
+            keys = list(coord_to_species)
             coords = np.array(keys)
             for op in self.symmetry_operations:
                 c = op.operate(coord)
@@ -1017,7 +1015,7 @@ class CifParser:
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
-            for k, v in coord_to_magmoms.items():
+            for v in coord_to_magmoms.values():
                 if v is None:
                     # Proposed solution to this is to instead store magnetic
                     # moments as Species 'spin' property, instead of site

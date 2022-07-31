@@ -401,7 +401,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_element_profile(self):
         for el in self.pd.elements:
             for entry in self.pd.stable_entries:
-                if not (entry.composition.is_element):
+                if not entry.composition.is_element:
                     self.assertLessEqual(
                         len(self.pd.get_element_profile(el, entry.composition)),
                         len(self.pd.facets),

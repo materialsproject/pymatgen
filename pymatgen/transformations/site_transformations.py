@@ -71,10 +71,10 @@ class InsertSitesTransformation(AbstractTransformation):
         return s.get_sorted_structure()
 
     def __str__(self):
-        return "InsertSiteTransformation : " + f"species {self.species}, coords {self.coords}"
+        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -126,7 +126,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -171,7 +171,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -232,7 +232,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -532,7 +532,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):

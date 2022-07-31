@@ -177,7 +177,7 @@ class VasprunTest(PymatgenTest):
 
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
-        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]].keys())
+        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
         self.assertIn(OrbitalType.s, orbs)
 
     def test_standard(self):
@@ -1629,7 +1629,7 @@ class ChgcarTest(PymatgenTest):
 
     def test_soc_chgcar(self):
         self.assertEqual(
-            set(self.chgcar_NiO_SOC.data.keys()),
+            set(self.chgcar_NiO_SOC.data),
             {"total", "diff_x", "diff_y", "diff_z", "diff"},
         )
         self.assertTrue(self.chgcar_NiO_SOC.is_soc)
@@ -1683,8 +1683,7 @@ class ChgcarTest(PymatgenTest):
         os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
-        d = self.chgcar_spin.spin_data
-        for k, v in d.items():
+        for v in self.chgcar_spin.spin_data.values():
             self.assertEqual(v.shape, (48, 48, 48))
 
     def test_add(self):

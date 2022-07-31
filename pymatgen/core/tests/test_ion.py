@@ -170,7 +170,7 @@ class IonTest(unittest.TestCase):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. " + f"{comp1.formula} should be equal to {comp2.formula}",
+            f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}",
         )
         self.assertEqual(hash(comp1), hash(comp2), "Hashcode equality test failed!")
 

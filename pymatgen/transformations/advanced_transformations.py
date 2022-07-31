@@ -94,7 +94,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -161,7 +161,7 @@ class SuperTransformation(AbstractTransformation):
         return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -269,10 +269,10 @@ class MultipleSubstitutionTransformation:
         return outputs
 
     def __str__(self):
-        return "Multiple Substitution Transformation : Substitution on " + f"{self.sp_to_replace}"
+        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -469,7 +469,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         return "EnumerateStructureTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -537,7 +537,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         return "SubstitutionPredictorTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -908,7 +908,7 @@ class MagOrderingTransformation(AbstractTransformation):
         return "MagOrderingTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -1399,7 +1399,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
             normal (logic):
                 determine if need to require the c axis of top grain (first transformation matrix)
-                perperdicular to the surface or not.
+                perpendicular to the surface or not.
                 default to false.
             ratio (list of integers): lattice axial ratio.
                 If True, will try to determine automatically from structure.
@@ -2209,7 +2209,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         return f"{__name__} : rattle_std = {self.rattle_std}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):

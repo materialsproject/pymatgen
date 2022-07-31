@@ -61,11 +61,10 @@ class BoltztrapRunner(MSONable):
 
     @requires(
         which("x_trans"),
-        "BoltztrapRunner requires the executables 'x_trans' to be in "
-        "the path. Please download the Boltztrap at http://"
-        "www.icams.de/content/research/software-development/boltztrap/ "
-        "and follow the instructions in the README to compile "
-        "Bolztrap accordingly. Then add x_trans to your path",
+        "BoltztrapRunner requires the executables 'x_trans' to be in PATH. Please download "
+        "Boltztrap at http://www.icams.de/content/research/software-development/boltztrap/ "
+        "and follow the instructions in the README to compile Bolztrap accordingly. "
+        "Then add x_trans to your path",
     )
     def __init__(
         self,
@@ -430,15 +429,7 @@ class BoltztrapRunner(MSONable):
             for oi, o in enumerate(Orbital):
                 for site_nb in range(0, len(self._bs.structure.sites)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
-                        f.write(
-                            str(i)
-                            + ",'"
-                            + "boltztrap.proj_"
-                            + str(site_nb)
-                            + "_"
-                            + str(o.name)
-                            + "' 'old', 'formatted',0\n"
-                        )
+                        f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}' 'old', 'formatted',0\n")
                         i += 1
 
     def write_intrans(self, output_file):
@@ -458,9 +449,8 @@ class BoltztrapRunner(MSONable):
                 )
                 fout.write(
                     f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} "
-                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} "
-                    f"{self._nelec:6.1f}     # Fermilevel (Ry),energygrid,energy "
-                    "span around Fermilevel, number of electrons\n"
+                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} {self._nelec}.1f     "
+                    f"# Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -488,13 +478,7 @@ class BoltztrapRunner(MSONable):
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
-                fout.write(
-                    str(1)
-                    + "                        # actual band selected: "
-                    + str(self.band_nb + 1)
-                    + " spin: "
-                    + str(self.spin)
-                )
+                fout.write(f"1                        # actual band selected: {self.band_nb + 1} spin: {self.spin}")
 
         elif self.run_type == "BANDS":
             if self.kpt_line is None:
@@ -514,10 +498,8 @@ class BoltztrapRunner(MSONable):
                 )
                 fout.write(
                     f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} "
-                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} "
-                    f"{self._nelec:6.1f}     # Fermilevel (Ry),energygrid,energy "
-                    "span around Fermilevel, "
-                    "number of electrons\n"
+                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} {self._nelec:.1f}     "
+                    f"# Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -969,7 +951,7 @@ class BoltztrapAnalyzer:
         else:
             bnd_around_efermi = []
             delta = 0
-            spin = list(sbs_bz.bands.keys())[0]
+            spin = list(sbs_bz.bands)[0]
             while len(bnd_around_efermi) < 8 and delta < 100:
                 delta += 0.1
                 bnd_around_efermi = []
@@ -1659,13 +1641,13 @@ class BoltztrapAnalyzer:
             cdos=an_up.get_complete_dos(bs.structure,an_dw)
         """
         pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, ArrayLike]]] = {}
-        spin_1 = list(self.dos.densities.keys())[0]
+        spin_1 = list(self.dos.densities)[0]
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies == analyzer_for_second_spin.dos.energies):
                 raise BoltztrapError("Dos merging error: energies of the two dos are different")
 
-            spin_2 = list(analyzer_for_second_spin.dos.densities.keys())[0]
+            spin_2 = list(analyzer_for_second_spin.dos.densities)[0]
             if spin_1 == spin_2:
                 raise BoltztrapError("Dos merging error: spin component are the same")
 

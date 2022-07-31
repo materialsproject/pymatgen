@@ -81,7 +81,7 @@ class SubstitutionPredictorTest(unittest.TestCase):
         result = sp.composition_prediction(c, to_this_composition=True)[2]
         self.assertEqual(set(result["substitutions"].values()), set(c.elements))
         result = sp.composition_prediction(c, to_this_composition=False)[2]
-        self.assertEqual(set(result["substitutions"].keys()), set(c.elements))
+        self.assertEqual(set(result["substitutions"]), set(c.elements))
 
 
 if __name__ == "__main__":
