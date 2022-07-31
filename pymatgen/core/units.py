@@ -363,7 +363,7 @@ class FloatWithUnit(float):
         return super().__repr__()
 
     def __str__(self):
-        return f"{str(super())} {self._unit}"
+        return f"{super().__str__()} {self._unit}"
 
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
