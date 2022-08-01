@@ -558,7 +558,7 @@ class OptSetTest(PymatgenTest):
                 "geom_opt2": "3",
             },
         )
-        self.assertEqual(v5_OptSet.geom_opt, {"maxiter":"200"})
+        self.assertEqual(v5_OptSet.geom_opt, {"maxiter": "200"})
         self.assertEqual(v5_OptSet.molecule, test_molecule)
 
         v6_OptSet = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd")
@@ -580,11 +580,27 @@ class OptSetTest(PymatgenTest):
                 "resp_charges": "true",
             },
         )
-        self.assertEqual(v6_OptSet.geom_opt, {"maxiter":"200", "coordinates":"redundant", "max_displacement":"0.019127302", "optimization_restart":"false"})
+        # self.assertEqual(v6_OptSet.geom_opt, {"maxiter":"200", "coordinates":"redundant", "max_displacement":"0.019127302", "optimization_restart":"false"})
+        self.assertEqual(
+            v6_OptSet.geom_opt, {"maxiter": "200", "coordinates": "redundant", "optimization_restart": "false"}
+        )
         self.assertEqual(v6_OptSet.molecule, test_molecule)
 
-        v6_OptSet_modified = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={"coordinates":"delocalized", "optimization_restart":"true"})
-        self.assertEqual(v6_OptSet_modified.geom_opt, {"maxiter":"200", "coordinates":"delocalized", "max_displacement":"0.019127302", "optimization_restart":"true"})
+        v6_OptSet_modified = OptSet(
+            molecule=test_molecule,
+            qchem_version=6,
+            basis_set="def2-tzvpd",
+            geom_opt={"coordinates": "delocalized", "optimization_restart": "true"},
+        )
+        self.assertEqual(
+            v6_OptSet_modified.geom_opt,
+            {
+                "maxiter": "200",
+                "coordinates": "delocalized",
+                # "max_displacement": "0.019127302",
+                "optimization_restart": "true",
+            },
+        )
 
 
 class TransitionStateSetTest(PymatgenTest):
