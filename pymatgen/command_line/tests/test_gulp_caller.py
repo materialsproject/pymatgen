@@ -316,25 +316,25 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
         self.bpl = BuckinghamPotential("lewis")
 
     def test_existing_element(self):
-        self.assertIn("Sc_2+", self.bpl.pot_dict.keys())
-        self.assertIn("Sc_2+", self.bpl.species_dict.keys())
-        self.assertIn("O", self.bpl.pot_dict.keys())
-        self.assertIn("O_core", self.bpl.species_dict.keys())
-        self.assertIn("O_shel", self.bpl.species_dict.keys())
+        self.assertIn("Sc_2+", self.bpl.pot_dict)
+        self.assertIn("Sc_2+", self.bpl.species_dict)
+        self.assertIn("O", self.bpl.pot_dict)
+        self.assertIn("O_core", self.bpl.species_dict)
+        self.assertIn("O_shel", self.bpl.species_dict)
 
     def test_non_exisitng_element(self):
-        self.assertNotIn("Li_1+", self.bpl.pot_dict.keys())
-        self.assertNotIn("Li_1+", self.bpl.species_dict.keys())
+        self.assertNotIn("Li_1+", self.bpl.pot_dict)
+        self.assertNotIn("Li_1+", self.bpl.species_dict)
 
     def test_element_different_valence(self):
-        self.assertNotIn("Sc_4+", self.bpl.species_dict.keys())
+        self.assertNotIn("Sc_4+", self.bpl.species_dict)
 
     def test_values(self):
         self.assertNotEqual("", self.bpl.species_dict["Sc_2+"])
         self.assertNotEqual("", self.bpl.pot_dict["Sc_2+"])
 
     def test_spring(self):
-        self.assertNotIn("Li", self.bpl.spring_dict.keys())
+        self.assertNotIn("Li", self.bpl.spring_dict)
         self.assertNotEqual("", self.bpl.spring_dict["O"])
 
 
@@ -346,14 +346,14 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
         self.bpb = BuckinghamPotential("bush")
 
     def test_existing_element(self):
-        self.assertIn("Li", self.bpb.pot_dict.keys())
-        self.assertIn("Li", self.bpb.species_dict.keys())
-        self.assertIn("O", self.bpb.pot_dict.keys())
-        self.assertIn("O", self.bpb.species_dict.keys())
+        self.assertIn("Li", self.bpb.pot_dict)
+        self.assertIn("Li", self.bpb.species_dict)
+        self.assertIn("O", self.bpb.pot_dict)
+        self.assertIn("O", self.bpb.species_dict)
 
     def test_non_exisitng_element(self):
-        self.assertNotIn("Mn", self.bpb.pot_dict.keys())
-        self.assertNotIn("Mn", self.bpb.species_dict.keys())
+        self.assertNotIn("Mn", self.bpb.pot_dict)
+        self.assertNotIn("Mn", self.bpb.species_dict)
 
     def test_element_different_valence(self):
         self.assertNotEqual(2, self.bpb.species_dict["Li"]["oxi"])

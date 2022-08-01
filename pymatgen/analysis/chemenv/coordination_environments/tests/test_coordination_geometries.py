@@ -55,7 +55,7 @@ class CoordinationGeometriesTest(PymatgenTest):
         )
 
         self.assertEqual(
-            sepplane_algos_oct[0].__str__(),
+            str(sepplane_algos_oct[0]),
             "Separation plane algorithm with the following reference separation :\n[[4]] | [[0, 2, 1, 3]] | [[5]]",
         )
 
@@ -75,7 +75,7 @@ class CoordinationGeometriesTest(PymatgenTest):
         self.assertArrayAlmostEqual(cg_oct.central_site, cg_oct2.central_site)
         self.assertArrayAlmostEqual(cg_oct.points, cg_oct2.points)
         self.assertEqual(
-            cg_oct.__str__(),
+            str(cg_oct),
             "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"
             "\n"
             "  - coordination number : 6\n"
@@ -89,7 +89,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             "------------------------------------------------------------\n",
         )
 
-        self.assertEqual(cg_oct.__len__(), 6)
+        self.assertEqual(len(cg_oct), 6)
         self.assertEqual(cg_oct.ce_symbol, cg_oct.mp_symbol)
         self.assertTrue(cg_oct.is_implemented())
         self.assertEqual(cg_oct.get_name(), "Octahedron")
@@ -186,7 +186,6 @@ class CoordinationGeometriesTest(PymatgenTest):
             "1\n3\n4\n1\n4\n1\n3\n5\n1\n",
         )
 
-        allcg_str = allcg.__str__()
         self.assertTrue(
             "\n#=======================================================#\n"
             "# List of coordination geometries currently implemented #\n"
@@ -195,13 +194,13 @@ class CoordinationGeometriesTest(PymatgenTest):
             "  - coordination number : 1\n"
             "  - list of points :\n"
             "    - [0.0, 0.0, 1.0]\n"
-            "------------------------------------------------------------\n\n" in allcg_str
+            "------------------------------------------------------------\n\n" in str(allcg)
         )
 
         self.assertTrue(
             "Coordination geometry type : Trigonal plane (IUPAC: TP-3 || IUCr: [3l])\n\n"
             "  - coordination number : 3\n"
-            "  - list of points :\n" in allcg_str
+            "  - list of points :\n" in str(allcg)
         )
 
         all_symbols = [

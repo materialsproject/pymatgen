@@ -32,7 +32,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class DosPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
         warnings.simplefilter("ignore")
@@ -70,18 +70,18 @@ class DosPlotterTest(unittest.TestCase):
 
 class BSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json"), encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json")) as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
 
         self.assertEqual(len(self.plotter._bs), 1, "wrong number of band objects")
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json"), encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json")) as f:
             d = json.loads(f.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(d)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json"), encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json")) as f:
             d = json.loads(f.read())
             self.sbs_met = BandStructureSymmLine.from_dict(d)
 
@@ -200,7 +200,7 @@ class BSPlotterTest(unittest.TestCase):
 
 class BSPlotterProjectedTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json")) as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
@@ -615,7 +615,7 @@ class CohpPlotterTest(PymatgenTest):
         self.coop_plot.add_cohp_dict(self.coop.all_cohps, key_sort_func=lambda x: sortkeys(bonds[x]["sites"]))
         d_coop = self.coop_plot.get_cohp_dict()
         self.assertEqual(len(d_coop), 11)
-        self.assertEqual(list(self.coop_plot._cohps.keys()), sorted_keys)
+        self.assertEqual(list(self.coop_plot._cohps), sorted_keys)
 
     def test_get_cohp_dict(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)

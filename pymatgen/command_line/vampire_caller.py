@@ -16,6 +16,8 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
+from __future__ import annotations
+
 import logging
 import subprocess
 from shutil import which
@@ -350,15 +352,15 @@ class VampireCaller:
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
         ninter = 0
-        for i, node in enumerate(sgraph.graph.nodes):
-            ninter += sgraph.get_coordination_of_site(i)
+        for idx in range(len(sgraph.graph.nodes)):
+            ninter += sgraph.get_coordination_of_site(idx)
 
         ucf += ["# Interactions"]
         ucf += [f"{ninter} isotropic"]
 
         iid = 0  # counts number of interaction
-        for i, node in enumerate(sgraph.graph.nodes):
-            connections = sgraph.get_connected_sites(i)
+        for idx in range(len(sgraph.graph.nodes)):
+            connections = sgraph.get_connected_sites(idx)
             for c in connections:
                 jimage = c[1]  # relative integer coordinates of atom j
                 dx = jimage[0]
@@ -371,14 +373,14 @@ class VampireCaller:
                 if self.avg is True:  # Just use <J> estimate
                     j_exc = self.hm.javg
                 else:
-                    j_exc = self.hm._get_j_exc(i, j, dist)
+                    j_exc = self.hm._get_j_exc(idx, j, dist)
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22
 
                 j_exc = str(j_exc)  # otherwise this rounds to 0
 
-                ucf += [f"{iid} {i} {j} {dx} {dy} {dz} {j_exc}"]
+                ucf += [f"{iid} {idx} {j} {dx} {dy} {dz} {j_exc}"]
                 iid += 1
 
         ucf = "\n".join(ucf)

@@ -47,7 +47,7 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     subs = [
         {
             "probability": pred["probability"],
-            "dopant_species": list(pred["substitutions"].keys())[0],
+            "dopant_species": list(pred["substitutions"])[0],
             "original_species": list(pred["substitutions"].values())[0],
         }
         for species_preds in subs

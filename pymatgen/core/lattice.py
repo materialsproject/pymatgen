@@ -333,7 +333,7 @@ class Lattice(MSONable):
         pbc: tuple[bool, bool, bool] = (True, True, True),
     ):
         """
-        Create a Lattice using unit cell lengths and angles (in degrees).
+        Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
         Args:
             a (float): *a* lattice parameter.
@@ -943,17 +943,19 @@ class Lattice(MSONable):
         ]
         return "\n".join(outs)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         A lattice is considered to be equal to another if the internal matrix
         representation satisfies np.allclose(matrix1, matrix2) to be True and
         share the same periodicity.
         """
-        if other is None:
-            return False
+        if not hasattr(other, "matrix") or not hasattr(other, "pbc"):
+            return NotImplemented
         # shortcut the np.allclose if the memory addresses are the same
         # (very common in Structure.from_sites)
-        return self is other or (np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc)
+        if self is other:
+            return True
+        return np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc  # type: ignore
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1233,7 +1235,7 @@ class Lattice(MSONable):
         G = np.dot(matrix, matrix.T)
 
         # This sets an upper limit on the number of iterations.
-        for count in range(100):
+        for _ in range(100):
             # The steps are labelled as Ax as per the labelling scheme in the
             # paper.
             (A, B, C, E, N, Y) = (
@@ -1434,7 +1436,7 @@ class Lattice(MSONable):
 
         return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
 
-    def norm(self, coords: ArrayLike, frac_coords: bool = True) -> float:
+    def norm(self, coords: ArrayLike, frac_coords: bool = True) -> np.ndarray:
         """
         Compute the norm of vector(s).
 
@@ -1448,7 +1450,7 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))  # type: ignore
+        return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
 
     def get_points_in_sphere(
         self,

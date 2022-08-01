@@ -294,7 +294,7 @@ class TransformedStructure(MSONable):
         parser = CifParser.from_string(cif_string, occupancy_tolerance)
         raw_string = re.sub(r"'", '"', cif_string)
         cif_dict = parser.as_dict()
-        cif_keys = list(cif_dict.keys())
+        cif_keys = list(cif_dict)
         s = parser.get_structures(primitive)[0]
         partial_cif = cif_dict[cif_keys[0]]
         if "_database_code_ICSD" in partial_cif:

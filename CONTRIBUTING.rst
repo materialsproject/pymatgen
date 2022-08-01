@@ -22,7 +22,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 
    ::
 
-       git clone git@github.com:YOURNAME/pymatgen.git
+       git clone git@github.com:YOURNAME/pymatgen
 
    Note that the entire Github repo is fairly large because of the presence of
    test files, but these are absolutely necessary for rigorous testing of the
@@ -30,11 +30,11 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 5. It is highly recommended you install all the optional dependencies as well.
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
    code up to date. You need to add the main repository to the list of your
-   remotes. Let's name the upstream repo as mpmaster (materialsproject master).
+   remotes.
 
    ::
 
-       git remote add mpmaster git://github.com/materialsproject/pymatgen.git
+       git remote add upstream git://github.com/materialsproject/pymatgen
 
    Make sure your repository is clean (no uncommitted changes) and is currently
    on the master branch. If not, commit or stash any changes and switch to the
@@ -48,7 +48,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 
    ::
 
-      git pull mpmaster master
+      git pull upstream master
 
    Remember, pull is a combination of the commands fetch and merge, so there may
    be merge conflicts to be manually resolved.

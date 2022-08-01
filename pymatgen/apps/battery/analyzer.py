@@ -30,7 +30,7 @@ class BatteryAnalyzer:
     A suite of methods for starting with an oxidized structure and determining its potential as a battery
     """
 
-    def __init__(self, struc_oxid, working_ion="Li", oxi_override={}):
+    def __init__(self, struc_oxid, working_ion="Li", oxi_override=None):
         """
         Pass in a structure for analysis
 
@@ -45,13 +45,13 @@ class BatteryAnalyzer:
             if not hasattr(site.specie, "oxi_state"):
                 raise ValueError("BatteryAnalyzer requires oxidation states assigned to structure!")
         self.struc_oxid = struc_oxid
-        self.oxi_override = oxi_override
+        self.oxi_override = oxi_override or {}
         self.comp = self.struc_oxid.composition  # shortcut for later
 
         if not isinstance(working_ion, Element):
             self.working_ion = Element(working_ion)
-        if self.working_ion.symbol in oxi_override:
-            self.working_ion_charge = oxi_override[self.working_ion.symbol]
+        if self.working_ion.symbol in self.oxi_override:
+            self.working_ion_charge = self.oxi_override[self.working_ion.symbol]
         elif self.working_ion.symbol in ["H", "C", "N", "O", "F", "S", "Cl", "Se", "Br", "Te", "I"]:
             self.working_ion_charge = self.working_ion.min_oxidation_state
         else:

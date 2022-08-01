@@ -160,8 +160,8 @@ class Site(collections.abc.Hashable, MSONable):
         String representation of species on the site.
         """
         if self.is_ordered:
-            return str(list(self.species.keys())[0])
-        sorted_species = sorted(self.species.keys())
+            return str(list(self.species)[0])
+        sorted_species = sorted(self.species)
         return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
 
     @property
@@ -178,7 +178,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if not self.is_ordered:
             raise AttributeError("specie property only works for ordered sites!")
-        return list(self.species.keys())[0]
+        return list(self.species)[0]
 
     @property
     def is_ordered(self) -> bool:
@@ -217,7 +217,7 @@ class Site(collections.abc.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum(el.Z for el in self.species.keys())
+        return sum(el.Z for el in self.species)
 
     def __contains__(self, el):
         return el in self.species
@@ -360,7 +360,7 @@ class PeriodicSite(Site, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum(el.Z for el in self.species.keys())
+        return sum(el.Z for el in self.species)
 
     @property
     def lattice(self) -> Lattice:

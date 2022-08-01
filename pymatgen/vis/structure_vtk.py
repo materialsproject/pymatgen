@@ -210,7 +210,7 @@ class StructureVis:
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
-    def set_structure(self, structure, reset_camera=True, to_unit_cell=True):
+    def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=True):
         """
         Add a structure to the visualizer.
 
@@ -1033,7 +1033,7 @@ class MultiStructuresVis(StructureVis):
             self.all_vis_radii.append(struct_vis_radii)
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
-    def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
+    def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=False):
         """
         Add a structure to the visualizer.
 

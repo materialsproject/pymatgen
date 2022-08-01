@@ -6,6 +6,8 @@ This module implements DefectCompatibility analysis for consideration of
 defects
 """
 
+from __future__ import annotations
+
 import logging
 
 from monty.json import MSONable
@@ -150,7 +152,7 @@ class DefectCompatibility(MSONable):
         if skip_charge_corrections:
             corrections.update({"charge_correction": 0.0})
         else:
-            if ("freysoldt" in self.preferred_cc.lower()) and ("freysoldt_meta" in defect_entry.parameters.keys()):
+            if ("freysoldt" in self.preferred_cc.lower()) and ("freysoldt_meta" in defect_entry.parameters):
                 frey_meta = defect_entry.parameters["freysoldt_meta"]
                 frey_corr = frey_meta["freysoldt_electrostatic"] + frey_meta["freysoldt_potential_alignment_correction"]
                 corrections.update({"charge_correction": frey_corr})
@@ -172,7 +174,7 @@ class DefectCompatibility(MSONable):
         else:
             corrections.update({"bandfilling_correction": 0.0})
 
-        if self.use_bandedgeshift and ("bandshift_meta" in defect_entry.parameters.keys()):
+        if self.use_bandedgeshift and ("bandshift_meta" in defect_entry.parameters):
             corrections.update(
                 {
                     "bandedgeshifting_correction": defect_entry.parameters["bandshift_meta"][
@@ -226,7 +228,7 @@ class DefectCompatibility(MSONable):
             "initial_defect_structure",
             "defect_frac_sc_coords",
         ]
-        run_freysoldt = len(set(defect_entry.parameters.keys()).intersection(required_frey_params)) == len(
+        run_freysoldt = len(set(defect_entry.parameters).intersection(required_frey_params)) == len(
             required_frey_params
         )
         if not run_freysoldt:
@@ -243,7 +245,7 @@ class DefectCompatibility(MSONable):
             "initial_defect_structure",
             "defect_frac_sc_coords",
         ]
-        run_kumagai = len(set(defect_entry.parameters.keys()).intersection(required_kumagai_params)) == len(
+        run_kumagai = len(set(defect_entry.parameters).intersection(required_kumagai_params)) == len(
             required_kumagai_params
         )
         if not run_kumagai:
@@ -287,7 +289,7 @@ class DefectCompatibility(MSONable):
             "cbm",
             "run_metadata",
         ]
-        run_bandfilling = len(set(defect_entry.parameters.keys()).intersection(required_bandfilling_params)) == len(
+        run_bandfilling = len(set(defect_entry.parameters).intersection(required_bandfilling_params)) == len(
             required_bandfilling_params
         )
         if run_bandfilling:
@@ -306,7 +308,7 @@ class DefectCompatibility(MSONable):
         # consider running band edge shifting correction
         required_bandedge_shifting_params = ["hybrid_cbm", "hybrid_vbm", "vbm", "cbm"]
         run_bandedge_shifting = len(
-            set(defect_entry.parameters.keys()).intersection(required_bandedge_shifting_params)
+            set(defect_entry.parameters).intersection(required_bandedge_shifting_params)
         ) == len(required_bandedge_shifting_params)
         if not run_bandedge_shifting:
             logger.info("Insufficient DefectEntry parameters exist for BandShifting Correction.")
@@ -459,7 +461,7 @@ class DefectCompatibility(MSONable):
             "sampling_radius",
             "defect_frac_sc_coords",
         ]
-        run_struct_delocal = len(set(defect_entry.parameters.keys()).intersection(req_struct_delocal_params)) == len(
+        run_struct_delocal = len(set(defect_entry.parameters).intersection(req_struct_delocal_params)) == len(
             req_struct_delocal_params
         )
         if run_struct_delocal:
@@ -587,7 +589,7 @@ class DefectCompatibility(MSONable):
         distmatrix = initial_defect_structure.lattice.get_all_distances(finalsites, initsites)
 
         # calculate distance moved as a function of the distance from the defect
-        distdata = []
+        dist_data = []
         totpert = 0.0
         defindex = None
         for ind, site in enumerate(initial_defect_structure.sites):
@@ -600,15 +602,15 @@ class DefectCompatibility(MSONable):
             distance_to_defect = initial_defect_structure.lattice.get_distance_and_image(
                 def_frac_coords, initsites[ind]
             )[0]
-            distdata.append([distance_to_defect, distmatrix[ind, ind], int(ind)])
+            dist_data.append([distance_to_defect, distmatrix[ind, ind], int(ind)])
 
         if defindex is None and not isinstance(defect_entry.defect, Vacancy):
             raise ValueError("fractional coordinate for defect could not be identified in initial_defect_structure")
 
-        distdata.sort()
+        dist_data.sort()
         tot_relax_outside_rad = 0.0
         perc_relax_outside_rad = 0.0
-        for newind, d in enumerate(distdata):
+        for d in dist_data:
             perc_relax = 100 * d[1] / totpert if totpert else 0.0
             d.append(perc_relax)  # percentage contribution to total relaxation
             if d[0] > radius_to_sample:
@@ -625,7 +627,7 @@ class DefectCompatibility(MSONable):
                 "structure_perc_relax_compatible": structure_perc_relax_compatible,
                 "perc_relax_outside_rad": perc_relax_outside_rad,
                 "perc_relax_tol": self.perc_relax_tol,
-                "full_structure_relax_data": distdata,
+                "full_structure_relax_data": dist_data,
                 "defect_index": defindex,
             }
         )

@@ -40,7 +40,7 @@ class GaussianInputTest(unittest.TestCase):
         self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SCF=Tight SP
+        answer = """#P HF/6-31G(d) SCF=Tight SP
 
 H4 C1
 
@@ -64,8 +64,8 @@ D4=119.999966
 EPS=12
 
 """
-        self.assertEqual(str(self.gau), ans)
-        gau = GaussianInput.from_string(ans)
+        self.assertEqual(str(self.gau), answer)
+        gau = GaussianInput.from_string(answer)
         self.assertEqual(gau.functional, "HF")
         self.assertEqual(gau.input_parameters["EPS"], "12")
 
@@ -88,7 +88,7 @@ EPS=12
             self.assertIsNotNone(gau.molecule)
             if i == 0:
                 mol = gau.molecule
-        ans = """Full Formula (H4 O2)
+        answer = """Full Formula (H4 O2)
 Reduced Formula: H2O
 Charge = 0, Spin Mult = 1
 Sites (6)
@@ -98,7 +98,7 @@ Sites (6)
 3 H     0.143970     0.000219     0.964351
 4 H    -0.582554     0.765401     3.042783
 5 H    -0.580711    -0.766761     3.043012"""
-        self.assertEqual(str(mol), ans)
+        self.assertEqual(str(mol), answer)
 
     def test_from_string(self):
         gau_str = """%mem=5000000

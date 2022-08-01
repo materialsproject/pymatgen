@@ -50,7 +50,6 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -525,7 +524,7 @@ class DictSet(VaspInputSet):
                 incar[k] = v
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if not has_u:
-            for key in list(incar.keys()):
+            for key in list(incar):
                 if key.startswith("LDAU"):
                     del incar[key]
 
@@ -600,7 +599,7 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition.keys()):
+        if all(k.is_metal for k in structure.composition):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
                 warnings.warn(
                     "Relaxation of likely metal with ISMEAR < 1 "
@@ -865,7 +864,7 @@ class MITRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MITRelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -885,7 +884,7 @@ class MPRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -925,7 +924,7 @@ class MPScanRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
 
-    def __init__(self, structure, bandgap=0, **kwargs):
+    def __init__(self, structure: Structure, bandgap=0, **kwargs):
         """
         Args:
             structure (Structure): Input structure.
@@ -996,7 +995,7 @@ class MPScanRelaxSet(DictSet):
                 )
                 # delete any vdw parameters that may have been added to the INCAR
                 vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
-                for k, v in vdw_par[self.vdw].items():
+                for k in vdw_par[self.vdw]:
                     try:
                         del self._config_dict["INCAR"][k]
                     except KeyError:
@@ -1014,7 +1013,7 @@ class MPMetalRelaxSet(MPRelaxSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -1032,7 +1031,7 @@ class MPHSERelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -1130,7 +1129,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings.keys()):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1232,7 +1231,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     (SCAN) metaGGA functional.
     """
 
-    def __init__(self, structure, bandgap=0, prev_incar=None, lepsilon=False, lcalcpol=False, **kwargs):
+    def __init__(self, structure: Structure, bandgap=0, prev_incar=None, lepsilon=False, lcalcpol=False, **kwargs):
         """
         Args:
             structure (Structure): Structure from previous run.
@@ -1281,7 +1280,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in list(self.user_incar_settings.keys()):
+        for k in list(self.user_incar_settings):
             # For user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1398,9 +1397,9 @@ class MPHSEBSSet(MPHSERelaxSet):
         """
         :return: Kpoints
         """
-        kpts = []  # type: List[Union[int, float, None]]
-        weights = []  # type: List[Union[float, None]]
-        all_labels = []  # type: List[Union[str, None]]
+        kpts: list[int | float | None] = []
+        weights: list[float | None] = []
+        all_labels: list[str | None] = []
         structure = self.structure
 
         # for both modes, include the Uniform mesh w/standard weights
@@ -1892,7 +1891,9 @@ class MPNMRSet(MPStaticSet):
     Init a MPNMRSet.
     """
 
-    def __init__(self, structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs):
+    def __init__(
+        self, structure: Structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs
+    ):
         """
         Args:
             structure (Structure): Structure to compute
@@ -1973,7 +1974,7 @@ class MVLElasticSet(MPRelaxSet):
     elastic constants.
     """
 
-    def __init__(self, structure, potim=0.015, **kwargs):
+    def __init__(self, structure: Structure, potim=0.015, **kwargs):
         """
         Args:
             scale (float): POTIM parameter. The default of 0.015 is usually fine,
@@ -2163,7 +2164,14 @@ class MVLSlabSet(MPRelaxSet):
     """
 
     def __init__(
-        self, structure, k_product=50, bulk=False, auto_dipole=False, set_mix=True, sort_structure=True, **kwargs
+        self,
+        structure: Structure,
+        k_product=50,
+        bulk=False,
+        auto_dipole=False,
+        set_mix=True,
+        sort_structure=True,
+        **kwargs,
     ):
         """
         :param structure: Structure
@@ -2264,7 +2272,7 @@ class MVLGBSet(MPRelaxSet):
     or bulk.
     """
 
-    def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
+    def __init__(self, structure: Structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
         """
 
         Args:
@@ -2370,7 +2378,7 @@ class MVLRelax52Set(DictSet):
 
     CONFIG = _load_yaml_config("MVLRelax52Set")
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         Args:
             structure (Structure): input structure.
@@ -2511,7 +2519,7 @@ class MITMDSet(MITRelaxSet):
     runs.
     """
 
-    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
+    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
         """
 
         Args:
@@ -2592,7 +2600,7 @@ class MPMDSet(MPRelaxSet):
     Precision remains normal, to increase accuracy of stress tensor.
     """
 
-    def __init__(self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
+    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
         """
         Args:
             structure (Structure): Input structure.
@@ -2672,7 +2680,7 @@ class MVLNPTMDSet(MITMDSet):
         value of ENCUT, which is 1.5 * ENMAX.
     """
 
-    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
+    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
         """
         Args:
             structure (Structure): input structure.
@@ -2729,7 +2737,7 @@ class MVLScanRelaxSet(MPRelaxSet):
             kinetic energy density (partial)
     """
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs):
         """
         Args:
             structure (Structure): input structure.

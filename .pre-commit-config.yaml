@@ -1,8 +1,5 @@
 exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
-default_language_version:
-  python: python3
-
 ci:
   autoupdate_schedule: monthly
   skip: [flake8, mypy, pylint]
@@ -38,7 +35,7 @@ repos:
     rev: 5.10.1
     hooks:
       - id: isort
-        args: ["--profile", "black"]
+        args: [--profile, black]
 
   - repo: https://github.com/psf/black
     rev: 22.6.0
@@ -49,6 +46,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
+        additional_dependencies: [flake8-bugbear]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.961

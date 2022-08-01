@@ -1,42 +1,24 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.cli.pmg_config module &mdash; pymatgen 2022.7.8 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.cli.pmg_config module &mdash; pymatgen 2022.7.25 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.cli.pmg_config.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.cli.pmg_plot module" href="pymatgen.cli.pmg_plot.html" />
@@ -50,33 +32,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.7.8
+                2022.7.25
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -84,17 +49,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,165 +87,110 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
           <li><a href="pymatgen.cli.html">pymatgen.cli package</a> &raquo;</li>
-        
       <li>pymatgen.cli.pmg_config module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.cli.pmg_config.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.cli.pmg_config">
-<span id="pymatgen-cli-pmg-config-module"></span><h1>pymatgen.cli.pmg_config module<a class="headerlink" href="#module-pymatgen.cli.pmg_config" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-pymatgen.cli.pmg_config">
+<span id="pymatgen-cli-pmg-config-module"></span><h1>pymatgen.cli.pmg_config module<a class="headerlink" href="#module-pymatgen.cli.pmg_config" title="Permalink to this heading"></a></h1>
 <p>Implementation for <cite>pmg config</cite> CLI.</p>
 <dl class="py function">
-<dt id="pymatgen.cli.pmg_config.add_config_var">
-<code class="sig-name descname">add_config_var</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tokens</span><span class="p">:</span> <span class="n">list<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">backup_suffix</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../cli/pmg_config.py#L179-L192"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.add_config_var" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.cli.pmg_config.add_config_var">
+<span class="sig-name descname"><span class="pre">add_config_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_config.py#L179-L192"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.add_config_var" title="Permalink to this definition"></a></dt>
 <dd><p>Add/update keys in .pmgrc.yaml config file.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.cli.pmg_config.build_bader">
-<code class="sig-name descname">build_bader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fortran_command</span><span class="o">=</span><span class="default_value">'gfortran'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../cli/pmg_config.py#L118-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_bader" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.cli.pmg_config.build_bader">
+<span class="sig-name descname"><span class="pre">build_bader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fortran_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gfortran'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_config.py#L118-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_bader" title="Permalink to this definition"></a></dt>
 <dd><p>Build bader package.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fortran_command</strong> – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.cli.pmg_config.build_enum">
-<code class="sig-name descname">build_enum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fortran_command</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'gfortran'</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../cli/pmg_config.py#L90-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_enum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.cli.pmg_config.build_enum">
+<span class="sig-name descname"><span class="pre">build_enum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fortran_command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gfortran'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_config.py#L90-L115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_enum" title="Permalink to this definition"></a></dt>
 <dd><p>Build enum.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fortran_command</strong> – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.cli.pmg_config.configure_pmg">
-<code class="sig-name descname">configure_pmg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="p">:</span> <span class="n">argparse.Namespace</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../cli/pmg_config.py#L195-L202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.configure_pmg" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.cli.pmg_config.configure_pmg">
+<span class="sig-name descname"><span class="pre">configure_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_config.py#L195-L202"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.configure_pmg" title="Permalink to this definition"></a></dt>
 <dd><p>Handle configure command.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.cli.pmg_config.install_software">
-<code class="sig-name descname">install_software</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">install</span><span class="p">:</span> <span class="n">Literal<span class="p">[</span>enumlib<span class="p">, </span>bader<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../cli/pmg_config.py#L146-L176"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.install_software" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.cli.pmg_config.install_software">
+<span class="sig-name descname"><span class="pre">install_software</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">install</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'enumlib'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bader'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_config.py#L146-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.install_software" title="Permalink to this definition"></a></dt>
 <dd><p>Install all optional external software.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.cli.pmg_config.setup_potcars">
-<code class="sig-name descname">setup_potcars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potcar_dirs</span><span class="p">:</span> <span class="n">list<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.8/pymatgen/core/../cli/pmg_config.py#L25-L87"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.setup_potcars" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.cli.pmg_config.setup_potcars">
+<span class="sig-name descname"><span class="pre">setup_potcars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potcar_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_config.py#L25-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.setup_potcars" title="Permalink to this definition"></a></dt>
 <dd><p>Setup POTCAR directories.</p>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

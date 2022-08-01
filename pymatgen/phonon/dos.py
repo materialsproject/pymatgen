@@ -329,7 +329,7 @@ class CompletePhononDos(PhononDos):
         Dict of partial densities of the form {Site:Densities}
     """
 
-    def __init__(self, structure, total_dos, pdoss):
+    def __init__(self, structure: Structure, total_dos, pdoss):
         """
         Args:
             structure: Structure associated with this particular DOS.
@@ -337,7 +337,7 @@ class CompletePhononDos(PhononDos):
             pdoss: The pdoss are supplied as an {Site: Densities}
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = {s: np.array(d) for s, d in pdoss.items()}
+        self.pdos = {site: np.array(dens) for site, dens in pdoss.items()}
         self.structure = structure
 
     def get_site_dos(self, site):

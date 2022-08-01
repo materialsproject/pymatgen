@@ -21,12 +21,12 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 warnings.warn(
     """
     The pymatgen.analysis.defects module will be deprecated and replaced by a modified name-space
-    package in the near future.Currently, running `pip install pymatgen-analysis-defects` will install
+    package in the near future. Currently, running `pip install pymatgen-analysis-defects` will install
     the new package on top of the old one so the entire `pymatgen.analysis.defects` namespace will be replaced.
 
     IMPORTANT: If you have already installed the new package and see this message it means the old package is
-    loaded first before the new package. This should not happen since the old package is an implicit namespace
-    package and should be loaded later. Please raise an issue on GitHub if that is the case.
+    loaded first before the new package. See the documentation for more information, and raise an Issue on
+    GitHub if this causes problems for your workflow.
     """,
     DeprecationWarning,
     stacklevel=2,
@@ -48,7 +48,7 @@ class Defect(MSONable, metaclass=ABCMeta):
     Abstract class for a single point defect
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, multiplicity=None):
         """
         Initializes an abstract defect
 
@@ -324,7 +324,7 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, site_name="", multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, site_name="", multiplicity=None):
         """
         Initializes an interstial defect.
         Args:

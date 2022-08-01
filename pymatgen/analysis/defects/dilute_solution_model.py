@@ -168,12 +168,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def["site_specie"] for vac_def in vac_defs]
-    dE = []
-    for i in range(n):
-        dE.append([])
-    for i in range(n):
-        for j in range(n):
-            dE[i].append(0)
+    dE = np.zeros([n, n])
 
     for j in range(n):
         for i in range(n):
@@ -189,7 +184,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                         if int(as_def["site_index"]) == j + 1 and sub_specie == as_def["substitution_specie"]:
                             dE[i][j] = as_def["energy"]
                             break
-    dE = np.array(dE)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -482,13 +476,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     #        continue
     #    result[y] = list(mu_vals)
 
-    if len(result.keys()) < len(yvals) / 2:
+    if len(result) < len(yvals) / 2:
         raise ValueError("Not sufficient data")
 
     res = []
     new_mu_dict = {}
     # Compute the concentrations for all the compositions
-    for key in sorted(result.keys()):
+    for key in sorted(result):
         mu_val = result[key]
         total_c_val = [total_c[i].subs(dict(zip(mu, mu_val))) for i in range(len(total_c))]
         c_val = c.subs(dict(zip(mu, mu_val)))
@@ -516,15 +510,10 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     # Element whose composition is varied. For x-label
     conc_data["x_label"] = els[0] + " mole fraction"
     conc_data["y_label"] = "Point defect concentration"
-    conc = []
-    for i in range(n):
-        conc.append([])
-        for j in range(n):
-            conc[i].append([])
+    conc = np.empty((n, n))
     for i in range(n):
         for j in range(n):
-            y1 = [dat[0][i * n + j + 1] for dat in res1]
-            conc[i][j] = y1
+            conc[i][j] = [dat[0][i * n + j + 1] for dat in res1]
 
     y_data = []
     for i in range(n):
@@ -576,7 +565,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         return en
 
     en_res = []
-    for key in sorted(new_mu_dict.keys()):
+    for key in sorted(new_mu_dict):
         mu_val = new_mu_dict[key]
         en_res.append(compute_vac_formation_energies(mu_val))
 
@@ -614,7 +603,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         return en
 
     en_res = []
-    for key in sorted(new_mu_dict.keys()):
+    for key in sorted(new_mu_dict):
         mu_val = new_mu_dict[key]
         en_res.append(compute_as_formation_energies(mu_val))
     i = 0
@@ -642,7 +631,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     y_data = []
     for j in range(m):
         specie = specie_order[j]
-        mus = [new_mu_dict[key][j] for key in sorted(new_mu_dict.keys())]
+        mus = [new_mu_dict[key][j] for key in sorted(new_mu_dict)]
         y_data.append({"data": mus, "name": specie})
     mu_data["y"] = y_data
 
@@ -882,12 +871,7 @@ def solute_site_preference_finder(
 
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def["site_specie"] for vac_def in vac_defs]
-    dE = []
-    for i in range(n + 1):
-        dE.append([])
-    for i in range(n + 1):
-        for j in range(n):
-            dE[i].append(0)
+    dE = np.zeros((n + 1, n))
 
     for j in range(n):
         for i in range(n):
@@ -1147,7 +1131,7 @@ def solute_site_preference_finder(
     res = []
 
     # Compute the concentrations for all the compositions
-    for key in sorted(result.keys()):
+    for key in sorted(result):
         mu_val = result[key]
         total_c_val = [total_c[i].subs(dict(zip(mu, mu_val))) for i in range(len(total_c))]
         c_val = c.subs(dict(zip(mu, mu_val)))
@@ -1168,15 +1152,10 @@ def solute_site_preference_finder(
     dtype = [("x", np.float64)] + [(f"y{i}{j}", np.float64) for i in range(n + 1) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=["x"], axis=0)
 
-    conc = []
-    for i in range(n + 1):
-        conc.append([])
-        for j in range(n):
-            conc[i].append([])
+    conc = np.empty((n + 1, n))
     for i in range(n + 1):  # Append vacancies
         for j in range(n):
-            y1 = [dat[0][i * n + j + 1] for dat in res1]
-            conc[i][j] = y1
+            conc[i][j] = [dat[0][i * n + j + 1] for dat in res1]
 
     # Compute solute site preference
     # Removing the functionality

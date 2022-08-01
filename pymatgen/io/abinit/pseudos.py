@@ -488,7 +488,7 @@ class AbinitPseudo(Pseudo):
         # Build xc from header.
         self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
-        for attr_name, desc in header.items():
+        for attr_name in header:
             value = header.get(attr_name, None)
 
             # Hide these attributes since one should always use the public interface.
@@ -658,11 +658,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = "line: {}\n len(keys) != len(value)\nkeys: {}\n values: {}".format(
-                line,
-                keys,
-                values,
-            )
+            msg = f"line: {line}\n len(keys) != len(value)\nkeys: {keys}\n values: {values}"
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -1712,7 +1708,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        return sorted(list(self._pseudos_with_z.keys()))
+        return sorted(list(self._pseudos_with_z))
 
     # def max_ecut_pawecutdg(self, accuracy):
     # """Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""

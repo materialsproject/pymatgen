@@ -160,26 +160,25 @@ class AbstractGeometry:
                 outs.append(
                     "Points are referenced to the central site for coordination numbers < 5"
                     " and to the centroid (calculated with the central site) for coordination"
-                    " numbers >= 5 : {c}\n".format(c=self.centre)
+                    f" numbers >= 5 : {self.centre}\n"
                 )
             else:
                 outs.append(
                     "Points are referenced to the central site for coordination numbers < 5"
                     " and to the centroid (calculated without the central site) for coordination"
-                    " numbers >= 5 : {c}\n".format(c=self.centre)
+                    f" numbers >= 5 : {self.centre}\n"
                 )
         elif self.centering_type == "central_site":
             outs.append(f"Points are referenced to the central site : {self.centre}\n")
         elif self.centering_type == "centroid":
             if self.include_central_site_in_centroid:
                 outs.append(
-                    "Points are referenced to the centroid "
-                    "(calculated with the central site) :\n  {c}\n".format(c=self.centre)
+                    f"Points are referenced to the centroid (calculated with the central site) :\n  {self.centre}\n"
                 )
             else:
                 outs.append(
-                    "Points are referenced to the centroid"
-                    " (calculated without the central site) :\n  {c}\n".format(c=self.centre)
+                    "Points are referenced to the centroid (calculated without the central site)"
+                    f" :\n  {self.centre}\n"
                 )
         return "\n".join(outs)
 
@@ -491,7 +490,7 @@ class LocalGeometryFinder:
         """
         return self.structure
 
-    def set_structure(self, lattice, species, coords, coords_are_cartesian):
+    def set_structure(self, lattice: Lattice, species, coords, coords_are_cartesian):
         """
         Sets up the pymatgen structure for which the coordination geometries have to be identified starting from the
         lattice, the species and the coordinates
@@ -742,8 +741,7 @@ class LocalGeometryFinder:
                 continue
             if breakit:
                 logging.debug(
-                    " ... in site #{:d}/{:d} ({}) : "
-                    "skipped (timelimit)".format(isite, len(self.structure), site.species_string)
+                    f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
                 )
                 continue
             logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string})")
@@ -838,10 +836,7 @@ class LocalGeometryFinder:
                 cn_new_nb_set = missing_nb_set_to_add["cn_new_nb_set"]
                 new_nb_set = missing_nb_set_to_add["new_nb_set"]
                 inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
-                logging.debug(
-                    "    ... getting environments for nb_set ({:d}, {:d}) - "
-                    "from hints".format(cn_new_nb_set, inew_nb_set)
-                )
+                logging.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
                 tnbset1 = time.process_time()
                 self.update_nb_set_environments(
                     se=se,
@@ -1107,14 +1102,8 @@ class LocalGeometryFinder:
         aa = 0.4
         bb = -0.2
         coords = []
-        for ii in range(coordination + 1):
-            coords.append(
-                aa
-                * np.random.random_sample(
-                    3,
-                )
-                + bb
-            )
+        for _ in range(coordination + 1):
+            coords.append(aa * np.random.random_sample(3) + bb)
         self.set_structure(
             lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float_),
             species=["Si"] * (coordination + 1),
@@ -1299,7 +1288,7 @@ class LocalGeometryFinder:
             logging.log(
                 level=5,
                 msg="Getting Continuous Symmetry Measure with Separation Plane "
-                'algorithm for geometry "{}"'.format(geometry.ce_symbol),
+                f'algorithm for geometry "{geometry.ce_symbol}"',
             )
             self.perfect_geometry = AbstractGeometry.from_cg(
                 cg=geometry,
@@ -1632,7 +1621,7 @@ class LocalGeometryFinder:
         local2perfect_maps = []
 
         if separation_plane_algo.separation in nb_set.separations:
-            for sep_indices, (local_plane, npsep) in nb_set.separations[separation_plane_algo.separation].items():
+            for local_plane, npsep in nb_set.separations[separation_plane_algo.separation].values():
                 cgsm = cgcsmoptim(
                     coordination_geometry=coordination_geometry,
                     sepplane=separation_plane_algo,
@@ -1831,7 +1820,7 @@ class LocalGeometryFinder:
 
             # plane_found = True
 
-            for i_sep_perm, sep_perm in enumerate(sep_perms):
+            for sep_perm in sep_perms:
                 perm1 = [separation_perm[ii] for ii in sep_perm]
                 pp = [perm1[ii] for ii in argref_separation]
                 # Skip permutations that have already been performed
@@ -1918,7 +1907,7 @@ class LocalGeometryFinder:
         else:
             sep_perms = sepplane.permutations
 
-        for i_sep_perm, sep_perm in enumerate(sep_perms):
+        for sep_perm in sep_perms:
             perm1 = [separation_perm[ii] for ii in sep_perm]
             pp = [perm1[ii] for ii in argref_separation]
 
@@ -1993,7 +1982,7 @@ class LocalGeometryFinder:
         else:
             sep_perms = sepplane.permutations
 
-        for i_sep_perm, sep_perm in enumerate(sep_perms):
+        for sep_perm in sep_perms:
             perm1 = separation_perm.take(sep_perm)
             pp = perm1.take(argref_separation)
 

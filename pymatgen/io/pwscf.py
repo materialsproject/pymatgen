@@ -118,10 +118,10 @@ class PWInput:
             v1 = self.sections[k1]
             out.append(f"&{k1.upper()}")
             sub = []
-            for k2 in sorted(v1.keys()):
+            for k2 in sorted(v1):
                 if isinstance(v1[k2], list):
                     n = 1
-                    for l in v1[k2][: len(site_descriptions)]:
+                    for _ in v1[k2][: len(site_descriptions)]:
                         sub.append(f"  {k2}({n}) = {to_str(v1[k2][n - 1])}")
                         n += 1
                 else:
