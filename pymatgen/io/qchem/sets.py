@@ -20,6 +20,8 @@ from pymatgen.io.qchem.utils import lower_and_check_unique
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2021, The Materials Project"
 __version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,7 @@ class QChemDictSet(QCInput):
         job_type: str,
         basis_set: str,
         scf_algorithm: str,
+        qchem_version: int = 5,
         dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
@@ -45,7 +48,7 @@ class QChemDictSet(QCInput):
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
-        new_geom_opt: dict | None = None,
+        geom_opt: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
@@ -59,15 +62,21 @@ class QChemDictSet(QCInput):
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 4)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
 
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -99,10 +108,11 @@ class QChemDictSet(QCInput):
                 "version":7 will trigger NBO7 analysis. Otherwise, NBO5 analysis will be performed,
                 including if an empty dict is passed. Besides a key of "version", all other key:value
                 pairs will be written into the $nbo section of the QChem input file. (Default: False)
-            new_geom_opt (dict): A dict containing parameters for the $geom_opt section of the QChem
-                input file, which control the new geometry optimizer available starting in version 5.4.2.
-                Note that the new optimizer remains under development and not officially released.
-                Further note that even passig an empty dictionary will trigger the new optimizer.
+            geom_opt (dict): A dict containing parameters for the $geom_opt section of the Q-Chem input
+                file, which control the new geometry optimizer available starting in version 5.4.2. The
+                new optimizer remains under development but was officially released and became the default
+                optimizer in Q-Chem version 6.0.0. Note that for version 5.4.2, the new optimizer must be
+                explicitly requested by passing in a dictionary (empty or otherwise) for this input parameter.
                 (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -129,6 +139,7 @@ class QChemDictSet(QCInput):
         self.job_type = job_type
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
+        self.qchem_version = qchem_version
         self.dft_rung = dft_rung
         self.pcm_dielectric = pcm_dielectric
         self.smd_solvent = smd_solvent
@@ -139,7 +150,7 @@ class QChemDictSet(QCInput):
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
         self.nbo_params = nbo_params
-        self.new_geom_opt = new_geom_opt
+        self.geom_opt = geom_opt
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
 
@@ -199,16 +210,16 @@ class QChemDictSet(QCInput):
         myrem["sym_ignore"] = "true"
 
         if self.dft_rung == 1:
-            myrem["method"] = "b3lyp"
+            myrem["method"] = "spw92"
         elif self.dft_rung == 2:
-            myrem["method"] = "b3lyp"
-            myrem["dft_D"] = "D3_BJ"
+            myrem["method"] = "b97-d3"
+            myrem["dft_d"] = "d3_bj"
         elif self.dft_rung == 3:
-            myrem["method"] = "wb97xd"
+            myrem["method"] = "b97mv"
         elif self.dft_rung == 4:
-            myrem["method"] = "wb97xv"
-        elif self.dft_rung == 5:
             myrem["method"] = "wb97mv"
+        elif self.dft_rung == 5:
+            myrem["method"] = "wb97m(2)"
         else:
             raise ValueError("dft_rung should be between 1 and 5!")
 
@@ -257,17 +268,27 @@ class QChemDictSet(QCInput):
                 if key != "version":
                     mynbo[key] = self.nbo_params[key]
 
-        my_geom_opt = self.new_geom_opt
-        if self.new_geom_opt is not None:
-            myrem["geom_opt2"] = "3"
-            if "maxiter" in self.new_geom_opt:
-                if self.new_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
+        my_geom_opt = self.geom_opt
+        if self.qchem_version == 6 or (self.qchem_version == 5 and self.geom_opt is not None):
+            if self.qchem_version == 5:
+                myrem["geom_opt2"] = "3"
+            elif self.qchem_version == 6 and not self.geom_opt:
+                self.geom_opt = {}
+            if "maxiter" in self.geom_opt:
+                if self.geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
                     raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
             else:
-                self.new_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
+                self.geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
+            if self.qchem_version == 6:
+                if "coordinates" not in self.geom_opt:
+                    self.geom_opt["coordinates"] = "redundant"
+                if "max_displacement" not in self.geom_opt:
+                    self.geom_opt["max_displacement"] = "0.019127302"
+                if "optimization_restart" not in self.geom_opt:
+                    self.geom_opt["optimization_restart"] = "false"
             my_geom_opt = {}
-            for key in self.new_geom_opt:
-                my_geom_opt[key] = self.new_geom_opt[key]
+            for key in self.geom_opt:
+                my_geom_opt[key] = self.geom_opt[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -302,19 +323,9 @@ class QChemDictSet(QCInput):
                     for k, v in temp_plots.items():
                         myplots[k] = v
                 if sec == "nbo":
-                    if mynbo is None:
-                        raise RuntimeError("Can't overwrite nbo params when NBO is not being run! Exiting...")
-                    temp_nbo = lower_and_check_unique(sec_dict)
-                    for k, v in temp_nbo.items():
-                        mynbo[k] = v
+                    raise RuntimeError("Set nbo parameters directly with nbo_params input! Exiting...")
                 if sec == "geom_opt":
-                    if my_geom_opt is None:
-                        raise RuntimeError(
-                            "Can't overwrite geom_opt params when not using the new optimizer! Exiting..."
-                        )
-                    temp_geomopt = lower_and_check_unique(sec_dict)
-                    for k, v in temp_geomopt.items():
-                        my_geom_opt[k] = v
+                    raise RuntimeError("Set geom_opt params directly with geom_opt input! Exiting...")
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
@@ -354,9 +365,10 @@ class SinglePointSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: str = "def2-tzvppd",
+        basis_set: str = "def2-tzvpd",
         scf_algorithm: str = "diis",
-        dft_rung: int = 3,
+        qchem_version: int = 5,
+        dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
         custom_smd: str | None = None,
@@ -372,20 +384,25 @@ class SinglePointSet(QChemDictSet):
             job_type (str): QChem job type to run. Valid options are "opt" for optimization,
                 "sp" for single point, "freq" for frequency calculation, or "force" for
                 force evaluation.
-            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            basis_set (str): Basis set to use. (Default: "def2-tzvpd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
                 (Default: "diis")
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
-
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -433,6 +450,7 @@ class SinglePointSet(QChemDictSet):
             custom_smd=custom_smd,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
+            qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
@@ -449,9 +467,10 @@ class OptSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: str = "def2-tzvppd",
+        basis_set: str = "def2-svpd",
         scf_algorithm: str = "diis",
-        dft_rung: int = 3,
+        qchem_version: int = 5,
+        dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
         custom_smd: str | None = None,
@@ -460,7 +479,7 @@ class OptSet(QChemDictSet):
         nbo_params: dict | None = None,
         opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
-        new_geom_opt: dict | None = None,
+        geom_opt: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
     ):
@@ -470,20 +489,25 @@ class OptSet(QChemDictSet):
             job_type (str): QChem job type to run. Valid options are "opt" for optimization,
                 "sp" for single point, "freq" for frequency calculation, or "force" for
                 force evaluation.
-            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            basis_set (str): Basis set to use. (Default: "def2-svpd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
                 (Default: "diis")
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
-
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -498,6 +522,12 @@ class OptSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            geom_opt (dict): A dict containing parameters for the $geom_opt section of the Q-Chem input
+                file, which control the new geometry optimizer available starting in version 5.4.2. The
+                new optimizer remains under development but was officially released and became the default
+                optimizer in Q-Chem version 6.0.0. Note that for version 5.4.2, the new optimizer must be
+                explicitly requested by passing in a dictionary (empty or otherwise) for this input parameter.
+                (Default: False)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -534,11 +564,12 @@ class OptSet(QChemDictSet):
             opt_variables=opt_variables,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
+            qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
-            new_geom_opt=new_geom_opt,
+            geom_opt=geom_opt,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -552,9 +583,10 @@ class TransitionStateSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: str = "def2-tzvppd",
+        basis_set: str = "def2-svpd",
         scf_algorithm: str = "diis",
-        dft_rung: int = 3,
+        qchem_version: int = 5,
+        dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
         custom_smd: str | None = None,
@@ -563,26 +595,32 @@ class TransitionStateSet(QChemDictSet):
         nbo_params: dict | None = None,
         opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
+        geom_opt: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode="atomic",
     ):
         """
         Args:
             molecule (Pymatgen Molecule object)
-            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            basis_set (str): Basis set to use. (Default: "def2-svpd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
                 (Default: "diis")
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
-
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -597,6 +635,12 @@ class TransitionStateSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            geom_opt (dict): A dict containing parameters for the $geom_opt section of the Q-Chem input
+                file, which control the new geometry optimizer available starting in version 5.4.2. The
+                new optimizer remains under development but was officially released and became the default
+                optimizer in Q-Chem version 6.0.0. Note that for version 5.4.2, the new optimizer must be
+                explicitly requested by passing in a dictionary (empty or otherwise) for this input parameter.
+                (Default: False)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -633,10 +677,12 @@ class TransitionStateSet(QChemDictSet):
             opt_variables=opt_variables,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
+            qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
+            geom_opt=geom_opt,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
         )
@@ -650,9 +696,10 @@ class ForceSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: str = "def2-tzvppd",
+        basis_set: str = "def2-tzvpd",
         scf_algorithm: str = "diis",
-        dft_rung: int = 3,
+        qchem_version: int = 5,
+        dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
         custom_smd: str | None = None,
@@ -665,20 +712,25 @@ class ForceSet(QChemDictSet):
         """
         Args:
             molecule (Pymatgen Molecule object)
-            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            basis_set (str): Basis set to use. (Default: "def2-tzvpd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
                 (Default: "diis")
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
-
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -692,7 +744,6 @@ class ForceSet(QChemDictSet):
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
-            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -727,6 +778,7 @@ class ForceSet(QChemDictSet):
             custom_smd=custom_smd,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
+            qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
@@ -743,9 +795,10 @@ class FreqSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: str = "def2-tzvppd",
+        basis_set: str = "def2-svpd",
         scf_algorithm: str = "diis",
-        dft_rung: int = 3,
+        qchem_version: int = 5,
+        dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
         custom_smd: str | None = None,
@@ -758,20 +811,25 @@ class FreqSet(QChemDictSet):
         """
         Args:
             molecule (Pymatgen Molecule object)
-            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            basis_set (str): Basis set to use. (Default: "def2-svpd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
                 (Default: "diis")
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
-
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -785,7 +843,6 @@ class FreqSet(QChemDictSet):
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
-            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -820,6 +877,7 @@ class FreqSet(QChemDictSet):
             custom_smd=custom_smd,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
+            qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
@@ -842,9 +900,10 @@ class PESScanSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: str = "def2-tzvppd",
+        basis_set: str = "def2-svpd",
         scf_algorithm: str = "diis",
-        dft_rung: int = 3,
+        qchem_version: int = 5,
+        dft_rung: int = 4,
         pcm_dielectric: float | None = None,
         smd_solvent: str | None = None,
         custom_smd: str | None = None,
@@ -871,20 +930,25 @@ class PESScanSet(QChemDictSet):
                 Note that the total number of variable (sum of lengths of all lists) CANNOT be more than two.
 
                 Ex. scan_variables = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
-            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            basis_set (str): Basis set to use. (Default: "def2-svpd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
                 module will also likely perform well. Refer to the QChem manual for further details.
                 (Default: "diis")
-            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
-                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
-                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+            qchem_version (int): Which major version of Q-Chem will be run. Supports 5 and 6. (Default: 5)
+            dft_rung (int): Select the rung on "Jacob's Ladder of Density Functional Approximations" in
+                order of increasing accuracy/cost. For each rung, we have prescribed one functional based
+                on our experience, available benchmarks, and the suggestions of the Q-Chem manual:
+                1 (LSDA) = SPW92
+                2 (GGA) = B97-D3(BJ)
+                3 (metaGGA) = B97M-V
+                4 (hybrid metaGGA) = ωB97M-V
+                5 (double hybrid metaGGA) = ωB97M-(2)
+
+                (Default: 4)
 
                 To set a functional not given by one of the above, set the overwrite_inputs
                 argument to {"method":"<NAME OF FUNCTIONAL>"}
-
-                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
-                Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
@@ -898,7 +962,6 @@ class PESScanSet(QChemDictSet):
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
-            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
@@ -939,6 +1002,7 @@ class PESScanSet(QChemDictSet):
             scan_variables=scan_variables,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
+            qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,

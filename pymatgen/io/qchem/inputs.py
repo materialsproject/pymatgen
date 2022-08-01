@@ -21,7 +21,8 @@ from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
-__email__ = "b.wood@berkeley.edu"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)

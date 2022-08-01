@@ -38,6 +38,8 @@ from .utils import process_parsed_coords, read_pattern, read_table_pattern
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 __credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
@@ -74,6 +76,16 @@ class QCOutput(MSONable):
                     + filename
                     + "')"
                 )
+
+        # Parse the Q-Chem major version
+        if read_pattern(self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 4"}, terminate_on_match=True).get("key") == [[]]:
+            self.data["version"] = "4"
+        elif read_pattern(self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 5"}, terminate_on_match=True).get("key") == [[]]:
+            self.data["version"] = "5"
+        elif read_pattern(self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 6"}, terminate_on_match=True).get("key") == [[]]:
+            self.data["version"] = "6"
+        else:
+            self.data["version"] = "unknown"
 
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
@@ -291,6 +303,8 @@ class QCOutput(MSONable):
         if self.data.get("optimization", []):
             # Determine if the calculation is using the new geometry optimizer
             self.data["new_optimizer"] = read_pattern(self.text, {"key": r"(?i)\s*geom_opt2\s*(?:=)*\s*3"}).get("key")
+            if self.data["version"] == "6":
+                self.data["new_optimizer"] = [[]]
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output
@@ -497,11 +511,17 @@ class QCOutput(MSONable):
                 r"(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*"
                 r"(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*"
                 r"(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*"
-                r"(?:\s+Done GDM. Switching to DIIS)*"
+                r"(?:\s+Done GDM. Switching to DIIS)*(?:\s+Done GDM. Switching to GDM with quadratic line-search\sGDM subspace size\: \d+)*"
                 r"(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*"
-                r"(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
+                r"(?:RMS Gradient)*\s+\-+"
+                r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
                 r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, "
                 r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
+                r"(?:\s*Line search, dEdstep = [\d\-\.]+e[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s*)*"
+                r"(?:\s*[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
+                r"(?:\s*Resetting GDM\.)*"
+                r"(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
+                r"(?:\s*gdm_qls\: Orbitals will not converge further\.)*"
                 r"(?:(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::WARNING energy changes are now smaller than effective "
                 r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH s"
                 r"hould be increased\s*"
@@ -691,6 +711,22 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["warnings"]["internal_coordinates"] = True
+
+        # Check for an issue with an RFO step
+        if read_pattern(
+            self.text,
+            {"key": r"UNABLE TO DETERMINE Lambda IN RFO  \*\*\s+\*\* Taking simple Newton-Raphson step"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["warnings"]["bad_lambda_take_NR_step"] = True
+
+        # Check for a switch into Cartesian coordinates
+        if read_pattern(
+            self.text,
+            {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["warnings"]["switch_to_cartesian"] = True
 
         # Check for problem with eigenvalue magnitude
         if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True,).get(
@@ -886,12 +922,13 @@ class QCOutput(MSONable):
                 self.data["CDS_gradients"] = None
 
     def _read_optimization_data(self):
-        if self.data.get("new_optimizer") is None:
+        if self.data.get("new_optimizer") is None or self.data["version"] == "6":
             temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
         else:
             temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
                 "key"
             )
+        if self.data.get("new_optimizer") == [[]]:
             # Formatting of the new optimizer means we need to prepend the first energy
             if temp_energy_trajectory is not None:
                 temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
@@ -908,6 +945,15 @@ class QCOutput(MSONable):
             for ii, entry in enumerate(temp_energy_trajectory):
                 real_energy_trajectory[ii] = float(entry[0])
             self.data["energy_trajectory"] = real_energy_trajectory
+            if self.data.get("new_optimizer") == [[]]:
+                temp_norms = read_pattern(
+                    self.text, {"key": r"Norm of Stepsize\s*([\d\-\.]+)"}
+                ).get("key")
+                if temp_norms is not None:
+                    norms = np.zeros(len(temp_norms))
+                    for ii, val in enumerate(temp_norms):
+                        norms[ii] = float(val[0])
+                    self.data["norm_of_stepsize"] = norms
             if have_babel:
                 self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
@@ -943,6 +989,10 @@ class QCOutput(MSONable):
                     "key"
                 ) == [[]]:
                     self.data["errors"] += ["back_transform_error"]
+                elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True,).get(
+                    "key"
+                ) == [[]]:
+                    self.data["errors"] += ["svd_failed"]
 
     def _read_frequency_data(self):
         """

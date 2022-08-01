@@ -20,6 +20,8 @@ from pymatgen.util.testing import PymatgenTest
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
@@ -41,7 +43,7 @@ class QChemDictSetTest(PymatgenTest):
                 "gen_scfman": "true",
                 "basis": "6-31g*",
                 "max_scf_cycles": "100",
-                "method": "wb97xv",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -65,7 +67,7 @@ class QChemDictSetTest(PymatgenTest):
             job_type="opt",
             basis_set="6-31g*",
             scf_algorithm="diis",
-            dft_rung=1,
+            dft_rung=2,
             pcm_dielectric=10.0,
             max_scf_cycles=35,
         )
@@ -76,7 +78,8 @@ class QChemDictSetTest(PymatgenTest):
                 "gen_scfman": "true",
                 "basis": "6-31g*",
                 "max_scf_cycles": "35",
-                "method": "b3lyp",
+                "method": "b97-d3",
+                "dft_d": "d3_bj",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
@@ -106,7 +109,7 @@ class QChemDictSetTest(PymatgenTest):
             job_type="opt",
             basis_set="6-31g*",
             scf_algorithm="diis",
-            dft_rung=1,
+            dft_rung=2,
             smd_solvent="water",
             max_scf_cycles=35,
         )
@@ -117,7 +120,8 @@ class QChemDictSetTest(PymatgenTest):
                 "gen_scfman": "true",
                 "basis": "6-31g*",
                 "max_scf_cycles": "35",
-                "method": "b3lyp",
+                "method": "b97-d3",
+                "dft_d": "d3_bj",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
@@ -199,7 +203,7 @@ class QChemDictSetTest(PymatgenTest):
             "job_type": "opt",
             "basis": "6-31G*",
             "max_scf_cycles": "35",
-            "method": "wb97mv",
+            "method": "wb97m(2)",
             "geom_opt_max_cycles": "200",
             "gen_scfman": "true",
             "scf_algorithm": "diis",
@@ -230,7 +234,7 @@ class QChemDictSetTest(PymatgenTest):
             job_type="opt",
             basis_set="6-31g*",
             scf_algorithm="diis",
-            dft_rung=5,
+            dft_rung=4,
             smd_solvent="water",
             max_scf_cycles=35,
         )
@@ -265,7 +269,7 @@ class QChemDictSetTest(PymatgenTest):
             job_type="opt",
             basis_set="6-31g*",
             scf_algorithm="diis",
-            dft_rung=5,
+            dft_rung=4,
             smd_solvent="custom",
             custom_smd="90.00,1.415,0.00,0.735,20.2,0.00,0.00",
             max_scf_cycles=35,
@@ -308,9 +312,9 @@ class SinglePointSetTest(PymatgenTest):
             {
                 "job_type": "sp",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -332,9 +336,9 @@ class SinglePointSetTest(PymatgenTest):
             {
                 "job_type": "sp",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -366,9 +370,9 @@ class SinglePointSetTest(PymatgenTest):
             {
                 "job_type": "sp",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -391,9 +395,9 @@ class SinglePointSetTest(PymatgenTest):
             {
                 "job_type": "sp",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -421,9 +425,9 @@ class OptSetTest(PymatgenTest):
             {
                 "job_type": "opt",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -447,9 +451,9 @@ class OptSetTest(PymatgenTest):
             {
                 "job_type": "opt",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
@@ -482,9 +486,9 @@ class OptSetTest(PymatgenTest):
             {
                 "job_type": "opt",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
@@ -516,9 +520,9 @@ class OptSetTest(PymatgenTest):
                 "job_type": "opt",
                 "gen_scfman": "true",
                 "geom_opt_max_cycles": "200",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -532,6 +536,56 @@ class OptSetTest(PymatgenTest):
         self.assertEqual(test_OptSet.nbo, {})
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
+    def test_v5_vs_v6(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        v5_OptSet = OptSet(molecule=test_molecule, basis_set="def2-tzvpd", geom_opt={})
+        self.assertEqual(
+            v5_OptSet.rem,
+            {
+                "job_type": "opt",
+                "gen_scfman": "true",
+                "geom_opt_max_cycles": "200",
+                "basis": "def2-tzvpd",
+                "max_scf_cycles": "100",
+                "method": "wb97mv",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+                "geom_opt2": "3",
+            },
+        )
+        self.assertEqual(v5_OptSet.geom_opt, {"maxiter":"200"})
+        self.assertEqual(v5_OptSet.molecule, test_molecule)
+
+        v6_OptSet = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd")
+        self.assertEqual(
+            v6_OptSet.rem,
+            {
+                "job_type": "opt",
+                "gen_scfman": "true",
+                "geom_opt_max_cycles": "200",
+                "basis": "def2-tzvpd",
+                "max_scf_cycles": "100",
+                "method": "wb97mv",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+            },
+        )
+        self.assertEqual(v6_OptSet.geom_opt, {"maxiter":"200", "coordinates":"redundant", "max_displacement":"0.019127302", "optimization_restart":"false"})
+        self.assertEqual(v6_OptSet.molecule, test_molecule)
+
+        v6_OptSet_modified = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={"coordinates":"delocalized", "optimization_restart":"true"})
+        self.assertEqual(v6_OptSet_modified.geom_opt, {"maxiter":"200", "coordinates":"delocalized", "max_displacement":"0.019127302", "optimization_restart":"true"})
+
 
 class TransitionStateSetTest(PymatgenTest):
     def test_init(self):
@@ -542,9 +596,9 @@ class TransitionStateSetTest(PymatgenTest):
             {
                 "job_type": "ts",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -568,9 +622,9 @@ class TransitionStateSetTest(PymatgenTest):
             {
                 "job_type": "ts",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
@@ -597,9 +651,9 @@ class TransitionStateSetTest(PymatgenTest):
             {
                 "job_type": "ts",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
@@ -625,9 +679,9 @@ class ForceSetTest(PymatgenTest):
             {
                 "job_type": "force",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -649,9 +703,9 @@ class ForceSetTest(PymatgenTest):
             {
                 "job_type": "force",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -677,9 +731,9 @@ class ForceSetTest(PymatgenTest):
             {
                 "job_type": "force",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-tzvpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -705,10 +759,10 @@ class PESScanSetTest(PymatgenTest):
             {
                 "job_type": "pes_scan",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
                 "geom_opt_max_cycles": "200",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -734,10 +788,10 @@ class PESScanSetTest(PymatgenTest):
             {
                 "job_type": "pes_scan",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
                 "geom_opt_max_cycles": "200",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -766,10 +820,10 @@ class PESScanSetTest(PymatgenTest):
             {
                 "job_type": "pes_scan",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
                 "geom_opt_max_cycles": "200",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -795,9 +849,9 @@ class FreqSetTest(PymatgenTest):
             {
                 "job_type": "freq",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -819,9 +873,9 @@ class FreqSetTest(PymatgenTest):
             {
                 "job_type": "freq",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",
@@ -853,9 +907,9 @@ class FreqSetTest(PymatgenTest):
             {
                 "job_type": "freq",
                 "gen_scfman": "true",
-                "basis": "def2-tzvppd",
+                "basis": "def2-svpd",
                 "max_scf_cycles": "100",
-                "method": "wb97xd",
+                "method": "wb97mv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
                 "thresh": "14",

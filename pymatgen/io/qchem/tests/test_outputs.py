@@ -22,6 +22,8 @@ except ImportError:
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 
 single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
 multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))
@@ -98,6 +100,7 @@ property_list = {
     "ccsd_total_energy",
     "ccsd(t)_correlation_energy",
     "ccsd(t)_total_energy",
+    "norm_of_stepsize",
 }
 
 if have_babel:
@@ -165,6 +168,11 @@ single_job_out_names = {
     "new_qchem_files/ts.out",
     "new_qchem_files/ccsd.qout",
     "new_qchem_files/ccsdt.qout",
+    "new_qchem_files/custom_gdm_gdmqls_opt.qout",
+    "new_qchem_files/unable.qout",
+    "new_qchem_files/switch_to_cartesian.qout",
+    "new_qchem_files/svd_failed.qout",
+
 }
 
 multi_job_out_names = {
