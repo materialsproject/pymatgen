@@ -99,11 +99,7 @@ setup(
         "pybtex",
         "tqdm",
     ],
-    extras_require={
-        "ase": ["ase>=3.3"],
-        "vis": ["vtk>=6.0.0"],
-        "abinit": ["netcdf4"],
-    },
+    extras_require={"ase": ["ase>=3.3"], "vis": ["vtk>=6.0.0"], "abinit": ["netcdf4"], "relaxation": ["m3gnet"]},
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
     package_data={
