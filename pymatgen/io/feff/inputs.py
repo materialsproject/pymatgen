@@ -171,11 +171,11 @@ class Header(MSONable):
                 would be the material ID number
             comment: Comment for first header line
         """
-        spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
+        self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
         if struct.is_ordered:
             self.struct = struct
             self.source = source
-            sym = SpacegroupAnalyzer(struct, **spacegroup_analyzer_settings)
+            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
             data = sym.get_symmetry_dataset()
             self.space_number = data["number"]
             self.space_group = data["international"]
