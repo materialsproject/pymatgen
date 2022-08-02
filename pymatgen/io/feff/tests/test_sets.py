@@ -217,7 +217,7 @@ TITLE sites: 4
 
         stru_orig = Structure.from_file(os.path.join(".", "xanes_reci/Co2O2.cif"))
         stru_reci = Structure.from_file(os.path.join(".", "Dup_reci/Co2O2.cif"))
-        self.assertTrue(stru_orig.__eq__(stru_reci))
+        self.assertTrue(stru_orig == stru_reci)
 
         shutil.rmtree(os.path.join(".", "Dup_reci"))
         shutil.rmtree(os.path.join(".", "xanes_reci"))

@@ -312,7 +312,7 @@ $end"""
             "max_scf_cycles": "300",
             "gen_scfman": "true",
         }
-        str_test = QCInput(molecule=molecule, rem=rem).__str__().split("\n")
+        str_test = str(QCInput(molecule=molecule, rem=rem)).split("\n")
         str_actual_list = [
             "$molecule",
             " 0 1",

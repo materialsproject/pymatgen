@@ -61,7 +61,7 @@ class EntrySetTest(unittest.TestCase):
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
-            self.assertTrue({Element.Li, Element.O}.issuperset(e.composition.keys()))
+            self.assertTrue({Element.Li, Element.O}.issuperset(e.composition))
         self.assertRaises(ValueError, self.entry_set.get_subset_in_chemsys, ["Fe", "F"])
 
     def test_remove_non_ground_states(self):

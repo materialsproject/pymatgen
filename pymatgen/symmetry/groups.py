@@ -63,7 +63,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return False
 
     def __hash__(self) -> int:
-        return self.__len__()
+        return len(self)
 
     @overload
     def __getitem__(self, item: int) -> SymmOp:
@@ -215,7 +215,7 @@ class SpaceGroup(SymmetryGroup):
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
-    SG_SYMBOLS = set(_get_symm_data("space_group_encoding").keys())
+    SG_SYMBOLS = set(_get_symm_data("space_group_encoding"))
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
         op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
@@ -284,7 +284,7 @@ class SpaceGroup(SymmetryGroup):
             symm_ops = [np.eye(4)]
             if inversion:
                 symm_ops.append(np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]))
-            for i in range(ngen):
+            for _ in range(ngen):
                 m = np.eye(4)
                 m[:3, :3] = SpaceGroup.gen_matrices[enc.pop(0)]
                 m[0, 3] = SpaceGroup.translations[enc.pop(0)]

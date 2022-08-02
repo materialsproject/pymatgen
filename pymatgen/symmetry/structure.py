@@ -93,7 +93,7 @@ class SymmetrizedStructure(Structure):
         raise ValueError("Site not in structure")
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         outs = [
@@ -116,7 +116,7 @@ class SymmetrizedStructure(Structure):
         outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
-        keys = sorted(props.keys())
+        keys = sorted(props)
         for i, sites in enumerate(self.equivalent_sites):
             site = sites[0]
             row = [str(i), site.species_string]

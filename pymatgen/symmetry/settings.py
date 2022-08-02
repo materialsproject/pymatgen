@@ -96,7 +96,7 @@ class JonesFaithfulTransformation:
             ValueError: When transformation string fails to parse.
 
         Returns:
-            Tuple[Union[List[List[float]], np.ndarray], List[float]]: transformation matrix & vector
+            tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])

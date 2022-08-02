@@ -54,7 +54,7 @@ class Cohp(MSONable):
         self.icohp = icohp
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         """
@@ -544,7 +544,7 @@ class CompleteCohp(Cohp):
                 else:
                     raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
-            orb_label = list(self.orb_res_cohp[label].keys())[orb_index]
+            orb_label = list(self.orb_res_cohp[label])[orb_index]
         elif isinstance(orbitals, str):
             orb_label = orbitals
         else:

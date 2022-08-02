@@ -23,7 +23,7 @@ class StructInputFile(InputFile):
 
     def get_string(self) -> str:
         cw = CifWriter(self.structure)
-        return cw.__str__()
+        return str(cw)
 
     @classmethod
     def from_string(cls, contents: str):
