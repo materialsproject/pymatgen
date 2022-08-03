@@ -359,9 +359,6 @@ class FloatWithUnit(float):
         self._unit = Unit(unit)
         self._unit_type = unit_type
 
-    def __repr__(self):
-        return repr(super())
-
     def __str__(self):
         return f"{super().__str__()} {self._unit}"
 
