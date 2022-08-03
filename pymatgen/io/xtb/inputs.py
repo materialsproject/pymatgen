@@ -46,7 +46,7 @@ class CRESTInput(MSONable):
             Location to write input files, defaults to current directory
         :param coords_filename (str):
             Name of input coordinates file
-        :param constraints (Dict):
+        :param constraints (dict):
             Dictionary of common editable parameters for .constrains file.
             {"atoms": [List of 1-indexed atoms to fix], "force_constant":
             float]

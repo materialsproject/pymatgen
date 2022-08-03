@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import collections
 import json
+from typing import cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -195,22 +196,21 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return self.species[el]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Site is equal to another site if the species and occupancies are the
         same, and the coordinates are the same to some tolerance.  numpy
         function `allclose` is used to determine if coordinates are close.
         """
-        if other is None:
-            return False
+        needed_attrs = ("species", "coords", "properties")
+        if not all(hasattr(self, attr) for attr in needed_attrs):
+            return NotImplemented
+        other = cast(Site, other)
         return (
             self.species == other.species
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
             and self.properties == other.properties
         )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __hash__(self):
         """
@@ -512,16 +512,19 @@ class PeriodicSite(Site, MSONable):
         frac_diff = pbc_diff(self.frac_coords, other.frac_coords, self.lattice.pbc)
         return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("species", "lattice", "properties", "coords")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(PeriodicSite, other)
+
         return (
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
             and self.properties == other.properties
         )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def distance_and_image_from_frac_coords(
         self, fcoords: ArrayLike, jimage: ArrayLike | None = None

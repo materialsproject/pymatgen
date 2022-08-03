@@ -3,6 +3,7 @@
 """
 This module implements plotter for DOS and band structure.
 """
+
 from __future__ import annotations
 
 import copy
@@ -143,18 +144,18 @@ class DosPlotter:
         # pylint: disable=E1101
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
-        y = None
+        ys = None
         alldensities = []
         allenergies = []
         plt = pretty_plot(12, 8)
 
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
-        for key, dos in self._doses.items():
+        for dos in self._doses.values():
             energies = dos["energies"]
             densities = dos["densities"]
-            if not y:
-                y = {
+            if not ys:
+                ys = {
                     Spin.up: np.zeros(energies.shape),
                     Spin.down: np.zeros(energies.shape),
                 }
@@ -162,41 +163,41 @@ class DosPlotter:
             for spin in [Spin.up, Spin.down]:
                 if spin in densities:
                     if self.stack:
-                        y[spin] += densities[spin]
-                        newdens[spin] = y[spin].copy()
+                        ys[spin] += densities[spin]
+                        newdens[spin] = ys[spin].copy()
                     else:
                         newdens[spin] = densities[spin]
             allenergies.append(energies)
             alldensities.append(newdens)
 
-        keys = list(self._doses.keys())
+        keys = list(self._doses)
         keys.reverse()
         alldensities.reverse()
         allenergies.reverse()
         allpts = []
-        for i, key in enumerate(keys):
-            x = []
-            y = []
+        for idx, key in enumerate(keys):
+            xs = []
+            ys = []
             for spin in [Spin.up, Spin.down]:
-                if spin in alldensities[i]:
-                    densities = list(int(spin) * alldensities[i][spin])
-                    energies = list(allenergies[i])
+                if spin in alldensities[idx]:
+                    densities = list(int(spin) * alldensities[idx][spin])
+                    energies = list(allenergies[idx])
                     if spin == Spin.down:
                         energies.reverse()
                         densities.reverse()
-                    x.extend(energies)
-                    y.extend(densities)
-            allpts.extend(list(zip(x, y)))
+                    xs.extend(energies)
+                    ys.extend(densities)
+            allpts.extend(list(zip(xs, ys)))
             if self.stack:
-                plt.fill(x, y, color=colors[i % ncolors], label=str(key))
+                plt.fill(xs, ys, color=colors[idx % ncolors], label=str(key))
             else:
-                plt.plot(x, y, color=colors[i % ncolors], label=str(key), linewidth=3)
+                plt.plot(xs, ys, color=colors[idx % ncolors], label=str(key), linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
                 plt.plot(
                     [self._doses[key]["efermi"], self._doses[key]["efermi"]],
                     ylim,
-                    color=colors[i % ncolors],
+                    color=colors[idx % ncolors],
                     linestyle="--",
                     linewidth=2,
                 )
@@ -582,7 +583,7 @@ class BSPlotter:
         smooth_tol=0,
         smooth_k=3,
         smooth_np=100,
-        bs_labels=[],
+        bs_labels=None,
     ):
         """
         Get a matplotlib object for the bandstructures plot.
@@ -640,10 +641,11 @@ class BSPlotter:
             for sp in bs.bands.keys():
                 ls = "-" if str(sp) == "1" else "--"
 
-                if bs_labels != []:
-                    bs_label = f"{bs_labels[ibs]} {sp.name}"
-                else:
+                if bs_labels is None:
                     bs_label = f"Band {ibs} {sp.name}"
+                else:
+                    # assume bs_labels is Sequence[str]
+                    bs_label = f"{bs_labels[ibs]} {sp.name}"
 
                 handles.append(mlines.Line2D([], [], lw=2, ls=ls, color=colors[ibs], label=bs_label))
 
@@ -1749,7 +1751,7 @@ class BSPlotterProjected(BSPlotter):
 
         if not isinstance(dictio, dict):
             raise TypeError("The invalid type of 'dictio' was bound. It should be dict type.")
-        if len(dictio.keys()) == 0:
+        if len(dictio) == 0:
             raise KeyError("The 'dictio' is empty. We cannot do anything.")
 
         for elt in dictio:
@@ -1779,7 +1781,7 @@ class BSPlotterProjected(BSPlotter):
             print("You do not want to sum projection over orbitals.")
         elif not isinstance(sum_morbs, dict):
             raise TypeError("The invalid type of 'sum_orbs' was bound. It should be dict or 'None' type.")
-        elif len(sum_morbs.keys()) == 0:
+        elif len(sum_morbs) == 0:
             raise KeyError("The 'sum_morbs' is empty. We cannot do anything")
         else:
             for elt in sum_morbs:
@@ -1885,7 +1887,7 @@ class BSPlotterProjected(BSPlotter):
 
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
-        if len(dictpa.keys()) == 0:
+        if len(dictpa) == 0:
             raise KeyError("The 'dictpa' is empty. We cannot do anything.")
         for elt in dictpa:
             if Element.is_valid_symbol(elt):
@@ -1895,7 +1897,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species.keys())[0] == Element(elt):
+                        if list(_sites[i]._species)[0] == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
                         if isinstance(number, str):
@@ -1918,7 +1920,7 @@ class BSPlotterProjected(BSPlotter):
             else:
                 raise KeyError(f"The invalid element was put into 'dictpa' as a key: {elt}")
 
-        if len(list(dictio.keys())) != len(list(dictpa.keys())):
+        if len(list(dictio)) != len(list(dictpa)):
             raise KeyError("The number of keys in 'dictio' and 'dictpa' are not the same.")
         for elt in dictio.keys():
             if elt not in dictpa.keys():
@@ -1931,7 +1933,7 @@ class BSPlotterProjected(BSPlotter):
             print("You do not want to sum projection over atoms.")
         elif not isinstance(sum_atoms, dict):
             raise TypeError("The invalid type of 'sum_atoms' was bound. It should be dict type.")
-        elif len(sum_atoms.keys()) == 0:
+        elif len(sum_atoms) == 0:
             raise KeyError("The 'sum_atoms' is empty. We cannot do anything.")
         else:
             for elt in sum_atoms:
@@ -1942,7 +1944,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):  # pylint: disable=C0200
-                            if list(_sites[i]._species.keys())[0] == Element(elt):
+                            if list(_sites[i]._species)[0] == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
                             if isinstance(number, str):
@@ -2067,7 +2069,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species.keys())[0] == Element(elt):
+                        if list(_sites[i]._species)[0] == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2116,7 +2118,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species.keys())[0] == Element(elt):
+                        if list(_sites[i]._species)[0] == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2795,7 +2797,7 @@ class BoltztrapPlotter:
         plt.axvline(0.0, color="k", linewidth=3.0)
         plt.axvline(self._bz.gap, color="k", linewidth=3.0)
 
-    def plot_seebeck_eff_mass_mu(self, temps=[300], output="average", Lambda=0.5):
+    def plot_seebeck_eff_mass_mu(self, temps=(300,), output="average", Lambda=0.5):
         """
         Plot respect to the chemical potential of the Seebeck effective mass
         calculated as explained in Ref.
@@ -2856,7 +2858,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_complexity_factor_mu(self, temps=[300], output="average", Lambda=0.5):
+    def plot_complexity_factor_mu(self, temps=(300,), output="average", Lambda=0.5):
         """
         Plot respect to the chemical potential of the Fermi surface complexity
         factor calculated as explained in Ref.
@@ -3063,7 +3065,7 @@ class BoltztrapPlotter:
             sbk = self._bz.get_seebeck(output="eigs")
 
         plt = pretty_plot(22, 14)
-        tlist = sorted(sbk["n"].keys())
+        tlist = sorted(sbk["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3118,7 +3120,7 @@ class BoltztrapPlotter:
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
         plt = pretty_plot(22, 14)
-        tlist = sorted(cond["n"].keys())
+        tlist = sorted(cond["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3174,7 +3176,7 @@ class BoltztrapPlotter:
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
         plt = pretty_plot(22, 14)
-        tlist = sorted(pf["n"].keys())
+        tlist = sorted(pf["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3229,7 +3231,7 @@ class BoltztrapPlotter:
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
 
         plt = pretty_plot(22, 14)
-        tlist = sorted(zt["n"].keys())
+        tlist = sorted(zt["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3283,7 +3285,7 @@ class BoltztrapPlotter:
             em = self._bz.get_average_eff_mass(output="eigs")
 
         plt = pretty_plot(22, 14)
-        tlist = sorted(em["n"].keys())
+        tlist = sorted(em["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3335,7 +3337,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             sbk = self._bz.get_seebeck(output="eigs")
 
-        tlist = sorted(sbk["n"].keys()) if temps == "all" else temps
+        tlist = sorted(sbk["n"]) if temps == "all" else temps
         plt = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3390,7 +3392,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(cond["n"].keys()) if temps == "all" else temps
+        tlist = sorted(cond["n"]) if temps == "all" else temps
         plt = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3443,7 +3445,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(pf["n"].keys()) if temps == "all" else temps
+        tlist = sorted(pf["n"]) if temps == "all" else temps
         plt = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3498,7 +3500,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(zt["n"].keys()) if temps == "all" else temps
+        tlist = sorted(zt["n"]) if temps == "all" else temps
         plt = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3554,7 +3556,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             em = self._bz.get_average_eff_mass(output="eigs")
 
-        tlist = sorted(em["n"].keys()) if temps == "all" else temps
+        tlist = sorted(em["n"]) if temps == "all" else temps
         plt = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)

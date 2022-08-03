@@ -7,6 +7,7 @@ another structure. Site transformations differ from standard transformations
 in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
+
 from __future__ import annotations
 
 import itertools
