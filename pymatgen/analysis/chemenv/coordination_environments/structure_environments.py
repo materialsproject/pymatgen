@@ -11,6 +11,8 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+from typing import cast
+
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
@@ -388,11 +390,11 @@ class StructureEnvironments(MSONable):
         def __hash__(self):
             return len(self.site_voronoi_indices)
 
-        def __eq__(self, other):
-            return self.isite == other.isite and self.site_voronoi_indices == other.site_voronoi_indices
-
-        def __ne__(self, other):
-            return not self == other
+        def __eq__(self, other: object) -> bool:
+            needed_attrs = ("isite", "site_voronoi_indices")
+            if not all(hasattr(other, attr) for attr in needed_attrs):
+                return NotImplemented
+            return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
             out = f"Neighbors Set for site #{self.isite:d} :\n"
@@ -1267,7 +1269,14 @@ class StructureEnvironments(MSONable):
                             )
         return differences
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("ce_list", "voronoi", "valences", "sites_map", "equivalent_sites", "structure", "info")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(StructureEnvironments, other)
+
         if len(self.ce_list) != len(other.ce_list):
             return False
         if self.voronoi != other.voronoi:
@@ -1290,9 +1299,6 @@ class StructureEnvironments(MSONable):
             if site_ces != other.ce_list[isite]:
                 return False
         return True
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """
@@ -1498,11 +1504,11 @@ class LightStructureEnvironments(MSONable):
         def __hash__(self) -> int:
             return len(self.all_nbs_sites_indices)
 
-        def __eq__(self, other):
-            return self.isite == other.isite and self.all_nbs_sites_indices == other.all_nbs_sites_indices
-
-        def __ne__(self, other):
-            return not self == other
+        def __eq__(self, other: object) -> bool:
+            needed_attrs = ("isite", "all_nbs_sites_indices")
+            if not all(hasattr(other, attr) for attr in needed_attrs):
+                return NotImplemented
+            return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
             return (
@@ -2047,7 +2053,7 @@ class LightStructureEnvironments(MSONable):
         """
         return self.strategy.uniquely_determines_coordination_environments
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
@@ -2060,6 +2066,12 @@ class LightStructureEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
+        needed_attrs = ("strategy", "structure", "coordination_environments", "valences", "neighbors_sets")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(LightStructureEnvironments, other)  # silence mypy warnings
+
         is_equal = (
             self.strategy == other.strategy
             and self.structure == other.structure
@@ -2072,9 +2084,6 @@ class LightStructureEnvironments(MSONable):
         this_indices = [ss["index"] for ss in self._all_nbs_sites]
         other_indices = [ss["index"] for ss in other._all_nbs_sites]
         return is_equal and this_sites == other_sites and this_indices == other_indices
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """
@@ -2365,7 +2374,7 @@ class ChemicalEnvironments(MSONable):
                     return False
         return True
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.
         object.
@@ -2376,6 +2385,12 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
+        needed_attrs = ("coord_geoms",)
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(ChemicalEnvironments, other)  # silence mypy warnings on other below
+
         if set(self.coord_geoms) != set(other.coord_geoms):
             return False
         for mp_symbol, cg_dict_self in self.coord_geoms.items():
@@ -2401,9 +2416,6 @@ class ChemicalEnvironments(MSONable):
                 if other_csms_self[csmtype] != other_csms_other[csmtype]:
                     return False
         return True
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """

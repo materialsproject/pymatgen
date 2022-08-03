@@ -437,9 +437,12 @@ class Magmom(MSONable):
         """
         Equal if 'global' magnetic moments are the same, saxis can differ.
         """
-        if not hasattr(other, "global_moment"):
+        try:
+            other_magmom = Magmom(other)
+        except (TypeError, ValueError):
             return NotImplemented
-        return np.allclose(self.global_moment, other.global_moment)  # type: ignore
+
+        return np.allclose(self.global_moment, other_magmom.global_moment)
 
     def __lt__(self, other):
         return abs(self) < abs(other)
