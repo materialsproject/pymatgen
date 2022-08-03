@@ -171,7 +171,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
         Args:
-            bragg_angles (Dict): The bragg angles for each hkl plane.
+            bragg_angles (dict): The bragg angles for each hkl plane.
         Returns:
             Dict of hkl plane to s2 parameter, calculates the s squared parameter
                 (= square of sin theta over lambda).
@@ -190,7 +190,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         by the equivalent process in the xrd module.
         Args:
             structure (Structure): The input structure.
-            bragg_angles (Dict): Dictionary of hkl plane to Bragg angle.
+            bragg_angles (dict): Dictionary of hkl plane to Bragg angle.
         Returns:
             dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).
         """

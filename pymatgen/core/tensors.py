@@ -682,7 +682,7 @@ class Tensor(np.ndarray, MSONable):
                 voigt-notation. Defaults to false, as information
                 may be lost in conversion.
 
-        Returns (Dict):
+        Returns (dict):
             serialized format tensor object
 
         """

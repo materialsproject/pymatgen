@@ -1288,11 +1288,10 @@ class AngleNbSetWeight(NbSetWeight):
         """
         return np.power(self.angle_sum(nb_set=nb_set), self.aa)
 
-    def __eq__(self, other):
-        return self.aa == other.aa
-
-    def __ne__(self, other):
-        return not self == other
+    def __eq__(self, other: object) -> bool:
+        if not hasattr(other, "aa"):
+            return NotImplemented
+        return self.aa == other.aa  # type: ignore
 
     def as_dict(self):
         """MSONAble dict"""
@@ -1357,11 +1356,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 else:
                     self.fda = self.angninvndist
 
-    def __eq__(self, other):
-        return self.average_type == other.average_type and self.aa == other.aa and self.bb == other.bb
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("average_type", "aa", "bb")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def as_dict(self):
         """MSONable dict"""
@@ -1616,14 +1616,15 @@ class SelfCSMNbSetWeight(NbSetWeight):
         return weight
 
     def __eq__(self, other):
+        if not all(
+            hasattr(other, attr) for attr in ["effective_csm_estimator", "weight_estimator", "symmetry_measure_type"]
+        ):
+            return NotImplemented
         return (
             self.effective_csm_estimator == other.effective_csm_estimator
             and self.weight_estimator == other.weight_estimator
             and self.symmetry_measure_type == other.symmetry_measure_type
         )
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """MSONable dict"""
@@ -1787,16 +1788,16 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         )
         return nb_set_weight
 
-    def __eq__(self, other):
-        return (
-            self.effective_csm_estimator == other.effective_csm_estimator
-            and self.weight_estimator == other.weight_estimator
-            and self.delta_cn_weight_estimators == other.delta_cn_weight_estimators
-            and self.symmetry_measure_type == other.symmetry_measure_type
-        )
-
-    def __ne__(self, other):
-        return not self == other
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = [
+            "effective_csm_estimator",
+            "weight_estimator",
+            "delta_cn_weight_estimators",
+            "symmetry_measure_type",
+        ]
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     @classmethod
     def delta_cn_specifics(

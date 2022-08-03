@@ -503,7 +503,7 @@ class SurfaceEnergyPlotter:
 
         Args:
             miller_index ((h,k,l)): The facet to find the most stable slab in
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -554,7 +554,7 @@ class SurfaceEnergyPlotter:
         Method to get the Wulff shape at a specific chemical potential.
 
         Args:
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -603,7 +603,7 @@ class SurfaceEnergyPlotter:
             ref_delu (sympy Symbol): The free variable chempot with the format:
                 Symbol("delu_el") where el is the name of the element.
             chempot_range (list): Min/max range of chemical potential to plot along
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -678,7 +678,7 @@ class SurfaceEnergyPlotter:
             Adjust delu_dict as need be to get the correct number of free variables.
         Args:
             slab_entries (array): The coefficients of the first equation
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
 
@@ -738,7 +738,7 @@ class SurfaceEnergyPlotter:
                 the element
             no_doped (bool): Consider stability of clean slabs only.
             no_clean (bool): Consider stability of doped slabs only.
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             miller_index (list): Miller index for a specific facet to get a
@@ -905,7 +905,7 @@ class SurfaceEnergyPlotter:
                 the element
             chempot_range ([max_chempot, min_chempot]): Range to consider the
                 stability of the slabs.
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -979,7 +979,7 @@ class SurfaceEnergyPlotter:
                 stability of the slabs.
             miller_index (list): Miller index for a specific facet to get a
                 dictionary for.
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -1157,7 +1157,7 @@ class SurfaceEnergyPlotter:
         For each facet, plot the clean surface energy against the most
             stable binding energy.
         Args:
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -1230,7 +1230,7 @@ class SurfaceEnergyPlotter:
             incr (int): Number of points to sample along the range of the first chempot
             no_doped (bool): Whether or not to include doped systems.
             no_clean (bool): Whether or not to include clean systems.
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             annotate (bool): Whether to annotate each "phase" with the label of
@@ -1344,7 +1344,7 @@ class SurfaceEnergyPlotter:
 
         Args:
             entry (SlabEntry): Computed structure entry of the slab
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -1762,7 +1762,7 @@ class NanoscaleStability:
                 first polymorph
             analyzer2 (SurfaceEnergyPlotter): Analyzer associated with the
                 second polymorph
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
@@ -1910,7 +1910,7 @@ class NanoscaleStability:
             analyzer (SurfaceEnergyPlotter): Analyzer associated with the
                 first polymorph
             max_r (float): The maximum radius of the particle to plot up to.
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             label (str): Label of the plot for legend
@@ -1974,7 +1974,7 @@ class NanoscaleStability:
         Args:
             max_r (float): The maximum radius of the particle to plot up to.
             increments (int): Number of plot points
-            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+            delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials

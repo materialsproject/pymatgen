@@ -633,7 +633,7 @@ class Vasprun(MSONable):
         if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
-            while set(final_esteps[i].keys()) == to_check:
+            while set(final_esteps[i]) == to_check:
                 i += 1
             return i + 1 != self.parameters["NELM"]
         return len(final_esteps) < self.parameters["NELM"]
@@ -1020,7 +1020,7 @@ class Vasprun(MSONable):
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
-        if self.separate_spins and len(self.eigenvalues.keys()) != 2:
+        if self.separate_spins and len(self.eigenvalues) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
         for d in self.eigenvalues.values():
@@ -3726,8 +3726,8 @@ class VolumetricData(MSONable):
             """
             s = f"{f:.10E}"
             if f >= 0:
-                return "0." + s[0] + s[2:12] + "E" + f"{int(s[13:]) + 1:+03}"
-            return "-." + s[1] + s[3:13] + "E" + f"{int(s[14:]) + 1:+03}"
+                return f"0.{s[0]}{s[2:12]}E{int(s[13:]) + 1:+03}"
+            return f"-.{s[1]}{s[3:13]}E{int(s[14:]) + 1:+03}"
 
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
@@ -4117,7 +4117,7 @@ class Procar:
         """
         headers = None
 
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rt") as file_handle:
             preambleexpr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of " r"ions:\s*(\d+)")
             kpointexpr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile(r"^band\s+(\d+)")
@@ -4129,39 +4129,35 @@ class Procar:
             spin = Spin.down
             weights = None
             # pylint: disable=E1137
-            for l in f:
-                l = l.strip()
-                if bandexpr.match(l):
-                    m = bandexpr.match(l)
+            for line in file_handle:
+                line = line.strip()
+                if bandexpr.match(line):
+                    m = bandexpr.match(line)
                     current_band = int(m.group(1)) - 1
                     done = False
-                elif kpointexpr.match(l):
-                    m = kpointexpr.match(l)
+                elif kpointexpr.match(line):
+                    m = kpointexpr.match(line)
                     current_kpoint = int(m.group(1)) - 1
                     weights[current_kpoint] = float(m.group(2))
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
-                elif headers is None and ionexpr.match(l):
-                    headers = l.split()
+                elif headers is None and ionexpr.match(line):
+                    headers = line.split()
                     headers.pop(0)
                     headers.pop(-1)
 
-                    def ff():
-                        return np.zeros((nkpoints, nbands, nions, len(headers)))
+                    data = defaultdict(lambda: np.zeros((nkpoints, nbands, nions, len(headers))))
 
-                    data = defaultdict(ff)
-
-                    def f2():
-                        return np.full(
+                    phase_factors = defaultdict(
+                        lambda: np.full(
                             (nkpoints, nbands, nions, len(headers)),
                             np.NaN,
                             dtype=np.complex128,
                         )
-
-                    phase_factors = defaultdict(f2)
-                elif expr.match(l):
-                    toks = l.split()
+                    )
+                elif expr.match(line):
+                    toks = line.split()
                     index = int(toks.pop(0)) - 1
                     num_data = np.array([float(t) for t in toks[: len(headers)]])
                     if not done:
@@ -4180,10 +4176,10 @@ class Procar:
                                 phase_factors[spin][current_kpoint, current_band, index, :] = num_data
                             else:
                                 phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
-                elif l.startswith("tot"):
+                elif line.startswith("tot"):
                     done = True
-                elif preambleexpr.match(l):
-                    m = preambleexpr.match(l)
+                elif preambleexpr.match(line):
+                    m = preambleexpr.match(line)
                     nkpoints = int(m.group(1))
                     nbands = int(m.group(2))
                     nions = int(m.group(3))
@@ -5470,7 +5466,7 @@ class Eigenval:
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
-        if self.separate_spins and len(self.eigenvalues.keys()) != 2:
+        if self.separate_spins and len(self.eigenvalues) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
         for d in self.eigenvalues.values():

@@ -343,7 +343,7 @@ class StructureMatcher(MSONable):
         scale=True,
         attempt_supercell=False,
         allow_subset=False,
-        comparator=SpeciesComparator(),
+        comparator=None,
         supercell_size="num_sites",
         ignored_species=None,
     ):
@@ -393,7 +393,7 @@ class StructureMatcher(MSONable):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
-        self._comparator = comparator
+        self._comparator = comparator or SpeciesComparator()
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
@@ -1001,7 +1001,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (Dict): Mapping of struct1 species to struct2 species
+            min_mapping (dict): Mapping of struct1 species to struct2 species
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)

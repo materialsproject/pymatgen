@@ -25,6 +25,7 @@ If you want to implement a new InputGenerator, please take note of the following
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
 """
+
 from __future__ import annotations
 
 import abc

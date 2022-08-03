@@ -582,7 +582,7 @@ class NearNeighbors:
             structure: Structure object
             n (int): site index.
 
-        Returns (Dict[str, float]):
+        Returns (dict[str, float]):
             A dict of order parameters (values) and the
             underlying motif type (keys; for example, tetrahedral).
 
@@ -4137,7 +4137,7 @@ class CutOffDictNN(NearNeighbors):
     def __init__(self, cut_off_dict=None):
         """
         Args:
-            cut_off_dict (Dict[str, float]): a dictionary
+            cut_off_dict (dict[str, float]): a dictionary
             of cut-off distances, e.g. {('Fe','O'): 2.0} for
             a maximum Fe-O bond length of 2.0 Angstroms.
             Bonds will only be created between pairs listed

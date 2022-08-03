@@ -23,15 +23,12 @@ from io import StringIO
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
     Iterator,
-    List,
     Literal,
     Sequence,
     Set,
     Sized,
-    Union,
     cast,
 )
 
@@ -226,7 +223,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         List of types of specie.
         """
         # Cannot use set since we want a deterministic algorithm.
-        types = []  # type: List[Union[Element, Species, DummySpecies]]
+        types: list[Element | Species | DummySpecies] = []
         for site in self:
             for sp, v in site.species.items():
                 if v != 0:
@@ -276,7 +273,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
-        props = {}  # type: Dict[str, List]
+        props: dict[str, list] = {}
         prop_keys = set()  # type: Set[str]
         for site in self:
             prop_keys.update(site.properties)
@@ -299,7 +296,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def __hash__(self) -> int:
         # for now, just use the composition hash code.
-        return self.composition.__hash__()
+        return hash(self.composition)
 
     @property
     def num_sites(self) -> int:
@@ -328,7 +325,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         (Composition) Returns the composition
         """
-        elmap = collections.defaultdict(float)  # type: Dict[Species, float]
+        elmap: dict[Species, float] = collections.defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
                 elmap[species] += occu
@@ -410,7 +407,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, fmt: str = None, filename: str = None):
+    def to(self, fmt: str = None, filename: str = None) -> str | None:
         """
         Generates well-known string representations of SiteCollections (e.g.,
         molecules / structures). Should return a string type or write to a file.
@@ -669,7 +666,7 @@ class IStructure(SiteCollection, MSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            coords (Nx3 array): list of fractional/cartesian coordinates of
+            coords (Nx3 array): list of fractional/Cartesian coordinates of
                 each species.
             charge (int): overall charge of the structure. Defaults to behavior
                 in SiteCollection where total charge is the sum of the oxidation
@@ -723,7 +720,7 @@ class IStructure(SiteCollection, MSONable):
         charge: float = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
-    ) -> IStructure | Structure:
+    ) -> IStructure:
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -741,7 +738,7 @@ class IStructure(SiteCollection, MSONable):
         """
         if len(sites) < 1:
             raise ValueError(f"You need at least one site to construct a {cls}")
-        prop_keys = []  # type: List[str]
+        prop_keys: list[str] = []
         props = {}
         lattice = sites[0].lattice
         for i, site in enumerate(sites):
@@ -843,9 +840,9 @@ class IStructure(SiteCollection, MSONable):
 
         props = {} if site_properties is None else site_properties
 
-        all_sp = []  # type: List[Union[str, Element, Species, DummySpecies, Composition]]
-        all_coords = []  # type: List[List[float]]
-        all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
+        all_sp: list[str | Element | Species | DummySpecies | Composition] = []
+        all_coords: list[list[float]] = []
+        all_site_properties: dict[str, list] = collections.defaultdict(list)
         for i, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
@@ -937,10 +934,10 @@ class IStructure(SiteCollection, MSONable):
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
-        all_sp = []  # type: List[Union[str, Element, Species, DummySpecies, Composition]]
-        all_coords = []  # type: List[List[float]]
-        all_magmoms = []  # type: List[float]
-        all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
+        all_sp: list[str | Element | Species | DummySpecies | Composition] = []
+        all_coords: list[list[float]] = []
+        all_magmoms: list[float] = []
+        all_site_properties: dict[str, list] = collections.defaultdict(list)
         for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
             cc, mm = msg.get_orbit(c, m, tol=tol)
             all_sp.extend([sp] * len(cc))
@@ -1064,12 +1061,9 @@ class IStructure(SiteCollection, MSONable):
                 return False
         return True
 
-    def __ne__(self, other) -> bool:
-        return not self.__eq__(other)
-
     def __hash__(self) -> int:
         # For now, just use the composition hash code.
-        return self.composition.__hash__()
+        return hash(self.composition)
 
     def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
         """
@@ -1198,7 +1192,7 @@ class IStructure(SiteCollection, MSONable):
             [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         site_fcoords = np.mod(self.frac_coords, 1)
-        neighbors = []  # type: List[PeriodicNeighbor]
+        neighbors: list[PeriodicNeighbor] = []
         for fcoord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
             nnsite = PeriodicNeighbor(
                 self[i].species,
@@ -1959,7 +1953,7 @@ class IStructure(SiteCollection, MSONable):
 
         if autosort_tol:
             dist_matrix = self.lattice.get_all_distances(start_coords, end_coords)
-            site_mappings = collections.defaultdict(list)  # type: Dict[int, List[int]]
+            site_mappings: dict[int, list[int]] = collections.defaultdict(list)
             unmapped_start_ind = []
             for i, row in enumerate(dist_matrix):
                 ind = np.where(row < autosort_tol)[0]
@@ -2406,7 +2400,7 @@ class IStructure(SiteCollection, MSONable):
         return df
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: Literal["abivars"] | None = None):
+    def from_dict(cls, d: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Structure:
         """
         Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
@@ -2428,14 +2422,15 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge", None)
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, fmt: str = None, filename: str = None, **kwargs) -> str | None:
+    def to(self, fmt: str = None, filename: str = None, **kwargs) -> str | None:  # type: ignore
         """
         Outputs the structure to a file or string.
 
         Args:
             fmt (str): Format to output to. Defaults to JSON unless filename
                 is provided. If fmt is specifies, it overrides whatever the
-                filename is. Options include "cif", "poscar", "cssr", "json".
+                filename is. Options include "cif", "poscar", "cssr", "json",
+                "xsf", "mcsqs", "prismatic", "yaml", "fleur-inpgen".
                 Non-case sensitive.
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
@@ -2522,10 +2517,10 @@ class IStructure(SiteCollection, MSONable):
         cls,
         input_string: str,
         fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs"],
-        primitive=False,
-        sort=False,
-        merge_tol=0.0,
-    ):
+        primitive: bool = False,
+        sort: bool = False,
+        merge_tol: float = 0.0,
+    ) -> Structure | IStructure:
         """
         Reads a structure from a string.
 
@@ -2921,9 +2916,14 @@ class IMolecule(SiteCollection, MSONable):
                 bonds.append(CovalentBond(site1, site2))
         return bonds
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("charge", "spin_multiplicity", "sites")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(IMolecule, other)
+
         if len(self) != len(other):
             return False
         if self.charge != other.charge:
@@ -2935,12 +2935,9 @@ class IMolecule(SiteCollection, MSONable):
                 return False
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __hash__(self):
         # For now, just use the composition hash code.
-        return self.composition.__hash__()
+        return hash(self.composition)
 
     def __repr__(self):
         outs = ["Molecule Summary"]
@@ -2955,16 +2952,8 @@ class IMolecule(SiteCollection, MSONable):
             f"Charge = {self._charge}, Spin Mult = {self._spin_multiplicity}",
             f"Sites ({len(self)})",
         ]
-        for i, site in enumerate(self):
-            outs.append(
-                " ".join(
-                    [
-                        str(i),
-                        site.species_string,
-                        " ".join([f"{j:0.6f}".rjust(12) for j in site.coords]),
-                    ]
-                )
-            )
+        for idx, site in enumerate(self):
+            outs.append(f"{idx} {site.species_string} {' '.join([f'{j:0.6f}'.rjust(12) for j in site.coords])}")
         return "\n".join(outs)
 
     def as_dict(self):
@@ -3200,7 +3189,7 @@ class IMolecule(SiteCollection, MSONable):
             charge_spin_check=self._charge_spin_check,
         )
 
-    def to(self, fmt=None, filename=None):
+    def to(self, fmt: str = None, filename: str = None) -> str | None:
         """
         Outputs the molecule to a file or string.
 
@@ -3223,6 +3212,7 @@ class IMolecule(SiteCollection, MSONable):
 
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename or "")
+        writer: Any
         if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
             writer = XYZ(self)
         elif any(fmt == r or fnmatch(fname.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
@@ -3230,7 +3220,8 @@ class IMolecule(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as f:
-                    return json.dump(self.as_dict(), f)
+                    json.dump(self.as_dict(), f)
+                    return None
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):

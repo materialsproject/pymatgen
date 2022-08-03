@@ -433,15 +433,13 @@ class Magmom(MSONable):
     def __abs__(self):
         return np.linalg.norm(self.moment)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Equal if 'global' magnetic moments are the same, saxis can differ.
         """
-        other = Magmom(other)
-        return np.allclose(self.global_moment, other.global_moment)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+        if not hasattr(other, "global_moment"):
+            return NotImplemented
+        return np.allclose(self.global_moment, other.global_moment)  # type: ignore
 
     def __lt__(self, other):
         return abs(self) < abs(other)
@@ -466,7 +464,7 @@ class Magmom(MSONable):
         user intervention.
 
         However, should be used with caution for non-collinear
-        structures and might give non-sensical results except in the case
+        structures and might give nonsensical results except in the case
         of only slightly non-collinear structures (e.g. small canting).
 
         This approach is also used to obtain "diff" VolumetricDensity

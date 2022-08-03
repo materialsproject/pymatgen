@@ -10,6 +10,7 @@ import abc
 import collections
 from enum import Enum
 from pprint import pformat
+from typing import cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -436,17 +437,17 @@ class Smearing(AbivarAble, MSONable):
             s += f"tsmear {self.tsmear}"
         return s
 
-    def __eq__(self, other):
-        return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("occopt", "tsmear")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
+        other = cast(Smearing, other)
+
+        return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
 
     def __bool__(self):
         return self.mode != "nosmearing"
-
-    # py2 old version
-    __nonzero__ = __bool__
 
     @classmethod
     def as_smearing(cls, obj):
@@ -1200,9 +1201,12 @@ class PPModel(AbivarAble, MSONable):
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("mode", "plasmon_freq")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        other = cast(PPModel, other)
+
         if self.mode != other.mode:
             return False
 
@@ -1211,14 +1215,8 @@ class PPModel(AbivarAble, MSONable):
 
         return np.allclose(self.plasmon_freq, other.plasmon_freq)
 
-    def __ne__(self, other):
-        return not self == other
-
     def __bool__(self):
         return self.mode != PPModelModes.noppmodel
-
-    # py2 old version
-    __nonzero__ = __bool__
 
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"
