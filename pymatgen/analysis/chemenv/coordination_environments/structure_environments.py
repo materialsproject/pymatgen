@@ -2385,7 +2385,7 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        needed_attrs = ("coord_geoms", "mp_symbol_to_mp_symbol")
+        needed_attrs = ("coord_geoms",)
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
