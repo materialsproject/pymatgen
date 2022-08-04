@@ -1521,6 +1521,8 @@ class CubicSupercellTransformation(AbstractTransformation):
             force_90_degrees: If True, return a transformation for a supercell
                 with 90 degree angles (if possible). To avoid long run times,
                 please use max_atoms
+            angle_tolerance: tolerance to determine the 90 degree angles
+
         """
         self.min_atoms = min_atoms if min_atoms else -np.Inf
         self.max_atoms = max_atoms if max_atoms else np.Inf
