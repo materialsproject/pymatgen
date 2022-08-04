@@ -119,19 +119,14 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         """
         return PseudoParser().parse(filename)
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("md5", "Z", "Z_val", "l_max")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
         return (
-            self.md5 == other.md5
+            all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
             and self.__class__ == other.__class__
-            and self.Z == other.Z
-            and self.Z_val == other.Z_val
-            and self.l_max == other.l_max
         )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __repr__(self):
         try:
@@ -488,7 +483,7 @@ class AbinitPseudo(Pseudo):
         # Build xc from header.
         self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
-        for attr_name, desc in header.items():
+        for attr_name in header:
             value = header.get(attr_name, None)
 
             # Hide these attributes since one should always use the public interface.
@@ -658,11 +653,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = "line: {}\n len(keys) != len(value)\nkeys: {}\n values: {}".format(
-                line,
-                keys,
-                values,
-            )
+            msg = f"line: {line}\n len(keys) != len(value)\nkeys: {keys}\n values: {values}"
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -1300,7 +1291,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         Root tree of XML.
         """
-        from xml.etree import cElementTree as Et
+        from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
         return tree.getroot()
@@ -1712,7 +1703,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        return sorted(list(self._pseudos_with_z.keys()))
+        return sorted(list(self._pseudos_with_z))
 
     # def max_ecut_pawecutdg(self, accuracy):
     # """Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""

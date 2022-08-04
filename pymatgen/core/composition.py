@@ -241,7 +241,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         hash based on the chemical system
         """
-        return hash(frozenset(self._data.keys()))
+        return hash(frozenset(self._data))
 
     @property
     def average_electroneg(self) -> float:
@@ -442,7 +442,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         alphabetically.
         """
         c = self.element_composition
-        elements = sorted(el.symbol for el in c.keys())
+        elements = sorted(el.symbol for el in c)
         if "C" in elements:
             elements = ["C"] + [el for el in elements if el != "C"]
 
@@ -454,7 +454,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Returns view of elements in Composition.
         """
-        return list(self.keys())
+        return list(self)
 
     def __str__(self):
         return " ".join([f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items()])
@@ -687,8 +687,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             "reduced_cell_composition": self.get_reduced_composition_and_factor()[0],
             "unit_cell_composition": self.as_dict(),
             "reduced_cell_formula": self.reduced_formula,
-            "elements": list(self.as_dict().keys()),
-            "nelements": len(self.as_dict().keys()),
+            "elements": list(self.as_dict()),
+            "nelements": len(self.as_dict()),
         }
 
     def oxi_state_guesses(
@@ -1207,7 +1207,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
         (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
-            polyanion.append(f"({poly_form}){int(poly_factor)}")
+            polyanion.append(f"({poly_form}){poly_factor}")
 
     syms = syms[: len(syms) - 2 if polyanion else len(syms)]
 
@@ -1256,13 +1256,13 @@ class ChemicalPotential(dict, MSONable):
 
     def __sub__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self.keys()).union(other.keys())
+            els = set(self).union(other)
             return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0) for e in els})
         return NotImplemented
 
     def __add__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self.keys()).union(other.keys())
+            els = set(self).union(other)
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
         return NotImplemented
 
@@ -1274,8 +1274,8 @@ class ChemicalPotential(dict, MSONable):
             composition (Composition): input composition
             strict (bool): Whether all potentials must be specified
         """
-        if strict and set(composition.keys()) > set(self.keys()):
-            s = set(composition.keys()) - set(self.keys())
+        if strict and set(composition) > set(self):
+            s = set(composition) - set(self)
             raise ValueError(f"Potentials not specified for {s}")
         return sum(self.get(k, 0) * v for k, v in composition.items())
 

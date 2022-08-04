@@ -93,9 +93,9 @@ class CompositionTest(PymatgenTest):
 
     def test_total_electrons(self):
         test_cases = {"C": 6, "SrTiO3": 84}
-        for item in test_cases.keys():
-            c = Composition(item)
-            self.assertAlmostEqual(c.total_electrons, test_cases[item])
+        for key, val in test_cases.items():
+            c = Composition(key)
+            self.assertAlmostEqual(c.total_electrons, val)
 
     def test_formula(self):
         correct_formulas = [
@@ -187,10 +187,10 @@ class CompositionTest(PymatgenTest):
             "Li1.5Si0.5",
             "ZnHO",
         ]
-        for i in range(len(self.comp)):
+        for idx, comp in enumerate(self.comp):
             self.assertEqual(
-                self.comp[i].get_reduced_composition_and_factor()[0],
-                Composition(correct_reduced_formulas[i]),
+                comp.get_reduced_composition_and_factor()[0],
+                Composition(correct_reduced_formulas[idx]),
             )
 
     def test_reduced_formula(self):
@@ -287,8 +287,8 @@ class CompositionTest(PymatgenTest):
             "A0.5B1.5",
             "ABC",
         ]
-        for i in range(len(self.comp)):
-            self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
+        for idx, comp in enumerate(self.comp):
+            self.assertEqual(comp.anonymized_formula, expected_formulas[idx])
 
     def test_get_wt_fraction(self):
         correct_wt_frac = {
@@ -355,8 +355,8 @@ class CompositionTest(PymatgenTest):
             "Incorrect composition after addition!",
         )
 
-        foo = Element("Fe")
-        self.assertEqual(self.comp[0].__add__(foo), NotImplemented)
+        Fe = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(Fe), NotImplemented)  # pylint: disable=C2801
 
     def test_sub(self):
         self.assertEqual(
@@ -373,8 +373,8 @@ class CompositionTest(PymatgenTest):
         c2 = Composition({"S": 1})
         self.assertEqual(len((c1 - c2).elements), 1)
 
-        foo = Element("Fe")
-        self.assertEqual(self.comp[0].__add__(foo), NotImplemented)
+        Fe = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(Fe), NotImplemented)  # pylint: disable=C2801
 
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
@@ -399,9 +399,9 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. " + f"{comp1.formula} should be equal to {comp2.formula}",
+            f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}",
         )
-        self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
+        self.assertEqual(hash(comp1), hash(comp2), "Hashcode equality test failed!")
 
         c1, c2 = self.comp[:2]
         self.assertTrue(c1 == c1)
@@ -430,10 +430,10 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(c4 > c1)
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]), [c3, c1, c1_1, c4, c2])
 
-        foo = Element("Fe")
-        self.assertEqual(c1.__eq__(foo), NotImplemented)
-        self.assertEqual(c1.__ne__(foo), NotImplemented)
-        self.assertEqual(c1.__lt__(foo), NotImplemented)
+        Fe = Element("Fe")
+        self.assertFalse(c1 == Fe, NotImplemented)
+        self.assertTrue(c1 != Fe)
+        self.assertRaises(TypeError, lambda: c1 < Fe)
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
@@ -446,10 +446,10 @@ class CompositionTest(PymatgenTest):
         self.assertFalse(c1.almost_equals(c4, rtol=0.1))
 
     def test_equality(self):
-        self.assertTrue(self.comp[0].__eq__(self.comp[0]))
-        self.assertFalse(self.comp[0].__eq__(self.comp[1]))
-        self.assertFalse(self.comp[0].__ne__(self.comp[0]))
-        self.assertTrue(self.comp[0].__ne__(self.comp[1]))
+        self.assertTrue(self.comp[0] == self.comp[0])
+        self.assertFalse(self.comp[0] == self.comp[1])
+        self.assertFalse(self.comp[0] != self.comp[0])
+        self.assertTrue(self.comp[0] != self.comp[1])
 
     def test_fractional_composition(self):
         for c in self.comp:
@@ -708,7 +708,7 @@ class ChemicalPotentialTest(unittest.TestCase):
         self.assertRaises(ValueError, fepot.get_energy, feo2)
 
         # test multiplication
-        self.assertEqual(pots.__mul__(pots), NotImplemented)
+        self.assertRaises(TypeError, lambda: pots * pots)
         self.assertDictEqual(pots * 2, potsx2)
         self.assertDictEqual(2 * pots, potsx2)
 

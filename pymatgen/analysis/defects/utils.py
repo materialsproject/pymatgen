@@ -28,6 +28,7 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -267,12 +268,12 @@ class StructureMotifInterstitial:
         self.cn_motif_lostop = {}
         self.target_cns = []
         for motif in self._motif_types:
-            if motif not in list(motif_cn_op.keys()):
+            if motif not in list(motif_cn_op):
                 raise RuntimeError(f"unsupported motif type: {motif}.")
             cn = int(motif_cn_op[motif]["cn"])
             if cn not in self.target_cns:
                 self.target_cns.append(cn)
-            if cn not in list(self.cn_motif_lostop.keys()):
+            if cn not in list(self.cn_motif_lostop):
                 self.cn_motif_lostop[cn] = {}
             tmp_optype = motif_cn_op[motif]["optype"]
             if tmp_optype == "tet_max":
@@ -344,7 +345,7 @@ class StructureMotifInterstitial:
                                     elem = site.specie.symbol
                                 else:
                                     elem = site.specie.element.symbol
-                                if elem in list(cns.keys()):
+                                if elem in list(cns):
                                     cns[elem] = cns[elem] + 1
                                 else:
                                     cns[elem] = 1
@@ -442,8 +443,8 @@ class StructureMotifInterstitial:
 
         if verbose:
             print(
-                "Initial trial sites: {}\nAfter clustering: {}\n"
-                "After symmetry pruning: {}".format(len(trialsites), len(include), len(include) - len(discard))
+                f"Initial trial sites: {len(trialsites),}\nAfter clustering: {len(include),}\n"
+                f"After symmetry pruning: {len(include) - len(discard)}"
             )
         for i in include:
             if i not in discard:
@@ -618,7 +619,7 @@ class TopographyAnalyzer:
         # mapping all sites to the standard unit cell
         s = structure.copy()
         constrained_sites = []
-        for i, site in enumerate(s):
+        for site in s:
             if (
                 site.frac_coords[2] >= constrained_c_frac - thickness
                 and site.frac_coords[2] <= constrained_c_frac + thickness
@@ -631,7 +632,7 @@ class TopographyAnalyzer:
         framework = []
         non_framework = []
         for site in structure:
-            if self.framework_ions.intersection(site.species.keys()):
+            if self.framework_ions.intersection(site.species):
                 framework.append(site)
             else:
                 non_framework.append(site)
@@ -691,9 +692,7 @@ class TopographyAnalyzer:
 
         # Eliminate all voronoi nodes which are closest to existing cations.
         if len(cations) > 0:
-            cation_coords = [
-                site.frac_coords for site in non_framework if self.cations.intersection(site.species.keys())
-            ]
+            cation_coords = [site.frac_coords for site in non_framework if self.cations.intersection(site.species)]
 
             vertex_fcoords = [v.frac_coords for v in vnodes]
             dist_matrix = lattice.get_all_distances(cation_coords, vertex_fcoords)
@@ -874,7 +873,7 @@ class VoronoiPolyhedron:
     Convenience container for a voronoi point in PBC and its associated polyhedron.
     """
 
-    def __init__(self, lattice, frac_coords, polyhedron_indices, all_coords, name=None):
+    def __init__(self, lattice: Lattice, frac_coords, polyhedron_indices, all_coords, name=None):
         """
         :param lattice:
         :param frac_coords:
@@ -1385,10 +1384,10 @@ def generic_groupby(list_in, comp=operator.eq):
         list_out[i1] = label_num
         for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:
             if comp(list_in[i1], list_in[i2]):
-                if list_out[i2] is None:
+                if ls2 is None:
                     list_out[i2] = list_out[i1]
                 else:
-                    list_out[i1] = list_out[i2]
+                    list_out[i1] = ls2
                     label_num -= 1
         label_num += 1
     return list_out
@@ -1441,7 +1440,7 @@ def tune_for_gamma(lattice, epsilon):
     number of reciprocal and real lattice vectors,
     given the suggested cut off radii by Kumagai and Oba
     """
-    logger.debug("Converging for ewald parameter...")
+    logger.debug("Converging for Ewald parameter...")
     prec = 25  # a reasonable precision to tune gamma for
 
     gamma = (2 * np.average(lattice.abc)) ** (-1 / 2.0)
@@ -1450,8 +1449,7 @@ def tune_for_gamma(lattice, epsilon):
     real_set = real_set[0]
 
     logger.debug(
-        "First approach with gamma ={}\nProduced {} real vecs and {} recip "
-        "vecs.".format(gamma, len(real_set), len(recip_set))
+        f"First approach with gamma ={gamma}\nProduced {len(real_set)} real vecs and {len(recip_set)} recip vecs."
     )
 
     while float(len(real_set)) / len(recip_set) > 1.05 or float(len(recip_set)) / len(real_set) > 1.05:

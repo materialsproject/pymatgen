@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.symmetry.groups module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.symmetry.groups module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,37 +115,37 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.symmetry.groups">
-<span id="pymatgen-symmetry-groups-module"></span><h1>pymatgen.symmetry.groups module<a class="headerlink" href="#module-pymatgen.symmetry.groups" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-symmetry-groups-module"></span><h1>pymatgen.symmetry.groups module<a class="headerlink" href="#module-pymatgen.symmetry.groups" title="Permalink to this heading"></a></h1>
 <p>Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
 Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
 SpaceGroup data as published in his textbook “Structure of Materials”.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.PointGroup">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L117-L191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.PointGroup" title="pymatgen.symmetry.groups.PointGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.groups.PointGroup</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L117-L191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.PointGroup" title="pymatgen.symmetry.groups.PointGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointGroup</span></code></a></p>
 <p>Class representing a Point Group, with generators and symmetry operations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.PointGroup.symbol">
-<span class="sig-name descname"><span class="pre">symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Full International or Hermann-Mauguin Symbol.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.PointGroup.generators">
-<span class="sig-name descname"><span class="pre">generators</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.generators" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generators</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.generators" title="Permalink to this definition"></a></dt>
 <dd><p>List of generator matrices. Note that 3x3 matrices are used for Point
 Groups.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.PointGroup.symmetry_ops">
-<span class="sig-name descname"><span class="pre">symmetry_ops</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symmetry_ops" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symmetry_ops</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symmetry_ops" title="Permalink to this definition"></a></dt>
 <dd><p>Full set of symmetry operations as matrices.</p>
 </dd></dl>
 
 <p>Initializes a Point Group from its international symbol.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>int_symbol</strong> (<em>str</em>) – International or Hermann-Mauguin Symbol.</p>
 </dd>
 </dl>
@@ -152,38 +153,38 @@ Groups.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SpaceGroup">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpaceGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L194-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.SpaceGroup" title="pymatgen.symmetry.groups.SpaceGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.groups.SpaceGroup</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpaceGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L194-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.SpaceGroup" title="pymatgen.symmetry.groups.SpaceGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceGroup</span></code></a></p>
 <p>Class representing a SpaceGroup.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SpaceGroup.symbol">
-<span class="sig-name descname"><span class="pre">symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Full International or Hermann-Mauguin Symbol.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SpaceGroup.int_number">
-<span class="sig-name descname"><span class="pre">int_number</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.int_number" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">int_number</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.int_number" title="Permalink to this definition"></a></dt>
 <dd><p>International number</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SpaceGroup.generators">
-<span class="sig-name descname"><span class="pre">generators</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.generators" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generators</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.generators" title="Permalink to this definition"></a></dt>
 <dd><p>List of generator matrices. Note that 4x4 matrices are used for Space
 Groups.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SpaceGroup.order">
-<span class="sig-name descname"><span class="pre">order</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.order" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">order</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.order" title="Permalink to this definition"></a></dt>
 <dd><p>Order of Space Group</p>
 </dd></dl>
 
 <p>Initializes a Space Group from its full or abbreviated international
 symbol. Only standard settings are supported.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>int_symbol</strong> (<em>str</em>) – Full International (e.g., “P2/m2/m2/m”) or
 Hermann-Mauguin Symbol (“Pmmm”) or abbreviated symbol. The
 notation is a LaTeX-like string, with screw axes being
@@ -200,18 +201,18 @@ translation vector, e.g., ‘Fm-3m(a-1/4,b-1/4,c-1/4)’.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SymmetryGroup">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SymmetryGroup</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L43-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code>, <a class="reference internal" href="pymatgen.util.string.html#pymatgen.util.string.Stringify" title="pymatgen.util.string.Stringify"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.util.string.Stringify</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SymmetryGroup</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L43-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>, <a class="reference internal" href="pymatgen.util.string.html#pymatgen.util.string.Stringify" title="pymatgen.util.string.Stringify"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stringify</span></code></a></p>
 <p>Abstract class representing a symmetry group.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SymmetryGroup.is_subgroup">
-<span class="sig-name descname"><span class="pre">is_subgroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supergroup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><span class="pre">pymatgen.symmetry.groups.SymmetryGroup</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L82-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_subgroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supergroup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><span class="pre">SymmetryGroup</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L82-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup" title="Permalink to this definition"></a></dt>
 <dd><p>True if this group is a subgroup of the supplied group.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>supergroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Supergroup to test.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if this group is a subgroup of the supplied group.</p>
 </dd>
 </dl>
@@ -219,13 +220,13 @@ translation vector, e.g., ‘Fm-3m(a-1/4,b-1/4,c-1/4)’.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SymmetryGroup.is_supergroup">
-<span class="sig-name descname"><span class="pre">is_supergroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgroup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><span class="pre">pymatgen.symmetry.groups.SymmetryGroup</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L95-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_supergroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgroup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><span class="pre">SymmetryGroup</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L95-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup" title="Permalink to this definition"></a></dt>
 <dd><p>True if this group is a supergroup of the supplied group.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>subgroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Subgroup to test.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if this group is a supergroup of the supplied group.</p>
 </dd>
 </dl>
@@ -233,16 +234,16 @@ translation vector, e.g., ‘Fm-3m(a-1/4,b-1/4,c-1/4)’.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetry_ops</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><span class="pre">SymmOp</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetry_ops</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><span class="pre">SymmOp</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/groups.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 List of symmetry operations associated with the group.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.SymmetryGroup.to_latex_string">
-<span class="sig-name descname"><span class="pre">to_latex_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L108-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.to_latex_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_latex_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L108-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.to_latex_string" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A latex formatted group symbol with proper subscripts and overlines.</p>
 </dd>
 </dl>
@@ -252,12 +253,12 @@ List of symmetry operations associated with the group.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.in_array_list">
-<span class="sig-name descname"><span class="pre">in_array_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ArrayLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L582-L602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.in_array_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">in_array_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ArrayLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L582-L602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.in_array_list" title="Permalink to this definition"></a></dt>
 <dd><p>Extremely efficient nd-array comparison using numpy’s broadcasting. This
 function checks if a particular array a, is present in a list of arrays.
 It works for arrays of any size, e.g., even matrix searches.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>array_list</strong> (<em>[</em><em>array</em><em>]</em>) – A list of arrays to compare to.</p></li>
 <li><p><strong>a</strong> (<em>array</em>) – The test array for comparison.</p></li>
@@ -265,7 +266,7 @@ It works for arrays of any size, e.g., even matrix searches.</p>
 done.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
@@ -273,17 +274,17 @@ done.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.symmetry.groups.sg_symbol_from_int_number">
-<span class="sig-name descname"><span class="pre">sg_symbol_from_int_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hexagonal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/groups.py#L553-L579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sg_symbol_from_int_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hexagonal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/groups.py#L553-L579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition"></a></dt>
 <dd><p>Obtains a SpaceGroup name from its international number.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>int_number</strong> (<em>int</em>) – International number.</p></li>
 <li><p><strong>hexagonal</strong> (<em>bool</em>) – For rhombohedral groups, whether to return the
 hexagonal setting (default) or rhombohedral setting.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(str) Spacegroup symbol</p>
 </dd>
 </dl>

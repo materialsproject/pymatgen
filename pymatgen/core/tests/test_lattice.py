@@ -36,6 +36,16 @@ class LatticeTestCase(PymatgenTest):
         for name in family_names:
             self.families[name] = getattr(self, name)
 
+    def test_equal(self):
+        self.assertEqual(self.cubic, self.cubic)
+        self.assertEqual(self.cubic, self.lattice)
+        for name1, latt1 in self.families.items():
+            for name2, latt2 in self.families.items():
+                self.assertEqual(name1 == name2, latt1 == latt2)
+
+        # ensure partial periodic boundaries is unequal to all full periodic boundaries
+        self.assertFalse(any(self.cubic_partial_pbc == x for x in self.families.values()))
+
     def test_format(self):
         self.assertEqual(
             "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
@@ -349,7 +359,7 @@ class LatticeTestCase(PymatgenTest):
 
     def test_scale(self):
         new_volume = 10
-        for (family_name, lattice) in self.families.items():
+        for lattice in self.families.values():
             new_lattice = lattice.scale(new_volume)
             self.assertAlmostEqual(new_lattice.volume, new_volume)
             self.assertArrayAlmostEqual(new_lattice.angles, lattice.angles)
@@ -363,7 +373,7 @@ class LatticeTestCase(PymatgenTest):
     def test_dot_and_norm(self):
         frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
-        for family_name, lattice in self.families.items():
+        for lattice in self.families.values():
             # print(family_name)
             self.assertArrayAlmostEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
             self.assertArrayAlmostEqual(lattice.norm(frac_basis), lattice.abc, 5)
@@ -473,7 +483,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertArrayAlmostEqual(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
-        for count in range(10):
+        for _ in range(10):
             lengths = [np.random.randint(1, 100) for i in range(3)]
             lattice = [np.random.rand(3) * lengths[i] for i in range(3)]
             lattice = Lattice(np.array(lattice))
@@ -583,7 +593,8 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(len(nns[0]), 4)
 
     def test_selling_dist(self):
-        # verification process described here: https://github.com/materialsproject/pymatgen/pull/1888#issuecomment-818072164
+        # verification process described here
+        # https://github.com/materialsproject/pymatgen/pull/1888#issuecomment-818072164
         np.testing.assert_(Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0)
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)

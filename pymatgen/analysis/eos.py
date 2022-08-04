@@ -8,6 +8,8 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
 """
 
+from __future__ import annotations
+
 import logging
 import warnings
 from abc import ABCMeta, abstractmethod
@@ -597,7 +599,7 @@ class EOS:
         if eos_name not in self.MODELS:
             raise EOSError(
                 f"The equation of state '{eos_name}' is not supported. "
-                f"Please choose one from the following list: {list(self.MODELS.keys())}"
+                f"Please choose one from the following list: {list(self.MODELS)}"
             )
         self._eos_name = eos_name
         self.model = self.MODELS[eos_name]

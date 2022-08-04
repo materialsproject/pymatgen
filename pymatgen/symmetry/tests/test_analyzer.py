@@ -177,7 +177,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         ss = SymmetrizedStructure.from_dict(d)
         self.assertEqual(ss.wyckoff_symbols[0], "16h")
-        self.assertIn("SymmetrizedStructure", ss.__str__())
+        self.assertIn("SymmetrizedStructure", str(ss))
 
     def test_find_primitive(self):
         """
@@ -214,6 +214,16 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(grid[1][0][1], 0.0)
         self.assertAlmostEqual(grid[1][0][2], 0.0)
         self.assertAlmostEqual(grid[1][1], 2)
+
+    def test_get_ir_reciprocal_mesh_map(self):
+        mesh = (6, 6, 6)
+        grid = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
+        full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
+        self.assertEqual(len(np.unique(mapping)), len(grid))
+        for _, i in enumerate(np.unique(mapping)):
+            self.assertAlmostEqual(full_grid[i][0], grid[_][0][0])
+            self.assertAlmostEqual(full_grid[i][1], grid[_][0][1])
+            self.assertAlmostEqual(full_grid[i][2], grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>Installation &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -118,14 +119,14 @@
            <div itemprop="articleBody">
              
   <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h2>
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
 <p>All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on <a class="reference external" href="http://pypi.python.org">PyPI</a>.</p>
 <section id="optional-dependencies">
-<h3>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline"></a></h3>
+<h3>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this heading"></a></h3>
 <p>Optional libraries that are required if you need certain features.</p>
 <ol class="arabic simple">
 <li><p>sympy: For defect generation and analysis.</p></li>
@@ -146,7 +147,7 @@ of electron charge densities, pygraphviz is also required for visualization.</p>
 </ol>
 </section>
 <section id="optional-non-python-programs">
-<h3>Optional non-Python programs<a class="headerlink" href="#optional-non-python-programs" title="Permalink to this headline"></a></h3>
+<h3>Optional non-Python programs<a class="headerlink" href="#optional-non-python-programs" title="Permalink to this heading"></a></h3>
 <p>Optional non-python libraries (because no good python alternative exists at
 the moment) required only for certain features:</p>
 <ol class="arabic simple">
@@ -183,14 +184,14 @@ using critic2.</p></li>
 </section>
 </section>
 <section id="conda-based-install">
-<h2>Conda-based install<a class="headerlink" href="#conda-based-install" title="Permalink to this headline"></a></h2>
+<h2>Conda-based install<a class="headerlink" href="#conda-based-install" title="Permalink to this heading"></a></h2>
 <p>For these instructions, we will assume the <strong>64-bit</strong> versions of all OSes.
-For OSX and Linux, both latest Python 3.x adn 2.7 are supported. For Windows,
+For OSX and Linux, both latest Python 3.x and 2.7 are supported. For Windows,
 only latest Python 3.x is supported. Most common functionality should work
 out of the box on Windows, but some specialized analyses relying on external
 programs may require you to compile those programs from source.</p>
 <section id="step-1-install-conda">
-<h3>Step 1: Install conda<a class="headerlink" href="#step-1-install-conda" title="Permalink to this headline"></a></h3>
+<h3>Step 1: Install conda<a class="headerlink" href="#step-1-install-conda" title="Permalink to this heading"></a></h3>
 <p>Download and install the version of conda for your operating system from
 <a class="reference external" href="http://conda.pydata.org/miniconda.html">http://conda.pydata.org/miniconda.html</a>. For Windows, <strong>make sure it is the
 Miniconda3 installer</strong>, and simply double-click the exe file. For Linux or Mac,
@@ -206,7 +207,7 @@ run:</p>
 the environmental variables added by conda to be loaded.</p>
 </section>
 <section id="step-2b-optional-create-a-conda-environment">
-<h3>Step 2b: (Optional) Create a conda environment<a class="headerlink" href="#step-2b-optional-create-a-conda-environment" title="Permalink to this headline"></a></h3>
+<h3>Step 2b: (Optional) Create a conda environment<a class="headerlink" href="#step-2b-optional-create-a-conda-environment" title="Permalink to this heading"></a></h3>
 <p>If you are working with many python packages, it is generally recommended you
 create a separate environment for each of your packages. For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">my_pymatgen</span> <span class="n">python</span>
@@ -216,7 +217,7 @@ create a separate environment for each of your packages. For example:</p>
 </div>
 </section>
 <section id="step-3-install-pymatgen">
-<h3>Step 3: Install pymatgen<a class="headerlink" href="#step-3-install-pymatgen" title="Permalink to this headline"></a></h3>
+<h3>Step 3: Install pymatgen<a class="headerlink" href="#step-3-install-pymatgen" title="Permalink to this heading"></a></h3>
 <p>You can install pymatgen via conda as well via the conda-forge channel on
 Anaconda cloud:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pymatgen</span>
@@ -230,7 +231,7 @@ then do pip install:</p>
 </div>
 </section>
 <section id="step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">
-<h3>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this headline"></a></h3>
+<h3>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this heading"></a></h3>
 <p>If you would like to use the enumeration capabilities powered by Gus Hart’s
 enumlib or perform Bader charge analysis powered by the Bader analysis code
 of the Henkelmann group, please try installing these from source using the pmg
@@ -244,7 +245,7 @@ these from the official repos and follow the compile instructions.</p>
 </section>
 </section>
 <section id="potcar-setup">
-<h2>POTCAR Setup<a class="headerlink" href="#potcar-setup" title="Permalink to this headline"></a></h2>
+<h2>POTCAR Setup<a class="headerlink" href="#potcar-setup" title="Permalink to this heading"></a></h2>
 <p>For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are. We are not allowed to distribute these under the
 VASP license. The good news is that the <cite>pmg</cite> command line utility includes a
@@ -305,7 +306,7 @@ default in pymatgen, e.g., LDA_52, PW91, etc. Type:</p>
 <p class="admonition-title">Note</p>
 <p>The Materials Project currently uses older versions of the VASP pseudopotentials
 for maximum compatibility with historical data, rather than the current 52/54
-pseudopotentials. This setting can be overriden by the user if desired.
+pseudopotentials. This setting can be overridden by the user if desired.
 As such, current versions of pymatgen will check the hashes of your pseudopotentials
 when constructing input sets to ensure the correct, compatible pseudopotential sets are
 used, so that total energies can be compared to those in the Materials Project database.
@@ -315,7 +316,7 @@ on this, please consult the Materials Project documentation.</p>
 </div>
 </section>
 <section id="pypy-support">
-<h2>PyPy Support<a class="headerlink" href="#pypy-support" title="Permalink to this headline"></a></h2>
+<h2>PyPy Support<a class="headerlink" href="#pypy-support" title="Permalink to this heading"></a></h2>
 <p><a class="reference external" href="https://www.pypy.org">PyPy</a> is an alternative Python interpreter for running Python code
 and comes with significant speed improvements for common applications. However, historically,
 fewer packages offer PyPy support.</p>
@@ -330,17 +331,17 @@ is to remove the matplotlib dependency, however this means any modules using mat
 will not be importable. The easiest way to install dependencies is using the
 <a class="reference external" href="https://conda-forge.org/blog/2020/03/10/pypy">PyPy builds on conda-forge</a>. For spglib,
 cloning the repository and running <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code> manually is advised.</p></li>
-<li><p>Performance improvements are unpredictible. Since pymatgen makes heavy use of numpy
+<li><p>Performance improvements are unpredictable. Since pymatgen makes heavy use of numpy
 and custom extensions where appropriate, many code hot spots have already been optimized.</p></li>
 </ul>
 <p>We welcome any developers interested in expanding our PyPy support.</p>
 </section>
 <section id="setup-for-developers-using-github">
-<h2>Setup for Developers (using GitHub)<a class="headerlink" href="#setup-for-developers-using-github" title="Permalink to this headline"></a></h2>
+<h2>Setup for Developers (using GitHub)<a class="headerlink" href="#setup-for-developers-using-github" title="Permalink to this heading"></a></h2>
 <section id="step-1-preparing-your-system">
-<h3>Step 1: Preparing your system<a class="headerlink" href="#step-1-preparing-your-system" title="Permalink to this headline"></a></h3>
+<h3>Step 1: Preparing your system<a class="headerlink" href="#step-1-preparing-your-system" title="Permalink to this heading"></a></h3>
 <section id="windows">
-<h4>Windows<a class="headerlink" href="#windows" title="Permalink to this headline"></a></h4>
+<h4>Windows<a class="headerlink" href="#windows" title="Permalink to this heading"></a></h4>
 <ol class="arabic simple">
 <li><p>Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.</p></li>
 <li><p>Install Visual Studio 2015, but <em>make sure that you select More Options -&gt;
@@ -349,7 +350,7 @@ default, Visual Studio does not install Visual C++, which is needed.</p></li>
 </ol>
 </section>
 <section id="mac-osx">
-<h4>Mac OSX<a class="headerlink" href="#mac-osx" title="Permalink to this headline"></a></h4>
+<h4>Mac OSX<a class="headerlink" href="#mac-osx" title="Permalink to this heading"></a></h4>
 <ol class="arabic">
 <li><p>Download and install Xcode. Afterwards, install the XCode command line
 tools by typing the following in a terminal:</p>
@@ -362,7 +363,7 @@ tools by typing the following in a terminal:</p>
 </ol>
 </section>
 <section id="linux">
-<h4>Linux<a class="headerlink" href="#linux" title="Permalink to this headline"></a></h4>
+<h4>Linux<a class="headerlink" href="#linux" title="Permalink to this heading"></a></h4>
 <ol class="arabic simple">
 <li><p>Usually no preparation is needed as most of the standard compilers should
 already be available.</p></li>
@@ -370,7 +371,7 @@ already be available.</p></li>
 </section>
 </section>
 <section id="step-2-install-pymatgen-in-developmental-mode">
-<h3>Step 2: Install pymatgen in developmental mode<a class="headerlink" href="#step-2-install-pymatgen-in-developmental-mode" title="Permalink to this headline"></a></h3>
+<h3>Step 2: Install pymatgen in developmental mode<a class="headerlink" href="#step-2-install-pymatgen-in-developmental-mode" title="Permalink to this heading"></a></h3>
 <ol class="arabic">
 <li><p>Make sure you have git and <a class="reference external" href="https://git-lfs.github.com/">git-lfs</a> installed.
 Clone the repo at <a class="reference external" href="https://github.com/materialsproject/pymatgen">https://github.com/materialsproject/pymatgen</a>.</p></li>
@@ -391,7 +392,7 @@ you start coding. It will make integration much easier.</p>
 </section>
 </section>
 <section id="installation-tips-for-optional-libraries">
-<h2>Installation tips for optional libraries<a class="headerlink" href="#installation-tips-for-optional-libraries" title="Permalink to this headline"></a></h2>
+<h2>Installation tips for optional libraries<a class="headerlink" href="#installation-tips-for-optional-libraries" title="Permalink to this heading"></a></h2>
 <p>This section provides a guide for installing various optional libraries used in
 pymatgen. Some of the python libraries are rather tricky to build in certain
 operating systems, especially for users unfamiliar with building C/C++ code.
@@ -399,7 +400,7 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.</p>
 <section id="vtk-on-mac-os-x-tested-on-v7-0">
-<h3>VTK on Mac OS X (tested on v7.0)<a class="headerlink" href="#vtk-on-mac-os-x-tested-on-v7-0" title="Permalink to this headline"></a></h3>
+<h3>VTK on Mac OS X (tested on v7.0)<a class="headerlink" href="#vtk-on-mac-os-x-tested-on-v7-0" title="Permalink to this heading"></a></h3>
 <p>The easiest is to install cmake from
 <a class="reference external" href="http://cmake.org/cmake/resources/software.html">http://cmake.org/cmake/resources/software.html</a>.</p>
 <p>Type the following:</p>
@@ -439,7 +440,7 @@ installed. You can test this by going into a python terminal and trying:</p>
 </div>
 </section>
 <section id="openbabel-mac-os-x-tested-on-v2-3-2">
-<h3>OpenBabel Mac OS X (tested on v2.3.2)<a class="headerlink" href="#openbabel-mac-os-x-tested-on-v2-3-2" title="Permalink to this headline"></a></h3>
+<h3>OpenBabel Mac OS X (tested on v2.3.2)<a class="headerlink" href="#openbabel-mac-os-x-tested-on-v2-3-2" title="Permalink to this heading"></a></h3>
 <p><strong>Anaconda install</strong></p>
 <p>If you are using anaconda (and have pymatgen installed in your anaconda environment), you should be
 able to install openbabel with a single command:</p>
@@ -528,7 +529,7 @@ you may need to add the following into your .bash_profile:</p>
 </ol>
 </section>
 <section id="zeo">
-<h3>Zeo++<a class="headerlink" href="#zeo" title="Permalink to this headline"></a></h3>
+<h3>Zeo++<a class="headerlink" href="#zeo" title="Permalink to this heading"></a></h3>
 <p>If you use the defects analysis package, you will need to install Zeo++.</p>
 <p>The download and installation instructions for Zeo++ can be found here: <a class="reference external" href="http://www.zeoplusplus.org/">http://www.zeoplusplus.org/</a></p>
 </section>

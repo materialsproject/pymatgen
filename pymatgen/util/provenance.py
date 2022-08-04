@@ -263,12 +263,11 @@ class StructureNL:
                 f"bytes (you have {sys.getsizeof(data)})"
             )
 
-        for k, v in self.data.items():
+        for k in self.data:
             if not k.startswith("_"):
                 raise ValueError(
-                    "data must contain properly namespaced data "
-                    "with keys starting with an underscore. The "
-                    f"key {k} does not start with an underscore."
+                    "data must contain properly namespaced data with keys starting with an underscore. "
+                    f"The key {k} does not start with an underscore."
                 )
 
         # check for valid history nodes
@@ -399,22 +398,6 @@ class StructureNL:
             ]
         )
 
-    def __eq__(self, other):
-        return all(
-            map(
-                lambda n: getattr(self, n) == getattr(other, n),
-                (
-                    "structure",
-                    "authors",
-                    "projects",
-                    "references",
-                    "remarks",
-                    "data",
-                    "history",
-                    "created_at",
-                ),
-            )
-        )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)

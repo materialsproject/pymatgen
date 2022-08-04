@@ -279,7 +279,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                 to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
                 Cartesian coordinates depending on the coords) to a label.
-            coords_are_cartesian: Whether the qpoint coordinates are cartesian.
+            coords_are_cartesian: Whether the qpoint coordinates are Cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
                 provide projections to the band structure

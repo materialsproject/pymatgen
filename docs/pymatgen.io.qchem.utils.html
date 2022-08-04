@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.qchem.utils module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.io.qchem.utils module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -115,28 +116,28 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.io.qchem.utils">
-<span id="pymatgen-io-qchem-utils-module"></span><h1>pymatgen.io.qchem.utils module<a class="headerlink" href="#module-pymatgen.io.qchem.utils" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-io-qchem-utils-module"></span><h1>pymatgen.io.qchem.utils module<a class="headerlink" href="#module-pymatgen.io.qchem.utils" title="Permalink to this heading"></a></h1>
 <p>Utilities for Qchem io.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.qchem.utils.lower_and_check_unique">
-<span class="sig-name descname"><span class="pre">lower_and_check_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict_to_check</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/utils.py#L112-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lower_and_check_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict_to_check</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/qchem/utils.py#L112-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition"></a></dt>
 <dd><p>Takes a dictionary and makes all the keys lower case. Also replaces
 “jobtype” with “job_type” just so that key specifically can be called
 elsewhere without ambiguity. Finally, ensures that multiple identical
 keys, that differed only due to different capitalizations, are not
 present. If there are multiple equivalent keys, an Exception is raised.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dict_to_check</strong> (<em>dict</em>) – The dictionary to check and standardize</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>An identical dictionary but with all keys made</dt><dd><p>lower case and no identical keys present.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>to_return (dict)</p>
 </dd>
 </dl>
@@ -144,17 +145,17 @@ present. If there are multiple equivalent keys, an Exception is raised.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.qchem.utils.process_parsed_coords">
-<span class="sig-name descname"><span class="pre">process_parsed_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/utils.py#L146-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process_parsed_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/qchem/utils.py#L146-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition"></a></dt>
 <dd><p>Takes a set of parsed coordinates, which come as an array of strings,
 and returns a numpy array of floats.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.qchem.utils.read_pattern">
-<span class="sig-name descname"><span class="pre">read_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_on_match=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocess=&lt;class</span> <span class="pre">'str'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/utils.py#L11-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">read_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_on_match=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocess=&lt;class</span> <span class="pre">'str'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/qchem/utils.py#L11-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition"></a></dt>
 <dd><p>General pattern reading on an input string</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text_str</strong> (<em>str</em>) – the input string to search for patterns</p></li>
 <li><p><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
@@ -178,12 +179,12 @@ are lists of lists, because you can grep multiple items on one line.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.qchem.utils.read_table_pattern">
-<span class="sig-name descname"><span class="pre">read_table_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">footer_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocess=&lt;class</span> <span class="pre">'str'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_one_only=False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/qchem/utils.py#L42-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">read_table_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">footer_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocess=&lt;class</span> <span class="pre">'str'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_one_only=False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/qchem/utils.py#L42-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition"></a></dt>
 <dd><p>Parse table-like data. A table composes of three parts: header,
 main body, footer. All the data matches “row pattern” in the main body
 will be returned.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text_str</strong> (<em>str</em>) – the input string to search for patterns</p></li>
 <li><p><strong>header_pattern</strong> (<em>str</em>) – The regular expression pattern matches the
@@ -208,7 +209,7 @@ enclosing list will be removed. i.e. Only a single table will
 be returned. Default to be True.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of tables. 1) A table is a list of rows. 2) A row if either a list of
 attribute values in case the the capturing group is defined without name in
 row_pattern, or a dict in case that named capturing groups are defined by

@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module provides classes for calculating the ewald sum of a structure.
+This module provides classes for calculating the Ewald sum of a structure.
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ import bisect
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
+from typing import Any
 from warnings import warn
 
 import numpy as np
@@ -42,7 +43,7 @@ class EwaldSummation(MSONable):
     DOI: 10.1016/0010-4655(96)00016-1
     URL: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
 
-    This matrix can be used to do fast calculations of ewald sums after species
+    This matrix can be used to do fast calculations of Ewald sums after species
     removal.
 
     E = E_recip + E_real + E_point
@@ -60,7 +61,7 @@ class EwaldSummation(MSONable):
         recip_space_cut=None,
         eta=None,
         acc_factor=12.0,
-        w=1 / sqrt(2),
+        w=1 / 2**0.5,
         compute_forces=False,
     ):
         """
@@ -130,7 +131,7 @@ class EwaldSummation(MSONable):
 
     def compute_partial_energy(self, removed_indices):
         """
-        Gives total ewald energy for certain sites being removed, i.e. zeroed
+        Gives total Ewald energy for certain sites being removed, i.e. zeroed
         out.
         """
         total_energy_matrix = self.total_energy_matrix.copy()
@@ -141,7 +142,7 @@ class EwaldSummation(MSONable):
 
     def compute_sub_structure(self, sub_structure, tol=1e-3):
         """
-        Gives total ewald energy for an sub structure in the same
+        Gives total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original
         structure, with possible different charges.
 
@@ -307,7 +308,7 @@ class EwaldSummation(MSONable):
 
     def _calc_ewald_terms(self):
         """
-        Calculates and sets all ewald terms (point, real and reciprocal)
+        Calculates and sets all Ewald terms (point, real and reciprocal)
         """
         self._recip, recip_forces = self._calc_recip()
         self._real, self._point, real_point_forces = self._calc_real_and_point()
@@ -471,11 +472,11 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, d: dict[str, Any], fmt: str = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
-            d (Dict): Dictionary representation
+            d (dict): Dictionary representation
             fmt (str, optional): Unused. Defaults to None.
 
         Returns:
@@ -503,7 +504,7 @@ class EwaldSummation(MSONable):
 
 class EwaldMinimizer:
     """
-    This class determines the manipulations that will minimize an ewald matrix,
+    This class determines the manipulations that will minimize an Ewald matrix,
     given a list of possible manipulations. This class does not perform the
     manipulations on a structure, but will return the list of manipulations
     that should be done on one to produce the minimal structure. It returns the
@@ -511,7 +512,7 @@ class EwaldMinimizer:
     to perform fractional species substitution or fractional species removal to
     produce a new structure. These manipulations create large numbers of
     candidate structures, and this class can be used to pick out those with the
-    lowest ewald sum.
+    lowest Ewald sum.
 
     An alternative (possibly more intuitive) interface to this class is the
     order disordered structure transformation.
@@ -533,7 +534,7 @@ class EwaldMinimizer:
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
         """
         Args:
-            matrix: A matrix of the ewald sum interaction energies. This is stored
+            matrix: A matrix of the Ewald sum interaction energies. This is stored
                 in the class as a diagonally symmetric array and so
                 self._matrix will not be the same as the input matrix.
             m_list: list of manipulations. each item is of the form
@@ -583,7 +584,7 @@ class EwaldMinimizer:
     def minimize_matrix(self):
         """
         This method finds and returns the permutations that produce the lowest
-        ewald sum calls recursive function to iterate through permutations
+        Ewald sum calls recursive function to iterate through permutations
         """
         if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
             return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
@@ -677,7 +678,7 @@ class EwaldMinimizer:
 
         return next_index
 
-    def _recurse(self, matrix, m_list, indices, output_m_list=[]):
+    def _recurse(self, matrix, m_list, indices, output_m_list=None):
         """
         This method recursively finds the minimal permutations using a binary
         tree search strategy.
@@ -692,6 +693,9 @@ class EwaldMinimizer:
         # check to see if we've found all the solutions that we need
         if self._finished:
             return
+
+        if output_m_list is None:
+            output_m_list = []
 
         # if we're done with the current manipulation, pop it off.
         while m_list[-1][1] == 0:

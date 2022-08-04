@@ -46,7 +46,7 @@ class ExcitingInput(MSONable):
         booleans.
     """
 
-    def __init__(self, structure, title=None, lockxyz=None):
+    def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
             structure (Structure):  Structure object.

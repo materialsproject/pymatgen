@@ -7,6 +7,8 @@ including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
+from __future__ import annotations
+
 import itertools
 import warnings
 
@@ -18,6 +20,7 @@ from scipy.special import factorial
 
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import (
     DEFAULT_QUAD,
     SquareTensor,
@@ -441,7 +444,9 @@ class ElasticTensor(NthOrderElasticTensor):
         ]
         return {prop: getattr(self, prop) for prop in props}
 
-    def get_structure_property_dict(self, structure, include_base_props=True, ignore_errors=False):
+    def get_structure_property_dict(
+        self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
+    ) -> dict[str, float | Structure | None]:
         """
         returns a dictionary of properties derived from the elastic tensor
         and an associated structure
@@ -464,6 +469,7 @@ class ElasticTensor(NthOrderElasticTensor):
             "cahill_thermalcond",
             "debye_temperature",
         ]
+        sp_dict: dict[str, float | Structure | None]
         if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
             sp_dict = {prop: None for prop in s_props}
         else:
@@ -513,9 +519,9 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
-        if not set(strain_states) <= set(ss_dict.keys()):
+        if not set(strain_states) <= set(ss_dict):
             raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
-        if len(set(ss_dict.keys()) - set(strain_states)) > 0:
+        if len(set(ss_dict) - set(strain_states)) > 0:
             warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
         for i in range(6):
@@ -670,7 +676,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.0
 
-    def get_heat_capacity(self, temperature, structure, n, u, cutoff=1e2):
+    def get_heat_capacity(self, temperature, structure: Structure, n, u, cutoff=1e2):
         """
         Gets the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
@@ -694,7 +700,7 @@ class ElasticTensorExpansion(TensorCollection):
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1) ** 2
         return c * 6.022e23
 
-    def omega(self, structure, n, u):
+    def omega(self, structure: Structure, n, u):
         """
         Finds directional frequency contribution to the heat
         capacity from direction and polarization
@@ -713,7 +719,7 @@ class ElasticTensorExpansion(TensorCollection):
         vel = (1e9 * self[0].einsum_sequence([n, u, n, u]) / (weight / vol)) ** 0.5
         return vel / l0
 
-    def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
+    def thermal_expansion_coeff(self, structure: Structure, temperature, mode="debye"):
         """
         Gets thermal expansion coefficient from third-order constants.
 
@@ -912,7 +918,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
             coef = get_diff_coeff(hvec, i)
             dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
-    m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
+    m, absent = generate_pseudo(list(strain_state_dict), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i + 1)
         svec = np.ravel(dei_dsi[i - 1].T)
@@ -982,7 +988,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
         else:
             veq_stress = find_eq_stress(strains, stresses).voigt
 
-    for n, ind in enumerate(independent):
+    for ind in independent:
         # match strains with templates
         template = np.zeros(6, dtype=bool)
         np.put(template, ind, True)
@@ -1035,7 +1041,7 @@ def generate_pseudo(strain_states, order=3):
         for n, strain_v in enumerate(ni):
             # Get expressions
             exps = carr.copy()
-            for i in range(degree - 1):
+            for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
             exps /= np.math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]

@@ -634,7 +634,7 @@ class QCInput(InputFile):
             "CONNECT": r"^\s*CONNECT",
         }
         opt_matches = read_pattern(string, patterns)
-        opt_sections = list(opt_matches.keys())
+        opt_sections = list(opt_matches)
         opt = {}
         if "CONSTRAINT" in opt_sections:
             c_header = r"^\s*CONSTRAINT\n"

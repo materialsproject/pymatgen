@@ -457,7 +457,7 @@ class Trajectory(MSONable):
             return None
 
         # Find all common keys
-        all_keys = set(attr_1.keys()).union(set(attr_2.keys()))
+        all_keys = set(attr_1).union(set(attr_2))
 
         # Initialize dict with the common keys
         new_frame_props = dict(zip(all_keys, [[] for i in all_keys]))

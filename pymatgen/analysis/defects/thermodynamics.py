@@ -5,6 +5,8 @@
 Defect thermodynamics, such as defect phase diagrams, etc.
 """
 
+from __future__ import annotations
+
 import logging
 from itertools import chain
 
@@ -15,8 +17,7 @@ from monty.json import MSONable
 from scipy.optimize import bisect
 from scipy.spatial import HalfspaceIntersection
 
-from pymatgen.analysis.defects.core import DefectEntry
-from pymatgen.analysis.structure_matcher import PointDefectComparator
+from pymatgen.analysis.defects.core import DefectEntry, PointDefectComparator
 from pymatgen.electronic_structure.dos import FermiDos
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -76,8 +77,8 @@ class DefectPhaseDiagram(MSONable):
         for ent_ind, ent in enumerate(self.entries):
             if "vbm" not in ent.parameters.keys() or ent.parameters["vbm"] != vbm:
                 logger.info(
-                    "Entry {} did not have vbm equal to given DefectPhaseDiagram value."
-                    " Manually overriding.".format(ent.name)
+                    f"Entry {ent.name} did not have vbm equal to given DefectPhaseDiagram value."
+                    " Manually overriding."
                 )
                 new_ent = ent.copy()
                 new_ent.parameters["vbm"] = vbm
@@ -218,9 +219,8 @@ class DefectPhaseDiagram(MSONable):
             # Group the intersections and corresponding facets
             ints_and_facets = zip(hs_ints.intersections, hs_ints.dual_facets)
             # Only include the facets corresponding to entries, not the boundaries
-            total_entries = len(defects)
             ints_and_facets = filter(
-                lambda int_and_facet: all(np.array(int_and_facet[1]) < total_entries),
+                lambda int_and_facet: all(np.array(int_and_facet[1]) < len(defects)),  # noqa: B023
                 ints_and_facets,
             )
             # sort based on transition level
@@ -258,17 +258,10 @@ class DefectPhaseDiagram(MSONable):
 
                     if name_stable_below_vbm != name_stable_above_cbm:
                         raise ValueError(
-                            "HalfSpace identified only one stable charge out of list: {}\n"
-                            "But {} is stable below vbm and {} is "
-                            "stable above cbm.\nList of VBM formation energies: {}\n"
-                            "List of CBM formation energies: {}"
-                            "".format(
-                                name_set,
-                                name_stable_below_vbm,
-                                name_stable_above_cbm,
-                                vb_list,
-                                cb_list,
-                            )
+                            f"HalfSpace identified only one stable charge out of list: {name_set}\n"
+                            f"But {name_stable_below_vbm} is stable below vbm and {name_stable_above_cbm} is "
+                            f"stable above cbm.\nList of VBM formation energies: {vb_list}\n"
+                            f"List of CBM formation energies: {cb_list}"
                         )
                     logger.info(f"{name_stable_below_vbm} is only stable defect out of {name_set}")
                     transition_level_map[track_name] = {}
@@ -283,7 +276,7 @@ class DefectPhaseDiagram(MSONable):
 
         self.transition_level_map = transition_level_map
         self.transition_levels = {
-            defect_name: list(defect_tls.keys()) for defect_name, defect_tls in transition_level_map.items()
+            defect_name: list(defect_tls) for defect_name, defect_tls in transition_level_map.items()
         }
         self.stable_entries = stable_entries
         self.finished_charges = finished_charges
@@ -296,7 +289,7 @@ class DefectPhaseDiagram(MSONable):
         """
         List types of defects existing in the DefectPhaseDiagram
         """
-        return list(self.finished_charges.keys())
+        return list(self.finished_charges)
 
     @property
     def all_stable_entries(self):
@@ -358,17 +351,17 @@ class DefectPhaseDiagram(MSONable):
             )
             test_charges = [charge for charge in test_charges if charge not in self.finished_charges[def_type]]
 
-            if len(self.transition_level_map[def_type].keys()):
+            if len(self.transition_level_map[def_type]):
                 # More positive charges will shift the minimum transition level down
                 # Max charge is limited by this if its transition level is close to VBM
-                min_tl = min(self.transition_level_map[def_type].keys())
+                min_tl = min(self.transition_level_map[def_type])
                 if min_tl < tolerance:
                     max_charge = max(self.transition_level_map[def_type][min_tl])
                     test_charges = [charge for charge in test_charges if charge < max_charge]
 
                 # More negative charges will shift the maximum transition level up
                 # Minimum charge is limited by this if transition level is near CBM
-                max_tl = max(self.transition_level_map[def_type].keys())
+                max_tl = max(self.transition_level_map[def_type])
                 if max_tl > (self.band_gap - tolerance):
                     min_charge = min(self.transition_level_map[def_type][max_tl])
                     test_charges = [charge for charge in test_charges if charge > min_charge]
@@ -528,8 +521,8 @@ class DefectPhaseDiagram(MSONable):
 
             if min_fl_formen < 0.0 and max_fl_formen < 0.0:
                 logger.error(
-                    "Formation energy is negative through entire gap for entry {} q={}."
-                    " Cannot return dopability limits.".format(def_entry.name, def_entry.charge)
+                    f"Formation energy is negative through entire gap for entry {def_entry.name} q={def_entry.charge}."
+                    " Cannot return dopability limits."
                 )
                 return None, None
             if np.sign(min_fl_formen) != np.sign(max_fl_formen):
@@ -589,7 +582,7 @@ class DefectPhaseDiagram(MSONable):
         for defnom, def_tl in self.transition_level_map.items():
             xy[defnom] = [[], []]
             if def_tl:
-                org_x = sorted(def_tl.keys())  # list of transition levels
+                org_x = sorted(def_tl)  # list of transition levels
 
                 # establish lower x-bound
                 first_charge = max(def_tl[org_x[0]])
@@ -645,12 +638,12 @@ class DefectPhaseDiagram(MSONable):
         width = 12
         # plot formation energy lines
         for_legend = []
-        for cnt, defnom in enumerate(xy.keys()):
+        for cnt, defnom in enumerate(xy):
             plt.plot(xy[defnom][0], xy[defnom][1], linewidth=3, color=colors[cnt])
             for_legend.append(self.stable_entries[defnom][0].copy())
 
         # plot transition levels
-        for cnt, defnom in enumerate(xy.keys()):
+        for cnt, defnom in enumerate(xy):
             x_trans, y_trans = [], []
             for x_val, chargeset in self.transition_level_map[defnom].items():
                 x_trans.append(x_val)

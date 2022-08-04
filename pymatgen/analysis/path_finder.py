@@ -9,6 +9,8 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
+from __future__ import annotations
+
 import logging
 import math
 import warnings

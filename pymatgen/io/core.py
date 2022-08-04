@@ -26,11 +26,12 @@ If you want to implement a new InputGenerator, please take note of the following
    ensures the as_dict and from_dict work correctly.
 """
 
+from __future__ import annotations
+
 import abc
 import os
 from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Dict, Union
 from zipfile import ZipFile
 
 from monty.io import zopen
@@ -61,7 +62,7 @@ class InputFile(MSONable):
         Return a string representation of an entire input file.
         """
 
-    def write_file(self, filename: Union[str, Path]) -> None:
+    def write_file(self, filename: str | Path) -> None:
         """
         Write the input file.
 
@@ -87,7 +88,7 @@ class InputFile(MSONable):
         """
 
     @classmethod
-    def from_file(cls, path: Union[str, Path]):
+    def from_file(cls, path: str | Path):
         """
         Creates an InputFile object from a file.
 
@@ -116,7 +117,7 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: Dict[Union[str, Path], Union[str, InputFile]] = {}, **kwargs):
+    def __init__(self, inputs: dict[str | Path, str | InputFile] = None, **kwargs):
         """
         Instantiate an InputSet.
 
@@ -130,7 +131,7 @@ class InputSet(MSONable, MutableMapping):
             **kwargs: Any kwargs passed will be set as class attributes e.g.
                 InputSet(inputs={}, foo='bar') will make InputSet.foo == 'bar'.
         """
-        self.inputs = inputs
+        self.inputs = inputs or {}
         self._kwargs = kwargs
         self.__dict__.update(**kwargs)
 
@@ -141,7 +142,7 @@ class InputSet(MSONable, MutableMapping):
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
 
     def __len__(self):
-        return len(self.inputs.keys())
+        return len(self.inputs)
 
     def __iter__(self):
         return iter(self.inputs)
@@ -160,7 +161,7 @@ class InputSet(MSONable, MutableMapping):
 
     def write_input(
         self,
-        directory: Union[str, Path],
+        directory: str | Path,
         make_dir: bool = True,
         overwrite: bool = True,
         zip_inputs: bool = False,
@@ -199,7 +200,7 @@ class InputSet(MSONable, MutableMapping):
         if zip_inputs:
             zipfilename = path / f"{type(self).__name__}.zip"
             with ZipFile(zipfilename, "w") as zip:
-                for fname, contents in self.inputs.items():
+                for fname in self.inputs:
                     file = path / fname
                     try:
                         zip.write(file)
@@ -208,7 +209,7 @@ class InputSet(MSONable, MutableMapping):
                         pass
 
     @classmethod
-    def from_directory(cls, directory: Union[str, Path]):
+    def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
 

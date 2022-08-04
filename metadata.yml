@@ -11,11 +11,31 @@ developers:
   first_name: Iulia-Oxana
   last_name: Andriuc
   orcid: ''
+- affilations: [Micron Technology Inc.]
+  email: ''
+  first_name: Saurabh
+  last_name: Bajaj
+  orcid: ''
+- affilations: [Hitachi]
+  email: ''
+  first_name: Janakiraman
+  last_name: Balachandran
+  orcid: ''
+- affilations: [Optum]
+  email: ''
+  first_name: Tonnam
+  last_name: Balankura
+  orcid: ''
 - affilations: ['University of California, Berkeley']
   email: ''
   first_name: Luis
   last_name: Barroso-Luque
   orcid: ''
+- affilations: [Tilde Materials Informatics]
+  email: ''
+  first_name: Evgeny
+  last_name: Blokhin
+  orcid: 0000-0002-5333-3947
 - affilations: [The Pennsylvania State University]
   email: ''
   first_name: Brandon
@@ -36,6 +56,11 @@ developers:
   first_name: Nathan
   last_name: C. Frey
   orcid: 0000-0001-5291-6131
+- affilations: [University College London]
+  email: ''
+  first_name: Bruno
+  last_name: Camino
+  orcid: 0000-0002-9569-2219
 - affilations: [Cornell University]
   email: ''
   first_name: Rees
@@ -51,11 +76,26 @@ developers:
   first_name: Xin
   last_name: Chen
   orcid: 0000-0001-9643-0870
+- affilations: ['University of California, San Diego']
+  email: ''
+  first_name: Yiming
+  last_name: Chen
+  orcid: 0000-0002-1501-5550
+- affilations: [Lawrence Berkeley National Laboratory]
+  email: ''
+  first_name: Shreyas
+  last_name: Cholia
+  orcid: 0000-0002-4775-8201
 - affilations: [National Institute of Standards and Technology]
   email: ''
   first_name: Kamal
   last_name: Choudhary
   orcid: 0000-0001-9737-8074
+- affilations: ['UC Berkeley, Lawrence Berkeley National Laboratory']
+  email: ''
+  first_name: Orion
+  last_name: Cohen
+  orcid: ''
 - affilations: [University of Florida]
   email: ''
   first_name: Conrad
@@ -81,12 +121,22 @@ developers:
   first_name: Miguel
   last_name: Dias Costa
   orcid: 0000-0001-8859-5763
+- affilations: [University of Liverpool]
+  email: ''
+  first_name: Robert
+  last_name: Dickson
+  orcid: 0000-0003-3007-808X
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley']
   email: ''
   first_name: Alex
   last_name: Dunn
   orcid: 0000-0002-8567-1879
+- affilations: [LBL]
+  email: ''
+  first_name: Shyam
+  last_name: Dwarknath
+  orcid: 0000-0003-0289-2607
 - affilations: [Northwestern University]
   email: ''
   first_name: Maxwell
@@ -97,17 +147,44 @@ developers:
   first_name: Mark
   last_name: E. Turiansky
   orcid: 0000-0002-9154-3582
+- affilations: [Swiss Federal Laboratories for Materials Science and Technology]
+  email: ''
+  first_name: Kristjan
+  last_name: Eimre
+  orcid: 0000-0002-3444-3286
+- affilations: ['University of California, Berkeley', ' Lawrence Berkeley National
+      Laboratory']
+  email: ''
+  first_name: Alex
+  last_name: Epstein
+  orcid: 0000-0002-9914-2388
+- affilations: [UCLouvain]
+  email: ''
+  first_name: Matthew
+  last_name: Evans
+  orcid: 0000-0002-1182-9098
+- affilations: ["CERMICS, Inria Paris and \xC9cole des Ponts ParisTech"]
+  email: ''
+  first_name: Michael
+  last_name: F. Herbst
+  orcid: 0000-0003-0378-7921
 - affilations: ["Universit\xE9 catholique de Louvain"]
   email: ''
   first_name: Adam
   last_name: Fekete
   orcid: ''
+- affilations: [Northwestern University]
+  email: ''
+  first_name: Dale
+  last_name: Gaines II
+  orcid: 0000-0001-9280-1240
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Alex
   last_name: Ganose
   orcid: 0000-0002-4486-3321
-- affilations: ["Universit\xE9 catholique de Louvain"]
+- affilations: ["Federal Institute for Materials Research and Testing (BAM), Berlin,
+      Germany. Friedrich-Schiller-Universit\xE4t Jena, Germany."]
   email: ''
   first_name: Janine
   last_name: George
@@ -137,6 +214,11 @@ developers:
   first_name: Dan
   last_name: Gunter
   orcid: 0000-0002-2779-2744
+- affilations: ['University of California, Berkeley']
+  email: ''
+  first_name: Ayush
+  last_name: Gupta
+  orcid: ''
 - affilations: [University of Texas at Austin]
   email: ''
   first_name: Viet-Anh
@@ -152,6 +234,11 @@ developers:
   first_name: Geoffroy
   last_name: Hautier
   orcid: 0000-0003-1754-2220
+- affilations: [Max Planck Institute for Solid State Research]
+  email: ''
+  first_name: Niclas
+  last_name: Heinsdorf
+  orcid: ''
 - affilations: [West Virginia University]
   email: ''
   first_name: Uthpala
@@ -177,16 +264,32 @@ developers:
   first_name: Tingzheng
   last_name: Hou
   orcid: 0000-0002-7163-2561
+- affilations: ['University of California, Berkeley']
+  email: ''
+  first_name: Yu
+  last_name: Hsuan Liang
+  orcid: ''
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Patrick
   last_name: Huck
   orcid: ''
+- affilations: [University of Notre Dame]
+  email: ''
+  first_name: Michael
+  last_name: Humbert
+  orcid: 0000-0003-1966-6382
 - affilations: [Toyota Research Institute]
   email: ''
   first_name: Linda
   last_name: Hung
   orcid: 0000-0002-1578-6152
+- affilations: ['Scientific Computing Department, Science and Technology Facilities
+      Council, UK']
+  email: ''
+  first_name: Adam
+  last_name: J. Jackson
+  orcid: 0000-0001-5272-6530
 - affilations: [University of Bath]
   email: ''
   first_name: Benjamin
@@ -202,10 +305,40 @@ developers:
   first_name: Anubhav
   last_name: Jain
   orcid: 0000-0001-5893-9967
+- affilations: [SUNY Stony Brook]
+  email: ''
+  first_name: Jonathan
+  last_name: James Denney
+  orcid: 0000-0002-7615-997X
+- affilations: [Los Alamos National Laboratory]
+  email: ''
+  first_name: Jan
+  last_name: Janssen
+  orcid: 0000-0001-9948-7119
+- affilations: ["Max-Planck-Institut f\xFCr Eisenforschung GmbH"]
+  email: ''
+  first_name: Jan
+  last_name: 'Janssen '
+  orcid: 0000-0001-9948-7119
+- affilations: [RWTH Aachen, " Forschungszentrum J\xFClich"]
+  email: ''
+  first_name: Henning
+  last_name: "Jan\xDFen"
+  orcid: 0000-0003-3558-9487
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Benjamin
   last_name: Justus
+  orcid: ''
+- affilations: [RIKEN]
+  email: ''
+  first_name: Eisuke
+  last_name: Kawashima
+  orcid: ''
+- affilations: [NIOSH]
+  email: ''
+  first_name: Alan
+  last_name: Kent Dozier
   orcid: ''
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
@@ -222,6 +355,11 @@ developers:
   first_name: Michael
   last_name: Kocher
   orcid: ''
+- affilations: ['Institute of Metal Physics, UB RAS']
+  email: ''
+  first_name: Dmitry
+  last_name: Korotin
+  orcid: 0000-0002-4070-2045
 - affilations: [Tokyo Institute of Technology]
   email: ''
   first_name: Yu
@@ -247,6 +385,11 @@ developers:
   first_name: Xiangguo
   last_name: Li
   orcid: 0000-0002-2062-3809
+- affilations: [TSMC]
+  email: ''
+  first_name: Yuh-Chieh
+  last_name: Lin
+  orcid: ''
 - affilations: ['University of California, Berkeley']
   email: ''
   first_name: Handong
@@ -258,6 +401,11 @@ developers:
   first_name: Ke
   last_name: Liu
   orcid: 0000-0003-3604-1026
+- affilations: [California Institute of Technology]
+  email: ''
+  first_name: Zachary
+  last_name: M Gibbs
+  orcid: ''
 - affilations: [Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Samuel
@@ -278,6 +426,11 @@ developers:
   first_name: Kiran
   last_name: Mathew
   orcid: ''
+- affilations: [University of Wisconsin-Madison]
+  email: ''
+  first_name: Tam
+  last_name: Mayeshiba
+  orcid: 0000-0003-3445-7925
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley']
   email: ''
@@ -289,6 +442,16 @@ developers:
   first_name: Bharat
   last_name: Medasani
   orcid: 0000-0002-2073-4162
+- affilations: [Brookhaven National Laboratory]
+  email: ''
+  first_name: Fanchen
+  last_name: Meng
+  orcid: ''
+- affilations: [Brookhaven National Laboratory]
+  email: ''
+  first_name: Fanchen
+  last_name: Meng
+  orcid: ''
 - affilations: [Vilnius University Institute of Biotechnology]
   email: ''
   first_name: Andrius
@@ -300,6 +463,11 @@ developers:
   last_name: Miranda
   orcid: 0000-0002-2843-0876
 - affilations: [University of Tokyo]
+  email: ''
+  first_name: Shishin
+  last_name: Mo
+  orcid: ''
+- affilations: [The University of Tokyo]
   email: ''
   first_name: Shishin
   last_name: Mo
@@ -325,11 +493,27 @@ developers:
   first_name: Koki
   last_name: Muraoka
   orcid: 0000-0003-1830-7978
+- affilations: [Cornell University]
+  email: ''
+  first_name: Hillary
+  last_name: Pan
+  orcid: 0000-0002-4073-2180
+- affilations: [University of Cagliari]
+  email: ''
+  first_name: Drew
+  last_name: Parsons
+  orcid: 0000-0002-3956-6031
 - affilations: [Stanford University]
   email: ''
   first_name: Anjli
   last_name: Patel
   orcid: 0000-0002-0590-7619
+- affilations: ['Frontier Institute of Science and Technology, Xi''an Jiaotong University',
+    ' Massachusetts Institute of Technology']
+  email: ''
+  first_name: Kai
+  last_name: Pei
+  orcid: 0000-0001-7378-9987
 - affilations: ['']
   email: ''
   first_name: Ioannis
@@ -340,17 +524,53 @@ developers:
   first_name: Guido
   last_name: Petretto
   orcid: ''
-- affilations: ['Materials, Imperial College London. Chemistry, University College
-      London. Thomas Young Centre.']
+- affilations: [Brookhaven National Laboratory]
+  email: ''
+  first_name: Xiaohui
+  last_name: Qu
+  orcid: 0000-0001-5651-8405
+- affilations: ['Materials, Imperial College London', ' Chemistry, University College
+      London', ' Thomas Young Centre']
   email: ''
   first_name: "Se\xE1n"
   last_name: R. Kavanagh
   orcid: 0000-0003-4577-9647
+- affilations: ["Friedrich-Schiller-Universit\xE4t Jena"]
+  email: ''
+  first_name: Jens
+  last_name: "Ren\xE8 Suckert"
+  orcid: ''
 - affilations: ["IMCN/MODL - Universit\xE9 catholique de Louvain"]
   email: ''
   first_name: Francesco
   last_name: Ricci
   orcid: 0000-0002-2677-7227
+- affilations: [University of Cambridge]
+  email: ''
+  first_name: Janosh
+  last_name: Riebesell
+  orcid: ''
+- affilations: ['Department of Chemical & Biological Engineering, Northwestern University']
+  email: ''
+  first_name: Andrew
+  last_name: Rosen
+  orcid: 0000-0002-0141-7006
+- affilations: [University of California Berkeley]
+  email: ''
+  first_name: Ann
+  last_name: Rutt
+  orcid: 0000-0001-6534-454X
+- affilations: ['Department of Materials Science and Engineering, Massachusetts Institute
+      of Technology']
+  email: ''
+  first_name: Daniel
+  last_name: Schwalbe-Koda
+  orcid: 0000-0001-9176-0854
+- affilations: ['UC Berkeley, LBL']
+  email: ''
+  first_name: Jimmy-Xuan
+  last_name: Shen
+  orcid: 0000-0002-2743-7531
 - affilations: [Kyoto University]
   email: ''
   first_name: Kohei
@@ -378,27 +598,67 @@ developers:
   first_name: Christopher
   last_name: Stihl
   orcid: ''
+- affilations: [University of North Carolina (Chapel Hill)]
+  email: ''
+  first_name: Jack
+  last_name: Sundberg
+  orcid: 0000-0001-5739-8919
 - affilations: ['High Energy Accelerator Research Organization, SOKENDAI']
   email: ''
   first_name: Yuta
   last_name: Suzuki
   orcid: 0000-0002-0019-4832
+- affilations: [Microsoft]
+  email: ''
+  first_name: Leopold
+  last_name: Talirz
+  orcid: 0000-0002-1524-5903
 - affilations: [PKSHA]
   email: ''
   first_name: Yohei
   last_name: Tamura
   orcid: ''
+- affilations: [UC San Diego]
+  email: ''
+  first_name: Hanmei
+  last_name: Tang
+  orcid: 0000-0003-2659-7768
+- affilations: [Harvard University]
+  email: ''
+  first_name: Steven
+  last_name: Torrisi
+  orcid: 0000-0002-4283-8077
 - affilations: ['University of California, San Diego']
   email: ''
   first_name: Richard
   last_name: Tran
   orcid: ''
+- affilations: [Carnegie Mellon University]
+  email: ''
+  first_name: Richard
+  last_name: Tran
+  orcid: 0000-0002-0308-2182
+- affilations: [ExoMatter GmbH]
+  email: ''
+  first_name: Josua
+  last_name: Vieten
+  orcid: 0000-0002-2060-2039
+- affilations: ['University of California, Berkeley']
+  email: ''
+  first_name: Sudarshan
+  last_name: Vijay
+  orcid: 0000-0001-8242-0161
 - affilations: ["Humboldt-Universit\xE4t zu Berlin"]
   email: ''
   first_name: Christian
   last_name: Vorwerk
   orcid: 0000-0002-2516-9553
 - affilations: [IDA]
+  email: ''
+  first_name: Nicholas
+  last_name: Wagner
+  orcid: ''
+- affilations: [Institute for Defense Analyses]
   email: ''
   first_name: Nicholas
   last_name: Wagner
@@ -414,10 +674,20 @@ developers:
   first_name: Amanda
   last_name: Wang
   orcid: ''
+- affilations: ['University of California, San Diego']
+  email: ''
+  first_name: Zhenbin
+  last_name: Wang
+  orcid: ''
 - affilations: [Argonne National Laboratory]
   email: ''
   first_name: Logan
   last_name: Ward
+  orcid: 0000-0002-1323-5939
+- affilations: ['Argonne National Laboratory ']
+  email: ''
+  first_name: Logan
+  last_name: 'Ward '
   orcid: 0000-0002-1323-5939
 - affilations: ["Universit\xE9 catholique de Louvain"]
   email: ''
@@ -444,6 +714,12 @@ developers:
   first_name: Donny
   last_name: Winston
   orcid: 0000-0002-8424-0604
+- affilations: ['Computational Materials Physics, Faculty of Physics, University of
+      Vienna']
+  email: ''
+  first_name: Michael
+  last_name: Wolloch
+  orcid: 0000-0002-3419-5526
 - affilations: [Lawrence Berkeley National Laboratory, ' University of California,
       Berkeley', ' National Renewable Energy Laboratory']
   email: ''
@@ -452,9 +728,35 @@ developers:
   orcid: 0000-0001-5009-9510
 - affilations: ['University of California, Berkeley']
   email: ''
+  first_name: Michael
+  last_name: Wu
+  orcid: ''
+- affilations: ['University of California, Berkeley']
+  email: ''
   first_name: Yihan
   last_name: Xiao
   orcid: 0000-0002-4409-6898
+- affilations: [McGill University]
+  email: ''
+  first_name: Shuaishuai
+  last_name: Yuan
+  orcid: 0000-0001-8999-5814
+- affilations: ['Department of Chemistry, University of Bath']
+  email: ''
+  first_name: Pezhman
+  last_name: Zarabadi-Poor
+  orcid: 0000-0002-6377-7592
+- affilations: ['Hebei Vocational University of Technology and Engineering No. 473,
+      Quannan West Street, Xindu District, Xingtai, Hebei province']
+  email: ''
+  first_name: Hongsheng
+  last_name: Zhao
+  orcid: ''
+- affilations: [UNNC]
+  email: ''
+  first_name: Steven
+  last_name: Zhu
+  orcid: ''
 - affilations: [Parent]
   email: ''
   first_name: Nils
@@ -478,9 +780,9 @@ description: "Python Materials Genomics (pymatgen) is a robust materials analysi
   \ code powering the Materials Project."
 programming_languages:
 - "Python"
-documentation_url: "http://pymatgen.org/"
+documentation_url: "https://pymatgen.org/"
 country_of_origin: "United States"
 licenses:
 - "MIT License"
 date_record_added: "2018-06-14"
-date_record_updated: "2018-06-14"
+date_record_updated: "2022-07-19"

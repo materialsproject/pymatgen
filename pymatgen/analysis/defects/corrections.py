@@ -5,6 +5,8 @@
 Implementation of defect correction methods.
 """
 
+from __future__ import annotations
+
 import logging
 
 import matplotlib.pyplot as plt
@@ -24,6 +26,7 @@ from pymatgen.analysis.defects.utils import (
     kumagai_to_V,
     tune_for_gamma,
 )
+from pymatgen.core.lattice import Lattice
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -163,7 +166,7 @@ class FreysoldtCorrection(DefectCorrection):
             "freysoldt_potential_alignment": pot_corr,
         }
 
-    def perform_es_corr(self, lattice, q, step=1e-4):
+    def perform_es_corr(self, lattice: Lattice, q, step=1e-4):
         """
         Perform Electrostatic Freysoldt Correction
         Args:
@@ -457,9 +460,7 @@ class KumagaiCorrection(DefectCorrection):
         # TODO: allow for larger prec_set to be tried if this fails
         if abs(es_corr[0] - es_corr[1]) > 0.0001:
             logger.debug(
-                "Es_corr summation not converged! ({} vs. {})\nTrying a larger prec_set...".format(
-                    es_corr[0], es_corr[1]
-                )
+                f"Es_corr summation not converged! ({es_corr[0]} vs. {es_corr[1]})\nTrying a larger prec_set..."
             )
             prec_set = [30, 35]
             g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(
@@ -614,15 +615,14 @@ class KumagaiCorrection(DefectCorrection):
 
             if dist_to_defect > sampling_radius:
                 logger.debug(
-                    "\tdistance to defect is {} which is outside minimum sampling "
-                    "radius {}".format(dist_to_defect, sampling_radius)
+                    f"\tdistance to defect is {dist_to_defect} which is outside minimum sampling "
+                    f"radius {sampling_radius}"
                 )
                 for_correction.append(Vqb - Vpc)
             else:
                 logger.debug(
-                    "\tdistance to defect is {} which is inside minimum sampling "
-                    "radius {} (so will not include for correction)"
-                    "".format(dist_to_defect, sampling_radius)
+                    f"\tdistance to defect is {dist_to_defect} which is inside minimum sampling "
+                    f"radius {sampling_radius} (so will not include for correction)"
                 )
 
         if len(for_correction) > 0:
@@ -664,10 +664,12 @@ class KumagaiCorrection(DefectCorrection):
 
         return real_part
 
-    def get_recip_summation(self, gamma, recip_vectors, volume, r=[0.0, 0.0, 0.0]):
+    def get_recip_summation(self, gamma, recip_vectors, volume, r=None):
         """
         Get Reciprocal summation term from list of reciprocal-space vectors
         """
+        if r is None:
+            r = [0.0, 0.0, 0.0]
         recip_part = 0
 
         for g_vec in recip_vectors:
@@ -721,12 +723,12 @@ class KumagaiCorrection(DefectCorrection):
 
         distances, sample_region = [], []
         Vqb_list, Vpc_list, diff_list = [], [], []
-        for site_ind, site_dict in site_dict.items():
-            dist = site_dict["dist_to_defect"]
+        for site in site_dict.values():
+            dist = site["dist_to_defect"]
             distances.append(dist)
 
-            Vqb = site_dict["Vqb"]
-            Vpc = site_dict["Vpc"]
+            Vqb = site["Vqb"]
+            Vpc = site["Vpc"]
 
             Vqb_list.append(Vqb)
             Vpc_list.append(Vpc)
@@ -864,10 +866,10 @@ class BandFillingCorrection(DefectCorrection):
         self.metadata["num_elec_cbm"] = 0.0
 
         core_occupation_value = list(eigenvalues.values())[0][0][0][1]  # get occupation of a core eigenvalue
-        if len(eigenvalues.keys()) == 1:
+        if len(eigenvalues) == 1:
             # needed because occupation of non-spin calcs is sometimes still 1... should be 2
             spinfctr = 2.0 if core_occupation_value == 1.0 and not soc_calc else 1.0
-        elif len(eigenvalues.keys()) == 2:
+        elif len(eigenvalues) == 2:
             spinfctr = 1.0
         else:
             raise ValueError("Eigenvalue keys greater than 2")
