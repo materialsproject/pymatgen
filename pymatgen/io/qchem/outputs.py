@@ -78,11 +78,17 @@ class QCOutput(MSONable):
                 )
 
         # Parse the Q-Chem major version
-        if read_pattern(self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 4"}, terminate_on_match=True).get("key") == [[]]:
+        if read_pattern(
+            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 4"}, terminate_on_match=True
+        ).get("key") == [[]]:
             self.data["version"] = "4"
-        elif read_pattern(self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 5"}, terminate_on_match=True).get("key") == [[]]:
+        elif read_pattern(
+            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 5"}, terminate_on_match=True
+        ).get("key") == [[]]:
             self.data["version"] = "5"
-        elif read_pattern(self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 6"}, terminate_on_match=True).get("key") == [[]]:
+        elif read_pattern(
+            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 6"}, terminate_on_match=True
+        ).get("key") == [[]]:
             self.data["version"] = "6"
         else:
             self.data["version"] = "unknown"
@@ -519,7 +525,7 @@ class QCOutput(MSONable):
                 r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
                 r"(?:\s*Line search, dEdstep = [\d\-\.]+e[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s*)*"
                 r"(?:\s*[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
-                r"(?:\s*Resetting GDM\.)*"
+                r"(?:\s*Resetting GDM\.)*(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+)*"
                 r"(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
                 r"(?:\s*gdm_qls\: Orbitals will not converge further\.)*"
                 r"(?:(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::WARNING energy changes are now smaller than effective "
@@ -721,11 +727,9 @@ class QCOutput(MSONable):
             self.data["warnings"]["bad_lambda_take_NR_step"] = True
 
         # Check for a switch into Cartesian coordinates
-        if read_pattern(
-            self.text,
-            {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if read_pattern(self.text, {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
             self.data["warnings"]["switch_to_cartesian"] = True
 
         # Check for problem with eigenvalue magnitude
@@ -949,9 +953,7 @@ class QCOutput(MSONable):
                 real_energy_trajectory[ii] = float(entry[0])
             self.data["energy_trajectory"] = real_energy_trajectory
             if self.data.get("new_optimizer") == [[]]:
-                temp_norms = read_pattern(
-                    self.text, {"key": r"Norm of Stepsize\s*([\d\-\.]+)"}
-                ).get("key")
+                temp_norms = read_pattern(self.text, {"key": r"Norm of Stepsize\s*([\d\-\.]+)"}).get("key")
                 if temp_norms is not None:
                     norms = np.zeros(len(temp_norms))
                     for ii, val in enumerate(temp_norms):

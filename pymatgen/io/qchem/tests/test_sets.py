@@ -538,7 +538,7 @@ class OptSetTest(PymatgenTest):
 
     def test_v5_vs_v6(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        v5_OptSet = OptSet(molecule=test_molecule, basis_set="def2-tzvpd", geom_opt={})
+        v5_OptSet = OptSet(molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={})
         self.assertEqual(
             v5_OptSet.rem,
             {
@@ -561,7 +561,7 @@ class OptSetTest(PymatgenTest):
         self.assertEqual(v5_OptSet.geom_opt, {"maxiter": "200"})
         self.assertEqual(v5_OptSet.molecule, test_molecule)
 
-        v6_OptSet = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd")
+        v6_OptSet = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={})
         self.assertEqual(
             v6_OptSet.rem,
             {
