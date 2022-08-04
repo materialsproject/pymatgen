@@ -1508,6 +1508,8 @@ class CubicSupercellTransformation(AbstractTransformation):
         max_atoms: int | None = None,
         min_length: float = 15.0,
         force_diagonal: bool = False,
+        force_90_degrees: bool = False,
+        angle_tolerance: float = 1e-3,
     ):
         """
         Args:
@@ -1516,11 +1518,16 @@ class CubicSupercellTransformation(AbstractTransformation):
             min_length: Minimum length of the smallest supercell lattice vector.
             force_diagonal: If True, return a transformation with a diagonal
                 transformation matrix.
+            force_90_degrees: If True, return a transformation for a supercell
+                with 90 degree angles (if possible). To avoid long run times,
+                please use max_atoms
         """
         self.min_atoms = min_atoms if min_atoms else -np.Inf
         self.max_atoms = max_atoms if max_atoms else np.Inf
         self.min_length = min_length
         self.force_diagonal = force_diagonal
+        self.force_90_degrees = force_90_degrees
+        self.angle_tolerance = angle_tolerance
         self.transformation_matrix = None
 
     def apply_transformation(self, structure: Structure) -> Structure:
@@ -1594,7 +1601,15 @@ class CubicSupercellTransformation(AbstractTransformation):
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
             ):
-                return superstructure
+                if not self.force_90_degrees:
+                    return superstructure
+                else:
+                    if np.all(
+                        np.absolute(np.array(superstructure.lattice.angles) - np.array([90.0, 90.0, 90.0]))
+                        < self.angle_tolerance
+                    ):
+                        return superstructure
+
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1
             if num_at > self.max_atoms:
