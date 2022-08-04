@@ -1332,7 +1332,7 @@ class Cp2kOutput:
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns.keys():
+        for k in patterns:
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(

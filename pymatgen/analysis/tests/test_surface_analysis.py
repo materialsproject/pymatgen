@@ -57,7 +57,7 @@ class SlabEntryTest(PymatgenTest):
         for el, val in self.metals_O_entry_dict.items():
             el_ucell = ComputedStructureEntry.from_dict(self.ucell_entries[el])
             for hkl in val:
-                for clean in self.metals_O_entry_dict[el][hkl].keys():
+                for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         ml = ads.get_unit_primitive_area
                         self.assertAlmostEqual(ml, 4, 2)
@@ -98,7 +98,7 @@ class SlabEntryTest(PymatgenTest):
     def test_surface_energy(self):
         # For a nonstoichiometric case, the cheimcal potentials do not
         # cancel out, they serve as a reservoir for any missing atoms
-        for slab_entry in self.MgO_slab_entry_dict[(1, 1, 1)].keys():
+        for slab_entry in self.MgO_slab_entry_dict[(1, 1, 1)]:
             se = slab_entry.surface_energy(self.MgO_ucell_entry, ref_entries=[self.Mg_ucell_entry])
             self.assertEqual(tuple(se.as_coefficients_dict()), (Number(1), Symbol("delu_Mg")))
 
@@ -123,7 +123,7 @@ class SlabEntryTest(PymatgenTest):
         # The cleaned up slab should have the same reduced formula as a clean slab
         for el, val in self.metals_O_entry_dict.items():
             for hkl in val:
-                for clean in self.metals_O_entry_dict[el][hkl].keys():
+                for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         s = ads.cleaned_up_slab
                         self.assertEqual(
@@ -159,7 +159,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     def test_get_stable_entry_at_u(self):
 
         for plotter in self.Oads_analyzer_dict.values():
-            for hkl in plotter.all_slab_entries.keys():
+            for hkl in plotter.all_slab_entries:
                 # Test that the surface energy is clean for specific range of chempot
                 entry1, gamma1 = plotter.get_stable_entry_at_u(hkl, delu_dict={Symbol("delu_O"): -7})
                 entry2, gamma2 = plotter.get_stable_entry_at_u(hkl, delu_dict={Symbol("delu_O"): -6})
@@ -193,7 +193,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             (2, 1, 0),
             (2, 2, 1),
         ]
-        for hkl in area_frac_dict.keys():
+        for hkl in area_frac_dict:
             if hkl in facets_hkl:
                 self.assertNotEqual(area_frac_dict[hkl], 0)
             else:
@@ -221,7 +221,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             analyzer = self.Oads_analyzer_dict[el]
             color_dict = analyzer.color_palette_dict()
             for hkl in val:
-                for clean in self.metals_O_entry_dict[el][hkl].keys():
+                for clean in self.metals_O_entry_dict[el][hkl]:
                     _ = color_dict[clean]
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         _ = color_dict[ads]
@@ -255,7 +255,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         stable_u_range = analyzer.stable_u_range_dict([-1, 0], Symbol("delu_O"), no_doped=False)
         all_u = []
-        for entry in stable_u_range.keys():
+        for entry in stable_u_range:
             all_u.extend(stable_u_range[entry])
         self.assertGreater(len(all_u), 1)
 
@@ -264,8 +264,8 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         # Plug in a list of entries to see if it works
         all_Pt_slab_entries = []
         Pt_entries = self.Pt_analyzer.all_slab_entries
-        for hkl in Pt_entries.keys():
-            for clean in Pt_entries[hkl].keys():
+        for hkl in Pt_entries:
+            for clean in Pt_entries[hkl]:
                 all_Pt_slab_entries.append(clean)
                 all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
 
@@ -273,14 +273,14 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         self.assertEqual(type(a).__name__, "SurfaceEnergyPlotter")
 
     # def test_monolayer_vs_BE(self):
-    #     for el in self.Oads_analyzer_dict.keys():
+    #     for el in self.Oads_analyzer_dict:
     #         # Test WulffShape for adsorbed surfaces
     #         analyzer = self.Oads_analyzer_dict[el]
     #         plt = analyzer.monolayer_vs_BE()
     #
     # def test_area_frac_vs_chempot_plot(self):
     #
-    #     for el in self.Oads_analyzer_dict.keys():
+    #     for el in self.Oads_analyzer_dict:
     #         # Test WulffShape for adsorbed surfaces
     #         analyzer = self.Oads_analyzer_dict[el]
     #         plt = analyzer.area_frac_vs_chempot_plot(x_is_u_ads=True)
@@ -288,7 +288,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     # def test_chempot_vs_gamma_clean(self):
     #
     #     plt = self.Cu_analyzer.chempot_vs_gamma_clean()
-    #     for el in self.Oads_analyzer_dict.keys():
+    #     for el in self.Oads_analyzer_dict:
     #         # Test WulffShape for adsorbed surfaces
     #         analyzer = self.Oads_analyzer_dict[el]
     #         plt = analyzer.chempot_vs_gamma_clean(x_is_u_ads=True)
@@ -384,7 +384,7 @@ def get_entry_dict(filename):
     entry_dict = {}
     with open(filename) as entries:
         entries = json.loads(entries.read())
-    for k in entries.keys():
+    for k in entries:
         n = k[25:]
         miller_index = []
         for i, s in enumerate(n):
@@ -397,7 +397,7 @@ def get_entry_dict(filename):
                 t *= -1
             miller_index.append(t)
         hkl = tuple(miller_index)
-        if hkl not in entry_dict.keys():
+        if hkl not in entry_dict:
             entry_dict[hkl] = {}
         entry = ComputedStructureEntry.from_dict(entries[k])
         entry_dict[hkl][SlabEntry(entry.structure, entry.energy, hkl, label=k)] = []

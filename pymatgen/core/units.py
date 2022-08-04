@@ -232,7 +232,7 @@ class Unit(collections.abc.Mapping):
         return len(self._unit)
 
     def __repr__(self):
-        sorted_keys = sorted(self._unit.keys(), key=lambda k: (-self._unit[k], k))
+        sorted_keys = sorted(self._unit, key=lambda k: (-self._unit[k], k))
         return " ".join(
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )

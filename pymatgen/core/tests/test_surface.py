@@ -729,8 +729,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
         # types correctly and nothing changes
 
         m = StructureMatcher()
-        for n in self.rec_archive.keys():
-            if "base_reconstruction" in self.rec_archive[n].keys():
+        for n in self.rec_archive:
+            if "base_reconstruction" in self.rec_archive[n]:
                 arch = self.rec_archive[self.rec_archive[n]["base_reconstruction"]]
                 sg = arch["spacegroup"]["symbol"]
             else:

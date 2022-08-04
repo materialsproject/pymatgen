@@ -259,7 +259,7 @@ class StructureVis:
             anion = elements[-1]
 
             def contains_anion(site):
-                for sp in site.species.keys():
+                for sp in site.species:
                     if sp.symbol == anion.symbol:
                         return True
                 return False
@@ -464,7 +464,7 @@ class StructureVis:
         color,
         opacity=1.0,
         draw_edges=False,
-        edges_color=[0.0, 0.0, 0.0],
+        edges_color=(0.0, 0.0, 0.0),
         edges_linewidth=2,
     ):
         """
@@ -527,7 +527,7 @@ class StructureVis:
         center=None,
         opacity=0.4,
         draw_edges=False,
-        edges_color=[0.0, 0.0, 0.0],
+        edges_color=(0.0, 0.0, 0.0),
         edges_linewidth=2,
     ):
         """
@@ -649,7 +649,7 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type="line", linewidth=2, color=[0.0, 0.0, 0.0]):
+    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):
         """
         Args:
             edges (): List of edges
@@ -1061,7 +1061,7 @@ class MultiStructuresVis(StructureVis):
             opacity = tag.get("opacity", 0.5)
             if site_index == "unit_cell_all":
                 struct_radii = self.all_vis_radii[self.istruct]
-                for isite, site in enumerate(self.current_structure):
+                for isite, _site in enumerate(self.current_structure):
                     vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
                     tags[(isite, (0, 0, 0))] = {
                         "radius": vis_radius,
@@ -1120,7 +1120,7 @@ class MultiStructuresVis(StructureVis):
         else:
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
             for key in animated_movie_options:
-                if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS.keys():
+                if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS:
                     raise ValueError("Wrong option for animated movie")
             self.animated_movie_options.update(animated_movie_options)
 

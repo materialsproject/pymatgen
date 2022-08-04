@@ -25,7 +25,7 @@ class WulffShapeTest(PymatgenTest):
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
-        for mpid in surface_properties.keys():
+        for mpid in surface_properties:
             e_surf_list, miller_list = [], []
             for surface in surface_properties[mpid]["surfaces"]:
                 e_surf_list.append(surface["surface_energy"])
@@ -116,8 +116,8 @@ class WulffShapeTest(PymatgenTest):
         # is the most dominant facet on the Wulff shape
 
         fractional_areas = self.wulff_Ir.area_fraction_dict
-        miller_list = [hkl for hkl in fractional_areas.keys()]
-        area_list = [fractional_areas[hkl] for hkl in fractional_areas.keys()]
+        miller_list = [hkl for hkl in fractional_areas]
+        area_list = [fractional_areas[hkl] for hkl in fractional_areas]
         self.assertEqual(miller_list[area_list.index(max(area_list))], (1, 1, 1))
 
         # Overall weighted surface energy of fcc Nb should be
@@ -126,7 +126,7 @@ class WulffShapeTest(PymatgenTest):
         # its the only facet that exists in the Wulff shape
 
         Nb_area_fraction_dict = self.wulff_Nb.area_fraction_dict
-        for hkl in Nb_area_fraction_dict.keys():
+        for hkl in Nb_area_fraction_dict:
             if hkl == (3, 1, 0):
                 self.assertEqual(Nb_area_fraction_dict[hkl], 1)
             else:
@@ -170,9 +170,8 @@ class WulffShapeTest(PymatgenTest):
             "mp-72": self.wulff_Ti,
             "mp-101": self.wulff_Ir,
         }
-        for mpid in wulff_shapes.keys():
-            properties = self.surface_properties[mpid]
-            wulff = wulff_shapes[mpid]
+        for mp_id, wulff in wulff_shapes.items():
+            properties = self.surface_properties[mp_id]
             self.assertEqual(
                 round(wulff.weighted_surface_energy, 3),
                 round(properties["weighted_surface_energy"], 3),

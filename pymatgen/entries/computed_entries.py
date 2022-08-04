@@ -736,7 +736,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         integer_formula, _ = structure.composition.get_integer_formula_and_factor()
 
         self.experimental = False
-        if integer_formula in G_GASES.keys():
+        if integer_formula in G_GASES:
             self.experimental = True
             if "Experimental" not in str(entry_id):
                 entry_id = f"{entry_id} (Experimental)"
@@ -798,7 +798,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             data = G_GASES[integer_formula]
 
             if self.interpolated:
-                g_interp = interp1d([int(t) for t in data.keys()], list(data.values()))
+                g_interp = interp1d([int(t) for t in data], list(data.values()))
                 energy = g_interp(self.temp)
             else:
                 energy = data[str(self.temp)]
@@ -831,7 +831,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             sum_g_i = 0
             for elem, amt in elems.items():
                 g_interp = interp1d(
-                    [float(t) for t in G_ELEMS.keys()],
+                    [float(t) for t in G_ELEMS],
                     [g_dict[elem] for g_dict in G_ELEMS.values()],
                 )
                 sum_g_i += amt * g_interp(self.temp)

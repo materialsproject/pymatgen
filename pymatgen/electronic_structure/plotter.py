@@ -108,9 +108,9 @@ class DosPlotter:
             key_sort_func: function used to sort the dos_dict keys.
         """
         if key_sort_func:
-            keys = sorted(dos_dict.keys(), key=key_sort_func)
+            keys = sorted(dos_dict, key=key_sort_func)
         else:
-            keys = dos_dict.keys()
+            keys = list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -436,7 +436,7 @@ class BSPlotter:
                 # if BSPlotterProjected
                 bs = self._bs
 
-        energies = {str(sp): [] for sp in bs.bands.keys()}
+        energies = {str(sp): [] for sp in bs.bands}
 
         bs_is_metal = bs.is_metal()
 
@@ -467,7 +467,7 @@ class BSPlotter:
             steps = self._get_branch_steps(bs.branches)[1:-1]
 
         distances = np.split(distances, steps)
-        for sp in bs.bands.keys():
+        for sp in bs.bands:
             energies[str(sp)] = np.hsplit(bs.bands[sp] - zero_energy, steps)
 
         ticks = self.get_ticks()
@@ -638,7 +638,7 @@ class BSPlotter:
                 cbm_max.append(bs.efermi)
                 vbm_min.append(bs.efermi)
 
-            for sp in bs.bands.keys():
+            for sp in bs.bands:
                 ls = "-" if str(sp) == "1" else "--"
 
                 if bs_labels is None:
@@ -1766,7 +1766,7 @@ class BSPlotterProjected(BSPlotter):
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
-                        if orb in individual_orbs.keys():
+                        if orb in individual_orbs:
                             if len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
                                 raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
                     nelems = Counter(dictio[elt]).values()
@@ -1795,7 +1795,7 @@ class BSPlotterProjected(BSPlotter):
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
-                            if orb in individual_orbs.keys():
+                            if orb in individual_orbs:
                                 if len(set(sum_morbs[elt]).intersection(individual_orbs[orb])) != 0:
                                     raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
@@ -1805,7 +1805,7 @@ class BSPlotterProjected(BSPlotter):
                         raise TypeError(
                             f"The invalid type of value was put into 'sum_morbs[{elt}]'. It should be list type."
                         )
-                    if elt not in dictio.keys():
+                    if elt not in dictio:
                         raise ValueError(
                             f"You cannot sum projection over orbitals of atoms '{elt}' because they are not "
                             "mentioned in 'dictio'."
@@ -1816,14 +1816,14 @@ class BSPlotterProjected(BSPlotter):
         for elt in dictio:
             if len(dictio[elt]) == 1:
                 if len(dictio[elt][0]) > 1:
-                    if elt in sum_morbs.keys():
+                    if elt in sum_morbs:
                         raise ValueError(
                             f"You cannot sum projection over one individual orbital '{dictio[elt][0]}' of '{elt}'."
                         )
                 else:
                     if sum_morbs is None:
                         pass
-                    elif elt not in sum_morbs.keys():
+                    elif elt not in sum_morbs:
                         print(f"You do not want to sum projection over orbitals of element: {elt}")
                     else:
                         if len(sum_morbs[elt]) == 0:
@@ -1840,7 +1840,7 @@ class BSPlotterProjected(BSPlotter):
             else:
                 duplicate = copy.deepcopy(dictio[elt])
                 for orb in dictio[elt]:
-                    if orb in individual_orbs.keys():
+                    if orb in individual_orbs:
                         duplicate.remove(orb)
                         for o in individual_orbs[orb]:
                             duplicate.append(o)
@@ -1848,7 +1848,7 @@ class BSPlotterProjected(BSPlotter):
 
                 if sum_morbs is None:
                     pass
-                elif elt not in sum_morbs.keys():
+                elif elt not in sum_morbs:
                     print(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
@@ -1859,7 +1859,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "We do not sum projection over only 's' orbital of the same type of element."
                             )
-                        if orb in individual_orbs.keys():
+                        if orb in individual_orbs:
                             sum_morbs[elt].pop(0)
                             for o in individual_orbs[orb]:
                                 sum_morbs[elt].append(o)
@@ -1868,7 +1868,7 @@ class BSPlotterProjected(BSPlotter):
                     else:
                         duplicate = copy.deepcopy(sum_morbs[elt])
                         for orb in sum_morbs[elt]:
-                            if orb in individual_orbs.keys():
+                            if orb in individual_orbs:
                                 duplicate.remove(orb)
                                 for o in individual_orbs[orb]:
                                     duplicate.append(o)
@@ -1922,11 +1922,11 @@ class BSPlotterProjected(BSPlotter):
 
         if len(list(dictio)) != len(list(dictpa)):
             raise KeyError("The number of keys in 'dictio' and 'dictpa' are not the same.")
-        for elt in dictio.keys():
-            if elt not in dictpa.keys():
+        for elt in dictio:
+            if elt not in dictpa:
                 raise KeyError(f"The element '{elt}' is not in both dictpa and dictio.")
-        for elt in dictpa.keys():
-            if elt not in dictio.keys():
+        for elt in dictpa:
+            if elt not in dictio:
                 raise KeyError(f"The element '{elt}' in not in both dictpa and dictio.")
 
         if sum_atoms is None:
@@ -1970,7 +1970,7 @@ class BSPlotterProjected(BSPlotter):
                         raise TypeError(
                             f"The invalid type of value was put into 'sum_atoms[{elt}]'. It should be list type."
                         )
-                    if elt not in dictpa.keys():
+                    if elt not in dictpa:
                         raise ValueError(
                             f"You cannot sum projection over atoms '{elt}' because it is not mentioned in 'dictio'."
                         )
@@ -3706,7 +3706,7 @@ class CohpPlotter:
             key_sort_func: function used to sort the cohp_dict keys.
         """
         if key_sort_func:
-            keys = sorted(cohp_dict.keys(), key=key_sort_func)
+            keys = sorted(cohp_dict, key=key_sort_func)
         else:
             keys = cohp_dict.keys()
         for label in keys:

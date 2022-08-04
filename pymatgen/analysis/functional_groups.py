@@ -170,7 +170,7 @@ class FunctionalGroupExtractor:
         for node in carbons:
             neighbors = self.molgraph.graph[node]
 
-            neighbor_spec = [str(self.species[n]) for n in neighbors.keys()]
+            neighbor_spec = [str(self.species[n]) for n in neighbors]
 
             ons = len([n for n in neighbor_spec if n in ["O", "N", "S"]])
 
@@ -217,7 +217,7 @@ class FunctionalGroupExtractor:
             grp_hs = set()
             for node in func_grp:
                 neighbors = self.molgraph.graph[node]
-                for neighbor in neighbors.keys():
+                for neighbor in neighbors:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
@@ -283,7 +283,7 @@ class FunctionalGroupExtractor:
                         neighbors = self.molgraph.graph[node]
 
                         # Add hydrogens to the functional group
-                        for neighbor in neighbors.keys():
+                        for neighbor in neighbors:
                             if neighbor in hydrogens:
                                 ring_group.add(neighbor)
 

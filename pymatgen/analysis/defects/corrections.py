@@ -711,7 +711,7 @@ class KumagaiCorrection(DefectCorrection):
         Plots the AtomicSite electrostatic potential against the Long range and short range models
         from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)
         """
-        if "pot_plot_data" not in self.metadata.keys():
+        if "pot_plot_data" not in self.metadata:
             raise ValueError("Cannot plot potential alignment before running correction!")
 
         sampling_radius = self.metadata["sampling_radius"]

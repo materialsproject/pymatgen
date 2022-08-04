@@ -1355,7 +1355,7 @@ class _MPResterLegacy:
         comp_dict = entry.composition.reduced_composition.as_dict()
 
         isolated_atom_e_sum, n = 0, 0
-        for el in comp_dict.keys():
+        for el in comp_dict:
             e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
@@ -1721,7 +1721,7 @@ class _MPResterLegacy:
                 c = Composition("".join(f))
                 if len(c) == nelements:
                     # Check for valid Elements in keys.
-                    for e in c.keys():
+                    for e in c:
                         Element(e.symbol)
                     all_formulas.add(c.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}

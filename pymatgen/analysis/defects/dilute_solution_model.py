@@ -367,9 +367,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])]
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)
                 x = solve(eqs, mu_gs)
-                # mu_names = sorted([key.name for key in x.keys()])
+                # mu_names = sorted([key.name for key in x])
                 mu_vals = []
-                for key in sorted(x.keys(), key=lambda inp: inp.name):
+                for key in sorted(x, key=lambda inp: inp.name):
                     mu_vals.append(x[key])
                 vector_func = [comp_ratio - c_ratio[0]]
                 vector_func.append(omega)
@@ -1086,7 +1086,7 @@ def solute_site_preference_finder(
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)
                 x = solve(eqs, mu_gs)
                 host_mu_vals = []
-                for key in sorted(x.keys(), key=lambda inp: inp.name):
+                for key in sorted(x, key=lambda inp: inp.name):
                     host_mu_vals.append(x[key])
                 vector_func = [comp_ratio - host_c_ratio[0]]
                 vector_func.append(omega1)

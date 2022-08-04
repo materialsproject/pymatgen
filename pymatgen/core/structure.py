@@ -2233,9 +2233,7 @@ class IStructure(SiteCollection, MSONable):
                         if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict":
-                        if all(
-                            getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt.keys()  # type: ignore
-                        ):
+                        if all(getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt):  # type: ignore
                             return p
 
         return self.copy()
@@ -3959,7 +3957,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     species += sp
                 offset = self[i].frac_coords - coords
                 coords = coords + ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
-                for key in props.keys():
+                for key in props:
                     if props[key] is not None and self[i].properties[key] != props[key]:
                         if mode.lower()[0] == "a" and isinstance(props[key], float):
                             # update a running total

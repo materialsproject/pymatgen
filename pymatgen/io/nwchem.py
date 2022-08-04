@@ -121,10 +121,10 @@ class NwTask(MSONable):
                 constant of 78, you'd supply {'cosmo': {"dielectric": 78}}.
         """
         # Basic checks.
-        if theory.lower() not in NwTask.theories.keys():
+        if theory.lower() not in NwTask.theories:
             raise NwInputError(f"Invalid theory {theory}")
 
-        if operation.lower() not in NwTask.operations.keys():
+        if operation.lower() not in NwTask.operations:
             raise NwInputError(f"Invalid operation {operation}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity

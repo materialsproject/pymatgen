@@ -637,7 +637,7 @@ class ElementBase(Enum):
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
-        for sym in _pt_data.keys():
+        for sym in _pt_data:
             el = Element(sym)
             if 57 <= el.Z <= 71:
                 el_pseudorow = 8

@@ -1,6 +1,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
+import numpy as np
+
+from pymatgen.analysis.chemenv.utils.math_utils import (
+    power2_decreasing_exp,
+    power2_inverse_decreasing,
+    power2_inverse_power2_decreasing,
+    smootherstep,
+    smoothstep,
+)
+
 """
 This module contains some utility functions and classes that are used in the chemenv package.
 """
@@ -13,25 +25,13 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from typing import Dict
-
-import numpy as np
-
-from pymatgen.analysis.chemenv.utils.math_utils import (
-    power2_decreasing_exp,
-    power2_inverse_decreasing,
-    power2_inverse_power2_decreasing,
-    smootherstep,
-    smoothstep,
-)
-
 
 class AbstractRatioFunction:
     """
     Abstract class for all ratio functions
     """
 
-    ALLOWED_FUNCTIONS = {}  # type: Dict[str, list]
+    ALLOWED_FUNCTIONS: dict[str, list] = {}
 
     def __init__(self, function, options_dict=None):
         """Constructor for AbstractRatioFunction

@@ -149,7 +149,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return len(self._data)
 
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
-        return self._data.keys().__iter__()
+        return self._data.__iter__()
 
     def __contains__(self, item) -> bool:
         try:
@@ -295,7 +295,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         e.g., Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys(), key=lambda sym: get_el_sp(sym).X)
+        syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
         formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
@@ -319,7 +319,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         e.g. CH2(SO4)2
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys(), key=lambda s: get_el_sp(s).iupac_ordering)
+        syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
         formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
@@ -779,7 +779,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                     new_comp[el] = amt
 
                 # check for ambiguous input (see issue #2553)
-                if el in self.keys():
+                if el in self:
                     warnings.warn(
                         f"Same element ({el}) in both the keys and values of the substitution!"
                         "This can be ambiguous, so be sure to check your result."
@@ -1191,7 +1191,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
     Returns:
         (reduced_formula, factor).
     """
-    syms = sorted(sym_amt.keys(), key=lambda x: [get_el_sp(x).X, x])
+    syms = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
 
     syms = list(filter(lambda x: abs(sym_amt[x]) > Composition.amount_tolerance, syms))
 

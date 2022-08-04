@@ -2318,7 +2318,7 @@ class ChemicalEnvironments(MSONable):
         if len(self.coord_geoms) == 0:
             out += " => No coordination in it <=\n"
             return out
-        for key in self.coord_geoms.keys():
+        for key in self.coord_geoms:
             mp_symbol = key
             break
         cn = symbol_cn_mapping[mp_symbol]
@@ -2443,7 +2443,7 @@ class ChemicalEnvironments(MSONable):
             ChemicalEnvironments object.
         """
         ce = cls()
-        for cg in d["coord_geoms"].keys():
+        for cg in d["coord_geoms"]:
             if d["coord_geoms"][cg]["local2perfect_map"] is None:
                 l2p_map = None
             else:

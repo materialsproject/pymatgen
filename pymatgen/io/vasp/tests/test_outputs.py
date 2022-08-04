@@ -827,7 +827,7 @@ class OutcarTest(PymatgenTest):
             self.assertFalse(outcar.lepsilon)
 
             toten = 0
-            for k in outcar.final_energy_contribs.keys():
+            for k in outcar.final_energy_contribs:
                 toten += outcar.final_energy_contribs[k]
             self.assertAlmostEqual(toten, outcar.final_energy, 6)
 
@@ -1217,7 +1217,7 @@ class OutcarTest(PymatgenTest):
         ]
         self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
         for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
-            for k in e1.keys():
+            for k in e1:
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
         exepected_tensors = [

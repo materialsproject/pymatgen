@@ -13,7 +13,7 @@ import math
 import warnings
 from fractions import Fraction
 from functools import reduce
-from typing import Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import Dict, Iterator, List, Sequence, Tuple
 
 import numpy as np
 from monty.dev import deprecated
@@ -62,9 +62,9 @@ class Lattice(MSONable):
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         m.setflags(write=False)
         self._matrix = m  # type: np.ndarray
-        self._inv_matrix = None  # type: Optional[np.ndarray]
+        self._inv_matrix: np.ndarray | None = None
         self._diags = None
-        self._lll_matrix_mappings = {}  # type: Dict[float, Tuple[np.ndarray, np.ndarray]]
+        self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
         self._pbc = tuple(pbc)
 

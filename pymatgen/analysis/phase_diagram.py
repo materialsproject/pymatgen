@@ -550,8 +550,8 @@ class PhaseDiagram(MSONable):
         Returns:
             Formation energy from the elemental references.
         """
-        c = entry.composition
-        return entry.energy - sum(c[el] * self.el_refs[el].energy_per_atom for el in c.elements)
+        comp = entry.composition
+        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in entry.composition.elements)
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -1504,7 +1504,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs.keys())
+            missing = set(elements).difference(el_refs)
             raise ValueError(f"Terminal entries for: {missing} are missing")
 
         data = np.array(
@@ -2296,7 +2296,7 @@ class PDPlotter:
                 # logic. At this moment, I just use the attributes to know
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
-                for x, y in labels.keys():
+                for x, y in labels:
                     if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
@@ -2332,14 +2332,14 @@ class PDPlotter:
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
-                for x, y in labels.keys():
+                for x, y in labels:
                     if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=12)
                     else:
                         plt.plot(x, y, "*", markerfacecolor=vals_stable[ii], markersize=18)
                     ii += 1
             else:
-                for x, y in labels.keys():
+                for x, y in labels:
                     plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=15)
                     ii += 1
 
@@ -2366,7 +2366,7 @@ class PDPlotter:
             plt.xlabel("Fraction", fontsize=28, fontweight="bold")
             plt.ylabel("Formation energy (eV/atom)", fontsize=28, fontweight="bold")
 
-        for coords in sorted(labels.keys(), key=lambda x: -x[1]):
+        for coords in sorted(labels, key=lambda x: -x[1]):
             entry = labels[coords]
             label = entry.name
 
@@ -2966,14 +2966,8 @@ class PDPlotter:
                 "uncertainties": uncertainties,
             }
 
-        stable_coords, stable_entries = (
-            self.pd_plot_data[1].keys(),
-            self.pd_plot_data[1].values(),
-        )
-        unstable_entries, unstable_coords = (
-            self.pd_plot_data[2].keys(),
-            self.pd_plot_data[2].values(),
-        )
+        stable_coords, stable_entries = zip(*self.pd_plot_data[1].items())
+        unstable_entries, unstable_coords = zip(*self.pd_plot_data[2].items())
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
