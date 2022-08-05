@@ -1,6 +1,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module contains some utility functions and classes that are used in the chemenv package.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -12,10 +16,6 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smootherstep,
     smoothstep,
 )
-
-"""
-This module contains some utility functions and classes that are used in the chemenv package.
-"""
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
