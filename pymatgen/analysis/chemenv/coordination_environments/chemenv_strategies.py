@@ -8,17 +8,10 @@ some others can identify the environment as a "mix" of several environments, eac
 fraction. The choice of the strategy depends on the purpose of the user.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import abc
 import os
-from typing import Dict, List, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -45,6 +38,14 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
@@ -54,7 +55,7 @@ ALLCG = AllCoordinationGeometries()
 class StrategyOption(MSONable, metaclass=abc.ABCMeta):
     """Abstract class for the options of the chemenv strategies."""
 
-    allowed_values = None  # type: Optional[str]
+    allowed_values: str | None = None
 
     @abc.abstractmethod
     def as_dict(self):
@@ -196,9 +197,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
-    STRATEGY_DESCRIPTION = None  # type: str
-    STRATEGY_INFO_FIELDS = []  # type: List
+    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_DESCRIPTION: str | None = None
+    STRATEGY_INFO_FIELDS: list = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -481,7 +482,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS: dict[str, dict] = {}
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -871,7 +872,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS: dict[str, dict] = {}
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",
@@ -2842,7 +2843,6 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         "function": "power2_inverse_power2_decreasing",
         "options": {"max_csm": 8.0},
     }
-    DEFAULT_DIST_ANG_AREA_WEIGHT = {}  # type: Dict
 
     def __init__(
         self,

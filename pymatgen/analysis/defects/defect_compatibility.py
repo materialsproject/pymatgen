@@ -131,7 +131,7 @@ class DefectCompatibility(MSONable):
             "initial_defect_structure",
             "final_defect_structure",
         ]:
-            if struct_key in defect_entry.parameters.keys() and isinstance(defect_entry.parameters[struct_key], dict):
+            if struct_key in defect_entry.parameters and isinstance(defect_entry.parameters[struct_key], dict):
                 defect_entry.parameters[struct_key] = Structure.from_dict(defect_entry.parameters[struct_key])
 
         if perform_corrections:
@@ -142,7 +142,7 @@ class DefectCompatibility(MSONable):
         # apply corrections based on delocalization analysis
         corrections = {}
         skip_charge_corrections = False
-        if "num_hole_vbm" in defect_entry.parameters.keys():
+        if "num_hole_vbm" in defect_entry.parameters:
             if (self.free_chg_cutoff < defect_entry.parameters["num_hole_vbm"]) or (
                 self.free_chg_cutoff < defect_entry.parameters["num_elec_cbm"]
             ):
@@ -156,7 +156,7 @@ class DefectCompatibility(MSONable):
                 frey_meta = defect_entry.parameters["freysoldt_meta"]
                 frey_corr = frey_meta["freysoldt_electrostatic"] + frey_meta["freysoldt_potential_alignment_correction"]
                 corrections.update({"charge_correction": frey_corr})
-            elif "kumagai_meta" in defect_entry.parameters.keys():
+            elif "kumagai_meta" in defect_entry.parameters:
                 kumagai_meta = defect_entry.parameters["kumagai_meta"]
                 kumagai_corr = (
                     kumagai_meta["kumagai_electrostatic"] + kumagai_meta["kumagai_potential_alignment_correction"]
@@ -166,7 +166,7 @@ class DefectCompatibility(MSONable):
                 logger.info("Could not use any charge correction because insufficient metadata was supplied.")
 
         if self.use_bandfilling:
-            if "bandfilling_meta" in defect_entry.parameters.keys():
+            if "bandfilling_meta" in defect_entry.parameters:
                 bfc_corr = defect_entry.parameters["bandfilling_meta"]["bandfilling_correction"]
                 corrections.update({"bandfilling_correction": bfc_corr})
             else:
@@ -258,10 +258,10 @@ class DefectCompatibility(MSONable):
 
         # add potalign based on preferred correction setting if it does not already exist in defect entry
         if self.preferred_cc == "freysoldt":
-            if "freysoldt_meta" in defect_entry.parameters.keys():
+            if "freysoldt_meta" in defect_entry.parameters:
                 potalign = defect_entry.parameters["freysoldt_meta"]["freysoldt_potalign"]
                 defect_entry.parameters["potalign"] = potalign
-            elif "kumagai_meta" in defect_entry.parameters.keys():
+            elif "kumagai_meta" in defect_entry.parameters:
                 logger.info(
                     "WARNING: was not able to use potalign from Freysoldt correction, "
                     "using Kumagai value for purposes of band filling correction."
@@ -269,10 +269,10 @@ class DefectCompatibility(MSONable):
                 potalign = defect_entry.parameters["kumagai_meta"]["kumagai_potalign"]
                 defect_entry.parameters["potalign"] = potalign
         else:
-            if "kumagai_meta" in defect_entry.parameters.keys():
+            if "kumagai_meta" in defect_entry.parameters:
                 potalign = defect_entry.parameters["kumagai_meta"]["kumagai_potalign"]
                 defect_entry.parameters["potalign"] = potalign
-            elif "freysoldt_meta" in defect_entry.parameters.keys():
+            elif "freysoldt_meta" in defect_entry.parameters:
                 logger.info(
                     "WARNING: was not able to use potalign from Kumagai correction, "
                     "using Freysoldt value for purposes of band filling correction."
@@ -349,9 +349,9 @@ class DefectCompatibility(MSONable):
         Returns:
             Corrected DefectEntry
         """
-        gamma = defect_entry.parameters["gamma"] if "gamma" in defect_entry.parameters.keys() else None
+        gamma = defect_entry.parameters["gamma"] if "gamma" in defect_entry.parameters else None
         sampling_radius = (
-            defect_entry.parameters["sampling_radius"] if "sampling_radius" in defect_entry.parameters.keys() else None
+            defect_entry.parameters["sampling_radius"] if "sampling_radius" in defect_entry.parameters else None
         )
 
         KC = KumagaiCorrection(
@@ -435,7 +435,7 @@ class DefectCompatibility(MSONable):
             {"is_compatible": True}
         )  # this will be switched to False if delocalization is detected
 
-        if "freysoldt_meta" in defect_entry.parameters.keys():
+        if "freysoldt_meta" in defect_entry.parameters:
             defect_entry = self.check_freysoldt_delocalized(defect_entry)
         else:
             logger.info(
@@ -445,7 +445,7 @@ class DefectCompatibility(MSONable):
                 "compatibility analysis."
             )
 
-        if "kumagai_meta" in defect_entry.parameters.keys():
+        if "kumagai_meta" in defect_entry.parameters:
             defect_entry = self.check_kumagai_delocalized(defect_entry)
         else:
             logger.info(
@@ -509,7 +509,7 @@ class DefectCompatibility(MSONable):
             if (not frey_variance_compatible) or (not frey_minmax_compatible):
                 plnr_avg_allows_compatible = False
 
-        if "delocalization_meta" not in defect_entry.parameters.keys():
+        if "delocalization_meta" not in defect_entry.parameters:
             defect_entry.parameters["delocalization_meta"] = {}
         defect_entry.parameters["delocalization_meta"].update(
             {
@@ -555,7 +555,7 @@ class DefectCompatibility(MSONable):
 
         atomic_site_allows_compatible = kumagai_variance_compatible and kumagai_minmax_compatible
 
-        if "delocalization_meta" not in defect_entry.parameters.keys():
+        if "delocalization_meta" not in defect_entry.parameters:
             defect_entry.parameters["delocalization_meta"] = {}
         defect_entry.parameters["delocalization_meta"].update(
             {
@@ -655,7 +655,7 @@ class DefectCompatibility(MSONable):
                 }
             )
 
-        if "delocalization_meta" not in defect_entry.parameters.keys():
+        if "delocalization_meta" not in defect_entry.parameters:
             defect_entry.parameters["delocalization_meta"] = {}
         defect_entry.parameters["delocalization_meta"].update(
             {

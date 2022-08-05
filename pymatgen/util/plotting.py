@@ -481,7 +481,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
             el_1, el_2 = entry
             formatted_formula = f"{el_1}-{el_2}"
         else:
-            X_pair = [Element(el).X for el in entry.composition.as_dict().keys()]
+            X_pair = [Element(el).X for el in entry.composition.as_dict()]
             formatted_formula = format_formula(entry.composition.reduced_formula)
         plt.scatter(np.mean(X_pair), abs(X_pair[0] - X_pair[1]), c="b", s=100)
         if annotate:

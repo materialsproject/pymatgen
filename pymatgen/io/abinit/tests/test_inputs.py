@@ -63,7 +63,7 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp.isnc and not inp.ispaw
 
         inp["ecut"] = 1
-        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp.keys() and "foo" not in inp
+        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp and "foo" not in inp
 
         # Test to_string
         assert inp.to_string(with_structure=True, with_pseudos=True)

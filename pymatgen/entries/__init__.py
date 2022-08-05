@@ -12,7 +12,7 @@ and PDEntry inherit from this class.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Literal, Union
+from typing import Literal
 
 import numpy as np
 from monty.json import MSONable

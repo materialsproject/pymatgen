@@ -877,7 +877,7 @@ class StructureTest(PymatgenTest):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species.keys():
+            for k in site.species:
                 self.assertEqual(
                     k.oxi_state,
                     oxidation_states[k.symbol],

@@ -167,9 +167,9 @@ class NetcdfReader:
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
-            return self.rootgrp.variables.keys()
+            return list(self.rootgrp.variables)
         group = self.path2group[path]
-        return group.variables.keys()
+        return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """

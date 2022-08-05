@@ -39,7 +39,7 @@ def average_coordination_number(structures, freq=10):
         Dictionary of elements as keys and average coordination numbers as values.
     """
     coordination_numbers = {}
-    for spec in structures[0].composition.as_dict().keys():
+    for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
     for i, s in enumerate(structures):
@@ -462,7 +462,7 @@ class OxideType:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species.keys()]
+            syms = [sp.symbol for sp in site.species]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:

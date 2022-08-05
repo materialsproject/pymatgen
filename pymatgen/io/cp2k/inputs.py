@@ -731,7 +731,7 @@ class Cp2kInput(Section):
         Get string representation of the Cp2kInput
         """
         s = ""
-        for k in self.subsections.keys():
+        for k in self.subsections:
             s += self.subsections[k].get_string()
         return s
 

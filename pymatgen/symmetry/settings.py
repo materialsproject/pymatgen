@@ -202,8 +202,7 @@ class JonesFaithfulTransformation:
             new_coords.append(x_.tolist())
         return new_coords
 
-    def transform_lattice(self, lattice):
-        # type: (Lattice) -> Lattice
+    def transform_lattice(self, lattice: Lattice) -> Lattice:
         """
         Takes a Lattice object and transforms it.
         :param lattice: Lattice

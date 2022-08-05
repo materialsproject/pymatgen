@@ -1106,9 +1106,9 @@ class DopingTransformation(AbstractTransformation):
                 # Strategy: replace the target species with dopant and also
                 # remove some opposite charged species for charge neutrality
                 if ox > 0:
-                    sp_to_remove = max(supercell.composition.keys(), key=lambda el: el.X)
+                    sp_to_remove = max(supercell.composition, key=lambda el: el.X)
                 else:
-                    sp_to_remove = min(supercell.composition.keys(), key=lambda el: el.X)
+                    sp_to_remove = min(supercell.composition, key=lambda el: el.X)
                 # Confirm species are of opposite oxidation states.
                 assert sp_to_remove.oxi_state * sp.oxi_state < 0  # type: ignore
 

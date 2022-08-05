@@ -462,13 +462,13 @@ class Trajectory(MSONable):
         # Initialize dict with the common keys
         new_frame_props = dict(zip(all_keys, [[] for i in all_keys]))
         for key in all_keys:
-            if key in attr_1.keys():
+            if key in attr_1:
                 new_frame_props[key].extend(attr_1[key])
             else:
                 # If key doesn't exist in the first trajectory, append None for each index
                 new_frame_props[key].extend([None for i in range(len_1)])
 
-            if key in attr_2.keys():
+            if key in attr_2:
                 new_frame_props[key].extend(attr_2[key])
             else:
                 # If key doesn't exist in the second trajectory, append None for each index

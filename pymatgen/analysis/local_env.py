@@ -590,7 +590,7 @@ class NearNeighbors:
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
         cn = self.get_cn(structure, n)
-        int_cn = [int(k_cn) for k_cn in cn_opt_params.keys()]
+        int_cn = [int(k_cn) for k_cn in cn_opt_params]
         if cn in int_cn:
             names = list(cn_opt_params[cn])
             types = []
@@ -893,14 +893,14 @@ class VoronoiNN(NearNeighbors):
                 if nn.specie in targets:
                     result_weighted[nn_index] = nn_stats
             else:  # if nn site is disordered
-                for disordered_sp in nn.species.keys():
+                for disordered_sp in nn.species:
                     if disordered_sp in targets:
                         result_weighted[nn_index] = nn_stats
 
         # If desired, determine which neighbors are adjacent
         if compute_adj_neighbors:
             # Initialize storage for the adjacent neighbors
-            adj_neighbors = {i: [] for i in result_weighted.keys()}
+            adj_neighbors = {i: [] for i in result_weighted}
 
             # Find the neighbors that are adjacent by finding those
             #  that contain exactly two vertices
