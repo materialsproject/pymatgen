@@ -3708,7 +3708,7 @@ class CohpPlotter:
         if key_sort_func:
             keys = sorted(cohp_dict, key=key_sort_func)
         else:
-            keys = cohp_dict.keys()
+            keys = list(cohp_dict)
         for label in keys:
             self.add_cohp(label, cohp_dict[label])
 
@@ -3787,7 +3787,7 @@ class CohpPlotter:
         plt = pretty_plot(12, 8)
 
         allpts = []
-        keys = self._cohps.keys()
+        keys = list(self._cohps)
         for i, key in enumerate(keys):
             energies = self._cohps[key]["energies"]
             if not integrated:

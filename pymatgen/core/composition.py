@@ -919,11 +919,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # for each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
         el_amt = comp.get_el_amt_dict()
-        els = el_amt.keys()
+        elements = list(el_amt)
         el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
         el_sum_scores = collections.defaultdict(set)  # dict of el_idx, sum -> score
         el_best_oxid_combo = {}  # dict of el_idx, sum -> oxid combo with best score
-        for idx, el in enumerate(els):
+        for idx, el in enumerate(elements):
             el_sum_scores[idx] = {}
             el_best_oxid_combo[idx] = {}
             el_sums.append([])
@@ -960,7 +960,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for x in product(*el_sums):
             # each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
-                el_sum_sol = dict(zip(els, x))  # element->oxid_sum
+                el_sum_sol = dict(zip(elements, x))  # element->oxid_sum
                 # normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 # add the solution to the list of solutions
@@ -973,7 +973,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 all_scores.append(score)
 
                 # collect the combination of oxidation states for each site
-                all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(els, x))})
+                all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x))})
 
         # sort the solutions by highest to lowest score
         if all_scores:

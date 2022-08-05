@@ -20,17 +20,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Literal,
-    Sequence,
-    Set,
-    Sized,
-    cast,
-)
+from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, Sized, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -274,7 +264,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
         props: dict[str, list] = {}
-        prop_keys = set()  # type: Set[str]
+        prop_keys: set[str] = set()
         for site in self:
             prop_keys.update(site.properties)
 

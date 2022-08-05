@@ -4,7 +4,7 @@
 """
 Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 """
-from typing import Any, Dict, List
+
 
 import numpy as np
 from monty.dev import requires
@@ -476,7 +476,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
         else:
             m = 1
         multiplicities.append(m)
-        bands, gruneisenband = ([] for _ in range(2))
+        bands, gruneisenband = [], []
         for b in p["band"]:
             bands.append(b["frequency"])
             if "gruneisen" in b:
@@ -538,8 +538,8 @@ def get_gs_ph_bs_symm_line_from_dict(
         except ValueError:
             raise ValueError("\nPlease provide a structure.\n")
 
-    qpts, frequencies, gruneisenparameters = ([] for _ in range(3))
-    phonopy_labels_dict = {}  # type: Dict[Any,Any]
+    q_points, frequencies, gruneisen_params = [], [], []
+    phonopy_labels_dict: dict[str, dict[str, str]] = {}
 
     if fit:
         for pa in gruneisen_dict["path"]:
@@ -548,61 +548,62 @@ def get_gs_ph_bs_symm_line_from_dict(
             end = pa["phonon"][-1]
 
             if start["q-position"] == [0, 0, 0]:  # Gamma at start of band
-                qpts_temp, frequencies_temp, gruneisen_temp, distance = (
-                    [] for _ in range(4)
-                )  # type: List[Any],List[Any],List[Any],List[Any]
+                qpts_temp, frequencies_temp = [], []
+                gruneisen_temp: list[list[float]] = []
+                distance: list[float] = []
                 for i in range(pa["nqpoint"]):
-                    bands, gruneisenband = ([] for _ in range(2))  # type: List[Any], List[Any]
+                    bands = []
+                    gruneisen_band: list[float] = []
                     for b in phonon[pa["nqpoint"] - i - 1]["band"]:
                         bands.append(b["frequency"])
                         # Fraction of leftover points in current band
-                        gruen = _extrapolate_grun(b, distance, gruneisen_temp, gruneisenband, i, pa)
-                        gruneisenband.append(gruen)
+                        gruen = _extrapolate_grun(b, distance, gruneisen_temp, gruneisen_band, i, pa)
+                        gruneisen_band.append(gruen)
                     q = phonon[pa["nqpoint"] - i - 1]["q-position"]
                     qpts_temp.append(q)
                     d = phonon[pa["nqpoint"] - i - 1]["distance"]
                     distance.append(d)
                     frequencies_temp.append(bands)
-                    gruneisen_temp.append(gruneisenband)
+                    gruneisen_temp.append(gruneisen_band)
                     if "label" in phonon[pa["nqpoint"] - i - 1]:
                         phonopy_labels_dict[phonon[pa["nqpoint"] - i - 1]]["label"] = phonon[pa["nqpoint"] - i - 1][
                             "q-position"
                         ]
 
-                qpts.extend(list(reversed(qpts_temp)))
+                q_points.extend(list(reversed(qpts_temp)))
                 frequencies.extend(list(reversed(frequencies_temp)))
-                gruneisenparameters.extend(list(reversed(gruneisen_temp)))
+                gruneisen_params.extend(list(reversed(gruneisen_temp)))
 
             elif end["q-position"] == [0, 0, 0]:  # Gamma at end of band
                 distance = []
                 for i in range(pa["nqpoint"]):
-                    bands, gruneisenband = ([] for _ in range(2))
+                    bands, gruneisen_band = [], []
                     for b in phonon[i]["band"]:
                         bands.append(b["frequency"])
-                        gruen = _extrapolate_grun(b, distance, gruneisenparameters, gruneisenband, i, pa)
-                        gruneisenband.append(gruen)
+                        gruen = _extrapolate_grun(b, distance, gruneisen_params, gruneisen_band, i, pa)
+                        gruneisen_band.append(gruen)
                     q = phonon[i]["q-position"]
-                    qpts.append(q)
+                    q_points.append(q)
                     d = phonon[i]["distance"]
                     distance.append(d)
                     frequencies.append(bands)
-                    gruneisenparameters.append(gruneisenband)
+                    gruneisen_params.append(gruneisen_band)
                     if "label" in phonon[i]:
                         phonopy_labels_dict[phonon[i]["label"]] = phonon[i]["q-position"]
 
             else:  # No Gamma in band
                 distance = []
                 for i in range(pa["nqpoint"]):
-                    bands, gruneisenband = ([] for _ in range(2))
+                    bands, gruneisen_band = [], []
                     for b in phonon[i]["band"]:
                         bands.append(b["frequency"])
-                        gruneisenband.append(b["gruneisen"])
+                        gruneisen_band.append(b["gruneisen"])
                     q = phonon[i]["q-position"]
-                    qpts.append(q)
+                    q_points.append(q)
                     d = phonon[i]["distance"]
                     distance.append(d)
                     frequencies.append(bands)
-                    gruneisenparameters.append(gruneisenband)
+                    gruneisen_params.append(gruneisen_band)
                     if "label" in phonon[i]:
                         phonopy_labels_dict[phonon[i]["label"]] = phonon[i]["q-position"]
 
@@ -610,27 +611,23 @@ def get_gs_ph_bs_symm_line_from_dict(
         for pa in gruneisen_dict["path"]:
             for p in pa["phonon"]:
                 q = p["q-position"]
-                qpts.append(q)
-                bands, gruneisen_bands = ([] for _ in range(2))
+                q_points.append(q)
+                bands, gruneisen_bands = [], []
                 for b in p["band"]:
                     bands.append(b["frequency"])
                     gruneisen_bands.append(b["gruneisen"])
                 frequencies.append(bands)
-                gruneisenparameters.append(gruneisen_bands)
+                gruneisen_params.append(gruneisen_bands)
                 if "label" in p:
                     phonopy_labels_dict[p["label"]] = p["q-position"]
-
-    qpts_np = np.array(qpts)
-    # transpose to match the convention in PhononBandStructure
-    frequencies_np = np.transpose(frequencies)
-    gruneisenparameters_np = np.transpose(gruneisenparameters)
 
     rec_latt = structure.lattice.reciprocal_lattice
     labels_dict = labels_dict or phonopy_labels_dict
     return GruneisenPhononBandStructureSymmLine(
-        qpoints=qpts_np,
-        frequencies=frequencies_np,
-        gruneisenparameters=gruneisenparameters_np,
+        qpoints=np.array(q_points),
+        # transpose to match the convention in PhononBandStructure
+        frequencies=np.transpose(frequencies),
+        gruneisenparameters=np.transpose(gruneisen_params),
         lattice=rec_latt,
         labels_dict=labels_dict,
         structure=structure,

@@ -15,7 +15,7 @@ import itertools
 import json
 import logging
 import re
-from typing import Iterable, List, Literal
+from typing import Iterable, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -355,7 +355,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             )
             entries = []
             header_read = False
-            elements = []  # type: List[str]
+            elements: list[str] = []
             for row in reader:
                 if not header_read:
                     elements = row[1 : (len(row) - 1)]
