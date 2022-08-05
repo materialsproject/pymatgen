@@ -61,7 +61,7 @@ def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp
         list of lists of shared point operations for each pair of atomic sites
     """
     num_sites = len(struct)
-    shared_ops = np.zeros((num_sites, num_sites))
+    shared_ops = np.zeros((num_sites, num_sites), dtype=object)
     for site1 in range(num_sites):
         for site2 in range(num_sites):
             shared_ops[site1][site2] = []
