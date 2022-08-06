@@ -16,6 +16,7 @@ import logging
 import os
 import sys
 from copy import deepcopy
+from typing import Optional
 
 import numpy as np
 from monty.json import MSONable
