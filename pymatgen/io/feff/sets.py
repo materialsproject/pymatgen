@@ -136,8 +136,8 @@ class FEFFDictSet(AbstractFeffInputSet):
         edge: str = "K",
         spectrum: str = "EXAFS",
         nkpts=1000,
-        user_tag_settings: Optional[dict] = None,
-        spacegroup_analyzer_settings: Optional[dict] = None,
+        user_tag_settings: dict | None = None,
+        spacegroup_analyzer_settings: dict | None = None,
         low_symmetry_system: bool = False,
     ):
         """
