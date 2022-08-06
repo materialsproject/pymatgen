@@ -4347,7 +4347,7 @@ class Critic2NN(NearNeighbors):
 def metal_edge_extender(
     mol_graph,
     cutoff: float = 2.5,
-    metals: Optional[set] = {"Li", "Mg", "Ca", "Zn", "B", "Al"},
+    metals: set | None = {"Li", "Mg", "Ca", "Zn", "B", "Al"},
     coordinators: set = {"O", "N", "F", "S", "Cl"},
 ):
     """
