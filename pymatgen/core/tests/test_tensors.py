@@ -212,8 +212,8 @@ class TensorTest(PymatgenTest):
             converted = orig.convert_to_ieee(struct, refine_rotation=False)
             self.assertArrayAlmostEqual(ieee, converted, err_msg=err_msg, decimal=3)
             converted_refined = orig.convert_to_ieee(struct, refine_rotation=True)
-            err_msg = "{} IEEE conversion with refinement failed with max diff {}. Numpy version: {}".format(
-                xtal, diff, np.__version__
+            err_msg = (
+                f"{xtal} IEEE conversion with refinement failed with max diff {diff}. Numpy version: {np.__version__}"
             )
             self.assertArrayAlmostEqual(ieee, converted_refined, err_msg=err_msg, decimal=2)
 

@@ -692,7 +692,7 @@ class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
         d = {"Fe": 1, Element("Fe"): 1}
         self.assertRaises(ValueError, ChemicalPotential, d)
-        for k in ChemicalPotential(Fe=1).keys():
+        for k in ChemicalPotential(Fe=1):
             self.assertIsInstance(k, Element)
 
     def test_math(self):

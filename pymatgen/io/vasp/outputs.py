@@ -1968,9 +1968,7 @@ class Outcar:
             # TODO: detect spin axis
             mag = []
             for idx in range(len(mag_x)):
-                mag.append(
-                    {key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0].keys()}
-                )
+                mag.append({key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]})
         else:
             mag = mag_x
 
@@ -2156,7 +2154,7 @@ class Outcar:
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns.keys():
+        for k in patterns:
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(
@@ -3589,12 +3587,12 @@ class VolumetricData(MSONable):
         """
         if self.structure != other.structure:
             warnings.warn("Structures are different. Make sure you know what you are doing...")
-        if self.data.keys() != other.data.keys():
+        if self.data.keys() != other.data:
             raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
 
         # To add checks
         data = {}
-        for k in self.data.keys():
+        for k in self.data:
             data[k] = self.data[k] + scale_factor * other.data[k]
         return VolumetricData(self.structure, data, self._distance_matrix)
 
@@ -4204,7 +4202,7 @@ class Procar:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
         dico = {}
-        for spin in self.data.keys():
+        for spin in self.data:
             dico[spin] = [[defaultdict(float) for i in range(self.nkpoints)] for j in range(self.nbands)]
 
         for iat in range(self.nions):

@@ -20,17 +20,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Literal,
-    Sequence,
-    Set,
-    Sized,
-    cast,
-)
+from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, Sized, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -274,7 +264,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
         props: dict[str, list] = {}
-        prop_keys = set()  # type: Set[str]
+        prop_keys: set[str] = set()
         for site in self:
             prop_keys.update(site.properties)
 
@@ -2233,9 +2223,7 @@ class IStructure(SiteCollection, MSONable):
                         if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict":
-                        if all(
-                            getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt.keys()  # type: ignore
-                        ):
+                        if all(getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt):  # type: ignore
                             return p
 
         return self.copy()
@@ -3959,7 +3947,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     species += sp
                 offset = self[i].frac_coords - coords
                 coords = coords + ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
-                for key in props.keys():
+                for key in props:
                     if props[key] is not None and self[i].properties[key] != props[key]:
                         if mode.lower()[0] == "a" and isinstance(props[key], float):
                             # update a running total

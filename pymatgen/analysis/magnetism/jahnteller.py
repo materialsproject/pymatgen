@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 import warnings
-from typing import Any, Dict, Literal, cast
+from typing import Any, Literal, cast
 
 import numpy as np
 
@@ -215,7 +215,7 @@ class JahnTellerAnalyzer:
 
         # perform aggregation of all sites
         if jt_sites:
-            analysis = {"active": True}  # type: Dict[str, Any]
+            analysis: dict[str, Any] = {"active": True}
             # if any site could exhibit 'strong' Jahn-Teller effect
             # then mark whole structure as strong
             strong_magnitudes = [site["strength"] == "strong" for site in jt_sites]

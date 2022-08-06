@@ -500,7 +500,7 @@ class AdfTask(MSONable):
             User-defined directives.
 
         """
-        if operation not in self.operations.keys():
+        if operation not in self.operations:
             raise AdfInputError(f"Invalid ADF task {operation}")
         self.operation = operation
         self.title = title

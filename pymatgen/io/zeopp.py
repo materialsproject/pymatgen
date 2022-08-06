@@ -253,7 +253,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             rad_file = name + ".rad"
             rad_flag = True
             with open(rad_file, "w+") as fp:
-                for el in rad_dict.keys():
+                for el in rad_dict:
                     fp.write(f"{el} {rad_dict[el].real}\n")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
@@ -341,7 +341,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         rad_flag = True
         rad_file = name + ".rad"
         with open(rad_file, "w+") as fp:
-            for el in rad_dict.keys():
+            for el in rad_dict:
                 print(f"{el} {rad_dict[el].real}", file=fp)
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
@@ -411,7 +411,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             rad_file = name + ".rad"
             rad_flag = True
             with open(rad_file, "w+") as fp:
-                for el in rad_dict.keys():
+                for el in rad_dict:
                     fp.write(f"{el} {rad_dict[el].real}\n")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
@@ -458,7 +458,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3, probe_rad=0
         if rad_dict:
             rad_file = name + ".rad"
             with open(rad_file, "w") as fp:
-                for el in rad_dict.keys():
+                for el in rad_dict:
                     fp.write(f"{el}     {rad_dict[el]}")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)

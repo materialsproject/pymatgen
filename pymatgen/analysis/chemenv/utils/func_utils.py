@@ -5,15 +5,7 @@
 This module contains some utility functions and classes that are used in the chemenv package.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
-from typing import Dict
+from __future__ import annotations
 
 import numpy as np
 
@@ -25,13 +17,21 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smoothstep,
 )
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 class AbstractRatioFunction:
     """
     Abstract class for all ratio functions
     """
 
-    ALLOWED_FUNCTIONS = {}  # type: Dict[str, list]
+    ALLOWED_FUNCTIONS: dict[str, list] = {}
 
     def __init__(self, function, options_dict=None):
         """Constructor for AbstractRatioFunction

@@ -171,28 +171,28 @@ class CohpcarTest(PymatgenTest):
         }
 
         for data in [self.cohp_bise.cohp_data, self.coop_bise.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_bise[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_bise[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 241)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 241)
+                    self.assertEqual(val["length"], lengths_sites_bise[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_bise[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 241)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 241)
         for data in [self.cohp_fe.cohp_data, self.coop_fe.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_fe[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_fe[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 301)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 301)
+                    self.assertEqual(val["length"], lengths_sites_fe[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_fe[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 301)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 301)
 
         # Lobster 3.1
         for data in [self.cohp_KF.cohp_data, self.coop_KF.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_KF[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_KF[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 6)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 6)
+                    self.assertEqual(val["length"], lengths_sites_KF[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_KF[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 6)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 6)
 
     def test_orbital_resolved_cohp(self):
         orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4) for i in range(4)]
@@ -1974,14 +1974,14 @@ class LobsterinTest(unittest.TestCase):
         )
 
         # test diff in both directions
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys())
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys())
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys())
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys())
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"])
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]:
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"])
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]:
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"])
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]:
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"])
 
         self.assertEqual(
             self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],

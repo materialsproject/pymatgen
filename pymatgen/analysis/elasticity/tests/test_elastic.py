@@ -403,7 +403,7 @@ class DiffFitTest(PymatgenTest):
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         random.shuffle(all_strains)
         all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed() for s in all_strains]
-        strain_dict = {k.tostring(): v for k, v in zip(all_strains, all_stresses)}
+        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         self.assertEqual(len(strain_inds), len(ss_dict))
@@ -414,7 +414,7 @@ class DiffFitTest(PymatgenTest):
             for strain, stress in zip(data["strains"], data["stresses"]):
                 self.assertArrayAlmostEqual(
                     Stress.from_voigt(stress),
-                    strain_dict[Strain.from_voigt(strain).tostring()],
+                    strain_dict[Strain.from_voigt(strain).tobytes()],
                 )
         # Add test to ensure zero strain state doesn't cause issue
         strains, stresses = [Strain.from_voigt([-0.01] + [0] * 5)], [Stress(np.eye(3))]

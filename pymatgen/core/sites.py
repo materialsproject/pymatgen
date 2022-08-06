@@ -283,7 +283,7 @@ class Site(collections.abc.Hashable, MSONable):
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         if props is not None:
-            for key in props.keys():
+            for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
@@ -654,7 +654,7 @@ class PeriodicSite(Site, MSONable):
             species[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         if props is not None:
-            for key in props.keys():
+            for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)

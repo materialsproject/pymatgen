@@ -369,7 +369,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)
         self.assertFalse(
-            "NELECT" in mpr.incar.keys(),
+            "NELECT" in mpr.incar,
             "NELECT should not be set when use_structure_charge is False",
         )
 
