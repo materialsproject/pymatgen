@@ -29,7 +29,7 @@ from scipy.spatial import Voronoi
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
 from pymatgen.util.typing import ArrayLike
@@ -4344,23 +4344,46 @@ class Critic2NN(NearNeighbors):
         ]
 
 
-def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
+def metal_edge_extender(
+    mol_graph,
+    cutoff: float = 2.5,
+    metals: list | tuple | None = ("Li", "Mg", "Ca", "Zn", "B", "Al"),
+    coordinators: list | tuple = ("O", "N", "F", "S", "Cl"),
+):
     """
     Function to identify and add missed coordinate bond edges for metals
 
     Args:
         mol_graph: pymatgen.analysis.graphs.MoleculeGraph object
+        cutoff: cutoff in Angstrom. Metal-coordinator sites that are closer
+            together than this value will be considered coordination bonds.
+            If the MoleculeGraph contains a metal, but no coordination bonds are found
+            with the chosen cutoff, the cutoff will be increased by 1 Angstrom
+            and another attempt will be made to identify coordination bonds.
+        metals: Species considered metals for the purpose of identifying
+            missed coordinate bond edges. The set {"Li", "Mg", "Ca", "Zn", "B", "Al"}
+            (default) corresponds to the settings used in the LIBE dataset.
+            Alternatively, set to None to cause any Species classified as a metal
+            by Specie.is_metal to be considered a metal.
+        coordinators: Possible coordinating species to consider when identifying
+            missed coordinate bonds. The default set {"O", "N", "F", "S", "Cl"} was
+            used in the LIBE dataset.
 
     Returns:
         mol_graph: pymatgen.analysis.graphs.MoleculeGraph object with additional
             metal bonds (if any found) added
 
     """
-    metal_sites: dict[str, dict] = {"Li": {}, "Mg": {}, "Ca": {}, "Zn": {}, "B": {}, "Al": {}}
-    coordinators = ["O", "N", "F", "S", "Cl"]
+    if metals is None:
+        metals = []
+        for idx in mol_graph.graph.nodes():
+            if Species(mol_graph.graph.nodes()[idx]["specie"]).is_metal:
+                metals.append(mol_graph.graph.nodes()[idx]["specie"])
+    metal_sites: dict = {k: {} for k in metals}
+
     num_new_edges = 0
     for idx in mol_graph.graph.nodes():
-        if mol_graph.graph.nodes()[idx]["specie"] in metal_sites:
+        if mol_graph.graph.nodes()[idx]["specie"] in metals:
             metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [
                 site[2] for site in mol_graph.get_connected_sites(idx)
             ]
@@ -4369,10 +4392,11 @@ def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
             for ii, site in enumerate(mol_graph.molecule):
                 if ii != idx and ii not in indices:
                     if str(site.specie) in coordinators:
-                        if site.distance(mol_graph.molecule[idx]) < 2.5:
+                        if site.distance(mol_graph.molecule[idx]) < cutoff:
                             mol_graph.add_edge(idx, ii)
                             num_new_edges += 1
                             indices.append(ii)
+    # If no metal edges are found, increase cutoff by 1 Ang and repeat analysis
     total_metal_edges = 0
     for sites in metal_sites.values():
         for indices in sites.values():
@@ -4383,12 +4407,9 @@ def metal_edge_extender(mol_graph: MoleculeGraph) -> MoleculeGraph:
                 for ii, site in enumerate(mol_graph.molecule):
                     if ii != idx and ii not in indices:
                         if str(site.specie) in coordinators:
-                            if site.distance(mol_graph.molecule[idx]) < 3.5:
+                            if site.distance(mol_graph.molecule[idx]) < (cutoff + 1):
                                 mol_graph.add_edge(idx, ii)
                                 num_new_edges += 1
                                 indices.append(ii)
-    total_metal_edges = 0
-    for sites in metal_sites.values():
-        for indices in sites.values():
-            total_metal_edges += len(indices)
+
     return mol_graph
