@@ -580,9 +580,9 @@ class OptSetTest(PymatgenTest):
                 "resp_charges": "true",
             },
         )
-        # self.assertEqual(v6_OptSet.geom_opt, {"maxiter":"200", "coordinates":"redundant", "max_displacement":"0.019127302", "optimization_restart":"false"})
         self.assertEqual(
-            v6_OptSet.geom_opt, {"maxiter": "200", "coordinates": "redundant", "optimization_restart": "false"}
+            v6_OptSet.geom_opt,
+            {"maxiter": "200", "coordinates": "redundant", "max_displacement": "0.1", "optimization_restart": "false"},
         )
         self.assertEqual(v6_OptSet.molecule, test_molecule)
 
@@ -597,7 +597,7 @@ class OptSetTest(PymatgenTest):
             {
                 "maxiter": "200",
                 "coordinates": "delocalized",
-                # "max_displacement": "0.019127302",
+                "max_displacement": "0.1",
                 "optimization_restart": "true",
             },
         )

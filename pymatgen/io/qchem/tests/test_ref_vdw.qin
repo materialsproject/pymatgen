@@ -8,7 +8,7 @@ $end
 
 $rem
    job_type = opt
-   basis = def2-tzvppd
+   basis = def2-svpd
    max_scf_cycles = 100
    gen_scfman = true
    xc_grid = 3
@@ -18,7 +18,7 @@ $rem
    resp_charges = true
    symmetry = false
    sym_ignore = true
-   method = wb97xd
+   method = wb97mv
    geom_opt_max_cycles = 200
 $end
 

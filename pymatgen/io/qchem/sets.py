@@ -282,8 +282,8 @@ class QChemDictSet(QCInput):
             if self.qchem_version == 6:
                 if "coordinates" not in self.geom_opt:
                     self.geom_opt["coordinates"] = "redundant"
-                # if "max_displacement" not in self.geom_opt:
-                #     self.geom_opt["max_displacement"] = "0.019127302"
+                if "max_displacement" not in self.geom_opt:
+                    self.geom_opt["max_displacement"] = "0.1"
                 if "optimization_restart" not in self.geom_opt:
                     self.geom_opt["optimization_restart"] = "false"
             my_geom_opt = {}
