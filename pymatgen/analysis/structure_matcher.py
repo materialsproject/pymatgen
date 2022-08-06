@@ -456,7 +456,7 @@ class StructureMatcher(MSONable):
         """
         Computes all supercells of one structure close to the lattice of the
         other
-        if s1_supercell == True, it makes the supercells of struct1, otherwise
+        if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2
 
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
