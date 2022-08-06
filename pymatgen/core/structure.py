@@ -4045,6 +4045,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             return Structure.from_spacegroup(
                 "P6_3/mmc", Lattice.hexagonal(kwargs["a"], kwargs["c"]), species, [[1 / 3, 2 / 3, 1 / 4]]
             )
+        if prototype == "diamond":
+            return Structure.from_spacegroup("Fd-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
         if prototype == "rocksalt":
             return Structure.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0]])
         if prototype == "perovskite":
