@@ -17,6 +17,7 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
+from typing import Optional
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -163,23 +164,40 @@ class Header(MSONable):
         * 4 O     0.333333     0.666667     0.378675
     """
 
-    def __init__(self, struct, source: str = "", comment: str = "", spacegroup_analyzer_settings=None):
+    def __init__(
+        self,
+        struct,
+        source: str = "",
+        comment: str = "",
+        spacegroup_analyzer_settings: Optional[dict] = None,
+        low_symmetry_system: bool = False
+    ):
         """
         Args:
             struct: Structure object, See pymatgen.core.structure.Structure.
             source: User supplied identifier, i.e. for Materials Project this
                 would be the material ID number
             comment: Comment for first header line
+            low_symmetry_system: If set to True, will skip attempting to use
+                the SpacegroupAnalyzer to evaluate symmetry information for
+                the header.
         """
+
         self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
-        if struct.is_ordered:
-            self.struct = struct
-            self.source = source
+
+        self.struct = struct
+        self.source = source
+        self.comment = comment or "None given"
+        self.space_number = "None"
+        self.space_group = "None"
+
+        # If the system is specified as low-symmetry, automatically bypass
+        # the spacegroup analyzer operations
+        if struct.is_ordered and not low_symmetry_system:
             sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
             data = sym.get_symmetry_dataset()
             self.space_number = data["number"]
             self.space_group = data["international"]
-            self.comment = comment or "None given"
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 

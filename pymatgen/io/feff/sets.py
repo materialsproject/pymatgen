@@ -99,6 +99,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
             make_dir_if_not_present: Set to True if you want the directory (
                 and the whole path) to be created if it is not present.
         """
+
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
@@ -135,6 +136,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         nkpts=1000,
         user_tag_settings: Optional[dict] = None,
         spacegroup_analyzer_settings: Optional[dict] = None,
+        low_symmetry_system: bool = False
     ):
         """
 
@@ -174,6 +176,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         # feff is around 14 atoms.
         self.small_system = len(self.structure) < 14 and "EXAFS" not in self.config_dict
         self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
+        self.low_symmetry_system = low_symmetry_system
 
     def header(self, source: str = "", comment: str = ""):
         """
@@ -188,7 +191,13 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Header
         """
-        return Header(self.structure, source, comment, spacegroup_analyzer_settings=self.spacegroup_analyzer_settings)
+        return Header(
+            self.structure,
+            source,
+            comment,
+            spacegroup_analyzer_settings=self.spacegroup_analyzer_settings,
+            low_symmetry_system=self.low_symmetry_system
+        )
 
     @property
     def tags(self) -> Tags:
