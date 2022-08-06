@@ -137,7 +137,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         nkpts=1000,
         user_tag_settings: Optional[dict] = None,
         spacegroup_analyzer_settings: Optional[dict] = None,
-        low_symmetry_system: bool = False
+        low_symmetry_system: bool = False,
     ):
         """
 
@@ -197,7 +197,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             source,
             comment,
             spacegroup_analyzer_settings=self.spacegroup_analyzer_settings,
-            low_symmetry_system=self.low_symmetry_system
+            low_symmetry_system=self.low_symmetry_system,
         )
 
     @property

@@ -12,12 +12,12 @@ XANES and EXAFS input files, are available, for non-spin case at this time.
 import re
 import warnings
 from operator import itemgetter
+from typing import Optional
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
-from typing import Optional
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -170,7 +170,7 @@ class Header(MSONable):
         source: str = "",
         comment: str = "",
         spacegroup_analyzer_settings: Optional[dict] = None,
-        low_symmetry_system: bool = False
+        low_symmetry_system: bool = False,
     ):
         """
         Args:
