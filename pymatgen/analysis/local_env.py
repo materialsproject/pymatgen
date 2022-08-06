@@ -18,7 +18,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from monty.dev import requires
@@ -4347,8 +4347,8 @@ class Critic2NN(NearNeighbors):
 def metal_edge_extender(
     mol_graph,
     cutoff: float = 2.5,
-    metals: Optional[set] = {"Li", "Mg", "Ca", "Zn", "B", "Al"},
-    coordinators: set = {"O", "N", "F", "S", "Cl"},
+    metals: list | tuple | None = ("Li", "Mg", "Ca", "Zn", "B", "Al"),
+    coordinators: list | tuple = ("O", "N", "F", "S", "Cl"),
 ):
     """
     Function to identify and add missed coordinate bond edges for metals
@@ -4379,8 +4379,7 @@ def metal_edge_extender(
         for idx in mol_graph.graph.nodes():
             if Species(mol_graph.graph.nodes()[idx]["specie"]).is_metal:
                 metals.append(mol_graph.graph.nodes()[idx]["specie"])
-        metals = set(metals)
-    metal_sites = {k: {} for k in metals}
+    metal_sites: dict = {k: {} for k in metals}
 
     num_new_edges = 0
     for idx in mol_graph.graph.nodes():
