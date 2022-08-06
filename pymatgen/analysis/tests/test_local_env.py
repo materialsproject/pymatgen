@@ -1534,6 +1534,10 @@ class MetalEdgeExtenderTest(PymatgenTest):
         extended_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=4.5)
         self.assertEqual(len(extended_graph.graph.edges), 7)
 
+        # if None, should auto-detect Li
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals=None)
+        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
     def test_custom_coordinators(self):
         # leave out Oxygen, graph should not change
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={"N", "F", "S", "Cl"})

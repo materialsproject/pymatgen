@@ -29,7 +29,7 @@ from scipy.spatial import Voronoi
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
 from pymatgen.util.typing import ArrayLike
@@ -4364,7 +4364,7 @@ def metal_edge_extender(
             missed coordinate bond edges. The set {"Li", "Mg", "Ca", "Zn", "B", "Al"}
             (default) corresponds to the settings used in the LIBE dataset.
             Alternatively, set to None to cause any Species classified as a metal
-            by Specie.is_metal to be considered a metal. (NOT YET IMPLEMENTED)
+            by Specie.is_metal to be considered a metal.
         coordinators: Possible coordinating species to consider when identifying
             missed coordinate bonds. The default set {"O", "N", "F", "S", "Cl"} was
             used in the LIBE dataset.
@@ -4375,7 +4375,11 @@ def metal_edge_extender(
 
     """
     if metals is None:
-        raise NotImplementedError
+        metals = []
+        for idx in mol_graph.graph.nodes():
+            if Species(mol_graph.graph.nodes()[idx]["specie"]).is_metal:
+                metals.append(mol_graph.graph.nodes()[idx]["specie"])
+        metals = set(metals)
     metal_sites = {k: {} for k in metals}
 
     num_new_edges = 0
