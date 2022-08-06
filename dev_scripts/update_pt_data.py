@@ -191,7 +191,7 @@ def parse_shannon_radii():
         }
         i += 1
 
-    for el in radii.keys():
+    for el in radii:
         if el in data:
             data[el]["Shannon radii"] = dict(radii[el])
 

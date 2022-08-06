@@ -1483,9 +1483,7 @@ class Critic2NNTest(PymatgenTest):
 class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
-
-    def test_metal_edge_extender(self):
-        mol_graph = MoleculeGraph.with_edges(
+        self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
                 (0, 2): None,
@@ -1501,9 +1499,62 @@ class MetalEdgeExtenderTest(PymatgenTest):
                 (5, 10): None,
             },
         )
-        self.assertEqual(len(mol_graph.graph.edges), 11)
-        extended_mol_graph = metal_edge_extender(mol_graph)
+
+        # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
+        uncharged_K_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_K.xyz"))
+        K_sites = [s.coords for s in uncharged_K_cluster.sites]
+        K_species = [s.species for s in uncharged_K_cluster.sites]
+        charged_K_cluster = Molecule(K_species, K_sites, charge=1)
+        self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
+        assert len(self.water_cluster_K.graph.edges) == 0
+
+        # Mg + 6 H2O at 1.94 Ang from Mg
+        uncharged_Mg_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_Mg.xyz"))
+        Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
+        Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
+        charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
+        self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
+
+    def test_metal_edge_extender(self):
+        self.assertEqual(len(self.LiEC_graph.graph.edges), 11)
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph)
         self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
+    def test_custom_metals(self):
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+
+        # empty metals should exit cleanly with no change to graph
+        mol_graph = metal_edge_extender(self.water_cluster_K, metals={}, cutoff=2.5)
+        self.assertEqual(len(mol_graph.graph.edges), 0)
+
+        mol_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=2.5)
+        self.assertEqual(len(mol_graph.graph.edges), 4)
+
+        extended_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=4.5)
+        self.assertEqual(len(extended_graph.graph.edges), 7)
+
+        # if None, should auto-detect Li
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals=None)
+        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
+    def test_custom_coordinators(self):
+        # leave out Oxygen, graph should not change
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={"N", "F", "S", "Cl"})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+        # empty coordinators should exit cleanly with no change
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+
+    def test_custom_cutoff(self):
+        short_mol_graph = metal_edge_extender(self.LiEC_graph, cutoff=0.5)
+        self.assertEqual(len(short_mol_graph.graph.edges), 11)
+
+        # with a cutoff of 1.5, no edges should be found.
+        # test that the 2nd pass analysis (auto increasing cutoff to 2.5) picks
+        # up the six coordination bonds
+        short_mol_graph = metal_edge_extender(self.water_cluster_Mg, cutoff=1.5)
+        self.assertEqual(len(short_mol_graph.graph.edges), 6)
 
 
 if __name__ == "__main__":

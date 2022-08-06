@@ -75,7 +75,7 @@ class DefectPhaseDiagram(MSONable):
             self.entries = entries
 
         for ent_ind, ent in enumerate(self.entries):
-            if "vbm" not in ent.parameters.keys() or ent.parameters["vbm"] != vbm:
+            if "vbm" not in ent.parameters or ent.parameters["vbm"] != vbm:
                 logger.info(
                     f"Entry {ent.name} did not have vbm equal to given DefectPhaseDiagram value."
                     " Manually overriding."
@@ -120,7 +120,7 @@ class DefectPhaseDiagram(MSONable):
         band_gap = d["band_gap"]
         filter_compatible = d.get("filter_compatible", True)
         metadata = d.get("metadata", {})
-        if "entry_id" in d.keys() and "entry_id" not in metadata:
+        if "entry_id" in d and "entry_id" not in metadata:
             metadata["entry_id"] = d["entry_id"]
 
         return cls(

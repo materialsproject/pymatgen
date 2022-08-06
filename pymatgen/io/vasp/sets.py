@@ -394,7 +394,7 @@ class DictSet(VaspInputSet):
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
                 raise KeyError(
-                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {vdw_par.keys()}."
+                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
         # read the POTCAR_FUNCTIONAL from the .yaml
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
@@ -507,7 +507,7 @@ class DictSet(VaspInputSet):
                         m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v.keys() and isinstance(v[most_electroneg], dict):
+                    elif most_electroneg in v and isinstance(v[most_electroneg], dict):
                         incar[k] = [v[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
                         # else, use fallback LDAU value if it exists
                     else:
@@ -536,7 +536,7 @@ class DictSet(VaspInputSet):
         # this would lead to a significant difference between SCF -> NonSCF
         # even without Hubbard U enabled. Thanks to Andrew Rosen for
         # investigating and reporting.
-        if "LMAXMIX" not in settings.keys():
+        if "LMAXMIX" not in settings:
             # contains f-electrons
             if any(el.Z > 56 for el in structure.composition):
                 incar["LMAXMIX"] = 6
@@ -586,7 +586,7 @@ class DictSet(VaspInputSet):
         # An error handler in Custodian is available to
         # correct overly large KSPACING values (small number of kpoints)
         # if necessary.
-        # if "KSPACING" not in self.user_incar_settings.keys():
+        # if "KSPACING" not in self.user_incar_settings:
         if self.kpoints is not None:
             if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
                 incar["ISMEAR"] = 0

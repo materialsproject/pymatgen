@@ -360,7 +360,7 @@ class GulpIO:
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = "GULP_LIB" in os.environ.keys()
+        gulplib_set = "GULP_LIB" in os.environ
 
         def readable(f):
             return os.path.isfile(f) and os.access(f, os.R_OK)
@@ -434,10 +434,10 @@ class GulpIO:
         bpb = BuckinghamPotential("bush")
         bpl = BuckinghamPotential("lewis")
         gin = ""
-        for key in val_dict.keys():
+        for key in val_dict:
             use_bush = True
             el = re.sub(r"[1-9,+,\-]", "", key)
-            if el not in bpb.species_dict.keys():
+            if el not in bpb.species_dict:
                 use_bush = False
             elif val_dict[key] != bpb.species_dict[el]["oxi"]:
                 use_bush = False
@@ -454,7 +454,7 @@ class GulpIO:
             # use_lewis = True
             if el != "O":  # For metals the key is "Metal_OxiState+"
                 k = el + "_" + str(int(val_dict[key])) + "+"
-                if k not in bpl.species_dict.keys():
+                if k not in bpl.species_dict:
                     # use_lewis = False
                     raise GulpError(f"Element {k} not in library")
                 gin += "species\n"
@@ -846,7 +846,7 @@ class BuckinghamPotential:
                 elmnt = row.split()[0]
                 if sp_flg:
                     if bush_lewis_flag == "bush":
-                        if elmnt not in species_dict.keys():
+                        if elmnt not in species_dict:
                             species_dict[elmnt] = {"inp_str": "", "oxi": 0}
                         species_dict[elmnt]["inp_str"] += row
                         species_dict[elmnt]["oxi"] += float(row.split()[2])
@@ -879,8 +879,8 @@ class BuckinghamPotential:
 
             if bush_lewis_flag == "bush":
                 # Fill the null keys in spring dict with empty strings
-                for key in pot_dict.keys():
-                    if key not in spring_dict.keys():
+                for key in pot_dict:
+                    if key not in spring_dict:
                         spring_dict[key] = ""
 
             self.species_dict = species_dict

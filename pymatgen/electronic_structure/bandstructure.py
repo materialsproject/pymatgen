@@ -4,6 +4,7 @@
 """
 This module provides classes to define everything related to band structures.
 """
+
 from __future__ import annotations
 
 import collections

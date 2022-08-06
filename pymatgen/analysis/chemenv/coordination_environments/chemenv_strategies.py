@@ -8,17 +8,10 @@ some others can identify the environment as a "mix" of several environments, eac
 fraction. The choice of the strategy depends on the purpose of the user.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import abc
 import os
-from typing import Dict, List, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -45,6 +38,14 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
@@ -54,7 +55,7 @@ ALLCG = AllCoordinationGeometries()
 class StrategyOption(MSONable, metaclass=abc.ABCMeta):
     """Abstract class for the options of the chemenv strategies."""
 
-    allowed_values = None  # type: Optional[str]
+    allowed_values: str | None = None
 
     @abc.abstractmethod
     def as_dict(self):
@@ -196,9 +197,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
-    STRATEGY_DESCRIPTION = None  # type: str
-    STRATEGY_INFO_FIELDS = []  # type: List
+    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_DESCRIPTION: str | None = None
+    STRATEGY_INFO_FIELDS: list = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -481,7 +482,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS: dict[str, dict] = {}
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -871,7 +872,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS: dict[str, dict] = {}
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",
@@ -1288,11 +1289,10 @@ class AngleNbSetWeight(NbSetWeight):
         """
         return np.power(self.angle_sum(nb_set=nb_set), self.aa)
 
-    def __eq__(self, other):
-        return self.aa == other.aa
-
-    def __ne__(self, other):
-        return not self == other
+    def __eq__(self, other: object) -> bool:
+        if not hasattr(other, "aa"):
+            return NotImplemented
+        return self.aa == other.aa  # type: ignore
 
     def as_dict(self):
         """MSONAble dict"""
@@ -1357,11 +1357,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 else:
                     self.fda = self.angninvndist
 
-    def __eq__(self, other):
-        return self.average_type == other.average_type and self.aa == other.aa and self.bb == other.bb
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("average_type", "aa", "bb")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def as_dict(self):
         """MSONable dict"""
@@ -1616,14 +1617,15 @@ class SelfCSMNbSetWeight(NbSetWeight):
         return weight
 
     def __eq__(self, other):
+        if not all(
+            hasattr(other, attr) for attr in ["effective_csm_estimator", "weight_estimator", "symmetry_measure_type"]
+        ):
+            return NotImplemented
         return (
             self.effective_csm_estimator == other.effective_csm_estimator
             and self.weight_estimator == other.weight_estimator
             and self.symmetry_measure_type == other.symmetry_measure_type
         )
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """MSONable dict"""
@@ -1787,16 +1789,16 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         )
         return nb_set_weight
 
-    def __eq__(self, other):
-        return (
-            self.effective_csm_estimator == other.effective_csm_estimator
-            and self.weight_estimator == other.weight_estimator
-            and self.delta_cn_weight_estimators == other.delta_cn_weight_estimators
-            and self.symmetry_measure_type == other.symmetry_measure_type
-        )
-
-    def __ne__(self, other):
-        return not self == other
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = [
+            "effective_csm_estimator",
+            "weight_estimator",
+            "delta_cn_weight_estimators",
+            "symmetry_measure_type",
+        ]
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     @classmethod
     def delta_cn_specifics(
@@ -2841,7 +2843,6 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         "function": "power2_inverse_power2_decreasing",
         "options": {"max_csm": 8.0},
     }
-    DEFAULT_DIST_ANG_AREA_WEIGHT = {}  # type: Dict
 
     def __init__(
         self,

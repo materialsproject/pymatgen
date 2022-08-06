@@ -11,6 +11,7 @@ import bisect
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
+from typing import Any
 from warnings import warn
 
 import numpy as np
@@ -471,11 +472,11 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, d: dict[str, Any], fmt: str = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
-            d (Dict): Dictionary representation
+            d (dict): Dictionary representation
             fmt (str, optional): Unused. Defaults to None.
 
         Returns:

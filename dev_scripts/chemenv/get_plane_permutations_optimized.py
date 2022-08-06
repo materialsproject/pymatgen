@@ -429,7 +429,7 @@ if __name__ == "__main__":
                 )
             )
             # print('Optimized permutations ({:d}/{:d}) : '.format(len(perms_used), len(algo.permutations)))
-            explicit_optimized_permutations = [list(perm) for perm in perms_used.keys()]
+            explicit_optimized_permutations = [list(perm) for perm in perms_used]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
             print()

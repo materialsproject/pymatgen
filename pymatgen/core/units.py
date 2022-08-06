@@ -232,7 +232,7 @@ class Unit(collections.abc.Mapping):
         return len(self._unit)
 
     def __repr__(self):
-        sorted_keys = sorted(self._unit.keys(), key=lambda k: (-self._unit[k], k))
+        sorted_keys = sorted(self._unit, key=lambda k: (-self._unit[k], k))
         return " ".join(
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )
@@ -358,9 +358,6 @@ class FloatWithUnit(float):
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
         self._unit = Unit(unit)
         self._unit_type = unit_type
-
-    def __repr__(self):
-        return super().__repr__()
 
     def __str__(self):
         return f"{super().__str__()} {self._unit}"

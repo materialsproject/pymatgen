@@ -571,7 +571,7 @@ class Slab(Structure):
 
         for i in unique_indices:
             el = ucell[i].species_string
-            if el not in cn_dict.keys():
+            if el not in cn_dict:
                 cn_dict[el] = []
             # Since this will get the cn as a result of the weighted polyhedra, the
             # slightest difference in cn will indicate a different environment for a
@@ -1187,7 +1187,7 @@ class SlabGenerator:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
 
-        for pair in bonds.keys():
+        for pair in bonds:
             blength = bonds[pair]
 
             # First lets determine which element should be the
@@ -1472,7 +1472,7 @@ class ReconstructionGenerator:
             EQUIVALENT SURFACES.
         """
 
-        if reconstruction_name not in reconstructions_archive.keys():
+        if reconstruction_name not in reconstructions_archive:
             raise KeyError(
                 f"The reconstruction_name entered ({reconstruction_name}) does not exist in the "
                 f"archive. Please select from one of the following reconstructions: {list(reconstructions_archive)} "
@@ -1484,17 +1484,17 @@ class ReconstructionGenerator:
         # from the reconstruction_archive
         recon_json = copy.deepcopy(reconstructions_archive[reconstruction_name])
         new_points_to_add, new_points_to_remove = [], []
-        if "base_reconstruction" in recon_json.keys():
-            if "points_to_add" in recon_json.keys():
+        if "base_reconstruction" in recon_json:
+            if "points_to_add" in recon_json:
                 new_points_to_add = recon_json["points_to_add"]
-            if "points_to_remove" in recon_json.keys():
+            if "points_to_remove" in recon_json:
                 new_points_to_remove = recon_json["points_to_remove"]
 
             # Build new instructions from a base reconstruction
             recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
-            if "points_to_add" in recon_json.keys():
+            if "points_to_add" in recon_json:
                 del recon_json["points_to_add"]
-            if "points_to_remove" in recon_json.keys():
+            if "points_to_remove" in recon_json:
                 del recon_json["points_to_remove"]
             if new_points_to_add:
                 recon_json["points_to_add"] = new_points_to_add
@@ -1534,7 +1534,7 @@ class ReconstructionGenerator:
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
             # Remove any specified sites
-            if "points_to_remove" in self.reconstruction_json.keys():
+            if "points_to_remove" in self.reconstruction_json:
                 pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
                 for p in pts_to_rm:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
@@ -1544,7 +1544,7 @@ class ReconstructionGenerator:
                     slab.symmetrically_remove_atoms([site1])
 
             # Add any specified sites
-            if "points_to_add" in self.reconstruction_json.keys():
+            if "points_to_add" in self.reconstruction_json:
                 pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
                 for p in pts_to_add:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
@@ -1838,7 +1838,7 @@ def generate_all_slabs(
         # enumerate through all posisble reconstructions in the
         # archive available for this particular structure (spacegroup)
         for name, instructions in reconstructions_archive.items():
-            if "base_reconstruction" in instructions.keys():
+            if "base_reconstruction" in instructions:
                 instructions = reconstructions_archive[instructions["base_reconstruction"]]
             if instructions["spacegroup"]["symbol"] == symbol:
                 # check if this reconstruction has a max index

@@ -50,7 +50,7 @@ class MolecularOrbitals:
                          metal
         """
         self.composition = Composition(formula).as_dict()
-        self.elements = self.composition.keys()
+        self.elements = list(self.composition)
         for subscript in self.composition.values():
             if not float(subscript).is_integer():
                 raise ValueError("composition subscripts must be integers")

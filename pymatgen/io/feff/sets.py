@@ -9,12 +9,13 @@ structure without further user intervention. This ensures comparability across
 runs.
 """
 
+from __future__ import annotations
+
 import abc
 import logging
 import os
 import sys
 from copy import deepcopy
-from typing import Optional, Union
 
 import numpy as np
 from monty.json import MSONable
@@ -127,7 +128,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     def __init__(
         self,
-        absorbing_atom: Union[str, int],
+        absorbing_atom: str | int,
         structure,
         radius: float,
         config_dict: dict,
@@ -344,7 +345,7 @@ class MPXANESSet(FEFFDictSet):
         edge: str = "K",
         radius: float = 10.0,
         nkpts: int = 1000,
-        user_tag_settings: Optional[dict] = None,
+        user_tag_settings: dict | None = None,
         **kwargs,
     ):
         r"""
@@ -385,7 +386,7 @@ class MPEXAFSSet(FEFFDictSet):
         edge: str = "K",
         radius: float = 10.0,
         nkpts: int = 1000,
-        user_tag_settings: Optional[dict] = None,
+        user_tag_settings: dict | None = None,
         **kwargs,
     ):
         r"""
@@ -431,7 +432,7 @@ class MPEELSDictSet(FEFFDictSet):
         config_dict,
         user_eels_settings=None,
         nkpts: int = 1000,
-        user_tag_settings: Optional[dict] = None,
+        user_tag_settings: dict | None = None,
         **kwargs,
     ):
         """
@@ -504,7 +505,7 @@ class MPELNESSet(MPEELSDictSet):
         convergence_angle: float = 1,
         user_eels_settings=None,
         nkpts: int = 1000,
-        user_tag_settings: Optional[dict] = None,
+        user_tag_settings: dict | None = None,
         **kwargs,
     ):
         r"""
@@ -563,7 +564,7 @@ class MPEXELFSSet(MPEELSDictSet):
         convergence_angle: float = 1,
         user_eels_settings=None,
         nkpts: int = 1000,
-        user_tag_settings: Optional[dict] = None,
+        user_tag_settings: dict | None = None,
         **kwargs,
     ):
         r"""

@@ -622,7 +622,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[k] = int(round(v))
             # start with an ordered structure
-            initial_sp = max(total_occupancy.keys(), key=lambda x: abs(x.oxi_state))
+            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
             for i in g:
                 s[i] = initial_sp
             # determine the manipulations

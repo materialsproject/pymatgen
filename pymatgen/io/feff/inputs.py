@@ -631,7 +631,7 @@ class Tags(dict):
         Returns:
             String representation of Tags.
         """
-        keys = self.keys()
+        keys = list(self)
         if sort_keys:
             keys = sorted(keys)
         lines = []

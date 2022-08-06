@@ -244,13 +244,10 @@ class XcFunc(MSONable):
     def __hash__(self):
         return hash(self.name)
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, (str, XcFunc)):
+            return NotImplemented
         if isinstance(other, XcFunc):
             return self.name == other.name
         # assume other is a string
         return self.name == other
-
-    def __ne__(self, other):
-        return not self == other

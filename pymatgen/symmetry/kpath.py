@@ -163,7 +163,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             structure with the one expected as primitive standard.
             A warning will be issued if the cells don't match.
         """
-        if "magmom" in structure.site_properties.keys():
+        if "magmom" in structure.site_properties:
             warn(
                 "'magmom' entry found in site properties but will be ignored \
                   for the Setyawan and Curtarolo convention."
@@ -1333,11 +1333,11 @@ class KPathLatimerMunro(KPathBase):
         reverse_kpoints = {}
         for point_ind in points_in_path_inds_unique:
             point_label = key_points_labels[point_ind]
-            if point_label not in kpoints.keys():
+            if point_label not in kpoints:
                 kpoints[point_label] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label
             else:
-                existing_labels = [key for key in kpoints.keys() if point_label in key]
+                existing_labels = [key for key in kpoints if point_label in key]
                 if "'" not in point_label:
                     existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
