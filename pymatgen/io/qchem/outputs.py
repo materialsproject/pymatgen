@@ -310,7 +310,9 @@ class QCOutput(MSONable):
             # Determine if the calculation is using the new geometry optimizer
             self.data["new_optimizer"] = read_pattern(self.text, {"key": r"(?i)\s*geom_opt2\s*(?:=)*\s*3"}).get("key")
             if self.data["version"] == "6":
-                self.data["new_optimizer"] = [[]]
+                temp_driver = read_pattern(self.text, {"key": r"(?i)\s*geom_opt_driver\s*(?:=)*\s*optimize"}).get("key")
+                if temp_driver is None:
+                    self.data["new_optimizer"] = [[]]
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output

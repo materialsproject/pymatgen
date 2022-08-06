@@ -172,7 +172,7 @@ single_job_out_names = {
     "new_qchem_files/unable.qout",
     "new_qchem_files/switch_to_cartesian.qout",
     "new_qchem_files/svd_failed.qout",
-
+    "new_qchem_files/v6_old_driver.out",
 }
 
 multi_job_out_names = {
