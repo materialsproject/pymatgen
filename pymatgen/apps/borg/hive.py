@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -130,12 +129,12 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 # Since multiple files are ambiguous, we will always read
                 # the one that it the last one alphabetically.
                 filepath = sorted(vasprun_files)[-1]
-                warnings.warn("%d vasprun.xml.* found. %s is being parsed." % (len(vasprun_files), filepath))
+                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
 
         try:
             vasprun = Vasprun(filepath)
         except Exception as ex:
-            logger.debug("error in {}: {}".format(filepath, ex))
+            logger.debug(f"error in {filepath}: {ex}")
             return None
 
         entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
@@ -184,8 +183,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 "parameters": self._parameters,
                 "data": self._data,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -242,7 +241,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 for filename in filenames:
                     files = sorted(glob.glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR", "DYNMAT"):
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR"):
+                        files_to_parse[filename] = files[0]
+                    elif len(files) == 1 and filename == "DYNMAT":
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -250,13 +251,13 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         # alphabetically for CONTCAR and OSZICAR.
 
                         files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
-                        warnings.warn("%d files found. %s is being parsed." % (len(files), files_to_parse[filename]))
+                        warnings.warn(f"{len(files)} files found. {files_to_parse[filename]} is being parsed.")
 
-            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
+            if not set(files_to_parse).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(
-                    "Unable to parse %s as not all necessary files are present! "
+                    f"Unable to parse {files_to_parse} as not all necessary files are present! "
                     "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
-                    "to be present. Only %s detected" % str(files_to_parse.keys())
+                    f"to be present. Only {files} detected"
                 )
 
             poscar = Poscar.from_file(files_to_parse["POSCAR"])
@@ -285,7 +286,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
         except Exception as ex:
-            logger.debug("error in {}: {}".format(path, ex))
+            logger.debug(f"error in {path}: {ex}")
             return None
 
     def __str__(self):
@@ -297,8 +298,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -375,7 +376,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         try:
             gaurun = GaussianOutput(path)
         except Exception as ex:
-            logger.debug("error in {}: {}".format(path, ex))
+            logger.debug(f"error in {path}: {ex}")
             return None
         param = {}
         for p in self._parameters:
@@ -422,8 +423,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 "data": self._data,
                 "file_extensions": self._file_extensions,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -11,8 +10,8 @@ import sys
 
 from tabulate import tabulate
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Shyue Ping Ong"
@@ -66,18 +65,16 @@ def analyze_localenv(args):
         species = toks[0].split("-")
         bonds[(species[0], species[1])] = float(toks[1])
     for filename in args.filenames:
-        print("Analyzing %s..." % filename)
+        print(f"Analyzing {filename}...")
         data = []
         s = Structure.from_file(filename)
         for i, site in enumerate(s):
             for species, dist in bonds.items():
-                if species[0] in [sp.symbol for sp in site.species.keys()]:
+                if species[0] in [sp.symbol for sp in site.species]:
                     dists = [
-                        d
-                        for nn, d in s.get_neighbors(site, dist)
-                        if species[1] in [sp.symbol for sp in nn.species.keys()]
+                        d for nn, d in s.get_neighbors(site, dist) if species[1] in [sp.symbol for sp in nn.species]
                     ]
-                    dists = ", ".join(["%.3f" % d for d in sorted(dists)])
+                    dists = ", ".join([f"{d:.3f}" for d in sorted(dists)])
                     data.append([i, species[0], species[1], dists])
         print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
 
@@ -101,10 +98,10 @@ def compare_structures(args):
         sys.exit(-1)
 
     m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
-    for i, grp in enumerate(m.group_structures(structures)):
-        print("Group {}: ".format(i))
+    for idx, grp in enumerate(m.group_structures(structures)):
+        print(f"Group {idx}: ")
         for s in grp:
-            print("- {} ({})".format(filenames[structures.index(s)], s.formula))
+            print(f"- {filenames[structures.index(s)]} ({s.formula})")
         print()
 
 

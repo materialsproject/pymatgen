@@ -1,10 +1,11 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 This module provides classes that define a chemical reaction.
 """
+
+from __future__ import annotations
 
 import logging
 import re
@@ -49,8 +50,8 @@ class BalancedReaction(MSONable):
                 {Composition: amt}.
         """
         # sum reactants and products
-        all_reactants = sum([k * v for k, v in reactants_coeffs.items()], Composition({}))
-        all_products = sum([k * v for k, v in products_coeffs.items()], Composition({}))
+        all_reactants = sum((k * v for k, v in reactants_coeffs.items()), Composition({}))
+        all_products = sum((k * v for k, v in products_coeffs.items()), Composition({}))
 
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
@@ -64,7 +65,7 @@ class BalancedReaction(MSONable):
         self._coeffs = []
         self._els = []
         self._all_comp = []
-        for c in set(list(reactants_coeffs.keys()) + list(products_coeffs.keys())):
+        for c in set(list(reactants_coeffs) + list(products_coeffs)):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
             if abs(coeff) > self.TOLERANCE:
@@ -82,7 +83,7 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum([amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp)])
+        return sum(amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp))
 
     def normalize_to(self, comp, factor=1):
         """
@@ -109,7 +110,7 @@ class BalancedReaction(MSONable):
         """
         all_comp = self._all_comp
         coeffs = self._coeffs
-        current_el_amount = sum([all_comp[i][element] * abs(coeffs[i]) for i in range(len(all_comp))]) / 2
+        current_el_amount = sum(all_comp[i][element] * abs(coeffs[i]) for i in range(len(all_comp))) / 2
         scale_factor = factor / current_el_amount
         self._coeffs = [c * scale_factor for c in coeffs]
 
@@ -123,7 +124,7 @@ class BalancedReaction(MSONable):
         Returns:
             Amount of that element in the reaction.
         """
-        return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))]) / 2
+        return sum(self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))) / 2
 
     @property
     def elements(self):
@@ -203,11 +204,11 @@ class BalancedReaction(MSONable):
             elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)
             elif amt < -cls.TOLERANCE:
-                reactant_str.append("{:.4g} {}".format(-amt, formula))
+                reactant_str.append(f"{-amt:.4g} {formula}")
             elif amt > cls.TOLERANCE:
-                product_str.append("{:.4g} {}".format(amt, formula))
+                product_str.append(f"{amt:.4g} {formula}")
 
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+        return f"{' + '.join(reactant_str)} -> {' + '.join(product_str)}"
 
     @classmethod
     def _str_from_comp(cls, coeffs, compositions, reduce=False):
@@ -237,7 +238,7 @@ class BalancedReaction(MSONable):
         relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
         comp = sum(relevant_comp, Composition())
         entry = ComputedEntry(0.5 * comp, self.calculate_energy(energies))
-        entry.name = self.__str__()
+        entry.name = str(self)
         return entry
 
     def as_dict(self):
@@ -246,8 +247,8 @@ class BalancedReaction(MSONable):
             A dictionary representation of BalancedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": {str(comp): coeff for comp, coeff in self.reactants_coeffs.items()},
             "products": {str(comp): coeff for comp, coeff in self.products_coeffs.items()},
         }
@@ -301,7 +302,7 @@ class Reaction(BalancedReaction):
     def __init__(self, reactants, products):
         """
         Reactants and products to be specified as list of
-        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
+        pymatgen.core.structure.Composition. e.g., [comp1, comp2]
 
         Args:
             reactants ([Composition]): List of reactants.
@@ -384,8 +385,8 @@ class Reaction(BalancedReaction):
             A dictionary representation of Reaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [comp.as_dict() for comp in self._input_reactants],
             "products": [comp.as_dict() for comp in self._input_products],
         }
@@ -495,8 +496,8 @@ class ComputedReaction(Reaction):
             A dictionary representation of ComputedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [e.as_dict() for e in self._reactant_entries],
             "products": [e.as_dict() for e in self._product_entries],
         }

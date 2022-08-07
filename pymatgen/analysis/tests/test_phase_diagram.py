@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,14 +6,16 @@ import unittest
 import warnings
 from numbers import Number
 from pathlib import Path
-from collections import OrderedDict
 
 import numpy as np
+from monty.serialization import dumpfn, loadfn
+from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
     GrandPotPDEntry,
+    PatchedPhaseDiagram,
     PDEntry,
     PDPlotter,
     PhaseDiagram,
@@ -23,7 +24,6 @@ from pymatgen.analysis.phase_diagram import (
     tet_coord,
     triangular_coord,
     uniquelines,
-    BasePhaseDiagram,
 )
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
@@ -36,7 +36,7 @@ module_dir = Path(__file__).absolute().parent
 class PDEntryTest(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
-        self.entry = PDEntry(comp, 53)
+        self.entry = PDEntry(comp, 53, name="mp-757614")
         self.gpentry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
 
     def test_get_energy(self):
@@ -51,8 +51,8 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(self.gpentry.energy_per_atom, 50.0 / 2, "Wrong energy per atom!")
 
     def test_get_name(self):
-        self.assertEqual(self.entry.name, "LiFeO2", "Wrong name!")
-        self.assertEqual(self.gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(self.entry.name, "mp-757614", "Wrong name!")
+        self.assertEqual(self.gpentry.name, "mp-757614", "Wrong name!")
 
     def test_get_composition(self):
         comp = self.entry.composition
@@ -71,10 +71,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(entry.name, "mp-757614", "Wrong name!")
         self.assertEqual(entry.energy_per_atom, 53.0 / 4)
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        self.assertEqual(gpentry.name, "LiFeO2", "Wrong name!")
+        self.assertEqual(gpentry.name, "mp-757614", "Wrong name!")
         self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
 
         d_anon = d.copy()
@@ -85,7 +85,11 @@ class PDEntryTest(unittest.TestCase):
             self.fail("Should not need to supply name!")
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entry))
+        self.assertEqual(str(self.entry), "PDEntry : Li1 Fe1 O2 (mp-757614) with energy = 53.0000")
+        pde = self.entry.as_dict()
+        del pde["name"]
+        pde = PDEntry.from_dict(pde)
+        self.assertEqual(str(pde), "PDEntry : Li1 Fe1 O2 with energy = 53.0000")
 
     def test_read_csv(self):
         entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
@@ -101,7 +105,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = ["Li2O", "FeO", "LiO8"]
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
-        sp_mapping = OrderedDict()
+        sp_mapping = {}
         for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
@@ -161,17 +165,18 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertRaises(ValueError, PhaseDiagram, entries)
 
     def test_dim1(self):
-        # Ensure that dim 1 PDs can eb generated.
+        # Ensure that dim 1 PDs can be generated.
         for el in ["Li", "Fe", "O2"]:
             entries = [e for e in self.entries if e.composition.reduced_formula == el]
             pd = PhaseDiagram(entries)
             self.assertEqual(len(pd.stable_entries), 1)
 
             for e in entries:
-                decomp, ehull = pd.get_decomp_and_e_above_hull(e)
+                ehull = pd.get_e_above_hull(e)
                 self.assertGreaterEqual(ehull, 0)
+
             plotter = PDPlotter(pd)
-            lines, stable_entries, unstable_entries = plotter.pd_plot_data
+            lines, *_ = plotter.pd_plot_data
             self.assertEqual(lines[0][1], [0, 0])
 
     def test_ordering(self):
@@ -245,15 +250,16 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
     def test_get_e_above_hull(self):
-        for entry in self.pd.stable_entries:
-            self.assertLess(
-                self.pd.get_e_above_hull(entry),
-                1e-11,
-                "Stable entries should have e above hull of zero!",
-            )
-
         for entry in self.pd.all_entries:
-            if entry not in self.pd.stable_entries:
+            for entry in self.pd.stable_entries:
+                decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
+                self.assertLess(
+                    e_hull,
+                    1e-11,
+                    "Stable entries should have e above hull of zero!",
+                )
+                self.assertEqual(decomp[entry], 1, "Decomposition of stable entry should be itself.")
+            else:
                 e_ah = self.pd.get_e_above_hull(entry)
                 self.assertTrue(isinstance(e_ah, Number))
                 self.assertGreaterEqual(e_ah, 0)
@@ -283,7 +289,6 @@ class PhaseDiagramTest(unittest.TestCase):
                     self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d, 7)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
-                pass
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
@@ -396,7 +401,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_element_profile(self):
         for el in self.pd.elements:
             for entry in self.pd.stable_entries:
-                if not (entry.composition.is_element):
+                if not entry.composition.is_element:
                     self.assertLessEqual(
                         len(self.pd.get_element_profile(el, entry.composition)),
                         len(self.pd.facets),
@@ -454,6 +459,11 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(h_e, entry.energy)
             n_h_e = self.pd.get_hull_energy(entry.composition.fractional_composition)
             self.assertAlmostEqual(n_h_e, entry.energy_per_atom)
+
+    def test_get_hull_energy_per_atom(self):
+        for entry in self.pd.stable_entries:
+            h_e = self.pd.get_hull_energy_per_atom(entry.composition)
+            self.assertAlmostEqual(h_e, entry.energy_per_atom)
 
     def test_1d_pd(self):
         entry = PDEntry("H", 0)
@@ -578,13 +588,22 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(cp2["FeO-LiFeO2-Fe"][elem], energy)
 
     def test_to_from_dict(self):
-
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
         pd = PhaseDiagram([entry])
         d = pd.as_dict()
         pd_roundtrip = PhaseDiagram.from_dict(d)
         self.assertEqual(pd.all_entries[0].entry_id, pd_roundtrip.all_entries[0].entry_id)
+        dd = self.pd.as_dict()
+        new_pd = PhaseDiagram.from_dict(dd)
+        new_dd = new_pd.as_dict()
+        self.assertEqual(new_dd, dd)
+        self.assertIsInstance(pd.to_json(), str)
+
+    def test_read_json(self):
+        with ScratchDir("."):
+            dumpfn(self.pd, "pd.json")
+            loadfn("pd.json")
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
@@ -597,7 +616,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         stable_formulas = [ent.original_entry.composition.reduced_formula for ent in self.pd.stable_entries]
         expected_stable = ["Li5FeO4", "Li2FeO3", "LiFeO2", "Fe2O3", "Li2O2"]
         for formula in expected_stable:
-            self.assertTrue(formula in stable_formulas, "{} not in stable entries!".format(formula))
+            self.assertTrue(formula in stable_formulas, f"{formula} not in stable entries!")
         self.assertEqual(len(self.pd6.stable_entries), 4)
 
     def test_get_formation_energy(self):
@@ -617,30 +636,11 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                 energy,
                 stable_formation_energies[formula],
                 7,
-                "Calculated formation for {} is not correct!".format(formula),
+                f"Calculated formation for {formula} is not correct!",
             )
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
-
-
-class BasePhaseDiagramTest(PhaseDiagramTest):
-    def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
-        self.pd = BasePhaseDiagram.from_entries(self.entries)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
-    def test_init(self):
-        pass
-
-    def test_as_dict_from_dict(self):
-        dd = self.pd.as_dict()
-        new_pd = BasePhaseDiagram.from_dict(dd)
-        new_dd = new_pd.as_dict()
-        self.assertEqual(new_dd, dd)
 
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
@@ -669,6 +669,53 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
 
+class PatchedPhaseDiagramTest(unittest.TestCase):
+    def setUp(self):
+        self.entries = EntrySet.from_csv(str(module_dir / "reaction_entries_test.csv"))
+        # NOTE add He to test for correct behaviour despite no patches involving He
+        self.entries.add(PDEntry("He", -1.23))
+
+        self.pd = PhaseDiagram(entries=self.entries)
+        self.ppd = PatchedPhaseDiagram(entries=self.entries)
+
+        # novel entries not in any of the patches
+        self.novel_comps = [Composition("H5C2OP"), Composition("V2PH4C")]
+        for c in self.novel_comps:
+            self.assertTrue(c.chemical_system not in self.ppd.spaces)
+
+        self.novel_entries = [PDEntry(c, -39.8) for c in self.novel_comps]
+
+    def test_get_stable_entries(self):
+        self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
+
+    def test_get_qhull_entries(self):
+        # NOTE qhull_entry is an specially sorted list due to it's construction, we
+        # can't mimic this in ppd therefore just test if sorted versions are equal.
+        self.assertEqual(
+            sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+        )
+
+    def test_get_decomposition(self):
+        for c in self.novel_comps:
+            pd_decomp = self.pd.get_decomposition(c)
+            ppd_decomp = self.ppd.get_decomposition(c)
+
+            # NOTE unittest doesn't have an assert almost equal for dictionaries.
+            for e in pd_decomp:
+                self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
+
+    def test_get_phase_separation_energy(self):
+        for e in self.novel_entries:
+            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
+
+    def test_get_equilibrium_reaction_energy(self):
+        for e in self.pd.stable_entries:
+            self.assertAlmostEqual(
+                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
+            )
+
+
 class ReactionDiagramTest(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -690,21 +737,24 @@ class ReactionDiagramTest(unittest.TestCase):
             self.assertIn(Element.C, e.composition)
             self.assertIn(Element.P, e.composition)
             self.assertIn(Element.H, e.composition)
-        # formed_formula = [e.composition.reduced_formula for e in
-        #                   self.rd.rxn_entries]
+        # formed_formula = [e.composition.reduced_formula for e in self.rd.rxn_entries]
         # expected_formula = [
-        #     'V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829',
-        #     'V0.125P0.125H0.05C0.0375O0.6625',
-        #     'V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626',
-        #     'V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598',
-        #     'V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056',
-        #     'V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845',
-        #     'V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516',
-        #     'V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824',
-        #     'V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521']
-        #
+        #     "V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829",
+        #     "V0.125P0.125H0.05C0.0375O0.6625",
+        #     "V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626",
+        #     "V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598",
+        #     "V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056",
+        #     "V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845",
+        #     "V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516",
+        #     "V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824",
+        #     "V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521",
+        # ]
+
+        # # Please do not uncomment this test. This test is far too fragile because of numerical precision errors.
+        # # Unless someone wants to make an effort to write a PROPER test which do not fail with changes in
+        # # OS or numpy versions, DO NOT UNCOMMENT!
         # for formula in expected_formula:
-        #     self.assertTrue(formula in formed_formula, "%s not in %s" % (formed_formula, expected_formula))
+        #     self.assertTrue(formula in formed_formula, f"{formed_formula} not in {expected_formula}")
 
 
 class PDPlotterTest(unittest.TestCase):

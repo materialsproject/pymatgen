@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -122,7 +121,7 @@ def _maketemp(name, createmode=None):
     Returns: the name of the temporary file.
     """
     d, fn = os.path.split(name)
-    fd, tempname = tempfile.mkstemp(prefix=".%s-" % fn, dir=d)
+    fd, tempname = tempfile.mkstemp(prefix=f".{fn}-", dir=d)
     os.close(fd)
 
     # Temporary files are created with mode 0600, which is usually not

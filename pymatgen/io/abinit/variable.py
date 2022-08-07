@@ -1,5 +1,6 @@
 """Support for Abinit input variables."""
 import collections
+import collections.abc
 import string
 
 import numpy as np
@@ -140,7 +141,7 @@ class InputVariable:
         except Exception:
             return sval
 
-        if fval == 0 or (abs(fval) > 1e-3 and abs(fval) < 1e4):
+        if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
             addlen = 5
         else:
@@ -150,7 +151,7 @@ class InputVariable:
         ndec = max(len(str(fval - int(fval))) - 2, floatdecimal)
         ndec = min(ndec, 10)
 
-        sval = "{v:>{l}.{p}{f}}".format(v=fval, l=ndec + addlen, p=ndec, f=form)
+        sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
 
         sval = sval.replace("e", "d")
 
@@ -175,9 +176,9 @@ class InputVariable:
         # Determine the format
         width = max(len(str(s)) for s in lvals)
         if type_all == int:
-            formatspec = ">{0}d".format(width)
+            formatspec = f">{width}d"
         elif type_all == str:
-            formatspec = ">{0}".format(width)
+            formatspec = f">{width}"
         else:
 
             # Number of decimal
@@ -185,14 +186,14 @@ class InputVariable:
             ndec = min(max(maxdec, floatdecimal), 10)
 
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
-                formatspec = ">{w}.{p}f".format(w=ndec + 5, p=ndec)
+                formatspec = f">{ndec + 5}.{ndec}f"
             else:
-                formatspec = ">{w}.{p}e".format(w=ndec + 8, p=ndec)
+                formatspec = f">{ndec + 8}.{ndec}e"
 
         line = "\n"
         for L in values:
             for val in L:
-                line += " {v:{f}}".format(v=val, f=formatspec)
+                line += f" {val:{{formatspec}}}"
             line += "\n"
 
         return line.rstrip("\n")
@@ -234,7 +235,7 @@ def flatten(iterable):
                 return tuple(array)
             iterator = stack.pop()
         else:
-            if not isinstance(value, str) and isinstance(value, collections.Iterable):
+            if not isinstance(value, str) and isinstance(value, collections.abc.Iterable):
                 stack.append(iterator)
                 iterator = iter(value)
             else:

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -11,7 +10,7 @@ from pymatgen.symmetry.kpath import KPathSeek
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from seekpath import get_path  # type: ignore
+    from seekpath import get_path
 except ImportError:
     get_path = None
 
@@ -65,7 +64,7 @@ class KPathSeekTest(PymatgenTest):
         kpath = KPathSeek(struct)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints.keys())
+        labels = list(kpoints)
 
         self.assertEqual(
             sorted(labels),

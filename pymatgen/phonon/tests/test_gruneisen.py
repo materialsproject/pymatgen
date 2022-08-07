@@ -9,10 +9,13 @@ except ImportError as ex:
     phonopy = None
     TotalDos = None
 
-from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line
-from pymatgen.io.phonopy import get_gruneisenparameter
+from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
-from pymatgen.phonon.plotter import GruneisenPhononBSPlotter, GruneisenPhononBandStructureSymmLine, GruneisenPlotter
+from pymatgen.phonon.plotter import (
+    GruneisenPhononBandStructureSymmLine,
+    GruneisenPhononBSPlotter,
+    GruneisenPlotter,
+)
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -87,7 +90,9 @@ class GruneisenParameterTest(PymatgenTest):
 
     def test_average_gruneisen(self):
         self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(), 1.164231026696211)
-        self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(squared=False), 0.8497596674110489)
+        self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(squared=False), 0.849759667411049)
+        self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(limit_frequencies="debye"), 0.848865124114612)
+        self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(limit_frequencies="acoustic"), 1.283180896570312)
         self.assertAlmostEqual(self.gruneisenobject_Si.average_gruneisen(), 1.1090815951892143)
 
     def test_thermal_conductivity_slack(self):

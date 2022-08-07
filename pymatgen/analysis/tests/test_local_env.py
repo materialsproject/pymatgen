@@ -1,18 +1,14 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 import os
 import unittest
 import warnings
 from math import pi
+from shutil import which
 
 import numpy as np
 import pytest
-from monty.os.path import which
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import (
     BrunnerNN_real,
@@ -23,6 +19,7 @@ from pymatgen.analysis.local_env import (
     CrystalNN,
     CutOffDictNN,
     EconNN,
+    IsayevNN,
     JmolNN,
     LocalStructOrderParams,
     MinimumDistanceNN,
@@ -33,13 +30,14 @@ from pymatgen.analysis.local_env import (
     ValenceIonicRadiusEvaluator,
     VoronoiNN,
     get_neighbors_of_site_with_index,
+    metal_edge_extender,
     site_is_of_motif_type,
     solid_angle,
-    IsayevNN,
-    metal_edge_extender,
 )
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
-
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 
@@ -198,8 +196,8 @@ class VoronoiNNTest(PymatgenTest):
             by_one = self.nn.get_nn_info(self.s, i)
 
             # Get the weights
-            all_weights = sorted([x["weight"] for x in info])
-            by_one_weights = sorted([x["weight"] for x in by_one])
+            all_weights = sorted(x["weight"] for x in info)
+            by_one_weights = sorted(x["weight"] for x in by_one)
 
             self.assertArrayAlmostEqual(all_weights, by_one_weights)
 
@@ -1063,7 +1061,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         ops_099 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.99)
         ops_101 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=1.01)
         ops_501 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=5.01)
-        ops_voro = LocalStructOrderParams(op_types, parameters=op_params)
+        _ = LocalStructOrderParams(op_types, parameters=op_params)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
@@ -1478,16 +1476,14 @@ class Critic2NNTest(PymatgenTest):
         warnings.filters = self.prev_warnings
 
     def test_cn(self):
-        nn = Critic2NN()
+        Critic2NN()
         # self.assertEqual(nn.get_cn(self.diamond, 0), 4)
 
 
 class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
-
-    def test_metal_edge_extender(self):
-        mol_graph = MoleculeGraph.with_edges(
+        self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
                 (0, 2): None,
@@ -1503,9 +1499,62 @@ class MetalEdgeExtenderTest(PymatgenTest):
                 (5, 10): None,
             },
         )
-        self.assertEqual(len(mol_graph.graph.edges), 11)
-        extended_mol_graph = metal_edge_extender(mol_graph)
+
+        # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
+        uncharged_K_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_K.xyz"))
+        K_sites = [s.coords for s in uncharged_K_cluster.sites]
+        K_species = [s.species for s in uncharged_K_cluster.sites]
+        charged_K_cluster = Molecule(K_species, K_sites, charge=1)
+        self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
+        assert len(self.water_cluster_K.graph.edges) == 0
+
+        # Mg + 6 H2O at 1.94 Ang from Mg
+        uncharged_Mg_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_Mg.xyz"))
+        Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
+        Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
+        charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
+        self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
+
+    def test_metal_edge_extender(self):
+        self.assertEqual(len(self.LiEC_graph.graph.edges), 11)
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph)
         self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
+    def test_custom_metals(self):
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+
+        # empty metals should exit cleanly with no change to graph
+        mol_graph = metal_edge_extender(self.water_cluster_K, metals={}, cutoff=2.5)
+        self.assertEqual(len(mol_graph.graph.edges), 0)
+
+        mol_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=2.5)
+        self.assertEqual(len(mol_graph.graph.edges), 4)
+
+        extended_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=4.5)
+        self.assertEqual(len(extended_graph.graph.edges), 7)
+
+        # if None, should auto-detect Li
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals=None)
+        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
+    def test_custom_coordinators(self):
+        # leave out Oxygen, graph should not change
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={"N", "F", "S", "Cl"})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+        # empty coordinators should exit cleanly with no change
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+
+    def test_custom_cutoff(self):
+        short_mol_graph = metal_edge_extender(self.LiEC_graph, cutoff=0.5)
+        self.assertEqual(len(short_mol_graph.graph.edges), 11)
+
+        # with a cutoff of 1.5, no edges should be found.
+        # test that the 2nd pass analysis (auto increasing cutoff to 2.5) picks
+        # up the six coordination bonds
+        short_mol_graph = metal_edge_extender(self.water_cluster_Mg, cutoff=1.5)
+        self.assertEqual(len(short_mol_graph.graph.edges), 6)
 
 
 if __name__ == "__main__":

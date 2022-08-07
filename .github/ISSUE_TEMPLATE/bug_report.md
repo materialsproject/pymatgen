@@ -14,7 +14,7 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-Provide any example files that are needed to reproduce the error, 
+Provide any example files that are needed to reproduce the error,
 especially if the bug pertains to parsing of a file.
 
 **Expected behavior**

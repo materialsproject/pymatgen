@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,8 +6,8 @@ This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.
 
 This module depends on a compiled bader executable available in the path.
-Please download the library at http://theory.cm.utexas.edu/vasp/bader/ and
-follow the instructions to compile the executable.
+Please download the library at http://theory.cm.utexas.edu/henkelman/code/bader/
+and follow the instructions to compile the executable.
 
 If you use this module, please cite the following:
 
@@ -21,11 +20,11 @@ import os
 import shutil
 import subprocess
 import warnings
+from shutil import which
 
 import numpy as np
 from monty.dev import requires
 from monty.io import zopen
-from monty.os.path import which
 from monty.tempfile import ScratchDir
 
 from pymatgen.io.cube import Cube
@@ -112,10 +111,11 @@ class BaderAnalysis:
 
         Args:
             chgcar_filename (str): The filename of the CHGCAR.
-
+            potcar_filename (str): The filename of the POTCAR.
+            chgref_filename (str): The filename of the reference charge density.
             parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
                 charge densities are atom centered
-
+            cube_filename (str): Optional. The filename of the cube file.
         """
         if not BADEREXE:
             raise RuntimeError(
@@ -125,16 +125,15 @@ class BaderAnalysis:
             )
 
         if not (cube_filename or chgcar_filename):
-            raise ValueError("You must provide a file! Either a cube file or a CHGCAR")
+            raise ValueError("You must provide either a cube file or a CHGCAR")
         if cube_filename and chgcar_filename:
-            raise ValueError("You cannot parse a cube and a CHGCAR at the same time!")
-
+            raise ValueError("You cannot parse a cube and a CHGCAR at the same time.")
         self.parse_atomic_densities = parse_atomic_densities
 
         if chgcar_filename:
             fpath = os.path.abspath(chgcar_filename)
             self.is_vasp = True
-            self.chgcar = Chgcar.from_file(chgcar_filename)
+            self.chgcar = Chgcar.from_file(fpath)
             self.structure = self.chgcar.structure
             self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
             self.natoms = self.chgcar.poscar.natoms
@@ -155,9 +154,11 @@ class BaderAnalysis:
             self.cube = Cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None
+            chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+            self.reference_used = bool(chgref_filename)
 
-        tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
         with ScratchDir("."):
+            tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
             with zopen(fpath, "rt") as f_in:
                 with open(tmpfile, "wt") as f_out:
                     shutil.copyfileobj(f_in, f_out)
@@ -170,10 +171,10 @@ class BaderAnalysis:
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]
             with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                stdout, stderr = rs.communicate()
+                stdout, _ = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "bader exited with return code %d. " "Please check your bader installation." % rs.returncode
+                    f"bader exited with return code {rs.returncode}. Please check your bader installation."
                 )
 
             try:
@@ -182,7 +183,8 @@ class BaderAnalysis:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, " "calculation of vacuum charge may be incorrect."
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
+                    UserWarning,
                 )
 
             data = []
@@ -208,15 +210,14 @@ class BaderAnalysis:
             self.data = data
 
             if self.parse_atomic_densities:
-                # convert the charge denisty for each atom spit out by Bader into Chgcar objects for easy parsing
+                # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
                 atom_chgcars = [
-                    Chgcar.from_file("BvAt{}.dat".format(str(i).zfill(4)))
-                    for i in range(1, len(self.chgcar.structure) + 1)
+                    Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
                 ]
 
                 atomic_densities = []
                 # For each atom in the structure
-                for atom, loc, chg in zip(
+                for _, loc, chg in zip(
                     self.chgcar.structure,
                     self.chgcar.structure.frac_coords,
                     atom_chgcars,
@@ -244,7 +245,7 @@ class BaderAnalysis:
                         ]
 
                     # Finds the central encompassing volume which holds all the data within a precision
-                    def find_encompassing_vol(data, prec=1e-3):
+                    def find_encompassing_vol(data):
                         total = np.sum(data)
                         for i in range(np.max(data.shape)):
                             sliced_data = slice_from_center(data, i, i, i)
@@ -262,7 +263,8 @@ class BaderAnalysis:
 
     def get_charge(self, atom_index):
         """
-        Convenience method to get the charge on a particular atom. If the cube file
+        Convenience method to get the charge on a particular atom. This is the "raw"
+        charge generated by the Bader program, not a partial atomic charge. If the cube file
         is a spin-density file, then this will return the spin density per atom with
         positive being spin up and negative being spin down.
 
@@ -277,8 +279,11 @@ class BaderAnalysis:
 
     def get_charge_transfer(self, atom_index, nelect=None):
         """
-        Returns the charge transferred for a particular atom. If the arg nelect
-        is not supplied, then POTCAR must be supplied to determine nelectrons.
+        Returns the charge transferred for a particular atom. A positive value means
+        that the site has gained electron density (i.e. exhibits anionic character)
+        whereas a negative value means the site has lost electron density (i.e. exhibits
+        cationic character). If the arg nelect is not supplied, then POTCAR must be
+        supplied to determine nelect.
 
         Args:
             atom_index:
@@ -286,20 +291,39 @@ class BaderAnalysis:
             nelect:
                 number of electrons associated with an isolated atom at this index.
                 For most DFT codes this corresponds to the number of valence electrons
-                associated with the pseudopotential
+                associated with the pseudopotential (e.g. ZVAL for VASP).
 
         Returns:
             Charge transfer associated with atom from the Bader analysis.
-            Given by final charge on atom - nelectrons for
-            associated atom.
+            Given by bader charge on atom - nelect for associated atom.
         """
         if not self.nelects and nelect is None:
-            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument" "for cube file")
+            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument for cube file")
         return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
+
+    def get_partial_charge(self, atom_index, nelect=None):
+        """
+        Convenience method to get the partial charge on a particular atom. This is
+        simply the negative value of the charge transferred. A positive value indicates
+        that the atom has cationic character, whereas a negative value indicates the
+        site has anionic character.
+
+        Args:
+            atom_index:
+                Index of atom.
+            nelect:
+                number of electrons associated with an isolated atom at this index.
+                For most DFT codes this corresponds to the number of valence electrons
+                associated with the pseudopotential (e.g. ZVAL for VASP).
+
+        Returns:
+            Charge associated with atom from the Bader analysis.
+        """
+        return -self.get_charge_transfer(atom_index, nelect)
 
     def get_charge_decorated_structure(self):
         """
-        Returns an charge decorated structure
+        Returns a charge decorated structure
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
@@ -313,13 +337,12 @@ class BaderAnalysis:
     def get_oxidation_state_decorated_structure(self, nelects=None):
         """
         Returns an oxidation state decorated structure based on bader analysis results.
+        Each site is assigned a charge based on the computed partial atomic charge from bader.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
         """
-        charges = [
-            -self.get_charge_transfer(i, None if not nelects else nelects[i]) for i in range(len(self.structure))
-        ]
+        charges = [self.get_partial_charge(i, None if not nelects else nelects[i]) for i in range(len(self.structure))]
         struc = self.structure.copy()
         struc.add_oxidation_state_by_site(charges)
         return struc
@@ -409,12 +432,10 @@ class BaderAnalysis:
                 # and this would give 'static' over 'relax2' over 'relax'
                 # however, better to use 'suffix' kwarg to avoid this!
                 paths.sort(reverse=True)
-                warning_msg = (
-                    "Multiple files detected, using %s" % os.path.basename(paths[0]) if len(paths) > 1 else None
-                )
+                warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
                 fpath = paths[0]
             else:
-                warning_msg = "Could not find %s" % filename
+                warning_msg = f"Could not find {filename}"
                 if filename in ["AECCAR0", "AECCAR2"]:
                     warning_msg += ", cannot calculate charge transfer."
                 elif filename == "POTCAR":
@@ -425,7 +446,7 @@ class BaderAnalysis:
 
         chgcar_filename = _get_filepath("CHGCAR")
         if chgcar_filename is None:
-            raise IOError("Could not find CHGCAR!")
+            raise FileNotFoundError("Could not find CHGCAR!")
         potcar_filename = _get_filepath("POTCAR")
         aeccar0 = _get_filepath("AECCAR0")
         aeccar2 = _get_filepath("AECCAR2")
@@ -443,29 +464,6 @@ class BaderAnalysis:
         )
 
 
-def get_filepath(filename, warning, path, suffix):
-    """
-    Args:
-        filename: Filename
-        warning: Warning message
-        path: Path to search
-        suffix: Suffixes to search.
-    """
-    paths = glob.glob(os.path.join(path, filename + suffix + "*"))
-    if not paths:
-        warnings.warn(warning)
-        return None
-    if len(paths) > 1:
-        # using reverse=True because, if multiple files are present,
-        # they likely have suffixes 'static', 'relax', 'relax2', etc.
-        # and this would give 'static' over 'relax2' over 'relax'
-        # however, better to use 'suffix' kwarg to avoid this!
-        paths.sort(reverse=True)
-        warnings.warn("Multiple files detected, using {}".format(os.path.basename(path)))
-    path = paths[0]
-    return path
-
-
 def bader_analysis_from_path(path, suffix=""):
     """
     Convenience method to run Bader analysis on a folder containing
@@ -473,7 +471,7 @@ def bader_analysis_from_path(path, suffix=""):
 
     This method will:
 
-    1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+    1. Look for files CHGCAR, AECCAR0, AECCAR2, POTCAR or their gzipped
     counterparts.
     2. If AECCAR* files are present, constructs a temporary reference
     file as AECCAR0 + AECCAR2
@@ -496,7 +494,7 @@ def bader_analysis_from_path(path, suffix=""):
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warnings.warn("Multiple files detected, using {}".format(os.path.basename(path)))
+            warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
         path = paths[0]
         return path
 

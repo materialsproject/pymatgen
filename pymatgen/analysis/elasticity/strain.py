@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides classes and methods used to describe deformations and
@@ -16,6 +14,7 @@ import numpy as np
 import scipy
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 __author__ = "Joseph Montoya"
@@ -37,7 +36,7 @@ class Deformation(SquareTensor):
 
     def __new__(cls, deformation_gradient):
         """
-        Create a Deformation object.  Note that the constructor uses __new__
+        Create a Deformation object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of subclassing
         numpy ndarrays.
 
@@ -107,9 +106,9 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, structure, norm_strains=None, shear_strains=None, symmetry=False):
+    def __init__(self, structure: Structure, norm_strains=None, shear_strains=None, symmetry=False):
         """
-        constructs the deformed geometries of a structure.  Generates
+        constructs the deformed geometries of a structure. Generates
         m + n deformed structures according to the supplied parameters.
 
         Args:
@@ -124,8 +123,8 @@ class DeformedStructureSet(collections.abc.Sequence):
         shear_strains = shear_strains or [-0.06, -0.03, 0.03, 0.06]
 
         self.undeformed_structure = structure
-        self.deformations = []
-        self.def_structs = []
+        self.deformations: list[Deformation] = []
+        self.def_structs: list[Structure] = []
 
         # Generate deformations
         for ind in [(0, 0), (1, 1), (2, 2)]:
@@ -141,7 +140,7 @@ class DeformedStructureSet(collections.abc.Sequence):
         # Perform symmetry reduction if specified
         if symmetry:
             self.sym_dict = symmetry_reduce(self.deformations, structure)
-            self.deformations = list(self.sym_dict.keys())
+            self.deformations = list(self.sym_dict)
         self.deformed_structures = [defo.apply_to_structure(structure) for defo in self.deformations]
 
     def __iter__(self):
@@ -163,9 +162,9 @@ class Strain(SquareTensor):
 
     def __new__(cls, strain_matrix):
         """
-        Create a Strain object.  Note that the constructor uses __new__
+        Create a Strain object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.  Note also that the default constructor
+        subclassing numpy ndarrays. Note also that the default constructor
         does not include the deformation gradient
 
         Args:
@@ -206,7 +205,7 @@ class Strain(SquareTensor):
         """
         Like Deformation.from_index_amount, except generates
         a strain from the zero 3x3 tensor or voigt vector with
-        the amount specified in the index location.  Ensures
+        the amount specified in the index location. Ensures
         symmetric strain.
 
         Args:
@@ -244,7 +243,7 @@ class Strain(SquareTensor):
 def convert_strain_to_deformation(strain, shape="upper"):
     """
     This function converts a strain to a deformation gradient that will
-    produce that strain.  Supports three methods:
+    produce that strain. Supports three methods:
 
     Args:
         strain (3x3 array-like): strain matrix

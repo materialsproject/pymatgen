@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -15,8 +14,13 @@ from io import StringIO
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
-from pybtex import errors
-from pybtex.database.input import bibtex
+
+try:
+    from pybtex import errors
+    from pybtex.database.input import bibtex
+except ImportError:
+    pybtex = None
+    bibtex = None
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -109,9 +113,7 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
             return HistoryNode.from_dict(h_node)
 
         if len(h_node) != 3:
-            raise ValueError(
-                "Invalid History node, " "should be dict or (name, version, " "description) tuple: {}".format(h_node)
-            )
+            raise ValueError(f"Invalid History node, should be dict or (name, version, description) tuple: {h_node}")
         return HistoryNode(h_node[0], h_node[1], h_node[2])
 
 
@@ -132,7 +134,7 @@ class Author(namedtuple("Author", ["name", "email"])):
         """
         String representation of an Author
         """
-        return "{} <{}>".format(self.name, self.email)
+        return f"{self.name} <{self.email}>"
 
     def as_dict(self):
         """
@@ -168,12 +170,12 @@ class Author(namedtuple("Author", ["name", "email"])):
             # >, whitespace
             m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
             if not m or m.start() != 0 or m.end() != len(author):
-                raise ValueError("Invalid author format! {}".format(author))
+                raise ValueError(f"Invalid author format! {author}")
             return Author(m.groups()[0], m.groups()[1])
         if isinstance(author, dict):
             return Author.from_dict(author)
         if len(author) != 2:
-            raise ValueError("Invalid author, should be String or (name, " "email) tuple: {}".format(author))
+            raise ValueError(f"Invalid author, should be String or (name, email) tuple: {author}")
         return Author(author[0], author[1])
 
 
@@ -234,13 +236,12 @@ class StructureNL:
 
         # check that references are valid BibTeX
         if not isinstance(references, str):
-            raise ValueError("Invalid format for SNL reference! Should be " "empty string or BibTeX string.")
+            raise ValueError("Invalid format for SNL reference! Should be empty string or BibTeX string.")
         if references and not is_valid_bibtex(references):
-            raise ValueError("Invalid format for SNL reference! Should be " "BibTeX string.")
+            raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                "The BibTeX string must be fewer than {} chars "
-                ", you have {}".format(MAX_BIBTEX_CHARS, len(references))
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
             )
 
         self.references = references
@@ -252,36 +253,30 @@ class StructureNL:
         # check remarks limit
         for r in self.remarks:
             if len(r) > 140:
-                raise ValueError("The remark exceeds the maximum size of" "140 characters: {}".format(r))
+                raise ValueError(f"The remark exceeds the maximum size of140 characters: {r}")
 
         # check data limit
         self.data = data if data else {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
             raise ValueError(
-                "The data dict exceeds the maximum size limit of"
-                " {} bytes (you have {})".format(MAX_DATA_SIZE, sys.getsizeof(data))
+                f"The data dict exceeds the maximum size limit of {MAX_DATA_SIZE} "
+                f"bytes (you have {sys.getsizeof(data)})"
             )
 
-        for k, v in self.data.items():
+        for k in self.data:
             if not k.startswith("_"):
                 raise ValueError(
-                    "data must contain properly namespaced data "
-                    "with keys starting with an underscore. The "
-                    "key {} does not start with an underscore.",
-                    format(k),
+                    "data must contain properly namespaced data with keys starting with an underscore. "
+                    f"The key {k} does not start with an underscore."
                 )
 
         # check for valid history nodes
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
-            raise ValueError(
-                "A maximum of {} History nodes are supported, " "you have {}!".format(MAX_HNODES, len(history))
-            )
+            raise ValueError(f"A maximum of {MAX_HNODES} History nodes are supported, you have {len(history)}!")
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
-            raise ValueError(
-                "One or more history nodes exceeds the maximum " "size limit of {} bytes".format(MAX_HNODE_SIZE)
-            )
+            raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
         self.created_at = created_at if created_at else datetime.datetime.utcnow()
 
@@ -290,8 +285,8 @@ class StructureNL:
         Returns: MSONable dict
         """
         d = self.structure.as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["about"] = {
             "authors": [a.as_dict() for a in self.authors],
             "projects": self.projects,
@@ -389,7 +384,7 @@ class StructureNL:
     def __str__(self):
         return "\n".join(
             [
-                "{}\n{}".format(k, getattr(self, k))
+                f"{k}\n{getattr(self, k)}"
                 for k in (
                     "structure",
                     "authors",
@@ -403,22 +398,6 @@ class StructureNL:
             ]
         )
 
-    def __eq__(self, other):
-        return all(
-            map(
-                lambda n: getattr(self, n) == getattr(other, n),
-                (
-                    "structure",
-                    "authors",
-                    "projects",
-                    "references",
-                    "remarks",
-                    "data",
-                    "history",
-                    "created_at",
-                ),
-            )
-        )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)

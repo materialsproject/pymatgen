@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,12 +6,14 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import List, Union, Callable
+from __future__ import annotations
+
+from typing import Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
 from scipy import stats
-from scipy.ndimage.filters import convolve1d
+from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.typing import ArrayLike
@@ -45,7 +46,7 @@ class Spectrum(MSONable):
     YLABEL = "y"
 
     def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs):
-        r"""
+        """
         Args:
             x (ndarray): A ndarray of N values.
             y (ndarray): A ndarray of N x k values. The first dimension must be
@@ -69,19 +70,19 @@ class Spectrum(MSONable):
             return self.x
         if item == self.YLABEL.lower():
             return self.y
-        raise AttributeError("Invalid attribute name %s" % str(item))
+        raise AttributeError(f"Invalid attribute name {str(item)}")
 
     def __len__(self):
         return self.ydim[0]
 
-    def normalize(self, mode: str = "max", value: float = 1.0):
+    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
         """
         Normalize the spectrum with respect to the sum of intensity
 
         Args:
-            mode (str): Normalization mode. Supported modes are "max" (set the
-                max y value to value, e.g., in XRD patterns), "sum" (set the
-                sum of y to a value, i.e., like a probability density).
+            mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
+                e.g., in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
+                probability density.
             value (float): Value to normalize to. Defaults to 1.
         """
         if mode.lower() == "sum":
@@ -89,11 +90,11 @@ class Spectrum(MSONable):
         elif mode.lower() == "max":
             factor = np.max(self.y, axis=0)
         else:
-            raise ValueError("Unsupported normalization mode %s!" % mode)
+            raise ValueError(f"Unsupported normalization mode {mode}!")
 
         self.y /= factor / value
 
-    def smear(self, sigma: float = 0.0, func: Union[str, Callable] = "gaussian"):
+    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian"):
         """
         Apply Gaussian/Lorentzian smearing to spectrum y value.
 
@@ -121,7 +122,7 @@ class Spectrum(MSONable):
             self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
-    def get_interpolated_value(self, x: float) -> List[float]:
+    def get_interpolated_value(self, x: float) -> list[float]:
         """
         Returns an interpolated y value for a particular x value.
 
@@ -159,7 +160,7 @@ class Spectrum(MSONable):
 
     def __sub__(self, other):
         """
-        Substract one Spectrum object from another. Checks that x scales are
+        Subtract one Spectrum object from another. Checks that x scales are
         the same.
         Otherwise, a ValueError is thrown
 
@@ -167,7 +168,7 @@ class Spectrum(MSONable):
             other: Another Spectrum object
 
         Returns:
-            Substraction of the two Spectrum objects
+            Subtraction of the two Spectrum objects
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
@@ -215,16 +216,10 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        return "\n".join(
-            [
-                self.__class__.__name__,
-                "%s: %s" % (self.XLABEL, self.x),
-                "%s: %s" % (self.YLABEL, self.y),
-            ]
-        )
+        return "\n".join([type(self).__name__, f"{self.XLABEL}: {self.x}", f"{self.YLABEL}: {self.y}"])
 
     def __repr__(self):
         """
         Returns a printable representation of the class
         """
-        return self.__str__()
+        return str(self)

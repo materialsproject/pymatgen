@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module contains some utility functions and classes that are used in the chemenv package.
@@ -52,9 +50,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(
-            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
-        )
+        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
     return lower_and_upper_functions
 
 
@@ -297,7 +293,7 @@ def rectangle_surface_intersection(
     x2 = np.max(rectangle[0])
     y1 = np.min(rectangle[1])
     y2 = np.max(rectangle[1])
-    # Check that f_lower is allways lower than f_upper between x1 and x2 if no bounds are given or between the bounds
+    # Check that f_lower is always lower than f_upper between x1 and x2 if no bounds are given or between the bounds
     #  of the f_lower and f_upper functions if they are given.
     if check:
         if bounds_lower is not None:
@@ -312,7 +308,7 @@ def rectangle_surface_intersection(
                     numpoints_check=numpoints_check,
                 ):
                     raise RuntimeError(
-                        "Function f_lower is not allways lower or equal to function f_upper within "
+                        "Function f_lower is not always lower or equal to function f_upper within "
                         "the domain defined by the functions bounds."
                     )
             else:
@@ -328,13 +324,13 @@ def rectangle_surface_intersection(
                 numpoints_check=numpoints_check,
             ):
                 raise RuntimeError(
-                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "Function f_lower is not always lower or equal to function f_upper within "
                     "the domain defined by the functions bounds."
                 )
         else:
             if "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
                 raise RuntimeError(
-                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "Function f_lower is not always lower or equal to function f_upper within "
                     "the domain defined by x1 and x2."
                 )
     if bounds_lower is None:
@@ -433,7 +429,7 @@ def rotateCoords(coords, R):
     :param R: Rotation matrix
     :return: List of rotated points
     """
-    newlist = list()
+    newlist = []
     for pp in coords:
         rpp = matrixTimesVector(R, pp)
         newlist.append(rpp)
@@ -466,7 +462,7 @@ def changebasis(uu, vv, nn, pps):
         MM[ii, 1] = vv[ii]
         MM[ii, 2] = nn[ii]
     PP = np.linalg.inv(MM)
-    newpps = list()
+    newpps = []
     for pp in pps:
         newpps.append(matrixTimesVector(PP, pp))
     return newpps
@@ -501,7 +497,7 @@ def anticlockwise_sort(pps):
     :param pps: List of points to be sorted
     :return: Sorted list of points
     """
-    newpps = list()
+    newpps = []
     angles = np.zeros(len(pps), np.float_)
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
@@ -646,7 +642,7 @@ class Plane:
         self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
-        """Initialialize three random points on this plane.
+        """Initialize three random points on this plane.
 
         :param nonzeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
@@ -677,12 +673,12 @@ class Plane:
         :return: String representation of the Plane object
         """
         outs = ["Plane object"]
-        outs.append("  => Normal vector : {nn}".format(nn=self.normal_vector))
+        outs.append(f"  => Normal vector : {self.normal_vector}")
         outs.append("  => Equation of the plane ax + by + cz + d = 0")
-        outs.append("     with a = {v}".format(v=self._coefficients[0]))
-        outs.append("          b = {v}".format(v=self._coefficients[1]))
-        outs.append("          c = {v}".format(v=self._coefficients[2]))
-        outs.append("          d = {v}".format(v=self._coefficients[3]))
+        outs.append(f"     with a = {self._coefficients[0]}")
+        outs.append(f"          b = {self._coefficients[1]}")
+        outs.append(f"          c = {self._coefficients[2]}")
+        outs.append(f"          d = {self._coefficients[3]}")
         return "\n".join(outs)
 
     def is_in_plane(self, pp, dist_tolerance):
@@ -724,9 +720,9 @@ class Plane:
         :return: The lists of indices of the points on one side of the plane, on the plane and
             on the other side of the plane
         """
-        side1 = list()
-        inplane = list()
-        side2 = list()
+        side1 = []
+        inplane = []
+        side2 = []
         for ip, pp in enumerate(points):
             if self.is_in_plane(pp, dist_tolerance):
                 inplane.append(ip)
@@ -777,7 +773,7 @@ class Plane:
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
         to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
-        separated by less than delta are grouped together. The delta parameter is either set explictly or taken as
+        separated by less than delta are grouped together. The delta parameter is either set explicitly or taken as
         a fraction (using the delta_factor parameter) of the maximal point distance.
         :param points: Points for which distances are computed
         :param delta: Distance interval for which two points are considered in the same group.
@@ -823,26 +819,6 @@ class Plane:
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 
-    def orthonormal_vectors_old(self):
-        """
-        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
-        third one is the normal vector of the plane
-        :return: List of orthogonal vectors
-        :raise: ValueError if all the coefficients are zero or if there is some other strange error
-        """
-        if self.e1 is None:
-            imax = np.argmax(np.abs(self.normal_vector))
-            if imax == 0:
-                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
-            elif imax == 1:
-                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
-            elif imax == 2:
-                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
-            else:
-                raise ValueError("Only three values in the normal vector, should not be here ...")
-            self.e2 = np.cross(self.e3, self.e1)
-        return [self.e1, self.e2, self.e3]
-
     def project_and_to2dim_ordered_indices(self, pps, plane_center="mean"):
         """
         Projects each points in the point list pps on plane and returns the indices that would sort the
@@ -862,11 +838,11 @@ class Plane:
         proj = self.projectionpoints(pps)
         [u1, u2, u3] = self.orthonormal_vectors()
         PP = np.array([[u1[0], u2[0], u3[0]], [u1[1], u2[1], u3[1]], [u1[2], u2[2], u3[2]]])
-        xypps = list()
+        xypps = []
         for pp in proj:
             xyzpp = np.dot(pp, PP)
             xypps.append(xyzpp[0:2])
-        if str(plane_center) == str("mean"):
+        if str(plane_center) == "mean":
             mean = np.zeros(2, np.float_)
             for pp in xypps:
                 mean += pp
@@ -1013,7 +989,7 @@ class Plane:
         :param points: List of points.
         :return: Plane.
         """
-        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float_)
+        mean_point = np.array([sum(pp[ii] for pp in points) for ii in range(3)], np.float_)
         mean_point /= len(points)
         AA = np.zeros((len(points), 3), np.float_)
         for ii, pp in enumerate(points):

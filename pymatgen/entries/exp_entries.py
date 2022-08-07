@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module defines Entry classes for containing experimental data.
@@ -46,16 +44,16 @@ class ExpEntry(PDEntry, MSONable):
         found = False
         enthalpy = float("inf")
         for data in self._thermodata:
-            if data.type == "fH" and data.value < enthalpy and (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
+            if data.type == "fH" and data.value < enthalpy and (data.phaseinfo not in ("gas", "liquid")):
                 enthalpy = data.value
                 found = True
         if not found:
-            raise ValueError("List of Thermodata does not contain enthalpy " "values.")
+            raise ValueError("List of Thermodata does not contain enthalpy values.")
         self.temperature = temperature
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula, self.energy)
+        return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
@@ -74,8 +72,8 @@ class ExpEntry(PDEntry, MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "thermodata": [td.as_dict() for td in self._thermodata],
             "composition": self.composition.as_dict(),
             "temperature": self.temperature,

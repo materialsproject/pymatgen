@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,8 +6,8 @@ import json
 import os
 import unittest
 import warnings
+from shutil import which
 
-from monty.os.path import which
 from monty.serialization import loadfn
 
 from pymatgen.electronic_structure.bandstructure import BandStructure
@@ -43,7 +42,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         )
         cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/fermi/"))
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), "rt") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json")) as f:
             d = json.load(f)
             cls.bs = BandStructure.from_dict(d)
             cls.btr = BoltztrapRunner(cls.bs, 1)
@@ -271,8 +270,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dft_bs_sym_line.json"))
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
-        for kpt_line, labels_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
-            sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=labels_dict)
+        for kpt_line, label_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
+            sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=label_dict)
             self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up]), 20)
             self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]), 143)
 
@@ -289,7 +288,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     def test_get_complete_dos(self):
         structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
         cdos = self.bz_up.get_complete_dos(structure, self.bz_dw)
-        spins = list(cdos.densities.keys())
+        spins = list(cdos.densities)
         self.assertIn(Spin.down, spins)
         self.assertIn(Spin.up, spins)
         self.assertAlmostEqual(

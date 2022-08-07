@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -12,16 +11,14 @@ from warnings import warn
 import networkx as nx
 import numpy as np
 
-
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.kpath import (
     KPathBase,
     KPathLatimerMunro,
     KPathSeek,
     KPathSetyawanCurtarolo,
 )
-
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.electronic_structure.core import Spin
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -163,7 +160,7 @@ class HighSymmKpath(KPathBase):
     def label_index(self):
         """
         Returns:
-        The correspondance between numbers and kpoint symbols for the
+        The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
@@ -172,7 +169,7 @@ class HighSymmKpath(KPathBase):
     def equiv_labels(self):
         """
         Returns:
-        The correspondance between the kpoint symbols in the Latimer and
+        The correspondence between the kpoint symbols in the Latimer and
         Munro convention, Setyawan and Curtarolo, and Hinuma
         conventions respectively. Only generated when path_type = 'all'.
         """
@@ -226,8 +223,8 @@ class HighSymmKpath(KPathBase):
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
         warn(
-            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
-of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
         )
 
         return bs
@@ -266,7 +263,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
                     a_tr_coord.append(np.dot(rpg[o_num], coord_a))
 
                 for coord_a in a_tr_coord:
-                    for key, value in b_path["kpoints"].items():
+                    for value in b_path["kpoints"].values():
                         if np.allclose(value, coord_a, atol=self._atol):
                             sc_count[o_num] += 1
                             break
@@ -310,7 +307,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
     @staticmethod
     def get_continuous_path(bandstructure):
         """
-        Obtain a continous version of an inputted path using graph theory.
+        Obtain a continuous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
         odd-degree to ensure a Eulerian path can be formed. Initial
         k-path must be able to be converted to a connected graph. See
@@ -321,7 +318,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
 
         Returns:
-        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continous path.
+        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
         """
 
         G = nx.Graph()
@@ -360,17 +357,43 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
+        num_branches = len(bandstructure.branches)
+        new_branches = []
+
+        # This ensures proper format of bandstructure.branches
+        processed = []
+        for ind in range(num_branches):
+            branch = bandstructure.branches[ind]
+
+            if branch["name"] not in processed:
+
+                if tuple(branch["name"].split("-")) in plot_axis:
+                    new_branches.append(branch)
+                    processed.append(branch["name"])
+                else:
+                    next_branch = bandstructure.branches[ind + 1]
+                    combined = {
+                        "start_index": branch["start_index"],
+                        "end_index": next_branch["end_index"],
+                        "name": f"{branch['name'].split('-')[0]}-{next_branch['name'].split('-')[1]}",
+                    }
+                    processed.append(branch["name"])
+                    processed.append(next_branch["name"])
+
+                    new_branches.append(combined)
+
+        # Obtain new values
         for entry in distances_map:
+
+            branch = new_branches[entry[0]]
+
             if not entry[1]:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["start_index"]
                 stop = branch["end_index"] + 1
                 step = 1
-
             else:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["end_index"]
-                stop = branch["start_index"] - 1
+                stop = branch["start_index"] - 1 if branch["start_index"] != 0 else None
                 step = -1
 
             # kpoints

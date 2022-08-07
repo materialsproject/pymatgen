@@ -113,7 +113,7 @@ class VasprunBSLoader:
         self.mommat = None  # not implemented yet
         self.magmom = None  # not implemented yet
         self.fermi = bs_obj.efermi * units.eV
-        self.UCvol = self.structure.volume * units.Angstrom ** 3
+        self.UCvol = self.structure.volume * units.Angstrom**3
 
         if not bs_obj.is_metal():
             self.vbm_idx = max(bs_obj.get_vbm()["band_index"][Spin.up] + bs_obj.get_vbm()["band_index"][Spin.down])
@@ -123,8 +123,8 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.fermi
-            self.cbm = self.fermi
+            self.vbm = self.fermi / units.eV
+            self.cbm = self.fermi / units.eV
 
         if nelect:
             self.nelect_all = nelect
@@ -236,7 +236,7 @@ class BandstructureLoader:
         self.mommat = mommat  # not implemented yet
         self.magmom = magmom  # not implemented yet
         self.fermi = bs_obj.efermi * units.eV
-        self.UCvol = self.structure.volume * units.Angstrom ** 3
+        self.UCvol = self.structure.volume * units.Angstrom**3
 
         if not bs_obj.is_metal():
             self.vbm_idx = max(bs_obj.get_vbm()["band_index"][Spin.up] + bs_obj.get_vbm()["band_index"][Spin.down])
@@ -352,7 +352,7 @@ class VasprunLoader:
             self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters["NELECT"]
-            self.UCvol = self.structure.volume * units.Angstrom ** 3
+            self.UCvol = self.structure.volume * units.Angstrom**3
 
             bs_obj = vrun_obj.get_band_structure()
             if not bs_obj.is_metal():
@@ -447,7 +447,7 @@ class BztInterpolator:
                 bands that will be interpolated
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
-                derivative related trasport properties (Hall coefficient).
+                derivative related transport properties (Hall coefficient).
             save_bztInterp: Default False. If True coefficients and equivalences are
                 saved in fname file.
             load_bztInterp: Default False. If True the coefficients and equivalences
@@ -676,17 +676,17 @@ class BztTransportProperties:
         """
         Args:
             BztInterpolator: a BztInterpolator previously generated
-            temp_r: numpy array of temperatures at which to calculate trasport properties
-            doping: doping levels at which to calculate trasport properties. If provided,
+            temp_r: numpy array of temperatures at which to calculate transport properties
+            doping: doping levels at which to calculate transport properties. If provided,
                 transport properties w.r.t. these doping levels are also computed. See
                 compute_properties_doping() method for details.
-            npts_mu: number of energy points at which to calculate trasport properties
+            npts_mu: number of energy points at which to calculate transport properties
             CRTA: constant value of the relaxation time
-            save_bztTranspProps: Default False. If True all computed tranport properties
+            save_bztTranspProps: Default False. If True all computed transport properties
                 will be stored in fname file.
-            load_bztTranspProps: Default False. If True all computed tranport properties
+            load_bztTranspProps: Default False. If True all computed transport properties
                 will be loaded from fname file.
-            fname: File path where to save/load tranport properties.
+            fname: File path where to save/load transport properties.
 
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
@@ -771,7 +771,7 @@ class BztTransportProperties:
                         cond_eff_mass[t, i] = (
                             np.linalg.inv(self.Conductivity_mu[t, i])
                             * self.Carrier_conc_mu[t, i]
-                            * units.qe_SI ** 2
+                            * units.qe_SI**2
                             / units.me_SI
                             * 1e6
                         )
@@ -798,7 +798,7 @@ class BztTransportProperties:
         Calculate all the properties w.r.t. the doping levels in input.
 
         Args:
-            doping: numpy array specifing the doping levels
+            doping: numpy array specifying the doping levels
 
         When executed, it add the following variable at the BztTransportProperties
         object:
@@ -883,7 +883,7 @@ class BztTransportProperties:
             for t in range(len(temp_r)):
                 for i, dop in enumerate(doping):
                     try:
-                        cond_eff_mass[t, i] = np.linalg.inv(cond[t, i]) * dop * units.qe_SI ** 2 / units.me_SI * 1e6
+                        cond_eff_mass[t, i] = np.linalg.inv(cond[t, i]) * dop * units.qe_SI**2 / units.me_SI * 1e6
                     except np.linalg.LinAlgError:
                         pass
 
@@ -914,7 +914,7 @@ class BztTransportProperties:
     #     return epsilon[pos]
 
     def save(self, fname="bztTranspProps.json.gz"):
-        """Save the tranport properties to fname file."""
+        """Save the transport properties to fname file."""
         lst_props = [
             self.temp_r,
             self.CRTA,
@@ -950,7 +950,7 @@ class BztTransportProperties:
         dumpfn(lst_props, fname)
 
     def load(self, fname="bztTranspProps.json.gz"):
-        """Load the tranport properties from fname file."""
+        """Load the transport properties from fname file."""
         d = loadfn(fname)
         (
             self.temp_r,

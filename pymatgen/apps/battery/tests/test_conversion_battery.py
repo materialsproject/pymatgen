@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -9,11 +8,11 @@ import unittest
 
 from monty.json import MontyDecoder
 
-from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
     ConversionVoltagePair,
 )
+from pymatgen.core.composition import Composition
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -24,7 +23,7 @@ class ConversionElectrodeTest(unittest.TestCase):
         self.conversion_eletrodes = {}
         for f in self.formulas:
 
-            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json"), "r") as fid:
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json")) as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
@@ -59,6 +58,19 @@ class ConversionElectrodeTest(unittest.TestCase):
             },
         }
 
+        # expected composite upon discharge process, of which entry object has been simplified to reduced formula
+        self.expected_composite = {
+            "LiCoO2": {
+                "entries_charge": [["CoO2"], ["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"]],
+                "entries_discharge": [["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"], ["Co", "Li2O"]],
+            },
+            "FeF3": {
+                "entries_charge": [["FeF3"], ["FeF2", "LiF"]],
+                "entries_discharge": [["FeF2", "LiF"], ["Fe", "LiF"]],
+            },
+            "MnO2": {"entries_charge": [["MnO2"]], "entries_discharge": [["Mn", "MgO"]]},
+        }
+
     def test_init(self):
         # both 'LiCoO2' and "FeF3" are using Li+ as working ion; MnO2 is for the multivalent Mg2+ ion
         for f in self.formulas:
@@ -70,23 +82,22 @@ class ConversionElectrodeTest(unittest.TestCase):
             p = self.expected_properties[f]
 
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v, 2)
+                self.assertAlmostEqual(getattr(c, "get_" + k)(), v, 2)
 
             self.assertIsNotNone(c.get_summary_dict(True))
 
-            # Test pair to dict
-
+            # try to export/import a voltage pair via a dict
             pair = c.voltage_pairs[0]
             d = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(d)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
                 self.assertEqual(getattr(pair, prop), getattr(pair2, prop), 2)
 
-            # Test
+            # try to create an electrode from a dict and test methods
             d = c.as_dict()
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(electrode, "get_" + k).__call__(), v, 2)
+                self.assertAlmostEqual(getattr(electrode, "get_" + k)(), v, 2)
 
     def test_summary(self):
         kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
@@ -97,6 +108,18 @@ class ConversionElectrodeTest(unittest.TestCase):
             for k, v in p.items():
                 summary_key = kmap.get(k, k)
                 self.assertAlmostEqual(d[summary_key], v, 2)
+
+    def test_composite(self):
+        # check entries in charged/discharged state
+        for formula in self.formulas:
+            CE = self.conversion_eletrodes[formula]["CE"]
+            for step, vpair in enumerate(CE.voltage_pairs):
+                # entries_charge/entries_discharge attributes should return entries equal with the expected
+                composite_dict = self.expected_composite[formula]
+                for attri in ["entries_charge", "entries_discharge"]:
+                    # composite at each discharge step, of which entry object is simplified to reduced formula
+                    entries_formula_list = [entry.composition.reduced_formula for entry in getattr(vpair, attri)]
+                    self.assertEqual(entries_formula_list, composite_dict[attri][step])
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -29,6 +28,7 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -59,7 +59,7 @@ invang_to_ev = 3.80986
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
-for cn, di in cn_opt_params.items():  # type: ignore
+for cn, di in cn_opt_params.items():
     for mot, li in di.items():
         motif_cn_op[mot] = {"cn": int(cn), "optype": li[0]}
         motif_cn_op[mot]["params"] = deepcopy(li[1]) if len(li) > 1 else None
@@ -155,9 +155,9 @@ def genrecip(a1, a2, a3, encut):
     k = np.arange(-k_max, k_max)
 
     # Convert index to vectors using meshgrid
-    indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+    indices = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
     # Multiply integer vectors to get recipricol space vectors
-    vecs = np.dot(indicies, [b1, b2, b3])
+    vecs = np.dot(indices, [b1, b2, b3])
     # Calculate radii of all vectors
     radii = np.sqrt(np.einsum("ij,ij->i", vecs, vecs))
 
@@ -169,7 +169,7 @@ def genrecip(a1, a2, a3, encut):
 
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
     """
-    Generate reciprocal vector magnitudes within the cutoff along the specied
+    Generate reciprocal vector magnitudes within the cutoff along the specified
     lattice vectors.
     Args:
         a1: Lattice vector a (in Bohrs)
@@ -208,7 +208,7 @@ class StructureMotifInterstitial:
     Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (e.g., tetrahedra, octahedra). The algorithm is called InFiT
     (Interstitialcy Finding Tool), it was introducted by
     Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
     and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
@@ -238,14 +238,14 @@ class StructureMotifInterstitial:
                 distinct interstitial sites are to be found.
             inter_elem (string): element symbol of desired interstitial.
             motif_types ([string]): list of structure motif types that are
-                to be considered.  Permissible types are:
+                to be considered. Permissible types are:
                 tet (tetrahedron), oct (octahedron).
             op_threshs ([float]): threshold values for the underlying order
                 parameters to still recognize a given structural motif
                 (i.e., for an OP value >= threshold the coordination pattern
                 match is positive, for OP < threshold the match is
                 negative.
-            dl (float): grid fineness in Angstrom.  The input
+            dl (float): grid fineness in Angstrom. The input
                 structure is divided into a grid of dimension
                 a/dl x b/dl x c/dl along the three crystallographic
                 directions, with a, b, and c being the lengths of
@@ -268,12 +268,12 @@ class StructureMotifInterstitial:
         self.cn_motif_lostop = {}
         self.target_cns = []
         for motif in self._motif_types:
-            if motif not in list(motif_cn_op.keys()):
-                raise RuntimeError("unsupported motif type: {}.".format(motif))
+            if motif not in list(motif_cn_op):
+                raise RuntimeError(f"unsupported motif type: {motif}.")
             cn = int(motif_cn_op[motif]["cn"])
             if cn not in self.target_cns:
                 self.target_cns.append(cn)
-            if cn not in list(self.cn_motif_lostop.keys()):
+            if cn not in list(self.cn_motif_lostop):
                 self.cn_motif_lostop[cn] = {}
             tmp_optype = motif_cn_op[motif]["optype"]
             if tmp_optype == "tet_max":
@@ -303,8 +303,8 @@ class StructureMotifInterstitial:
         ]
         maxdl = max(dls)
         if verbose:
-            print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
-            print("dls: {} {} {}".format(dls[0], dls[1], dls[2]))
+            print(f"Grid size: {nbins[0]} {nbins[1]} {nbins[2]}")
+            print(f"dls: {dls[0]} {dls[1]} {dls[2]}")
         struct_w_inter = struct.copy()
         struct_w_inter.append(inter_elem, [0, 0, 0])
         natoms = len(list(struct_w_inter.sites))
@@ -316,9 +316,9 @@ class StructureMotifInterstitial:
         k = np.arange(0, nbins[2]) + 0.5
 
         # Convert index to vectors using meshgrid
-        indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+        indices = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
         # Multiply integer vectors to get recipricol space vectors
-        vecs = np.multiply(indicies, np.divide(1, nbins))
+        vecs = np.multiply(indices, np.divide(1, nbins))
 
         # Loop over trial positions that are based on a regular
         # grid in fractional coordinate space
@@ -345,7 +345,7 @@ class StructureMotifInterstitial:
                                     elem = site.specie.symbol
                                 else:
                                     elem = site.specie.element.symbol
-                                if elem in list(cns.keys()):
+                                if elem in list(cns):
                                     cns[elem] = cns[elem] + 1
                                 else:
                                     cns[elem] = 1
@@ -404,7 +404,7 @@ class StructureMotifInterstitial:
                 if l != -1 and l not in unique_ids:
                     unique_ids.append(l)
             if verbose:
-                print("unique_ids {} {}".format(motif, unique_ids))
+                print(f"unique_ids {motif} {unique_ids}")
             for uid in unique_ids:
                 maxq = 0.0
                 imaxq = -1
@@ -443,8 +443,8 @@ class StructureMotifInterstitial:
 
         if verbose:
             print(
-                "Initial trial sites: {}\nAfter clustering: {}\n"
-                "After symmetry pruning: {}".format(len(trialsites), len(include), len(include) - len(discard))
+                f"Initial trial sites: {len(trialsites),}\nAfter clustering: {len(include),}\n"
+                f"After symmetry pruning: {len(include) - len(discard)}"
             )
         for i in include:
             if i not in discard:
@@ -536,7 +536,7 @@ class StructureMotifInterstitial:
                 properties=None,
             )
             if not sc_with_inter:
-                raise RuntimeError("could not generate supercell with" " interstitial {}".format(ids + 1))
+                raise RuntimeError(f"could not generate supercell with interstitial {ids + 1}")
             scs.append(sc_with_inter.copy())
         return scs
 
@@ -587,7 +587,7 @@ class TopographyAnalyzer:
                 determine if something are actually periodic boundary images of
                 each other. Default is usually fine.
             max_cell_range (int): This is the range of periodic images to
-                construct the Voronoi tesselation. A value of 1 means that we
+                construct the Voronoi tessellation. A value of 1 means that we
                 include all points from (x +- 1, y +- 1, z+- 1) in the
                 voronoi construction. This is because the Voronoi poly
                 extends beyond the standard unit cell because of PBC.
@@ -619,7 +619,7 @@ class TopographyAnalyzer:
         # mapping all sites to the standard unit cell
         s = structure.copy()
         constrained_sites = []
-        for i, site in enumerate(s):
+        for site in s:
             if (
                 site.frac_coords[2] >= constrained_c_frac - thickness
                 and site.frac_coords[2] <= constrained_c_frac + thickness
@@ -632,7 +632,7 @@ class TopographyAnalyzer:
         framework = []
         non_framework = []
         for site in structure:
-            if self.framework_ions.intersection(site.species.keys()):
+            if self.framework_ions.intersection(site.species):
                 framework.append(site)
             else:
                 non_framework.append(site)
@@ -656,7 +656,7 @@ class TopographyAnalyzer:
             for v in vs:
                 node_points_map[v].update(pts)
 
-        logger.debug("%d total Voronoi vertices" % len(voro.vertices))
+        logger.debug(f"{len(voro.vertices)} total Voronoi vertices")
 
         # Vnodes store all the valid voronoi polyhedra. Cation vnodes store
         # the voronoi polyhedra that are already occupied by existing cations.
@@ -688,13 +688,11 @@ class TopographyAnalyzer:
                     if ref is None:
                         vnodes.append(poly)
 
-        logger.debug("%d voronoi vertices in cell." % len(vnodes))
+        logger.debug(f"{len(vnodes)} voronoi vertices in cell.")
 
         # Eliminate all voronoi nodes which are closest to existing cations.
         if len(cations) > 0:
-            cation_coords = [
-                site.frac_coords for site in non_framework if self.cations.intersection(site.species.keys())
-            ]
+            cation_coords = [site.frac_coords for site in non_framework if self.cations.intersection(site.species)]
 
             vertex_fcoords = [v.frac_coords for v in vnodes]
             dist_matrix = lattice.get_all_distances(cation_coords, vertex_fcoords)
@@ -702,7 +700,7 @@ class TopographyAnalyzer:
             cation_vnodes = [v for i, v in enumerate(vnodes) if i in indices]
             vnodes = [v for i, v in enumerate(vnodes) if i not in indices]
 
-        logger.debug("%d vertices in cell not with cation." % len(vnodes))
+        logger.debug(f"{len(vnodes)} vertices in cell not with cation.")
         self.coords = coords
         self.vnodes = vnodes
         self.cation_vnodes = cation_vnodes
@@ -716,7 +714,7 @@ class TopographyAnalyzer:
         Basic check for volume of all voronoi poly sum to unit cell volume
         Note that this does not apply after poly combination.
         """
-        vol = sum((v.volume for v in self.vnodes)) + sum((v.volume for v in self.cation_vnodes))
+        vol = sum(v.volume for v in self.vnodes) + sum(v.volume for v in self.cation_vnodes)
         if abs(vol - self.structure.volume) > 1e-8:
             raise ValueError(
                 "Sum of voronoi volumes is not equal to original volume of "
@@ -760,7 +758,7 @@ class TopographyAnalyzer:
                     frac_coords.append(fcoords + image)
             merged_vnodes.append(VoronoiPolyhedron(lattice, np.average(frac_coords, axis=0), poly_indices, self.coords))
         self.vnodes = merged_vnodes
-        logger.debug("%d vertices after combination." % len(self.vnodes))
+        logger.debug(f"{len(self.vnodes)} vertices after combination.")
 
     def remove_collisions(self, min_dist=0.5):
         """
@@ -803,7 +801,7 @@ class TopographyAnalyzer:
             return min(all_dist)
 
         voro = [s.frac_coords for s in self.vnodes]
-        print("Min dist between voronoi vertices centers = %.4f" % get_min_dist(voro))
+        print(f"Min dist between voronoi vertices centers = {get_min_dist(voro):.4f}")
 
         def get_non_framework_dist(fcoords):
             cations = [site.frac_coords for site in self.non_framework]
@@ -814,7 +812,7 @@ class TopographyAnalyzer:
             return np.linalg.norm(min_dist), min(min_dist), max(min_dist)
 
         print(len(self.non_framework))
-        print("MSE dist voro = %s" % str(get_non_framework_dist(voro)))
+        print(f"MSE dist voro = {str(get_non_framework_dist(voro))}")
 
     def write_topology(self, fname="Topo.cif"):
         """
@@ -875,7 +873,7 @@ class VoronoiPolyhedron:
     Convenience container for a voronoi point in PBC and its associated polyhedron.
     """
 
-    def __init__(self, lattice, frac_coords, polyhedron_indices, all_coords, name=None):
+    def __init__(self, lattice: Lattice, frac_coords, polyhedron_indices, all_coords, name=None):
         """
         :param lattice:
         :param frac_coords:
@@ -925,7 +923,7 @@ class VoronoiPolyhedron:
         return calculate_vol(self.polyhedron_coords)
 
     def __str__(self):
-        return "Voronoi polyhedron %s" % self.name
+        return f"Voronoi polyhedron {self.name}"
 
 
 class ChargeDensityAnalyzer(MSONable):
@@ -1014,7 +1012,7 @@ class ChargeDensityAnalyzer(MSONable):
             df = pd.DataFrame({}, columns=["A", "B", "C", "Chgcar"])
             self._extrema_df = df
             self.extrema_coords = []
-            logger.info("Find {} {}.".format(len(df), extrema_type))
+            logger.info(f"Find {len(df)} {extrema_type}.")
             return
 
         data = {}
@@ -1045,7 +1043,7 @@ class ChargeDensityAnalyzer(MSONable):
         self._extrema_df = df
         self.extrema_type = extrema_type
         self.extrema_coords = extrema_coords
-        logger.info("Find {} {}.".format(len(df), extrema_type))
+        logger.info(f"Find {len(df)} {extrema_type}.")
 
     @requires(
         peak_local_max_found,
@@ -1156,7 +1154,7 @@ class ChargeDensityAnalyzer(MSONable):
         # np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])
         # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
-        logger.debug("{} vertices after combination.".format(len(self.extrema_coords)))
+        logger.debug(f"{len(self.extrema_coords)} vertices after combination.")
         return None
 
     def remove_collisions(self, min_dist=0.5):
@@ -1384,12 +1382,12 @@ def generic_groupby(list_in, comp=operator.eq):
         if ls1 is not None:
             continue
         list_out[i1] = label_num
-        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:  # noqa
+        for i2, ls2 in list(enumerate(list_out))[(i1 + 1) :]:
             if comp(list_in[i1], list_in[i2]):
-                if list_out[i2] is None:
+                if ls2 is None:
                     list_out[i2] = list_out[i1]
                 else:
-                    list_out[i1] = list_out[i2]
+                    list_out[i1] = ls2
                     label_num -= 1
         label_num += 1
     return list_out
@@ -1431,7 +1429,7 @@ def converge(f, step, tol, max_h):
         h += step
 
         if h > max_h:
-            raise Exception("Did not converge before {}".format(h))
+            raise Exception(f"Did not converge before {h}")
     return g
 
 
@@ -1442,7 +1440,7 @@ def tune_for_gamma(lattice, epsilon):
     number of reciprocal and real lattice vectors,
     given the suggested cut off radii by Kumagai and Oba
     """
-    logger.debug("Converging for ewald parameter...")
+    logger.debug("Converging for Ewald parameter...")
     prec = 25  # a reasonable precision to tune gamma for
 
     gamma = (2 * np.average(lattice.abc)) ** (-1 / 2.0)
@@ -1451,19 +1449,18 @@ def tune_for_gamma(lattice, epsilon):
     real_set = real_set[0]
 
     logger.debug(
-        "First approach with gamma ={}\nProduced {} real vecs and {} recip "
-        "vecs.".format(gamma, len(real_set), len(recip_set))
+        f"First approach with gamma ={gamma}\nProduced {len(real_set)} real vecs and {len(recip_set)} recip vecs."
     )
 
     while float(len(real_set)) / len(recip_set) > 1.05 or float(len(recip_set)) / len(real_set) > 1.05:
         gamma *= (float(len(real_set)) / float(len(recip_set))) ** 0.17
-        logger.debug("\tNot converged...Try modifying gamma to {}.".format(gamma))
+        logger.debug(f"\tNot converged...Try modifying gamma to {gamma}.")
         recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
         recip_set = recip_set[0]
         real_set = real_set[0]
-        logger.debug("Now have {} real vecs and {} recip vecs.".format(len(real_set), len(recip_set)))
+        logger.debug(f"Now have {len(real_set)} real vecs and {len(recip_set)} recip vecs.")
 
-    logger.debug("Converged with gamma = {}".format(gamma))
+    logger.debug(f"Converged with gamma = {gamma}")
 
     return gamma
 
@@ -1508,7 +1505,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                         recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)

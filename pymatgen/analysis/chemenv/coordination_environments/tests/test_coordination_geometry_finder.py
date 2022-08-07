@@ -16,16 +16,11 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     LocalGeometryFinder,
     symmetry_measure,
 )
+from pymatgen.core.structure import Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )
@@ -38,6 +33,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             centering_type="standard",
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
+        self.lgf2 = LocalGeometryFinder(print_citation=True)
 
     #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
@@ -65,7 +61,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
-        # self.assertEqual(abstract_geom.__str__(),
+        # self.assertEqual(str(abstract_geom)),
         #                  '\nAbstract Geometry with 3 points :\n'
         #                  '  [-1.    0.   -0.25]\n'
         #                  '  [ 1.    0.   -0.25]\n'
@@ -111,6 +107,12 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             np.array([6.88012571, -5.79877503, -3.73177541]),
             np.array([6.90041188, -3.32797839, -3.71812416]),
         ]
+
+        # test to check that one can pass voronoi_distance_cutoff
+        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        self.lgf.setup_structure(structure=struct)
+        self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
+
         self.lgf.setup_structure(LiFePO4_struct)
         self.lgf.setup_local_geometry(isite, coords=nbs_coords)
 
@@ -140,9 +142,8 @@ class CoordinationGeometryFinderTest(PymatgenTest):
     #
     #     for ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             f = open("{}/{}".format(json_files_dir, json_file), 'r')
-    #             dd = json.load(f)
-    #             f.close()
+    #             with open("{}/{}".format(json_files_dir, json_file), 'r') as f:
+    #                 dd = json.load(f)
     #
     #             atom_indices = dd['atom_indices']
     #             expected_geoms = dd['expected_geoms']
@@ -214,7 +215,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                     se.get_csm(0, mp_symbol)["symmetry_measure"],
                     0.0,
                     delta=1e-8,
-                    msg="Failed to get perfect environment with mp_symbol {}".format(mp_symbol),
+                    msg=f"Failed to get perfect environment with mp_symbol {mp_symbol}",
                 )
 
     def test_disable_hints(self):
@@ -254,7 +255,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             abc = se_nohints.ce_list[0][12]
             abc.minimum_geometries()
         self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
-        self.assertTrue(set(se_nohints.ce_list[0].keys()).issubset(set(se_hints.ce_list[0].keys())))
+        self.assertTrue(set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0])))
 
 
 if __name__ == "__main__":

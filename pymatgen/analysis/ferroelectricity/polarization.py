@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -32,7 +31,7 @@ the VASP source to see the differences. We are able to recover a smooth same
 branch polarization more frequently using the naive calculation in calc_ionic
 than using the ionic dipole moment reported in the OUTCAR.
 
-Some defintions of terms used in the comments below:
+Some definitions of terms used in the comments below:
 
 A polar structure belongs to a polar space group. A polar space group has a
 one of the 10 polar point group:
@@ -74,7 +73,7 @@ def zval_dict_from_potcar(potcar):
     return zval_dict
 
 
-def calc_ionic(site, structure, zval):
+def calc_ionic(site, structure: Structure, zval):
     """
     Calculate the ionic dipole moment using ZVAL from pseudopotential
 
@@ -114,7 +113,7 @@ class PolarizationLattice(Structure):
         """
         Given coords and a site, find closet site to coords.
         Args:
-            coords (3x1 array): cartesian coords of center of sphere
+            coords (3x1 array): Cartesian coords of center of sphere
             site: site to find closest to coords
             r: radius of sphere. Defaults to diagonal of unit cell
 
@@ -292,9 +291,7 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                l = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[i]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
         #  convert polarizations to polar lattice
         elif convert_to_muC_per_cm2 and all_in_polar:
             abc = [lattice.abc for lattice in lattices]
@@ -303,17 +300,15 @@ class Polarization:
             p_tot *= abc[-1] / volumes[-1] * e_to_muC * cm2_to_A2  # to muC / cm^2
             for i in range(L):
                 lattice = lattices[-1]  # Use polar lattice
-                l = lattice.lengths
-                a = lattice.angles
                 # Use polar units (volume)
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[-1]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
         d_structs = []
         sites = []
         for i in range(L):
-            l = lattices[i]
-            frac_coord = np.divide(np.array([p_tot[i]]), np.array([l.a, l.b, l.c]))
-            d = PolarizationLattice(l, ["C"], [np.array(frac_coord).ravel()])
+            lattice = lattices[i]
+            frac_coord = np.divide(np.array([p_tot[i]]), np.array(lattice.lengths))
+            d = PolarizationLattice(lattice, ["C"], [np.array(frac_coord).ravel()])
             d_structs.append(d)
             site = d[0]
             if i == 0:
@@ -327,8 +322,8 @@ class Polarization:
 
         adjust_pol = []
         for s, d in zip(sites, d_structs):
-            l = d.lattice
-            adjust_pol.append(np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel())
+            lattice = d.lattice
+            adjust_pol.append(np.multiply(s.frac_coords, np.array(lattice.lengths)).ravel())
         adjust_pol = np.array(adjust_pol)
 
         return adjust_pol
@@ -353,15 +348,11 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                l = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[i]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
         elif convert_to_muC_per_cm2 and all_in_polar:
             for i in range(L):
                 lattice = lattices[-1]
-                l = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[-1]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
         quanta = np.array([np.array(l.lengths) for l in lattices])
 

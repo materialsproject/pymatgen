@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 Created on Mar 18, 2012
@@ -35,7 +33,7 @@ class BorgQueenTest(unittest.TestCase):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, PymatgenTest.TEST_FILES_DIR, 1)
         data = self.queen.get_data()
-        self.assertEqual(len(data), 12)
+        self.assertEqual(len(data), 14)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -94,7 +93,7 @@ class Substitutor(MSONable):
                 e.g., [Species('Li',1),Species('Ni',2), Species('O',-2)]
 
             structures_list:
-                a list of dictionnary of the form {'structure':Structure object
+                a list of dictionary of the form {'structure':Structure object
                 ,'id':some id where it comes from}
                 the id can for instance refer to an ICSD id.
 
@@ -113,9 +112,7 @@ class Substitutor(MSONable):
         result = []
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) != len(target_species):
-            raise ValueError(
-                "the species in target_species are not allowed " + "for the probability model you are using"
-            )
+            raise ValueError("the species in target_species are not allowed for the probability model you are using")
 
         for permut in itertools.permutations(target_species):
             for s in structures_list:
@@ -167,7 +164,7 @@ class Substitutor(MSONable):
         """
         checks if the structure object is charge balanced
         """
-        return sum([s.specie.oxi_state for s in struct.sites]) == 0.0
+        return sum(s.specie.oxi_state for s in struct.sites) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
@@ -228,7 +225,7 @@ class Substitutor(MSONable):
                     _recurse(output_prob + [prob], output_species + [sp])
 
         _recurse([], [])
-        logging.info("{} substitutions found".format(len(output)))
+        logging.info(f"{len(output)} substitutions found")
         return output
 
     def pred_from_comp(self, composition):
@@ -246,7 +243,7 @@ class Substitutor(MSONable):
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(p)
-        logging.info("{} charge balanced " "compositions found".format(len(output)))
+        logging.info(f"{len(output)} charge balanced compositions found")
         return output
 
     def as_dict(self):
@@ -254,12 +251,12 @@ class Substitutor(MSONable):
         Returns: MSONable dict
         """
         return {
-            "name": self.__class__.__name__,
+            "name": type(self).__name__,
             "version": __version__,
             "kwargs": self._kwargs,
             "threshold": self._threshold,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,11 +5,13 @@
 This module provides classes used to define a MD trajectory.
 """
 
+from __future__ import annotations
+
 import itertools
 import os
 import warnings
 from fnmatch import fnmatch
-from typing import List, Sequence, Union
+from typing import Sequence
 
 import numpy as np
 from monty.io import zopen
@@ -39,9 +40,9 @@ class Trajectory(MSONable):
 
     def __init__(
         self,
-        lattice: Union[Sequence[float], Sequence[Sequence[float]], np.ndarray, Lattice],
-        species: List[Union[str, Element, Species, DummySpecies, Composition]],
-        frac_coords: Union[List[Sequence[Sequence[float]]], np.ndarray],
+        lattice: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Lattice,
+        species: list[str | Element | Species | DummySpecies | Composition],
+        frac_coords: list[Sequence[Sequence[float]]] | np.ndarray,
         time_step: float = 2,
         site_properties: dict = None,
         frame_properties: dict = None,
@@ -362,8 +363,8 @@ class Trajectory(MSONable):
         :return: MSONAble dict.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "species": self.species,
             "time_step": self.time_step,
             "site_properties": self.site_properties,
@@ -456,18 +457,18 @@ class Trajectory(MSONable):
             return None
 
         # Find all common keys
-        all_keys = set(attr_1.keys()).union(set(attr_2.keys()))
+        all_keys = set(attr_1).union(set(attr_2))
 
         # Initialize dict with the common keys
         new_frame_props = dict(zip(all_keys, [[] for i in all_keys]))
         for key in all_keys:
-            if key in attr_1.keys():
+            if key in attr_1:
                 new_frame_props[key].extend(attr_1[key])
             else:
                 # If key doesn't exist in the first trajectory, append None for each index
                 new_frame_props[key].extend([None for i in range(len_1)])
 
-            if key in attr_2.keys():
+            if key in attr_2:
                 new_frame_props[key].extend(attr_2[key])
             else:
                 # If key doesn't exist in the second trajectory, append None for each index
@@ -494,7 +495,7 @@ class Trajectory(MSONable):
             system = f"{self[0].composition.reduced_formula}"
 
         lines = []
-        format_str = "{{:.{0}f}}".format(significant_figures)
+        format_str = f"{{:.{significant_figures}f}}"
         syms = [site.specie.symbol for site in self[0]]
         site_symbols = [a[0] for a in itertools.groupby(syms)]
         syms = [site.specie.symbol for site in self[0]]
@@ -502,7 +503,7 @@ class Trajectory(MSONable):
 
         for si, frac_coords in enumerate(self.frac_coords):
             # Only print out the info block if
-            if self.constant_lattice and si == 0:
+            if si == 0 or not self.constant_lattice:
                 lines.extend([system, "1.0"])
 
                 if self.constant_lattice:
@@ -516,7 +517,7 @@ class Trajectory(MSONable):
                 lines.append(" ".join(site_symbols))
                 lines.append(" ".join([str(x) for x in natoms]))
 
-            lines.append(f"Direct configuration=     {str(si + 1)}")
+            lines.append(f"Direct configuration=     {si + 1}")
 
             for (frac_coord, specie) in zip(frac_coords, self.species):
                 coords = frac_coord

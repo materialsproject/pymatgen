@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # pymatgen documentation build configuration file, created by
 # sphinx-quickstart on Tue Nov 15 00:13:52 2011.
@@ -11,8 +10,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
+import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -22,7 +21,7 @@ sys.path.insert(0, os.path.dirname(".."))
 sys.path.insert(0, os.path.dirname("../pymatgen"))
 sys.path.insert(0, os.path.dirname("../.."))
 
-from pymatgen.core import __version__, __author__, __file__
+from pymatgen.core import __author__, __file__, __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -99,23 +98,23 @@ pygments_style = "sphinx"
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
+# The theme to use for HTML and HTML Help pages. See the documentation for
 # a list of builtin themes.
 html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
+# further. For a list of options available for each theme, see the
 # documentation.
 # html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ["."]
 
-# The name for this set of Sphinx documents.  If None, it defaults to
+# The name for this set of Sphinx documents. If None, it defaults to
 # "<project> v<release> documentation".
 # html_title = None
 
-# A shorter title for the navigation bar.  Default is the same as html_title.
+# A shorter title for the navigation bar. Default is the same as html_title.
 # html_short_title = None
 
 # The name of an image file (relative to this directory) to place at the top
@@ -123,7 +122,7 @@ html_theme_path = ["."]
 # html_logo = None
 
 # The name of an image file (within the static path) to use as favicon of the
-# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
+# docs. This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
 html_favicon = "favicon.ico"
 
@@ -170,7 +169,7 @@ html_css_files = [
 # html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
-# contain a <link> tag referring to it.  The value of this option must be the
+# contain a <link> tag referring to it. The value of this option must be the
 # base URL from which the finished HTML is served.
 # html_use_opensearch = ''
 
@@ -343,7 +342,7 @@ def linkcode_resolve(domain, info):
         rel_path, line_start, line_end = find_source()
         # __file__ is imported from pymatgen.core
         filename = f"pymatgen/core/{rel_path}#L{line_start}-L{line_end}"
-    except:
+    except Exception:
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"
 

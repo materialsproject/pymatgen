@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -25,8 +24,8 @@ def pmg_serialize(method):
         self = args[0]
         d = method(*args, **kwargs)
         # Add @module and @class
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     return wrapper
@@ -74,7 +73,7 @@ class PmgUnpickler(pickle.Unpickler):
             type_tag, key_id = pid
         except Exception:
             # Sometimes we get a string such as ('Element', u'C') instead
-            # of a real tuple. Use ast to evalute the expression (much safer
+            # of a real tuple. Use ast to evaluate the expression (much safer
             # than eval).
             import ast
 
@@ -85,11 +84,11 @@ class PmgUnpickler(pickle.Unpickler):
         # Always raises an error if you cannot return the correct object.
         # Otherwise, the unpickler will think None is the object referenced
         # by the persistent ID.
-        raise pickle.UnpicklingError("unsupported persistent object with pid %s" % pid)
+        raise pickle.UnpicklingError(f"unsupported persistent object with pid {pid}")
 
 
 def pmg_pickle_load(filobj, **kwargs):
-    r"""
+    """
     Loads a pickle file and deserialize it with PmgUnpickler.
 
     Args:
@@ -103,7 +102,7 @@ def pmg_pickle_load(filobj, **kwargs):
 
 
 def pmg_pickle_dump(obj, filobj, **kwargs):
-    r"""
+    """
     Dump an object to a pickle file using PmgPickler.
 
     Args:
@@ -121,7 +120,7 @@ class SlotPickleMixin:
     """
 
     def __getstate__(self):
-        return dict((slot, getattr(self, slot)) for slot in self.__slots__ if hasattr(self, slot))
+        return {slot: getattr(self, slot) for slot in self.__slots__ if hasattr(self, slot)}
 
     def __setstate__(self, state):
         for slot, value in state.items():

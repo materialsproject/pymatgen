@@ -1,10 +1,8 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
-This module provides classes to comparsion the structures of the two
+This module provides classes to comparison the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,
 the molecules are deemed to be same. The atom in the two molecule must be
 paired accordingly.
@@ -195,7 +193,7 @@ class MoleculeStructureComparator(MSONable):
 
         Args:
             mol1: first molecule. pymatgen Molecule object.
-            mol2: second moleculs. pymatgen Molecule objec.
+            mol2: second molecules. pymatgen Molecule object.
         """
         b1 = set(self._get_bonds(mol1))
         b2 = set(self._get_bonds(mol2))
@@ -214,7 +212,7 @@ class MoleculeStructureComparator(MSONable):
         all_2_bond_atoms = [set(b1 + b2) for b1, b2 in all_bond_pairs]
         all_13_bond_atoms = [a for a in all_2_bond_atoms if len(a) == 3]
         all_2_and_13_bonds = {
-            tuple(sorted(b)) for b in itertools.chain(*[itertools.combinations(p, 2) for p in all_13_bond_atoms])
+            tuple(sorted(b)) for b in itertools.chain(*(itertools.combinations(p, 2) for p in all_13_bond_atoms))
         }
         bonds_13 = all_2_and_13_bonds - {tuple(b) for b in priority_bonds}
         return tuple(sorted(bonds_13))
@@ -239,9 +237,9 @@ class MoleculeStructureComparator(MSONable):
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
         elements = mol.composition.as_dict().keys()
-        unavailable_elements = list(set(elements) - set(self.covalent_radius.keys()))
+        unavailable_elements = list(set(elements) - set(self.covalent_radius))
         if len(unavailable_elements) > 0:
-            raise ValueError("The covalent radius for element {} is not " "available".format(unavailable_elements))
+            raise ValueError(f"The covalent radius for element {unavailable_elements} is not available")
         bond_13 = self.get_13_bonds(self.priority_bonds)
         max_length = [
             (self.covalent_radius[mol.sites[p[0]].specie.symbol] + self.covalent_radius[mol.sites[p[1]].specie.symbol])
@@ -275,8 +273,8 @@ class MoleculeStructureComparator(MSONable):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "bond_length_cap": self.bond_length_cap,
             "covalent_radius": self.covalent_radius,
             "priority_bonds": self.priority_bonds,

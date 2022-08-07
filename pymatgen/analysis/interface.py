@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,8 +6,9 @@ This module provides classes to store, generate, and manipulate material interfa
 """
 
 import warnings
-from pymatgen.core.interface import Interface  # noqa
+
 from pymatgen.analysis.interfaces import CoherentInterfaceBuilder  # noqa
+from pymatgen.core.interface import Interface  # noqa
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, and Kyle Bystrom"
 __copyright__ = "Copyright 2019, The Materials Project"

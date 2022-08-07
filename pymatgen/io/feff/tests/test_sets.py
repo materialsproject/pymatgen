@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -10,7 +9,7 @@ import unittest
 import numpy as np
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.cif import CifFile, CifParser
+from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import PymatgenTest
@@ -218,7 +217,7 @@ TITLE sites: 4
 
         stru_orig = Structure.from_file(os.path.join(".", "xanes_reci/Co2O2.cif"))
         stru_reci = Structure.from_file(os.path.join(".", "Dup_reci/Co2O2.cif"))
-        self.assertTrue(stru_orig.__eq__(stru_reci))
+        self.assertTrue(stru_orig == stru_reci)
 
         shutil.rmtree(os.path.join(".", "Dup_reci"))
         shutil.rmtree(os.path.join(".", "xanes_reci"))

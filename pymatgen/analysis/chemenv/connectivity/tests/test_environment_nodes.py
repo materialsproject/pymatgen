@@ -4,14 +4,8 @@
 __author__ = "waroquiers"
 
 import os
-import shutil
 
-import networkx as nx
-
-from pymatgen.analysis.chemenv.connectivity.environment_nodes import (
-    EnvironmentNode,
-    get_environment_node,
-)
+from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.util.testing import PymatgenTest
 
 try:
@@ -20,13 +14,7 @@ except ModuleNotFoundError:
     bson = None
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )

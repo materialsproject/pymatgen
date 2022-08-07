@@ -2,6 +2,8 @@
 Module implementing connectivity finding.
 """
 
+from __future__ import annotations
+
 import logging
 
 import numpy as np
@@ -53,14 +55,12 @@ class ConnectivityFinder:
                 continue
             if len(site_neighbors_sets) > 1:
                 if self.multiple_environments_choice is None:
-                    raise ValueError(
-                        "Local environment of site {:d} is a mix and " "nothing is asked about it".format(isite)
-                    )
+                    raise ValueError(f"Local environment of site {isite:d} is a mix and nothing is asked about it")
                 if self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
                     imax = np.argmax(
                         [ee["ce_fraction"] for ee in light_structure_environments.coordination_environments[isite]]
                     )
-                    print("IMAX {:d}".format(imax))
+                    print(f"IMAX {imax:d}")
                     site_neighbors_set = site_neighbors_sets[imax]
                 else:
                     raise RuntimeError("Should not be here")
@@ -76,7 +76,6 @@ class ConnectivityFinder:
         if multiple_environments_choice is not None:
             if multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
                 raise ValueError(
-                    'Option "{}" for multiple_environments_choice is '
-                    "not allowed".format(multiple_environments_choice)
+                    f'Option "{multiple_environments_choice}" for multiple_environments_choice is not allowed'
                 )
         self.multiple_environments_choice = multiple_environments_choice

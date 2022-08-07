@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,7 +5,7 @@
 This module provides classes to define a phonon band structure.
 """
 
-import collections
+from __future__ import annotations
 
 import numpy as np
 from monty.json import MSONable
@@ -16,26 +15,25 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import Kpoint
 
 
-def get_reasonable_repetitions(natoms):
+def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
     """
-    Choose the number of repetitions
+    Choose the number of repetitions in a supercell
     according to the number of atoms in the system
     """
-    if natoms < 4:
-        return [3, 3, 3]
-    if 4 <= natoms < 15:
-        return [2, 2, 2]
-    if 15 <= natoms < 50:
-        return [2, 2, 1]
+    if n_atoms < 4:
+        return (3, 3, 3)
+    if 4 <= n_atoms < 15:
+        return (2, 2, 2)
+    if 15 <= n_atoms < 50:
+        return (2, 2, 1)
 
-    return [1, 1, 1]
+    return (1, 1, 1)
 
 
 def eigenvectors_from_displacements(disp, masses):
     """
     Calculate the eigenvectors from the atomic displacements
     """
-    nphonons, natoms, ndirections = disp.shape
     sqrt_masses = np.sqrt(masses)
     return np.einsum("nax,a->nax", disp, sqrt_masses)
 
@@ -47,15 +45,15 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
     metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
     connection_order = []
     for overlaps in metric:
-        maxval = 0
+        max_val = 0
         for i in reversed(range(len(metric))):
             val = overlaps[i]
             if i in connection_order:
                 continue
-            if val > maxval:
-                maxval = val
-                maxindex = i
-        connection_order.append(maxindex)
+            if val > max_val:
+                max_val = val
+                max_idx = i
+        connection_order.append(max_idx)
 
     band_order = [connection_order[x] for x in prev_band_order]
 
@@ -72,15 +70,15 @@ class PhononBandStructure(MSONable):
 
     def __init__(
         self,
-        qpoints,
-        frequencies,
-        lattice,
+        qpoints: list[Kpoint],
+        frequencies: np.ndarray,
+        lattice: Lattice,
         nac_frequencies=None,
         eigendisplacements=None,
         nac_eigendisplacements=None,
         labels_dict=None,
         coords_are_cartesian=False,
-        structure=None,
+        structure: Structure | None = None,
     ):
         """
         Args:
@@ -98,19 +96,19 @@ class PhononBandStructure(MSONable):
                 internally). The second element containing the 3*len(structure)
                 phonon frequencies with non-analytical correction for that direction.
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
                 he First index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             nac_eigendisplacements: the phonon eigendisplacements associated to the
-                non-analytical frequencies in nac_frequencies in cartesian coordinates.
+                non-analytical frequencies in nac_frequencies in Cartesian coordinates.
                 A list of tuples. The first element of each tuple should be a list
                 defining the direction. The second element containing a numpy array of
                 complex numbers with shape (3*len(structure), len(structure), 3).
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
-            coords_are_cartesian: Whether the qpoint coordinates are cartesian.
+                Cartesian coordinates depending on the coords) to a label.
+            coords_are_cartesian: Whether the qpoint coordinates are Cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
                 provide projections to the band structure
@@ -125,19 +123,19 @@ class PhononBandStructure(MSONable):
         if labels_dict is None:
             labels_dict = {}
 
-        for q in qpoints:
+        for q_pt in qpoints:
             # let see if this qpoint has been assigned a label
             label = None
             for c in labels_dict:
-                if np.linalg.norm(q - np.array(labels_dict[c])) < 0.0001:
+                if np.linalg.norm(q_pt - np.array(labels_dict[c])) < 0.0001:
                     label = c
                     self.labels_dict[label] = Kpoint(
-                        q,
+                        q_pt,
                         lattice,
                         label=label,
                         coords_are_cartesian=coords_are_cartesian,
                     )
-            self.qpoints.append(Kpoint(q, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
+            self.qpoints.append(Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
         self.bands = frequencies
         self.nb_bands = len(self.bands)
         self.nb_qpoints = len(self.qpoints)
@@ -152,7 +150,7 @@ class PhononBandStructure(MSONable):
             for t in nac_eigendisplacements:
                 self.nac_eigendisplacements.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
 
-    def min_freq(self):
+    def min_freq(self) -> tuple[Kpoint, float]:
         """
         Returns the point where the minimum frequency is reached and its value
         """
@@ -160,7 +158,7 @@ class PhononBandStructure(MSONable):
 
         return self.qpoints[i[1]], self.bands[i]
 
-    def has_imaginary_freq(self, tol=1e-5):
+    def has_imaginary_freq(self, tol: float = 1e-5) -> bool:
         """
         True if imaginary frequencies are present in the BS.
         """
@@ -168,14 +166,14 @@ class PhononBandStructure(MSONable):
         return self.min_freq()[1] + tol < 0
 
     @property
-    def has_nac(self):
+    def has_nac(self) -> bool:
         """
         True if nac_frequencies are present.
         """
         return len(self.nac_frequencies) > 0
 
     @property
-    def has_eigendisplacements(self):
+    def has_eigendisplacements(self) -> bool:
         """
         True if eigendisplacements are present.
         """
@@ -252,8 +250,8 @@ class PhononBandStructure(MSONable):
         :return: MSONable dict
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "qpoints": [],
         }
@@ -338,13 +336,13 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 non-analytical corrections at Gamma. If True frequenciens at Gamma from
                 diffent directions will be stored in naf. Default False.
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
                 he First index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
@@ -526,7 +524,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         d["qpoints"] = qpoints
 
         # get labels
-        hsq_dict = collections.OrderedDict()
+        hsq_dict = {}
         for nq, q in enumerate(self.qpoints):
             if q.label is not None:
                 hsq_dict[nq] = q.label

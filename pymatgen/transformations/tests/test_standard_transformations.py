@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,25 +7,44 @@ import os
 import random
 import unittest
 import warnings
+from shutil import which
 
 from monty.json import MontyDecoder
-from monty.os.path import which
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.transformations.standard_transformations import *
+from pymatgen.transformations.standard_transformations import (
+    AutoOxiStateDecorationTransformation,
+    ChargedCellTransformation,
+    ConventionalCellTransformation,
+    DeformStructureTransformation,
+    DiscretizeOccupanciesTransformation,
+    EwaldSummation,
+    Fraction,
+    OrderDisorderedStructureTransformation,
+    OxidationStateDecorationTransformation,
+    OxidationStateRemovalTransformation,
+    PartialRemoveSpecieTransformation,
+    PerturbStructureTransformation,
+    PrimitiveCellTransformation,
+    RemoveSpeciesTransformation,
+    RotationTransformation,
+    ScaleToRelaxedTransformation,
+    Structure,
+    SubstitutionTransformation,
+    SupercellTransformation,
+)
 from pymatgen.util.testing import PymatgenTest
-
 
 enumlib_present = which("enum.x") and which("makestr.x")
 
 
 class RotationTransformationsTest(unittest.TestCase):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice(
@@ -53,7 +71,7 @@ class RotationTransformationsTest(unittest.TestCase):
 class RemoveSpeciesTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = RemoveSpeciesTransformation(["Li+"])
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -76,7 +94,7 @@ class RemoveSpeciesTransformationTest(unittest.TestCase):
 class SubstitutionTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = SubstitutionTransformation({"Li+": "Na+", "O2-": "S2-"})
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -96,7 +114,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
         t = SubstitutionTransformation({"Li+": "Na+", "O2-": {"S2-": 0.5, "Se2-": 0.5}})
         # test the to and from dict on the nested dictionary
         t = SubstitutionTransformation.from_dict(t.as_dict())
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -115,7 +133,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
 
 class SupercellTransformationTest(unittest.TestCase):
     def setUp(self):
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -144,7 +162,7 @@ class SupercellTransformationTest(unittest.TestCase):
 class OxidationStateDecorationTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = OxidationStateDecorationTransformation({"Li": 1, "O": -2})
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -186,7 +204,7 @@ class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
 class OxidationStateRemovalTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = OxidationStateRemovalTransformation()
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -220,7 +238,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -243,7 +261,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformation_fast(self):
         t = PartialRemoveSpecieTransformation("Li+", 0.5)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -280,7 +298,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = OrderDisorderedStructureTransformation()
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -370,7 +388,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
     def test_too_small_cell(self):
         t = OrderDisorderedStructureTransformation()
-        coords = list()
+        coords = []
         coords.append([0.5, 0.5, 0.5])
         lattice = Lattice(
             [
@@ -384,7 +402,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
     def test_best_first(self):
         t = OrderDisorderedStructureTransformation(algo=2)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -414,7 +432,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 class PrimitiveCellTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PrimitiveCellTransformation()
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -447,7 +465,7 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
 class ConventionalCellTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = ConventionalCellTransformation()
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
@@ -467,7 +485,7 @@ class ConventionalCellTransformationTest(unittest.TestCase):
 class PerturbStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PerturbStructureTransformation(0.05)
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])
@@ -509,7 +527,7 @@ class PerturbStructureTransformationTest(unittest.TestCase):
 class DeformStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = DeformStructureTransformation([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.05, 1.0]])
-        coords = list()
+        coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
         coords.append([0.5, 0.5, 0.5])

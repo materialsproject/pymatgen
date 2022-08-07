@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -13,12 +12,14 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import SEPARATION_PLANE
-from pymatgen.analysis.chemenv.utils.scripts_utils import visualize
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-
 import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    SEPARATION_PLANE,
+    AllCoordinationGeometries,
+)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
+from pymatgen.analysis.chemenv.utils.scripts_utils import visualize
 
 if __name__ == "__main__":
     print(
@@ -46,12 +47,12 @@ if __name__ == "__main__":
             continue
         print(cg.name)
         for ipoint, point in enumerate(cg.points):
-            print("Point #{:d} : {} {} {}".format(ipoint, repr(point[0]), repr(point[1]), repr(point[2])))
+            print(f"Point #{ipoint:d} : {repr(point[0])} {repr(point[1])} {repr(point[2])}")
         print("Algorithms used :")
         for ialgo, algo in enumerate(cg.algorithms):
-            print("Algorithm #{:d} :".format(ialgo))
+            print(f"Algorithm #{ialgo:d} :")
             print(algo)
-            print("")
+            print()
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):
@@ -82,7 +83,7 @@ if __name__ == "__main__":
                 centre = np.sum(pts, axis=0) / len(pts)
 
             factor = 1.5
-            target_dist = max([np.dot(pp - centre, pp - centre) for pp in cg_points])
+            target_dist = max(np.dot(pp - centre, pp - centre) for pp in cg_points)
             current_dist = np.dot(pts[0] - centre, pts[0] - centre)
             factor = factor * target_dist / current_dist
             plane = Plane.from_npoints(points=pts)

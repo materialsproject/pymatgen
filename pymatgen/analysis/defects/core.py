@@ -1,23 +1,36 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 Base classes representing defects.
 """
-
-
 import logging
+import warnings
 from abc import ABCMeta, abstractmethod
 from functools import lru_cache
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import PeriodicSite, Structure
 from pymatgen.core.units import kb
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+warnings.warn(
+    """
+    The pymatgen.analysis.defects module will be deprecated and replaced by a modified name-space
+    package in the near future. Currently, running `pip install pymatgen-analysis-defects` will install
+    the new package on top of the old one so the entire `pymatgen.analysis.defects` namespace will be replaced.
+
+    IMPORTANT: If you have already installed the new package and see this message it means the old package is
+    loaded first before the new package. See the documentation for more information, and raise an Issue on
+    GitHub if this causes problems for your workflow.
+    """,
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -35,7 +48,7 @@ class Defect(MSONable, metaclass=ABCMeta):
     Abstract class for a single point defect
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, multiplicity=None):
         """
         Initializes an abstract defect
 
@@ -56,7 +69,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         self._defect_site = defect_site
         lattice_match = np.allclose(structure.lattice.matrix, defect_site.lattice.matrix, atol=1e-5)
         if not lattice_match:
-            raise ValueError("defect_site lattice must be same as structure " "lattice.")
+            raise ValueError("defect_site lattice must be same as structure lattice.")
         self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
 
     @property
@@ -87,7 +100,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return self._multiplicity
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def defect_composition(self):
         """
@@ -104,7 +117,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return
 
-    @property  # type: ignore
+    @property
     @abstractmethod
     def name(self):
         """
@@ -191,8 +204,8 @@ class Vacancy(Defect):
             periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
-        if not len(poss_deflist):
-            raise ValueError("Site {} is not in bulk structure! Cannot create Vacancy object.".format(self.site))
+        if len(poss_deflist) == 0:
+            raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Vacancy object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
         equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
@@ -203,7 +216,7 @@ class Vacancy(Defect):
         """
         Returns a name for this defect
         """
-        return "Vac_{}_mult{}".format(self.site.specie, self.multiplicity)
+        return f"Vac_{self.site.specie}_mult{self.multiplicity}"
 
 
 class Substitution(Defect):
@@ -285,8 +298,8 @@ class Substitution(Defect):
             periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
-        if not len(poss_deflist):
-            raise ValueError("Site {} is not in bulk structure! Cannot create Substitution object.".format(self.site))
+        if len(poss_deflist) == 0:
+            raise ValueError(f"Site {self.site} is not in bulk structure! Cannot create Substitution object.")
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
         equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
@@ -303,7 +316,7 @@ class Substitution(Defect):
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
-        return "Sub_{}_on_{}_mult{}".format(self.site.specie, self.bulk_structure[defindex].specie, self.multiplicity)
+        return f"Sub_{self.site.specie}_on_{self.bulk_structure[defindex].specie}_mult{self.multiplicity}"
 
 
 class Interstitial(Defect):
@@ -311,7 +324,7 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0.0, site_name="", multiplicity=None):
+    def __init__(self, structure: Structure, defect_site, charge=0.0, site_name="", multiplicity=None):
         """
         Initializes an interstial defect.
         Args:
@@ -419,8 +432,8 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         if self.site_name:
-            return "Int_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
-        return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
+            return f"Int_{self.site.specie}_{self.site_name}_mult{self.multiplicity}"
+        return f"Int_{self.site.specie}_mult{self.multiplicity}"
 
 
 def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
@@ -449,7 +462,7 @@ def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
     # copy bulk structure to make saturated interstitial structure out of
     # artificially lower distance_tolerance to allow for distinct interstitials
     # with lower symmetry to be replicated - This is OK because one would never
-    # actually use this structure for a practical calcualtion...
+    # actually use this structure for a practical calculation...
     saturated_defect_struct = interstitial_def.bulk_structure.copy()
     saturated_defect_struct.DISTANCE_TOLERANCE = dist_tol
 
@@ -531,11 +544,11 @@ class DefectEntry(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of DefectEntry
+        JSON-serializable dict representation of DefectEntry
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "defect": self.defect.as_dict(),
             "uncorrected_energy": self.uncorrected_energy,
             "corrections": self.corrections,
@@ -632,10 +645,8 @@ class DefectEntry(MSONable):
         chemical_potentials = chemical_potentials if chemical_potentials else {}
 
         chempot_correction = sum(
-            [
-                chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
-                for el, chem_pot in chemical_potentials.items()
-            ]
+            chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
+            for el, chem_pot in chemical_potentials.items()
         )
 
         formation_energy = self.energy + chempot_correction
@@ -670,13 +681,13 @@ class DefectEntry(MSONable):
         Human readable string representation of this entry
         """
         output = [
-            "DefectEntry {} - {} - charge {}".format(self.entry_id, self.name, self.charge),
-            "Energy = {:.4f}".format(self.energy),
-            "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))),
+            f"DefectEntry {self.entry_id} - {self.name} - charge {self.charge}",
+            f"Energy = {self.energy:.4f}",
+            f"Correction = {np.sum(list(self.corrections.values())):.4f}",
             "Parameters:",
         ]
         for k, v in self.parameters.items():
-            output.append("\t{} = {}".format(k, v))
+            output.append(f"\t{k} = {v}")
         return "\n".join(output)
 
     def __str__(self):
@@ -720,3 +731,90 @@ class DefectCorrection(MSONable):
         """
         entry.correction.update(self.get_correction(entry))
         return entry
+
+
+class PointDefectComparator(MSONable):
+    """
+    A class that matches pymatgen Point Defect objects even if their
+    Cartesian coordinates are different (compares sublattices for the defect)
+
+    NOTE: for defect complexes (more than a single defect),
+    this comparator will break.
+    """
+
+    def __init__(self, check_charge=False, check_primitive_cell=False, check_lattice_scale=False):
+        """
+        Args:
+            check_charge (bool): Gives option to check
+                if charges are identical.
+                Default is False (different charged defects can be same)
+            check_primitive_cell (bool): Gives option to
+                compare different supercells of bulk_structure,
+                rather than directly compare supercell sizes
+                Default is False (requires bulk_structure in each defect to be same size)
+            check_lattice_scale (bool): Gives option to scale volumes of
+                structures to each other identical lattice constants.
+                Default is False (enforces same
+                lattice constants in both structures)
+        """
+        self.check_charge = check_charge
+        self.check_primitive_cell = check_primitive_cell
+        self.check_lattice_scale = check_lattice_scale
+
+    def are_equal(self, d1, d2):
+        """
+        Args:
+            d1: First defect. A pymatgen Defect object.
+            d2: Second defect. A pymatgen Defect object.
+
+        Returns:
+            True if defects are identical in type and sublattice.
+        """
+        possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
+
+        if not isinstance(d1, possible_defect_types) or not isinstance(d2, possible_defect_types):
+            raise ValueError("Cannot use PointDefectComparator to compare non-defect objects...")
+
+        if not isinstance(d1, d2.__class__):
+            return False
+        if d1.site.specie != d2.site.specie:
+            return False
+        if self.check_charge and (d1.charge != d2.charge):
+            return False
+
+        sm = StructureMatcher(
+            ltol=0.01,
+            primitive_cell=self.check_primitive_cell,
+            scale=self.check_lattice_scale,
+        )
+
+        if not sm.fit(d1.bulk_structure, d2.bulk_structure):
+            return False
+
+        d1 = d1.copy()
+        d2 = d2.copy()
+        if self.check_primitive_cell or self.check_lattice_scale:
+            # if allowing for base structure volume or supercell modifications,
+            # then need to preprocess defect objects to allow for matching
+            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _ = sm._preprocess(d1.bulk_structure, d2.bulk_structure)
+            d1_defect_site = PeriodicSite(
+                d1.site.specie,
+                d1.site.coords,
+                d1_mod_bulk_structure.lattice,
+                to_unit_cell=True,
+                coords_are_cartesian=True,
+            )
+            d2_defect_site = PeriodicSite(
+                d2.site.specie,
+                d2.site.coords,
+                d2_mod_bulk_structure.lattice,
+                to_unit_cell=True,
+                coords_are_cartesian=True,
+            )
+
+            d1._structure = d1_mod_bulk_structure
+            d2._structure = d2_mod_bulk_structure
+            d1._defect_site = d1_defect_site
+            d2._defect_site = d2_defect_site
+
+        return sm.fit(d1.generate_defect_structure(), d2.generate_defect_structure())

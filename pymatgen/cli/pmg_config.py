@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,12 +6,15 @@
 Implementation for `pmg config` CLI.
 """
 
+from __future__ import annotations
 
 import glob
 import os
 import shutil
 import subprocess
 import sys
+from argparse import Namespace
+from typing import Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
@@ -20,13 +22,9 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import SETTINGS_FILE
 
 
-def setup_potcars(args):
-    """
-    Setup POTCAR directirt,
-
-    :param args: args from command.
-    """
-    pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
+def setup_potcars(potcar_dirs: list[str]):
+    """Setup POTCAR directories."""
+    pspdir, targetdir = (os.path.abspath(d) for d in potcar_dirs)
     try:
         os.makedirs(targetdir)
     except OSError:
@@ -75,45 +73,44 @@ def setup_potcars(args):
                             p.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
-                    dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
+                    dest = os.path.join(basedir, f"POTCAR.{subdir}")
                     shutil.move(os.path.join(basedir, "POTCAR"), dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
                 except Exception as ex:
-                    print("An error has occured. Message is %s. Trying to " "continue... " % str(ex))
+                    print(f"An error has occurred. Message is {str(ex)}. Trying to continue... ")
 
-    print("")
     print(
-        "PSP resources directory generated. It is recommended that you "
-        "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir)
+        "\nPSP resources directory generated. It is recommended that you "
+        f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(targetdir)}'"
     )
-    print("Start a new terminal to ensure that your environment variables " "are properly set.")
+    print("Start a new terminal to ensure that your environment variables are properly set.")
 
 
-def build_enum(fortran_command="gfortran"):
+def build_enum(fortran_command: str = "gfortran") -> bool:
     """
     Build enum.
 
     :param fortran_command:
     """
-    currdir = os.getcwd()
+    cwd = os.getcwd()
     state = True
     try:
         subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib.git"])
-        os.chdir(os.path.join(currdir, "enumlib", "symlib", "src"))
+        os.chdir(os.path.join(cwd, "enumlib", "symlib", "src"))
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
-        enumpath = os.path.join(currdir, "enumlib", "src")
+        enumpath = os.path.join(cwd, "enumlib", "src")
         os.chdir(enumpath)
         subprocess.call(["make"])
         for f in ["enum.x", "makestr.x"]:
             subprocess.call(["make", f])
             shutil.copy(f, os.path.join("..", ".."))
     except Exception as ex:
-        print(str(ex))
+        print(ex)
         state = False
     finally:
-        os.chdir(currdir)
+        os.chdir(cwd)
         shutil.rmtree("enumlib")
     return state
 
@@ -146,12 +143,8 @@ def build_bader(fortran_command="gfortran"):
     return state
 
 
-def install_software(args):
-    """
-    Install all optional external software.
-
-    :param args:
-    """
+def install_software(install: Literal["enumlib", "bader"]):
+    """Install all optional external software."""
     try:
         subprocess.call(["ifort", "--version"])
         print("Found ifort")
@@ -168,52 +161,42 @@ def install_software(args):
 
     enum = None
     bader = None
-    if args.install == "enumlib":
+    if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
-        print("")
-    elif args.install == "bader":
+        print()
+    elif install == "bader":
         print("Building bader")
         bader = build_bader(fortran_command)
-        print("")
+        print()
     if bader or enum:
         print(
-            "Please add {} to your PATH or move the executables multinum.x, "
-            "makestr.x and/or bader to a location in your PATH.".format(os.path.abspath("."))
+            f"Please add {os.path.abspath('.')} to your PATH or move the executables multinum.x, "
+            "makestr.x and/or bader to a location in your PATH.\n"
         )
-        print("")
 
 
-def add_config_var(args):
-    """
-    Add configuration args.
-
-    :param args:
-    """
+def add_config_var(tokens: list[str], backup_suffix: str) -> None:
+    """Add/update keys in .pmgrc.yaml config file."""
     d = {}
     if os.path.exists(SETTINGS_FILE):
-        shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
-        print("Existing %s backed up to %s" % (SETTINGS_FILE, SETTINGS_FILE + ".bak"))
+        if backup_suffix:
+            shutil.copy(SETTINGS_FILE, SETTINGS_FILE + backup_suffix)
+            print(f"Existing {SETTINGS_FILE} backed up to {SETTINGS_FILE}{backup_suffix}")
         d = loadfn(SETTINGS_FILE)
-    toks = args.var_spec
-    if len(toks) % 2 != 0:
-        print("Bad variable specification!")
-        sys.exit(-1)
-    for i in range(int(len(toks) / 2)):
-        d[toks[2 * i]] = toks[2 * i + 1]
-    dumpfn(d, SETTINGS_FILE, default_flow_style=False)
-    print("New %s written!" % (SETTINGS_FILE))
+    if len(tokens) % 2 != 0:
+        raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
+    for key, val in zip(tokens[0::2], tokens[1::2]):
+        d[key] = val
+    dumpfn(d, SETTINGS_FILE)
+    print(f"New {SETTINGS_FILE} written!")
 
 
-def configure_pmg(args):
-    """
-    Handle configure command.
-
-    :param args:
-    """
+def configure_pmg(args: Namespace):
+    """Handle configure command."""
     if args.potcar_dirs:
-        setup_potcars(args)
+        setup_potcars(args.potcar_dirs)
     elif args.install:
-        install_software(args)
+        install_software(args.install)
     elif args.var_spec:
-        add_config_var(args)
+        add_config_var(args.var_spec, args.backup)

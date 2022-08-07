@@ -1,11 +1,11 @@
 import os
 import unittest
+from shutil import which
 
-from monty.os.path import which
 from monty.serialization import loadfn
 
-from pymatgen.core.structure import Structure
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Handong Ling, Rachel Woods-Robinson"
@@ -36,7 +36,7 @@ class McsqsCallerTest(PymatgenTest):
 
         # ensures specific keys are present in cluster parsing for use in atomate
         self.assertSetEqual(
-            set(sqs.clusters[0].keys()),
+            set(sqs.clusters[0]),
             {
                 "multiplicity",
                 "coordinates",
@@ -45,7 +45,7 @@ class McsqsCallerTest(PymatgenTest):
             },
         )
         self.assertSetEqual(
-            set(sqs.clusters[0]["coordinates"][0].keys()),
+            set(sqs.clusters[0]["coordinates"][0]),
             {"cluster_function", "coordinates", "num_possible_species"},
         )
 

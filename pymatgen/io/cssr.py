@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides input and output from the CSSR file format.
@@ -34,18 +32,20 @@ class Cssr:
             structure (Structure/IStructure): A structure to create the Cssr object.
         """
         if not structure.is_ordered:
-            raise ValueError("Cssr file can only be constructed from ordered " "structure")
+            raise ValueError("Cssr file can only be constructed from ordered structure")
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "{:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1".format(*self.structure.lattice.angles),
-            "{} 0".format(len(self.structure)),
-            "0 {}".format(self.structure.formula),
+            f"{a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.2f} {beta:.2f} {gamma:.2f} SPGR =  1 P 1    OPT = 1",
+            f"{len(self.structure)} 0",
+            f"0 {self.structure.formula}",
         ]
         for i, site in enumerate(self.structure.sites):
-            output.append("{} {} {:.4f} {:.4f} {:.4f}".format(i + 1, site.specie, site.a, site.b, site.c))
+            output.append(f"{i + 1} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
         return "\n".join(output)
 
     def write_file(self, filename):

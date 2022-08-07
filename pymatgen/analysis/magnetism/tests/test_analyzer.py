@@ -1,13 +1,20 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 import os
 import unittest
+import warnings
+from shutil import which
 
-from monty.os.path import which
+import numpy as np
+from monty.serialization import loadfn
 
-from pymatgen.analysis.magnetism import *
+from pymatgen.analysis.magnetism import (
+    CollinearMagneticStructureAnalyzer,
+    MagneticStructureEnumerator,
+    Ordering,
+    magnetic_deformation,
+)
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
@@ -73,13 +80,13 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         msa = CollinearMagneticStructureAnalyzer(self.Fe)
         self.assertEqual(msa.structure.site_properties["magmom"][0], 5)
 
-        # and that we can retrieve a spin representaiton
+        # and that we can retrieve a spin representation
         Fe_spin = msa.get_structure_with_spin()
         self.assertFalse("magmom" in Fe_spin.site_properties)
         self.assertEqual(Fe_spin[0].specie.spin, 5)
 
         # test we can remove magnetic moment information
-        Fe_none = msa.get_nonmagnetic_structure()
+        msa.get_nonmagnetic_structure()
         self.assertFalse("magmom" in Fe_spin.site_properties)
 
         # test with disorder on magnetic site
@@ -154,7 +161,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         s1_magmoms_ref = [5.0, 0.0]
         self.assertListEqual(s1_magmoms, s1_magmoms_ref)
 
-        msa2 = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111, overwrite_magmom_mode="replace_all_if_undefined")
+        _ = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111, overwrite_magmom_mode="replace_all_if_undefined")
         s2 = msa.get_ferromagnetic_structure(make_primitive=False)
         s2_magmoms = [float(m) for m in s2.site_properties["magmom"]]
         s2_magmoms_ref = [5.0, 0.0]
@@ -239,7 +246,6 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         # ferrimagnetic (Cr produces net spin)
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Cr2NiO4.json"))
         enumerator = MagneticStructureEnumerator(structure)
-        print(enumerator.input_origin)
         self.assertEqual(enumerator.input_origin, "ferri_by_Cr")
 
         # antiferromagnetic on single magnetic site

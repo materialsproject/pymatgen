@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
@@ -128,7 +126,7 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.process_time()
-        logging.debug("Neighbors distances and angles set up in {:.2f} seconds".format(t2 - t1))
+        logging.debug(f"Neighbors distances and angles set up in {t2 - t1:.2f} seconds")
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
@@ -145,11 +143,13 @@ class DetailedVoronoiContainer(MSONable):
         self.voronoi_list_coords = [None] * len(self.structure)
         logging.debug("Getting all neighbors in structure")
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
+        size_neighbors = [(not len(neigh) > 3) for neigh in struct_neighbors]
+        if np.any(size_neighbors):
+            logging.debug("Please consider increasing voronoi_distance_cutoff")
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
-
         for jj, isite in enumerate(indices):
-            logging.debug("  - Voronoi analysis for site #{:d} ({:d}/{:d})".format(isite, jj + 1, len(indices)))
+            logging.debug(f"  - Voronoi analysis for site #{isite:d} ({jj + 1:d}/{len(indices):d})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -167,7 +167,7 @@ class DetailedVoronoiContainer(MSONable):
                     ridge_vertices_indices = voro.ridge_vertices[iridge]
                     if -1 in ridge_vertices_indices:
                         raise RuntimeError(
-                            "This structure is pathological," " infinite vertex in the voronoi " "construction"
+                            "This structure is pathological, infinite vertex in the voronoi construction"
                         )
 
                     ridge_point2 = max(ridge_points)
@@ -194,7 +194,7 @@ class DetailedVoronoiContainer(MSONable):
             self.voronoi_list2[isite] = results2
             self.voronoi_list_coords[isite] = np.array([dd["site"].coords for dd in results2])
         t2 = time.process_time()
-        logging.debug("Voronoi list set up in {:.2f} seconds".format(t2 - t1))
+        logging.debug(f"Voronoi list set up in {t2 - t1:.2f} seconds")
 
     def setup_neighbors_distances_and_angles(self, indices):
         """
@@ -351,7 +351,7 @@ class DetailedVoronoiContainer(MSONable):
 
     def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
         additional_conditions = {ac: [] for ac in self.additional_conditions}
-        for ips, (ps, vals) in enumerate(voronoi):
+        for _, vals in voronoi:
             for ac in self.additional_conditions:
                 additional_conditions[ac].append(
                     self.AC.check_condition(
@@ -371,7 +371,7 @@ class DetailedVoronoiContainer(MSONable):
         for idp, dp_dict in enumerate(self.neighbors_normalized_distances[ivoronoi]):
             distance_conditions.append([])
             dp = dp_dict["max"]
-            for ips, (ps, vals) in enumerate(voronoi):
+            for _, vals in voronoi:
                 distance_conditions[idp].append(
                     vals["normalized_distance"] <= dp
                     or np.isclose(
@@ -388,7 +388,7 @@ class DetailedVoronoiContainer(MSONable):
         for iap, ap_dict in enumerate(self.neighbors_normalized_angles[ivoronoi]):
             angle_conditions.append([])
             ap = ap_dict["max"]
-            for ips, (ps, vals) in enumerate(voronoi):
+            for _, vals in voronoi:
                 angle_conditions[iap].append(
                     vals["normalized_angle"] >= ap
                     or np.isclose(
@@ -473,8 +473,8 @@ class DetailedVoronoiContainer(MSONable):
             }
         else:
             raise ValueError(
-                'Type "{}" for the surface calculation in DetailedVoronoiContainer '
-                "is invalid".format(surface_calculation_options["type"])
+                f'Type "{surface_calculation_options["type"]}" for the surface calculation in DetailedVoronoiContainer '
+                "is invalid"
             )
         max_dist = surface_calculation_options["distance_bounds"]["upper"] + 0.1
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(
@@ -697,13 +697,13 @@ class DetailedVoronoiContainer(MSONable):
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         elif plot_type["distance_parameter"][0] == "initial_inverse3_opposite":
-            ddinv = [1.0 / dist ** 3.0 for dist in dd]
+            ddinv = [1.0 / dist**3.0 for dist in dd]
             ddinv.append(0.0)
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the distance is not implemented".format(plot_type["distance_parameter"])
+                f"Plotting type \"{plot_type['distance_parameter']}\" for the distance is not implemented"
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -716,7 +716,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the angle is not implemented".format(plot_type["angle_parameter"])
+                f"Plotting type \"{plot_type['angle_parameter']}\" for the angle is not implemented"
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -852,7 +852,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -911,23 +911,23 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
         subplot.plot(xx, yy)
 
         return fig
 
-    def __eq__(self, other):
-        return (
-            self.normalized_angle_tolerance == other.normalized_angle_tolerance
-            and self.normalized_distance_tolerance == other.normalized_distance_tolerance
-            and self.additional_conditions == other.additional_conditions
-            and self.valences == other.valences
-            and self.voronoi_list2 == other.voronoi_list2
-            and self.structure == other.structure
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = (
+            "normalized_angle_tolerance",
+            "normalized_distance_tolerance",
+            "additional_conditions",
+            "valences",
+            "voronoi_list2",
+            "structure",
         )
-
-    def __ne__(self, other):
-        return not self == other
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def to_bson_voronoi_list2(self):
         """
@@ -963,8 +963,8 @@ class DetailedVoronoiContainer(MSONable):
         """
         bson_nb_voro_list2 = self.to_bson_voronoi_list2()
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "bson_nb_voro_list2": bson_nb_voro_list2,
             # "neighbors_lists": self.neighbors_lists,
             "structure": self.structure.as_dict(),

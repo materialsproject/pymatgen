@@ -2,7 +2,7 @@
    :width: 300 px
    :alt: pymatgen
    :align: center
-   
+
 ============
 Introduction
 ============
@@ -32,7 +32,7 @@ for materials analysis. These are some of the main features:
 5. Integration with the Materials Project REST API, Crystallography Open
    Database and other external data sources.
 
-As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule follows closely that of the Scientific
+As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.
@@ -63,7 +63,7 @@ modifications. MPRester should now be imported from `pymatgen.ext.matproj`. All 
 `Element`, `Species`, `Lattice`, `Structure`, etc. should be imported from `pymatgen.core`. There are a few simple ways
 you can respond to this change:
 
-* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<=2022.0.0 since all
+* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<2022.0.0 since all
   the imports were already available in previous versions), you need to replace all instances of
   `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`, followed by replacing all instances
   of `from pymatgen import` with `from pymatgen.core import`. These two steps have to be done in that sequence, since
@@ -129,6 +129,10 @@ several advantages over other codes out there:
 5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project.
    It is also actively being developed and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
+6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over the
+   world. We also now have an architecture to support add-ons that expand pymatgen's functionality even further. Check
+   out the `contributing page <http://pymatgen.org/contributing>`_ and `add-ons page <http://pymatgen.org/addons>`_ for
+   details and examples.
 
 Please review the `coding guidelines </contributing>`_.
 
@@ -358,7 +362,7 @@ Here are some quick examples of the core capabilities and objects:
     1 Cl     0.510000     0.510000     0.510000
     2 Cs     0.000000     0.000000     0.000000
     >>>
-    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # Molecules function similarly, but with Site and Cartesian coords.
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
@@ -496,7 +500,7 @@ If you use pymatgen in your research, please consider citing the following work:
     Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
-    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    <https://doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances / principles developed by various
 scientists. Please refer to the :doc:`references page </references>` for citation info.

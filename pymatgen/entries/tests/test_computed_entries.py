@@ -1,11 +1,10 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 
+import copy
 import json
 import os
-import copy
 import unittest
 from collections import defaultdict
 
@@ -33,7 +32,7 @@ vasprun = Vasprun(filepath)
 def test_energyadjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
-    assert ea.cls == {}
+    assert not ea.cls
     ead = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())
@@ -404,9 +403,9 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json")) as f:
             data = json.load(f)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json")) as f:
             self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]

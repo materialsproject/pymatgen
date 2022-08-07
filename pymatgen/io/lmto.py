@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
-
 
 """
 Module for implementing a CTRL file object class for the Stuttgart
@@ -35,7 +33,7 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure, header=None, version="LMASA-47"):
+    def __init__(self, structure: Structure, header=None, version="LMASA-47"):
         """
         Args:
             structure: The structure as a pymatgen Structure object.
@@ -110,8 +108,8 @@ class LMTOCtrl:
         parameter of the primitive cell.
         """
         ctrl_dict = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
         if self.header is not None:
             ctrl_dict["HEADER"] = self.header
@@ -209,8 +207,8 @@ class LMTOCtrl:
                     struc_lines[cat].append(line)
                 else:
                     pass
-        for cat in struc_lines:
-            struc_lines[cat] = " ".join(struc_lines[cat]).replace("= ", "=")
+
+        struc_lines = {k: " ".join(v).replace("= ", "=") for k, v in struc_lines.items()}
 
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
@@ -387,10 +385,10 @@ class LMTOCopl:
             # This takes care of duplicate labels
             if label in cohp_data:
                 i = 1
-                lab = "%s-%d" % (label, i)
+                lab = f"{label}-{i}"
                 while lab in cohp_data:
                     i += 1
-                    lab = "%s-%d" % (label, i)
+                    lab = f"{label}-{i}"
                 label = lab
 
             cohp_data[label] = {
@@ -424,10 +422,5 @@ class LMTOCopl:
         sites = line[0].replace("/", "-").split("-")
         site_indices = tuple(int(ind) - 1 for ind in sites[1:4:2])
         species = tuple(re.split(r"\d+", spec)[0] for spec in sites[0:3:2])
-        label = "%s%d-%s%d" % (
-            species[0],
-            site_indices[0] + 1,
-            species[1],
-            site_indices[1] + 1,
-        )
+        label = f"{species[0]}{site_indices[0] + 1}-{species[1]}{site_indices[1] + 1}"
         return label, length, site_indices

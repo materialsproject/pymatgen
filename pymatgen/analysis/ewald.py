@@ -1,22 +1,23 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
-This module provides classes for calculating the ewald sum of a structure.
+This module provides classes for calculating the Ewald sum of a structure.
 """
+
+from __future__ import annotations
 
 import bisect
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
-from typing import Dict
+from typing import Any
 from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
-from scipy.special import comb, erfc
 from scipy import constants
+from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
 
@@ -42,7 +43,7 @@ class EwaldSummation(MSONable):
     DOI: 10.1016/0010-4655(96)00016-1
     URL: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
 
-    This matrix can be used to do fast calculations of ewald sums after species
+    This matrix can be used to do fast calculations of Ewald sums after species
     removal.
 
     E = E_recip + E_real + E_point
@@ -60,7 +61,7 @@ class EwaldSummation(MSONable):
         recip_space_cut=None,
         eta=None,
         acc_factor=12.0,
-        w=1 / sqrt(2),
+        w=1 / 2**0.5,
         compute_forces=False,
     ):
         """
@@ -99,12 +100,12 @@ class EwaldSummation(MSONable):
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = eta if eta else (len(structure) * w / (self._vol ** 2)) ** (1 / 3) * pi
+        self._eta = eta if eta else (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
         # reciprocal space cutoff radii
-        self._accf = sqrt(log(10 ** acc_factor))
+        self._accf = sqrt(log(10**acc_factor))
 
         self._rmax = real_space_cut if real_space_cut else self._accf / self._sqrt_eta
         self._gmax = recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
@@ -125,12 +126,12 @@ class EwaldSummation(MSONable):
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = (
-            -EwaldSummation.CONV_FACT / 2 * np.pi / structure.volume / self._eta * structure.charge ** 2
+            -EwaldSummation.CONV_FACT / 2 * np.pi / structure.volume / self._eta * structure.charge**2
         )
 
     def compute_partial_energy(self, removed_indices):
         """
-        Gives total ewald energy for certain sites being removed, i.e. zeroed
+        Gives total Ewald energy for certain sites being removed, i.e. zeroed
         out.
         """
         total_energy_matrix = self.total_energy_matrix.copy()
@@ -141,7 +142,7 @@ class EwaldSummation(MSONable):
 
     def compute_sub_structure(self, sub_structure, tol=1e-3):
         """
-        Gives total ewald energy for an sub structure in the same
+        Gives total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original
         structure, with possible different charges.
 
@@ -179,7 +180,7 @@ class EwaldSummation(MSONable):
             output = ["Missing sites."]
             for site in sub_structure:
                 if site not in matches:
-                    output.append("unmatched = {}".format(site))
+                    output.append(f"unmatched = {site}")
             raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
@@ -307,7 +308,7 @@ class EwaldSummation(MSONable):
 
     def _calc_ewald_terms(self):
         """
-        Calculates and sets all ewald terms (point, real and reciprocal)
+        Calculates and sets all Ewald terms (point, real and reciprocal)
         """
         self._recip, recip_forces = self._calc_recip()
         self._real, self._point, real_point_forces = self._calc_real_and_point()
@@ -336,7 +337,7 @@ class EwaldSummation(MSONable):
         frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
-        g2s = np.sum(gs ** 2, 1)
+        g2s = np.sum(gs**2, 1)
         expvals = np.exp(-g2s / (4 * self._eta))
         grs = np.sum(gs[:, None] * coords[None, :], 2)
 
@@ -365,7 +366,7 @@ class EwaldSummation(MSONable):
                 forces += factor[:, None] * g[None, :]
 
         forces *= EwaldSummation.CONV_FACT
-        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2 ** 0.5
+        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2**0.5
         return erecip, forces
 
     def _calc_real_and_point(self):
@@ -382,7 +383,7 @@ class EwaldSummation(MSONable):
 
         qs = np.array(self._oxi_states)
 
-        epoint = -(qs ** 2) * sqrt(self._eta / pi)
+        epoint = -(qs**2) * sqrt(self._eta / pi)
 
         for i in range(numsites):
             nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(
@@ -408,7 +409,7 @@ class EwaldSummation(MSONable):
             if self._compute_forces:
                 nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
 
-                fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
+                fijpf = qj / rij**3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij**2))
                 forces[i] += np.sum(
                     np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nccoords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
@@ -444,7 +445,7 @@ class EwaldSummation(MSONable):
             ]
         return "\n".join(output)
 
-    def as_dict(self, verbosity: int = 0) -> Dict:
+    def as_dict(self, verbosity: int = 0) -> dict:
         """
         Json-serialization dict representation of EwaldSummation.
 
@@ -454,8 +455,8 @@ class EwaldSummation(MSONable):
         """
 
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self._s.as_dict(),
             "compute_forces": self._compute_forces,
             "eta": self._eta,
@@ -471,9 +472,15 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict, fmt: str = None, **kwargs):
-        """
-        Create an EwaldSummation instance from json serialized dictionary.
+    def from_dict(cls, d: dict[str, Any], fmt: str = None, **kwargs) -> EwaldSummation:
+        """Create an EwaldSummation instance from JSON-serialized dictionary.
+
+        Args:
+            d (dict): Dictionary representation
+            fmt (str, optional): Unused. Defaults to None.
+
+        Returns:
+            EwaldSummation: class instance
         """
         summation = cls(
             structure=Structure.from_dict(d["structure"]),
@@ -497,7 +504,7 @@ class EwaldSummation(MSONable):
 
 class EwaldMinimizer:
     """
-    This class determines the manipulations that will minimize an ewald matrix,
+    This class determines the manipulations that will minimize an Ewald matrix,
     given a list of possible manipulations. This class does not perform the
     manipulations on a structure, but will return the list of manipulations
     that should be done on one to produce the minimal structure. It returns the
@@ -505,7 +512,7 @@ class EwaldMinimizer:
     to perform fractional species substitution or fractional species removal to
     produce a new structure. These manipulations create large numbers of
     candidate structures, and this class can be used to pick out those with the
-    lowest ewald sum.
+    lowest Ewald sum.
 
     An alternative (possibly more intuitive) interface to this class is the
     order disordered structure transformation.
@@ -527,7 +534,7 @@ class EwaldMinimizer:
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
         """
         Args:
-            matrix: A matrix of the ewald sum interaction energies. This is stored
+            matrix: A matrix of the Ewald sum interaction energies. This is stored
                 in the class as a diagonally symmetric array and so
                 self._matrix will not be the same as the input matrix.
             m_list: list of manipulations. each item is of the form
@@ -560,7 +567,7 @@ class EwaldMinimizer:
         self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
-            raise NotImplementedError("Complete algo not yet implemented for " "EwaldMinimizer")
+            raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
         self._output_lists = []
         # Tag that the recurse function looks at at each level. If a method
@@ -577,9 +584,9 @@ class EwaldMinimizer:
     def minimize_matrix(self):
         """
         This method finds and returns the permutations that produce the lowest
-        ewald sum calls recursive function to iterate through permutations
+        Ewald sum calls recursive function to iterate through permutations
         """
-        if self._algo == EwaldMinimizer.ALGO_FAST or self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+        if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
             return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
         return None
 
@@ -671,7 +678,7 @@ class EwaldMinimizer:
 
         return next_index
 
-    def _recurse(self, matrix, m_list, indices, output_m_list=[]):
+    def _recurse(self, matrix, m_list, indices, output_m_list=None):
         """
         This method recursively finds the minimal permutations using a binary
         tree search strategy.
@@ -687,6 +694,9 @@ class EwaldMinimizer:
         if self._finished:
             return
 
+        if output_m_list is None:
+            output_m_list = []
+
         # if we're done with the current manipulation, pop it off.
         while m_list[-1][1] == 0:
             m_list = copy(m_list)
@@ -698,7 +708,7 @@ class EwaldMinimizer:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
 
-        # if we wont have enough indices left, return
+        # if we won't have enough indices left, return
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
 
@@ -761,7 +771,7 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     try:
-        avg_oxi = sum([sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None])
+        avg_oxi = sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
         return avg_oxi
     except AttributeError:
         pass

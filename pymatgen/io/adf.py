@@ -4,6 +4,7 @@ IO for ADF files.
 
 import os
 import re
+from typing import Generator
 
 from monty.io import reverse_readline
 from monty.itertools import chunks
@@ -38,20 +39,14 @@ def is_numeric(s):
         return True
 
 
-def iterlines(s):
-    r"""
-    A generator form of s.split('\n') for reducing memory overhead.
+def iterlines(s: str) -> Generator[str, None, None]:
+    r"""A generator form of s.split('\n') for reducing memory overhead.
 
-    Parameters
-    ----------
-    s : str
-        A multi-line string.
+    Args:
+        s (str): A multi-line string.
 
-    Yields
-    ------
-    line : str
-        A string.
-
+    Yields:
+        str: line
     """
     prevnl = -1
     while True:
@@ -68,15 +63,11 @@ class AdfInputError(Exception):
     The default error class for ADF.
     """
 
-    pass
-
 
 class AdfOutputError(Exception):
     """
     The default error class for errors raised by ``AdfOutput``.
     """
-
-    pass
 
 
 class AdfKey(MSONable):
@@ -152,9 +143,9 @@ class AdfKey(MSONable):
             s = ""
             for op in self.options:
                 if self._sized_op:
-                    s += "{:s}={:s} ".format(*map(str, op))
+                    s += f"{op[0]}={op[1]} "
                 else:
-                    s += "{:s} ".format(str(op))
+                    s += f"{op} "
             return s.strip()
         return ""
 
@@ -184,14 +175,17 @@ class AdfKey(MSONable):
         different string format will be used.
 
         """
-        s = "{:s}".format(self.key)
+        s = f"{self.key}"
         if len(self.options) > 0:
-            s += " {:s}".format(self._options_string())
+            s += f" {self._options_string()}"
         s += "\n"
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(subkey.name, *subkey.options)
+                    s += (
+                        f"{subkey.name:2s}  {subkey.options[0]: 14.8f}"
+                        f"    {subkey.options[1]: 14.8f}    {subkey.options[2]: 14.8f}\n"
+                    )
             else:
                 for subkey in self.subkeys:
                     s += str(subkey)
@@ -275,7 +269,7 @@ class AdfKey(MSONable):
         Parameters
         ----------
         option : Sized or str or int or float
-            A new option to add. This must have the same format with exsiting
+            A new option to add. This must have the same format with existing
             options.
 
         Raises
@@ -344,11 +338,11 @@ class AdfKey(MSONable):
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of self.
+        A JSON-serializable dict representation of self.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "name": self.name,
             "options": self.options,
         }
@@ -358,12 +352,6 @@ class AdfKey(MSONable):
                 subkeys.append(subkey.as_dict())
             d.update({"subkeys": subkeys})
         return d
-
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfKey object.
-        """
-        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -472,10 +460,10 @@ class AdfTask(MSONable):
 
     operations = {
         "energy": "Evaluate the single point energy.",
-        "optimize": "Minimize the energy by varying the molecular " "structure.",
-        "frequencies": "Compute second derivatives and print out an " "analysis of molecular vibrations.",
+        "optimize": "Minimize the energy by varying the molecular structure.",
+        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
         "freq": "Same as frequencies.",
-        "numerical_frequencies": "Compute molecular frequencies using" " numerical method.",
+        "numerical_frequencies": "Compute molecular frequencies using numerical method.",
     }
 
     def __init__(
@@ -512,8 +500,8 @@ class AdfTask(MSONable):
             User-defined directives.
 
         """
-        if operation not in self.operations.keys():
-            raise AdfInputError("Invalid ADF task {:s}".format(operation))
+        if operation not in self.operations:
+            raise AdfInputError(f"Invalid ADF task {operation}")
         self.operation = operation
         self.title = title
         self.basis_set = basis_set if basis_set is not None else self.get_default_basis_set()
@@ -590,33 +578,26 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = """TITLE {title}\n
-{units}
-{xc}
-{basis_set}
-{scf}
-{geo}""".format(
-            title=self.title,
-            units=str(self.units),
-            xc=str(self.xc),
-            basis_set=str(self.basis_set),
-            scf=str(self.scf),
-            geo=str(self.geo),
-        )
+        s = f"""TITLE {self.title}\n
+{str(self.units)}
+{str(self.xc)}
+{str(self.basis_set)}
+{str(self.scf)}
+{str(self.geo)}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError("{} is not an AdfKey!".format(str(block_key)))
+                raise ValueError(f"{block_key} is not an AdfKey!")
             s += str(block_key) + "\n"
         return s
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of self.
+        A JSON-serializable dict representation of self.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "operation": self.operation,
             "title": self.title,
             "xc": self.xc.as_dict(),
@@ -626,12 +607,6 @@ class AdfTask(MSONable):
             "geo": self.geo.as_dict(),
             "others": [k.as_dict() for k in self.other_directives],
         }
-
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfTask object.
-        """
-        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -773,7 +748,7 @@ class AdfOutput:
         workdir = os.path.dirname(self.filename)
         logfile = os.path.join(workdir, "logfile")
         if not os.path.isfile(logfile):
-            raise IOError("The ADF logfile can not be accessed!")
+            raise OSError("The ADF logfile can not be accessed!")
 
         self.is_failed = False
         self.error = None
@@ -816,7 +791,7 @@ class AdfOutput:
 
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
-        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s" "Hartree")
+        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\sHartree")
         final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
         runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
@@ -830,7 +805,7 @@ class AdfOutput:
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
         # ADF manual has a detailed explanantion.
-        with open(logfile, "r") as f:
+        with open(logfile) as f:
             for line in reverse_readline(f):
                 if line == "":
                     continue
@@ -841,7 +816,7 @@ class AdfOutput:
                     return
                 break
 
-        with open(logfile, "r") as f:
+        with open(logfile) as f:
             for line in f:
                 m = error_patt.search(line)
                 if m:
@@ -879,7 +854,7 @@ class AdfOutput:
                     if m:
                         cycle = int(m.group(1))
                         if cycle <= 0:
-                            raise AdfOutputError("Wrong cycle {}".format(cycle))
+                            raise AdfOutputError(f"Wrong cycle {cycle}")
                         if cycle > last_cycle:
                             parse_cycle = True
                             last_cycle = cycle
@@ -946,7 +921,7 @@ class AdfOutput:
             parse_coord = False
             natoms = self.final_structure.num_sites
 
-        with open(self.filename, "r") as f:
+        with open(self.filename) as f:
             for line in f:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:
@@ -982,7 +957,7 @@ class AdfOutput:
                         parse_mode = True
                         parse_freq = False
                         self.frequencies.extend(map(float, el))
-                        for i in range(nnext):
+                        for _ in range(nnext):
                             self.normal_modes.append([])
 
                 elif parse_mode:

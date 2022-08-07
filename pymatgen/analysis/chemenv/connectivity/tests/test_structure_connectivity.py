@@ -3,6 +3,9 @@
 
 __author__ = "waroquiers"
 
+import json
+import os
+
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
     ConnectivityFinder,
 )
@@ -22,8 +25,6 @@ try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
     bson = None
-import json
-import os
 
 
 class StructureConnectivityTest(PymatgenTest):
@@ -34,7 +35,7 @@ class StructureConnectivityTest(PymatgenTest):
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath, "r") as f:
+        with open(BaTiO3_se_fpath) as f:
             dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
         lse = LightStructureEnvironments.from_structure_environments(

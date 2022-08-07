@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -156,6 +155,24 @@ class SymmOpTestCase(PymatgenTest):
         newcoord = self.op.operate(point)
         self.assertTrue(self.op.are_symmetrically_related(point, newcoord))
         self.assertTrue(self.op.are_symmetrically_related(newcoord, point))
+
+    def test_are_symmetrically_related_vectors(self):
+        tol = 0.001
+        from_a = np.random.rand(3)
+        to_a = np.random.rand(3)
+        r_a = np.random.randint(0, 10, 3)
+        from_b = self.op.operate(from_a)
+        to_b = self.op.operate(to_a)
+        floored = np.floor([from_b, to_b])
+        is_too_close = np.abs([from_b, to_b] - floored) > 1 - tol
+        floored[is_too_close] += 1
+        r_b = self.op.apply_rotation_only(r_a) - floored[0] + floored[1]
+        from_b = from_b % 1
+        to_b = to_b % 1
+        self.assertTrue(self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[0])
+        self.assertFalse(self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[1])
+        self.assertTrue(self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0])
+        self.assertTrue(self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[1])
 
     def test_to_from_dict(self):
         d = self.op.as_dict()

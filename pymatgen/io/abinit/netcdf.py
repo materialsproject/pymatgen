@@ -1,14 +1,14 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 #
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
+from __future__ import annotations
+
 import logging
 import os.path
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 from monty.collections import AttrDict
@@ -44,15 +44,14 @@ try:
 except ImportError as exc:
     netCDF4 = None
     warnings.warn(
-        """\
+        f"""\
 `import netCDF4` failed with the following error:
 
-%s
+{exc}
 
 Please install netcdf4 with `conda install netcdf4`
 If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
 and use `pip install netcdf4`"""
-        % str(exc)
     )
 
 
@@ -103,7 +102,7 @@ class NetcdfReader:
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error("In file %s: %s" % (self.path, str(exc)))
+            raise self.Error(f"In file {self.path}: {exc}")
 
         self.ngroups = len(list(self.walk_tree()))
 
@@ -126,7 +125,7 @@ class NetcdfReader:
         try:
             self.rootgrp.close()
         except Exception as exc:
-            logger.warning("Exception %s while trying to close %s" % (exc, self.path))
+            logger.warning(f"Exception {exc} while trying to close {self.path}")
 
     def walk_tree(self, top=None):
         """
@@ -139,8 +138,7 @@ class NetcdfReader:
         values = top.groups.values()
         yield values
         for value in top.groups.values():
-            for children in self.walk_tree(value):
-                yield children
+            yield from self.walk_tree(value)
 
     def print_tree(self):
         """Print all the groups in the file."""
@@ -169,9 +167,9 @@ class NetcdfReader:
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
-            return self.rootgrp.variables.keys()
+            return list(self.rootgrp.variables)
         group = self.path2group[path]
-        return group.variables.keys()
+        return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """
@@ -206,7 +204,7 @@ class NetcdfReader:
         assert var.shape[-1] == 2
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
-        raise ValueError("Wrong value for cmode %s" % cmode)
+        raise ValueError(f"Wrong value for cmode {cmode}")
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
@@ -222,7 +220,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" % (self.path, dimnames, kwargs)
+                f"In file {self.path}:\nError while reading dimensions: `{dimnames}` with kwargs: `{kwargs}`"
             )
 
     def _read_variables(self, *varnames, **kwargs):
@@ -235,7 +233,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading variables: `%s` with kwargs `%s`." % (self.path, varnames, kwargs)
+                f"In file {self.path}:\nError while reading variables: `{varnames}` with kwargs `{kwargs}`."
             )
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
@@ -305,7 +303,7 @@ class ETSF_Reader(NetcdfReader):
             elif ncname in self.rootgrp.dimensions:
                 d[hvar.name] = self.read_dimvalue(ncname)
             else:
-                raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
+                raise ValueError(f"Cannot find `{ncname}` in `{self.path}`")
             # Convert scalars to (well) scalars.
             if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
                 d[hvar.name] = np.asarray(d[hvar.name]).item()
@@ -327,7 +325,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     Args:
         ncdata: filename or NetcdfReader instance.
         site_properties: Dictionary with site properties.
-        cls: The Structure class to instanciate.
+        cls: The Structure class to instantiate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 
@@ -470,7 +468,7 @@ _HDR_VARIABLES = (
     ),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
+_HDR_VARIABLES = {h.name: h for h in _HDR_VARIABLES}  # type: ignore
 
 
 class AbinitHeader(AttrDict):

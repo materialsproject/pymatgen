@@ -31,7 +31,7 @@ class PointGroupTest(unittest.TestCase):
         self.assertEqual(len(pg.get_orbit([1.2, 1.2, 1])), 8)
 
     def test_is_sub_super_group(self):
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             pgmmm = PointGroup("mmm")
             pgmm2 = PointGroup("mm2")
@@ -184,7 +184,7 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertRaises(ValueError, SpaceGroup, "hello")
 
     def test_subgroup_supergroup(self):
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.assertTrue(SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm")))
             self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230)))
@@ -197,7 +197,7 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_string(self):
         sg = SpaceGroup("R-3c")
-        self.assertEqual(sg.to_latex_string(), "R$\overline{3}$cH")
+        self.assertEqual(sg.to_latex_string(), r"R$\overline{3}$cH")
         sg = SpaceGroup("P6/mmm")
         self.assertEqual(sg.to_latex_string(), "P6/mmm")
         sg = SpaceGroup("P4_1")

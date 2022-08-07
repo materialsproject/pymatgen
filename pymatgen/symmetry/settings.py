@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,13 +5,14 @@
 This module provides classes for non-standard space-group settings
 """
 
+from __future__ import annotations
+
 import re
 from fractions import Fraction
-from typing import List, Tuple, Union
 
 import numpy as np
 
-from pymatgen.core import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
 
@@ -55,7 +55,7 @@ class JonesFaithfulTransformation:
         between magnetic and non-magnetic settings.
 
         See: International Tables for Crystallography (2016). Vol. A,
-        Chapter 1.5, pp. 75–106.
+        Chapter 1.5, pp. 75-106.
         """
         # using capital letters in violation of PEP8 to
         # be consistent with variables in supplied reference,
@@ -87,9 +87,16 @@ class JonesFaithfulTransformation:
     @staticmethod
     def parse_transformation_string(
         transformation_string: str = "a,b,c;0,0,0",
-    ) -> Tuple[Union[List[List[float]], np.ndarray], List[float]]:
+    ) -> tuple[list[list[float]] | np.ndarray, list[float]]:
         """
-        :return: transformation matrix & vector
+        Args:
+            transformation_string (str, optional): Defaults to "a,b,c;0,0,0".
+
+        Raises:
+            ValueError: When transformation string fails to parse.
+
+        Returns:
+            tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])
@@ -120,14 +127,14 @@ class JonesFaithfulTransformation:
             raise ValueError("Failed to parse transformation string.")
 
     @property
-    def P(self) -> List[List[float]]:
+    def P(self) -> list[list[float]]:
         """
         :return: transformation matrix
         """
         return self._P
 
     @property
-    def p(self) -> List[float]:
+    def p(self) -> list[float]:
         """
 
         :return: translation vector
@@ -135,7 +142,7 @@ class JonesFaithfulTransformation:
         return self._p
 
     @property
-    def inverse(self) -> "JonesFaithfulTransformation":
+    def inverse(self) -> JonesFaithfulTransformation:
         """
 
         :return: JonesFaithfulTransformation
@@ -151,13 +158,13 @@ class JonesFaithfulTransformation:
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod
-    def _get_transformation_string_from_Pp(P: Union[List[List[float]], np.ndarray], p: List[float]) -> str:
+    def _get_transformation_string_from_Pp(P: list[list[float]] | np.ndarray, p: list[float]) -> str:
         P = np.array(P).transpose()
         P_string = transformation_to_string(P, components=("a", "b", "c"))
         p_string = transformation_to_string(np.zeros((3, 3)), p)
         return P_string + ";" + p_string
 
-    def transform_symmop(self, symmop: Union[SymmOp, MagSymmOp]) -> Union[SymmOp, MagSymmOp]:
+    def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
         """
         Takes a symmetry operation and transforms it.
         :param symmop: SymmOp or MagSymmOp
@@ -181,9 +188,9 @@ class JonesFaithfulTransformation:
             return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
         raise RuntimeError
 
-    def transform_coords(self, coords: Union[List[List[float]], np.ndarray]) -> List[List[float]]:
+    def transform_coords(self, coords: list[list[float]] | np.ndarray) -> list[list[float]]:
         """
-        Takes a list of co-ordinates and transforms them.
+        Takes a list of coordinates and transforms them.
         :param coords: List of coords
         :return:
         """
@@ -191,12 +198,11 @@ class JonesFaithfulTransformation:
         for x in coords:
             x = np.array(x)
             Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (x - self.p))  # type: ignore
+            x_ = np.matmul(Q, (x - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 
-    def transform_lattice(self, lattice):
-        # type: (Lattice) -> Lattice
+    def transform_lattice(self, lattice: Lattice) -> Lattice:
         """
         Takes a Lattice object and transforms it.
         :param lattice: Lattice
@@ -211,4 +217,4 @@ class JonesFaithfulTransformation:
         return str(JonesFaithfulTransformation.transformation_string)
 
     def __repr__(self):
-        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(self.P, self.p)
+        return f"JonesFaithfulTransformation with P:\n{self.P}\nand p:\n{self.p}"

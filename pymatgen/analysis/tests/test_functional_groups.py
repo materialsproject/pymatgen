@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -129,10 +128,10 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)
 
-        self.assertTrue("O=C1C=CC(=O)[N]1" in categorized.keys())
-        self.assertTrue("[CH3]" in categorized.keys())
+        self.assertTrue("O=C1C=CC(=O)[N]1" in categorized)
+        self.assertTrue("[CH3]" in categorized)
 
-        total_count = sum([c["count"] for c in categorized.values()])
+        total_count = sum(c["count"] for c in categorized.values())
         self.assertEqual(total_count, 2)
 
 

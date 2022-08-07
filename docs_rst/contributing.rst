@@ -36,7 +36,12 @@ Direct contributions to pymatgen main distribution
 
    Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely
    necessary for rigorous testing of the code.
-5. It is highly recommended you install all the optional dependencies as well.
+5. It is highly recommended you install all the optional dependencies as well::
+
+      pip install -r requirements.txt
+      pip install -r requirements-optional.txt
+      pip install -r requirements-dev.txt
+
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your code up to date. You need to add the main
    repository to the list of your remotes. Let's name the upstream repo as mpmaster (materialsproject master)::
 
@@ -65,7 +70,7 @@ Direct contributions to pymatgen main distribution
       local repo directory and fix all errors before continuing further.
    c. If you have `pre-commit <https://pre-commit.com/>`_ installed you can use
       the provided :code:`.pre-commit-config.yaml` file to perform automatic style checks
-      before publishing your code.  The pre-commit hooks can be installed using::
+      before publishing your code. The pre-commit hooks can be installed using::
 
             pre-commit install
 
@@ -109,8 +114,8 @@ The namespaces provide an important clue what kind of contributions are suitable
 
 To help developers write add-ons, we have written a `pymatgen add-on template
 <http://github.com/materialsproject/pymatgen-addon-template>`_ with detailed instructions. For a real-world
-example using this template, check out Materials Virtual Lab's `pymatgen-diffusion
-<http://github.com/materialsvirtuallab/pymatgen-diffusion`_.
+example using this template, check out Materials Virtual Lab's `pymatgen-analysis-diffusion
+<http://pypi.org/project/pymatgen-analysis-diffusion/>`_.
 
 It should be noted that while the pymatgen maintainers will attempt to help developers as far as possible, **we provide
 no guarantees whatsoever on the quality or reliability of any code that is not part of the main pymatgen distribution**.
@@ -136,11 +141,11 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    To aid you, you can copy the example pre-commit hook into your .git/hooks
    directly. This will automatically run pycodestyle and other linting services
    prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.
-3. **Python 3**. We only support Python 3.7+.
+3. **Python 3**. We only support Python 3.8+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
-   summary of the alogirthm should be provided, and preferably with a link to a
+   summary of the algorithm should be provided, and preferably with a link to a
    publication outlining the method in detail.
 5. **IDE**. We highly recommend the use of Pycharm. You should also set up
    pycodestyle and turn those on within the IDE setup. This will warn of any

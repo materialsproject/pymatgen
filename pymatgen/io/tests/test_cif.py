@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,15 +7,15 @@ import warnings
 
 import numpy as np
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import DummySpecies, Element, Species
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import DummySpecies, Element, Species
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import PymatgenTest
 
 try:
@@ -145,7 +144,7 @@ actually going to end now
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(
             cb["_thing"],
-            " long quotes  ;  still in the quote" "  ; actually going to end now",
+            " long quotes  ;  still in the quote  ; actually going to end now",
         )
 
     def test_long_loop(self):
@@ -477,7 +476,7 @@ loop_
         filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.01)
-        ans = """# generated using pymatgen
+        answer = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   10.41176687
@@ -515,100 +514,22 @@ loop_
   O  O2  8  0.16570974  0.04607233  0.28538394  1
   O  O3  4  0.04337231  0.75000000  0.70713767  1
   O  O4  4  0.09664244  0.25000000  0.74132035  1"""
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
     def test_symmetrized(self):
         filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
-        ans = """# generated using pymatgen
-data_FePO4
-_symmetry_space_group_name_H-M   Pnma
-_cell_length_a   10.41176687
-_cell_length_b   6.06717188
-_cell_length_c   4.75948954
-_cell_angle_alpha   90.00000000
-_cell_angle_beta   90.00000000
-_cell_angle_gamma   90.00000000
-_symmetry_Int_Tables_number   62
-_chemical_formula_structural   FePO4
-_chemical_formula_sum   'Fe4 P4 O16'
-_cell_volume   300.65685512
-_cell_formula_units_Z   4
-loop_
- _symmetry_equiv_pos_site_id
- _symmetry_equiv_pos_as_xyz
-  1  'x, y, z'
-  2  '-x, -y, -z'
-  3  '-x+1/2, -y, z+1/2'
-  4  'x+1/2, y, -z+1/2'
-  5  'x+1/2, -y+1/2, -z+1/2'
-  6  '-x+1/2, y+1/2, z+1/2'
-  7  '-x, y+1/2, -z'
-  8  'x, -y+1/2, z'
-loop_
- _atom_site_type_symbol
- _atom_site_label
- _atom_site_symmetry_multiplicity
- _atom_site_fract_x
- _atom_site_fract_y
- _atom_site_fract_z
- _atom_site_occupancy
-  Fe  Fe1  4  0.218728  0.250000  0.525133  1
-  P  P2  4  0.094613  0.750000  0.581757  1
-  O  O3  8  0.165710  0.546072  0.714616  1
-  O  O4  4  0.043372  0.250000  0.292862  1
-  O  O5  4  0.096642  0.750000  0.258680  1"""
 
         cif = CifParser.from_string(str(writer))
         m = StructureMatcher()
 
         self.assertTrue(m.fit(cif.get_structures()[0], poscar.structure))
 
-        # for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
         #     self.assertEqual(l1.strip(), l2.strip())
 
-        ans = """# generated using pymatgen
-data_LiFePO4
-_symmetry_space_group_name_H-M   Pnma
-_cell_length_a   10.41037000
-_cell_length_b   6.06577000
-_cell_length_c   4.74480000
-_cell_angle_alpha   90.00000000
-_cell_angle_beta   90.00000000
-_cell_angle_gamma   90.00000000
-_symmetry_Int_Tables_number   62
-_chemical_formula_structural   LiFePO4
-_chemical_formula_sum   'Li4 Fe4 P4 O16'
-_cell_volume   299.619458734
-_cell_formula_units_Z   4
-loop_
- _symmetry_equiv_pos_site_id
- _symmetry_equiv_pos_as_xyz
-  1  'x, y, z'
-  2  '-x, -y, -z'
-  3  '-x+1/2, -y, z+1/2'
-  4  'x+1/2, y, -z+1/2'
-  5  'x+1/2, -y+1/2, -z+1/2'
-  6  '-x+1/2, y+1/2, z+1/2'
-  7  '-x, y+1/2, -z'
-  8  'x, -y+1/2, z'
-loop_
- _atom_site_type_symbol
- _atom_site_label
- _atom_site_symmetry_multiplicity
- _atom_site_fract_x
- _atom_site_fract_y
- _atom_site_fract_z
- _atom_site_occupancy
-  Li  Li1  4  0.000000  0.000000  0.000000  1.0
-  Fe  Fe2  4  0.218845  0.750000  0.474910  1.0
-  P  P3  4  0.094445  0.250000  0.417920  1.0
-  O  O4  8  0.165815  0.044060  0.286540  1.0
-  O  O5  4  0.043155  0.750000  0.708460  1.0
-  O  O6  4  0.096215  0.250000  0.741480  1.0
-"""
         s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
         writer = CifWriter(s, symprec=0.1)
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
@@ -633,7 +554,7 @@ loop_
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
-        coords = list()
+        coords = []
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         lattice = Lattice(
@@ -647,7 +568,7 @@ loop_
         )
         struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
         writer = CifWriter(struct)
-        ans = """# generated using pymatgen
+        answer = """# generated using pymatgen
 data_Si1.5N0.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
@@ -677,7 +598,7 @@ loop_
   Si  Si1  1  0.75000000  0.50000000  0.75000000  0.5
   N  N2  1  0.75000000  0.50000000  0.75000000  0.5"""
 
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
     def test_cifwrite_without_refinement(self):
@@ -692,7 +613,7 @@ loop_
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)
         n = DummySpecies("X", -3)
-        coords = list()
+        coords = []
         coords.append(np.array([0.5, 0.5, 0.5]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0, 0, 0]))
@@ -707,7 +628,7 @@ loop_
         )
         struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
         writer = CifWriter(struct)
-        ans = """# generated using pymatgen
+        answer = """# generated using pymatgen
 data_X1.5Si1.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
@@ -744,11 +665,11 @@ loop_
   Si3+  Si2  1  0.75000000  0.50000000  0.75000000  0.5
   Si4+  Si3  1  0.00000000  0.00000000  0.00000000  1
 """
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
         # test that mixed valence works properly
-        s2 = Structure.from_str(ans, "cif")
+        s2 = Structure.from_str(answer, "cif")
         self.assertEqual(struct.composition, s2.composition)
 
     def test_primes(self):
@@ -916,7 +837,7 @@ loop_
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
             self.assertIn(
-                "Some fractional co-ordinates rounded to ideal " "values to avoid issues with finite precision.",
+                "Some fractional coordinates rounded to ideal values to avoid issues with finite precision.",
                 p.warnings,
             )
 
@@ -1122,7 +1043,7 @@ loop_
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
-        self.assertEqual(cw.__str__(), cw_ref_string)
+        self.assertEqual(str(cw), cw_ref_string)
 
         # from list-type magmoms
         list_magmoms = [list(m) for m in s_ncl.site_properties["magmom"]]
@@ -1132,7 +1053,7 @@ loop_
 
         s_ncl.add_site_property("magmom", list_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
-        self.assertEqual(cw.__str__(), cw_ref_string)
+        self.assertEqual(str(cw), cw_ref_string)
 
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
@@ -1193,7 +1114,7 @@ loop_
   Gd2  0.00000000  0.00000000  -7.14177849
   Gd3  0.00000000  0.00000000  -7.14177849
 """
-        self.assertEqual(cw.__str__().strip(), cw_ref_string_magnitudes.strip())
+        self.assertEqual(str(cw).strip(), cw_ref_string_magnitudes.strip())
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.get_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
@@ -1249,7 +1170,7 @@ loop_
 """
         s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)
-        self.assertEqual(cw.__str__(), cw_manual_oxi_string)
+        self.assertEqual(str(cw), cw_manual_oxi_string)
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):

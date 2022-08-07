@@ -1,12 +1,8 @@
 import json
 import os
 import unittest
-from io import open
 
-from pymatgen.phonon.bandstructure import (
-    PhononBandStructure,
-    PhononBandStructureSymmLine,
-)
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -14,19 +10,17 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
     def setUp(self):
         with open(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"),
-            "r",
             encoding="utf-8",
-        ) as f:
-            d = json.load(f)
-            self.bs = PhononBandStructureSymmLine.from_dict(d)
+        ) as file:
+            dct = json.load(file)
+            self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
         with open(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "Si_phonon_bandstructure.json"),
-            "r",
             encoding="utf-8",
-        ) as f:
-            d = json.load(f)
-            self.bs2 = PhononBandStructureSymmLine.from_dict(d)
+        ) as file:
+            dct = json.load(file)
+            self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
     def test_basic(self):
         self.assertAlmostEqual(self.bs.bands[1][10], 0.7753555184)

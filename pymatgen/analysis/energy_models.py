@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -88,8 +87,8 @@ class EwaldElectrostaticModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {
                 "real_space_cut": self.real_space_cut,
                 "recip_space_cut": self.recip_space_cut,
@@ -131,8 +130,8 @@ class SymmetryModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {
                 "symprec": self.symprec,
                 "angle_tolerance": self.angle_tolerance,
@@ -164,7 +163,7 @@ class IsingModel(EnergyModel):
         for i, nns in enumerate(all_nn):
             s1 = getattr(structure[i].specie, "spin", 0)
             for nn in nns:
-                energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance ** 2)
+                energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance**2)
         return energy
 
     def as_dict(self):
@@ -173,8 +172,8 @@ class IsingModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {"j": self.j, "max_radius": self.max_radius},
         }
 
@@ -199,7 +198,7 @@ class NsitesModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {},
         }

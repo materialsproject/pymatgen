@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -60,7 +59,7 @@ class NwTask(MSONable):
         "mcscf": "Multiconfiguration SCF",
         "selci": "Selected CI with perturbation correction",
         "md": "Classical molecular dynamics simulation",
-        "pspw": "Pseudopotential plane-wave DFT for molecules and " "insulating solids using NWPW",
+        "pspw": "Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW",
         "band": "Pseudopotential plane-wave DFT for solids using NWPW",
         "tce": "Tensor Contraction Engine",
         "tddft": "Time Dependent DFT",
@@ -68,16 +67,16 @@ class NwTask(MSONable):
 
     operations = {
         "energy": "Evaluate the single point energy.",
-        "gradient": "Evaluate the derivative of the energy with " "respect to nuclear coordinates.",
-        "optimize": "Minimize the energy by varying the molecular " "structure.",
-        "saddle": "Conduct a search for a transition state (or " "saddle point).",
+        "gradient": "Evaluate the derivative of the energy with respect to nuclear coordinates.",
+        "optimize": "Minimize the energy by varying the molecular structure.",
+        "saddle": "Conduct a search for a transition state (or saddle point).",
         "hessian": "Compute second derivatives.",
-        "frequencies": "Compute second derivatives and print out an " "analysis of molecular vibrations.",
+        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
         "freq": "Same as frequencies.",
-        "vscf": "Compute anharmonic contributions to the " "vibrational modes.",
-        "property": "Calculate the properties for the wave " "function.",
+        "vscf": "Compute anharmonic contributions to the vibrational modes.",
+        "property": "Calculate the properties for the wave function.",
         "dynamics": "Perform classical molecular dynamics.",
-        "thermodynamics": "Perform multi-configuration " "thermodynamic integration using " "classical MD.",
+        "thermodynamics": "Perform multi-configuration thermodynamic integration using classical MD.",
         "": "dummy",
     }
 
@@ -122,21 +121,21 @@ class NwTask(MSONable):
                 constant of 78, you'd supply {'cosmo': {"dielectric": 78}}.
         """
         # Basic checks.
-        if theory.lower() not in NwTask.theories.keys():
-            raise NwInputError("Invalid theory {}".format(theory))
+        if theory.lower() not in NwTask.theories:
+            raise NwInputError(f"Invalid theory {theory}")
 
-        if operation.lower() not in NwTask.operations.keys():
-            raise NwInputError("Invalid operation {}".format(operation))
+        if operation.lower() not in NwTask.operations:
+            raise NwInputError(f"Invalid operation {operation}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        self.title = title if title is not None else "{} {}".format(theory, operation)
+        self.title = title if title is not None else f"{theory} {operation}"
         self.theory = theory
 
         self.basis_set = basis_set or {}
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn("Basis set %s not in in NWCHEM_BASIS_LIBRARY" % b)
+                    warnings.warn(f"Basis set {b} not in in NWCHEM_BASIS_LIBRARY")
 
         self.basis_set_option = basis_set_option
 
@@ -147,17 +146,17 @@ class NwTask(MSONable):
     def __str__(self):
         bset_spec = []
         for el, bset in sorted(self.basis_set.items(), key=lambda x: x[0]):
-            bset_spec.append(' {} library "{}"'.format(el, bset))
+            bset_spec.append(f' {el} library "{bset}"')
         theory_spec = []
         if self.theory_directives:
-            theory_spec.append("{}".format(self.theory))
-            for k in sorted(self.theory_directives.keys()):
-                theory_spec.append(" {} {}".format(k, self.theory_directives[k]))
+            theory_spec.append(f"{self.theory}")
+            for k in sorted(self.theory_directives):
+                theory_spec.append(f" {k} {self.theory_directives[k]}")
             theory_spec.append("end")
-        for k in sorted(self.alternate_directives.keys()):
+        for k in sorted(self.alternate_directives):
             theory_spec.append(k)
-            for k2 in sorted(self.alternate_directives[k].keys()):
-                theory_spec.append(" {} {}".format(k2, self.alternate_directives[k][k2]))
+            for k2 in sorted(self.alternate_directives[k]):
+                theory_spec.append(f" {k2} {self.alternate_directives[k][k2]}")
             theory_spec.append("end")
 
         t = Template(
@@ -181,7 +180,7 @@ $theory_spec
         )
 
         if self.operation is not None:
-            output += "task %s %s" % (self.theory, self.operation)
+            output += f"task {self.theory} {self.operation}"
         return output
 
     def as_dict(self):
@@ -189,8 +188,8 @@ $theory_spec
         Returns: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "title": self.title,
@@ -275,15 +274,15 @@ $theory_spec
             spin_multiplicity = spin_multiplicity
             if (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    "Charge of {} and spin multiplicity of {} is"
-                    " not possible for this molecule".format(charge, spin_multiplicity)
+                    f"Charge of {charge} and spin multiplicity of {spin_multiplicity} is"
+                    " not possible for this molecule"
                 )
         elif charge == mol.charge:
             spin_multiplicity = mol.spin_multiplicity
         else:
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
-        elements = set(mol.composition.get_el_amt_dict().keys())
+        elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
             basis_set = {el: basis_set for el in elements}
 
@@ -303,14 +302,14 @@ $theory_spec
 
     @classmethod
     def dft_task(cls, mol, xc="b3lyp", **kwargs):
-        r"""
+        """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
 
         Args:
             mol: Input molecule
             xc: Exchange correlation to use.
-            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
@@ -319,13 +318,13 @@ $theory_spec
 
     @classmethod
     def esp_task(cls, mol, **kwargs):
-        r"""
+        """
         A class method for quickly creating ESP tasks with RESP
         charge fitting.
 
         Args:
             mol: Input molecule
-            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
@@ -381,12 +380,12 @@ class NwInput(MSONable):
         if self.memory_options:
             o.append("memory " + self.memory_options)
         for d in self.directives:
-            o.append("{} {}".format(d[0], d[1]))
+            o.append(f"{d[0]} {d[1]}")
         o.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
             o.append(" symmetry " + " ".join(self.symmetry_options))
         for site in self._mol:
-            o.append(" {} {} {} {}".format(site.specie.symbol, site.x, site.y, site.z))
+            o.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
         o.append("end\n")
         for t in self.tasks:
             o.append(str(t))
@@ -399,7 +398,7 @@ class NwInput(MSONable):
             filename (str): Filename
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def as_dict(self):
         """
@@ -551,8 +550,6 @@ class NwInputError(Exception):
     """
     Error class for NwInput.
     """
-
-    pass
 
 
 class NwOutput:
@@ -881,7 +878,7 @@ class NwOutput:
                 m = energy_gas_patt.search(l)
                 if m:
                     cosmo_scf_energy = energies[-1]
-                    energies[-1] = dict()
+                    energies[-1] = {}
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
                     energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
@@ -938,10 +935,10 @@ class NwOutput:
                         corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
-            for freq, mode in frequencies:
+            for _freq, mode in frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if normal_frequencies:
-            for freq, mode in normal_frequencies:
+            for _freq, mode in normal_frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
             n = len(hessian)

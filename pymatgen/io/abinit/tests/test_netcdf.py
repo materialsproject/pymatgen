@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -16,7 +15,7 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit")
+_test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")
 
 
 def ref_file(filename):

@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 Created on Jan 22, 2013
@@ -11,8 +9,7 @@ Created on Jan 22, 2013
 import os
 import sys
 import unittest
-
-from monty.os.path import which
+from shutil import which
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -63,7 +60,7 @@ class GulpCallerTest(unittest.TestCase):
 
         """Some inherent checks are in the run_gulp function itself.
         They should be suffcient for raising errors."""
-        gout = gc.run(gin)
+        gc.run(gin)
 
     def test_decimal(self):
         struct = Structure.from_str(
@@ -92,11 +89,11 @@ class GulpCallerTest(unittest.TestCase):
             fmt="poscar",
         )
 
-        bp = BuckinghamPotential(bush_lewis_flag="bush")
+        _ = BuckinghamPotential(bush_lewis_flag="bush")
         gio = GulpIO()
         input = gio.buckingham_input(struct, ["relax conp"])
         caller = GulpCaller()
-        gout = caller.run(input)
+        caller.run(input)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -140,7 +137,7 @@ class GulpIOTest(unittest.TestCase):
 
     def test_library_line_wrong_file(self):
         with self.assertRaises(GulpError):
-            gin = self.gio.library_line("temp_to_fail.lib")
+            self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -251,7 +248,7 @@ class GulpIOTest(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout")) as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
@@ -261,7 +258,7 @@ class GulpIOTest(unittest.TestCase):
 
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
-        gin = self.gio.tersoff_input(self.structure)
+        self.gio.tersoff_input(self.structure)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -319,25 +316,25 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
         self.bpl = BuckinghamPotential("lewis")
 
     def test_existing_element(self):
-        self.assertIn("Sc_2+", self.bpl.pot_dict.keys())
-        self.assertIn("Sc_2+", self.bpl.species_dict.keys())
-        self.assertIn("O", self.bpl.pot_dict.keys())
-        self.assertIn("O_core", self.bpl.species_dict.keys())
-        self.assertIn("O_shel", self.bpl.species_dict.keys())
+        self.assertIn("Sc_2+", self.bpl.pot_dict)
+        self.assertIn("Sc_2+", self.bpl.species_dict)
+        self.assertIn("O", self.bpl.pot_dict)
+        self.assertIn("O_core", self.bpl.species_dict)
+        self.assertIn("O_shel", self.bpl.species_dict)
 
     def test_non_exisitng_element(self):
-        self.assertNotIn("Li_1+", self.bpl.pot_dict.keys())
-        self.assertNotIn("Li_1+", self.bpl.species_dict.keys())
+        self.assertNotIn("Li_1+", self.bpl.pot_dict)
+        self.assertNotIn("Li_1+", self.bpl.species_dict)
 
     def test_element_different_valence(self):
-        self.assertNotIn("Sc_4+", self.bpl.species_dict.keys())
+        self.assertNotIn("Sc_4+", self.bpl.species_dict)
 
     def test_values(self):
         self.assertNotEqual("", self.bpl.species_dict["Sc_2+"])
         self.assertNotEqual("", self.bpl.pot_dict["Sc_2+"])
 
     def test_spring(self):
-        self.assertNotIn("Li", self.bpl.spring_dict.keys())
+        self.assertNotIn("Li", self.bpl.spring_dict)
         self.assertNotEqual("", self.bpl.spring_dict["O"])
 
 
@@ -349,14 +346,14 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
         self.bpb = BuckinghamPotential("bush")
 
     def test_existing_element(self):
-        self.assertIn("Li", self.bpb.pot_dict.keys())
-        self.assertIn("Li", self.bpb.species_dict.keys())
-        self.assertIn("O", self.bpb.pot_dict.keys())
-        self.assertIn("O", self.bpb.species_dict.keys())
+        self.assertIn("Li", self.bpb.pot_dict)
+        self.assertIn("Li", self.bpb.species_dict)
+        self.assertIn("O", self.bpb.pot_dict)
+        self.assertIn("O", self.bpb.species_dict)
 
     def test_non_exisitng_element(self):
-        self.assertNotIn("Mn", self.bpb.pot_dict.keys())
-        self.assertNotIn("Mn", self.bpb.species_dict.keys())
+        self.assertNotIn("Mn", self.bpb.pot_dict)
+        self.assertNotIn("Mn", self.bpb.species_dict)
 
     def test_element_different_valence(self):
         self.assertNotEqual(2, self.bpb.species_dict["Li"]["oxi"])

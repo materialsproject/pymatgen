@@ -31,26 +31,15 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
 from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )
@@ -64,9 +53,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
         os.makedirs("tmp_dir")
 
     def test_read_write_structure_environments(self):
-        f = open("{}/{}".format(json_files_dir, "test_T--4_FePO4_icsd_4266.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:
+            dd = json.load(f)
 
         atom_indices = dd["atom_indices"]
 
@@ -76,13 +64,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        f = open("tmp_dir/se.json", "w")
-        json.dump(se.as_dict(), f)
-        f.close()
+        with open("tmp_dir/se.json", "w") as f:
+            json.dump(se.as_dict(), f)
 
-        f = open("tmp_dir/se.json", "r")
-        dd = json.load(f)
-        f.close()
+        with open("tmp_dir/se.json") as f:
+            dd = json.load(f)
 
         se2 = StructureEnvironments.from_dict(dd)
 
@@ -93,22 +79,19 @@ class ReadWriteChemenvTest(unittest.TestCase):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        f = open("tmp_dir/lse.json", "w")
-        json.dump(lse.as_dict(), f)
-        f.close()
+        with open("tmp_dir/lse.json", "w") as f:
+            json.dump(lse.as_dict(), f)
 
-        f = open("tmp_dir/lse.json", "r")
-        dd = json.load(f)
-        f.close()
+        with open("tmp_dir/lse.json") as f:
+            dd = json.load(f)
 
         lse2 = LightStructureEnvironments.from_dict(dd)
 
         self.assertEqual(lse, lse2)
 
     def test_structure_environments_neighbors_sets(self):
-        f = open("{}/{}".format(se_files_dir, "se_mp-7000.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(f"{se_files_dir}/se_mp-7000.json") as f:
+            dd = json.load(f)
 
         se = StructureEnvironments.from_dict(dd)
 
@@ -190,13 +173,13 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertAlmostEqual(nb_set_info["distances_mean"], 1.62698328347)
 
         self.assertEqual(
-            nb_set.__str__(),
-            "Neighbors Set for site #6 :\n" " - Coordination number : 4\n" " - Voronoi indices : 1, 4, 5, 6\n",
+            str(nb_set),
+            "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n",
         )
 
-        self.assertFalse(nb_set.__ne__(nb_set))
+        self.assertFalse(nb_set != nb_set)
 
-        self.assertEqual(nb_set.__hash__(), 4)
+        self.assertEqual(hash(nb_set), 4)
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()
@@ -284,9 +267,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
         self.assertFalse(multi_weights_strategy_2 == multi_weights_strategy_3)
 
     def test_read_write_voronoi(self):
-        f = open("{}/{}".format(json_files_dir, "test_T--4_FePO4_icsd_4266.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:
+            dd = json.load(f)
 
         struct = Structure.from_dict(dd["structure"])
 
@@ -294,13 +276,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        f = open("tmp_dir/se.json", "w")
-        json.dump(detailed_voronoi_container.as_dict(), f)
-        f.close()
+        with open("tmp_dir/se.json", "w") as f:
+            json.dump(detailed_voronoi_container.as_dict(), f)
 
-        f = open("tmp_dir/se.json", "r")
-        dd = json.load(f)
-        f.close()
+        with open("tmp_dir/se.json") as f:
+            dd = json.load(f)
 
         detailed_voronoi_container2 = DetailedVoronoiContainer.from_dict(dd)
 

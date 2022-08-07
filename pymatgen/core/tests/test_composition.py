@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -7,13 +6,12 @@ Created on Nov 10, 2012
 @author: shyue
 """
 
-from pymatgen.util.testing import PymatgenTest
-
 import random
 import unittest
 
 from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
+from pymatgen.util.testing import PymatgenTest
 
 
 class CompositionTest(PymatgenTest):
@@ -29,15 +27,16 @@ class CompositionTest(PymatgenTest):
             Composition("ZnOH"),
         ]
 
-        self.indeterminate_comp = []
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", False))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("co2o3"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
+        self.indeterminate_comp = [
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", True),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", False),
+            Composition.ranked_compositions_from_indeterminate_formula("co2o3"),
+            Composition.ranked_compositions_from_indeterminate_formula("ncalu"),
+            Composition.ranked_compositions_from_indeterminate_formula("calun"),
+            Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"),
+            Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"),
+            Composition.ranked_compositions_from_indeterminate_formula("Fee3"),
+        ]
 
     def test_immutable(self):
         try:
@@ -94,9 +93,9 @@ class CompositionTest(PymatgenTest):
 
     def test_total_electrons(self):
         test_cases = {"C": 6, "SrTiO3": 84}
-        for item in test_cases.keys():
-            c = Composition(item)
-            self.assertAlmostEqual(c.total_electrons, test_cases[item])
+        for key, val in test_cases.items():
+            c = Composition(key)
+            self.assertAlmostEqual(c.total_electrons, val)
 
     def test_formula(self):
         correct_formulas = [
@@ -188,10 +187,10 @@ class CompositionTest(PymatgenTest):
             "Li1.5Si0.5",
             "ZnHO",
         ]
-        for i in range(len(self.comp)):
+        for idx, comp in enumerate(self.comp):
             self.assertEqual(
-                self.comp[i].get_reduced_composition_and_factor()[0],
-                Composition(correct_reduced_formulas[i]),
+                comp.get_reduced_composition_and_factor()[0],
+                Composition(correct_reduced_formulas[idx]),
             )
 
     def test_reduced_formula(self):
@@ -288,8 +287,8 @@ class CompositionTest(PymatgenTest):
             "A0.5B1.5",
             "ABC",
         ]
-        for i in range(len(self.comp)):
-            self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
+        for idx, comp in enumerate(self.comp):
+            self.assertEqual(comp.anonymized_formula, expected_formulas[idx])
 
     def test_get_wt_fraction(self):
         correct_wt_frac = {
@@ -356,6 +355,9 @@ class CompositionTest(PymatgenTest):
             "Incorrect composition after addition!",
         )
 
+        Fe = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(Fe), NotImplemented)  # pylint: disable=C2801
+
     def test_sub(self):
         self.assertEqual(
             (self.comp[0] - Composition("Li2O")).formula,
@@ -371,6 +373,9 @@ class CompositionTest(PymatgenTest):
         c2 = Composition({"S": 1})
         self.assertEqual(len((c1 - c2).elements), 1)
 
+        Fe = Element("Fe")
+        self.assertEqual(self.comp[0].__add__(Fe), NotImplemented)  # pylint: disable=C2801
+
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
         self.assertEqual((3 * self.comp[1]).formula, "Li9 Fe3 P3 O15")
@@ -379,6 +384,8 @@ class CompositionTest(PymatgenTest):
         self.assertEqual((self.comp[0] / 4).formula, "Li0.75 Fe0.5 P0.75 O3")
 
     def test_equals(self):
+        # generate randomized compositions for robustness (tests might pass for specific elements
+        # but fail for others)
         random_z = random.randint(1, 92)
         fixed_el = Element.from_Z(random_z)
         other_z = random.randint(1, 92)
@@ -392,9 +399,13 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. " + "%s should be equal to %s" % (comp1.formula, comp2.formula),
+            f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}",
         )
-        self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
+        self.assertEqual(hash(comp1), hash(comp2), "Hashcode equality test failed!")
+
+        c1, c2 = self.comp[:2]
+        self.assertTrue(c1 == c1)
+        self.assertFalse(c1 == c2)
 
     def test_hash_robustness(self):
         c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
@@ -419,6 +430,11 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(c4 > c1)
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]), [c3, c1, c1_1, c4, c2])
 
+        Fe = Element("Fe")
+        self.assertFalse(c1 == Fe, NotImplemented)
+        self.assertTrue(c1 != Fe)
+        self.assertRaises(TypeError, lambda: c1 < Fe)
+
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
         c2 = Composition({"O": 3.2, "Fe": 1.9, "Zn": 0})
@@ -430,10 +446,10 @@ class CompositionTest(PymatgenTest):
         self.assertFalse(c1.almost_equals(c4, rtol=0.1))
 
     def test_equality(self):
-        self.assertTrue(self.comp[0].__eq__(self.comp[0]))
-        self.assertFalse(self.comp[0].__eq__(self.comp[1]))
-        self.assertFalse(self.comp[0].__ne__(self.comp[0]))
-        self.assertTrue(self.comp[0].__ne__(self.comp[1]))
+        self.assertTrue(self.comp[0] == self.comp[0])
+        self.assertFalse(self.comp[0] == self.comp[1])
+        self.assertFalse(self.comp[0] != self.comp[0])
+        self.assertTrue(self.comp[0] != self.comp[1])
 
     def test_fractional_composition(self):
         for c in self.comp:
@@ -596,10 +612,8 @@ class CompositionTest(PymatgenTest):
         self.assertFalse(cmp.contains_element_type("s-block"))
 
     def test_chemical_system(self):
-
-        formula = "NaCl"
-        cmp = Composition(formula)
-        self.assertEqual(cmp.chemical_system, "Cl-Na")
+        self.assertEqual(Composition({"Na": 1, "Cl": 1}).chemical_system, "Cl-Na")
+        self.assertEqual(Composition({"Na+": 1, "Cl-": 1}).chemical_system, "Cl-Na")
 
     def test_is_valid(self):
 
@@ -632,12 +646,53 @@ class CompositionTest(PymatgenTest):
         cmp1 = cmp1.remove_charges()
         self.assertEqual(str(cmp1), str(cmp2))
 
+    def test_replace(self):
+        Fe2O3 = Composition("Fe2O3")
+        Cu2O3 = Composition("Cu2O3")
+        MgCuO3 = Composition("MgCuO3")
+        Mg2Cu2O3 = Composition("Mg2Cu2O3")
+
+        Cu2O3_repl = Fe2O3.replace({"Fe": "Cu"})
+        self.assertEqual(Cu2O3_repl, Cu2O3)
+
+        # handles one-to-many substitutions
+        MgCuO3_repl = Fe2O3.replace({"Fe": {"Cu": 0.5, "Mg": 0.5}})
+        self.assertEqual(MgCuO3_repl, MgCuO3)
+
+        # handles unnormalized one-to-many substitutions
+        Mg2Cu2O3_repl = Fe2O3.replace({"Fe": {"Cu": 1, "Mg": 1}})
+        self.assertEqual(Mg2Cu2O3_repl, Mg2Cu2O3)
+
+        # leaves the composition unchanged when replacing non-existent species
+        self.assertEqual(Fe2O3, Fe2O3.replace({"Li": "Cu"}))
+
+        # check for complex substitutions where element is involved at
+        # multiple places
+        Ca2NF = Composition("Ca2NF")
+        example_sub_1 = {"Ca": "Sr", "N": "O", "F": "O"}
+        c_new_1 = Ca2NF.replace(example_sub_1)
+        assert c_new_1 == Composition("Sr2O2")
+
+        example_sub_2 = {"Ca": "Sr", "N": "F", "F": "Cl"}
+        c_new_2 = Ca2NF.replace(example_sub_2)
+        assert c_new_2 == Composition("Sr2ClF")
+
+        example_sub_3 = {"Ca": "Sr", "N": "F", "F": "N"}
+        c_new_3 = Ca2NF.replace(example_sub_3)
+        assert c_new_3 == Composition("Sr2NF")
+
+        # Check with oxidation-state decorated compositions
+        Ca2NF_oxi = Ca2NF.add_charges_from_oxi_state_guesses()
+        example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
+        c_new_4 = Ca2NF_oxi.replace(example_sub_4)
+        assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
+
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
         d = {"Fe": 1, Element("Fe"): 1}
         self.assertRaises(ValueError, ChemicalPotential, d)
-        for k in ChemicalPotential(Fe=1).keys():
+        for k in ChemicalPotential(Fe=1):
             self.assertIsInstance(k, Element)
 
     def test_math(self):
@@ -653,14 +708,14 @@ class ChemicalPotentialTest(unittest.TestCase):
         self.assertRaises(ValueError, fepot.get_energy, feo2)
 
         # test multiplication
-        self.assertRaises(NotImplementedError, lambda: (pots * pots))
+        self.assertRaises(TypeError, lambda: pots * pots)
         self.assertDictEqual(pots * 2, potsx2)
         self.assertDictEqual(2 * pots, potsx2)
 
         # test division
         self.assertDictEqual(potsx2 / 2, pots)
-        self.assertRaises(NotImplementedError, lambda: (pots / pots))
-        self.assertRaises(NotImplementedError, lambda: (pots / feo2))
+        self.assertEqual(pots.__div__(pots), NotImplemented)
+        self.assertEqual(pots.__div__(feo2), NotImplemented)
 
         # test add/subtract
         self.assertDictEqual(pots + pots, potsx2)

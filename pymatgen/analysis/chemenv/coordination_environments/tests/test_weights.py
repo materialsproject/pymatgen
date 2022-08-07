@@ -23,13 +23,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.util.testing import PymatgenTest
 
 se_files_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
+    PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )
@@ -41,8 +35,6 @@ class FakeNbSet:
 
     def __len__(self):
         return self.cn
-
-    pass
 
 
 class DummyStructureEnvironments:
@@ -186,7 +178,7 @@ class StrategyWeightsTest(PymatgenTest):
         fake_nb_set = FakeNbSet()
         dummy_se = DummyStructureEnvironments()
         bias_weight1 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=13.0)
-        bias_weight2 = CNBiasNbSetWeight.geometrically_equidistant(weight_cn1=1.0, weight_cn13=1.1 ** 12)
+        bias_weight2 = CNBiasNbSetWeight.geometrically_equidistant(weight_cn1=1.0, weight_cn13=1.1**12)
         bias_weight3 = CNBiasNbSetWeight.explicit(
             cn_weights={
                 1: 1.0,
@@ -218,14 +210,14 @@ class StrategyWeightsTest(PymatgenTest):
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w1, 7.0, delta=1e-8)
         w2 = bias_weight2.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        self.assertAlmostEqual(w2, 1.1 ** 6, delta=1e-8)
+        self.assertAlmostEqual(w2, 1.1**6, delta=1e-8)
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.3, delta=1e-8)
         fake_nb_set.cn = 13
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w1, 13.0, delta=1e-8)
         w2 = bias_weight2.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        self.assertAlmostEqual(w2, 1.1 ** 12, delta=1e-8)
+        self.assertAlmostEqual(w2, 1.1**12, delta=1e-8)
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.8, delta=1e-8)
 
@@ -258,9 +250,8 @@ class StrategyWeightsTest(PymatgenTest):
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        f = open(os.path.join(se_files_dir, "se_mp-743972.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(os.path.join(se_files_dir, "se_mp-743972.json")) as f:
+            dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
 
         # Get neighbors sets for which we get the weights
@@ -335,9 +326,8 @@ class StrategyWeightsTest(PymatgenTest):
         self.assertAlmostEqual(self_w, 0.14204073172729198, delta=1e-8)
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        f = open(os.path.join(se_files_dir, "se_mp-7000.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(os.path.join(se_files_dir, "se_mp-7000.json")) as f:
+            dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
 
         # Get neighbors sets for which we get the weights
@@ -380,9 +370,8 @@ class StrategyWeightsTest(PymatgenTest):
 
     def test_delta_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        f = open(os.path.join(se_files_dir, "se_mp-743972.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(os.path.join(se_files_dir, "se_mp-743972.json")) as f:
+            dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
 
         # Get neighbors sets for which we get the weights
@@ -513,9 +502,8 @@ class StrategyWeightsTest(PymatgenTest):
         self.assertAlmostEqual(delta_w, 0.103515625, delta=1e-8)
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        f = open(os.path.join(se_files_dir, "se_mp-7000.json"), "r")
-        dd = json.load(f)
-        f.close()
+        with open(os.path.join(se_files_dir, "se_mp-7000.json")) as f:
+            dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
 
         # Get neighbors sets for which we get the weights
