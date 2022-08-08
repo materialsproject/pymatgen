@@ -772,6 +772,9 @@ class _MPResterLegacy:
             conventional_unit_cell (bool): Whether to get the standard
                 conventional unit cell
 
+        Raises:
+            MPRestError if no data for given material_id is found.
+
         Returns:
             ComputedEntry or ComputedStructureEntry object.
         """
@@ -782,6 +785,8 @@ class _MPResterLegacy:
             property_data=property_data,
             conventional_unit_cell=conventional_unit_cell,
         )
+        if len(data) == 0:
+            raise MPRestError(f"{material_id = } does not exist")
         return data[0]
 
     def get_dos_by_material_id(self, material_id):
