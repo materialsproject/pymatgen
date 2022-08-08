@@ -1353,6 +1353,37 @@ class StructureTest(PymatgenTest):
         relaxed = structure.relax()
         self.assertAlmostEqual(relaxed.lattice.a, 3.849563, 4)
 
+    def test_from_prototype(self):
+        for pt in ["bcc", "fcc", "hcp", "diamond"]:
+            s = Structure.from_prototype(pt, ["C"], a=3, c=4)
+            self.assertIsInstance(s, Structure)
+
+        self.assertRaises(ValueError, Structure.from_prototype, "hcp", ["C"], a=3)
+
+        s = Structure.from_prototype("rocksalt", ["Li", "Cl"], a=2.56)
+        self.assertEqual(
+            str(s),
+            """Full Formula (Li4 Cl4)
+Reduced Formula: LiCl
+abc   :   2.560000   2.560000   2.560000
+angles:  90.000000  90.000000  90.000000
+pbc   :       True       True       True
+Sites (8)
+  #  SP      a    b    c
+---  ----  ---  ---  ---
+  0  Li    0    0    0
+  1  Li    0.5  0.5  0
+  2  Li    0.5  0    0.5
+  3  Li    0    0.5  0.5
+  4  Cl    0.5  0    0.5
+  5  Cl    0    0.5  0.5
+  6  Cl    0.5  0.5  0
+  7  Cl    0    0    0""",
+        )
+        for pt in ("cscl", "fluorite", "antifluorite", "zincblende"):
+            s = Structure.from_prototype(pt, ["Cs", "Cl"], a=5)
+            self.assertTrue(s.lattice.is_orthogonal)
+
 
 class IMoleculeTest(PymatgenTest):
     def setUp(self):
