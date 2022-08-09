@@ -21,6 +21,7 @@ from pymatgen.phonon.gruneisen import (
     GruneisenParameter,
     GruneisenPhononBandStructureSymmLine,
 )
+from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 try:
@@ -43,11 +44,11 @@ def get_pmg_structure(phonopy_structure):
 
     """
 
-    lattice = phonopy_structure.get_cell()
-    frac_coords = phonopy_structure.get_scaled_positions()
-    symbols = phonopy_structure.get_chemical_symbols()
-    masses = phonopy_structure.get_masses()
-    mms = phonopy_structure.get_magnetic_moments()
+    lattice = phonopy_structure.cell
+    frac_coords = phonopy_structure.scaled_positions
+    symbols = phonopy_structure.symbols
+    masses = phonopy_structure.masses
+    mms = phonopy_structure.magnetic_moments
     mms = mms or [0] * len(symbols)
 
     return Structure(
@@ -677,3 +678,37 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
             (and therefore numerical inaccuracies) close to gamma.
     """
     return get_gs_ph_bs_symm_line_from_dict(loadfn(gruneisen_path), structure, structure_path, labels_dict, fit)
+
+
+def get_thermal_displacement_matrices(
+    thermal_displacements_yaml="thermal_displacement_matrices.yaml", structure_path="POSCAR"
+) -> list[ThermalDisplacementMatrices]:
+    """
+    Function to read "thermal_displacement_matrices.yaml" from phonopy and return a list of
+    ThermalDisplacementMatrices objects
+    Args:
+        thermal_displacements_yaml: path to thermal_displacement_matrices.yaml
+        structure_path: path to POSCAR
+
+    Returns:
+
+    """
+    thermal_displacements_dict = loadfn(thermal_displacements_yaml)
+
+    if structure_path:
+        structure = Structure.from_file(structure_path)
+    else:
+        raise ValueError("\nPlease provide a structure.\n")
+
+    thermal_displacement_objects_list = []
+    for matrix in thermal_displacements_dict["thermal_displacement_matrices"]:
+        thermal_displacement_objects_list.append(
+            ThermalDisplacementMatrices(
+                thermal_displacement_matrix_cart=matrix["displacement_matrices"],
+                temperature=matrix["temperature"],
+                structure=structure,
+                thermal_displacement_matrix_cif=matrix["displacement_matrices_cif"],
+            )
+        )
+
+    return thermal_displacement_objects_list
