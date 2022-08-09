@@ -1,6 +1,8 @@
 import os
 import tempfile
 
+import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.util.testing import PymatgenTest
@@ -110,6 +112,11 @@ class ThermalDisplacementTest(PymatgenTest):
             self.thermal_with_cif.thermal_displacement_matrix_cart_matrixform[0],
             [[5.16e-03, -8.10e-04, -1.58e-03], [-8.10e-04, 6.13e-03, -1.10e-04], [-1.58e-03, -1.10e-04, 4.15e-03]],
             5,
+        )
+
+    def test_U1U2U3(self):
+        self.assertAlmostEqual(
+            self.thermal.U1U2U3[0].sort(), np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort()
         )
 
     def test_Ustar(self):

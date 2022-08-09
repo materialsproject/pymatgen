@@ -161,8 +161,8 @@ class ThermalDisplacementMatrices(MSONable):
         Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure
 
         """
-        U1U2U3 = np.array()
-        for mat in self.thermal_displacement_matrix_matrixform:
+        U1U2U3 = []
+        for mat in self.thermal_displacement_matrix_cart_matrixform:
             U1U2U3.append(np.linalg.eig(mat)[0])
         return U1U2U3
 
@@ -191,6 +191,7 @@ class ThermalDisplacementMatrices(MSONable):
             count = 0
             for site, matrix in zip(self.structure, self.Ucif):
                 file.write(
-                    f"{site.specie.symbol}{count} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]} {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
+                    f"{site.specie.symbol}{count} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
+                    f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
                 )
                 count += 1
