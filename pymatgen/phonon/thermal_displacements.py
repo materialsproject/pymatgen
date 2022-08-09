@@ -89,8 +89,10 @@ class ThermalDisplacementMatrices(MSONable):
         return matrixform
     @property
     def Ustar(self):
-        # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
-        # will compute Ustar based on Ucart for each atom in the structure
+        """
+        computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Returns: Ustar as a numpy array, first dimension are the atoms in the structure
+        """
         A=self.structure.lattice.matrix.T
         Ainv = np.linalg.inv(A)
         Ustar = []
@@ -101,6 +103,10 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def Ucif(self):
+        """
+        computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Returns: Ucif as a numpy array, first dimension are the atoms in the structure
+        """
         if self.thermal_displacement_matrix_cif is None:
             # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
             # will compute Ucif based on Ustar for each atom in the structure
@@ -119,8 +125,12 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def B(self):
-        # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
-        # will compute B based on Ucif
+        """
+        computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Returns: B as a numpy array, first dimension are the atoms in the structure
+
+        """
+
         B = []
         for mat in self.Ucif:
             mat_B = mat * 8 * np.pi ** 2
@@ -129,7 +139,11 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def beta(self):
-        # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        """
+        computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Returns: beta as a numpy array, first dimension are the atoms in the structure
+
+        """
         # will compute beta based on Ustar
         beta = []
         for mat in self.Ustar:
@@ -139,14 +153,23 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def U1U2U3(self):
-        # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
-        # will diagonalize matrix for each atom and save it in a list
+        """
+        computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure
+
+        """
         U1U2U3 = np.array()
         for mat in self.thermal_displacement_matrix_matrixform:
             U1U2U3.append(np.linalg.eig(mat)[0])
         return U1U2U3
 
     def write_cif(self, filename):
+        """
+        writes a cif including thermal displacements
+        Args:
+            filename: name of the cif file
+
+        """
         w = CifWriter(self.structure)
         w.write_file(filename)
         # This will simply append the thermal displacement part to the cif from the cifwriter
