@@ -500,10 +500,7 @@ class QCOutput(MSONable):
         Parses both old and new SCFs.
         """
         if self.data.get("using_GEN_SCFMAN", []):
-            if "SCF_failed_to_converge" in self.data.get("errors"):
-                footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
-            else:
-                footer_pattern = r"^\s*\-+\n\s+SCF time"
+            footer_pattern = r"(^\s*\-+\n\s+SCF time|^\s*gen_scfman_exception: SCF failed to converge)"
             header_pattern = (
                 r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+"
                 r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
@@ -519,13 +516,13 @@ class QCOutput(MSONable):
                 r"(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*"
                 r"(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*"
                 r"(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*"
-                r"(?:\s+Done GDM. Switching to DIIS)*(?:\s+Done GDM. Switching to GDM with quadratic line-search\sGDM subspace size\: \d+)*"
+                r"(?:\s+Done GDM. Switching to DIIS)*(?:(?:\s+Done GDM. Switching to GDM with quadratic line-search\s)*\s*GDM subspace size\: \d+)*"
                 r"(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*"
                 r"(?:RMS Gradient)*\s+\-+"
                 r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
                 r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, "
                 r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
-                r"(?:\s*Line search, dEdstep = [\d\-\.]+e[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s*)*"
+                r"(?:\s*Line search, dEdstep = [\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s*)*"
                 r"(?:\s*[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
                 r"(?:\s*Resetting GDM\.)*(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+)*"
                 r"(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
