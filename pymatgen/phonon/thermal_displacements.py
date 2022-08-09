@@ -18,7 +18,6 @@ __date__ = "August 09, 2022"
 
 try:
     import phonopy
-    from phonopy.phonon.dos import TotalDos
 except ImportError as ex:
     print(ex)
     phonopy = None
@@ -58,10 +57,14 @@ class ThermalDisplacementMatrices(MSONable):
             self.thermal_displacement_matrix_cif = None
 
         # convert to matrix form easier handling of the data
-        self.thermal_displacement_matrix_cart_matrixform = ThermalDisplacementMatrices.get_full_matrix(self.thermal_displacement_matrix_cart)
+        self.thermal_displacement_matrix_cart_matrixform = ThermalDisplacementMatrices.get_full_matrix(
+            self.thermal_displacement_matrix_cart
+        )
 
         if self.thermal_displacement_matrix_cif is not None:
-            self.thermal_displacement_matrix_cif_matrixform = ThermalDisplacementMatrices.get_full_matrix(self.thermal_displacement_matrix_cif)
+            self.thermal_displacement_matrix_cif_matrixform = ThermalDisplacementMatrices.get_full_matrix(
+                self.thermal_displacement_matrix_cif
+            )
 
     @staticmethod
     def get_full_matrix(thermal_displacement):
@@ -73,8 +76,7 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             2d numpy array including thermal displacements
         """
-        matrixform = np.zeros(
-            (len(thermal_displacement), 3, 3))
+        matrixform = np.zeros((len(thermal_displacement), 3, 3))
         for imat, mat in enumerate(thermal_displacement):
             # xx, yy, zz, yz, xz, xy
             matrixform[imat][0][0] = mat[0]
@@ -87,13 +89,14 @@ class ThermalDisplacementMatrices(MSONable):
             matrixform[imat][0][1] = mat[5]
             matrixform[imat][1][0] = mat[5]
         return matrixform
+
     @property
     def Ustar(self):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: Ustar as a numpy array, first dimension are the atoms in the structure
         """
-        A=self.structure.lattice.matrix.T
+        A = self.structure.lattice.matrix.T
         Ainv = np.linalg.inv(A)
         Ustar = []
         for mat in self.thermal_displacement_matrix_cart_matrixform:
@@ -111,11 +114,11 @@ class ThermalDisplacementMatrices(MSONable):
             # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
             # will compute Ucif based on Ustar for each atom in the structure
 
-            A = self.structure.lattice.matrix.T # check this again?
-            N=np.diag([np.linalg.norm(x) for x in np.linalg.inv(A)])
+            A = self.structure.lattice.matrix.T  # check this again?
+            N = np.diag([np.linalg.norm(x) for x in np.linalg.inv(A)])
             Ninv = np.linalg.inv(N)
             Ucif = []
-            Ustar=self.Ustar
+            Ustar = self.Ustar
             for mat in Ustar:
                 mat_cif = np.dot(np.dot(Ninv, mat), Ninv.T)
                 Ucif.append(mat_cif)
@@ -133,7 +136,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         B = []
         for mat in self.Ucif:
-            mat_B = mat * 8 * np.pi ** 2
+            mat_B = mat * 8 * np.pi**2
             B.append(mat_B)
         return np.array(B)
 
@@ -147,7 +150,7 @@ class ThermalDisplacementMatrices(MSONable):
         # will compute beta based on Ustar
         beta = []
         for mat in self.Ustar:
-            mat_beta = mat * 2 * np.pi ** 2
+            mat_beta = mat * 2 * np.pi**2
             beta.append(mat_beta)
         return beta
 
@@ -188,5 +191,6 @@ class ThermalDisplacementMatrices(MSONable):
             count = 0
             for site, matrix in zip(self.structure, self.Ucif):
                 file.write(
-                    f"{site.specie.symbol}{count} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]} {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n")
+                    f"{site.specie.symbol}{count} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]} {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
+                )
                 count += 1
