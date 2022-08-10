@@ -885,9 +885,9 @@ class _MPResterLegacy:
                 calculations for more accurate phase diagrams and reaction
                 energies.
             inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="final",
-                ComputedStructureEntries with final structures are returned.
-                Otherwise, ComputedStructureEntries with initial structures
+                ComputedEntries. If inc_structure="initial",
+                ComputedStructureEntries with initial structures are returned.
+                Otherwise, ComputedStructureEntries with final structures
                 are returned.
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. Should be a subset of
