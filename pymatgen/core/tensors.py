@@ -451,10 +451,17 @@ class Tensor(np.ndarray, MSONable):
 
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
-            rotation = np.array([vec / mag for (mag, vec) in sorted(zip(lengths, vecs), key=lambda x: x[0])])
-            if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
+            rotation = np.array([vec / mag for (mag, vec) in zip(lengths, vecs)])
+
+            # a = c => rotate b into c
+            if np.isclose(lengths[0], lengths[2]):
+                rotation[1], rotation[2] = rotation[2], rotation[1].copy()
+                rotation[0] = get_uvec(np.cross(rotation[2], rotation[1]))
+
+            # b = c => rotate a into c
+            elif np.isclose(lengths[1], lengths[2]):
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
-            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+                rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
         # IEEE rules: c<a<b; c,a || x3,x1
         elif xtal_sys == "orthorhombic":
