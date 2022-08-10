@@ -1960,7 +1960,7 @@ class MPNMRSet(MPStaticSet):
 class MVLElasticSet(MPRelaxSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://www.materialsvirtuallab.org) for various research.
+    Lab (http://materialsvirtuallab.org) for various research.
 
     This input set is used to calculate elastic constants in VASP. It is used
     in the following work::
@@ -1992,7 +1992,7 @@ class MVLElasticSet(MPRelaxSet):
 class MVLGWSet(DictSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://www.materialsvirtuallab.org) for various research. This is a
+    Lab (http://materialsvirtuallab.org) for various research. This is a
     flexible input set for GW calculations.
 
     Note that unlike all other input sets in this module, the PBE_54 series of

@@ -8,7 +8,7 @@ Materials Project data.
 
 To make use of the Materials API, you need to be a registered user of the
 Materials Project, and obtain an API key by going to your dashboard at
-https://www.materialsproject.org/dashboard.
+https://materialsproject.org/dashboard.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import Any, Sequence
+from typing import Any, Literal, Sequence
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -156,7 +156,7 @@ class _MPResterLegacy:
         Args:
             api_key (str): A String API key for accessing the MaterialsProject
                 REST interface. Please obtain your API key at
-                https://www.materialsproject.org/dashboard. If this is None,
+                https://materialsproject.org/dashboard. If this is None,
                 the code will check if there is a "PMG_MAPI_KEY" setting.
                 If so, it will use that environment variable. This makes
                 easier for heavy users to simply add this environment variable to
@@ -342,7 +342,7 @@ class _MPResterLegacy:
         [{"material_id": material_id, "property_name" : value}, ...]
 
         This is generally a call to
-        https://www.materialsproject.org/rest/v2/materials/vasp/<prop>.
+        https://materialsproject.org/rest/v2/materials/vasp/<prop>.
         See https://github.com/materialsproject/mapidoc for details.
 
         Args:
@@ -379,7 +379,7 @@ class _MPResterLegacy:
         """
         Get the entire data document for one materials id. Use this judiciously.
 
-        REST Endpoint: https://www.materialsproject.org/materials/<mp-id>/doc.
+        REST Endpoint: https://materialsproject.org/materials/<mp-id>/doc.
 
         Args:
             materials_id (str): E.g., mp-1143 for Al2O3
@@ -397,7 +397,7 @@ class _MPResterLegacy:
         Structure (XANES) for K-edge is supported.
 
         REST Endpoint:
-        https://www.materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
+        https://materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
 
         Args:
             material_id (str): E.g., mp-1143 for Al2O3
@@ -490,13 +490,13 @@ class _MPResterLegacy:
 
     def get_entries(
         self,
-        chemsys_formula_id_criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
-    ):
+        chemsys_formula_id_criteria: str | dict[str, Any],
+        compatible_only: bool = True,
+        inc_structure: bool | Literal["initial"] | None = None,
+        property_data: list[str] = None,
+        conventional_unit_cell: bool = False,
+        sort_by_e_above_hull: bool = False,
+    ) -> list[ComputedEntry]:
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
@@ -557,7 +557,7 @@ class _MPResterLegacy:
             criteria = chemsys_formula_id_criteria
         data = self.query(criteria, props)
 
-        entries = []
+        entries: list[ComputedEntry] = []
         for d in data:
             d["potcar_symbols"] = [
                 f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
@@ -745,7 +745,7 @@ class _MPResterLegacy:
         self,
         material_id: str,
         compatible_only: bool = True,
-        inc_structure: str = None,
+        inc_structure: bool | Literal["initial"] | None = None,
         property_data: list[str] = None,
         conventional_unit_cell: bool = False,
     ) -> ComputedEntry | ComputedStructureEntry:
@@ -762,9 +762,9 @@ class _MPResterLegacy:
                 calculations for more accurate phase diagrams and reaction
                 energies.
             inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="final",
-                ComputedStructureEntries with final structures are returned.
-                Otherwise, ComputedStructureEntries with initial structures
+                ComputedEntries. If inc_structure="initial",
+                ComputedStructureEntries with initial structures are returned.
+                Otherwise, ComputedStructureEntries with final structures
                 are returned.
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. Should be a subset of
@@ -793,7 +793,7 @@ class _MPResterLegacy:
         """
         Get a Dos corresponding to a material_id.
 
-        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/dos
+        REST Endpoint: https://materialsproject.org/rest/v2/materials/<mp-id>/vasp/dos
 
         Args:
             material_id (str): Materials Project material_id (a string,
@@ -809,8 +809,8 @@ class _MPResterLegacy:
         """
         Get a BandStructure corresponding to a material_id.
 
-        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure or
-        https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure_uniform
+        REST Endpoint: https://materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure or
+        https://materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure_uniform
 
         Args:
             material_id (str): Materials Project material_id.
@@ -1751,7 +1751,7 @@ class _MPResterNew:
         Args:
             api_key (str): A String API key for accessing the MaterialsProject
                 REST interface. Please obtain your API key at
-                https://www.materialsproject.org/dashboard. If this is None,
+                https://materialsproject.org/dashboard. If this is None,
                 the code will check if there is a "PMG_MAPI_KEY" setting.
                 If so, it will use that environment variable. This makes
                 easier for heavy users to simply add this environment variable to
