@@ -76,18 +76,22 @@ jobs:
       - name: Install Coverage
         run: pip install coverage
       - name: Download coverage-1
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: coverage-1
       - name: Download coverage-2
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: coverage-2
       - name: Download coverage-3
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: coverage-3
       - name: Download coverage-4
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: coverage-4
