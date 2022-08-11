@@ -8,6 +8,15 @@ This module provides classes to handle thermal displacement matrices (anisotropi
 import numpy as np
 from monty.json import MSONable
 
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.io.cif import CifWriter
+
+try:
+    import phonopy
+except ImportError as ex:
+    print(ex)
+    phonopy = None
+
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
 __version__ = "0.1"
@@ -15,13 +24,6 @@ __maintainer__ = "J. George"
 __email__ = "janine.george@bam.de"
 __status__ = "Testing"
 __date__ = "August 09, 2022"
-
-try:
-    import phonopy
-except ImportError as ex:
-    print(ex)
-    phonopy = None
-from pymatgen.io.cif import CifWriter
 
 
 class ThermalDisplacementMatrices(MSONable):
@@ -71,10 +73,10 @@ class ThermalDisplacementMatrices(MSONable):
         """
         transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12)
         Args:
-            thermal_displacement: 1d numpy array
+            thermal_displacement: 2d numpy array, first dimension are the atoms
 
         Returns:
-            2d numpy array including thermal displacements
+            3d numpy array including thermal displacements, first dimensions are the atoms
         """
         matrixform = np.zeros((len(thermal_displacement), 3, 3))
         for imat, mat in enumerate(thermal_displacement):
@@ -89,6 +91,27 @@ class ThermalDisplacementMatrices(MSONable):
             matrixform[imat][0][1] = mat[5]
             matrixform[imat][1][0] = mat[5]
         return matrixform
+
+    @staticmethod
+    def get_reduced_matrix(thermal_displacement):
+        """
+        transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12)
+        Args:
+            thermal_displacement: 2d numpy array, first dimension are the atoms
+
+        Returns:
+            3d numpy array including thermal displacements, first dimensions are the atoms
+        """
+        reduced_matrix = np.zeros((len(thermal_displacement), 6))
+        for imat, mat in enumerate(thermal_displacement):
+            # xx, yy, zz, yz, xz, xy
+            reduced_matrix[imat][0] = mat[0][0]
+            reduced_matrix[imat][1] = mat[1][1]
+            reduced_matrix[imat][2] = mat[2][2]
+            reduced_matrix[imat][3] = mat[1][2]
+            reduced_matrix[imat][4] = mat[0][2]
+            reduced_matrix[imat][5] = mat[0][1]
+        return reduced_matrix
 
     @property
     def Ustar(self):
@@ -195,3 +218,122 @@ class ThermalDisplacementMatrices(MSONable):
                     f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
                 )
                 count += 1
+
+    @staticmethod
+    def _angle_dot(a, b):
+        dot_product = np.dot(a, b)
+        prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
+        divided = dot_product / prod_of_norms
+        angle_rad = np.arccos(np.round(divided, 10))
+        angle = np.degrees(angle_rad)
+        return angle
+
+    def compute_directionality_quality_criterion(self, other):
+        """
+        Will compute directionality of prolate displacement ellipsoids as described in
+        https://doi.org/10.1039/C9CE00794F with the ealier implementation: https://github.com/damMroz/Angle/
+        Args:
+            other: ThermalDisplacementMatrix
+            please make sure that the order of the atoms in both objects that are compared
+            is the same. Otherwise, this analysis will deliver wrong results
+
+        Returns:
+            will return a list including dicts for each atom that include "vector0"
+            (largest principal axes of self object),
+             "vector1" (largest principal axes of the other object), "angle" between both axes,
+              These vectors can then, for example, be drawn into the structure with VESTA.
+              Vectors are given in cartesian coordinates
+
+        """
+
+        # compare the atoms string at least
+        for spec1, spec2 in zip(self.structure.species, other.structure.species):
+            if spec1 != spec2:
+                raise ValueError(
+                    "Species in both structures are not the same! "
+                    "Please use structures that are similar to each other"
+                )
+        # check if structures match
+        structurematch = StructureMatcher()
+        if not structurematch.fit(struct1=self.structure, struct2=other.structure):
+            raise ValueError("Structures have to be similar")
+
+        results = []
+        for self_Ucart, other_Ucart in zip(
+            self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
+        ):
+            result_dict = {}
+
+            # determine eigenvalues and vectors for inverted Ucart
+            invUcart_eig_self, invUcart_eigv_self = np.linalg.eig(np.linalg.inv(self_Ucart))
+            invUcart_eig_other, invUcart_eigv_other = np.linalg.eig(np.linalg.inv(self_Ucart))
+
+            argmin_self = np.argmin(invUcart_eig_self)
+            vec_self = invUcart_eigv_self.transpose()[argmin_self]
+            argmin_other = np.argmin(invUcart_eig_other)
+            vec_other = invUcart_eigv_other.transpose()[argmin_other]
+            # vector direction does not matter here, smallest angle should be given
+            result_dict["angle"] = np.min(
+                [self._angle_dot(vec_self, vec_other), self._angle_dot(vec_self, vec_other * -1)]
+            )
+            result_dict["vector0"] = vec_self
+            result_dict["vector1"] = vec_other
+
+            results.append(result_dict)
+
+        return results
+
+    @property
+    def ratio_prolate(self):
+        """
+        This will compute ratio between largest eigenvalue of Ucart and smallest one
+        Returns:
+
+        """
+        ratios = []
+        for us in self.U1U2U3:
+            ratios.append(np.max(us) / np.min(us))
+
+        return np.array(ratios)
+
+    @staticmethod
+    def from_Ucif(thermal_displacement_matrix_cif, structure, temperature):
+        """
+        starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class
+        Args:
+            thermal_displacement_matrix_cif: np.array,
+                first dimension are the atoms,
+                then reduced form of thermal displacement matrix will follow
+                Order as above: U11, U22, U33, U23, U13, U12
+            structure: Structure object
+            temperature: float
+                Corresponding temperature
+
+        Returns:
+            ThermalDisplacementMatrices
+
+        """
+        # get matrix form
+        thermal_displacement_matrix_cif_matrix_form = ThermalDisplacementMatrices.get_full_matrix(
+            thermal_displacement_matrix_cif
+        )
+
+        # convert the parameters for each atom
+        A = structure.lattice.matrix.T
+        N = np.diag([np.linalg.norm(x) for x in np.linalg.inv(A)])
+        Ucart = []
+        for mat in thermal_displacement_matrix_cif_matrix_form:
+            mat_ustar = np.dot(np.dot(N, mat), N.T)
+            mat_ucart = np.dot(np.dot(A, mat_ustar), A.T)
+            Ucart.append(mat_ucart)
+
+        thermal_displacement_matrix_cart = ThermalDisplacementMatrices.get_reduced_matrix(np.array(Ucart))
+
+        # get ThermalDisplacementMatrices Object
+
+        return ThermalDisplacementMatrices(
+            thermal_displacement_matrix_cart=thermal_displacement_matrix_cart,
+            thermal_displacement_matrix_cif=thermal_displacement_matrix_cif,
+            structure=structure,
+            temperature=temperature,
+        )
