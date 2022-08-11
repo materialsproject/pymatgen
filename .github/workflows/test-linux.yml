@@ -11,8 +11,8 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
     strategy:
       max-parallel: 20
-      python-version: ['3.10']
       matrix:
+        python-version: ['3.10']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         include:
           - pkg: pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
