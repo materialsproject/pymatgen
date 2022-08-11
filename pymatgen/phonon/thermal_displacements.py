@@ -228,7 +228,6 @@ class ThermalDisplacementMatrices(MSONable):
         angle = np.degrees(angle_rad)
         return angle
 
-
     def compute_directionality_quality_criterion(self, other):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
@@ -245,7 +244,6 @@ class ThermalDisplacementMatrices(MSONable):
               Vectors are given in cartesian coordinates
 
         """
-
 
         # compare the atoms string at least
         for spec1, spec2 in zip(self.structure.species, other.structure.species):
@@ -266,7 +264,6 @@ class ThermalDisplacementMatrices(MSONable):
 
             result_dict = {}
 
-
             # determine eigenvalues and vectors for inverted Ucart
             invUcart_eig_self, invUcart_eigv_self = np.linalg.eig(np.linalg.inv(self_Ucart))
             invUcart_eig_other, invUcart_eigv_other = np.linalg.eig(np.linalg.inv(self_Ucart))
@@ -275,8 +272,10 @@ class ThermalDisplacementMatrices(MSONable):
             vec_self = invUcart_eigv_self.transpose()[argmin_self]
             argmin_other = np.argmin(invUcart_eig_other)
             vec_other = invUcart_eigv_other.transpose()[argmin_other]
-            #vector direction does not matter here, smallest angle should be given
-            result_dict["angle"] = np.min([self._angle_dot(vec_self, vec_other), self._angle_dot(vec_self, vec_other*-1)])
+            # vector direction does not matter here, smallest angle should be given
+            result_dict["angle"] = np.min(
+                [self._angle_dot(vec_self, vec_other), self._angle_dot(vec_self, vec_other * -1)]
+            )
             result_dict["vector0"] = vec_self
             result_dict["vector1"] = vec_other
 
@@ -291,9 +290,9 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
 
         """
-        ratios=[]
+        ratios = []
         for us in self.U1U2U3:
-            ratios.append(np.max(us)/np.min(us))
+            ratios.append(np.max(us) / np.min(us))
 
         return np.array(ratios)
 
