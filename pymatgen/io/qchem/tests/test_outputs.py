@@ -221,7 +221,7 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
-    @unittest.skipIf(not openbabel, "No openbabel.")
+    @unittest.skipIf(not have_babel, "OpenBabel not installed.")
     def test_all(self):
         self.maxDiff = None
         single_outs = {}
