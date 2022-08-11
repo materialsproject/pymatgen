@@ -10,7 +10,7 @@ import abc
 import collections
 from enum import Enum
 from pprint import pformat
-from typing import cast
+from typing import cast, List
 
 import numpy as np
 from monty.collections import AttrDict
@@ -170,7 +170,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     )
 
 
-def species_by_znucl(structure: Structure) -> list[Species]:
+def species_by_znucl(structure: Structure) -> List[Species]:
     """
     Return list of unique specie found in structure **ordered according to sites**.
 
