@@ -1076,7 +1076,7 @@ class Species(MSONable, Stringify):
         """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        self._properties = properties or {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
                 raise ValueError(f"{k} is not a supported property")
@@ -1426,7 +1426,7 @@ class DummySpecies(Species):
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        self._properties = properties or {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
                 raise ValueError(f"{k} is not a supported property")

@@ -644,7 +644,7 @@ class ElasticTensorExpansion(TensorCollection):
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also include structure")
 
-        quad = quad if quad else DEFAULT_QUAD
+        quad = quad or DEFAULT_QUAD
         points = quad["points"]
         weights = quad["weights"]
         num, denom, c = np.zeros((3, 3)), 0, 1

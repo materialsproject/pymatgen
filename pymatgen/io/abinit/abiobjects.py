@@ -846,7 +846,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk",
+            comment=comment or "Monkhorst-Pack scheme with user-specified shiftk",
         )
 
     @classmethod
@@ -884,7 +884,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Automatic Monkhorst-Pack scheme",
+            comment=comment or "Automatic Monkhorst-Pack scheme",
         )
 
     @classmethod
@@ -921,7 +921,7 @@ class KSampling(AbivarAble, MSONable):
             mode=KSamplingModes.path,
             num_kpts=ndivsm,
             kpts=kpath_bounds,
-            comment=comment if comment else "K-Path scheme",
+            comment=comment or "K-Path scheme",
         )
 
     @classmethod

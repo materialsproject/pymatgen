@@ -68,7 +68,7 @@ class PDEntry(Entry):
             attribute: Optional attribute of the entry. Must be MSONable.
         """
         super().__init__(composition, energy)
-        self.name = name if name else self.composition.reduced_formula
+        self.name = name or self.composition.reduced_formula
         self.attribute = attribute
 
     def __repr__(self):
@@ -129,7 +129,7 @@ class GrandPotPDEntry(PDEntry):
         super().__init__(
             entry.composition,
             entry.energy,
-            name if name else entry.name,
+            name or entry.name,
             entry.attribute if hasattr(entry, "attribute") else None,
         )
         # NOTE if we init GrandPotPDEntry from ComputedEntry _energy is the
@@ -222,7 +222,7 @@ class TransformedPDEntry(PDEntry):
         super().__init__(
             entry.composition,
             entry.energy,
-            name if name else entry.name,
+            name or entry.name,
             entry.attribute if hasattr(entry, "attribute") else None,
         )
         self.original_entry = entry

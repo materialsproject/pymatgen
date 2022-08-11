@@ -686,7 +686,7 @@ class Tensor(np.ndarray, MSONable):
             serialized format tensor object
 
         """
-        input_array = self.voigt if voigt else self
+        input_array = self.voigt or self
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -850,7 +850,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param voigt: Whether to use voight form.
         :return: Dict representation of TensorCollection.
         """
-        tensor_list = self.voigt if voigt else self
+        tensor_list = self.voigt or self
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

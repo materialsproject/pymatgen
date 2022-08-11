@@ -1907,7 +1907,7 @@ class MPNMRSet(MPStaticSet):
             **kwargs: kwargs supported by MPStaticSet.
         """
         self.mode = mode
-        self.isotopes = isotopes if isotopes else []
+        self.isotopes = isotopes or []
         super().__init__(structure, prev_incar=prev_incar, reciprocal_density=reciprocal_density, **kwargs)
 
     @property

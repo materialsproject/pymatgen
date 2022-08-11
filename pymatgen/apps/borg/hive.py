@@ -105,7 +105,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
         if parameters:
             self._parameters.update(parameters)
-        self._data = data if data else []
+        self._data = data or []
 
     def assimilate(self, path):
         """
