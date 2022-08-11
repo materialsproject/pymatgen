@@ -1225,17 +1225,6 @@ class CifParser:
 
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
-    # def get_anisotropic_displacement_parameters(self):
-    #     for idata, data in self._cif.data.items():
-    #         print(type(data))
-    #         for value in data.data.items():
-    #             print(value)
-    #         for loop in data.loops:
-    #             print(loop)
-    #
-    #         #print(idx)
-    #         #print(data)
-
     def as_dict(self):
         """
         :return: MSONable dict
