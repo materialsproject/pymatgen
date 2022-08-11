@@ -239,6 +239,7 @@ class ThermalDisplacementTest(PymatgenTest):
 
     def test_compute_directionality_quality_criterion(self):
         self.assertArrayAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector0"],[-0.6502072 ,  0.67306922,  0.35243215] )
+        self.assertArrayAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector1"],[-0.6502072 ,  0.67306922,  0.35243215] )
         self.assertAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"],0.0 )
 
     def test_angle(self):
