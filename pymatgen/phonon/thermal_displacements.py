@@ -219,6 +219,16 @@ class ThermalDisplacementMatrices(MSONable):
                 )
                 count += 1
 
+    @staticmethod
+    def _angle_dot(a, b):
+        dot_product = np.dot(a, b)
+        prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
+        divided = dot_product / prod_of_norms
+        angle_rad = np.arccos(np.round(divided, 10))
+        angle = np.degrees(angle_rad)
+        return angle
+
+
     def compute_directionality_quality_criterion(self, other):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
@@ -231,25 +241,11 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             will return a list including dicts for each atom that include "vector0" (largest principal axes of self object),
              "vector1" (largest principal axes of the other object), "angle" between both axes,
-              "ratio_max_min_eigenvalues0", "ratio_max_min_eigenvalues1"  (ratio between the largest and smalles eigenvalues of Ucart to assess
-              if we have a prolate ellipsoids
-             These vectors can then, for example, be drawn into the structure with VESTA
+              These vectors can then, for example, be drawn into the structure with VESTA.
+              Vectors are given in cartesian coordinates
 
         """
 
-        def angle_dot(a, b):
-            print(a)
-            print(b)
-            dot_product = np.dot(a, b)
-            print(dot_product)
-            prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
-            print(prod_of_norms)
-            divided = dot_product / prod_of_norms
-            print(divided)
-            angle_rad = np.arccos(np.round(divided, 10))
-            print(angle_rad)
-            angle = np.degrees(angle_rad)
-            return angle
 
         # compare the atoms string at least
         for spec1, spec2 in zip(self.structure.species, other.structure.species):
@@ -269,29 +265,18 @@ class ThermalDisplacementMatrices(MSONable):
         ):
 
             result_dict = {}
-            self_U = np.linalg.eig(self_Ucart)[0]
-            other_U = np.linalg.eig(other_Ucart)[0]
 
-            # determine min and max values
-            minimumU_self = np.min(self_U)
-            minimumU_other = np.min(other_U)
-
-            maximumU_self = np.max(self_U)
-            maximumU_other = np.max(other_U)
-
-            result_dict["ratio_max_min_eigenvalues0"] = maximumU_self / minimumU_self
-            result_dict["ratio_max_min_eigenvalues1"] = maximumU_other / minimumU_other
 
             # determine eigenvalues and vectors for inverted Ucart
             invUcart_eig_self, invUcart_eigv_self = np.linalg.eig(np.linalg.inv(self_Ucart))
             invUcart_eig_other, invUcart_eigv_other = np.linalg.eig(np.linalg.inv(self_Ucart))
 
-            print(invUcart_eigv_self)
             argmin_self = np.argmin(invUcart_eig_self)
-            vec_self = invUcart_eigv_self[argmin_self]
+            vec_self = invUcart_eigv_self.transpose()[argmin_self]
             argmin_other = np.argmin(invUcart_eig_other)
-            vec_other = invUcart_eigv_other[argmin_other]
-            result_dict["angle"] = angle_dot(vec_self, vec_other)
+            vec_other = invUcart_eigv_other.transpose()[argmin_other]
+            #vector direction does not matter here, smallest angle should be given
+            result_dict["angle"] = np.min([self._angle_dot(vec_self, vec_other), self._angle_dot(vec_self, vec_other*-1)])
             result_dict["vector0"] = vec_self
             result_dict["vector1"] = vec_other
 
@@ -299,8 +284,18 @@ class ThermalDisplacementMatrices(MSONable):
 
         return results
 
-    def get_volume_ellipsoids(self):
-        pass
+    @property
+    def ratio_prolate(self):
+        """
+        This will compute ratio between largest eigenvalue of Ucart and smallest one
+        Returns:
+
+        """
+        ratios=[]
+        for us in self.U1U2U3:
+            ratios.append(np.max(us)/np.min(us))
+
+        return np.array(ratios)
 
     @staticmethod
     def from_Ucif(thermal_displacement_matrix_cif, structure, temperature):
