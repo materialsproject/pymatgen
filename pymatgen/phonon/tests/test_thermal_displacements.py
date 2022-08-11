@@ -1,5 +1,6 @@
 import os
 import tempfile
+
 import numpy as np
 
 from pymatgen.core.structure import Structure
@@ -114,7 +115,9 @@ class ThermalDisplacementTest(PymatgenTest):
         )
 
     def test_U1U2U3(self):
-        self.assertAlmostEqual(self.thermal.U1U2U3[0].sort(), np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort())
+        self.assertAlmostEqual(
+            self.thermal.U1U2U3[0].sort(), np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort()
+        )
 
     def test_Ustar(self):
         Ustar = self.thermal.Ustar
@@ -174,10 +177,9 @@ class ThermalDisplacementTest(PymatgenTest):
                     printed = True
         self.assertTrue(printed)
 
-
-
     def test_from_ucif(self):
-        thermal=ThermalDisplacementMatrices.from_Ucif(thermal_displacement_matrix_cif=[
+        thermal = ThermalDisplacementMatrices.from_Ucif(
+            thermal_displacement_matrix_cif=[
                 [0.00457, 0.00613, 0.00415, -0.00011, -0.00081, -0.00082],
                 [0.00601, 0.00548, 0.00395, 0.00157, 0.00058, -0.00049],
                 [0.00423, 0.00425, 0.00533, 0.00000, 0.00092, -0.00136],
@@ -200,9 +202,15 @@ class ThermalDisplacementTest(PymatgenTest):
                 [0.00410, 0.00444, 0.00365, -0.00041, 0.00007, 0.00074],
                 [0.00461, 0.00497, 0.00397, 0.00070, 0.00002, -0.00129],
                 [0.00461, 0.00497, 0.00397, -0.00070, 0.00002, 0.00129],
-            ], structure=Structure.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")), temperature=0.0)
-        self.assertArrayAlmostEqual(thermal.thermal_displacement_matrix_cart, [
+            ],
+            structure=Structure.from_file(
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")
+            ),
+            temperature=0.0,
+        )
+        self.assertArrayAlmostEqual(
+            thermal.thermal_displacement_matrix_cart,
+            [
                 [5.16e-03, 6.13e-03, 4.15e-03, -1.10e-04, -1.58e-03, -8.10e-04],
                 [6.12e-03, 5.48e-03, 3.95e-03, 1.57e-03, -1.30e-04, -7.90e-04],
                 [4.20e-03, 4.25e-03, 5.33e-03, 0.00e00, -3.00e-05, -1.39e-03],
@@ -225,8 +233,9 @@ class ThermalDisplacementTest(PymatgenTest):
                 [4.33e-03, 4.44e-03, 3.65e-03, -4.10e-04, -5.90e-04, 8.20e-04],
                 [4.88e-03, 4.97e-03, 3.97e-03, 7.00e-04, -7.00e-04, -1.44e-03],
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
-            ], 5)
+            ],
+            5,
+        )
 
     def test_compute_directionality_quality_criterion(self):
         pass
-

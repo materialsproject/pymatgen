@@ -7,6 +7,7 @@ This module provides classes to handle thermal displacement matrices (anisotropi
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = "J. George"
@@ -101,15 +102,15 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
-        reduced_matrix = np.zeros((len(thermal_displacement),6))
+        reduced_matrix = np.zeros((len(thermal_displacement), 6))
         for imat, mat in enumerate(thermal_displacement):
             # xx, yy, zz, yz, xz, xy
-            reduced_matrix[imat][0]=mat[0][0]
-            reduced_matrix[imat][1]= mat[1][1]
-            reduced_matrix[imat][2]= mat[2][2]
-            reduced_matrix[imat][3]=mat[1][2]
-            reduced_matrix[imat][4]=  mat[0][2]
-            reduced_matrix[imat][5]=mat[0][1]
+            reduced_matrix[imat][0] = mat[0][0]
+            reduced_matrix[imat][1] = mat[1][1]
+            reduced_matrix[imat][2] = mat[2][2]
+            reduced_matrix[imat][3] = mat[1][2]
+            reduced_matrix[imat][4] = mat[0][2]
+            reduced_matrix[imat][5] = mat[0][1]
         return reduced_matrix
 
     @property
@@ -188,8 +189,6 @@ class ThermalDisplacementMatrices(MSONable):
             U1U2U3.append(np.linalg.eig(mat)[0])
         return U1U2U3
 
-
-
     def write_cif(self, filename):
         """
         writes a cif including thermal displacements
@@ -245,60 +244,60 @@ class ThermalDisplacementMatrices(MSONable):
             print(dot_product)
             prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
             print(prod_of_norms)
-            divided=dot_product / prod_of_norms
+            divided = dot_product / prod_of_norms
             print(divided)
-            angle_rad=np.arccos(np.round(divided,10))
+            angle_rad = np.arccos(np.round(divided, 10))
             print(angle_rad)
             angle = np.degrees(angle_rad)
             return angle
 
         # compare the atoms string at least
         for spec1, spec2 in zip(self.structure.species, other.structure.species):
-            if spec1!=spec2:
-                raise ValueError("Species in both structures are not the same! "
-                                 "Please use structures that are similar to each other")
+            if spec1 != spec2:
+                raise ValueError(
+                    "Species in both structures are not the same! "
+                    "Please use structures that are similar to each other"
+                )
         # check if structures match
-        structurematch=StructureMatcher()
+        structurematch = StructureMatcher()
         if not structurematch.fit(struct1=self.structure, struct2=other.structure):
             raise ValueError("Structures have to be similar")
 
-        results=[]
-        for self_Ucart, other_Ucart in zip(self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform):
+        results = []
+        for self_Ucart, other_Ucart in zip(
+            self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
+        ):
 
-            result_dict={}
-            self_U=np.linalg.eig(self_Ucart)[0]
-            other_U=np.linalg.eig(other_Ucart)[0]
-
+            result_dict = {}
+            self_U = np.linalg.eig(self_Ucart)[0]
+            other_U = np.linalg.eig(other_Ucart)[0]
 
             # determine min and max values
-            minimumU_self=np.min(self_U)
-            minimumU_other=np.min(other_U)
+            minimumU_self = np.min(self_U)
+            minimumU_other = np.min(other_U)
 
-            maximumU_self=np.max(self_U)
-            maximumU_other=np.max(other_U)
+            maximumU_self = np.max(self_U)
+            maximumU_other = np.max(other_U)
 
-            result_dict["ratio_max_min_eigenvalues0"]=maximumU_self/minimumU_self
-            result_dict["ratio_max_min_eigenvalues1"]=maximumU_other/minimumU_other
-
+            result_dict["ratio_max_min_eigenvalues0"] = maximumU_self / minimumU_self
+            result_dict["ratio_max_min_eigenvalues1"] = maximumU_other / minimumU_other
 
             # determine eigenvalues and vectors for inverted Ucart
-            invUcart_eig_self,invUcart_eigv_self=np.linalg.eig(np.linalg.inv(self_Ucart))
-            invUcart_eig_other,invUcart_eigv_other=np.linalg.eig(np.linalg.inv(self_Ucart))
-
+            invUcart_eig_self, invUcart_eigv_self = np.linalg.eig(np.linalg.inv(self_Ucart))
+            invUcart_eig_other, invUcart_eigv_other = np.linalg.eig(np.linalg.inv(self_Ucart))
 
             print(invUcart_eigv_self)
-            argmin_self=np.argmin(invUcart_eig_self)
-            vec_self=invUcart_eigv_self[argmin_self]
+            argmin_self = np.argmin(invUcart_eig_self)
+            vec_self = invUcart_eigv_self[argmin_self]
             argmin_other = np.argmin(invUcart_eig_other)
-            vec_other=invUcart_eigv_other[argmin_other]
-            result_dict["angle"]=angle_dot(vec_self, vec_other)
-            result_dict["vector0"]=vec_self
-            result_dict["vector1"]=vec_other
+            vec_other = invUcart_eigv_other[argmin_other]
+            result_dict["angle"] = angle_dot(vec_self, vec_other)
+            result_dict["vector0"] = vec_self
+            result_dict["vector1"] = vec_other
 
             results.append(result_dict)
 
         return results
-
 
     def get_volume_ellipsoids(self):
         pass
@@ -321,7 +320,9 @@ class ThermalDisplacementMatrices(MSONable):
 
         """
         # get matrix form
-        thermal_displacement_matrix_cif_matrix_form=ThermalDisplacementMatrices.get_full_matrix(thermal_displacement_matrix_cif)
+        thermal_displacement_matrix_cif_matrix_form = ThermalDisplacementMatrices.get_full_matrix(
+            thermal_displacement_matrix_cif
+        )
 
         # convert the parameters for each atom
         A = structure.lattice.matrix.T
@@ -332,9 +333,13 @@ class ThermalDisplacementMatrices(MSONable):
             mat_ucart = np.dot(np.dot(A, mat_ustar), A.T)
             Ucart.append(mat_ucart)
 
-
-        thermal_displacement_matrix_cart=ThermalDisplacementMatrices.get_reduced_matrix(np.array(Ucart))
+        thermal_displacement_matrix_cart = ThermalDisplacementMatrices.get_reduced_matrix(np.array(Ucart))
 
         # get ThermalDisplacementMatrices Object
 
-        return ThermalDisplacementMatrices(thermal_displacement_matrix_cart=thermal_displacement_matrix_cart, thermal_displacement_matrix_cif=thermal_displacement_matrix_cif, structure=structure, temperature=temperature)
+        return ThermalDisplacementMatrices(
+            thermal_displacement_matrix_cart=thermal_displacement_matrix_cart,
+            thermal_displacement_matrix_cif=thermal_displacement_matrix_cif,
+            structure=structure,
+            temperature=temperature,
+        )
