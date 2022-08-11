@@ -36,15 +36,15 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.9
-      - name: Install OpenBabel and Libs
-        shell: bash -l {0}
-        run: |
-          # Required for gulp.
-          sudo apt-get install csh gfortran
-          conda install -c conda-forge openbabel
-          conda install -c conda-forge packmol
+#      - name: Install OpenBabel and Libs
+#        shell: bash -l {0}
+#        run: |
+#          # Required for gulp.
+#          sudo apt-get install csh gfortran
+#          conda install -c conda-forge openbabel
+#          conda install -c conda-forge packmol
       - name: Install dependencies
-        shell: bash -l {0}
+        # shell: bash -l {0}
         run: |
           # Note that this is the way to update env variables in a way that persist for the entire job.
           for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
@@ -54,7 +54,7 @@ jobs:
           pip install scikit-image==0.18.1
           pip install -e .
       - name: pytest ${{ matrix.pkg }}
-        shell: bash -l {0}
+        # shell: bash -l {0}
         run: |
           pytest ${{ matrix.pkg }} --cov=pymatgen
       - name: Upload coverage
