@@ -9,6 +9,13 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.io.cif import CifWriter
+
+try:
+    import phonopy
+except ImportError as ex:
+    print(ex)
+    phonopy = None
 
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -17,13 +24,6 @@ __maintainer__ = "J. George"
 __email__ = "janine.george@bam.de"
 __status__ = "Testing"
 __date__ = "August 09, 2022"
-
-try:
-    import phonopy
-except ImportError as ex:
-    print(ex)
-    phonopy = None
-from pymatgen.io.cif import CifWriter
 
 
 class ThermalDisplacementMatrices(MSONable):
@@ -238,7 +238,8 @@ class ThermalDisplacementMatrices(MSONable):
             is the same. Otherwise, this analysis will deliver wrong results
 
         Returns:
-            will return a list including dicts for each atom that include "vector0" (largest principal axes of self object),
+            will return a list including dicts for each atom that include "vector0"
+            (largest principal axes of self object),
              "vector1" (largest principal axes of the other object), "angle" between both axes,
               These vectors can then, for example, be drawn into the structure with VESTA.
               Vectors are given in cartesian coordinates
@@ -261,7 +262,6 @@ class ThermalDisplacementMatrices(MSONable):
         for self_Ucart, other_Ucart in zip(
             self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
         ):
-
             result_dict = {}
 
             # determine eigenvalues and vectors for inverted Ucart
