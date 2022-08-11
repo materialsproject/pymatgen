@@ -238,13 +238,19 @@ class ThermalDisplacementTest(PymatgenTest):
         )
 
     def test_compute_directionality_quality_criterion(self):
-        self.assertArrayAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector0"],[-0.6502072 ,  0.67306922,  0.35243215] )
-        self.assertArrayAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector1"],[-0.6502072 ,  0.67306922,  0.35243215] )
-        self.assertAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"],0.0 )
+        self.assertArrayAlmostEqual(
+            self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector0"],
+            [-0.6502072, 0.67306922, 0.35243215],
+        )
+        self.assertArrayAlmostEqual(
+            self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector1"],
+            [-0.6502072, 0.67306922, 0.35243215],
+        )
+        self.assertAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"], 0.0)
 
     def test_angle(self):
-        self.assertAlmostEqual(self.thermal._angle_dot([-1,-1,-1],[1,1,1]), 180.0)
-        self.assertAlmostEqual(self.thermal._angle_dot([1,1,1],[1,1,1]), 0.0)
+        self.assertAlmostEqual(self.thermal._angle_dot([-1, -1, -1], [1, 1, 1]), 180.0)
+        self.assertAlmostEqual(self.thermal._angle_dot([1, 1, 1], [1, 1, 1]), 0.0)
 
     def test_ratio_prolate(self):
-        self.assertAlmostEqual(self.thermal.ratio_prolate[0],  6.854889e-03/2.893872e-03)
+        self.assertAlmostEqual(self.thermal.ratio_prolate[0], 6.854889e-03 / 2.893872e-03)
