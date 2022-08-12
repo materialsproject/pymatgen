@@ -187,24 +187,7 @@ class QChemDictSet(QCInput):
         myrem["xc_grid"] = "3"
         myrem["thresh"] = "14"
         myrem["s2thresh"] = "16"
-        if self.scf_algorithm == "custom_gdm_diis":
-            myrem["gen_scfman_hybrid_algo"] = "true"
-            myrem["gen_scfman_algo_1"] = "gdm"
-            myrem["gen_scfman_conv_1"] = "4"
-            myrem["gen_scfman_iter_1"] = "50"
-            myrem["gen_scfman_algo_2"] = "diis"
-            myrem["gen_scfman_conv_2"] = "8"
-            myrem["gen_scfman_iter_2"] = "50"
-        elif self.scf_algorithm == "custom_gdm_gdmqls":
-            myrem["gen_scfman_hybrid_algo"] = "true"
-            myrem["gen_scfman_algo_1"] = "gdm"
-            myrem["gen_scfman_conv_1"] = "4"
-            myrem["gen_scfman_iter_1"] = "50"
-            myrem["gen_scfman_algo_2"] = "gdm_qls"
-            myrem["gen_scfman_conv_2"] = "8"
-            myrem["gen_scfman_iter_2"] = "50"
-        else:
-            myrem["scf_algorithm"] = self.scf_algorithm
+        myrem["scf_algorithm"] = self.scf_algorithm
         myrem["resp_charges"] = "true"
         myrem["symmetry"] = "false"
         myrem["sym_ignore"] = "true"
