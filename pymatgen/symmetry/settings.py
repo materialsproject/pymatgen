@@ -55,7 +55,7 @@ class JonesFaithfulTransformation:
         between magnetic and non-magnetic settings.
 
         See: International Tables for Crystallography (2016). Vol. A,
-        Chapter 1.5, pp. 75–106.
+        Chapter 1.5, pp. 75-106.
         """
         # using capital letters in violation of PEP8 to
         # be consistent with variables in supplied reference,
@@ -96,7 +96,7 @@ class JonesFaithfulTransformation:
             ValueError: When transformation string fails to parse.
 
         Returns:
-            Tuple[Union[List[List[float]], np.ndarray], List[float]]: transformation matrix & vector
+            tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])
@@ -202,8 +202,7 @@ class JonesFaithfulTransformation:
             new_coords.append(x_.tolist())
         return new_coords
 
-    def transform_lattice(self, lattice):
-        # type: (Lattice) -> Lattice
+    def transform_lattice(self, lattice: Lattice) -> Lattice:
         """
         Takes a Lattice object and transforms it.
         :param lattice: Lattice

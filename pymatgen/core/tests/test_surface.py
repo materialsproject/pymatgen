@@ -176,7 +176,7 @@ class SlabTest(PymatgenTest):
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
-            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
             self.assertTrue(slab.is_symmetric())
             self.assertEqual(total_surf_sites / 2, 4)
 
@@ -186,7 +186,7 @@ class SlabTest(PymatgenTest):
             slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
-            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict.keys())
+            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
             r2 = total_surf_sites / (2 * slab.surface_area)
             self.assertArrayAlmostEqual(r1, r2)
 
@@ -229,12 +229,12 @@ class SlabTest(PymatgenTest):
 
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
 
-        for i, slabs in enumerate(all_slabs):
+        for slabs in all_slabs:
 
             asymmetric_count = 0
             symmetric_count = 0
 
-            for i, slab in enumerate(slabs):
+            for slab in slabs:
                 sg = SpacegroupAnalyzer(slab)
 
                 # Check if a slab is symmetric
@@ -729,8 +729,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
         # types correctly and nothing changes
 
         m = StructureMatcher()
-        for n in self.rec_archive.keys():
-            if "base_reconstruction" in self.rec_archive[n].keys():
+        for n in self.rec_archive:
+            if "base_reconstruction" in self.rec_archive[n]:
                 arch = self.rec_archive[self.rec_archive[n]["base_reconstruction"]]
                 sg = arch["spacegroup"]["symbol"]
             else:

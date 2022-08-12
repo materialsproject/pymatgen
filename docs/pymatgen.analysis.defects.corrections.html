@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.defects.corrections module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.analysis.defects.corrections module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -103,7 +104,7 @@
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
           <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
           <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects package</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects namespace</a> &raquo;</li>
       <li>pymatgen.analysis.defects.corrections module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.defects.corrections.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -115,17 +116,17 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.analysis.defects.corrections">
-<span id="pymatgen-analysis-defects-corrections-module"></span><h1>pymatgen.analysis.defects.corrections module<a class="headerlink" href="#module-pymatgen.analysis.defects.corrections" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-analysis-defects-corrections-module"></span><h1>pymatgen.analysis.defects.corrections module<a class="headerlink" href="#module-pymatgen.analysis.defects.corrections" title="Permalink to this heading"></a></h1>
 <p>Implementation of defect correction methods.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BandEdgeShiftingCorrection</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L898-L948"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BandEdgeShiftingCorrection</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L898-L948"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefectCorrection</span></code></a></p>
 <p>A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code</p>
 <p>Initializes the BandEdgeShiftingCorrection class</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection.get_correction">
-<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L912-L948"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection.get_correction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L912-L948"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection.get_correction" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the BandEdge correction for a defect entry
 :param entry: defect entry to compute BandFilling correction on.</p>
 <blockquote>
@@ -148,7 +149,7 @@ calculated on same level of theory as the defect
 </dl>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>BandfillingCorrection value as a dictionary</p>
 </dd>
 </dl>
@@ -158,18 +159,18 @@ calculated on same level of theory as the defect
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.BandFillingCorrection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BandFillingCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L787-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BandFillingCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L787-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefectCorrection</span></code></a></p>
 <p>A class for BandFillingCorrection class. Largely adapted from PyCDT code</p>
 <p>Initializes the Bandfilling correction</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>resolution</strong> (<em>float</em>) – energy resolution to maintain for gap states</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.BandFillingCorrection.get_correction">
-<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L802-L850"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection.get_correction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L802-L850"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection.get_correction" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the BandFilling correction for a defect entry
 :param entry: defect entry to compute BandFilling correction on.</p>
 <blockquote>
@@ -202,7 +203,7 @@ required to check if the calculation included spin-orbit coupling
 </dl>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Bandfilling Correction value as a dictionary</p>
 </dd>
 </dl>
@@ -210,7 +211,7 @@ required to check if the calculation included spin-orbit coupling
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.BandFillingCorrection.perform_bandfill_corr">
-<span class="sig-name descname"><span class="pre">perform_bandfill_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigenvalues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoint_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potalign</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soc_calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L852-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection.perform_bandfill_corr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">perform_bandfill_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigenvalues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoint_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potalign</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soc_calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L852-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection.perform_bandfill_corr" title="Permalink to this definition"></a></dt>
 <dd><p>This calculates the band filling correction based on excess of electrons/holes in CB/VB…</p>
 <dl class="simple">
 <dt>Note that the total free holes and electrons may also be used for a “shallow donor/acceptor”</dt><dd><dl class="simple">
@@ -225,8 +226,8 @@ required to check if the calculation included spin-orbit coupling
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.FreysoldtCorrection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FreysoldtCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dielectric_const</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">520</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">madetol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L39-L367"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FreysoldtCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dielectric_const</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">520</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">madetol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L42-L370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefectCorrection</span></code></a></p>
 <p>A class for FreysoldtCorrection class. Largely adapted from PyCDT code</p>
 <p>If this correction is used, please reference Freysoldt’s original paper.
 doi: 10.1103/PhysRevLett.102.016402</p>
@@ -238,7 +239,7 @@ doi: 10.1103/PhysRevLett.102.016402</p>
 <div><p>Uses default parameters to instantiate QModel if None supplied</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>energy_cutoff</strong> (<em>int</em>) – Maximum energy in eV in reciprocal space to perform
 integration for potential correction.</p></li>
@@ -250,7 +251,7 @@ If axis is None, then averages over all three axes is performed.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.get_correction">
-<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L81-L164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.get_correction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L84-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.get_correction" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the Freysoldt correction for a defect entry
 :param entry: defect entry to compute Freysoldt correction on.</p>
 <blockquote>
@@ -285,7 +286,7 @@ electrostatic potential for the defective supercell.</p>
 </div></blockquote>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>FreysoldtCorrection values as a dictionary</p>
 </dd>
 </dl>
@@ -293,7 +294,7 @@ electrostatic potential for the defective supercell.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_es_corr">
-<span class="sig-name descname"><span class="pre">perform_es_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L166-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_es_corr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">perform_es_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L169-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_es_corr" title="Permalink to this definition"></a></dt>
 <dd><p>Perform Electrostatic Freysoldt Correction
 :param lattice: Pymatgen lattice object
 :param q: Charge of defect
@@ -301,7 +302,7 @@ electrostatic potential for the defective supercell.</p>
 :param step: step size for numerical integration
 :type step: float</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Electrostatic Point Charge contribution to Freysoldt Correction (float)</p>
 </dd>
 </dl>
@@ -309,7 +310,7 @@ electrostatic potential for the defective supercell.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_pot_corr">
-<span class="sig-name descname"><span class="pre">perform_pot_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pureavg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defavg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_frac_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widthsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L208-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_pot_corr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">perform_pot_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pureavg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defavg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_frac_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widthsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L211-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_pot_corr" title="Permalink to this definition"></a></dt>
 <dd><p>For performing planar averaging potential alignment
 :param axis_grid (1 x NGX where NGX is the length of the NGX grid:</p>
 <blockquote>
@@ -321,7 +322,7 @@ potential supplied.</p>
 </dl>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> (<em>defavg</em><em> (</em><em>1 x NGX where NGX is the length of the NGX grid</em>) – <dl class="simple">
 <dt>the axis direction.):</dt><dd><p>A numpy array for the planar averaged
@@ -343,7 +344,7 @@ electrostatic potential of the defect supercell.</p>
 where the potential alignment correction is averaged. Default is 1 Angstrom.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Potential Alignment contribution to Freysoldt Correction (float)</p>
 </dd>
 </dl>
@@ -351,7 +352,7 @@ where the potential alignment correction is averaged. Default is 1 Angstrom.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L324-L367"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L327-L370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Plots the planar average electrostatic potential against the Long range and
 short range models from Freysoldt. Must run perform_pot_corr or get_correction
 (to load metadata) before this can be used.
@@ -371,8 +372,8 @@ short range models from Freysoldt. Must run perform_pot_corr or get_correction
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KumagaiCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dielectric_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L370-L784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KumagaiCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dielectric_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L373-L784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefectCorrection</span></code></a></p>
 <p>A class for KumagaiCorrection class. Largely adapted from PyCDT code</p>
 <p>If this correction is used, please reference Kumagai and Oba’s original paper
 (doi: 10.1103/PhysRevB.89.195205) as well as Freysoldt’s original
@@ -393,7 +394,7 @@ use Wigner-Seitz radius of defect supercell, so this is default value.</p>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_correction">
-<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L405-L507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_correction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L408-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_correction" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the Kumagai correction for a defect entry
 :param entry: defect entry to compute Kumagai correction on.</p>
 <blockquote>
@@ -417,7 +418,7 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 </div></blockquote>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>KumagaiCorrection values as a dictionary</p>
 </dd>
 </dl>
@@ -425,15 +426,15 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_potential_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L695-L705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_potential_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L695-L705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>gamma</strong> (<em>float</em>) – Gamma</p></li>
 <li><p><strong>volume</strong> (<em>float</em>) – Volume.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Potential shift for defect.</p>
 </dd>
 </dl>
@@ -441,24 +442,24 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_real_summation">
-<span class="sig-name descname"><span class="pre">get_real_summation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_vectors</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L649-L665"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_real_summation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_real_summation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_vectors</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L649-L665"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_real_summation" title="Permalink to this definition"></a></dt>
 <dd><p>Get real summation term from list of real-space vectors</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_recip_summation">
-<span class="sig-name descname"><span class="pre">get_recip_summation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recip_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L667-L682"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_recip_summation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_recip_summation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recip_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L667-L682"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_recip_summation" title="Permalink to this definition"></a></dt>
 <dd><p>Get Reciprocal summation term from list of reciprocal-space vectors</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction">
-<span class="sig-name descname"><span class="pre">get_self_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L684-L693"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_self_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L684-L693"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>gamma</em>) – </p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Self-interaction energy of defect.</p>
 </dd>
 </dl>
@@ -466,7 +467,7 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_es_corr">
-<span class="sig-name descname"><span class="pre">perform_es_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L509-L535"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_es_corr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">perform_es_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L510-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_es_corr" title="Permalink to this definition"></a></dt>
 <dd><p>Perform Electrostatic Kumagai Correction
 :param gamma: Ewald parameter
 :type gamma: float
@@ -476,7 +477,7 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 :param charge: Defect charge
 :type charge: int</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Electrostatic Point Charge contribution to Kumagai Correction (float)</p>
 </dd>
 </dl>
@@ -484,7 +485,7 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_pot_corr">
-<span class="sig-name descname"><span class="pre">perform_pot_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_frac_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_vecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_vecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L537-L647"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_pot_corr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">perform_pot_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defect_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect_frac_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_vecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_vecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L538-L647"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_pot_corr" title="Permalink to this definition"></a></dt>
 <dd><p>For performing potential alignment in manner described by Kumagai et al.
 :param defect_structure: Pymatgen Structure object corresponding to the defect supercell
 :param defect_frac_coords: Defect Position in fractional coordinates of the supercell</p>
@@ -492,7 +493,7 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 <div><p>given in bulk_structure</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>site_list</strong> – list of corresponding site index values for
 bulk and defect site structures EXCLUDING the defect site itself
@@ -506,7 +507,7 @@ use Wigner-Seitz radius of defect supercell, so this is default value.</p></li>
 <li><p><strong>gamma</strong> (<em>float</em>) – Ewald parameter</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Potential alignment contribution to Kumagai Correction (float)</p>
 </dd>
 </dl>
@@ -514,7 +515,7 @@ use Wigner-Seitz radius of defect supercell, so this is default value.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.defects.corrections.KumagaiCorrection.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/defects/corrections.py#L707-L784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/defects/corrections.py#L707-L784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Plots the AtomicSite electrostatic potential against the Long range and short range models
 from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)</p>
 </dd></dl>

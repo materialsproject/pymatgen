@@ -104,7 +104,7 @@ class BaderAnalysisTest(unittest.TestCase):
         """
 
         self.assertEqual(
-            set(summary.keys()),
+            set(summary),
             {
                 "magmom",
                 "min_dist",

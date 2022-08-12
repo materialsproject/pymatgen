@@ -424,7 +424,7 @@ class Interface(Structure):
 
         # Only merge site properties in both slabs
         site_properties = {}
-        site_props_in_both = set(substrate_slab.site_properties.keys()) & set(film_slab.site_properties.keys())
+        site_props_in_both = set(substrate_slab.site_properties) & set(film_slab.site_properties)
 
         for key in site_props_in_both:
             site_properties[key] = [

@@ -46,7 +46,7 @@ class ExcitingInput(MSONable):
         booleans.
     """
 
-    def __init__(self, structure, title=None, lockxyz=None):
+    def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
             structure (Structure):  Structure object.
@@ -119,10 +119,10 @@ class ExcitingInput(MSONable):
                 else:
                     lockxyz.append([False, False, False])
         # check the atomic positions type
-        if "cartesian" in root.find("structure").attrib.keys():
+        if "cartesian" in root.find("structure").attrib:
             if root.find("structure").attrib["cartesian"]:
                 cartesian = True
-                for i, p in enumerate(positions):
+                for p in positions:
                     for j in range(3):
                         p[j] = p[j] * ExcitingInput.bohr2ang
                 print(positions)

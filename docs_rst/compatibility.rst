@@ -65,8 +65,13 @@ Windows and Linux.
 Recent Breaking Changes
 -----------------------
 
-Unreleased
-~~~~~~~~~~
+v2022.2.1
+~~~~~~~~~
+
+Moved defect-specific code under `defects` module.
+`#2582 <https://github.com/materialsproject/pymatgen/pull/2582>`_
+#. :code:`pymatgen.transformations.defect_transformations`
+#. :code:`pymatgen.analysis.structure_matcher.PointDefectComparator`
 
 Removal of deprecated functions:
 

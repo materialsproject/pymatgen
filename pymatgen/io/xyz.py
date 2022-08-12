@@ -147,12 +147,12 @@ class XYZ:
     def __str__(self):
         return "\n".join([self._frame_str(mol) for mol in self._mols])
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Writes XYZ to file.
 
         Args:
-            filename: File name of output file.
+            filename (str): File name of output file.
         """
         with zopen(filename, "wt") as f:
             f.write(str(self))

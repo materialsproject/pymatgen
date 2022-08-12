@@ -223,8 +223,8 @@ class HighSymmKpath(KPathBase):
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
         warn(
-            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
-of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
         )
 
         return bs
@@ -263,7 +263,7 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
                     a_tr_coord.append(np.dot(rpg[o_num], coord_a))
 
                 for coord_a in a_tr_coord:
-                    for key, value in b_path["kpoints"].items():
+                    for value in b_path["kpoints"].values():
                         if np.allclose(value, coord_a, atol=self._atol):
                             sc_count[o_num] += 1
                             break

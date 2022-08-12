@@ -14,6 +14,7 @@ import numpy as np
 import scipy
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 __author__ = "Joseph Montoya"
@@ -105,7 +106,7 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, structure, norm_strains=None, shear_strains=None, symmetry=False):
+    def __init__(self, structure: Structure, norm_strains=None, shear_strains=None, symmetry=False):
         """
         constructs the deformed geometries of a structure. Generates
         m + n deformed structures according to the supplied parameters.
@@ -122,8 +123,8 @@ class DeformedStructureSet(collections.abc.Sequence):
         shear_strains = shear_strains or [-0.06, -0.03, 0.03, 0.06]
 
         self.undeformed_structure = structure
-        self.deformations = []
-        self.def_structs = []
+        self.deformations: list[Deformation] = []
+        self.def_structs: list[Structure] = []
 
         # Generate deformations
         for ind in [(0, 0), (1, 1), (2, 2)]:
@@ -139,7 +140,7 @@ class DeformedStructureSet(collections.abc.Sequence):
         # Perform symmetry reduction if specified
         if symmetry:
             self.sym_dict = symmetry_reduce(self.deformations, structure)
-            self.deformations = list(self.sym_dict.keys())
+            self.deformations = list(self.sym_dict)
         self.deformed_structures = [defo.apply_to_structure(structure) for defo in self.deformations]
 
     def __iter__(self):

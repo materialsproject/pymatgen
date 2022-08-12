@@ -256,7 +256,7 @@ class Dos(MSONable):
         """
         if not all(np.equal(self.energies, other.energies)):
             raise ValueError("Energies of both DOS are not compatible!")
-        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities.keys()}
+        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy: float):
@@ -267,7 +267,7 @@ class Dos(MSONable):
             energy: Energy to return the density for.
         """
         f = {}
-        for spin in self.densities.keys():
+        for spin in self.densities:
             f[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return f
 
@@ -1350,7 +1350,7 @@ def add_densities(density1: dict[Spin, ArrayLike], density2: dict[Spin, ArrayLik
     Returns:
         Dict of {spin: density}.
     """
-    return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1.keys()}
+    return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1}
 
 
 def _get_orb_type(orb):

@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2022.5.19
+v2022.7.25
 ----------
-* Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
+* Implemented sufficient methods for new MPRester to cover about 70-80% of common use cases.

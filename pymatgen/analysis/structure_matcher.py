@@ -10,8 +10,6 @@ import itertools
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.analysis.defects.core import Defect, Interstitial, Substitution, Vacancy
-from pymatgen.core import PeriodicSite
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
@@ -156,10 +154,10 @@ class SpinComparator(AbstractComparator):
         Returns:
             Boolean indicating whether species are equal.
         """
-        for s1 in sp1.keys():
+        for s1 in sp1:
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            for s2 in sp2.keys():
+            for s2 in sp2:
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if s1.symbol == s2.symbol and oxi1 == oxi2 and spin2 == -spin1:
@@ -345,7 +343,7 @@ class StructureMatcher(MSONable):
         scale=True,
         attempt_supercell=False,
         allow_subset=False,
-        comparator=SpeciesComparator(),
+        comparator=None,
         supercell_size="num_sites",
         ignored_species=None,
     ):
@@ -395,7 +393,7 @@ class StructureMatcher(MSONable):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
-        self._comparator = comparator
+        self._comparator = comparator or SpeciesComparator()
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
@@ -1003,7 +1001,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (Dict): Mapping of struct1 species to struct2 species
+            min_mapping (dict): Mapping of struct1 species to struct2 species
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
@@ -1213,90 +1211,3 @@ class StructureMatcher(MSONable):
             return None
 
         return match[4]
-
-
-class PointDefectComparator(MSONable):
-    """
-    A class that matches pymatgen Point Defect objects even if their
-    Cartesian coordinates are different (compares sublattices for the defect)
-
-    NOTE: for defect complexes (more than a single defect),
-    this comparator will break.
-    """
-
-    def __init__(self, check_charge=False, check_primitive_cell=False, check_lattice_scale=False):
-        """
-        Args:
-            check_charge (bool): Gives option to check
-                if charges are identical.
-                Default is False (different charged defects can be same)
-            check_primitive_cell (bool): Gives option to
-                compare different supercells of bulk_structure,
-                rather than directly compare supercell sizes
-                Default is False (requires bulk_structure in each defect to be same size)
-            check_lattice_scale (bool): Gives option to scale volumes of
-                structures to each other identical lattice constants.
-                Default is False (enforces same
-                lattice constants in both structures)
-        """
-        self.check_charge = check_charge
-        self.check_primitive_cell = check_primitive_cell
-        self.check_lattice_scale = check_lattice_scale
-
-    def are_equal(self, d1, d2):
-        """
-        Args:
-            d1: First defect. A pymatgen Defect object.
-            d2: Second defect. A pymatgen Defect object.
-
-        Returns:
-            True if defects are identical in type and sublattice.
-        """
-        possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
-
-        if not isinstance(d1, possible_defect_types) or not isinstance(d2, possible_defect_types):
-            raise ValueError("Cannot use PointDefectComparator to compare non-defect objects...")
-
-        if not isinstance(d1, d2.__class__):
-            return False
-        if d1.site.specie != d2.site.specie:
-            return False
-        if self.check_charge and (d1.charge != d2.charge):
-            return False
-
-        sm = StructureMatcher(
-            ltol=0.01,
-            primitive_cell=self.check_primitive_cell,
-            scale=self.check_lattice_scale,
-        )
-
-        if not sm.fit(d1.bulk_structure, d2.bulk_structure):
-            return False
-
-        d1 = d1.copy()
-        d2 = d2.copy()
-        if self.check_primitive_cell or self.check_lattice_scale:
-            # if allowing for base structure volume or supercell modifications,
-            # then need to preprocess defect objects to allow for matching
-            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _ = sm._preprocess(d1.bulk_structure, d2.bulk_structure)
-            d1_defect_site = PeriodicSite(
-                d1.site.specie,
-                d1.site.coords,
-                d1_mod_bulk_structure.lattice,
-                to_unit_cell=True,
-                coords_are_cartesian=True,
-            )
-            d2_defect_site = PeriodicSite(
-                d2.site.specie,
-                d2.site.coords,
-                d2_mod_bulk_structure.lattice,
-                to_unit_cell=True,
-                coords_are_cartesian=True,
-            )
-
-            d1._structure = d1_mod_bulk_structure
-            d2._structure = d2_mod_bulk_structure
-            d1._defect_site = d1_defect_site
-            d2._defect_site = d2_defect_site
-
-        return sm.fit(d1.generate_defect_structure(), d2.generate_defect_structure())

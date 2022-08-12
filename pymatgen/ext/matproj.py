@@ -39,6 +39,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 logger = logging.getLogger(__name__)
@@ -79,7 +81,7 @@ class TaskType(Enum):
     LDA_STATIC_DIEL = "LDA Static Dielectric"
 
 
-class MPRester:
+class _MPResterLegacy:
     """
     A class to conveniently interface with the Materials Project REST
     interface. The recommended way to use MPRester is with the "with" context
@@ -176,6 +178,12 @@ class MPRester:
                 is similar to what most web browsers send with each page request.
                 Set to False to disable the user agent.
         """
+        warnings.warn(
+            "You are using the legacy MPRester, which is deprecated. If you are not a power user, ie., you "
+            "do not have a lot of legacy code that uses many different MPRester methods, it is recommended "
+            "you get a new API key from the new Materials Project front end. Once you use get your new API "
+            "key, using the new API key will automatically route you to using the new MPRester."
+        )
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -364,6 +372,9 @@ class MPRester:
         """
         return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
 
+    # For backwards compatibility.
+    get_material_id = get_materials_ids
+
     def get_doc(self, materials_id):
         """
         Get the entire data document for one materials id. Use this judiciously.
@@ -541,7 +552,7 @@ class MPRester:
                 props.append("structure")
 
         if not isinstance(chemsys_formula_id_criteria, dict):
-            criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+            criteria = _MPResterLegacy.parse_criteria(chemsys_formula_id_criteria)
         else:
             criteria = chemsys_formula_id_criteria
         data = self.query(criteria, props)
@@ -761,6 +772,9 @@ class MPRester:
             conventional_unit_cell (bool): Whether to get the standard
                 conventional unit cell
 
+        Raises:
+            MPRestError if no data for given material_id is found.
+
         Returns:
             ComputedEntry or ComputedStructureEntry object.
         """
@@ -771,6 +785,8 @@ class MPRester:
             property_data=property_data,
             conventional_unit_cell=conventional_unit_cell,
         )
+        if len(data) == 0:
+            raise MPRestError(f"{material_id = } does not exist")
         return data[0]
 
     def get_dos_by_material_id(self, material_id):
@@ -808,7 +824,7 @@ class MPRester:
         data = self.get_data(material_id, prop=prop)
         return data[0][prop]
 
-    def get_phonon_dos_by_material_id(self, material_id):
+    def get_phonon_dos_by_material_id(self, material_id: str) -> CompletePhononDos:
         """
         Get phonon density of states data corresponding to a material_id.
 
@@ -820,7 +836,7 @@ class MPRester:
         """
         return self._make_request(f"/materials/{material_id}/phonondos")
 
-    def get_phonon_bandstructure_by_material_id(self, material_id):
+    def get_phonon_bandstructure_by_material_id(self, material_id: str) -> PhononBandStructureSymmLine:
         """
         Get phonon dispersion data corresponding to a material_id.
 
@@ -832,7 +848,7 @@ class MPRester:
         """
         return self._make_request(f"/materials/{material_id}/phononbs")
 
-    def get_phonon_ddb_by_material_id(self, material_id):
+    def get_phonon_ddb_by_material_id(self, material_id: str) -> str:
         """
         Get ABINIT Derivative Data Base (DDB) output for phonon calculations.
 
@@ -1344,7 +1360,7 @@ class MPRester:
         comp_dict = entry.composition.reduced_composition.as_dict()
 
         isolated_atom_e_sum, n = 0, 0
-        for el in comp_dict.keys():
+        for el in comp_dict:
             e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
@@ -1407,7 +1423,7 @@ class MPRester:
 
         Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
         A., & Ong, S. P. (2016). Data Descripter: Surface energies of elemental
-        crystals. Scientific Data, 3(160080), 1–13.
+        crystals. Scientific Data, 3(160080), 1-13.
         https://doi.org/10.1038/sdata.2016.80
 
         Args:
@@ -1509,7 +1525,7 @@ class MPRester:
 
         if include_work_of_separation and material_id:
             list_of_gbs = self._make_request("/grain_boundaries", payload=payload)
-            for i, gb_dict in enumerate(list_of_gbs):
+            for _, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict["gb_energy"]
                 gb_plane_int = gb_dict["gb_plane"]
                 surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
@@ -1710,7 +1726,7 @@ class MPRester:
                 c = Composition("".join(f))
                 if len(c) == nelements:
                     # Check for valid Elements in keys.
-                    for e in c.keys():
+                    for e in c:
                         Element(e.symbol)
                     all_formulas.add(c.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}
@@ -1718,6 +1734,215 @@ class MPRester:
         if len(toks) == 1:
             return parse_tok(toks[0])
         return {"$or": list(map(parse_tok, toks))}
+
+
+class _MPResterNew:
+    """
+    A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
+    need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
+    This is a basic implementation for now and features will be added soon. The current implementation is to enable
+    users with simple requirements use the API without having to install additional packages.
+
+    If you are a power user who needs the full functionality, please get the mp-api package instead.
+    """
+
+    def __init__(self, api_key: str = None, include_user_agent: bool = True) -> None:
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
+        warnings.warn(
+            "You are using a new API key. This unofficial MPRester support for the new API is intended purely to "
+            "facilitate simple convenience queries in the interim. There are no plans to build this into a "
+            "full-featured API client. It is highly recommended that you install the mp-api package for full API "
+            "functionality."
+        )
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+        self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://api.materialsproject.org/")
+
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+        if include_user_agent:
+            pymatgen_info = f"pymatgen/{PMG_VERSION}"
+            python_info = f"Python/{sys.version.split()[0]}"
+            platform_info = f"{platform.system()}/{platform.release()}"
+            self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
+
+    def __enter__(self):
+        """
+        Support for "with" context.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Support for "with" context.
+        """
+        self.session.close()
+
+    def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+        """
+        Helper method to make the requests and perform decoding based on MSONable protocol.
+        """
+        response = None
+        url = self.preamble + sub_url
+        try:
+            if method == "POST":
+                response = self.session.post(url, data=payload, verify=True)
+            else:
+                response = self.session.get(url, params=payload, verify=True)
+            if response.status_code in [200, 400]:
+                if mp_decode:
+                    data = json.loads(response.text, cls=MontyDecoder)
+                else:
+                    data = json.loads(response.text)
+                return data
+                raise MPRestError(data["error"])
+
+            raise MPRestError(f"REST query returned with error status code {response.status_code}")
+
+        except Exception as ex:
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            raise MPRestError(msg)
+
+    def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
+        """
+        Get a data corresponding to a criteria.
+
+        Args:
+            criteria (dict): Materials Project ID (e.g. mp-1234), e.g., {"formula": "Fe2O3,FeO"}
+
+        Returns:
+            List of dict of summary docs.
+        """
+        if fields is None:
+            get = "_all_fields=True"
+        else:
+            get = "_fields=" + ",".join(fields)
+        return self.request(f"summary?{get}", payload=criteria)["data"]
+
+    def get_material_ids(self, formula):
+        """
+        Get all materials ids for a formula.
+
+        Args:
+            formula (str): A formula (e.g., Fe2O3).
+
+        Returns:
+            ([str]) List of all materials ids.
+        """
+        return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
+
+    def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "structure"
+        resp = self.request(f"materials/{material_id}?_fields={prop}")
+        structure = resp["data"][0][prop]
+        if conventional_unit_cell:
+            return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+        return structure
+
+
+def is_new_api(api_key) -> bool:
+    """
+    Checks whether API key belongs to new or legacy API.
+
+    Returns:
+        True if the API key is a valid one for the new Materials Project API.
+    """
+    session = requests.Session()
+    session.headers = {"x-api-key": api_key}
+    try:
+        # This is a crude way to check the API key validity. But so be it for now.
+        response = session.get("https://api.materialsproject.org/materials/mp-262?_fields=formula_pretty")
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except Exception:
+        # Default to legacy behavior on any errors.
+        return False
+
+
+class MPRester:
+    """
+    A class to conveniently interface with the Materials Project REST
+    interface. The recommended way to use MPRester is with the "with" context
+    manager to ensure that sessions are properly closed after usage::
+
+        with MPRester("API_KEY") as m:
+            do_something
+
+    MPRester uses the "requests" package, which provides for HTTP connection
+    pooling. All connections are made via https for security.
+
+    For more advanced uses of the Materials API, please consult the API
+    documentation at https://github.com/materialsproject/mapidoc.
+
+    Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
+    providing backwards compatibility. Use it as you would with normal MPRester usage. If a new API key is detected,
+    the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. At the current moment, full parity between
+    old and new API MPRester has not been implemented. This will be resolved in the near future. Power users of the old
+    API should not use the new API until all such issues are resolved. It is not recommended, but if you would like to
+    select the specific version of the MPRester, you can initialize either _MPResterNew
+    or _MPResterLegacy directly.
+    """
+
+    def __init__(self, *args, **kwargs):
+        r"""
+        Args:
+           *args: Pass through to either legacy or new MPRester.
+           **kwargs: Pass through to either legacy or new MPRester.
+        """
+        if len(args) > 0:
+            api_key = args[0]
+        else:
+            api_key = kwargs.get("api_key", None)
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+        if is_new_api(self.api_key):
+            self._mpr_mapped = _MPResterNew(*args, **kwargs)
+        else:
+            self._mpr_mapped = _MPResterLegacy(*args, **kwargs)
+        for d in dir(self._mpr_mapped):
+            if not d.startswith("__"):
+                setattr(self, d, getattr(self._mpr_mapped, d))
+
+    def __enter__(self):
+        return self._mpr_mapped
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._mpr_mapped.__exit__(exc_type, exc_val, exc_tb)
 
 
 class MPRestError(Exception):

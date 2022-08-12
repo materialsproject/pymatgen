@@ -35,8 +35,8 @@ class MolecularOrbitalTestCase(PymatgenTest):
             "LUMO": ["Na", "3s", -0.103415],
             "metal": False,
         }
-        for k in test_edges.keys():
-            self.assertEqual(test_edges[k], test_case.obtain_band_edges()[k])
+        for key, val in test_edges.items():
+            self.assertEqual(val, test_case.obtain_band_edges()[key])
 
     # test for raising ValueError for fractional composition
     def test_fractional_compositions(self):

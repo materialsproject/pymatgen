@@ -17,6 +17,8 @@ References are::
     Computer Physics Communications, 175, 67-71
 """
 
+from __future__ import annotations
+
 import logging
 import math
 import os
@@ -33,12 +35,15 @@ from scipy import constants
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.typing import ArrayLike
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -56,11 +61,10 @@ class BoltztrapRunner(MSONable):
 
     @requires(
         which("x_trans"),
-        "BoltztrapRunner requires the executables 'x_trans' to be in "
-        "the path. Please download the Boltztrap at http://"
-        "www.icams.de/content/research/software-development/boltztrap/ "
-        "and follow the instructions in the README to compile "
-        "Bolztrap accordingly. Then add x_trans to your path",
+        "BoltztrapRunner requires the executables 'x_trans' to be in PATH. Please download "
+        "Boltztrap at http://www.icams.de/content/research/software-development/boltztrap/ "
+        "and follow the instructions in the README to compile Bolztrap accordingly. "
+        "Then add x_trans to your path",
     )
     def __init__(
         self,
@@ -204,7 +208,7 @@ class BoltztrapRunner(MSONable):
         if self.run_type in ("DOS", "BANDS"):
             self._auto_set_energy_range()
         self.timeout = timeout
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
 
     def _auto_set_energy_range(self):
         """
@@ -425,15 +429,7 @@ class BoltztrapRunner(MSONable):
             for oi, o in enumerate(Orbital):
                 for site_nb in range(0, len(self._bs.structure.sites)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
-                        f.write(
-                            str(i)
-                            + ",'"
-                            + "boltztrap.proj_"
-                            + str(site_nb)
-                            + "_"
-                            + str(o.name)
-                            + "' 'old', 'formatted',0\n"
-                        )
+                        f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}' 'old', 'formatted',0\n")
                         i += 1
 
     def write_intrans(self, output_file):
@@ -453,9 +449,8 @@ class BoltztrapRunner(MSONable):
                 )
                 fout.write(
                     f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} "
-                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} "
-                    f"{self._nelec:6.1f}     # Fermilevel (Ry),energygrid,energy "
-                    "span around Fermilevel, number of electrons\n"
+                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} {self._nelec}.1f     "
+                    f"# Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -483,13 +478,7 @@ class BoltztrapRunner(MSONable):
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
-                fout.write(
-                    str(1)
-                    + "                        # actual band selected: "
-                    + str(self.band_nb + 1)
-                    + " spin: "
-                    + str(self.spin)
-                )
+                fout.write(f"1                        # actual band selected: {self.band_nb + 1} spin: {self.spin}")
 
         elif self.run_type == "BANDS":
             if self.kpt_line is None:
@@ -509,10 +498,8 @@ class BoltztrapRunner(MSONable):
                 )
                 fout.write(
                     f"0.0 {Energy(self.energy_grid, 'eV').to('Ry')} "
-                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} "
-                    f"{self._nelec:6.1f}     # Fermilevel (Ry),energygrid,energy "
-                    "span around Fermilevel, "
-                    "number of electrons\n"
+                    f"{Energy(self.energy_span_around_fermi, 'eV').to('Ry')} {self._nelec:.1f}     "
+                    f"# Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 )
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
@@ -621,13 +608,13 @@ class BoltztrapRunner(MSONable):
 
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
-                if time.time() - self.start_time > self.timeout:
+                if time.perf_counter() - self.start_time > self.timeout:
                     raise BoltztrapError(f"no doping convergence after timeout of {self.timeout} s")
 
                 logging.info(f"lpfac, energy_grid: {self.lpfac} {self.energy_grid}")
 
                 while self.lpfac <= max_lpfac and not converged:
-                    if time.time() - self.start_time > self.timeout:
+                    if time.perf_counter() - self.start_time > self.timeout:
                         raise BoltztrapError(f"no doping convergence after timeout of {self.timeout} s")
 
                     if write_input:
@@ -878,7 +865,7 @@ class BoltztrapAnalyzer:
         self._bz_kpoints = bz_kpoints
         self.fermi_surface_data = fermi_surface_data
 
-    def get_symm_bands(self, structure, efermi, kpt_line=None, labels_dict=None):
+    def get_symm_bands(self, structure: Structure, efermi, kpt_line=None, labels_dict=None):
         """
         Function useful to read bands from Boltztrap output and get a
         BandStructureSymmLine object comparable with that one from a DFT
@@ -902,30 +889,20 @@ class BoltztrapAnalyzer:
                 kpt_line = [kp.frac_coords for kp in kpt_line]
                 labels_dict = {k: labels_dict[k].frac_coords for k in labels_dict}
 
-            idx_list = []
-            #       kpt_dense=np.array([kp for kp in self._bz_kpoints])
-            for i, kp in enumerate(kpt_line):
-                w = []
+            _idx_list: list[tuple[int, ArrayLike]] = []
+            for idx, kp in enumerate(kpt_line):
+                w: list[bool] = []
                 prec = 1e-05
                 while len(w) == 0:
-                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]
+                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]  # type: ignore
                     prec *= 10
 
-                # print( prec )
-                idx_list.append([i, w[0]])
+                _idx_list.append((idx, w[0]))
 
-                # if len(w)>0:
-                #     idx_list.append([i,w[0]])
-                # else:
-                #     w=np.where(np.all(np.abs(kp.frac_coords-self._bz_kpoints)
-                # <[1e-04,1e-04,1e-04],axis=1))[0]
-                #     idx_list.append([i,w[0]])
+            idx_list = np.array(_idx_list)
 
-            idx_list = np.array(idx_list)
-            # print( idx_list.shape )
-
-            bands_dict = {Spin.up: (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T[:, idx_list[:, 1]].tolist()}
-            # bz_kpoints = bz_kpoints[idx_list[:,1]].tolist()
+            bz_bands_in_eV = (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T
+            bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}  # type: ignore
 
             sbs = BandStructureSymmLine(
                 kpt_line,
@@ -974,7 +951,7 @@ class BoltztrapAnalyzer:
         else:
             bnd_around_efermi = []
             delta = 0
-            spin = list(sbs_bz.bands.keys())[0]
+            spin = list(sbs_bz.bands)[0]
             while len(bnd_around_efermi) < 8 and delta < 100:
                 delta += 0.1
                 bnd_around_efermi = []
@@ -1305,7 +1282,7 @@ class BoltztrapAnalyzer:
         X. (2014).
         How Does Chemistry Influence Electron Effective Mass in Oxides?
         A High-Throughput Computational Analysis. Chemistry of Materials,
-        26(19), 5447–5458. doi:10.1021/cm404079a
+        26(19), 5447-5458. doi:10.1021/cm404079a
 
         or
 
@@ -1641,16 +1618,18 @@ class BoltztrapAnalyzer:
                         raise ValueError(f"Unknown output format: {output}")
         return result
 
-    def get_complete_dos(self, structure, analyzer_for_second_spin=None):
+    def get_complete_dos(self, structure: Structure, analyzer_for_second_spin=None):
         """
-        Gives a CompleteDos object with the DOS from the interpolated
-        projected band structure
+        Gives a CompleteDos object with the DOS from the interpolated projected band structure
+
         Args:
             the structure (necessary to identify sites for projection)
             analyzer_for_second_spin must be specified to have a
             CompleteDos with both Spin components
+
         Returns:
             a CompleteDos object
+
         Example of use in case of spin polarized case:
 
             BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
@@ -1660,16 +1639,15 @@ class BoltztrapAnalyzer:
             an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
 
             cdos=an_up.get_complete_dos(bs.structure,an_dw)
-
         """
-        pdoss = {}
-        spin_1 = list(self.dos.densities.keys())[0]
+        pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, ArrayLike]]] = {}
+        spin_1 = list(self.dos.densities)[0]
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies == analyzer_for_second_spin.dos.energies):
                 raise BoltztrapError("Dos merging error: energies of the two dos are different")
 
-            spin_2 = list(analyzer_for_second_spin.dos.densities.keys())[0]
+            spin_2 = list(analyzer_for_second_spin.dos.densities)[0]
             if spin_1 == spin_2:
                 raise BoltztrapError("Dos merging error: spin component are the same")
 

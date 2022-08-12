@@ -28,7 +28,6 @@ import os
 import re
 import textwrap
 import warnings
-from collections import OrderedDict
 from typing import Iterable, Sequence
 
 from monty.io import zopen
@@ -90,7 +89,7 @@ class Keyword(MSONable):
 
     def __str__(self):
         return (
-            self.name.__str__()
+            str(self.name)
             + " "
             + (f"[{self.units}] " if self.units else "")
             + " ".join(map(str, self.values))
@@ -254,8 +253,8 @@ class Section(MSONable):
         subsections: dict = None,
         repeats: bool = False,
         description: str | None = None,
-        keywords: dict = {},
-        section_parameters: list | tuple = [],
+        keywords: dict = None,
+        section_parameters: Sequence[str] = None,
         location: str = None,
         verbose: bool = True,
         alias: str = None,
@@ -299,8 +298,8 @@ class Section(MSONable):
         self.subsections = subsections if subsections is not None else {}
         self.repeats = repeats
         self.description = description
-        self.keywords = OrderedDict(keywords)
-        self.section_parameters = section_parameters
+        self.keywords = keywords or {}
+        self.section_parameters = section_parameters or []
         self.location = location
         self.verbose = verbose
         self.alias = alias
@@ -325,7 +324,7 @@ class Section(MSONable):
         s2.silence()
         return d2.as_dict() == s2.as_dict()
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         c = copy.deepcopy(self.as_dict())
         return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
             copy.deepcopy(self.as_dict())
@@ -594,12 +593,12 @@ class Section(MSONable):
         string += "\t" * indent + "&" + d.name
         string += " " + " ".join(map(str, d.section_parameters)) + "\n"
 
-        for k, v in d.keywords.items():
+        for v in d.keywords.values():
             if isinstance(v, KeywordList):
                 string += v.get_string(indent=indent + 1) + "\n"
             else:
                 string += "\t" * (indent + 1) + v.get_string() + "\n"
-        for k, v in d.subsections.items():
+        for v in d.subsections.values():
             string += v._get_string(v, indent + 1)
         string += "\t" * indent + "&END " + d.name + "\n"
 
@@ -612,9 +611,9 @@ class Section(MSONable):
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for k, v in self.keywords.items():
+        for v in self.keywords.values():
             v.verbosity(verbosity)
-        for k, v in self.subsections.items():
+        for v in self.subsections.values():
             v.verbosity(verbosity)
 
     def silence(self):
@@ -661,7 +660,7 @@ class SectionList(MSONable):
     def __getitem__(self, item):
         return self.sections[item]
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         return SectionList(sections=[d.__deepcopy__() for d in self.sections])
 
     @staticmethod
@@ -732,7 +731,7 @@ class Cp2kInput(Section):
         Get string representation of the Cp2kInput
         """
         s = ""
-        for k in self.subsections.keys():
+        for k in self.subsections:
             s += self.subsections[k].get_string()
         return s
 
@@ -1470,7 +1469,7 @@ class Kind(Section):
             self.magnetization = 0
 
         keywords = {
-            "ELEMENT": Keyword("ELEMENT", specie.__str__()),
+            "ELEMENT": Keyword("ELEMENT", str(specie)),
             "MAGNETIZATION": Keyword("MAGNETIZATION", magnetization),
             "BASIS_SET": Keyword("BASIS_SET", basis_set),
             "POTENTIAL": Keyword("POTENTIAL", potential),
@@ -1479,7 +1478,7 @@ class Kind(Section):
         if aux_basis:
             keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", aux_basis)
 
-        kind_name = alias if alias else specie.__str__()
+        kind_name = alias if alias else str(specie)
         self.alias = kind_name
 
         self.section_parameters = [kind_name]
@@ -1938,18 +1937,18 @@ class Xc_Functional(Section):
     Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functionals: Iterable = [], subsections: dict = None, **kwargs):
+    def __init__(self, functionals: Iterable = None, subsections: dict = None, **kwargs):
         """
         Initialize the XC_FUNCTIONAL class
         """
 
-        self.functionals = functionals
+        self.functionals = functionals or []
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
 
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
-        for functional in functionals:
+        for functional in self.functionals:
             self.subsections[functional] = Section(functional, subsections={}, repeats=False)
 
         super().__init__(

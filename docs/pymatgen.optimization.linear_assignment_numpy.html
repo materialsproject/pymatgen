@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.optimization.linear_assignment_numpy module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.optimization.linear_assignment_numpy module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,13 +115,13 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.optimization.linear_assignment_numpy">
-<span id="pymatgen-optimization-linear-assignment-numpy-module"></span><h1>pymatgen.optimization.linear_assignment_numpy module<a class="headerlink" href="#module-pymatgen.optimization.linear_assignment_numpy" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-optimization-linear-assignment-numpy-module"></span><h1>pymatgen.optimization.linear_assignment_numpy module<a class="headerlink" href="#module-pymatgen.optimization.linear_assignment_numpy" title="Permalink to this heading"></a></h1>
 <p>This module contains an algorithm to solve the Linear Assignment Problem.
 It has the same functionality as linear_assignment.pyx, but is much slower
 as it is vectorized in numpy rather than cython</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.optimization.linear_assignment_numpy.LinearAssignment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../optimization/linear_assignment_numpy.py#L20-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../optimization/linear_assignment_numpy.py#L20-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class finds the solution to the Linear Assignment Problem.
 It finds a minimum cost matching between two sets, given a cost
@@ -130,7 +131,7 @@ R. Jonker, A. Volgenant. A Shortest Augmenting Path Algorithm for
 Dense and Sparse Linear Assignment Problems. Computing 38, 325-340
 (1987)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>costs</strong> – The cost matrix of the problem. cost[i,j] should be the
 cost of matching x[i] to y[j]. The cost matrix may be
@@ -141,7 +142,7 @@ rectangular</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.optimization.linear_assignment_numpy.LinearAssignment.min_cost">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_cost</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/optimization/linear_assignment_numpy.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment.min_cost" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_cost</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/optimization/linear_assignment_numpy.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment.min_cost" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the cost of the best assignment</p>
 </dd></dl>
 

@@ -48,7 +48,7 @@ class NwTaskTest(unittest.TestCase):
             basis_set={"C": "6-311++G**", "H": "6-31++G**"},
             theory_directives={"xc": "b3lyp"},
         )
-        ans = """title "H4C1 dft optimize"
+        answer = """title "H4C1 dft optimize"
 charge 0
 basis cartesian
  C library "6-311++G**"
@@ -58,10 +58,10 @@ dft
  xc b3lyp
 end
 task dft optimize"""
-        self.assertEqual(str(t), ans)
+        self.assertEqual(str(t), answer)
 
     def test_str_and_from_string(self):
-        ans = """title "dft optimize"
+        answer = """title "dft optimize"
 charge 0
 basis cartesian
  H library "6-31g"
@@ -70,7 +70,7 @@ dft
  xc b3lyp
 end
 task dft optimize"""
-        self.assertEqual(str(self.task), ans)
+        self.assertEqual(str(self.task), answer)
 
     def test_to_from_dict(self):
         d = self.task.as_dict()
@@ -83,7 +83,7 @@ task dft optimize"""
 
     def test_dft_task(self):
         task = NwTask.dft_task(mol, charge=1, operation="energy")
-        ans = """title "H4C1 dft energy"
+        answer = """title "H4C1 dft energy"
 charge 1
 basis cartesian
  C library "6-31g"
@@ -94,7 +94,7 @@ dft
  xc b3lyp
 end
 task dft energy"""
-        self.assertEqual(str(task), ans)
+        self.assertEqual(str(task), answer)
 
     def test_dft_cosmo_task(self):
         task = NwTask.dft_task(
@@ -105,7 +105,7 @@ task dft energy"""
             basis_set="6-311++G**",
             alternate_directives={"cosmo": {"dielec": 78.0}},
         )
-        ans = """title "H4C1 dft energy"
+        answer = """title "H4C1 dft energy"
 charge 0
 basis cartesian
  C library "6-311++G**"
@@ -119,11 +119,11 @@ cosmo
  dielec 78.0
 end
 task dft energy"""
-        self.assertEqual(str(task), ans)
+        self.assertEqual(str(task), answer)
 
     def test_esp_task(self):
         task = NwTask.esp_task(mol, charge=mol.charge, operation="", basis_set="6-311++G**")
-        ans = """title "H4C1 esp "
+        answer = """title "H4C1 esp "
 charge 0
 basis cartesian
  C library "6-311++G**"
@@ -131,7 +131,7 @@ basis cartesian
 end
 
 task esp """
-        self.assertEqual(str(task), ans)
+        self.assertEqual(str(task), answer)
 
 
 class NwInputTest(unittest.TestCase):
@@ -170,7 +170,7 @@ class NwInputTest(unittest.TestCase):
         )
 
     def test_str(self):
-        ans = """memory total 1000 mb
+        answer = """memory total 1000 mb
 geometry units angstroms noautoz
  C 0.0 0.0 0.0
  H 0.0 0.0 1.089
@@ -239,7 +239,7 @@ dft
 end
 task dft energy
 """
-        self.assertEqual(str(self.nwi), ans)
+        self.assertEqual(str(self.nwi), answer)
 
         ans_symm = """geometry units angstroms noautoz
  symmetry c1

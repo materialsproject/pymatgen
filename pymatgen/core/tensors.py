@@ -21,6 +21,7 @@ from scipy.linalg import polar
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
@@ -99,7 +100,7 @@ class Tensor(np.ndarray, MSONable):
         return hash(self.tostring())
 
     def __repr__(self):
-        return f"{type(self).__name__}({self.__str__()})"
+        return f"{type(self).__name__}({self})"
 
     def zeroed(self, tol=1e-3):
         """
@@ -324,7 +325,7 @@ class Tensor(np.ndarray, MSONable):
         """
         return (self - self.symmetrized < tol).all()
 
-    def fit_to_structure(self, structure, symprec=0.1):
+    def fit_to_structure(self, structure: Structure, symprec=0.1):
         """
         Returns a tensor that is invariant with respect to symmetry
         operations corresponding to a structure
@@ -339,7 +340,7 @@ class Tensor(np.ndarray, MSONable):
         symm_ops = sga.get_symmetry_operations(cartesian=True)
         return sum(self.transform(symm_op) for symm_op in symm_ops) / len(symm_ops)
 
-    def is_fit_to_structure(self, structure, tol=1e-2):
+    def is_fit_to_structure(self, structure: Structure, tol=1e-2):
         """
         Tests whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
@@ -493,7 +494,7 @@ class Tensor(np.ndarray, MSONable):
 
         return rotation
 
-    def convert_to_ieee(self, structure, initial_fit=True, refine_rotation=True):
+    def convert_to_ieee(self, structure: Structure, initial_fit=True, refine_rotation=True):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -597,7 +598,7 @@ class Tensor(np.ndarray, MSONable):
             obj = obj.fit_to_structure(structure)
         return obj
 
-    def populate(self, structure, prec=1e-5, maxiter=200, verbose=False, precond=True, vsym=True):
+    def populate(self, structure: Structure, prec=1e-5, maxiter=200, verbose=False, precond=True, vsym=True):
         """
         Takes a partially populated tensor, and populates the non-zero
         entries according to the following procedure, iterated until
@@ -681,7 +682,7 @@ class Tensor(np.ndarray, MSONable):
                 voigt-notation. Defaults to false, as information
                 may be lost in conversion.
 
-        Returns (Dict):
+        Returns (dict):
             serialized format tensor object
 
         """
@@ -766,7 +767,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return all(t.is_symmetric(tol) for t in self)
 
-    def fit_to_structure(self, structure, symprec=0.1):
+    def fit_to_structure(self, structure: Structure, symprec=0.1):
         """
         Fits all tensors to a Structure.
 
@@ -776,7 +777,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return self.__class__([t.fit_to_structure(structure, symprec) for t in self])
 
-    def is_fit_to_structure(self, structure, tol=1e-2):
+    def is_fit_to_structure(self, structure: Structure, tol=1e-2):
         """
         :param structure: Structure
         :param tol: tolerance
@@ -816,7 +817,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
-    def convert_to_ieee(self, structure, initial_fit=True, refine_rotation=True):
+    def convert_to_ieee(self, structure: Structure, initial_fit=True, refine_rotation=True):
         """
         Convert all tensors to IEEE.
 
@@ -991,7 +992,7 @@ def get_uvec(vec):
     return vec / l
 
 
-def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
+def symmetry_reduce(tensors, structure: Structure, tol=1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with symmop

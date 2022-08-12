@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.wulff module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.analysis.wulff module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,7 +115,7 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.analysis.wulff">
-<span id="pymatgen-analysis-wulff-module"></span><h1>pymatgen.analysis.wulff module<a class="headerlink" href="#module-pymatgen.analysis.wulff" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-analysis-wulff-module"></span><h1>pymatgen.analysis.wulff module<a class="headerlink" href="#module-pymatgen.analysis.wulff" title="Permalink to this heading"></a></h1>
 <p>This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
 and the total area and volume of the wulff shape,the weighted surface energy,
@@ -127,11 +128,11 @@ lattices.</p>
 (2016). Surface energies of elemental crystals. Scientific Data.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffFacet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WulffFacet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_surf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_ind_orig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L74-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffFacet" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WulffFacet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_surf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_ind_orig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L75-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffFacet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Helper container for each Wulff plane.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>normal</strong> – </p></li>
 <li><p><strong>e_surf</strong> – </p></li>
@@ -147,7 +148,7 @@ lattices.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WulffShape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_surf_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L100-L810"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WulffShape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_surf_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L101-L812"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate Wulff Shape from list of miller index and surface energies,
 with given conventional unit cell.
@@ -165,127 +166,127 @@ Based on:
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.debug">
-<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.debug" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.debug" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.alpha">
-<span class="sig-name descname"><span class="pre">alpha</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.alpha" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">alpha</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.alpha" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.transparency">
 <span class="sig-name descname"><span class="pre">transparency</span></span><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.transparency" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.color_set">
-<span class="sig-name descname"><span class="pre">color_set</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.color_set" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">color_set</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.color_set" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.grid_off">
-<span class="sig-name descname"><span class="pre">grid_off</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.grid_off" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">grid_off</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.grid_off" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.axis_off">
-<span class="sig-name descname"><span class="pre">axis_off</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.axis_off" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">axis_off</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.axis_off" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.show_area">
-<span class="sig-name descname"><span class="pre">show_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.show_area" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">show_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.show_area" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.off_color">
-<span class="sig-name descname"><span class="pre">off_color</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.off_color" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">off_color</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.off_color" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">color</span> <span class="pre">of</span> <span class="pre">facets</span> <span class="pre">off</span> <span class="pre">wulff</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.structure">
-<span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.structure" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">Structure</span> <span class="pre">object,</span> <span class="pre">input</span> <span class="pre">conventional</span> <span class="pre">unit</span> <span class="pre">cell</span> <span class="pre">(with</span> <span class="pre">H</span> <span class="pre">)</span> <span class="pre">from</span> <span class="pre">lattice</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.miller_list">
-<span class="sig-name descname"><span class="pre">miller_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">miller_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_list" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">input</span> <span class="pre">miller</span> <span class="pre">index,</span> <span class="pre">for</span> <span class="pre">hcp</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">form</span> <span class="pre">of</span> <span class="pre">hkil</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.hkl_list">
-<span class="sig-name descname"><span class="pre">hkl_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.hkl_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hkl_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.hkl_list" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">modify</span> <span class="pre">hkill</span> <span class="pre">to</span> <span class="pre">hkl,</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">same</span> <span class="pre">order</span> <span class="pre">with</span> <span class="pre">input_miller</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.e_surf_list">
-<span class="sig-name descname"><span class="pre">e_surf_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.e_surf_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">e_surf_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.e_surf_list" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">input</span> <span class="pre">surface</span> <span class="pre">energies,</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">same</span> <span class="pre">order</span> <span class="pre">with</span> <span class="pre">input_miller</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.lattice">
-<span class="sig-name descname"><span class="pre">lattice</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.lattice" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lattice</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.lattice" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">Lattice</span> <span class="pre">object,</span> <span class="pre">the</span> <span class="pre">input</span> <span class="pre">lattice</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">conventional</span> <span class="pre">unit</span> <span class="pre">cell</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.facets">
-<span class="sig-name descname"><span class="pre">facets</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.facets" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">facets</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.facets" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">[WulffFacet]</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">facets</span> <span class="pre">considering</span> <span class="pre">symm</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.dual_cv_simp">
-<span class="sig-name descname"><span class="pre">dual_cv_simp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.dual_cv_simp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dual_cv_simp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.dual_cv_simp" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">simplices</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">dual</span> <span class="pre">convex</span> <span class="pre">hull</span> <span class="pre">(dual_pt)</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.wulff_pt_list">
-<span class="sig-name descname"><span class="pre">wulff_pt_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.wulff_pt_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">wulff_pt_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.wulff_pt_list" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.wulff_cv_simp">
-<span class="sig-name descname"><span class="pre">wulff_cv_simp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.wulff_cv_simp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">wulff_cv_simp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.wulff_cv_simp" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">simplices</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">convex</span> <span class="pre">hull</span> <span class="pre">of</span> <span class="pre">wulff_pt_list</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.on_wulff">
-<span class="sig-name descname"><span class="pre">on_wulff</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.on_wulff" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">on_wulff</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.on_wulff" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">list</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">input_miller,</span> <span class="pre">True</span> <span class="pre">is</span> <span class="pre">on</span> <span class="pre">wulff.</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.color_area">
-<span class="sig-name descname"><span class="pre">color_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.color_area" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">color_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.color_area" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">list</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">input_miller,</span> <span class="pre">total</span> <span class="pre">area</span> <span class="pre">on</span> <span class="pre">wulff,</span> <span class="pre">off_wulff</span> <span class="pre">=</span> <span class="pre">0.</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.miller_area">
-<span class="sig-name descname"><span class="pre">miller_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_area" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">miller_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_area" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">($hkl$):</span> <span class="pre">area</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">input_miller</span></span></dt>
 <dd></dd></dl>
 
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lattice</strong> – Lattice object of the conventional unit cell</p></li>
 <li><p><strong>miller_list</strong> (<em>[</em><em>(</em><em>hkl</em>) – list of hkl or hkil for hcp</p></li>
@@ -296,7 +297,7 @@ Based on:
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.anisotropy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">anisotropy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.anisotropy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">anisotropy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.anisotropy" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 (float) Coefficient of Variation from weighted surface energy
 The ideal sphere is 0.</p>
@@ -304,18 +305,18 @@ The ideal sphere is 0.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.area_fraction_dict">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area_fraction_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.area_fraction_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area_fraction_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.area_fraction_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 (dict): {hkl: area_hkl/total area on wulff}</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.effective_radius">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">effective_radius</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.effective_radius" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">effective_radius</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.effective_radius" title="Permalink to this definition"></a></dt>
 <dd><p>Radius of the Wulffshape when the
 Wulffshape is approximated as a sphere.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>(float) radius.</p>
 </dd>
 </dl>
@@ -323,16 +324,16 @@ Wulffshape is approximated as a sphere.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.get_line_in_facet">
-<span class="sig-name descname"><span class="pre">get_line_in_facet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">facet</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L360-L384"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_line_in_facet" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_line_in_facet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">facet</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L361-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_line_in_facet" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the sorted pts in a facet used to draw a line</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.get_plot">
-<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PuBu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.75,</span> <span class="pre">0.15,</span> <span class="pre">0.05,</span> <span class="pre">0.65)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units_in_JPERM2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L386-L528"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PuBu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.75,</span> <span class="pre">0.15,</span> <span class="pre">0.05,</span> <span class="pre">0.65)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units_in_JPERM2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L387-L529"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Get the Wulff shape plot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>color_set</strong> – default is ‘PuBu’</p></li>
 <li><p><strong>grid_off</strong> (<em>bool</em>) – default is True</p></li>
@@ -364,7 +365,7 @@ probably won’t make any sense to have the color bar on.</p></li>
 Joules per square meter (True)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(matplotlib.pyplot)</p>
 </dd>
 </dl>
@@ -372,10 +373,10 @@ Joules per square meter (True)</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.get_plotly">
-<span class="sig-name descname"><span class="pre">get_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PuBu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units_in_JPERM2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L530-L664"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plotly" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PuBu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units_in_JPERM2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L531-L666"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plotly" title="Permalink to this definition"></a></dt>
 <dd><p>Get the Wulff shape as a plotly Figure object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>color_set</strong> – default is ‘PuBu’</p></li>
 <li><p><strong>alpha</strong> (<em>float</em>) – chosen from 0 to 1 (float), default is 1</p></li>
@@ -399,7 +400,7 @@ probably won’t make any sense to have the color bar on.</p></li>
 Joules per square meter (True)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(plotly.graph_objs.Figure)</p>
 </dd>
 </dl>
@@ -407,10 +408,10 @@ Joules per square meter (True)</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.miller_area_dict">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">miller_area_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_area_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">miller_area_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_area_dict" title="Permalink to this definition"></a></dt>
 <dd><p>area_hkl on wulff}</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns {hkl</p>
 </dd>
 </dl>
@@ -418,10 +419,10 @@ Joules per square meter (True)</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.miller_energy_dict">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">miller_energy_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_energy_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">miller_energy_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_energy_dict" title="Permalink to this definition"></a></dt>
 <dd><p>surface energy_hkl}</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns {hkl</p>
 </dd>
 </dl>
@@ -429,7 +430,7 @@ Joules per square meter (True)</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.shape_factor">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape_factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.shape_factor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape_factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.shape_factor" title="Permalink to this definition"></a></dt>
 <dd><p>This is useful for determining the critical nucleus size.
 A large shape factor indicates great anisotropy.
 See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
@@ -437,7 +438,7 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 <div><p>of Materials. (John Wiley &amp; Sons, 2005), p.461</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>(float) Shape factor.</p>
 </dd>
 </dl>
@@ -445,10 +446,10 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.show">
-<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L350-L358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.show" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L351-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.show" title="Permalink to this definition"></a></dt>
 <dd><p>Show the Wulff plot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> – Passed to get_plot.</p></li>
 <li><p><strong>**kwargs</strong> – Passed to get_plot.</p></li>
@@ -459,30 +460,30 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.surface_area">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.surface_area" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.surface_area" title="Permalink to this definition"></a></dt>
 <dd><p>Total surface area of Wulff shape.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.tot_corner_sites">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tot_corner_sites</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_corner_sites" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tot_corner_sites</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_corner_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the number of vertices in the convex hull.
 Useful for identifying catalytically active sites.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.tot_edges">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tot_edges</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_edges" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tot_edges</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_edges" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the number of edges in the convex hull.
 Useful for identifying catalytically active sites.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.total_surface_energy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_surface_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.total_surface_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_surface_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.total_surface_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Total surface energy of the Wulff shape.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>(float) sum(surface_energy_hkl * area_hkl)</p>
 </dd>
 </dl>
@@ -490,13 +491,13 @@ Useful for identifying catalytically active sites.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.volume">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.volume" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.volume" title="Permalink to this definition"></a></dt>
 <dd><p>Volume of the Wulff shape</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.WulffShape.weighted_surface_energy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weighted_surface_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.weighted_surface_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weighted_surface_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/wulff.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.weighted_surface_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</p>
 </dd></dl>
@@ -505,11 +506,11 @@ sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.get_tri_area">
-<span class="sig-name descname"><span class="pre">get_tri_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L59-L71"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.get_tri_area" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tri_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L60-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.get_tri_area" title="Permalink to this definition"></a></dt>
 <dd><p>Given a list of coords for 3 points,
 Compute the area of this triangle.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>pts</strong> – [a, b, c] three points</p>
 </dd>
 </dl>
@@ -517,7 +518,7 @@ Compute the area of this triangle.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.wulff.hkl_tuple_to_str">
-<span class="sig-name descname"><span class="pre">hkl_tuple_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/wulff.py#L42-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.hkl_tuple_to_str" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hkl_tuple_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/wulff.py#L43-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.wulff.hkl_tuple_to_str" title="Permalink to this definition"></a></dt>
 <dd><p>Prepare for display on plots
 “(hkl)” for surfaces
 Agrs:</p>

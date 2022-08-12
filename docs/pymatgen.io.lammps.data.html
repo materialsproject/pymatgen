@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lammps.data module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.io.lammps.data module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -115,7 +116,7 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.io.lammps.data">
-<span id="pymatgen-io-lammps-data-module"></span><h1>pymatgen.io.lammps.data module<a class="headerlink" href="#module-pymatgen.io.lammps.data" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-io-lammps-data-module"></span><h1>pymatgen.io.lammps.data module<a class="headerlink" href="#module-pymatgen.io.lammps.data" title="Permalink to this heading"></a></h1>
 <p>This module implements a core class LammpsData for generating/parsing
 LAMMPS data file, and other bridging classes to build LammpsData from
 molecules. This module also implements a subclass CombinedData for
@@ -124,17 +125,17 @@ merging LammpsData object.</p>
 atomic, bond, charge, full and molecular only). See the pages below for
 more info.</p>
 <blockquote>
-<div><p><a class="reference external" href="http://lammps.sandia.gov/doc/atom_style.html">http://lammps.sandia.gov/doc/atom_style.html</a>
-<a class="reference external" href="http://lammps.sandia.gov/doc/read_data.html">http://lammps.sandia.gov/doc/read_data.html</a></p>
+<div><p><a class="reference external" href="https://docs.lammps.org/atom_style.html">https://docs.lammps.org/atom_style.html</a>
+<a class="reference external" href="https://docs.lammps.org/read_data.html">https://docs.lammps.org/read_data.html</a></p>
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CombinedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_molecules</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1214-L1510"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.lammps.data.LammpsData</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CombinedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_molecules</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1211-L1507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><code class="xref py py-class docutils literal notranslate"><span class="pre">LammpsData</span></code></a></p>
 <p>Object for a collective set of data for a series of LAMMPS data file.
 velocities not yet implemented.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_of_molecules</strong> – A list of LammpsData objects of a chemical cluster.
 Each LammpsData object (cluster) may contain one or more molecule ID.</p></li>
@@ -150,7 +151,7 @@ columns of [“x”, “y”, “z”] for coordinates of atoms.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.as_lammpsdata">
-<span class="sig-name descname"><span class="pre">as_lammpsdata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1484-L1510"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.as_lammpsdata" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_lammpsdata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1481-L1507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.as_lammpsdata" title="Permalink to this definition"></a></dt>
 <dd><p>Convert a CombinedData object to a LammpsData object. attributes are deepcopied.</p>
 <p>box (LammpsBox): Simulation box.
 force_field (dict): Data for force field sections. Optional</p>
@@ -168,7 +169,7 @@ keys, and each value is a DataFrame.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.disassemble">
-<span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guess_element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ff_map'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1329-L1362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.disassemble" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guess_element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ff_map'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1326-L1359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.disassemble" title="Permalink to this definition"></a></dt>
 <dd><p>Breaks down each LammpsData in CombinedData to building blocks
 (LammpsBox, ForceField and a series of Topology).
 RESTRICTIONS APPLIED:
@@ -186,7 +187,7 @@ molecule or structure only.</p>
 </li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>atom_labels</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings (must be different
 from one another) for labelling each atom type found in
@@ -203,7 +204,7 @@ well as on the species of molecule in each Topology.</p></li>
 different types. Default to “ff_map”.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>[(LammpsBox, ForceField, [Topology]), …]</p>
 </dd>
 </dl>
@@ -211,16 +212,16 @@ different types. Default to “ff_map”.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.from_ff_and_topologies">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ff_and_topologies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1364-L1369"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_ff_and_topologies" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ff_and_topologies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1361-L1366"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_ff_and_topologies" title="Permalink to this definition"></a></dt>
 <dd><p>Unsupported constructor for CombinedData objects.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.from_files">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_numbers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1401-L1423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_files" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_numbers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1398-L1420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_files" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor that parse a series of data file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coordinate_file</strong> (<em>str</em>) – The filename of xyz coordinates.</p></li>
 <li><p><strong>list_of_numbers</strong> (<em>list</em>) – A list of numbers specifying counts for each
@@ -233,11 +234,11 @@ clusters parsed from files.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.from_lammpsdata">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_lammpsdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1425-L1448"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_lammpsdata" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_lammpsdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1422-L1445"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_lammpsdata" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor that can infer atom_style.
 The input LammpsData objects are used non-destructively.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mols</strong> – a list of LammpsData of a chemical cluster.Each LammpsData object (cluster)
 may contain one or more molecule ID.</p></li>
@@ -253,13 +254,13 @@ columns of [“x”, “y”, “z”] for coordinates of atoms.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.from_structure">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1371-L1376"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1368-L1373"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Unsupported constructor for CombinedData objects.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.get_string">
-<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hybrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1450-L1482"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.get_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hybrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1447-L1479"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.get_string" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the string representation of CombinedData, essentially
 the string to be written to a file. Combination info is included
 as a comment. For single molecule ID data, the info format is:</p>
@@ -271,7 +272,7 @@ as a comment. For single molecule ID data, the info format is:</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
 box settings (bounds and tilt) and atomic coordinates.
@@ -283,11 +284,11 @@ charges. Default to 4.</p></li>
 <li><p><strong>hybrid</strong> (<em>bool</em>) – Whether to write hybrid coeffs types.
 Default to True. If the data object has no hybrid
 coeffs types and has large coeffs section, one may
-use False to speedup the process. Otherwise the
+use False to speed up the process. Otherwise, the
 default is recommended.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>String representation</p>
 </dd>
 </dl>
@@ -295,10 +296,10 @@ default is recommended.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.parse_xyz">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1378-L1399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.parse_xyz" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1375-L1396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.parse_xyz" title="Permalink to this definition"></a></dt>
 <dd><p>load xyz file generated from packmol (for those who find it hard to install openbabel)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pandas.DataFrame</p>
 </dd>
 </dl>
@@ -306,7 +307,7 @@ default is recommended.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.CombinedData.structure">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.structure" title="Permalink to this definition"></a></dt>
 <dd><p>Exports a periodic structure object representing the simulation
 box.
 :returns: Structure</p>
@@ -316,15 +317,15 @@ box.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ForceField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonbond_coeffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo_coeffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1010-L1211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ForceField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonbond_coeffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo_coeffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1011-L1208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class carrying most data in Masses and force field sections.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField.masses">
-<span class="sig-name descname"><span class="pre">masses</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.masses" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">masses</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.masses" title="Permalink to this definition"></a></dt>
 <dd><p>DataFrame for Masses section.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pandas.DataFrame</p>
 </dd>
 </dl>
@@ -332,11 +333,11 @@ box.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField.force_field">
-<span class="sig-name descname"><span class="pre">force_field</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.force_field" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">force_field</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.force_field" title="Permalink to this definition"></a></dt>
 <dd><p>Force field section keywords (keys) and
 data (values) as DataFrames.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -344,17 +345,17 @@ data (values) as DataFrames.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField.maps">
-<span class="sig-name descname"><span class="pre">maps</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.maps" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">maps</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.maps" title="Permalink to this definition"></a></dt>
 <dd><p>Dict for labeling atoms and topologies.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mass_info</strong> (<em>list</em>) – List of atomic mass info. Elements,
 strings (symbols) and floats are all acceptable for the
@@ -370,7 +371,7 @@ to None.</p></li>
 <li><p><strong>topo_coeffs</strong> (<em>dict</em>) – <p>Dict with force field coefficients for
 molecular topologies. Optional with default
 to None. All four valid keys listed below are optional.
-Each value is a list of dicts with non optional keys
+Each value is a list of dicts with non-optional keys
 “coeffs” and “types”, and related class2 force field
 keywords as optional keys.
 {</p>
@@ -411,10 +412,10 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1198-L1211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1195-L1208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor that reads in a dictionary.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dictionary to read.</p>
 </dd>
 </dl>
@@ -422,10 +423,10 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1184-L1196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1181-L1193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor that reads in a file in YAML format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename.</p>
 </dd>
 </dl>
@@ -433,10 +434,10 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.ForceField.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L1167-L1182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.to_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L1164-L1179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.to_file" title="Permalink to this definition"></a></dt>
 <dd><p>Saves object to a file in YAML format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename.</p>
 </dd>
 </dl>
@@ -446,11 +447,11 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsBox">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L108-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L109-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Object for representing a simulation box in LAMMPS settings.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bounds</strong> – A (3, 2) array/list of floats setting the
 boundaries of simulation box.</p></li>
@@ -462,16 +463,16 @@ orthogonal box.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsBox.get_box_shift">
-<span class="sig-name descname"><span class="pre">get_box_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L181-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.get_box_shift" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_box_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L182-L194"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.get_box_shift" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the coordinate shift due to PBC.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>i</strong> – A (n, 3) integer array containing the labels for box</p></li>
 <li><p><strong>entries.</strong> (<em>images of n</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Coorindate shift array with the same shape of i</p>
 </dd>
 </dl>
@@ -479,15 +480,15 @@ orthogonal box.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsBox.get_string">
-<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">significant_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L157-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.get_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">significant_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L158-L180"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.get_string" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the string representation of simulation box in LAMMPS
 data file format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>significant_figures</strong> (<em>int</em>) – No. of significant figures to
 output for box settings. Default to 6.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>String representation</p>
 </dd>
 </dl>
@@ -495,12 +496,12 @@ output for box settings. Default to 6.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsBox.to_lattice">
-<span class="sig-name descname"><span class="pre">to_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L195-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.to_lattice" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L196-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.to_lattice" title="Permalink to this definition"></a></dt>
 <dd><p>Converts the simulation box to a more powerful Lattice backend.
 Note that Lattice is always periodic in 3D space while a
 simulation box is not necessarily periodic in all dimensions.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Lattice</p>
 </dd>
 </dl>
@@ -508,7 +509,7 @@ simulation box is not necessarily periodic in all dimensions.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsBox.volume">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.volume" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.volume" title="Permalink to this definition"></a></dt>
 <dd><p>Volume of simulation box.</p>
 </dd></dl>
 
@@ -516,14 +517,14 @@ simulation box is not necessarily periodic in all dimensions.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topology</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L238-L878"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topology</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L239-L879"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Object for representing the data in a LAMMPS data file.</p>
 <p>This is a low level constructor designed to work with parsed
 data or other bridging objects (ForceField and Topology). Not
 recommended to use directly.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>box</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.LammpsBox" title="pymatgen.io.lammps.data.LammpsBox"><em>LammpsBox</em></a>) – Simulation box.</p></li>
 <li><p><strong>masses</strong> (<em>pandas.DataFrame</em>) – DataFrame with one column
@@ -547,7 +548,7 @@ keys, and each value is a DataFrame.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.disassemble">
-<span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guess_element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ff_map'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L508-L653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.disassemble" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guess_element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ff_map'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L509-L654"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.disassemble" title="Permalink to this definition"></a></dt>
 <dd><p>Breaks down LammpsData to building blocks
 (LammpsBox, ForceField and a series of Topology).
 RESTRICTIONS APPLIED:</p>
@@ -566,7 +567,7 @@ molecule or structure only.</p>
 </li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>atom_labels</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings (must be different
 from one another) for labelling each atom type found in
@@ -583,7 +584,7 @@ well as on the species of molecule in each Topology.</p></li>
 different types. Default to “ff_map”.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>LammpsBox, ForceField, [Topology]</p>
 </dd>
 </dl>
@@ -591,13 +592,13 @@ different types. Default to “ff_map”.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.from_ff_and_topologies">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ff_and_topologies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topologies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L768-L833"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_ff_and_topologies" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ff_and_topologies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topologies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L769-L834"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_ff_and_topologies" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor building LammpsData from a ForceField object and a
 list of Topology objects. Do not support intermolecular
 topologies since a Topology object includes data for ONE
 molecule or structure only.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>box</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.LammpsBox" title="pymatgen.io.lammps.data.LammpsBox"><em>LammpsBox</em></a>) – Simulation box.</p></li>
 <li><p><strong>ff</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.ForceField" title="pymatgen.io.lammps.data.ForceField"><em>ForceField</em></a>) – ForceField object with data for Masses and
@@ -612,10 +613,10 @@ for Atoms, Velocities and topology sections.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L655-L766"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L656-L767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor that parses a file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>str</em>) – Filename to read.</p></li>
 <li><p><strong>atom_style</strong> (<em>str</em>) – Associated atom_style. Default to “full”.</p></li>
@@ -628,11 +629,11 @@ True.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.from_structure">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'charge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L835-L878"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'charge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L836-L879"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Simple constructor building LammpsData from a structure without
 force field parameters and topologies.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</p></li>
 <li><p><strong>ff_elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings of elements that must
@@ -648,12 +649,12 @@ necessarily in the structure. Default to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.get_string">
-<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hybrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L338-L488"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hybrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L339-L489"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_string" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the string representation of LammpsData, essentially
 the string to be written to a file. Support hybrid style
 coeffs read and write.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
 box settings (bounds and tilt) and atomic coordinates.
@@ -665,11 +666,11 @@ charges. Default to 4.</p></li>
 <li><p><strong>hybrid</strong> (<em>bool</em>) – Whether to write hybrid coeffs types.
 Default to True. If the data object has no hybrid
 coeffs types and has large coeffs section, one may
-use False to speedup the process. Otherwise the
+use False to speed up the process. Otherwise, the
 default is recommended.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>String representation</p>
 </dd>
 </dl>
@@ -677,11 +678,11 @@ default is recommended.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.structure">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lammps/data.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.structure" title="Permalink to this definition"></a></dt>
 <dd><p>Exports a periodic structure object representing the simulation
 box.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Structure</p>
 </dd>
 </dl>
@@ -689,10 +690,10 @@ box.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.LammpsData.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L490-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L491-L507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition"></a></dt>
 <dd><p>Writes LammpsData to file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>str</em>) – Filename.</p></li>
 <li><p><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
@@ -711,13 +712,13 @@ charges. Default to 4.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.Topology">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Topology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sites</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topologies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L881-L1007"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Topology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sites</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topologies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L882-L1008"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class carrying most data in Atoms, Velocities and molecular
 topology sections for ONE SINGLE Molecule or Structure
 object, or a plain list of Sites.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>] or </em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><em>SiteCollection</em></a>) – A group of sites in a
 list or as a Molecule/Structure.</p></li>
@@ -749,13 +750,13 @@ listed below are optional.
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.Topology.from_bonding">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bonding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedral</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L953-L1007"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology.from_bonding" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bonding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedral</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L954-L1008"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology.from_bonding" title="Permalink to this definition"></a></dt>
 <dd><p>Another constructor that creates an instance from a molecule.
 Covalent bonds and other bond-based topologies (angles and
 dihedrals) can be automatically determined. Cannot be used for
 non bond-based topologies, e.g., improper dihedrals.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Input molecule.</p></li>
 <li><p><strong>bond</strong> (<em>bool</em>) – Whether find bonds. If set to False, angle and
@@ -774,18 +775,18 @@ Not recommended to alter.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.data.lattice_2_lmpbox">
-<span class="sig-name descname"><span class="pre">lattice_2_lmpbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lammps/data.py#L208-L235"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.lattice_2_lmpbox" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lattice_2_lmpbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lammps/data.py#L209-L236"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.data.lattice_2_lmpbox" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a lattice object to LammpsBox, and calculates the symmetry
 operation used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lattice</strong> (<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Input lattice.</p></li>
 <li><p><strong>origin</strong> – A (3,) array/list of floats setting lower bounds of
 simulation box. Default to (0, 0, 0).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>LammpsBox, SymmOp</p>
 </dd>
 </dl>

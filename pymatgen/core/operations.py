@@ -87,7 +87,7 @@ class SymmOp(MSONable):
         return 7
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         output = [
@@ -546,7 +546,7 @@ class MagSymmOp(SymmOp):
     def __hash__(self):
         # useful for obtaining a set of unique MagSymmOps
         hashable_value = tuple(self.affine_matrix.flatten()) + (self.time_reversal,)
-        return hashable_value.__hash__()
+        return hash(hashable_value)
 
     def operate_magmom(self, magmom):
         """

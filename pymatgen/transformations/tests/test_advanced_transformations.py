@@ -632,7 +632,7 @@ class GrainBoundaryTransformationTest(PymatgenTest):
 
 class DisorderedOrderedTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        # non-sensical example just for testing purposes
+        # nonsensical example just for testing purposes
         struct = self.get_structure("BaNiO3")
 
         trans = DisorderOrderedTransformation()
@@ -718,6 +718,30 @@ class CubicSupercellTransformationTest(PymatgenTest):
         )
         _ = diagonal_supercell_generator.apply_transformation(structure2)
         self.assertArrayEqual(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
+
+        # test force_90_degrees
+        structure2 = self.get_structure("Si")
+        sga = SpacegroupAnalyzer(structure2)
+        structure2 = sga.get_primitive_standard_structure()
+        diagonal_supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=13.0,
+            force_90_degrees=True,
+        )
+        transformed_structure = diagonal_supercell_generator.apply_transformation(structure2)
+        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+
+        structure = self.get_structure("BaNiO3")
+        min_atoms = 100
+        max_atoms = 1000
+
+        # Test the transformation without constraining trans_mat to be diagonal
+        supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=True
+        )
+        transformed_structure = supercell_generator.apply_transformation(structure)
+        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
 
 class AddAdsorbateTransformationTest(PymatgenTest):

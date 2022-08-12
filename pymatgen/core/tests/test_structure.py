@@ -28,6 +28,11 @@ from pymatgen.util.testing import PymatgenTest
 enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")
 
+try:
+    import m3gnet
+except ImportError:
+    m3gnet = None
+
 
 class IStructureTest(PymatgenTest):
     def setUp(self):
@@ -85,6 +90,23 @@ class IStructureTest(PymatgenTest):
         df = self.propertied_structure.as_dataframe()
         self.assertEqual(df.attrs["Reduced Formula"], "Si")
         self.assertEqual(df.shape, (2, 8))
+
+    def test_equal(self):
+        struct = self.struct
+        self.assertTrue(struct == struct)
+        self.assertTrue(struct == struct.copy())
+        self.assertFalse(struct == 2 * struct)
+
+        self.assertFalse(struct == "a" * len(struct))  # GH-2584
+        self.assertFalse(struct is None)
+        self.assertFalse(struct == 42)  # GH-2587
+
+        self.assertTrue(struct == Structure.from_dict(struct.as_dict()))
+
+        struct_2 = Structure.from_sites(struct)
+        self.assertTrue(struct, struct_2)
+        struct_2.apply_strain(0.5)
+        self.assertNotEqual(struct, struct_2)
 
     def test_matches(self):
         ss = self.struct * 2
@@ -468,9 +490,9 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(nn), 47)
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
-        for i in range(len(s)):
-            self.assertEqual(4, len(all_nn[i][0]))
-            self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+        for idx, site in enumerate(s):
+            self.assertEqual(4, len(all_nn[idx][0]))
+            self.assertEqual(len(all_nn[idx]), len(s.get_neighbors(site, r)))
 
         for site, nns in zip(s, all_nn):
             for nn in nns:
@@ -855,7 +877,7 @@ class StructureTest(PymatgenTest):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species.keys():
+            for k in site.species:
                 self.assertEqual(
                     k.oxi_state,
                     oxidation_states[k.symbol],
@@ -1240,14 +1262,6 @@ class StructureTest(PymatgenTest):
         s = Structure.from_sites(self.structure, to_unit_cell=True)
         self.assertEqual(s.site_properties["hello"][1], 2)
 
-    def test_magic(self):
-        s = Structure.from_sites(self.structure)
-        self.assertEqual(s, self.structure)
-        self.assertNotEqual(s, None)
-        s.apply_strain(0.5)
-        self.assertNotEqual(s, self.structure)
-        self.assertNotEqual(self.structure * 2, self.structure)
-
     def test_charge(self):
         s = Structure.from_sites(self.structure)
         self.assertEqual(
@@ -1333,6 +1347,43 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 self.assertEqual(cluster.formula, "H4 C1")
 
+    @unittest.skipIf(m3gnet is None, "Relaxation test requires m3gnet.")
+    def test_relax(self):
+        structure = self.get_structure("Si")
+        relaxed = structure.relax()
+        self.assertAlmostEqual(relaxed.lattice.a, 3.849563, 4)
+
+    def test_from_prototype(self):
+        for pt in ["bcc", "fcc", "hcp", "diamond"]:
+            s = Structure.from_prototype(pt, ["C"], a=3, c=4)
+            self.assertIsInstance(s, Structure)
+
+        self.assertRaises(ValueError, Structure.from_prototype, "hcp", ["C"], a=3)
+
+        s = Structure.from_prototype("rocksalt", ["Li", "Cl"], a=2.56)
+        self.assertEqual(
+            str(s),
+            """Full Formula (Li4 Cl4)
+Reduced Formula: LiCl
+abc   :   2.560000   2.560000   2.560000
+angles:  90.000000  90.000000  90.000000
+pbc   :       True       True       True
+Sites (8)
+  #  SP      a    b    c
+---  ----  ---  ---  ---
+  0  Li    0    0    0
+  1  Li    0.5  0.5  0
+  2  Li    0.5  0    0.5
+  3  Li    0    0.5  0.5
+  4  Cl    0.5  0    0.5
+  5  Cl    0    0.5  0.5
+  6  Cl    0.5  0.5  0
+  7  Cl    0    0    0""",
+        )
+        for pt in ("cscl", "fluorite", "antifluorite", "zincblende"):
+            s = Structure.from_prototype(pt, ["Cs", "Cl"], a=5)
+            self.assertTrue(s.lattice.is_orthogonal)
+
 
 class IMoleculeTest(PymatgenTest):
     def setUp(self):
@@ -1411,7 +1462,7 @@ Sites (5)
 2 H     1.026719     0.000000    -0.363000
 3 H    -0.513360    -0.889165    -0.363000
 4 H    -0.513360     0.889165    -0.363000"""
-        self.assertEqual(self.mol.__str__(), ans)
+        self.assertEqual(str(self.mol), ans)
         ans = """Molecule Summary
 Site: C (0.0000, 0.0000, 0.0000)
 Site: H (0.0000, 0.0000, 1.0890)
@@ -1760,6 +1811,4 @@ class MoleculeTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
-
     unittest.main()

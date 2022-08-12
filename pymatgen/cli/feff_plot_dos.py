@@ -76,7 +76,7 @@ def main():
 
     if args.site:
         for i, site in enumerate(structure):
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
+            all_dos[f"Site {i} {site.specie.symbol}"] = dos.get_site_dos(site)
     if args.element:
         all_dos.update(dos.get_element_dos())
     if args.orbital:

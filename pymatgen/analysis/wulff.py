@@ -25,6 +25,7 @@ import numpy as np
 import plotly.graph_objs as go
 from scipy.spatial import ConvexHull
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
@@ -165,7 +166,7 @@ class WulffShape:
 
     """
 
-    def __init__(self, lattice, miller_list, e_surf_list, symprec=1e-5):
+    def __init__(self, lattice: Lattice, miller_list, e_surf_list, symprec=1e-5):
         """
         Args:
             lattice: Lattice object of the conventional unit cell
@@ -301,7 +302,7 @@ class WulffShape:
             plane.outer_lines = [line for line in plane.outer_lines if plane.outer_lines.count(line) != 2]
         return on_wulff, surface_area
 
-    def _get_colors(self, color_set, alpha, off_color, custom_colors={}):
+    def _get_colors(self, color_set, alpha, off_color, custom_colors=None):
         """
         assign colors according to the surface energies of on_wulff facets.
 
@@ -332,7 +333,7 @@ class WulffShape:
 
         for i, e_surf in e_surf_on_wulff:
             color_list[i] = scalar_map.to_rgba(e_surf, alpha=alpha)
-            if tuple(self.miller_list[i]) in custom_colors.keys():
+            if tuple(self.miller_list[i]) in custom_colors:
                 color_list[i] = custom_colors[tuple(self.miller_list[i])]
             color_proxy_on_wulff.append(plt.Rectangle((2, 2), 1, 1, fc=color_list[i], alpha=alpha))
             miller_on_wulff.append(self.input_miller_fig[i])
@@ -367,19 +368,19 @@ class WulffShape:
         prev = None
         while len(lines) > 0:
             if prev is None:
-                l = lines.pop(0)
+                line = lines.pop(0)
             else:
-                for i, l in enumerate(lines):
-                    if prev in l:
-                        l = lines.pop(i)
-                        if l[1] == prev:
-                            l.reverse()
+                for i, line in enumerate(lines):
+                    if prev in line:
+                        line = lines.pop(i)
+                        if line[1] == prev:
+                            line.reverse()
                         break
             # make sure the lines are connected one by one.
             # find the way covering all pts and facets
-            pt.append(self.wulff_pt_list[l[0]].tolist())
-            pt.append(self.wulff_pt_list[l[1]].tolist())
-            prev = l[1]
+            pt.append(self.wulff_pt_list[line[0]].tolist())
+            pt.append(self.wulff_pt_list[line[1]].tolist())
+            prev = line[1]
 
         return pt
 
@@ -397,7 +398,7 @@ class WulffShape:
         units_in_JPERM2=True,
         legend_on=True,
         aspect_ratio=(8, 8),
-        custom_colors={},
+        custom_colors=None,
     ):
         """
         Get the Wulff shape plot.
@@ -435,7 +436,7 @@ class WulffShape:
             color_proxy_on_wulff,
             miller_on_wulff,
             e_surf_on_wulff,
-        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors)
+        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -532,7 +533,7 @@ class WulffShape:
         color_set="PuBu",
         off_color="red",
         alpha=1,
-        custom_colors={},
+        custom_colors=None,
         units_in_JPERM2=True,
     ):
         """
@@ -561,7 +562,7 @@ class WulffShape:
             color_proxy_on_wulff,
             miller_on_wulff,
             e_surf_on_wulff,
-        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors)
+        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
 
         planes_data, color_scale, ticktext, tickvals = [], [], [], []
         for plane in self.facets:
@@ -602,7 +603,7 @@ class WulffShape:
                     i=tri_indices[0],
                     j=tri_indices[1],
                     k=tri_indices[2],
-                    hovertemplate="<br>%{text}<br>" + f"γ={plane.e_surf:.3f} {units}<br>",
+                    hovertemplate=f"<br>%{{text}}<br>γ={plane.e_surf:.3f} {units}<br>",
                     color=color,
                     text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
@@ -797,12 +798,12 @@ class WulffShape:
             pt = self.get_line_in_facet(facet)
 
             lines = []
-            for i, p in enumerate(pt):
-                if i == len(pt) / 2:
+            for idx, _ in enumerate(pt):
+                if idx == len(pt) / 2:
                     break
-                lines.append(tuple(sorted(tuple([tuple(pt[i * 2]), tuple(pt[i * 2 + 1])]))))
+                lines.append(tuple(sorted(tuple([tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])]))))
 
-            for i, p in enumerate(lines):
+            for p in lines:
                 if p not in all_edges:
                     edges.append(p)
 

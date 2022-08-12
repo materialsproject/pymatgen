@@ -223,7 +223,7 @@ class EnumlibAdaptor:
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
                 if sgnum != new_sgnum:
-                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {int(new_sgnum)}")
+                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sgnum}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1

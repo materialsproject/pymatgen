@@ -30,13 +30,18 @@ class PhononDosPlotterTest(unittest.TestCase):
 
     def test_plot(self):
         # Disabling latex for testing.
-        from matplotlib import rc
+        from matplotlib import axes, rc
 
         rc("text", usetex=False)
         self.plotter.add_dos("Total", self.dos)
         self.plotter.get_plot(units="mev")
         self.plotter_nostack.add_dos("Total", self.dos)
-        self.plotter_nostack.get_plot(units="mev")
+        plt = self.plotter_nostack.get_plot(units="mev")
+
+        ax = plt.gca()
+        assert isinstance(ax, axes.Axes)
+        assert ax.get_ylabel() == "$\\mathrm{Density\\ of\\ states}$"
+        assert ax.get_xlabel() == "$\\mathrm{Frequencies\\ (meV)}$"
 
 
 class PhononBSPlotterTest(unittest.TestCase):

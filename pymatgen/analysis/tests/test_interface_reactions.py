@@ -1,4 +1,4 @@
-import unittest as unittest
+import unittest
 import warnings
 
 import numpy as np
@@ -317,10 +317,8 @@ class InterfaceReactionTest(unittest.TestCase):
             test4 = len(react_kink) == len(react_kink_expect)
             self.assertTrue(
                 test4,
-                "get_kinks: reaction kinks "
-                "gets error for {} and {} reaction!".format(
-                    ir.c1_original.reduced_formula, ir.c2_original.reduced_formula
-                ),
+                f"get_kinks: reaction kinks gets error for {ir.c1_original.reduced_formula} and "
+                f"{ir.c2_original.reduced_formula} reaction!",
             )
 
             test5 = np.allclose(energy_per_rxt_kink, energy_per_rxt_kink_expect)
@@ -424,7 +422,7 @@ class InterfaceReactionTest(unittest.TestCase):
             d_pymg,
             d_test,
             "labels:label does not match for interfacial system "
-            "with {} and {}.".format(self.ir[0].c1_original.reduced_formula, self.ir[0].c2_original.reduced_formula),
+            f"with {self.ir[0].c1_original.reduced_formula} and {self.ir[0].c2_original.reduced_formula}.",
         )
 
     def test_plot(self):
@@ -454,13 +452,8 @@ class InterfaceReactionTest(unittest.TestCase):
         for i, j in zip(self.ir, answer):
             self.assertTrue(
                 np.allclose(i.minimum, j),
-                "minimum: the system with {} and {} "
-                "gets error!{} expected, but gets {}".format(
-                    i.c1_original.reduced_formula,
-                    i.c2_original.reduced_formula,
-                    str(j),
-                    str(i.minimum),
-                ),
+                f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
+                f"gets error!{j} expected, but gets {i.minimum}",
             )
 
     def test_get_no_mixing_energy(self):
@@ -489,7 +482,7 @@ class InterfaceReactionTest(unittest.TestCase):
                 np.allclose(energy_lst(i), energy_lst(j)),
                 "get_no_mixing_energy: "
                 "no_mixing energies get error, "
-                "{} expected but gets {}".format(energy_lst(j), energy_lst(i)),
+                f"{energy_lst(j)} expected but gets {energy_lst(i)}",
             )
 
     def test_get_chempot_correction(self):

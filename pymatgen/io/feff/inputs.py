@@ -163,7 +163,7 @@ class Header(MSONable):
         * 4 O     0.333333     0.666667     0.378675
     """
 
-    def __init__(self, struct, source="", comment=""):
+    def __init__(self, struct, source: str = "", comment: str = "", spacegroup_analyzer_settings=None):
         """
         Args:
             struct: Structure object, See pymatgen.core.structure.Structure.
@@ -171,10 +171,11 @@ class Header(MSONable):
                 would be the material ID number
             comment: Comment for first header line
         """
+        self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
         if struct.is_ordered:
             self.struct = struct
             self.source = source
-            sym = SpacegroupAnalyzer(struct)
+            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
             data = sym.get_symmetry_dataset()
             self.space_number = data["number"]
             self.space_group = data["international"]
@@ -407,7 +408,7 @@ class Atoms(MSONable):
 
         symbols = [self.absorbing_atom]
         coords = [[0, 0, 0]]
-        for i, site_dist in enumerate(sphere):
+        for site_dist in sphere:
             site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
             symbols.append(site_symbol)
             coords.append(site_dist[0].coords - center)
@@ -612,7 +613,7 @@ class Tags(dict):
         Returns:
             String representation of Tags.
         """
-        keys = self.keys()
+        keys = list(self)
         if sort_keys:
             keys = sorted(keys)
         lines = []

@@ -36,7 +36,7 @@ class McsqsCallerTest(PymatgenTest):
 
         # ensures specific keys are present in cluster parsing for use in atomate
         self.assertSetEqual(
-            set(sqs.clusters[0].keys()),
+            set(sqs.clusters[0]),
             {
                 "multiplicity",
                 "coordinates",
@@ -45,7 +45,7 @@ class McsqsCallerTest(PymatgenTest):
             },
         )
         self.assertSetEqual(
-            set(sqs.clusters[0]["coordinates"][0].keys()),
+            set(sqs.clusters[0]["coordinates"][0]),
             {"cluster_function", "coordinates", "num_possible_species"},
         )
 
