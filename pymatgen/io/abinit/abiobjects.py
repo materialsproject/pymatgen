@@ -10,7 +10,7 @@ import abc
 import collections
 from enum import Enum
 from pprint import pformat
-from typing import cast, List
+from typing import List, cast
 
 import numpy as np
 from monty.collections import AttrDict
