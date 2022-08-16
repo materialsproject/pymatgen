@@ -190,6 +190,7 @@ class PointGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
+
 @cached_class
 class SpaceGroup(SymmetryGroup):
     """
