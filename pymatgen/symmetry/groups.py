@@ -190,7 +190,6 @@ class PointGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
-
 @cached_class
 class SpaceGroup(SymmetryGroup):
     """
@@ -387,6 +386,32 @@ class SpaceGroup(SymmetryGroup):
             if not in_array_list(orbit, pp, tol=tol):
                 orbit.append(pp)
         return orbit
+
+    def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list, list]:
+        """
+        Returns the orbit and its generators for a point.
+
+        Args:
+            p: Point as a 3x1 array.
+            tol: Tolerance for determining if sites are the same. 1e-5 should
+                be sufficient for most purposes. Set to 0 for exact matching
+                (and also needed for symbolic orbits).
+
+        Returns:
+            ([array], [array]) Orbit and generators for point.
+        """
+        from pymatgen.core.operations import SymmOp
+
+        orbit: list[ArrayLike] = [np.array(p, dtype=float)]
+        identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
+        generators: list[ArrayLike] = [identity]
+        for o in self.symmetry_ops:
+            pp = o.operate(p)
+            pp = np.mod(np.round(pp, decimals=10), 1)
+            if not in_array_list(orbit, pp, tol=tol):
+                orbit.append(pp)
+                generators.append(o)
+        return orbit, generators
 
     def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
         """
