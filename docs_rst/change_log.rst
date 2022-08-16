@@ -332,7 +332,7 @@ v2022.0.8
 * PR #2132 from @htz1992213 speeds up LammpsData.as_string for
   non-hybrid data with large coeff sections and adds as_lammpsdata method to
   CombinedData
-* PR #2129 from @richardtran415 improves analysis of surface symmetry of slabs.
+* PR #2129 from @CifLord improves analysis of surface symmetry of slabs.
 * PR #2117 from @nwinner contains bug fixes for bader caller.
 
 v2022.0.7
@@ -619,7 +619,7 @@ v2020.4.2
 ---------
 * New high-symmetry k-path algorithm (@munrojm, @kt-latimer)
 * New TEM diffraction calculator (@welltemperedpaprika, @thefrankwan, @shyamd)
-* New plotly plotting option for Wulff shapes (@richardtran415)
+* New plotly plotting option for Wulff shapes (@CifLord)
 * Improvements to SQS caller (@rwoodsrobinson)
 * Various bug fixes and improvements (@mfherbst, @chc273,
   @jacksund, @espottesmith, @hongyi-zhao, @montoyjh,
@@ -641,7 +641,7 @@ v2020.3.2
 ---------
 * New MonteCarloRattleTransformation and phonopy integration (@utf)
 * New structure connectivity features in Chemenv analysis (@davidwaroquiers)
-* Bug fixes (@richardtran415, @chc273, @JaGeo, @dskoda, @rkingsbury,
+* Bug fixes (@CifLord, @chc273, @JaGeo, @dskoda, @rkingsbury,
   @jmmshn, @espottesmith, @gVallverdu, @yimingchen95, @fraricci)
 
 v2020.1.28
@@ -722,7 +722,7 @@ v2019.9.8
 v2019.9.7
 ---------
 * New fast Pourbaix algorithm (@montoyjh)
-* VASP Incar parameter checking (@richardtran415)
+* VASP Incar parameter checking (@CifLord)
 * New VASP input set for Lobster, read support for GROSSPOP file (@JaGeo)
 * New CombinedData class  for LAMMPS (@htz1992213)
 * Improvements to molecule fragmenter (@samblau)
@@ -759,7 +759,7 @@ v2019.7.21
 * Improved Lobster interface (@JaGeo)
 * Bug fixes (@sthartman, @dwinston, @utf)
 * New functionality for calculation of Heisenberg exchange parameters (@ncfrey)
-* Improvements to Miller indices handling and Lattice (@richardtran415)
+* Improvements to Miller indices handling and Lattice (@CifLord)
 
 
 v2019.7.2
@@ -775,7 +775,7 @@ v2019.7.2
 v2019.6.20
 ----------
 * New interface class (@sivonxay, @kylebystrom, @shyamd)
-* Updates to SlabGenerator (@richardtran415)
+* Updates to SlabGenerator (@CifLord)
 * Updates to PiezoTensor (@dongsenfo)
 * Add support for parsing on-site density matrix to Outcar (@mkhorton, @mhsiron, @clegaspi)
 * Fixes for magnetic space groups (@simonward86)
@@ -832,7 +832,7 @@ in MPNonSCFSet (@dyllamt), battery app (@jmmshn), MPSOCSet (@mkhorton),
 more
 * Improvements to COHP (@JaGeo)
 * Support to read WAVEDER files (@knc6)
-* Addition of van Arkel-Ketelaar triangle plots (@richardtran415)
+* Addition of van Arkel-Ketelaar triangle plots (@CifLord)
 * Addition of optional user agent to MPRester API calls, see documentation
 for more information (@dwinston)
 
@@ -923,10 +923,10 @@ v2018.11.30
   (@dwinston)
 * MVLRelax52Set which uses VASP 52 pseudopotentials. (@HanmeiTang)
 * EPH calculations in ABINIT (@gmatteo)
-* New ScaleToRelaxedTransformation (@richardtran415)
+* New ScaleToRelaxedTransformation (@CifLord)
 * New dimensionality finder, and consolidation of existing algorithms (@utf)
 * New dopant predictor built on structure predictor (@utf)
-* Misc bug fixes (@HanmeiTang, @utf, @tamuhey, @mkhorton, @yiming-xu, @richardtran415)
+* Misc bug fixes (@HanmeiTang, @utf, @tamuhey, @mkhorton, @yiming-xu, @CifLord)
 
 v2018.11.6
 ----------
@@ -1007,7 +1007,7 @@ v2018.6.27
 ----------
 * Improved local_env and MoleculeGraph (@WardLT, @espottesmith)
 * Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
-* Improved surface analysis (@richardtran415)
+* Improved surface analysis (@CifLord)
 
 v2018.6.11
 ----------

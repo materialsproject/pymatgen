@@ -1,6 +1,6 @@
 """
 This module defines input sets for CP2K and is a work in progress. The structure/philosophy
-of this module is based on the Vasp input sets in Pymatgen. These sets are meant to contain
+of this module is based on the VASP input sets in Pymatgen. These sets are meant to contain
 tested parameters that will result in successful, reproducible, consistent calculations without
 need for intervention 99% of the time. 99% of the time, you only need to provide a pymatgen
 structure object and let the defaults take over from there.
