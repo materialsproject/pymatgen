@@ -1964,6 +1964,18 @@ class LobsterinTest(unittest.TestCase):
                 dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
                 option="standard_with_fatband",
             )
+    def test_standard_with_comp_range(self):
+        # test standard_with_comp_range option
+        lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
+            os.path.join(test_dir_doscar, "POSCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "INCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "POTCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "vasprun.xml.C2.gz"),
+            option = "standard_with_comp_range",
+        )
+        self.assertEqual(lobsterin_comp["COHPstartEnergy"], -28.3679)
+        self.assertEqual(lobsterin_comp["COHPendEnergy"], 32.8968)
+        self.assertEqual(lobsterin_comp["COHPSteps"], 301)
 
     def test_diff(self):
         # test diff
