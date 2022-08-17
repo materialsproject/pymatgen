@@ -662,7 +662,7 @@ class Lobsterin(dict, MSONable):
 
             option (str): 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
                 calculated
-                'standard_with_comp_range' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
+                'standard_with_energy_range_from_vasprun' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
                 calculated for entire energy range of VASP static run. vasprun.xml file needs to be in current directory.
                 'standard_from_projection' will start a normal lobster run from a projection
                 'standard_with_fatband' will do a fatband calculation, run over all orbitals
@@ -683,7 +683,7 @@ class Lobsterin(dict, MSONable):
             "standard",
             "standard_from_projection",
             "standard_with_fatband",
-            "standard_with_comp_range",
+            "standard_with_energy_range_from_vasprun",
             "onlyprojection",
             "onlydos",
             "onlycohp",
@@ -704,7 +704,7 @@ class Lobsterin(dict, MSONable):
 
         if option in [
             "standard",
-            "standard_with_comp_range",
+            "standard_with_energy_range_from_vasprun",
             "onlycohp",
             "onlycoop",
             "onlycobi",
@@ -721,7 +721,7 @@ class Lobsterin(dict, MSONable):
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             Lobsterindict["loadProjectionFromFile"] = True
 
-        if option == "standard_with_comp_range":
+        if option == "standard_with_energy_range_from_vasprun":
             Vr = Vasprun(Vasprun_output)
             Lobsterindict["COHPstartEnergy"] = round(min(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
             Lobsterindict["COHPendEnergy"] = round(max(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
