@@ -611,7 +611,7 @@ class SurfaceEnergyPlotter:
                 for each facet vs chemical potential.
         """
 
-        delu_dict = delu_dict if delu_dict else {}
+        delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
         all_chempots = np.linspace(min(chempot_range), max(chempot_range), increments)
 
@@ -1126,7 +1126,7 @@ class SurfaceEnergyPlotter:
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.0)
         axes.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
 
-        ylim = ylim if ylim else axes.get_ylim()
+        ylim = ylim or axes.get_ylim()
         plt.xticks(rotation=60)
         plt.ylim(ylim)
         xlim = axes.get_xlim()
@@ -1236,7 +1236,7 @@ class SurfaceEnergyPlotter:
         """
 
         # Set up
-        delu_dict = delu_dict if delu_dict else {}
+        delu_dict = delu_dict or {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol(f"delu_{str(elements[0])}")
@@ -1659,7 +1659,7 @@ class WorkFunctionAnalyzer:
 
         return plt
 
-    def is_converged(self, min_points_frac=0.015, tol=0.0025):
+    def is_converged(self, min_points_frac=0.015, tol: float = 0.0025):
         """
         A well converged work function should have a flat electrostatic
             potential within some distance (min_point) about where the peak
@@ -1921,7 +1921,7 @@ class NanoscaleStability:
             normalize (str): Whether or not to normalize energy by volume
         """
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = plt or pretty_plot(width=8, height=7)
 
         wulffshape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
 
@@ -1982,7 +1982,7 @@ class NanoscaleStability:
                 area of the particle as a perfect sphere, or as a Wulff shape.
         """
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = plt or pretty_plot(width=8, height=7)
 
         for i, analyzer in enumerate(self.se_analyzers):
             label = labels[i] if labels else ""

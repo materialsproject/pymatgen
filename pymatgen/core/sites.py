@@ -656,5 +656,5 @@ class PeriodicSite(Site, MSONable):
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
+        lattice = lattice or Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)

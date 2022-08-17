@@ -106,7 +106,7 @@ class StructureVis:
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = excluded_bonding_elements if excluded_bonding_elements else []
+        self.excluded_bonding_elements = excluded_bonding_elements or []
         self.show_help = True
         self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         self.redraw()

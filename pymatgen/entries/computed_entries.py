@@ -62,7 +62,7 @@ class EnergyAdjustment(MSONable):
             description: str, human-readable explanation of the energy adjustment.
         """
         self.name = name
-        self.cls = cls if cls else {}
+        self.cls = cls or {}
         self.description = description
         self._value = value
         self._uncertainty = uncertainty
@@ -199,7 +199,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         self._adj_per_atom = adj_per_atom
         self.uncertainty_per_atom = uncertainty_per_atom
         self.n_atoms = n_atoms
-        self.cls = cls if cls else {}
+        self.cls = cls or {}
         self.name = name
         self.description = description
 
@@ -267,7 +267,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         self.temp = temp
         self.n_atoms = n_atoms
         self.name = name
-        self.cls = cls if cls else {}
+        self.cls = cls or {}
         self.description = description
 
     @property
@@ -339,7 +339,7 @@ class ComputedEntry(Entry):
             entry_id: An optional id to uniquely identify the entry.
         """
         super().__init__(composition, energy)
-        self.energy_adjustments = energy_adjustments if energy_adjustments else []
+        self.energy_adjustments = energy_adjustments or []
 
         if correction != 0.0:
             if energy_adjustments:
@@ -351,8 +351,8 @@ class ComputedEntry(Entry):
 
             self.correction = correction
 
-        self.parameters = parameters if parameters else {}
-        self.data = data if data else {}
+        self.parameters = parameters or {}
+        self.data = data or {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
 

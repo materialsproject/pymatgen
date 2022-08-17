@@ -1049,7 +1049,7 @@ class Vasprun(MSONable):
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def calculate_efermi(self, tol=0.001):
+    def calculate_efermi(self, tol: float = 0.001):
         """
         Calculate the Fermi level using a robust algorithm.
 
@@ -3513,7 +3513,7 @@ class VolumetricData(MSONable):
         # convert data to numpy arrays incase they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
-        self.data_aug = data_aug if data_aug else {}
+        self.data_aug = data_aug or {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}

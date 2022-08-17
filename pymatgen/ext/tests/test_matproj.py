@@ -29,7 +29,7 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+    website_is_up = requests.get("https://materialsproject.org").status_code == 200
 except requests.exceptions.ConnectionError:
     website_is_up = False
 

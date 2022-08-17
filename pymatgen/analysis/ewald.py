@@ -100,15 +100,15 @@ class EwaldSummation(MSONable):
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = eta if eta else (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
+        self._eta = eta or (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
         # reciprocal space cutoff radii
         self._accf = sqrt(log(10**acc_factor))
 
-        self._rmax = real_space_cut if real_space_cut else self._accf / self._sqrt_eta
-        self._gmax = recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
+        self._rmax = real_space_cut or self._accf / self._sqrt_eta
+        self._gmax = recip_space_cut or 2 * self._sqrt_eta * self._accf
 
         # The next few lines pre-compute certain quantities and store them.
         # Ewald summation is rather expensive, and these shortcuts are
@@ -140,7 +140,7 @@ class EwaldSummation(MSONable):
             total_energy_matrix[:, i] = 0
         return sum(sum(total_energy_matrix))
 
-    def compute_sub_structure(self, sub_structure, tol=1e-3):
+    def compute_sub_structure(self, sub_structure, tol: float = 1e-3):
         """
         Gives total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original

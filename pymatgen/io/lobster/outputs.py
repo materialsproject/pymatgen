@@ -188,7 +188,7 @@ class Cohpcar:
                     "sites": bond_data["sites"],
                 }
 
-        self.orb_res_cohp = orb_cohp if orb_cohp else None
+        self.orb_res_cohp = orb_cohp or None
         self.cohp_data = cohp_data
 
     @staticmethod

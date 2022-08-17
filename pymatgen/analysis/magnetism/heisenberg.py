@@ -36,7 +36,7 @@ class HeisenbergMapper:
     Class to compute exchange parameters from low energy magnetic orderings.
     """
 
-    def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
+    def __init__(self, ordered_structures, energies, cutoff=0.0, tol: float = 0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only

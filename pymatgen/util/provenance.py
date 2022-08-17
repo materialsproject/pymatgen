@@ -231,7 +231,7 @@ class StructureNL:
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings
-        projects = projects if projects else []
+        projects = projects or []
         self.projects = [projects] if isinstance(projects, str) else projects
 
         # check that references are valid BibTeX
@@ -247,7 +247,7 @@ class StructureNL:
         self.references = references
 
         # turn remarks into list of Strings
-        remarks = remarks if remarks else []
+        remarks = remarks or []
         self.remarks = [remarks] if isinstance(remarks, str) else remarks
 
         # check remarks limit
@@ -256,7 +256,7 @@ class StructureNL:
                 raise ValueError(f"The remark exceeds the maximum size of140 characters: {r}")
 
         # check data limit
-        self.data = data if data else {}
+        self.data = data or {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
             raise ValueError(
                 f"The data dict exceeds the maximum size limit of {MAX_DATA_SIZE} "
@@ -271,14 +271,14 @@ class StructureNL:
                 )
 
         # check for valid history nodes
-        history = history if history else []  # initialize null fields
+        history = history or []  # initialize null fields
         if len(history) > MAX_HNODES:
             raise ValueError(f"A maximum of {MAX_HNODES} History nodes are supported, you have {len(history)}!")
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
-        self.created_at = created_at if created_at else datetime.datetime.utcnow()
+        self.created_at = created_at or datetime.datetime.utcnow()
 
     def as_dict(self):
         """
