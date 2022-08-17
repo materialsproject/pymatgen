@@ -572,6 +572,8 @@ class NearNeighbors:
 
         sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights)
 
+        #sets the attributes
+        sg.set_node_attributes()
         return sg
 
     def get_local_order_parameters(self, structure, n):
