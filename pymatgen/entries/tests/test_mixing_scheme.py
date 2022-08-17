@@ -1449,9 +1449,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert e.correction == 3
                 assert e.parameters["run_type"] == "R2SCAN"
             elif e.entry_id == "gga-4":
-                assert False, "Entry gga-4 should have been discarded"
+                raise AssertionError("Entry gga-4 should have been discarded")
             elif e.entry_id == "gga-6":
-                assert False, "Entry gga-6 should have been discarded"
+                raise AssertionError("Entry gga-6 should have been discarded")
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
@@ -1496,7 +1496,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             elif e.entry_id == "r2scan-7":
                 assert e.correction == 15
             elif e.entry_id in ["gga-4"]:
-                assert False, f"Entry {e.entry_id} should have been discarded"
+                raise AssertionError(f"Entry {e.entry_id} should have been discarded")
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
@@ -1540,7 +1540,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert e.correction == 3
                 assert e.parameters["run_type"] == "R2SCAN"
             elif e.entry_id in ["gga-4", "r2scan-8"]:
-                assert False, f"Entry {e.entry_id} should have been discarded"
+                raise AssertionError(f"Entry {e.entry_id} should have been discarded")
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
