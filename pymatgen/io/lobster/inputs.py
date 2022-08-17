@@ -20,8 +20,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 __author__ = "Janine George, Marco Esters"
@@ -646,7 +646,7 @@ class Lobsterin(dict, MSONable):
         POSCAR_input: str = "POSCAR",
         INCAR_input: str = "INCAR",
         POTCAR_input: str | None = None,
-        Vasprun_output : str = "vasprun.xml",
+        Vasprun_output: str = "vasprun.xml",
         dict_for_basis: dict | None = None,
         option: str = "standard",
     ):
@@ -720,11 +720,11 @@ class Lobsterin(dict, MSONable):
         if option == "standard_from_projection":
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             Lobsterindict["loadProjectionFromFile"] = True
-            
+
         if option == "standard_with_comp_range":
-            Vr = Vasprun(Vasprun_output) 
-            Lobsterindict["COHPstartEnergy"] = round(min(Vr.complete_dos.energies-Vr.complete_dos.efermi),4)
-            Lobsterindict["COHPendEnergy"] = round(max(Vr.complete_dos.energies-Vr.complete_dos.efermi),4)
+            Vr = Vasprun(Vasprun_output)
+            Lobsterindict["COHPstartEnergy"] = round(min(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
+            Lobsterindict["COHPendEnergy"] = round(max(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
             Lobsterindict["COHPSteps"] = len(Vr.complete_dos.energies)
 
         # TODO: add cobi here! might be relevant lobster version
