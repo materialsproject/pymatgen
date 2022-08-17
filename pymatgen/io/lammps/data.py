@@ -952,7 +952,7 @@ class Topology(MSONable):
         self.species = set(type_by_sites)
 
     @classmethod
-    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True, tol=0.1, **kwargs):
+    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True, tol: float = 0.1, **kwargs):
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -1003,8 +1003,7 @@ class Topology(MSONable):
 
         topologies = {
             k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
-        }
-        topologies = None if len(topologies) == 0 else topologies
+        } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
 
 

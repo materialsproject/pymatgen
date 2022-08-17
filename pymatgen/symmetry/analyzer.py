@@ -1709,7 +1709,7 @@ class PointGroupOperations(list):
         Schoenflies symbol of the point group.
     """
 
-    def __init__(self, sch_symbol, operations, tol=0.1):
+    def __init__(self, sch_symbol, operations, tol: float = 0.1):
         """
         Args:
             sch_symbol (str): Schoenflies symbol of the point group.

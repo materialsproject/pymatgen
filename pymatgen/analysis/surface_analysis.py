@@ -1659,7 +1659,7 @@ class WorkFunctionAnalyzer:
 
         return plt
 
-    def is_converged(self, min_points_frac=0.015, tol=0.0025):
+    def is_converged(self, min_points_frac=0.015, tol: float = 0.0025):
         """
         A well converged work function should have a flat electrostatic
             potential within some distance (min_point) about where the peak

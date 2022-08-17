@@ -5,6 +5,8 @@
 This module defines tools to generate and analyze phase diagrams.
 """
 
+from __future__ import annotations
+
 import collections
 import itertools
 import json
@@ -1753,7 +1755,7 @@ class ReactionDiagram:
     an electrolyte and an electrode.
     """
 
-    def __init__(self, entry1, entry2, all_entries, tol=1e-4, float_fmt="%.4f"):
+    def __init__(self, entry1, entry2, all_entries, tol: float = 1e-4, float_fmt="%.4f"):
         """
         Args:
             entry1 (ComputedEntry): Entry for 1st component. Note that
@@ -1773,11 +1775,11 @@ class ReactionDiagram:
             float_fmt (str): Formatting string to be applied to all floats.
                 Determines number of decimal places in reaction string.
         """
-        elements = set()
+        elem_set = set()
         for e in [entry1, entry2]:
-            elements.update([el.symbol for el in e.composition.elements])
+            elem_set.update([el.symbol for el in e.composition.elements])
 
-        elements = tuple(elements)  # Fix elements to ensure order.
+        elements = tuple(elem_set)  # Fix elements to ensure order.
 
         comp_vec1 = np.array([entry1.composition.get_atomic_fraction(el) for el in elements])
         comp_vec2 = np.array([entry2.composition.get_atomic_fraction(el) for el in elements])
@@ -1797,7 +1799,7 @@ class ReactionDiagram:
         logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
-        done = []
+        done: list[tuple[float, float]] = []
 
         def fmt(fl):
             return float_fmt % fl

@@ -140,7 +140,7 @@ class EwaldSummation(MSONable):
             total_energy_matrix[:, i] = 0
         return sum(sum(total_energy_matrix))
 
-    def compute_sub_structure(self, sub_structure, tol=1e-3):
+    def compute_sub_structure(self, sub_structure, tol: float = 1e-3):
         """
         Gives total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original

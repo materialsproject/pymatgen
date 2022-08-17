@@ -1049,7 +1049,7 @@ class Vasprun(MSONable):
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def calculate_efermi(self, tol=0.001):
+    def calculate_efermi(self, tol: float = 0.001):
         """
         Calculate the Fermi level using a robust algorithm.
 
