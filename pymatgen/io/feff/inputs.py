@@ -12,6 +12,7 @@ XANES and EXAFS input files, are available, for non-spin case at this time.
 import re
 import warnings
 from operator import itemgetter
+from typing import Union
 
 import numpy as np
 from monty.io import zopen
@@ -163,29 +164,45 @@ class Header(MSONable):
         * 4 O     0.333333     0.666667     0.378675
     """
 
-    def __init__(self, struct, source: str = "", comment: str = "", spacegroup_analyzer_settings=None):
+    def __init__(
+        self, struct: Union[Structure, Molecule], source: str = "", comment: str = "", spacegroup_analyzer_settings=None
+    ):
         """
         Args:
-            struct: Structure object, See pymatgen.core.structure.Structure.
+            struct: Structure or Molecule object. If a Structure, SpaceGroupAnalyzer is used to
+                determine symmetrically-equivalent sites and the calculation is performed
+                in reciprocal space. If a Molecule, there is no symmetry checking and the
+                calculation is performed in real space.
             source: User supplied identifier, i.e. for Materials Project this
                 would be the material ID number
             comment: Comment for first header line
+            spacegroup_analyzer_settings: keyword arguments passed to SpacegroupAnalyzer
+                (only used for Structure inputs)
         """
         self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
+        self.periodic = False
+
+        # make sure there are no partial occupancies
         if struct.is_ordered:
             self.struct = struct
             self.source = source
+            # if Structure, check symmetry
             if isinstance(self.struct, Structure):
+                self.periodic = True
                 sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
                 data = sym.get_symmetry_dataset()
                 self.space_number = data["number"]
                 self.space_group = data["international"]
+            # for Molecule, skip the symmetry check
             elif isinstance(self.struct, Molecule):
+                self.periodic = False
                 # sym = PointGroupAnalyzer(struct)
                 # symm_data = sym.get_equivalent_atoms()
                 self.space_number = None
                 self.space_group = None
                 # self.space_group = sym.get_pointgroup()
+            else:
+                raise ValueError("'struct' argument must be a Structure or Molecule!")
             self.comment = comment or "None given"
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
@@ -350,11 +367,17 @@ class Header(MSONable):
             "".join(["TITLE Source:  ", self.source]),
             f"TITLE Structure Summary:  {self.struct.composition.formula}",
             f"TITLE Reduced formula:  {self.struct.composition.reduced_formula}",
-            # f"TITLE space group: ({self.space_group}), space number:  ({self.space_number})",
-            # f"TITLE abc:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.abc])}",
-            # f"TITLE angles:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.angles])}",
-            f"TITLE sites: {self.struct.num_sites}",
         ]
+
+        if self.periodic:
+            output += [
+                f"TITLE space group: ({self.space_group}), space number:  ({self.space_number})",
+                f"TITLE abc:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.abc])}",
+                f"TITLE angles:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.angles])}",
+            ]
+
+        output.append(f"TITLE sites: {self.struct.num_sites}")
+
         for i, site in enumerate(self.struct):
             if isinstance(self.struct, Structure):
                 coords = [to_s(j).rjust(12) for j in site.frac_coords]
@@ -408,8 +431,8 @@ class Atoms(MSONable):
 
     def _set_cluster(self):
         """
-        Compute and set the cluster of atoms as a Molecule object. The siteato
-        coordinates are translated such that the absorbing atom(aka central
+        Compute and set the cluster of atoms as a Molecule object. The site
+        coordinates are translated such that the absorbing atom (aka central
         atom) is at the origin.
 
         Returns:
@@ -1050,7 +1073,6 @@ def get_atom_map(structure, absorbing_atom=None):
     # it should be excluded from this list
     if absorbing_atom:
         if len(structure.indices_from_symbol(absorbing_atom)) == 1:
-            print("here")
             unique_pot_atoms.remove(absorbing_atom)
 
     atom_map = {}
