@@ -422,7 +422,7 @@ class IcohplistTest(unittest.TestCase):
         self.icoop_fe = Icohplist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"), are_coops=True
         )
-        # ICOBIs and orbitalwise ICOBILIST.lobster.NaCl
+        # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"), are_cobis=True
         )
