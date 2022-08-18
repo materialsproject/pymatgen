@@ -541,9 +541,9 @@ class TestLobsterNeighbors(unittest.TestCase):
             edge_properties=True,
             weights=True,
         )
-        self.assertAlmostEqual(sg.graph[0, 1]["ICOHP"], -0.56541)
-        self.assertAlmostEqual(sg.graph[0, 1]["ICOBI"], 0.08484)
-        self.assertAlmostEqual(sg.graph[0, 1]["ICOOP"], 0.02826)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOHP"], -0.56541)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOBI"], 0.08484)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOOP"], 0.02826)
         self.assertEqual(type(sg), StructureGraph)
 
     def test_raises_extended_structure_graph(self):
@@ -554,11 +554,11 @@ class TestLobsterNeighbors(unittest.TestCase):
                 structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
                 valences_from_charges=True,
                 filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.NaCl.gz"),
-                filename_add_bondinglist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
-                filename_add_bondinglist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
+                filename_blist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+                filename_blist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
                 add_additional_data_sg=True,
-                identity_add_bondinglist_sg1="icopppp",
-                identity_add_bondinglist_sg2="icoop",
+                id_blist_sg1="icopppp",
+                id_blist_sg2="icoop",
                 additional_condition=1,
             )
         with self.assertRaises(ValueError):
@@ -568,11 +568,11 @@ class TestLobsterNeighbors(unittest.TestCase):
                 structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
                 valences_from_charges=True,
                 filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.NaCl.gz"),
-                filename_add_bondinglist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
-                filename_add_bondinglist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
+                filename_blist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+                filename_blist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
                 add_additional_data_sg=True,
-                identity_add_bondinglist_sg1="icopppp",
-                identity_add_bondinglist_sg2="icoop",
+                id_blist_sg1="icopppp",
+                id_blist_sg2="icoop",
                 additional_condition=1,
             )
 
