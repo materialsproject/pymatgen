@@ -765,12 +765,10 @@ class LobsterNeighbors(NearNeighbors):
                         "edge_properties": {
                             "ICOHP": self.list_icohps[ineighbors][ineighbor],
                             "bond_length": self.list_lengths[ineighbors][ineighbor],
-                            self.identity_add_bondinglist_sg1.upper():
-                                self.bonding_list_1.icohpcollection.get_icohp_by_label(
+                            self.identity_add_bondinglist_sg1.upper(): self.bonding_list_1.icohpcollection.get_icohp_by_label(
                                 self.list_keys[ineighbors][ineighbor]
                             ),
-                            self.identity_add_bondinglist_sg2.upper():
-                                self.bonding_list_2.icohpcollection.get_icohp_by_label(
+                            self.identity_add_bondinglist_sg2.upper(): self.bonding_list_2.icohpcollection.get_icohp_by_label(
                                 self.list_keys[ineighbors][ineighbor]
                             ),
                         },
