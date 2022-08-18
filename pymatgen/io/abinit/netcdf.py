@@ -4,6 +4,8 @@
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
+from __future__ import annotations
+
 import logging
 import os.path
 import warnings
@@ -42,15 +44,14 @@ try:
 except ImportError as exc:
     netCDF4 = None
     warnings.warn(
-        """\
+        f"""\
 `import netCDF4` failed with the following error:
 
-%s
+{exc}
 
 Please install netcdf4 with `conda install netcdf4`
 If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
 and use `pip install netcdf4`"""
-        % str(exc)
     )
 
 
@@ -166,9 +167,9 @@ class NetcdfReader:
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
-            return self.rootgrp.variables.keys()
+            return list(self.rootgrp.variables)
         group = self.path2group[path]
-        return group.variables.keys()
+        return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """

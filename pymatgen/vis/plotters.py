@@ -77,9 +77,9 @@ class SpectrumPlotter:
             key_sort_func: function used to sort the dos_dict keys.
         """
         if key_sort_func:
-            keys = sorted(spectra_dict.keys(), key=key_sort_func)
+            keys = sorted(spectra_dict, key=key_sort_func)
         else:
-            keys = spectra_dict.keys()
+            keys = list(spectra_dict)
         for label in keys:
             self.add_spectra(label, spectra_dict[label])
 

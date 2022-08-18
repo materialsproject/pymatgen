@@ -13,7 +13,7 @@ import math
 import os
 import re
 import warnings
-from typing import Any, Dict, Union
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -24,16 +24,19 @@ from monty.json import MSONable, jsanitize
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
+from pymatgen.io.qchem.utils import (
+    process_parsed_coords,
+    read_pattern,
+    read_table_pattern,
+)
 
 try:
-    from openbabel import openbabel as ob
 
     have_babel = True
 except ImportError:
-    ob = None
+    openbabel = None
     have_babel = False
 
-from .utils import process_parsed_coords, read_pattern, read_table_pattern
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -54,7 +57,7 @@ class QCOutput(MSONable):
             filename (str): Filename to parse
         """
         self.filename = filename
-        self.data = {}  # type: Dict[str, Any]
+        self.data: dict[str, Any] = {}
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
@@ -271,6 +274,8 @@ class QCOutput(MSONable):
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*opt"}).get("key")
         if self.data.get("optimization", []):
+            # Determine if the calculation is using the new geometry optimizer
+            self.data["new_optimizer"] = read_pattern(self.text, {"key": r"(?i)\s*geom_opt2\s*(?:=)*\s*3"}).get("key")
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output
@@ -479,6 +484,7 @@ class QCOutput(MSONable):
                 r"(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*"
                 r"(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*"
                 r"(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*"
+                r"(?:\s+Done GDM. Switching to DIIS)*"
                 r"(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*"
                 r"(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
                 r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, "
@@ -711,12 +717,19 @@ class QCOutput(MSONable):
         Parses all geometries from an optimization trajectory.
         """
         geoms = []
-        header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-        table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
-
+        if self.data.get("new_optimizer") is None:
+            header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
+        else:  # pylint: disable=line-too-long
+            header_pattern = (
+                r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
+                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            )
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         parsed_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        for ii, parsed_geometry in enumerate(parsed_geometries):
+        for parsed_geometry in parsed_geometries:
             if not parsed_geometry:
                 geoms.append(None)
             else:
@@ -732,10 +745,19 @@ class QCOutput(MSONable):
             )
 
         # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-        header_pattern = r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-        table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Z-matrix Print:"
-
+        if self.data.get("new_optimizer") is None:
+            header_pattern = (
+                r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            )
+            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer_pattern = r"\s+Z-matrix Print:"
+        else:  # pylint: disable=line-too-long
+            header_pattern = (
+                r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation "
+                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            )
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
         if not parsed_optimized_geometries:
@@ -800,7 +822,7 @@ class QCOutput(MSONable):
             r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*" r"(\-?[\d\.]{9,12})"
         )
         if grad_format_length > 1:
-            for ii in range(1, grad_format_length):
+            for _ in range(1, grad_format_length):
                 grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
 
         parsed_gradients = read_table_pattern(self.text, grad_header_pattern, grad_table_pattern, footer_pattern)
@@ -851,9 +873,21 @@ class QCOutput(MSONable):
             self.data["CDS_gradients"] = None
 
     def _read_optimization_data(self):
-        temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
+        if self.data.get("new_optimizer") is None:
+            temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
+        else:
+            temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
+                "key"
+            )
+            # Formatting of the new optimizer means we need to prepend the first energy
+            if temp_energy_trajectory is not None:
+                temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
+            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                "key"
+            ) == [[]]:
+                self.data["errors"] += ["back_transform_error"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
             for ii, entry in enumerate(temp_energy_trajectory):
@@ -868,7 +902,7 @@ class QCOutput(MSONable):
             self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
             # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-            # to be determined.
+            # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0
                 and self.data.get("optimized_geometry") is None
@@ -882,10 +916,20 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
+                    {"key": r"Maximum number of iterations reached during minimization algorithm"},
+                    terminate_on_match=True,
+                ).get("key") == [[]]:
+                    self.data["errors"] += ["out_of_opt_cycles"]
+                elif read_pattern(
+                    self.text,
                     {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
+                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                    "key"
+                ) == [[]]:
+                    self.data["errors"] += ["back_transform_error"]
 
     def _read_frequency_data(self):
         """
@@ -1355,10 +1399,30 @@ class QCOutput(MSONable):
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
+            {"key": r"RUN_NBO6 \(rem variable\) is not correct"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["errors"] += ["bad_old_nbo6_rem"]
+        elif read_pattern(
+            self.text,
+            {"key": r"NBO_EXTERNAL \(rem variable\) is not correct"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["errors"] += ["bad_new_nbo_external_rem"]
+        elif read_pattern(
+            self.text,
             {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["gdm_neg_precon_error"]
+        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["esp_chg_fit_error"]
+        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["mem_static_too_small"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,
@@ -1426,7 +1490,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
                 special_sites[ii].append([jj, site, distances])
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
-                mol.__delitem__(jj)
+                del mol[jj]
 
     # Can add logic to check the distances in the future if desired
 
@@ -1632,10 +1696,12 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     break
                 if "Archival summary:" in line:
                     break
+                if "3-Center, 4-Electron A:-B-:C Hyperbonds (A-B :C <=> A: B-C)" in line:
+                    break
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    LPentry = {orbital: 0.0 for orbital in orbitals}  # type: Dict[str, Union[str, int, float]]
+                    LPentry: dict[str, str | int | float] = {orbital: 0.0 for orbital in orbitals}
                     LPentry["bond index"] = line[0:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
@@ -1662,9 +1728,9 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Bonding
                 if "BD" in line:
-                    BDentry = {
+                    BDentry: dict[str, str | int | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
-                    }  # type: Dict[str, Union[str, int, float]]
+                    }
                     BDentry["bond index"] = line[0:4].strip()
                     BDentry["occupancy"] = line[7:14].strip()
                     BDentry["type"] = line[16:19].strip()
@@ -1781,9 +1847,11 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
                 if "None" in line:
                     continue
+                if "3C" in line:
+                    continue
 
                 # Extract the values
-                entry = {}  # type: Dict[str, Union[str, int, float]]
+                entry: dict[str, str | int | float] = {}
                 if line[4] == ".":
                     entry["donor bond index"] = int(line[0:4].strip())
                     entry["donor type"] = str(line[5:9].strip())
@@ -1817,7 +1885,13 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["acceptor atom 1 number"] = int(line[44:47].strip())
                     entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
                     entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
-                    entry["perturbation energy"] = float(line[53:63].strip())
+                    try:
+                        entry["perturbation energy"] = float(line[53:63].strip())
+                    except ValueError:
+                        if line[53:63].strip() == "*******":
+                            entry["perturbation energy"] = float("inf")
+                        else:
+                            raise ValueError("Unknown value error in parsing perturbation energy")
                     entry["energy difference"] = float(line[63:71].strip())
                     entry["fock matrix element"] = float(line[71:79].strip())
                 e2_data.append(entry)

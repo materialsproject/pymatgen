@@ -149,16 +149,16 @@ class SpecieProximityFilter(AbstractStructureFilter):
         Returns: True if structure does not contain species within specified
             distances.
         """
-        all_species = set(self.specie_and_min_dist.keys())
+        all_species = set(self.specie_and_min_dist)
         for site in structure:
-            species = site.species.keys()
-            sp_to_test = set(species).intersection(all_species)
+            species = set(site.species)
+            sp_to_test = species.intersection(all_species)
             if sp_to_test:
                 max_r = max(self.specie_and_min_dist[sp] for sp in sp_to_test)
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
-                    for nnsite, dist, *_ in nn:
-                        if sp in nnsite.species.keys():
+                    for nn_site, dist, *_ in nn:
+                        if sp in nn_site.species:
                             if dist < self.specie_and_min_dist[sp]:
                                 return False
         return True
@@ -190,11 +190,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     This filter removes exact duplicate structures from the transmuter.
     """
 
-    def __init__(
-        self,
-        structure_matcher=StructureMatcher(comparator=ElementComparator()),
-        symprec=None,
-    ):
+    def __init__(self, structure_matcher=None, symprec=None):
         """
         Remove duplicate structures based on the structure matcher
         and symmetry (if symprec is given).
@@ -211,7 +207,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
-            self.structure_matcher = structure_matcher
+            self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
     def test(self, structure):
         """
@@ -243,12 +239,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
     This filter removes structures existing in a given list from the transmuter.
     """
 
-    def __init__(
-        self,
-        existing_structures,
-        structure_matcher=StructureMatcher(comparator=ElementComparator()),
-        symprec=None,
-    ):
+    def __init__(self, existing_structures, structure_matcher=None, symprec=None):
         """
         Remove existing structures based on the structure matcher
         and symmetry (if symprec is given).
@@ -267,7 +258,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
-            self.structure_matcher = structure_matcher
+            self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
     def test(self, structure):
         """

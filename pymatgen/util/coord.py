@@ -9,11 +9,13 @@ numpy for performance.
 
 import itertools
 import math
+from typing import Tuple
 
 import numpy as np
 from monty.json import MSONable
 
-from . import coord_cython as cuc
+from pymatgen.util import coord_cython as cuc
+from pymatgen.util.typing import ArrayLike
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -95,20 +97,22 @@ def coord_list_mapping(subset, superset, atol=1e-8):
     return inds
 
 
-def coord_list_mapping_pbc(subset, superset, atol=1e-8):
+def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     """
     Gives the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows
 
     Args:
         subset, superset: List of frac_coords
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         list of indices such that superset[indices] = subset
     """
     # pylint: disable=I1101
     atol = np.array([1.0, 1.0, 1.0]) * atol
-    return cuc.coord_list_mapping_pbc(subset, superset, atol)
+    return cuc.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
 
 def get_linear_interpolated_value(x_values, y_values, x):
@@ -157,7 +161,7 @@ def all_distances(coords1, coords2):
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(fcoords1, fcoords2):
+def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: Tuple[bool, bool, bool] = (True, True, True)):
     """
     Returns the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
@@ -167,6 +171,8 @@ def pbc_diff(fcoords1, fcoords2):
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         fcoords2: Second set of fractional coordinates.
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         Fractional distance. Each coordinate must have the property that
@@ -175,7 +181,7 @@ def pbc_diff(fcoords1, fcoords2):
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
     fdist = np.subtract(fcoords1, fcoords2)
-    return fdist - np.round(fdist)
+    return fdist - np.round(fdist) * pbc
 
 
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
@@ -190,7 +196,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
             coord or any array of coords.
         fcoords2: Second set of fractional coordinates.
         mask (boolean array): Mask of matches that are not allowed.
-            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
         return_d2 (boolean): whether to also return the squared distances
 
@@ -202,7 +208,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
+def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
     """
     Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
@@ -212,6 +218,8 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
         fcoord_list: List of fractional coords
         fcoord: A specific fractional coord to test.
         atol: Absolute tolerance. Defaults to 1e-8.
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
@@ -220,11 +228,11 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
         return []
     fcoords = np.tile(fcoord, (len(fcoord_list), 1))
     fdist = fcoord_list - fcoords
-    fdist -= np.round(fdist)
+    fdist[:, pbc] -= np.round(fdist)[:, pbc]
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
+def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
     """
     Tests if a particular fractional coord is within a fractional coord_list.
 
@@ -232,14 +240,16 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
         fcoord_list: List of fractional coords to test
         fcoord: A specific fractional coord to test.
         atol: Absolute tolerance. Defaults to 1e-8.
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         True if coord is in the coord list.
     """
-    return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol)) > 0
+    return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
+def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True, True)):
     """
     Tests if all fractional coords in subset are contained in superset.
 
@@ -247,8 +257,10 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
         subset, superset: List of fractional coords
         atol (float or size 3 array): Tolerance for matching
         mask (boolean array): Mask of matches that are not allowed.
-            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         True if all of subset is in superset.
@@ -261,7 +273,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     else:
         m = np.zeros((len(subset), len(superset)), dtype=int)
     atol = np.zeros(3, dtype=np.float64) + atol
-    return cuc.is_coord_subset_pbc(c1, c2, atol, m)
+    return cuc.is_coord_subset_pbc(c1, c2, atol, m, pbc)
 
 
 def lattice_points_in_supercell(supercell_matrix):

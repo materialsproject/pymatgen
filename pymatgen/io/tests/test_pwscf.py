@@ -66,7 +66,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(pw.__str__().strip(), ans.strip())
+        self.assertEqual(str(pw).strip(), ans.strip())
 
     def test_str_without_oxidation(self):
         s = self.get_structure("Li2O")
@@ -110,7 +110,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(pw.__str__().strip(), ans.strip())
+        self.assertEqual(str(pw).strip(), ans.strip())
 
     def test_str_with_oxidation(self):
         s = self.get_structure("Li2O")
@@ -154,7 +154,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(pw.__str__().strip(), ans.strip())
+        self.assertEqual(str(pw).strip(), ans.strip())
 
     def test_write_str_with_kpoints(self):
         s = self.get_structure("Li2O")
@@ -207,7 +207,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(pw.__str__().strip(), ans.strip())
+        self.assertEqual(str(pw).strip(), ans.strip())
 
     def test_read_str(self):
         string = """

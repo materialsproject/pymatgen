@@ -451,7 +451,7 @@ class Poscar(MSONable):
             predictor_corrector_preamble=predictor_corrector_preamble,
         )
 
-    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 6) -> str:
+    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibility is for vasp >= 5.
@@ -478,7 +478,7 @@ class Poscar(MSONable):
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
 
-        format_str = f"{{:.{significant_figures}f}}"
+        format_str = f"{{:{significant_figures+5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
         for v in latt.matrix:
             lines.append(" ".join([format_str.format(c) for c in v]))
@@ -592,12 +592,12 @@ class Poscar(MSONable):
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
+        # remove linear drift (net momentum)
+        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
+
         # scale velocities due to atomic masses
         # mean 0 std proportional to sqrt(1/m)
         velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
-
-        # remove linear drift (net momentum)
-        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
 
         # scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
@@ -702,7 +702,7 @@ class Incar(dict, MSONable):
             pretty (bool): Set to True for pretty aligned output. Defaults
                 to False.
         """
-        keys = list(self.keys())
+        keys = list(self)
         if sort_keys:
             keys = sorted(keys)
         lines = []
@@ -742,7 +742,7 @@ class Incar(dict, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename: PathLike) -> Incar:
@@ -953,14 +953,14 @@ class Incar(dict, MSONable):
         """
         for k, v in self.items():
             # First check if this parameter even exists
-            if k not in incar_params.keys():
+            if k not in incar_params:
                 warnings.warn(
                     f"Cannot find {k} in the list of INCAR flags",
                     BadIncarWarning,
                     stacklevel=2,
                 )
 
-            if k in incar_params.keys():
+            if k in incar_params:
                 if type(incar_params[k]).__name__ == "str":
                     # Now we check if this is an appropriate parameter type
                     if incar_params[k] == "float":
@@ -1403,7 +1403,7 @@ class Kpoints(MSONable):
 
         # Fully automatic KPOINTS
         if style == "a":
-            return Kpoints.automatic(int(lines[3]))
+            return Kpoints.automatic(int(lines[3].split()[0].strip()))
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)")
 
@@ -1507,10 +1507,10 @@ class Kpoints(MSONable):
             filename (str): Filename to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
@@ -1532,7 +1532,7 @@ class Kpoints(MSONable):
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
-            lines.append(f"{int(self.tet_number)} {self.tet_weight:f}")
+            lines.append(f"{self.tet_number} {self.tet_weight:f}")
             for sym_weight, vertices in self.tet_connections:
                 a, b, c, d = vertices
                 lines.append(f"{sym_weight} {a} {b} {c} {d}")
@@ -1820,12 +1820,10 @@ class PotcarSingle:
             )
         elif not self.identify_potcar(mode="file")[0]:
             warnings.warn(
-                "POTCAR with symbol {} has metadata that does not match\
+                f"POTCAR with symbol {self.symbol} has metadata that does not match\
                           any VASP POTCAR known to pymatgen. The data in this\
                           POTCAR is known to match the following functionals:\
-                          {}".format(
-                    self.symbol, self.identify_potcar(mode="data")[0]
-                ),
+                          {self.identify_potcar(mode='data')[0]}",
                 UnknownPotcarWarning,
             )
 
@@ -1856,7 +1854,7 @@ class PotcarSingle:
         :param filename: Filename
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename: str) -> PotcarSingle:
@@ -2173,7 +2171,7 @@ class Potcar(list, MSONable):
     list of PotcarSingle.
     """
 
-    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
+    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir)
 
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
         """
@@ -2258,7 +2256,7 @@ class Potcar(list, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @property
     def symbols(self):
@@ -2371,7 +2369,7 @@ class VaspInput(dict, MSONable):
         for k, v in self.items():
             if v is not None:
                 with zopen(os.path.join(output_dir, k), "wt") as f:
-                    f.write(v.__str__())
+                    f.write(str(v))
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):

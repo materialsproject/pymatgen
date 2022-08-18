@@ -33,7 +33,7 @@ class SymmOp(MSONable):
         A 4x4 numpy.array representing the symmetry operation.
     """
 
-    def __init__(self, affine_transformation_matrix: ArrayLike, tol=0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
@@ -87,7 +87,7 @@ class SymmOp(MSONable):
         return 7
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         output = [
@@ -153,7 +153,7 @@ class SymmOp(MSONable):
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
         einsum_string = ",".join([a + i for a, i in zip(*indices)])
-        einsum_string += ",{}->{}".format(*indices[::-1])
+        einsum_string += f",{indices[::-1][0]}->{indices[::-1][1]}"
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 
         return np.einsum(einsum_string, *einsum_args)
@@ -175,6 +175,51 @@ class SymmOp(MSONable):
         if np.allclose(self.operate(point_b), point_a, atol=tol):
             return True
         return False
+
+    def are_symmetrically_related_vectors(
+        self,
+        from_a: ArrayLike,
+        to_a: ArrayLike,
+        r_a: ArrayLike,
+        from_b: ArrayLike,
+        to_b: ArrayLike,
+        r_b: ArrayLike,
+        tol: float = 0.001,
+    ) -> tuple[bool, bool]:
+        """
+        Checks if two vectors, or rather two vectors that connect two points
+        each are symmetrically related. r_a and r_b give the change of unit
+        cells. Two vectors are also considered symmetrically equivalent if starting
+        and end point are exchanged.
+
+        Args:
+            from_a (3x1 array): Starting point of the first vector.
+            to_a (3x1 array): Ending point of the first vector.
+            from_b (3x1 array): Starting point of the second vector.
+            to_b (3x1 array): Ending point of the second vector.
+            r_a (3x1 array): Change of unit cell of the first vector.
+            r_b (3x1 array): Change of unit cell of the second vector.
+            tol (float): Absolute tolerance for checking distance.
+        Returns:
+            (are_related, is_reversed)
+        """
+
+        from_c = self.operate(from_a)
+        to_c = self.operate(to_a)
+
+        floored = np.floor([from_c, to_c])
+        is_too_close = np.abs([from_c, to_c] - floored) > 1 - tol
+        floored[is_too_close] += 1
+
+        r_c = self.apply_rotation_only(r_a) - floored[0] + floored[1]
+        from_c = from_c % 1
+        to_c = to_c % 1
+
+        if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(r_b, r_c, atol=tol):
+            return (True, False)
+        if np.allclose(to_b, from_c, atol=tol) and np.allclose(from_b, to_c) and np.allclose(r_b, -r_c, atol=tol):
+            return (True, True)
+        return (False, False)
 
     @property
     def rotation_matrix(self) -> np.ndarray:
@@ -501,7 +546,7 @@ class MagSymmOp(SymmOp):
     def __hash__(self):
         # useful for obtaining a set of unique MagSymmOps
         hashable_value = tuple(self.affine_matrix.flatten()) + (self.time_reversal,)
-        return hashable_value.__hash__()
+        return hash(hashable_value)
 
     def operate_magmom(self, magmom):
         """

@@ -26,44 +26,44 @@ class TrajectoryTest(PymatgenTest):
         return all(i == j for i, j in zip(self.traj, traj_2))
 
     def test_single_index_slice(self):
-        self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
+        assert all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)])
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
+            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
         else:
-            self.assertTrue(False)
+            raise AssertionError
 
         sliced_traj = self.traj[:-4:2]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
+            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
         else:
-            self.assertTrue(False)
+            raise AssertionError
 
     def test_list_slice(self):
         sliced_traj = self.traj[[10, 30, 70]]
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
+            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
         else:
-            self.assertTrue(False)
+            raise AssertionError
 
     def test_conversion(self):
         # Convert to displacements and back. Check structures
         self.traj.to_displacements()
         self.traj.to_positions()
 
-        self.assertTrue(all([struct == self.structures[i] for i, struct in enumerate(self.traj)]))
+        assert all([struct == self.structures[i] for i, struct in enumerate(self.traj)])
 
     def test_copy(self):
         traj_copy = self.traj.copy()
-        self.assertTrue(all([i == j for i, j in zip(self.traj, traj_copy)]))
+        assert all([i == j for i, j in zip(self.traj, traj_copy)])
 
     def test_site_properties(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -90,10 +90,10 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory(lattice, species, frac_coords, site_properties=site_properties)
 
         # compare the overall site properties list
-        self.assertEqual(traj.site_properties, site_properties)
+        assert traj.site_properties == site_properties
         # # compare the site properties after slicing
-        self.assertEqual(traj[0].site_properties, site_properties[0])
-        self.assertEqual(traj[1:].site_properties, site_properties[1:])
+        assert traj[0].site_properties == site_properties[0]
+        assert traj[1:].site_properties == site_properties[1:]
 
     def test_frame_properties(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -127,10 +127,10 @@ class TrajectoryTest(PymatgenTest):
             frame_properties=frame_properties,
         )
         # compare the overall site properties list
-        self.assertEqual(traj.frame_properties, frame_properties)
+        assert traj.frame_properties == frame_properties
         # compare the site properties after slicing
         expected_output = {"energy_per_atom": [-3.0971, -3.0465]}
-        self.assertEqual(traj[1:].frame_properties, expected_output)
+        assert traj[1:].frame_properties == expected_output
 
     def test_extend(self):
         traj = self.traj.copy()
@@ -153,7 +153,7 @@ class TrajectoryTest(PymatgenTest):
         except Exception:
             incompatible_test_success = True
 
-        self.assertTrue(compatible_success and incompatible_test_success)
+        assert compatible_success and incompatible_test_success
 
     def test_extend_no_site_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -171,7 +171,7 @@ class TrajectoryTest(PymatgenTest):
         # Test combining two trajectories with no site properties
         traj_combined = traj_1.copy()
         traj_combined.extend(traj_2)
-        self.assertEqual(traj_combined.site_properties, None)
+        assert traj_combined.site_properties is None
 
     def test_extend_equivalent_site_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -202,7 +202,7 @@ class TrajectoryTest(PymatgenTest):
         # Test combining two trajectories with similar site_properties
         traj_combined = traj_1.copy()
         traj_combined.extend(traj_2)
-        self.assertEqual(traj_combined.site_properties, site_properties_1)
+        assert traj_combined.site_properties == site_properties_1
 
     def test_extend_inequivalent_site_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -259,7 +259,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # Trajectory with const site_properties and trajectory with changing site properties
         site_properties_1 = [
@@ -315,7 +315,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # The other way around
         traj_combined = traj_2.copy()
@@ -346,7 +346,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # Trajectory with no and trajectory with changing site properties
         site_properties_1 = None
@@ -388,7 +388,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # The other way around
         traj_combined = traj_2.copy()
@@ -410,7 +410,7 @@ class TrajectoryTest(PymatgenTest):
             None,
             None,
         ]
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
     def test_extend_no_frame_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -428,7 +428,7 @@ class TrajectoryTest(PymatgenTest):
         # Test combining two trajectories with no site properties
         traj_combined = traj_1.copy()
         traj_combined.extend(traj_2)
-        self.assertEqual(traj_combined.frame_properties, None)
+        assert traj_combined.frame_properties is None
 
     def test_extend_frame_props(self):
         lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -450,7 +450,7 @@ class TrajectoryTest(PymatgenTest):
         traj_combined = traj_1.copy()
         traj_combined.extend(traj_2)
         expected_frame_properties = {"energy": [-3, -3.9, -4.1, -4.2, -4.25, -4.3]}
-        self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
+        assert traj_combined.frame_properties == expected_frame_properties
 
         # Mismatched frame propertied
         frame_properties_3 = {"energy": [-4.2, -4.25, -4.3], "pressure": [2, 2.5, 2.5]}
@@ -461,10 +461,10 @@ class TrajectoryTest(PymatgenTest):
             "energy": [-3, -3.9, -4.1, -4.2, -4.25, -4.3],
             "pressure": [None, None, None, 2, 2.5, 2.5],
         }
-        self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
+        assert traj_combined.frame_properties == expected_frame_properties
 
     def test_length(self):
-        self.assertTrue(len(self.traj) == len(self.structures))
+        assert len(self.traj) == len(self.structures)
 
     def test_displacements(self):
         poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
@@ -479,14 +479,14 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()
 
-        self.assertTrue(np.allclose(traj.frac_coords, displacements))
+        assert np.allclose(traj.frac_coords, displacements)
 
     def test_variable_lattice(self):
         structure = self.structures[0]
 
         # Generate structures with different lattices
         structures = []
-        for i in range(10):
+        for _ in range(10):
             new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
@@ -495,9 +495,7 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=False)
 
         # Check if lattices were properly stored
-        self.assertTrue(
-            all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
-        )
+        assert all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
 
         # Check if the file is written correctly when lattice is not constant.
         traj.write_Xdatcar(filename="traj_test_XDATCAR")
@@ -509,7 +507,7 @@ class TrajectoryTest(PymatgenTest):
     def test_to_from_dict(self):
         d = self.traj.as_dict()
         traj = Trajectory.from_dict(d)
-        self.assertEqual(type(traj), Trajectory)
+        assert isinstance(traj, Trajectory)
 
     def test_xdatcar_write(self):
         self.traj.write_Xdatcar(filename="traj_test_XDATCAR")

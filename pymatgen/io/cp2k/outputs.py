@@ -164,20 +164,20 @@ class Cp2kOutput:
         if len(functional) > 1:
             rt = "Mixed: " + ", ".join(functional)
             functional = " ".join(functional)
-            if functional.__contains__("HYB") or (ip and frac) or (functional in HYBRID_TYPES):
+            if ("HYB" in functional) or (ip and frac) or (functional in HYBRID_TYPES):
                 rt = "Hybrid"
         else:
             functional = functional[0]
 
             if functional is None:
                 rt = "None"
-            elif functional.__contains__("HYB") or (ip and frac) or (functional) in HYBRID_TYPES:
+            elif ("HYB" in functional) or (ip and frac) or (functional) in HYBRID_TYPES:
                 rt = "Hybrid"
-            elif functional.__contains__("MGGA") or functional in METAGGA_TYPES:
+            elif ("MGGA" in functional) or functional in METAGGA_TYPES:
                 rt = "METAGGA"
-            elif functional.__contains__("GGA") or functional in GGA_TYPES:
+            elif ("GGA" in functional) or functional in GGA_TYPES:
                 rt = "GGA"
-            elif functional.__contains__("LDA") or functional in LDA_TYPES:
+            elif ("LDA" in functional) or functional in LDA_TYPES:
                 rt = "LDA"
             else:
                 rt = "Unknown"
@@ -245,7 +245,7 @@ class Cp2kOutput:
         self.filenames["PDOS"] = []
         self.filenames["LDOS"] = []
         for p in pdos:
-            if p.split("/")[-1].__contains__("list"):
+            if "list" in p.split("/")[-1]:
                 self.filenames["LDOS"].append(p)
             else:
                 self.filenames["PDOS"].append(p)
@@ -261,7 +261,7 @@ class Cp2kOutput:
         self.filenames["restart.bak"] = []
         self.filenames["restart"] = []
         for r in restart:
-            if r.split("/")[-1].__contains__("bak"):
+            if "bak" in r.split("/")[-1]:
                 self.filenames["restart.bak"].append(r)
             else:
                 self.filenames["restart"].append(r)
@@ -269,7 +269,7 @@ class Cp2kOutput:
         wfn = glob.glob(os.path.join(self.dir, "*.wfn*")) + glob.glob(os.path.join(self.dir, "*.kp*"))
         self.filenames["wfn.bak"] = []
         for w in wfn:
-            if w.split("/")[-1].__contains__("bak"):
+            if "bak" in w.split("/")[-1]:
                 self.filenames["wfn.bak"].append(w)
             else:
                 self.filenames["wfn"] = w
@@ -362,7 +362,7 @@ class Cp2kOutput:
             while True:
                 line = f.readline()
                 if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
-                    for i in range(self.data["num_atoms"][0][0]):
+                    for _ in range(self.data["num_atoms"][0][0]):
                         line = f.readline().split()
                         if line == []:
                             line = f.readline().split()
@@ -372,14 +372,14 @@ class Cp2kOutput:
         lattice = self.parse_cell_params()
         gs = {}
         self.data["atomic_kind_list"] = []
-        for k, v in self.data["atomic_kind_info"].items():
+        for k, v in self.data["atomic_kind_info"].items():  # noqa: B007
             if v["pseudo_potential"].upper() == "NONE":
                 gs[v["kind_number"]] = True
             else:
                 gs[v["kind_number"]] = False
 
         for c in coord_table:
-            for k, v in self.data["atomic_kind_info"].items():
+            for v in self.data["atomic_kind_info"].values():
                 if int(v["kind_number"]) == int(c[1]):
                     v["element"] = c[2]
                     break
@@ -642,7 +642,7 @@ class Cp2kOutput:
 
         # Functional
         if self.input and self.input.check("FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"):
-            xcfuncs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections.keys())
+            xcfuncs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections)
             if xcfuncs:
                 self.data["dft"]["functional"] = xcfuncs
             else:
@@ -701,7 +701,7 @@ class Cp2kOutput:
         tmp = {}
         i = 1
         for k in list(self.data["QS"]):
-            if str(k).__contains__("grid_level") and not str(k).__contains__("Number"):
+            if ("grid_level" in str(k)) and ("Number" not in str(k)):
                 tmp[i] = self.data["QS"].pop(k)
                 i += 1
         self.data["QS"]["Multi_grid_cutoffs_[a.u.]"] = tmp
@@ -819,11 +819,11 @@ class Cp2kOutput:
             j = -1
             lines = f.readlines()
             for k, line in enumerate(lines):
-                if line.__contains__("MOLECULE KIND INFORMATION"):
+                if "MOLECULE KIND INFORMATION" in line:
                     break
-                if line.__contains__("Atomic kind"):
+                if "Atomic kind" in line:
                     j += 1
-                if line.__contains__("DFT+U correction"):
+                if "DFT+U correction" in line:
                     atomic_kind_info[_kinds[j]]["DFT_PLUS_U"] = {
                         "L": int(lines[k + 1].split()[-1]),
                         "U_MINUS_J": float(lines[k + 2].split()[-1]),
@@ -1057,7 +1057,7 @@ class Cp2kOutput:
             lines = iter(f.readlines())
             for line in lines:
                 try:
-                    if line.__contains__(" occupied subspace spin"):
+                    if " occupied subspace spin" in line:
                         eigenvalues.append(
                             {
                                 "occupied": {Spin.up: [], Spin.down: []},
@@ -1068,27 +1068,27 @@ class Cp2kOutput:
                         next(lines)
                         while True:
                             line = next(lines)
-                            if line.__contains__("Fermi"):
+                            if "Fermi" in line:
                                 efermi[-1][Spin.up] = float(line.split()[-1])
                                 break
                             eigenvalues[-1]["occupied"][Spin.up].extend([Ha_to_eV * float(l) for l in line.split()])
                         next(lines)
                         line = next(lines)
-                        if line.__contains__(" occupied subspace spin"):
+                        if " occupied subspace spin" in line:
                             next(lines)
                             while True:
                                 line = next(lines)
-                                if line.__contains__("Fermi"):
+                                if "Fermi" in line:
                                     efermi[-1][Spin.down] = float(line.split()[-1])
                                     break
                                 eigenvalues[-1]["occupied"][Spin.down].extend(
                                     [Ha_to_eV * float(l) for l in line.split()]
                                 )
-                    if line.__contains__(" unoccupied subspace spin"):
+                    if " unoccupied subspace spin" in line:
                         next(lines)
                         line = next(lines)
                         while True:
-                            if line.__contains__("WARNING : did not converge"):
+                            if "WARNING : did not converge" in line:
                                 warnings.warn(
                                     "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge"
                                 )
@@ -1103,23 +1103,19 @@ class Cp2kOutput:
                                 line = next(lines)
                                 break
 
-                            if line.__contains__("convergence"):
+                            if "convergence" in line:
                                 line = next(lines)
 
-                            if (
-                                line.lower().__contains__("eigenvalues")
-                                or line.__contains__("HOMO")
-                                or line.__contains__("|")
-                            ):
+                            if ("eigenvalues" in line.lower()) or ("HOMO" in line) or ("|" in line):
                                 break
                             eigenvalues[-1]["unoccupied"][Spin.up].extend([Ha_to_eV * float(l) for l in line.split()])
                             line = next(lines)
 
-                        if line.__contains__(" unoccupied subspace spin"):
+                        if " unoccupied subspace spin" in line:
                             next(lines)
                             line = next(lines)
                             while True:
-                                if line.__contains__("WARNING : did not converge"):
+                                if "WARNING : did not converge" in line:
                                     warnings.warn(
                                         "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge"
                                     )
@@ -1132,10 +1128,10 @@ class Cp2kOutput:
                                     )
                                     break
 
-                                if line.__contains__("convergence"):
+                                if "convergence" in line:
                                     line = next(lines)
 
-                                if line.__contains__("HOMO") or line.__contains__("|"):
+                                if ("HOMO" in line) or ("|" in line):
                                     next(lines)
                                     break
                                 try:
@@ -1336,7 +1332,7 @@ class Cp2kOutput:
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns.keys():
+        for k in patterns:
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(
@@ -1515,7 +1511,7 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
     if spin_channel:
         spin = Spin(spin_channel)
     else:
-        spin = Spin.down if os.path.split(dos_file)[-1].__contains__("BETA") else Spin.up
+        spin = Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 
     with zopen(dos_file, "rt") as f:
         lines = f.readlines()

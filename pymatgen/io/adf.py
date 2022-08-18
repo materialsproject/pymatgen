@@ -182,7 +182,10 @@ class AdfKey(MSONable):
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(subkey.name, *subkey.options)
+                    s += (
+                        f"{subkey.name:2s}  {subkey.options[0]: 14.8f}"
+                        f"    {subkey.options[1]: 14.8f}    {subkey.options[2]: 14.8f}\n"
+                    )
             else:
                 for subkey in self.subkeys:
                     s += str(subkey)
@@ -350,12 +353,6 @@ class AdfKey(MSONable):
             d.update({"subkeys": subkeys})
         return d
 
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfKey object.
-        """
-        return super().to_json()
-
     @classmethod
     def from_dict(cls, d):
         """
@@ -503,7 +500,7 @@ class AdfTask(MSONable):
             User-defined directives.
 
         """
-        if operation not in self.operations.keys():
+        if operation not in self.operations:
             raise AdfInputError(f"Invalid ADF task {operation}")
         self.operation = operation
         self.title = title
@@ -581,19 +578,12 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = """TITLE {title}\n
-{units}
-{xc}
-{basis_set}
-{scf}
-{geo}""".format(
-            title=self.title,
-            units=str(self.units),
-            xc=str(self.xc),
-            basis_set=str(self.basis_set),
-            scf=str(self.scf),
-            geo=str(self.geo),
-        )
+        s = f"""TITLE {self.title}\n
+{str(self.units)}
+{str(self.xc)}
+{str(self.basis_set)}
+{str(self.scf)}
+{str(self.geo)}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
@@ -617,12 +607,6 @@ class AdfTask(MSONable):
             "geo": self.geo.as_dict(),
             "others": [k.as_dict() for k in self.other_directives],
         }
-
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfTask object.
-        """
-        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -973,7 +957,7 @@ class AdfOutput:
                         parse_mode = True
                         parse_freq = False
                         self.frequencies.extend(map(float, el))
-                        for i in range(nnext):
+                        for _ in range(nnext):
                             self.normal_modes.append([])
 
                 elif parse_mode:

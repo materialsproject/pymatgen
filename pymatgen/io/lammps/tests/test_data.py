@@ -282,9 +282,9 @@ class LammpsDataTest(unittest.TestCase):
         c2h6 = LammpsData.from_file(filename1)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
-        ff_kw = random.sample(self.ethane.force_field.keys(), 1)[0]
+        ff_kw = random.sample(sorted(self.ethane.force_field), 1)[0]
         pd.testing.assert_frame_equal(c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw)
-        topo_kw = random.sample(self.ethane.topology.keys(), 1)[0]
+        topo_kw = random.sample(sorted(self.ethane.topology), 1)[0]
         pd.testing.assert_frame_equal(c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw)
         filename2 = "test2.data"
         self.virus.write_file(filename=filename2)
@@ -825,19 +825,19 @@ class FuncTest(unittest.TestCase):
 class CombinedDataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data"))
-        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data"))
+        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data.gz"))
+        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data.gz"))
         cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data"))
         cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data"))
-        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
+        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz.gz"))
         cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz"))
         cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz"))
         cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz"))
         cls.ec_fec1 = CombinedData.from_files(
-            os.path.join(test_dir, "ec_fec.xyz"),
+            os.path.join(test_dir, "ec_fec.xyz.gz"),
             [1200, 300],
-            os.path.join(test_dir, "ec.data"),
-            os.path.join(test_dir, "fec.data"),
+            os.path.join(test_dir, "ec.data.gz"),
+            os.path.join(test_dir, "fec.data.gz"),
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()

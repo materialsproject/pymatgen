@@ -169,7 +169,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             elif line.startswith(self.END_TAG):
                 inside = 0
                 timer = AbinitTimer(sections, info, cpu_time, wall_time)
-                mpi_rank = info["mpi_rank"]
+                mpi_rank = info["mpi_rank"]  # pylint: disable=E1136
                 data[mpi_rank] = timer
 
             elif inside:

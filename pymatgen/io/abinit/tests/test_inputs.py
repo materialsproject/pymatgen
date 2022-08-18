@@ -63,7 +63,7 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp.isnc and not inp.ispaw
 
         inp["ecut"] = 1
-        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp.keys() and "foo" not in inp
+        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp and "foo" not in inp
 
         # Test to_string
         assert inp.to_string(with_structure=True, with_pseudos=True)
@@ -170,7 +170,7 @@ class TestMultiDataset(PymatgenTest):
         assert len(multi) == 1 and multi.ndtset == 1
         assert multi.isnc
         for i, inp in enumerate(multi):
-            assert list(inp.keys()) == list(multi[i].keys())
+            assert list(inp) == list(multi[i])
 
         multi.addnew_from(0)
         assert multi.ndtset == 2 and multi[0] is not multi[1]

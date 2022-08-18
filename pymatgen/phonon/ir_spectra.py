@@ -155,7 +155,7 @@ class IRDielectricTensor(MSONable):
         functions_map = {"re": lambda x: x.real, "im": lambda x: x.imag}
         reim_label = {"re": "Re", "im": "Im"}
         i, j = (directions_map[direction] for direction in component)
-        label = r"{}{{$\epsilon_{{{}{}}}$}}".format(reim_label[reim], "xyz"[i], "xyz"[j])
+        label = rf"{reim_label[reim]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
 
         frequencies, dielectric_tensor = self.get_ir_spectra(broad=broad, emin=emin, emax=emax, divs=divs)
         y = functions_map[reim](dielectric_tensor[:, i, j])
@@ -182,11 +182,7 @@ class IRDielectricTensor(MSONable):
             i, j = (directions_map[direction] for direction in component)
             for fstr in ("re", "im"):
                 if fstr in reim:
-                    label = r"{}{{$\epsilon_{{{}{}}}$}}".format(
-                        reim_label[fstr],
-                        "xyz"[i],
-                        "xyz"[j],
-                    )
+                    label = rf"{reim_label[fstr]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
                     spectrum = self.get_spectrum(component, fstr, broad=broad, emin=emin, emax=emax, divs=divs)
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"

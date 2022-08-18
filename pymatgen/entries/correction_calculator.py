@@ -193,9 +193,8 @@ class CorrectionCalculator:
             if relative_uncertainty > self.max_error:
                 allow = False
                 warnings.warn(
-                    "Compound {} is excluded from the fit due to high experimental uncertainty ({}%)".format(
-                        name, relative_uncertainty
-                    )
+                    f"Compound {name} is excluded from the fit due to high experimental "
+                    f"uncertainty ({relative_uncertainty}%)"
                 )
 
             # filter out compounds containing certain polyanions
