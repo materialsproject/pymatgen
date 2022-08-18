@@ -213,6 +213,8 @@ class TestLobsterNeighbors(unittest.TestCase):
             adapt_extremum_to_add_cond=True,
         )
 
+
+
     def test_use_of_coop(self):
         with self.assertRaises(ValueError):
             _ = LobsterNeighbors(
@@ -495,6 +497,61 @@ class TestLobsterNeighbors(unittest.TestCase):
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz"))
         )
         self.assertEqual(type(sg), StructureGraph)
+
+    def test_extended_structure_graph(self):
+        self.chemenvlobsterNaCl = LobsterNeighbors(are_coops=False, filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.NaCl.gz"),
+                                                   structure=Structure.from_file(os.path.join(test_dir_env,"POSCAR.NaCl.gz")),
+                                                   valences_from_charges=True,
+                                                   filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.NaCl.gz"),
+                                                   filename_add_bondinglist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+                                                   filename_add_bondinglist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
+                                                   add_additional_data_sg=True,
+                                                   identity_add_bondinglist_sg1="icobi",
+                                                   identity_add_bondinglist_sg2="icoop",
+                                                   additional_condition=1,
+
+        )
+        sg = self.chemenvlobsterNaCl.get_bonded_structure(
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")), decorate=True
+        )
+        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOHP"],-0.56541)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOBI"], 0.08484)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOOP"], 0.02826)
+        self.assertEqual(type(sg), StructureGraph)
+
+
+    def test_raises_extended_structure_graph(self):
+        with self.assertRaises(ValueError):
+            self.chemenvlobsterNaCl = LobsterNeighbors(are_coops=False, filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.NaCl.gz"),
+                                                       structure=Structure.from_file(os.path.join(test_dir_env,"POSCAR.NaCl.gz")),
+                                                       valences_from_charges=True,
+                                                       filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.NaCl.gz"),
+                                                       filename_add_bondinglist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+                                                       filename_add_bondinglist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
+                                                       add_additional_data_sg=True,
+                                                       identity_add_bondinglist_sg1="icopppp",
+                                                       identity_add_bondinglist_sg2="icoop",
+                                                       additional_condition=1,
+
+            )
+        with self.assertRaises(ValueError):
+            self.chemenvlobsterNaCl = LobsterNeighbors(are_coops=False, filename_ICOHP=os.path.join(test_dir_env,
+                                                                                                    "ICOHPLIST.lobster.NaCl.gz"),
+                                                       structure=Structure.from_file(
+                                                           os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                                                       valences_from_charges=True,
+                                                       filename_CHARGE=os.path.join(test_dir_env,
+                                                                                    "CHARGE.lobster.NaCl.gz"),
+                                                       filename_add_bondinglist_sg1=os.path.join(test_dir_env,
+                                                                                                 "ICOBILIST.lobster.NaCl.gz"),
+                                                       filename_add_bondinglist_sg2=os.path.join(test_dir_env,
+                                                                                                 "ICOOPLIST.lobster.NaCl.gz"),
+                                                       add_additional_data_sg=True,
+                                                       identity_add_bondinglist_sg1="icopppp",
+                                                       identity_add_bondinglist_sg2="icoop",
+                                                       additional_condition=1,
+
+                                                       )
 
     def test_order_parameter(self):
         self.assertAlmostEqual(

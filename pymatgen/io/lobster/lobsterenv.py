@@ -56,7 +56,7 @@ class LobsterNeighbors(NearNeighbors):
         filename_CHARGE=None,
         which_charge="Mulliken",
         adapt_extremum_to_add_cond=False,
-        add_additional_data_sg=True,
+        add_additional_data_sg=False,
         filename_add_bondinglist_sg1=None,
         filename_add_bondinglist_sg2=None,
         identity_add_bondinglist_sg1="ICOOP",
@@ -66,9 +66,9 @@ class LobsterNeighbors(NearNeighbors):
         """
 
         Args:
-            are_coops: (Bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
+            are_coops: (Bool) if True, the file is a ICOOPLIST.lobster.NaCl and not a ICOHPLIST.lobster; only tested for
             ICOHPLIST.lobster so far
-            filename_ICOHP: (str) Path to ICOOPLIST.lobster
+            filename_ICOHP: (str) Path to ICOOPLIST.lobster.NaCl
             valences: (list of integers/floats) gives valence/charge for each element
             limits: limit to decide which ICOHPs should be considered
             structure: (Structure Object) typically constructed by: Structure.from_file("POSCAR") (Structure object
@@ -92,7 +92,7 @@ class LobsterNeighbors(NearNeighbors):
             adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
             additional condition
             add_additional_data_sg: (bool) will add the information from filename_add_bondinglist_sg1,
-            filename_add_bondinglist_sg2 (typically ICOOPLIST.lobster and ICOBILIST.lobster) to the structure graph
+            filename_add_bondinglist_sg2 (typically ICOOPLIST.lobster.NaCl and ICOBILIST.lobster.NaCl) to the structure graph
             filename_add_bondinglist_sg1: Additional ICOOP, ICOBI data for structure graphs
             filename_add_bondinglist_sg2: Additional ICOOP, ICOBI data for structure graphs
         """
@@ -121,8 +121,8 @@ class LobsterNeighbors(NearNeighbors):
                 are_coops_id1=False
                 are_cobis_id1=True
             else:
-                raise("only icoops and icobis can be added")
-            self.bonding_list_1=Icohplist(filename=filename_add_bondinglist_sg1,are_coops=are_coops_id1, are_cobis=are_cobis_id1)
+                raise ValueError("only icoops and icobis can be added")
+            self.bonding_list_1=Icohplist(filename=self.filename_add_bondinglist_sg1,are_coops=are_coops_id1, are_cobis=are_cobis_id1)
 
             if self.identity_add_bondinglist_sg2.lower()=="icoop":
                 are_coops_id2=True
@@ -130,7 +130,8 @@ class LobsterNeighbors(NearNeighbors):
             elif self.identity_add_bondinglist_sg2.lower()=="icobi":
                 are_coops_id2=False
                 are_cobis_id2=True
-            self.bonding_list_2=Icohplist(filename=filename_add_bondinglist_sg2,are_coops=are_coops_id2, are_cobis=are_cobis_id2)
+
+            self.bonding_list_2=Icohplist(filename=self.filename_add_bondinglist_sg2,are_coops=are_coops_id2, are_cobis=are_cobis_id2)
 
 
         if are_coops:
