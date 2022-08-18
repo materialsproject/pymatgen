@@ -67,7 +67,7 @@ class ResSFAC:
     ions: list[Ion]
 
     def __str__(self) -> str:
-        return "SFAC {}\n{}".format(" ".join(map("{:<2s}".format, self.species)), "\n".join(map(str, self.ions)))
+        return "SFAC {}\n{}\nEND".format(" ".join(map("{:<2s}".format, self.species)), "\n".join(map(str, self.ions)))
 
 
 @dataclass
