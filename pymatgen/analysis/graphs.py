@@ -256,7 +256,7 @@ class StructureGraph(MSONable):
         return sg
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, weights=False):
+    def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
         """
         Constructor for StructureGraph, using a strategy
         from :Class: `pymatgen.analysis.local_env`.
@@ -266,6 +266,7 @@ class StructureGraph(MSONable):
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
         :param weights: if True, use weights from local_env class
             (consult relevant class for their meaning)
+        :param edge_properties: if True, edge_properties from neighbors will be used
         :return:
         """
 
@@ -286,7 +287,7 @@ class StructureGraph(MSONable):
                     to_index=neighbor["site_index"],
                     to_jimage=neighbor["image"],
                     weight=neighbor["weight"] if weights else None,
-                    edge_properties=neighbor["edge_properties"],
+                    edge_properties=neighbor["edge_properties"] if edge_properties else None,
                     warn_duplicates=False,
                 )
 
