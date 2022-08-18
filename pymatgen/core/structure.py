@@ -2492,6 +2492,15 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             writer = FleurInput(self, **kwargs)
+        elif fmt == "res" or fnmatch(fname, "*.res"):
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_to_txt(self)
+            if filename:
+                with zopen(filename, "wt", encoding="utf8") as f:
+                    f.write(s)
+                return None
+            return s
         else:
             raise ValueError(f"Invalid format: `{str(fmt)}`")
 
