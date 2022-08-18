@@ -161,7 +161,13 @@ class StructureGraph(MSONable):
                 d["from_jimage"] = tuple(d["from_jimage"])
 
     @classmethod
-    def with_empty_graph(cls, structure: Structure, name="bonds", edge_weight_name=None, edge_weight_units=None):
+    def with_empty_graph(
+        cls,
+        structure: Structure,
+        name="bonds",
+        edge_weight_name=None,
+        edge_weight_units=None,
+    ):
         """
         Constructor for StructureGraph, returns a StructureGraph
         object with an empty graph (no edges, only nodes defined
@@ -281,15 +287,26 @@ class StructureGraph(MSONable):
                 # for any one bond, one from site u to site v
                 # and another form site v to site u: this is
                 # harmless, so warn_duplicates=False
-                sg.add_edge(
-                    from_index=n,
-                    from_jimage=(0, 0, 0),
-                    to_index=neighbor["site_index"],
-                    to_jimage=neighbor["image"],
-                    weight=neighbor["weight"] if weights else None,
-                    edge_properties=neighbor["edge_properties"] if edge_properties else None,
-                    warn_duplicates=False,
-                )
+                if edge_properties:
+                    sg.add_edge(
+                        from_index=n,
+                        from_jimage=(0, 0, 0),
+                        to_index=neighbor["site_index"],
+                        to_jimage=neighbor["image"],
+                        weight=neighbor["weight"] if weights else None,
+                        edge_properties=neighbor["edge_properties"],
+                        warn_duplicates=False,
+                    )
+                else:
+                    sg.add_edge(
+                        from_index=n,
+                        from_jimage=(0, 0, 0),
+                        to_index=neighbor["site_index"],
+                        to_jimage=neighbor["image"],
+                        weight=neighbor["weight"] if weights else None,
+                        edge_properties=None,
+                        warn_duplicates=False,
+                    )
 
         return sg
 
@@ -437,7 +454,13 @@ class StructureGraph(MSONable):
         edge_properties = edge_properties or {}
 
         if weight:
-            self.graph.add_edge(from_index, to_index, to_jimage=to_jimage, weight=weight, **edge_properties)
+            self.graph.add_edge(
+                from_index,
+                to_index,
+                to_jimage=to_jimage,
+                weight=weight,
+                **edge_properties,
+            )
         else:
             self.graph.add_edge(from_index, to_index, to_jimage=to_jimage, **edge_properties)
 
