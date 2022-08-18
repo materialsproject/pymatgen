@@ -169,7 +169,14 @@ class ResParser:
             while True:
                 line = next(it)
                 self.line += 1
-                first, rest = line.split(maxsplit=1)
+                split = line.split(maxsplit=1)
+                splits = len(split)
+                if splits == 0:
+                    continue
+                elif splits == 1:
+                    first, rest = *split, ""
+                else:
+                    first, rest = split
                 if first == "TITL":
                     _TITL = self._parse_titl(rest)
                 elif first == "REM":
@@ -180,6 +187,8 @@ class ResParser:
                     pass  # ignore
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
+                elif first == "END":
+                    pass
                 else:
                     raise Warning(f"Skipping line {line}, tag {first} not recognized.")
         except StopIteration:
