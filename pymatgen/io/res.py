@@ -187,8 +187,6 @@ class ResParser:
                     pass  # ignore
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
-                elif first == "END":
-                    pass
                 else:
                     raise Warning(f"Skipping line {line}, tag {first} not recognized.")
         except StopIteration:
