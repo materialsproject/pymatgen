@@ -541,9 +541,9 @@ class TestLobsterNeighbors(unittest.TestCase):
             edge_properties=True,
             weights=True,
         )
-        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOHP"], -0.56541)
-        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOBI"], 0.08484)
-        self.assertAlmostEqual(sg.graph.get_edge_data(0,1)[0]["ICOOP"], 0.02826)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0, 1)[0]["ICOHP"], -0.56541)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0, 1)[0]["ICOBI"], 0.08484)
+        self.assertAlmostEqual(sg.graph.get_edge_data(0, 1)[0]["ICOOP"], 0.02826)
         self.assertEqual(type(sg), StructureGraph)
 
     def test_raises_extended_structure_graph(self):
