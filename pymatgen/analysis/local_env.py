@@ -545,7 +545,7 @@ class NearNeighbors:
         structure: Structure,
         decorate: bool = False,
         weights: bool = True,
-        edge_properties: bool = True,
+        edge_properties: bool = False,
     ) -> StructureGraph | MoleculeGraph:
         """
         Obtain a StructureGraph object using this NearNeighbor
