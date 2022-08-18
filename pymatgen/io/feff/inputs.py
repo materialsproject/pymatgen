@@ -1063,7 +1063,7 @@ def get_atom_map(structure, absorbing_atom=None):
     Returns:
         dict
     """
-    unique_pot_atoms = {site.specie.symbol for site in structure}
+    unique_pot_atoms = sorted({site.specie.symbol for site in structure})
 
     # if there is only a single absorbing atom in the structure,
     # it should be excluded from this list
