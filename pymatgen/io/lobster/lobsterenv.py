@@ -411,7 +411,7 @@ class LobsterNeighbors(NearNeighbors):
     def plot_cohps_of_neighbors(
         self,
         path_to_COHPCAR="COHPCAR.lobster",
-        isites=[],
+        isites=None,
         onlycation_isites=True,
         only_bonds_to=None,
         per_bond=False,
