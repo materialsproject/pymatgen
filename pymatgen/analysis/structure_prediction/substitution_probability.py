@@ -267,7 +267,7 @@ class SubstitutionPredictor:
             will be from the list species. If false, the keys will be
             from that list.
         """
-        preds = self.list_prediction(list(composition.keys()), to_this_composition)
+        preds = self.list_prediction(list(composition), to_this_composition)
         output = []
         for p in preds:
             if to_this_composition:

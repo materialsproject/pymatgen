@@ -54,7 +54,7 @@ class Cohp(MSONable):
         self.icohp = icohp
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         """
@@ -295,7 +295,7 @@ class CompleteCohp(Cohp):
         self.all_cohps = cohp_dict
         self.orb_res_cohp = orb_res_cohp
         if bonds is None:
-            self.bonds = {label: {} for label in self.all_cohps.keys()}
+            self.bonds = {label: {} for label in self.all_cohps}
         else:
             self.bonds = bonds
 
@@ -324,10 +324,10 @@ class CompleteCohp(Cohp):
         if self.icohp is not None:
             d["ICOHP"] = {"average": {str(spin): pops.tolist() for spin, pops in self.icohp.items()}}
 
-        for label in self.all_cohps.keys():
+        for label in self.all_cohps:
             d["COHP"].update({label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].cohp.items()}})
             if self.all_cohps[label].icohp is not None:
-                if "ICOHP" not in d.keys():
+                if "ICOHP" not in d:
                     d["ICOHP"] = {
                         label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].icohp.items()}
                     }
@@ -544,7 +544,7 @@ class CompleteCohp(Cohp):
                 else:
                     raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
-            orb_label = list(self.orb_res_cohp[label].keys())[orb_index]
+            orb_label = list(self.orb_res_cohp[label])[orb_index]
         elif isinstance(orbitals, str):
             orb_label = orbitals
         else:
@@ -585,7 +585,7 @@ class CompleteCohp(Cohp):
         efermi = d["efermi"]
         energies = d["energies"]
         structure = Structure.from_dict(d["structure"])
-        if "bonds" in d.keys():
+        if "bonds" in d:
             bonds = {
                 bond: {
                     "length": d["bonds"][bond]["length"],
@@ -606,7 +606,7 @@ class CompleteCohp(Cohp):
             else:
                 cohp_dict[label] = Cohp(efermi, energies, cohp, icohp=icohp)
 
-        if "orb_res_cohp" in d.keys():
+        if "orb_res_cohp" in d:
             orb_cohp = {}
             for label in d["orb_res_cohp"]:
                 orb_cohp[label] = {}
@@ -665,7 +665,7 @@ class CompleteCohp(Cohp):
         else:
             orb_cohp = None
 
-        if "average" not in d["COHP"].keys():
+        if "average" not in d["COHP"]:
             # calculate average
             cohp = np.array([np.array(c) for c in d["COHP"].values()]).mean(axis=0)
             try:

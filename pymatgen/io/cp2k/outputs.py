@@ -362,7 +362,7 @@ class Cp2kOutput:
             while True:
                 line = f.readline()
                 if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
-                    for i in range(self.data["num_atoms"][0][0]):
+                    for _ in range(self.data["num_atoms"][0][0]):
                         line = f.readline().split()
                         if line == []:
                             line = f.readline().split()
@@ -372,14 +372,14 @@ class Cp2kOutput:
         lattice = self.parse_cell_params()
         gs = {}
         self.data["atomic_kind_list"] = []
-        for k, v in self.data["atomic_kind_info"].items():
+        for k, v in self.data["atomic_kind_info"].items():  # noqa: B007
             if v["pseudo_potential"].upper() == "NONE":
                 gs[v["kind_number"]] = True
             else:
                 gs[v["kind_number"]] = False
 
         for c in coord_table:
-            for k, v in self.data["atomic_kind_info"].items():
+            for v in self.data["atomic_kind_info"].values():
                 if int(v["kind_number"]) == int(c[1]):
                     v["element"] = c[2]
                     break
@@ -642,7 +642,7 @@ class Cp2kOutput:
 
         # Functional
         if self.input and self.input.check("FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"):
-            xcfuncs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections.keys())
+            xcfuncs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections)
             if xcfuncs:
                 self.data["dft"]["functional"] = xcfuncs
             else:
@@ -1332,7 +1332,7 @@ class Cp2kOutput:
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns.keys():
+        for k in patterns:
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(

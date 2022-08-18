@@ -11,6 +11,8 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+from typing import cast
+
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
@@ -51,7 +53,7 @@ class StructureEnvironments(MSONable):
         Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).
         """
 
-        def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
+        def __init__(self, structure: Structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             """
             Constructor for NeighborsSet.
 
@@ -388,18 +390,17 @@ class StructureEnvironments(MSONable):
         def __hash__(self):
             return len(self.site_voronoi_indices)
 
-        def __eq__(self, other):
-            return self.isite == other.isite and self.site_voronoi_indices == other.site_voronoi_indices
-
-        def __ne__(self, other):
-            return not self == other
+        def __eq__(self, other: object) -> bool:
+            needed_attrs = ("isite", "site_voronoi_indices")
+            if not all(hasattr(other, attr) for attr in needed_attrs):
+                return NotImplemented
+            return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
             out = f"Neighbors Set for site #{self.isite:d} :\n"
             out += f" - Coordination number : {len(self):d}\n"
-            out += " - Voronoi indices : {}\n".format(
-                ", ".join([f"{site_voronoi_index:d}" for site_voronoi_index in self.site_voronoi_indices])
-            )
+            voro_indices = ", ".join(f"{site_voronoi_index:d}" for site_voronoi_index in self.site_voronoi_indices)
+            out += f" - Voronoi indices : {voro_indices}\n"
             return out
 
         def as_dict(self):
@@ -413,7 +414,7 @@ class StructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dd, structure, detailed_voronoi):
+        def from_dict(cls, dd, structure: Structure, detailed_voronoi):
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
@@ -503,19 +504,19 @@ class StructureEnvironments(MSONable):
         distance_conditions = []
         for idp, dp_dict in enumerate(site_distance_parameters):
             distance_conditions.append([])
-            for inb, voro_nb_dict in enumerate(site_voronoi):
+            for inb, _ in enumerate(site_voronoi):
                 cond = inb in dp_dict["nb_indices"]
                 distance_conditions[idp].append(cond)
         # Precompute angle conditions
         angle_conditions = []
         for iap, ap_dict in enumerate(site_angle_parameters):
             angle_conditions.append([])
-            for inb, voro_nb_dict in enumerate(site_voronoi):
+            for inb, _ in enumerate(site_voronoi):
                 cond = inb in ap_dict["nb_indices"]
                 angle_conditions[iap].append(cond)
         # Precompute additional conditions
         precomputed_additional_conditions = {ac: [] for ac in additional_conditions}
-        for inb, voro_nb_dict in enumerate(site_voronoi):
+        for voro_nb_dict in site_voronoi:
             for ac in additional_conditions:
                 cond = self.AC.check_condition(
                     condition=ac,
@@ -1201,7 +1202,7 @@ class StructureEnvironments(MSONable):
                         "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "has_neighbors",
                         "self": "None",
-                        "other": set(other_site_nb_sets.keys()),
+                        "other": set(other_site_nb_sets),
                     }
                 )
                 continue
@@ -1210,13 +1211,13 @@ class StructureEnvironments(MSONable):
                     {
                         "difference": f"neighbors_sets[isite={isite:d}]",
                         "comparison": "has_neighbors",
-                        "self": set(self_site_nb_sets.keys()),
+                        "self": set(self_site_nb_sets),
                         "other": "None",
                     }
                 )
                 continue
-            self_site_cns = set(self_site_nb_sets.keys())
-            other_site_cns = set(other_site_nb_sets.keys())
+            self_site_cns = set(self_site_nb_sets)
+            other_site_cns = set(other_site_nb_sets)
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
@@ -1251,8 +1252,7 @@ class StructureEnvironments(MSONable):
                         if self_ce.is_close_to(other_ce):
                             differences.append(
                                 {
-                                    "difference": "ce_list[isite={:d}][cn={:d}]"
-                                    "[inb_set={:d}]".format(isite, cn, inb_set_self),
+                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
                                     "comparison": "__eq__",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1261,8 +1261,7 @@ class StructureEnvironments(MSONable):
                         else:
                             differences.append(
                                 {
-                                    "difference": "ce_list[isite={:d}][cn={:d}]"
-                                    "[inb_set={:d}]".format(isite, cn, inb_set_self),
+                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
                                     "comparison": "is_close_to",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1270,7 +1269,14 @@ class StructureEnvironments(MSONable):
                             )
         return differences
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("ce_list", "voronoi", "valences", "sites_map", "equivalent_sites", "structure", "info")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(StructureEnvironments, other)
+
         if len(self.ce_list) != len(other.ce_list):
             return False
         if self.voronoi != other.voronoi:
@@ -1293,9 +1299,6 @@ class StructureEnvironments(MSONable):
             if site_ces != other.ce_list[isite]:
                 return False
         return True
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """
@@ -1436,7 +1439,7 @@ class LightStructureEnvironments(MSONable):
         container is not part of the LightStructureEnvironments object).
         """
 
-        def __init__(self, structure, isite, all_nbs_sites, all_nbs_sites_indices):
+        def __init__(self, structure: Structure, isite, all_nbs_sites, all_nbs_sites_indices):
             """
             Constructor for NeighborsSet.
 
@@ -1454,7 +1457,6 @@ class LightStructureEnvironments(MSONable):
                 raise ValueError("Set of neighbors contains duplicates !")
             self.all_nbs_sites_indices = sorted(myset)
             self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
-            self.all_nbs_sites_indices_and_image = []
 
         @property
         def neighb_coords(self):
@@ -1502,11 +1504,11 @@ class LightStructureEnvironments(MSONable):
         def __hash__(self) -> int:
             return len(self.all_nbs_sites_indices)
 
-        def __eq__(self, other):
-            return self.isite == other.isite and self.all_nbs_sites_indices == other.all_nbs_sites_indices
-
-        def __ne__(self, other):
-            return not self == other
+        def __eq__(self, other: object) -> bool:
+            needed_attrs = ("isite", "all_nbs_sites_indices")
+            if not all(hasattr(other, attr) for attr in needed_attrs):
+                return NotImplemented
+            return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
             return (
@@ -1525,7 +1527,7 @@ class LightStructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dd, structure, all_nbs_sites):
+        def from_dict(cls, dd, structure: Structure, all_nbs_sites):
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
@@ -1894,7 +1896,7 @@ class LightStructureEnvironments(MSONable):
         if self.statistics_dict is None:
             self.setup_statistic_lists()
         if statistics_fields == "ALL":
-            statistics_fields = list(self.statistics_dict.keys())
+            statistics_fields = list(self.statistics_dict)
         if bson_compatible:
             dd = jsanitize({field: self.statistics_dict[field] for field in statistics_fields})
         else:
@@ -2051,7 +2053,7 @@ class LightStructureEnvironments(MSONable):
         """
         return self.strategy.uniquely_determines_coordination_environments
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
@@ -2064,6 +2066,12 @@ class LightStructureEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
+        needed_attrs = ("strategy", "structure", "coordination_environments", "valences", "neighbors_sets")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(LightStructureEnvironments, other)  # silence mypy warnings
+
         is_equal = (
             self.strategy == other.strategy
             and self.structure == other.structure
@@ -2076,9 +2084,6 @@ class LightStructureEnvironments(MSONable):
         this_indices = [ss["index"] for ss in self._all_nbs_sites]
         other_indices = [ss["index"] for ss in other._all_nbs_sites]
         return is_equal and this_sites == other_sites and this_indices == other_indices
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """
@@ -2283,7 +2288,7 @@ class ChemicalEnvironments(MSONable):
                 "add_coord_geom",
                 f'Coordination geometry with mp_symbol "{mp_symbol}" is not valid',
             )
-        if mp_symbol in list(self.coord_geoms.keys()) and not override:
+        if mp_symbol in list(self.coord_geoms) and not override:
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
@@ -2313,12 +2318,12 @@ class ChemicalEnvironments(MSONable):
         if len(self.coord_geoms) == 0:
             out += " => No coordination in it <=\n"
             return out
-        for key in self.coord_geoms.keys():
+        for key in self.coord_geoms:
             mp_symbol = key
             break
         cn = symbol_cn_mapping[mp_symbol]
         out += f" => Coordination {cn} <=\n"
-        mp_symbols = list(self.coord_geoms.keys())
+        mp_symbols = list(self.coord_geoms)
         csms_wcs = [self.coord_geoms[mp_symbol]["other_symmetry_measures"]["csm_wcs_ctwcc"] for mp_symbol in mp_symbols]
         icsms_sorted = np.argsort(csms_wcs)
         mp_symbols = [mp_symbols[ii] for ii in icsms_sorted]
@@ -2346,7 +2351,7 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if the two ChemicalEnvironments objects are close to each other.
         """
-        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+        if set(self.coord_geoms) != set(other.coord_geoms):
             return False
         for mp_symbol, cg_dict_self in self.coord_geoms.items():
             cg_dict_other = other[mp_symbol]
@@ -2369,7 +2374,7 @@ class ChemicalEnvironments(MSONable):
                     return False
         return True
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.
         object.
@@ -2380,7 +2385,13 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+        needed_attrs = ("coord_geoms",)
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(ChemicalEnvironments, other)  # silence mypy warnings on other below
+
+        if set(self.coord_geoms) != set(other.coord_geoms):
             return False
         for mp_symbol, cg_dict_self in self.coord_geoms.items():
             cg_dict_other = other.coord_geoms[mp_symbol]
@@ -2405,9 +2416,6 @@ class ChemicalEnvironments(MSONable):
                 if other_csms_self[csmtype] != other_csms_other[csmtype]:
                     return False
         return True
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """
@@ -2435,7 +2443,7 @@ class ChemicalEnvironments(MSONable):
             ChemicalEnvironments object.
         """
         ce = cls()
-        for cg in d["coord_geoms"].keys():
+        for cg in d["coord_geoms"]:
             if d["coord_geoms"][cg]["local2perfect_map"] is None:
                 l2p_map = None
             else:

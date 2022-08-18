@@ -22,14 +22,14 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRester, MPRestError, TaskType
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+    website_is_up = requests.get("https://materialsproject.org").status_code == 200
 except requests.exceptions.ConnectionError:
     website_is_up = False
 
@@ -38,11 +38,11 @@ except requests.exceptions.ConnectionError:
     (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
     "PMG_MAPI_KEY environment variable not set or MP is down.",
 )
-class MPResterTest(PymatgenTest):
+class MPResterOldTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.rester = MPRester()
+        self.rester = _MPResterLegacy()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -128,14 +128,14 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(self.rester.get_materials_id_from_task_id("mp-540081"), "mp-19017")
 
     def test_get_materials_id_references(self):
-        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_get_materials_id_references
-        m = MPRester()
+        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_get_materials_id_references
+        m = _MPResterLegacy()
         data = m.get_materials_id_references("mp-123")
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
-        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
-        m = MPRester()
+        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_find_structure
+        m = _MPResterLegacy()
         ciffile = self.TEST_FILES_DIR / "Fe3O4.cif"
         data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
@@ -171,9 +171,12 @@ class MPResterTest(PymatgenTest):
         self.assertRaises(MPRestError, self.rester.get_structure_by_material_id, "mp-does-not-exist")
 
     def test_get_entry_by_material_id(self):
-        e = self.rester.get_entry_by_material_id("mp-19017")
-        self.assertIsInstance(e, ComputedEntry)
-        self.assertTrue(e.composition.reduced_formula, "LiFePO4")
+        entry = self.rester.get_entry_by_material_id("mp-19017")
+        self.assertIsInstance(entry, ComputedEntry)
+        self.assertTrue(entry.composition.reduced_formula, "LiFePO4")
+
+        # "mp-2022" does not exist
+        self.assertRaises(MPRestError, self.rester.get_entry_by_material_id, "mp-2022")
 
     def test_query(self):
         criteria = {"elements": {"$in": ["Li", "Na", "K"], "$all": ["O"]}}
@@ -434,34 +437,34 @@ class MPResterTest(PymatgenTest):
         )
 
     def test_parse_criteria(self):
-        crit = MPRester.parse_criteria("mp-1234 Li-*")
+        crit = _MPResterLegacy.parse_criteria("mp-1234 Li-*")
         self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])
         self.assertIn({"task_id": "mp-1234"}, crit["$or"])
 
-        crit = MPRester.parse_criteria("Li2*")
+        crit = _MPResterLegacy.parse_criteria("Li2*")
         self.assertIn("Li2O", crit["pretty_formula"]["$in"])
         self.assertIn("Li2I", crit["pretty_formula"]["$in"])
         self.assertIn("CsLi2", crit["pretty_formula"]["$in"])
 
-        crit = MPRester.parse_criteria("Li-*-*")
+        crit = _MPResterLegacy.parse_criteria("Li-*-*")
         self.assertIn("Li-Re-Ru", crit["chemsys"]["$in"])
         self.assertNotIn("Li-Li", crit["chemsys"]["$in"])
 
-        comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
+        comps = _MPResterLegacy.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
             self.assertEqual(len(Composition(c)), 3, f"Failed in {c}")
 
-        chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
+        chemsys = _MPResterLegacy.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
-        comps = MPRester.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
+        comps = _MPResterLegacy.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
         self.assertEqual(len(comps), 3, comps)
 
         # Let's test some invalid symbols
 
-        self.assertRaises(ValueError, MPRester.parse_criteria, "li-fe")
-        self.assertRaises(ValueError, MPRester.parse_criteria, "LO2")
+        self.assertRaises(ValueError, _MPResterLegacy.parse_criteria, "li-fe")
+        self.assertRaises(ValueError, _MPResterLegacy.parse_criteria, "LO2")
 
-        crit = MPRester.parse_criteria("POPO2")
+        crit = _MPResterLegacy.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
 
     def test_include_user_agent(self):
@@ -472,12 +475,12 @@ class MPResterTest(PymatgenTest):
             headers["user-agent"],
         )
         self.assertIsNotNone(m, msg=f"Unexpected user-agent value {headers['user-agent']}")
-        self.rester = MPRester(include_user_agent=False)
+        self.rester = _MPResterLegacy(include_user_agent=False)
         self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
     def test_database_version(self):
 
-        with MPRester(notify_db_version=True) as mpr:
+        with _MPResterLegacy(notify_db_version=True) as mpr:
             db_version = mpr.get_database_version()
 
         self.assertIsInstance(db_version, str)

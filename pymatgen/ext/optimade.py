@@ -114,10 +114,10 @@ class OptimadeRester:
         self.resources = {}
 
         if not aliases_or_resource_urls:
-            aliases_or_resource_urls = list(self.aliases.keys())
+            aliases_or_resource_urls = list(self.aliases)
             _logger.warning(
                 "Connecting to all known OPTIMADE providers, this will be slow. Please connect to only the "
-                f"OPTIMADE providers you want to query. Choose from: {', '.join(self.aliases.keys())}"
+                f"OPTIMADE providers you want to query. Choose from: {', '.join(self.aliases)}"
             )
 
         for alias_or_resource_url in aliases_or_resource_urls:
@@ -183,13 +183,13 @@ class OptimadeRester:
             if isinstance(nsites, (list, tuple)):
                 filters.append(f"(nsites>={min(nsites)} AND nsites<={max(nsites)})")
             else:
-                filters.append(f"(nsites={int(nsites)})")
+                filters.append(f"({nsites=})")
 
         if nelements:
             if isinstance(nelements, (list, tuple)):
                 filters.append(f"(nelements>={min(nelements)} AND nelements<={max(nelements)})")
             else:
-                filters.append(f"(nelements={int(nelements)})")
+                filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
             filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')

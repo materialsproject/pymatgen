@@ -46,7 +46,7 @@ There are many materials analysis codes out there, both commercial and free,
 but pymatgen offer several advantages:
 
 1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
-   and is the analysis code powering the [Materials Project](https://www.materialsproject.org).
+   and is the analysis code powering the [Materials Project](https://materialsproject.org).
    The analysis it produces survives rigorous scrutiny every single day. Bugs
    tend to be found and corrected quickly. Pymatgen also uses
    [CircleCI](https://circleci.com) and [Appveyor](https://www.appveyor.com/)
@@ -66,7 +66,7 @@ but pymatgen offer several advantages:
    handling periodic boundary conditions.
 5. **It will be around.** Pymatgen is not a pet research project. It is used in
    the well-established Materials Project. It is also actively being developed
-   and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org),
+   and maintained by the [Materials Virtual Lab](https://materialsvirtuallab.org),
    the ABINIT group and many other research groups.
 """
 
@@ -76,7 +76,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.5.26",
+    version="2022.7.25",
     python_requires=">=3.8",
     setup_requires=[
         "Cython>=0.29.23",
@@ -99,11 +99,7 @@ setup(
         "pybtex",
         "tqdm",
     ],
-    extras_require={
-        "ase": ["ase>=3.3"],
-        "vis": ["vtk>=6.0.0"],
-        "abinit": ["netcdf4"],
-    },
+    extras_require={"ase": ["ase>=3.3"], "vis": ["vtk>=6.0.0"], "abinit": ["netcdf4"], "relaxation": ["m3gnet"]},
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
     package_data={
@@ -140,7 +136,7 @@ setup(
     "structures and molecules with support for many electronic "
     "structure codes. It is currently the core analysis code "
     "powering the Materials Project "
-    "(https://www.materialsproject.org).",
+    "(https://materialsproject.org).",
     long_description=long_desc,
     long_description_content_type="text/markdown",
     keywords=[

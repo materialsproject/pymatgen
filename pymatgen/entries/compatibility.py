@@ -871,7 +871,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 https://doi.org/10.1038/s41598-021-94550-5
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
-                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
+                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
             raise CompatibilityError(f"Invalid compat_type {compat_type}")
@@ -1030,7 +1030,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         # first check for a pre-populated oxidation states key
         # the key is expected to comprise a dict corresponding to the first element output by
         # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-        if "oxidation_states" not in entry.data.keys():
+        if "oxidation_states" not in entry.data:
             # try to guess the oxidation states from composition
             # for performance reasons, fail if the composition is too large
             try:
@@ -1198,7 +1198,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
         equilibria: Scheme to combine first-principles calculations of solids with
         experimental aqueous states, Phys. Rev. B - Condens. Matter Mater. Phys.
-        85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
+        85 (2012) 1-12. doi:10.1103/PhysRevB.85.235438.
     """
 
     def __init__(

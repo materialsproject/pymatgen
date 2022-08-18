@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.elasticity.stress module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.analysis.elasticity.stress module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -115,27 +116,27 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.analysis.elasticity.stress">
-<span id="pymatgen-analysis-elasticity-stress-module"></span><h1>pymatgen.analysis.elasticity.stress module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.stress" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-analysis-elasticity-stress-module"></span><h1>pymatgen.analysis.elasticity.stress module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.stress" title="Permalink to this heading"></a></h1>
 <p>This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stress_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/elasticity/stress.py#L25-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stress_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/elasticity/stress.py#L25-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SquareTensor</span></code></a></p>
 <p>This class extends SquareTensor as a representation of the
 stress</p>
 <p>Create a Stress object. Note that the constructor uses __new__
 rather than __init__ according to the standard method of
 subclassing numpy ndarrays.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>stress_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
 representing the stress</p>
 </dd>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dev_principal_invariants</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dev_principal_invariants</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants" title="Permalink to this definition"></a></dt>
 <dd><p>returns the principal invariants of the deviatoric stress tensor,
 which is calculated by finding the coefficients of the characteristic
 polynomial of the stress tensor minus the identity times the mean
@@ -144,22 +145,22 @@ stress</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.deviator_stress">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deviator_stress</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.deviator_stress" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deviator_stress</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.deviator_stress" title="Permalink to this definition"></a></dt>
 <dd><p>returns the deviatoric component of the stress</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.mean_stress">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean_stress</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.mean_stress" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean_stress</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.mean_stress" title="Permalink to this definition"></a></dt>
 <dd><p>returns the mean stress</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1">
-<span class="sig-name descname"><span class="pre">piola_kirchoff_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_grad</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/elasticity/stress.py#L83-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">piola_kirchoff_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_grad</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/elasticity/stress.py#L83-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1" title="Permalink to this definition"></a></dt>
 <dd><p>calculates the first Piola-Kirchoff stress</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>def_grad</strong> (<em>3x3 array-like</em>) – deformation gradient tensor</p>
 </dd>
 </dl>
@@ -167,10 +168,10 @@ stress</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2">
-<span class="sig-name descname"><span class="pre">piola_kirchoff_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_grad</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/elasticity/stress.py#L98-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">piola_kirchoff_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_grad</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../analysis/elasticity/stress.py#L98-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2" title="Permalink to this definition"></a></dt>
 <dd><p>calculates the second Piola-Kirchoff stress</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>def_grad</strong> (<em>3x3 array-like</em>) – rate of deformation tensor</p>
 </dd>
 </dl>
@@ -178,12 +179,12 @@ stress</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.symbol">
-<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'s'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'s'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.symbol" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.stress.Stress.von_mises">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">von_mises</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.von_mises" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">von_mises</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.von_mises" title="Permalink to this definition"></a></dt>
 <dd><p>returns the von mises stress</p>
 </dd></dl>
 

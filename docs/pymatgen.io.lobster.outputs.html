@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lobster.outputs module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.io.lobster.outputs module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -115,12 +116,12 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.io.lobster.outputs">
-<span id="pymatgen-io-lobster-outputs-module"></span><h1>pymatgen.io.lobster.outputs module<a class="headerlink" href="#module-pymatgen.io.lobster.outputs" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-io-lobster-outputs-module"></span><h1>pymatgen.io.lobster.outputs module<a class="headerlink" href="#module-pymatgen.io.lobster.outputs" title="Permalink to this heading"></a></h1>
 <p>Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Bandoverlaps">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Bandoverlaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bandOverlaps.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1276-L1397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Bandoverlaps" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Bandoverlaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bandOverlaps.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1276-L1397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Bandoverlaps" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.
 .. attribute: bandoverlapsdict is a dict of the following form:</p>
@@ -129,13 +130,13 @@ on LOBSTER see www.cohp.de.</p>
 array of the size number of bands times number of bands including the overlap matrices with } }}</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – filename of the “bandOverlaps.lobster” file</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_check_occupied_bands">
-<span class="sig-name descname"><span class="pre">has_good_quality_check_occupied_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_occ_bands_spin_up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_occ_bands_spin_down</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_polarized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_deviation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1352-L1397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_check_occupied_bands" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">has_good_quality_check_occupied_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_occ_bands_spin_up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_occ_bands_spin_down</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_polarized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_deviation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1352-L1397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_check_occupied_bands" title="Permalink to this definition"></a></dt>
 <dd><p>will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
 limit_deviation</p>
 <p>Args:
@@ -148,11 +149,11 @@ limit_deviation (float): limit of the maxDeviation
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_maxDeviation">
-<span class="sig-name descname"><span class="pre">has_good_quality_maxDeviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit_maxDeviation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1338-L1350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_maxDeviation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">has_good_quality_maxDeviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit_maxDeviation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1338-L1350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_maxDeviation" title="Permalink to this definition"></a></dt>
 <dd><p>will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
 :param limit_maxDeviation: limit of the maxDeviation</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Boolean that will give you information about the quality of the projection</p>
 </dd>
 </dl>
@@ -162,21 +163,21 @@ limit_deviation (float): limit of the maxDeviation
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Charge">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CHARGE.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L617-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Charge" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CHARGE.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L617-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Charge" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read CHARGE files generated by LOBSTER</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – filename for the CHARGE file, typically “CHARGE.lobster”</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Charge.get_structure_with_charges">
-<span class="sig-name descname"><span class="pre">get_structure_with_charges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L656-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Charge.get_structure_with_charges" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structure_with_charges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L656-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Charge.get_structure_with_charges" title="Permalink to this definition"></a></dt>
 <dd><p>get a Structure with Mulliken and Loewdin charges as site properties
 :param structure_filename: filename of POSCAR</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Structure Object with Mulliken and Loewdin charges as site properties</p>
 </dd>
 </dl>
@@ -186,11 +187,11 @@ limit_deviation (float): limit of the maxDeviation
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Cohpcar">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Cohpcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_cobis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L39-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Cohpcar" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Cohpcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_cobis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L39-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Cohpcar" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read COHPCAR/COOPCAR files generated by LOBSTER.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>are_coops</strong> – Determines if the file is a list of COHPs or COOPs.
 Default is False for COHPs.</p></li>
@@ -205,40 +206,40 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Doscar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doscar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DOSCAR.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'POSCAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dftprogram</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Vasp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L429-L614"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Doscar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doscar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DOSCAR.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'POSCAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dftprogram</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Vasp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L429-L614"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to deal with Lobster’s projected DOS and local projected DOS.
 The beforehand quantum-chemical calculation was performed with VASP</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.completedos">
-<span class="sig-name descname"><span class="pre">completedos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.completedos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">completedos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.completedos" title="Permalink to this definition"></a></dt>
 <dd><p>LobsterCompleteDos Object</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.pdos">
-<span class="sig-name descname"><span class="pre">pdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.pdos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.pdos" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">List</span> <span class="pre">of</span> <span class="pre">Dict</span> <span class="pre">including</span> <span class="pre">numpy</span> <span class="pre">arrays</span> <span class="pre">with</span> <span class="pre">pdos.</span> <span class="pre">Access</span> <span class="pre">as</span> <span class="pre">pdos[atomindex]['orbitalstring']['Spin.up/Spin.down']</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.tdos">
-<span class="sig-name descname"><span class="pre">tdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.tdos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.tdos" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">Dos</span> <span class="pre">Object</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">total</span> <span class="pre">density</span> <span class="pre">of</span> <span class="pre">states</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.energies">
-<span class="sig-name descname"><span class="pre">energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.energies" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.energies" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">numpy</span> <span class="pre">array</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">energies</span> <span class="pre">at</span> <span class="pre">which</span> <span class="pre">the</span> <span class="pre">DOS</span> <span class="pre">was</span> <span class="pre">calculated</span> <span class="pre">(in</span> <span class="pre">eV,</span> <span class="pre">relative</span> <span class="pre">to</span> <span class="pre">Efermi)</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.tdensities">
-<span class="sig-name descname"><span class="pre">tdensities</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.tdensities" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tdensities</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.tdensities" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">tdensities[Spin.up]:</span> <span class="pre">numpy</span> <span class="pre">array</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">total</span> <span class="pre">density</span> <span class="pre">of</span> <span class="pre">states</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">Spin.up</span> <span class="pre">contribution</span> <span class="pre">at</span> <span class="pre">each</span> <span class="pre">of</span> <span class="pre">the</span></span></dt>
 <dt class="sig sig-object py" id="id0">
@@ -257,7 +258,7 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">itdensities[Spin.up]:</span> <span class="pre">numpy</span> <span class="pre">array</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">total</span> <span class="pre">density</span> <span class="pre">of</span> <span class="pre">states</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">Spin.up</span> <span class="pre">contribution</span> <span class="pre">at</span> <span class="pre">each</span> <span class="pre">of</span> <span class="pre">the</span></span></dt>
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">itdensities[Spin.down]:</span> <span class="pre">numpy</span> <span class="pre">array</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">total</span> <span class="pre">density</span> <span class="pre">of</span> <span class="pre">states</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">Spin.down</span> <span class="pre">contribution</span> <span class="pre">at</span> <span class="pre">each</span> <span class="pre">of</span> <span class="pre">the</span></span></dt>
 <dt class="sig sig-object py">
@@ -268,13 +269,13 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.is_spin_polarized">
-<span class="sig-name descname"><span class="pre">is_spin_polarized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.is_spin_polarized" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_spin_polarized</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.is_spin_polarized" title="Permalink to this definition"></a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">Boolean.</span> <span class="pre">Tells</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">system</span> <span class="pre">is</span> <span class="pre">spin</span> <span class="pre">polarized</span></span></dt>
 <dd></dd></dl>
 
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>doscar</strong> – DOSCAR filename, typically “DOSCAR.lobster”</p></li>
 <li><p><strong>structure_file</strong> – for vasp, this is typically “POSCAR”</p></li>
@@ -284,10 +285,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="id2">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">completedos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.LobsterCompleteDos" title="pymatgen.electronic_structure.dos.LobsterCompleteDos"><span class="pre">pymatgen.electronic_structure.dos.LobsterCompleteDos</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">completedos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.LobsterCompleteDos" title="pymatgen.electronic_structure.dos.LobsterCompleteDos"><span class="pre">LobsterCompleteDos</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
 <dd><p>CompleteDos</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -295,10 +296,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id3">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
 <dd><p>Energies</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -306,10 +307,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id4">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_spin_polarized</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_spin_polarized</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
 <dd><p>Whether run is spin polarized.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -317,10 +318,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Doscar.itdensities">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">itdensities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.itdensities" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">itdensities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Doscar.itdensities" title="Permalink to this definition"></a></dt>
 <dd><p>integrated total densities as a np.ndarray</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -328,10 +329,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id5">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pdos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pdos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
 <dd><p>Projected DOS</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -339,10 +340,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id6">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdensities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdensities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
 <dd><p>total densities as a np.ndarray</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -350,10 +351,10 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id7">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><span class="pre">Dos</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
 <dd><p>Total DOS</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -363,11 +364,11 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Fatband">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Fatband</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vasprun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vasprun.xml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Kpointsfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'KPOINTS'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1033-L1273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Fatband" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Fatband</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vasprun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vasprun.xml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Kpointsfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'KPOINTS'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1033-L1273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Fatband" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads in FATBAND_x_y.lobster files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filenames</strong> (<em>list</em><em> or </em><em>string</em>) – can be a list of file names or a path to a folder folder from which all
 “FATBAND_*” files will be read</p></li>
@@ -378,7 +379,7 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Fatband.get_bandstructure">
-<span class="sig-name descname"><span class="pre">get_bandstructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1260-L1273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Fatband.get_bandstructure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_bandstructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1260-L1273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Fatband.get_bandstructure" title="Permalink to this definition"></a></dt>
 <dd><p>returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter</p>
 </dd></dl>
 
@@ -386,22 +387,22 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Grosspop">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Grosspop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'GROSSPOP.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1400-L1459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Grosspop" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Grosspop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'GROSSPOP.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1400-L1459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Grosspop" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read in GROSSPOP.lobster files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – filename of the “GROSSPOP.lobster” file</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Grosspop.get_structure_with_total_grosspop">
-<span class="sig-name descname"><span class="pre">get_structure_with_total_grosspop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1437-L1459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Grosspop.get_structure_with_total_grosspop" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structure_with_total_grosspop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1437-L1459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Grosspop.get_structure_with_total_grosspop" title="Permalink to this definition"></a></dt>
 <dd><p>get a Structure with Mulliken and Loewdin total grosspopulations as site properties
 :param structure_filename: filename of POSCAR
 :type structure_filename: str</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Structure Object with Mulliken and Loewdin total grosspopulations as site properties</p>
 </dd>
 </dl>
@@ -411,11 +412,11 @@ itdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Icohplist">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Icohplist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_cobis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L257-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Icohplist" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Icohplist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_cobis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L257-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Icohplist" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read ICOHPLIST/ICOOPLIST files generated by LOBSTER.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>are_coops</strong> – Determines if the file is a list of ICOOPs.
 Defaults to False for ICOHPs.</p></li>
@@ -428,10 +429,10 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Icohplist.icohpcollection">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">icohpcollection</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Icohplist.icohpcollection" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">icohpcollection</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Icohplist.icohpcollection" title="Permalink to this definition"></a></dt>
 <dd><p>IcohpCollection object</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns</p>
 </dd>
 </dl>
@@ -439,10 +440,10 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Icohplist.icohplist">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">icohplist</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Icohplist.icohplist" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">icohplist</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Icohplist.icohplist" title="Permalink to this definition"></a></dt>
 <dd><p>icohplist compatible with older version of this class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns</p>
 </dd>
 </dl>
@@ -452,19 +453,19 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Lobsterout">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Lobsterout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lobsterout'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L673-L1030"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Lobsterout" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Lobsterout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lobsterout'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L673-L1030"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Lobsterout" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos</p>
 <blockquote>
 <div></div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – filename of lobsterout</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Lobsterout.get_doc">
-<span class="sig-name descname"><span class="pre">get_doc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L830-L869"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Lobsterout.get_doc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_doc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L830-L869"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Lobsterout.get_doc" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: LobsterDict with all the information stored in lobsterout</p>
 </dd></dl>
 
@@ -472,11 +473,11 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.MadelungEnergies">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MadelungEnergies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MadelungEnergies.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1657-L1684"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.MadelungEnergies" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MadelungEnergies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MadelungEnergies.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1657-L1684"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.MadelungEnergies" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read MadelungEnergies.lobster files generated by LOBSTER</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – filename of the “MadelungEnergies.lobster” file</p>
 </dd>
 </dl>
@@ -484,21 +485,21 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.SitePotential">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SitePotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SitePotentials.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1687-L1753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.SitePotential" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SitePotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SitePotentials.lobster'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1687-L1753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.SitePotential" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read SitePotentials.lobster files generated by LOBSTER</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – filename for the SitePotentials file, typically “SitePotentials.lobster”</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.SitePotential.get_structure_with_site_potentials">
-<span class="sig-name descname"><span class="pre">get_structure_with_site_potentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1739-L1753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.SitePotential.get_structure_with_site_potentials" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structure_with_site_potentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1739-L1753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.SitePotential.get_structure_with_site_potentials" title="Permalink to this definition"></a></dt>
 <dd><p>get a Structure with Mulliken and Loewdin charges as site properties
 :param structure_filename: filename of POSCAR</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Structure Object with Mulliken and Loewdin charges as site properties</p>
 </dd>
 </dl>
@@ -508,11 +509,11 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Wavefunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Wavefunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1462-L1653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Wavefunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1462-L1653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read in wave function files from Lobster and transfer them into an object of the type VolumetricData</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – filename of wavecar file from Lobster</p></li>
 <li><p><strong>structure</strong> – Structure object (e.g., created by Structure.from_file(“”))</p></li>
@@ -521,31 +522,31 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_density">
-<span class="sig-name descname"><span class="pre">get_volumetricdata_density</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1614-L1623"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_density" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_volumetricdata_density</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1614-L1623"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_density" title="Permalink to this definition"></a></dt>
 <dd><p>will return a VolumetricData object including the imaginary part of the wave function</p>
 <p>Returns: VolumetricData object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_imaginary">
-<span class="sig-name descname"><span class="pre">get_volumetricdata_imaginary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1604-L1612"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_imaginary" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_volumetricdata_imaginary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1604-L1612"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_imaginary" title="Permalink to this definition"></a></dt>
 <dd><p>will return a VolumetricData object including the imaginary part of the wave function</p>
 <p>Returns: VolumetricData object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_real">
-<span class="sig-name descname"><span class="pre">get_volumetricdata_real</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1593-L1602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_real" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_volumetricdata_real</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1593-L1602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_real" title="Permalink to this definition"></a></dt>
 <dd><p>will return a VolumetricData object including the real part of the wave function</p>
 <p>Returns: VolumetricData object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Wavefunction.set_volumetric_data">
-<span class="sig-name descname"><span class="pre">set_volumetric_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1530-L1591"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.set_volumetric_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_volumetric_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1530-L1591"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.set_volumetric_data" title="Permalink to this definition"></a></dt>
 <dd><p>Will create the VolumetricData Objects</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>grid</strong> – grid on which wavefunction was calculated, e.g. [1,2,2]</p></li>
 <li><p><strong>structure</strong> – Structure object</p></li>
@@ -557,14 +558,14 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Wavefunction.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'WAVECAR.vasp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'real'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/lobster/outputs.py#L1625-L1653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.write_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'WAVECAR.vasp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'real'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/lobster/outputs.py#L1625-L1653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Wavefunction.write_file" title="Permalink to this definition"></a></dt>
 <dd><p>will save the wavefunction in a file format that can be read by VESTA
 This will only work if the wavefunction from lobster was constructed with:
 “printLCAORealSpaceWavefunction kpoint 1 coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 2 3 4
 5 6 ”
 or similar (the whole unit cell has to be covered!)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – Filename for the output, e.g., WAVECAR.vasp</p></li>
 <li><p><strong>part</strong> – which part of the wavefunction will be saved (“real” or “imaginary”)</p></li>

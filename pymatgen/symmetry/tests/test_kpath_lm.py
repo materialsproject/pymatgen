@@ -69,7 +69,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         kpath = KPathLatimerMunro(struct_prim)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints.keys())
+        labels = list(kpoints)
 
         self.assertEqual(
             sorted(labels),
@@ -137,7 +137,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         kpath = KPathLatimerMunro(col_spin_prim, has_magmoms=True)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints.keys())
+        labels = list(kpoints)
 
         self.assertEqual(
             sorted(labels),

@@ -155,7 +155,7 @@ class ElasticTensorTest(PymatgenTest):
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
-            if attr_name not in (list(prop_dict.keys()) + ["structure"]):
+            if attr_name not in (list(prop_dict) + ["structure"]):
                 self.assertRaises(ValueError, getattr(test_et, attr_name), self.structure)
         self.assertRaises(ValueError, test_et.get_structure_property_dict, self.structure)
         noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
@@ -403,23 +403,23 @@ class DiffFitTest(PymatgenTest):
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         random.shuffle(all_strains)
         all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed() for s in all_strains]
-        strain_dict = {k.tostring(): v for k, v in zip(all_strains, all_stresses)}
+        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         self.assertEqual(len(strain_inds), len(ss_dict))
         # Check sets of strain states are correct
-        self.assertEqual(set(strain_states), set(ss_dict.keys()))
-        for strain_state, data in ss_dict.items():
+        self.assertEqual(set(strain_states), set(ss_dict))
+        for data in ss_dict.values():
             # Check correspondence of strains/stresses
             for strain, stress in zip(data["strains"], data["stresses"]):
                 self.assertArrayAlmostEqual(
                     Stress.from_voigt(stress),
-                    strain_dict[Strain.from_voigt(strain).tostring()],
+                    strain_dict[Strain.from_voigt(strain).tobytes()],
                 )
         # Add test to ensure zero strain state doesn't cause issue
         strains, stresses = [Strain.from_voigt([-0.01] + [0] * 5)], [Stress(np.eye(3))]
         ss_dict = get_strain_state_dict(strains, stresses)
-        self.assertArrayAlmostEqual(list(ss_dict.keys()), [[1, 0, 0, 0, 0, 0]])
+        self.assertArrayAlmostEqual(list(ss_dict), [[1, 0, 0, 0, 0, 0]])
 
     def test_find_eq_stress(self):
         test_strains = deepcopy(self.strains)

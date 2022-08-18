@@ -11,6 +11,7 @@ import collections
 import numpy as np
 
 from pymatgen.core.spectrum import Spectrum
+from pymatgen.core.structure import Structure
 from pymatgen.util.plotting import add_fig_kwargs
 
 
@@ -55,7 +56,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
     SCALED_INTENSITY_TOL = 1e-3
 
     @abc.abstractmethod
-    def get_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
+    def get_pattern(self, structure: Structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the diffraction pattern for a structure.
 
@@ -163,7 +164,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
         return plt
 
-    def show_plot(self, structure, **kwargs):
+    def show_plot(self, structure: Structure, **kwargs):
         """
         Shows the diffraction plot.
 

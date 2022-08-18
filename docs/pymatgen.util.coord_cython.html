@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.coord_cython module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.util.coord_cython module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,22 +115,24 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.util.coord_cython">
-<span id="pymatgen-util-coord-cython-module"></span><h1>pymatgen.util.coord_cython module<a class="headerlink" href="#module-pymatgen.util.coord_cython" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-util-coord-cython-module"></span><h1>pymatgen.util.coord_cython module<a class="headerlink" href="#module-pymatgen.util.coord_cython" title="Permalink to this heading"></a></h1>
 <p>Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord_cython.coord_list_mapping_pbc">
-<span class="sig-name descname"><span class="pre">coord_list_mapping_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.coord_list_mapping_pbc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coord_list_mapping_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.coord_list_mapping_pbc" title="Permalink to this definition"></a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Superset cannot contain duplicate matching rows</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subset</strong> – List of frac_coords</p></li>
 <li><p><strong>superset</strong> – List of frac_coords</p></li>
+<li><p><strong>pbc</strong> – a tuple defining the periodic boundary conditions along the three
+axis of the lattice.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of indices such that superset[indices] = subset</p>
 </dd>
 </dl>
@@ -137,18 +140,20 @@ Superset cannot contain duplicate matching rows</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord_cython.is_coord_subset_pbc">
-<span class="sig-name descname"><span class="pre">is_coord_subset_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.is_coord_subset_pbc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_coord_subset_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.is_coord_subset_pbc" title="Permalink to this definition"></a></dt>
 <dd><p>Tests if all fractional coords in subset are contained in superset.
 Allows specification of a mask determining pairs that are not
 allowed to match to each other</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subset</strong> – List of fractional coords</p></li>
 <li><p><strong>superset</strong> – List of fractional coords</p></li>
+<li><p><strong>pbc</strong> – a tuple defining the periodic boundary conditions along the three
+axis of the lattice.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if all of subset is in superset.</p>
 </dd>
 </dl>
@@ -156,11 +161,11 @@ allowed to match to each other</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord_cython.pbc_shortest_vectors">
-<span class="sig-name descname"><span class="pre">pbc_shortest_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.pbc_shortest_vectors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pbc_shortest_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.pbc_shortest_vectors" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the shortest vectors between two lists of coordinates taking into
 account periodic boundary conditions and the lattice.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lattice</strong> – lattice to use</p></li>
 <li><p><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
@@ -174,7 +179,7 @@ the calculation of minimum vectors will be skipped.
 Can speed up calculation considerably for large structures.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>array of displacement vectors from fcoords1 to fcoords2
 first index is fcoords1 index, second is fcoords2 index</p>
 </dd>

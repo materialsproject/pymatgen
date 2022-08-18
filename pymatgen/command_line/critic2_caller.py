@@ -33,7 +33,7 @@ Comput. Phys. Commun. 185, 1007-1018 (2014)
 (https://doi.org/10.1016/j.cpc.2013.10.026)
 
 A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
-V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
+V. Luaña, Comput. Phys. Commun. 180, 157-166 (2009)
 (https://doi.org/10.1016/j.cpc.2008.07.018)
 """
 
@@ -54,6 +54,7 @@ from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 
@@ -192,7 +193,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join([f"{symbol} {int(zval)}" for symbol, zval in zpsp.items()])
+                zpsp_str = " zpsp " + " ".join([f"{symbol} {zval}" for symbol, zval in zpsp.items()])
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -425,7 +426,7 @@ class Critic2Analysis(MSONable):
     Class to process the standard output from critic2 into pymatgen-compatible objects.
     """
 
-    def __init__(self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
+    def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -471,8 +472,8 @@ class Critic2Analysis(MSONable):
         self._yt = yt
         self._zpsp = zpsp
 
-        self.nodes = {}
-        self.edges = {}
+        self.nodes: dict[int, dict] = {}
+        self.edges: dict[int, dict] = {}
 
         if yt:
             self.structure = self._annotate_structure_with_yt(yt, structure, zpsp)
@@ -606,10 +607,10 @@ class Critic2Analysis(MSONable):
 
         return sg
 
-    def get_critical_point_for_site(self, n):
+    def get_critical_point_for_site(self, n: int):
         """
         Args:
-            n: Site index n
+            n (int): Site index
 
         Returns: A CriticalPoint instance
         """
@@ -661,19 +662,19 @@ class Critic2Analysis(MSONable):
             for p in cpreport["critical_points"]["nonequivalent_cps"]
         ]
 
-        for idx, p in enumerate(cpreport["critical_points"]["cell_cps"]):
+        for point in cpreport["critical_points"]["cell_cps"]:
             self._add_node(
-                idx=p["id"] - 1,
-                unique_idx=p["nonequivalent_id"] - 1,
-                frac_coords=p["fractional_coordinates"],
+                idx=point["id"] - 1,
+                unique_idx=point["nonequivalent_id"] - 1,
+                frac_coords=point["fractional_coordinates"],
             )
-            if "attractors" in p:
+            if "attractors" in point:
                 self._add_edge(
-                    idx=p["id"] - 1,
-                    from_idx=int(p["attractors"][0]["cell_id"]) - 1,
-                    from_lvec=p["attractors"][0]["lvec"],
-                    to_idx=int(p["attractors"][1]["cell_id"]) - 1,
-                    to_lvec=p["attractors"][1]["lvec"],
+                    idx=point["id"] - 1,
+                    from_idx=int(point["attractors"][0]["cell_id"]) - 1,
+                    from_lvec=point["attractors"][0]["lvec"],
+                    to_idx=int(point["attractors"][1]["cell_id"]) - 1,
+                    to_lvec=point["attractors"][1]["lvec"],
                 )
 
     def _remap_indices(self):
@@ -710,7 +711,7 @@ class Critic2Analysis(MSONable):
             edge["to_idx"] = node_mapping.get(edge["to_idx"], edge["to_idx"])
 
     @staticmethod
-    def _annotate_structure_with_yt(yt, structure, zpsp):
+    def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
 
         volume_idx = None
         charge_idx = None

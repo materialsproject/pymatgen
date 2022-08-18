@@ -282,9 +282,9 @@ class LammpsDataTest(unittest.TestCase):
         c2h6 = LammpsData.from_file(filename1)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
-        ff_kw = random.sample(self.ethane.force_field.keys(), 1)[0]
+        ff_kw = random.sample(sorted(self.ethane.force_field), 1)[0]
         pd.testing.assert_frame_equal(c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw)
-        topo_kw = random.sample(self.ethane.topology.keys(), 1)[0]
+        topo_kw = random.sample(sorted(self.ethane.topology), 1)[0]
         pd.testing.assert_frame_equal(c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw)
         filename2 = "test2.data"
         self.virus.write_file(filename=filename2)

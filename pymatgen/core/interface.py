@@ -424,7 +424,7 @@ class Interface(Structure):
 
         # Only merge site properties in both slabs
         site_properties = {}
-        site_props_in_both = set(substrate_slab.site_properties.keys()) & set(film_slab.site_properties.keys())
+        site_props_in_both = set(substrate_slab.site_properties) & set(film_slab.site_properties)
 
         for key in site_props_in_both:
             site_properties[key] = [
@@ -498,7 +498,7 @@ def count_layers(struc: Structure, el=None) -> int:
     """
     Counts the number of 'layers' along the c-axis
     """
-    el = el if el else struc.composition.elements[0]
+    el = el or struc.composition.elements[0]
     frac_coords = [site.frac_coords for site in struc if site.species_string == str(el)]
     n = len(frac_coords)
 

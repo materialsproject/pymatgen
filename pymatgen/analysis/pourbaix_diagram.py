@@ -397,7 +397,7 @@ class IonEntry(PDEntry):
         """
         self.ion = ion
         # Auto-assign name
-        name = name if name else self.ion.reduced_formula
+        name = name or self.ion.reduced_formula
         super().__init__(composition=ion.composition, energy=energy, name=name, attribute=attribute)
 
     @classmethod
@@ -934,7 +934,7 @@ class PourbaixDiagram(MSONable):
         """
         Returns the stable entries in the Pourbaix diagram.
         """
-        return list(self._stable_domains.keys())
+        return list(self._stable_domains)
 
     @property
     def unstable_entries(self):

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.symmetry.kpath module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.symmetry.kpath module &mdash; pymatgen 2022.7.25 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.7.25
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,17 +115,17 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.symmetry.kpath">
-<span id="pymatgen-symmetry-kpath-module"></span><h1>pymatgen.symmetry.kpath module<a class="headerlink" href="#module-pymatgen.symmetry.kpath" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-symmetry-kpath-module"></span><h1>pymatgen.symmetry.kpath module<a class="headerlink" href="#module-pymatgen.symmetry.kpath" title="Permalink to this heading"></a></h1>
 <p>Provides classes for generating high-symmetry k-paths using different conventions.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L38-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L43-L134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is the base class for classes used to generate high-symmetry
 paths in reciprocal space (k-paths) for band structure calculations.</p>
 <p>Args:
-structure (Structure): Structure object
-symprec (float): Tolerance for symmetry finding
+structure (Structure): Structure object.
+symprec (float): Tolerance for symmetry finding.
 angle_tolerance (float): Angle tolerance for symmetry finding.
 atol (float): Absolute tolerance used to compare structures</p>
 <blockquote>
@@ -133,36 +134,36 @@ in the BZ.</p>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathBase.get_kpoints">
-<span class="sig-name descname"><span class="pre">get_kpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L97-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.get_kpoints" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_kpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L102-L134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.get_kpoints" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
-the kpoints along the paths in Cartesian coordinates
-together with the labels for symmetry points -Wei.</p>
+kpoints along the path in Cartesian coordinates
+together with the critical-point labels.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathBase.kpath">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kpath</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.kpath" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kpath</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.kpath" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The symmetry line path in reciprocal space</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathBase.lattice">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lattice</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.lattice" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lattice</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.lattice" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The real space lattice</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathBase.rec_lattice">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rec_lattice</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.rec_lattice" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rec_lattice</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.rec_lattice" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The reciprocal space lattice</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathBase.structure">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathBase.structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The input structure</p>
 </dd></dl>
@@ -171,12 +172,12 @@ The input structure</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathLatimerMunro">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathLatimerMunro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magmom_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L1062-L2359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
-<p>This class looks for a path along high symmetry lines in the
-Brillouin zone. It is based on the method outlined in:</p>
-<p>npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7</p>
-<p>The user should ensure that the lattice of the input structure
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathLatimerMunro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magmom_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L1063-L2358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">KPathBase</span></code></a></p>
+<p>This class looks for a path along high-symmetry lines in the
+Brillouin zone. It is based on the method outlined in:
+npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+The user should ensure that the unit cell of the input structure
 is as reduced as possible, i.e. that there is no linear
 combination of lattice vectors which can produce a vector of
 lesser magnitude than the given set (this is required to
@@ -186,12 +187,14 @@ warning is issued if the condition is not fulfilled.
 In the case of magnetic structures, care must also be taken to
 provide the magnetic primitive cell (i.e. that which reproduces
 the entire crystal, including the correct magnetic ordering,
-upon application of lattice translations). There is no way to
-programmatically check for this, so if the input structure is
-incorrect, the class will output the incorrect kpath without
+upon application of lattice translations). There is no algorithm to</p>
+<blockquote>
+<div><p>check for this, so if the input structure is</p>
+</div></blockquote>
+<p>incorrect, the class will output the incorrect k-path without
 any warning being issued.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object</p></li>
 <li><p><strong>has_magmoms</strong> (<em>boolean</em>) – Whether the input structure contains
@@ -207,25 +210,25 @@ vectors then this argument is not used.</p></li>
 <li><p><strong>symprec</strong> (<em>float</em>) – Tolerance for symmetry finding</p></li>
 <li><p><strong>angle_tolerance</strong> (<em>float</em>) – Angle tolerance for symmetry finding.</p></li>
 <li><p><strong>atol</strong> (<em>float</em>) – Absolute tolerance used to determine symmetric
-equivalence of points and lines on the BZ.</p></li>
+equivalence of points and lines in the BZ.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LabelPoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L2287-L2322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LabelPoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L2286-L2321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints" title="Permalink to this definition"></a></dt>
 <dd><p>Axes used in generating labels for Latimer-Munro convention</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LabelSymbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L2324-L2359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol" title="Permalink to this definition"></a></dt>
-<dd><p>Letters used in generating labels for Latimer-Munro convention</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LabelSymbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L2323-L2358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol" title="Permalink to this definition"></a></dt>
+<dd><p>Letters used in generating labels for the Latimer-Munro convention</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathLatimerMunro.mag_type">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mag_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.mag_type" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mag_type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.mag_type" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The type of magnetic space group as a string.
 Current implementation does not distinguish
@@ -237,21 +240,17 @@ If has_magmoms is False, returns ‘0’.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSeek">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathSeek</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_is_tri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L935-L1059"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSeek" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
-<p>This class looks for path along high symmetry lines in
-the Brillouin Zone.
-It is based on Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F.,
-&amp; Tanaka, I. (2017). Band structure diagram paths based on
-crystallography. Computational Materials Science, 128, 140–184.
-<a class="reference external" href="https://doi.org/10.1016/j.commatsci.2016.10.015">https://doi.org/10.1016/j.commatsci.2016.10.015</a>
-It should be used with primitive structures that
-comply with the definition from the paper.
-The symmetry is determined by spglib through the
-SpacegroupAnalyzer class. KPoints from get_kpoints() method
-are returned in the reciprocal cell basis defined in the paper.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathSeek</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_is_tri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L940-L1060"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSeek" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">KPathBase</span></code></a></p>
+<p>This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
+Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F., &amp; Tanaka, I. (2017). Band structure diagram paths
+based on crystallography. Computational Materials Science, 128, 140-184.
+<a class="reference external" href="https://doi.org/10.1016/j.commatsci.2016.10.015">https://doi.org/10.1016/j.commatsci.2016.10.015</a>. It should be used with primitive structures that
+comply with the definition given in the paper. The symmetry is determined by spglib using the
+SpacegroupAnalyzer class. k-points are generated using the get_kpoints() method for the
+reciprocal cell basis defined in the paper.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object</p></li>
 <li><p><strong>symprec</strong> (<em>float</em>) – Tolerance for symmetry finding</p></li>
@@ -267,188 +266,188 @@ invariant.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathSetyawanCurtarolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L132-L932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
-<p>This class looks for path along high symmetry lines in
-the Brillouin Zone.
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KPathSetyawanCurtarolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L137-L937"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">KPathBase</span></code></a></p>
+<p>This class looks for a path along high-symmetry lines in
+the Brillouin zone.
 It is based on Setyawan, W., &amp; Curtarolo, S. (2010).
 High-throughput electronic band structure calculations:
 Challenges and tools. Computational Materials Science,
 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
 It should be used with primitive structures that
-comply with the definition from the paper.
-The symmetry is determined by spglib through the
+comply with the definition given in the paper.
+The symmetry is determined by spglib using the
 SpacegroupAnalyzer class. The analyzer can be used to
-produce the correct primitive structure (method
-get_primitive_standard_structure(international_monoclinic=False)).
+produce the correct primitive structure with the method
+get_primitive_standard_structure(international_monoclinic=False).
 A warning will signal possible compatibility problems
-with the given structure. KPoints from get_kpoints() method
-are returned in the reciprocal cell basis defined in the paper.</p>
+with the given structure. k-points generated using the get_kpoints() method
+are returned for the reciprocal cell basis defined in the paper.</p>
 <p>Args:
-structure (Structure): Structure object
-symprec (float): Tolerance for symmetry finding
+structure (Structure): Structure object.
+symprec (float): Tolerance for symmetry finding.
 angle_tolerance (float): Angle tolerance for symmetry finding.
 atol (float): Absolute tolerance used to compare the input</p>
 <blockquote>
 <div><p>structure with the one expected as primitive standard.
-A warning will be issued if the lattices don’t match.</p>
+A warning will be issued if the cells don’t match.</p>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bcc">
-<span class="sig-name descname"><span class="pre">bcc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L340-L352"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bcc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bcc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L345-L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bcc" title="Permalink to this definition"></a></dt>
 <dd><p>BCC Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet1">
-<span class="sig-name descname"><span class="pre">bctet1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L374-L390"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bctet1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L379-L395"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet1" title="Permalink to this definition"></a></dt>
 <dd><p>BCT1 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet2">
-<span class="sig-name descname"><span class="pre">bctet2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L392-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet2" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bctet2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L397-L431"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet2" title="Permalink to this definition"></a></dt>
 <dd><p>BCT2 Path</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.conventional">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conventional</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.conventional" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conventional</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.conventional" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The conventional cell structure</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.cubic">
-<span class="sig-name descname"><span class="pre">cubic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L307-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.cubic" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cubic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L312-L324"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.cubic" title="Permalink to this definition"></a></dt>
 <dd><p>CUB Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.fcc">
-<span class="sig-name descname"><span class="pre">fcc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L321-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.fcc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fcc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L326-L343"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.fcc" title="Permalink to this definition"></a></dt>
 <dd><p>FCC Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.hex">
-<span class="sig-name descname"><span class="pre">hex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L601-L619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.hex" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L606-L624"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.hex" title="Permalink to this definition"></a></dt>
 <dd><p>HEX Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mcl">
-<span class="sig-name descname"><span class="pre">mcl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L670-L700"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mcl" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mcl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L675-L705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mcl" title="Permalink to this definition"></a></dt>
 <dd><p>MCL Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc1">
-<span class="sig-name descname"><span class="pre">mclc1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L702-L736"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mclc1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L707-L741"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc1" title="Permalink to this definition"></a></dt>
 <dd><p>MCLC1 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc2">
-<span class="sig-name descname"><span class="pre">mclc2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L738-L771"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc2" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mclc2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L743-L776"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc2" title="Permalink to this definition"></a></dt>
 <dd><p>MCLC2 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc3">
-<span class="sig-name descname"><span class="pre">mclc3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L773-L808"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc3" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mclc3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L778-L813"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc3" title="Permalink to this definition"></a></dt>
 <dd><p>MCLC3 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc4">
-<span class="sig-name descname"><span class="pre">mclc4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L810-L845"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc4" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mclc4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L815-L850"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc4" title="Permalink to this definition"></a></dt>
 <dd><p>MCLC4 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc5">
-<span class="sig-name descname"><span class="pre">mclc5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L847-L886"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc5" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mclc5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L852-L891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc5" title="Permalink to this definition"></a></dt>
 <dd><p>MCLC5 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orc">
-<span class="sig-name descname"><span class="pre">orc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L428-L449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">orc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L433-L454"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orc" title="Permalink to this definition"></a></dt>
 <dd><p>ORC Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcc">
-<span class="sig-name descname"><span class="pre">orcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L564-L599"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">orcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L569-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcc" title="Permalink to this definition"></a></dt>
 <dd><p>ORCC Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf1">
-<span class="sig-name descname"><span class="pre">orcf1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L451-L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">orcf1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L456-L481"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf1" title="Permalink to this definition"></a></dt>
 <dd><p>ORFC1 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf2">
-<span class="sig-name descname"><span class="pre">orcf2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L478-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf2" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">orcf2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L483-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf2" title="Permalink to this definition"></a></dt>
 <dd><p>ORFC2 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf3">
-<span class="sig-name descname"><span class="pre">orcf3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L508-L531"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf3" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">orcf3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L513-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf3" title="Permalink to this definition"></a></dt>
 <dd><p>ORFC3 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orci">
-<span class="sig-name descname"><span class="pre">orci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L533-L562"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orci" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">orci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L538-L567"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orci" title="Permalink to this definition"></a></dt>
 <dd><p>ORCI Path</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prim</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prim</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The primitive cell structure</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim_rec">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prim_rec</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim_rec" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prim_rec</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/kpath.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim_rec" title="Permalink to this definition"></a></dt>
 <dd><p>Returns:
 The primitive reciprocal cell structure</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl1">
-<span class="sig-name descname"><span class="pre">rhl1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L621-L648"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rhl1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L626-L653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl1" title="Permalink to this definition"></a></dt>
 <dd><p>RHL1 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl2">
-<span class="sig-name descname"><span class="pre">rhl2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L650-L668"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl2" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rhl2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L655-L673"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl2" title="Permalink to this definition"></a></dt>
 <dd><p>RHL2 Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tet">
-<span class="sig-name descname"><span class="pre">tet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L354-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tet" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L359-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tet" title="Permalink to this definition"></a></dt>
 <dd><p>TET Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tria">
-<span class="sig-name descname"><span class="pre">tria</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L888-L909"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tria" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tria</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L893-L914"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tria" title="Permalink to this definition"></a></dt>
 <dd><p>TRI1a Path</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.trib">
-<span class="sig-name descname"><span class="pre">trib</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../symmetry/kpath.py#L911-L932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.trib" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">trib</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/kpath.py#L916-L937"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.trib" title="Permalink to this definition"></a></dt>
 <dd><p>TRI1b Path</p>
 </dd></dl>
 

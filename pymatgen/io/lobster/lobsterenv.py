@@ -22,6 +22,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
 )
 from pymatgen.analysis.local_env import NearNeighbors
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
@@ -229,7 +230,7 @@ class LobsterNeighbors(NearNeighbors):
 
         return set(anion_species)
 
-    def get_nn_info(self, structure, n, use_weights=False):
+    def get_nn_info(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of site with index n in structure.
 
@@ -332,7 +333,7 @@ class LobsterNeighbors(NearNeighbors):
             new_list_neighsite = []
             new_list_neighisite = []
 
-            for isite, site in enumerate(self.structure):
+            for isite, _site in enumerate(self.structure):
 
                 if isite in only_indices:
 
@@ -390,7 +391,7 @@ class LobsterNeighbors(NearNeighbors):
         labels = []
         atoms = []
         final_isites = []
-        for ival, site in enumerate(self.structure):
+        for ival, _site in enumerate(self.structure):
             if ival in isites:
                 for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival]):
                     summed_icohps += icohpsum
@@ -415,7 +416,7 @@ class LobsterNeighbors(NearNeighbors):
             per_bond=False,
             summed_spin_channels=False,
             xlim=None,
-            ylim=[-10, 6],
+            ylim=(-10, 6),
             integrated=False,
     ):
 
@@ -501,7 +502,7 @@ class LobsterNeighbors(NearNeighbors):
 
         # will check that the number of bonds in ICOHPLIST and COHPCAR are identical
         # further checks could be implemented
-        if len(self.Icohpcollection._list_atom1) != len(self.completecohp.bonds.keys()):
+        if len(self.Icohpcollection._list_atom1) != len(self.completecohp.bonds):
             raise ValueError("COHPCAR and ICOHPLIST do not fit together")
         is_spin_completecohp = Spin.down in self.completecohp.get_cohp_by_label("1").cohp
         if self.Icohpcollection.is_spin_polarized != is_spin_completecohp:
@@ -607,7 +608,7 @@ class LobsterNeighbors(NearNeighbors):
         number_bonds = 0
         label_list = []
         atoms_list = []
-        for iisite, isite in enumerate(isites):
+        for isite in isites:
             for in_site, n_site in enumerate(self.list_neighsite[isite]):
                 for in_site2, n_site2 in enumerate(self.list_neighsite[isite]):
                     if in_site < in_site2:
@@ -633,7 +634,7 @@ class LobsterNeighbors(NearNeighbors):
                         )
 
                         done = False
-                        for key, icohp in icohps.items():
+                        for icohp in icohps.values():
 
                             atomnr1 = self._get_atomnumber(icohp._atom1)
                             atomnr2 = self._get_atomnumber(icohp._atom2)
@@ -834,7 +835,7 @@ class LobsterNeighbors(NearNeighbors):
         list_icohps = []
         list_lengths = []
         list_keys = []
-        for isite, site in enumerate(self.structure):
+        for isite in range(len(self.structure)):
 
             icohps = self._get_icohps(
                 icohpcollection=self.Icohpcollection,
@@ -1144,7 +1145,7 @@ class LobsterNeighbors(NearNeighbors):
             elif additional_condition == 1:
                 # only cation anion bonds
                 list_icohps = []
-                for key, value in icohpcollection._icohplist.items():
+                for value in icohpcollection._icohplist.values():
                     atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
                     atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
 
@@ -1158,7 +1159,7 @@ class LobsterNeighbors(NearNeighbors):
             elif additional_condition == 2:
                 # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
                 list_icohps = []
-                for key, value in icohpcollection._icohplist.items():
+                for value in icohpcollection._icohplist.values():
                     if value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789"):
                         list_icohps.append(value.summed_icohp)
                 extremum_based = min(list_icohps) * percentage
@@ -1166,7 +1167,7 @@ class LobsterNeighbors(NearNeighbors):
             elif additional_condition == 3:
                 # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
                 list_icohps = []
-                for key, value in icohpcollection._icohplist.items():
+                for value in icohpcollection._icohplist.values():
                     atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
                     atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
                     val1 = self.valences[atomnr1]
@@ -1178,14 +1179,14 @@ class LobsterNeighbors(NearNeighbors):
                 extremum_based = min(list_icohps) * percentage
             elif additional_condition == 4:
                 list_icohps = []
-                for key, value in icohpcollection._icohplist.items():
+                for value in icohpcollection._icohplist.values():
                     if value._atom1.rstrip("0123456789") == "O" or value._atom2.rstrip("0123456789") == "O":
                         list_icohps.append(value.summed_icohp)
                 extremum_based = min(list_icohps) * percentage
             elif additional_condition == 5:
                 # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
                 list_icohps = []
-                for key, value in icohpcollection._icohplist.items():
+                for value in icohpcollection._icohplist.values():
                     atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
                     atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
                     val1 = self.valences[atomnr1]
@@ -1198,7 +1199,7 @@ class LobsterNeighbors(NearNeighbors):
             elif additional_condition == 6:
                 # ONLY_CATION_CATION_BONDS=6
                 list_icohps = []
-                for key, value in icohpcollection._icohplist.items():
+                for value in icohpcollection._icohplist.values():
                     atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
                     atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
                     val1 = self.valences[atomnr1]
@@ -1222,7 +1223,14 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
     @classmethod
     def from_Lobster(
-            cls, list_ce_symbol, list_csm, list_permutation, list_neighsite, list_neighisite, structure, valences=None
+        cls,
+        list_ce_symbol,
+        list_csm,
+        list_permutation,
+        list_neighsite,
+        list_neighisite,
+        structure: Structure,
+        valences=None,
     ):
         """
         will set up a LightStructureEnvironments from Lobster
@@ -1249,7 +1257,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         all_nbs_sites_indices = []
         neighbors_sets = []
         counter = 0
-        for isite, site in enumerate(structure):
+        for isite, _site in enumerate(structure):
 
             # all_nbs_sites_here=[]
             all_nbs_sites_indices_here = []

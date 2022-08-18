@@ -11,7 +11,7 @@ You may wish to look at the optional dependency galore for more functionality su
 Note that the atomic_subshell_photoionization_cross_sections.csv has been reparsed from the original compilation::
 
     Yeh, J. J.; Lindau, I. Atomic Subshell Photoionization Cross Sections and Asymmetry Parameters: 1 ⩽ Z ⩽ 103.
-    Atomic Data and Nuclear Data Tables 1985, 32 (1), 1–155. https://doi.org/10.1016/0092-640X(85)90016-6.
+    Atomic Data and Nuclear Data Tables 1985, 32 (1), 1-155. https://doi.org/10.1016/0092-640X(85)90016-6.
 
 This version contains all detailed information for all orbitals.
 """
@@ -69,7 +69,7 @@ class XPS(Spectrum):
         :return: XPS
         """
         total = np.zeros(dos.energies.shape)
-        for el in dos.structure.composition.keys():
+        for el in dos.structure.composition:
             spd_dos = dos.get_element_spd_dos(el)
             for orb, pdos in spd_dos.items():
                 weight = CROSS_SECTIONS[el.symbol].get(str(orb), None)

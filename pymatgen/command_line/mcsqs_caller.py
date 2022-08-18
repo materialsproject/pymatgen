@@ -21,7 +21,7 @@ Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
 """
 Return type for run_mcsqs.
 bestsqs: Structure
-objective_function: Union[float, str]
+objective_function: float | str
 allsqs: List
 clusters: List
 directory: str
@@ -110,8 +110,8 @@ def run_mcsqs(
         mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
 
     # Run mcsqs to find clusters
-    with Popen(mcsqs_generate_clusters_cmd) as p:
-        p.communicate()
+    with Popen(mcsqs_generate_clusters_cmd) as process:
+        process.communicate()
 
     # Generate SQS structures
     add_ons = [
@@ -128,21 +128,21 @@ def run_mcsqs(
         for i in range(instances):
             instance_cmd = [f"-ip {i + 1}"]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
-            p = Popen(cmd)  # pylint: disable=R1732
-            mcsqs_find_sqs_processes.append(p)
+            process = Popen(cmd)  # pylint: disable=R1732
+            mcsqs_find_sqs_processes.append(process)
     else:
         # run normal mcsqs command
         cmd = mcsqs_find_sqs_cmd + add_ons
-        p = Popen(cmd)  # pylint: disable=R1732
-        mcsqs_find_sqs_processes.append(p)
+        process = Popen(cmd)  # pylint: disable=R1732
+        mcsqs_find_sqs_processes.append(process)
 
     try:
-        for idx, p in enumerate(mcsqs_find_sqs_processes):
-            p.communicate(timeout=search_time * 60)
+        for process in mcsqs_find_sqs_processes:
+            process.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
-            p.communicate()
+            process = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
+            process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
             return _parse_sqs_path(".")
@@ -150,9 +150,9 @@ def run_mcsqs(
         raise RuntimeError("mcsqs exited before timeout reached")
 
     except TimeoutExpired:
-        for p in mcsqs_find_sqs_processes:
-            p.kill()
-            p.communicate()
+        for process in mcsqs_find_sqs_processes:
+            process.kill()
+            process.communicate()
 
         # Find the best sqs structures
         if instances and instances > 1:
@@ -163,8 +163,8 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
-            p.communicate()
+            process = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
+            process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
             sqs = _parse_sqs_path(".")
