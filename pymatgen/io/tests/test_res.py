@@ -1,4 +1,5 @@
 import os
+
 from pymatgen.io.res import ResParser
 from pymatgen.util.testing import PymatgenTest
 

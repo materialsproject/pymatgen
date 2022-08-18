@@ -3,8 +3,8 @@ from typing import Iterator, Optional
 
 from monty.io import zopen
 
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 
 __all__ = ["ResIO"]
@@ -22,7 +22,7 @@ class AirssTITL:
     appearances: int
 
     def __str__(self) -> str:
-        return "TITL {0} {1:.2f} {2:.4f} {3:.5f} {4} {5} {6} {7}".format(
+        return "TITL {} {:.2f} {:.4f} {:.5f} {} {} {} {}".format(
             self.seed,
             self.pressure,
             self.volume,
