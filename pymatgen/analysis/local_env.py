@@ -572,7 +572,7 @@ class NearNeighbors:
 
         sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights)
 
-        #sets the attributes
+        # sets the attributes
         sg.set_node_attributes()
         return sg
 

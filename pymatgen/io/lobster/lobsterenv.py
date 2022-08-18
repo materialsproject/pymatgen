@@ -61,14 +61,13 @@ class LobsterNeighbors(NearNeighbors):
         filename_add_bondinglist_sg2=None,
         identity_add_bondinglist_sg1="ICOOP",
         identity_add_bondinglist_sg2="ICOBI",
-
     ):
         """
 
         Args:
-            are_coops: (Bool) if True, the file is a ICOOPLIST.lobster.NaCl and not a ICOHPLIST.lobster; only tested for
+            are_coops: (Bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
             ICOHPLIST.lobster so far
-            filename_ICOHP: (str) Path to ICOOPLIST.lobster.NaCl
+            filename_ICOHP: (str) Path to ICOHPLIST.lobster
             valences: (list of integers/floats) gives valence/charge for each element
             limits: limit to decide which ICOHPs should be considered
             structure: (Structure Object) typically constructed by: Structure.from_file("POSCAR") (Structure object
@@ -104,35 +103,41 @@ class LobsterNeighbors(NearNeighbors):
         self.only_bonds_to = only_bonds_to
         self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
         self.are_coops = are_coops
-        self.add_additional_data_sg=add_additional_data_sg
-        self.filename_add_bondinglist_sg1=filename_add_bondinglist_sg1
-        self.filename_add_bondinglist_sg2=filename_add_bondinglist_sg2
+        self.add_additional_data_sg = add_additional_data_sg
+        self.filename_add_bondinglist_sg1 = filename_add_bondinglist_sg1
+        self.filename_add_bondinglist_sg2 = filename_add_bondinglist_sg2
 
-        allowed_arguments=["icoop", "icobi"]
-        if identity_add_bondinglist_sg1.lower() not in allowed_arguments or identity_add_bondinglist_sg2.lower() not in allowed_arguments:
+        allowed_arguments = ["icoop", "icobi"]
+        if (
+            identity_add_bondinglist_sg1.lower() not in allowed_arguments
+            or identity_add_bondinglist_sg2.lower() not in allowed_arguments
+        ):
             raise ValueError("Algorithm can only work with ICOOPs, ICOBIs")
-        self.identity_add_bondinglist_sg1=identity_add_bondinglist_sg1
-        self.identity_add_bondinglist_sg2=identity_add_bondinglist_sg2
+        self.identity_add_bondinglist_sg1 = identity_add_bondinglist_sg1
+        self.identity_add_bondinglist_sg2 = identity_add_bondinglist_sg2
         if add_additional_data_sg:
-            if self.identity_add_bondinglist_sg1.lower()=="icoop":
-                are_coops_id1=True
-                are_cobis_id1=False
-            elif self.identity_add_bondinglist_sg1.lower()=="icobi":
-                are_coops_id1=False
-                are_cobis_id1=True
+            if self.identity_add_bondinglist_sg1.lower() == "icoop":
+                are_coops_id1 = True
+                are_cobis_id1 = False
+            elif self.identity_add_bondinglist_sg1.lower() == "icobi":
+                are_coops_id1 = False
+                are_cobis_id1 = True
             else:
                 raise ValueError("only icoops and icobis can be added")
-            self.bonding_list_1=Icohplist(filename=self.filename_add_bondinglist_sg1,are_coops=are_coops_id1, are_cobis=are_cobis_id1)
+            self.bonding_list_1 = Icohplist(
+                filename=self.filename_add_bondinglist_sg1, are_coops=are_coops_id1, are_cobis=are_cobis_id1
+            )
 
-            if self.identity_add_bondinglist_sg2.lower()=="icoop":
-                are_coops_id2=True
-                are_cobis_id2=False
-            elif self.identity_add_bondinglist_sg2.lower()=="icobi":
-                are_coops_id2=False
-                are_cobis_id2=True
+            if self.identity_add_bondinglist_sg2.lower() == "icoop":
+                are_coops_id2 = True
+                are_cobis_id2 = False
+            elif self.identity_add_bondinglist_sg2.lower() == "icobi":
+                are_coops_id2 = False
+                are_cobis_id2 = True
 
-            self.bonding_list_2=Icohplist(filename=self.filename_add_bondinglist_sg2,are_coops=are_coops_id2, are_cobis=are_cobis_id2)
-
+            self.bonding_list_2 = Icohplist(
+                filename=self.filename_add_bondinglist_sg2, are_coops=are_coops_id2, are_cobis=are_cobis_id2
+            )
 
         if are_coops:
             raise ValueError("Algorithm only works correctly for ICOHPLIST.lobster")
@@ -685,7 +690,6 @@ class LobsterNeighbors(NearNeighbors):
         additional_condition=0,
         perc_strength_ICOHP=0.15,
         adapt_extremum_to_add_cond=False,
-        weight=None
     ):
         """
 
@@ -753,11 +757,18 @@ class LobsterNeighbors(NearNeighbors):
                             )
                         ),
                         "weight": 1,
-                        #Here, the ICOBIs and ICOOPs are added based on the bond strength cutoff of the ICOHP
+                        # Here, the ICOBIs and ICOOPs are added based on the bond strength cutoff of the ICOHP
                         # more changes are neccessary here if we use icobis for cutoffs
-                        "edge_properties":{"ICOHP": self.list_icohps[ineighbors][ineighbor],
-                                           "bond_length": self.list_lengths[ineighbors][ineighbor],
-                                           self.identity_add_bondinglist_sg1.upper(): self.bonding_list_1.icohpcollection.get_icohp_by_label(self.list_keys[ineighbors][ineighbor]), self.identity_add_bondinglist_sg2.upper(): self.bonding_list_2.icohpcollection.get_icohp_by_label(self.list_keys[ineighbors][ineighbor])},
+                        "edge_properties": {
+                            "ICOHP": self.list_icohps[ineighbors][ineighbor],
+                            "bond_length": self.list_lengths[ineighbors][ineighbor],
+                            self.identity_add_bondinglist_sg1.upper(): self.bonding_list_1.icohpcollection.get_icohp_by_label(
+                                self.list_keys[ineighbors][ineighbor]
+                            ),
+                            self.identity_add_bondinglist_sg2.upper(): self.bonding_list_2.icohpcollection.get_icohp_by_label(
+                                self.list_keys[ineighbors][ineighbor]
+                            ),
+                        },
                         "site_index": [
                             isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
                         ][0],
@@ -774,19 +785,21 @@ class LobsterNeighbors(NearNeighbors):
                         "image": tuple(
                             int(round(i))
                             for i in (
-                                    neighbor.frac_coords
-                                    - self.structure[
-                                        [
-                                            isite
-                                            for isite, site in enumerate(self.structure)
-                                            if neighbor.is_periodic_image(site)
-                                        ][0]
-                                    ].frac_coords
+                                neighbor.frac_coords
+                                - self.structure[
+                                    [
+                                        isite
+                                        for isite, site in enumerate(self.structure)
+                                        if neighbor.is_periodic_image(site)
+                                    ][0]
+                                ].frac_coords
                             )
                         ),
                         "weight": 1,
-                        "edge_properties": {"ICOHP": self.list_icohps[ineighbors][ineighbor],
-                                            "bond_length": self.list_lengths[ineighbors][ineighbor]},
+                        "edge_properties": {
+                            "ICOHP": self.list_icohps[ineighbors][ineighbor],
+                            "bond_length": self.list_lengths[ineighbors][ineighbor],
+                        },
                         "site_index": [
                             isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
                         ][0],

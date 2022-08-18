@@ -513,7 +513,7 @@ class CompleteCohp(Cohp):
         Get orbital-resolved COHP.
 
         Args:
-            label: bond label (Lobster: labels as in ICOHPLIST/ICOOPLIST.lobster.NaCl).
+            label: bond label (Lobster: labels as in ICOHPLIST/ICOOPLIST.lobster).
 
             orbitals: The orbitals as a label, or list or tuple of the form
                 [(n1, orbital1), (n2, orbital2)]. Orbitals can either be str,
