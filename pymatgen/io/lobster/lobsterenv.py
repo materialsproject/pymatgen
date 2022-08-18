@@ -91,9 +91,12 @@ class LobsterNeighbors(NearNeighbors):
             adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
             additional condition
             add_additional_data_sg: (bool) will add the information from filename_add_bondinglist_sg1,
-            filename_add_bondinglist_sg2 (typically ICOOPLIST.lobster.NaCl and ICOBILIST.lobster.NaCl) to the structure graph
-            filename_add_bondinglist_sg1: Additional ICOOP, ICOBI data for structure graphs
-            filename_add_bondinglist_sg2: Additional ICOOP, ICOBI data for structure graphs
+            filename_add_bondinglist_sg1: (str) Path to additional ICOOP, ICOBI data for structure graphs
+            filename_add_bondinglist_sg2: (str) Path to dditional ICOOP, ICOBI data for structure graphs
+            identity_add_bondinglist_sg1: (str) Identity of data in filename_add_bonding_list_sg1,
+                e.g., "icoop" or "icobi"
+            identity_add_bondinglist_sg2: (str) Identity of data in filename_add_bonding_list_sg2,
+                e.g., "icoop" or "icobi"
         """
 
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
