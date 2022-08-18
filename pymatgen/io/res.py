@@ -232,7 +232,8 @@ def _ions(sites: list[PeriodicSite]) -> list[Ion]:
     for site in sites:
         for specie, occ in site.species.items():
             i += 1
-            ions.append(Ion(specie, i, tuple(map(float, site.frac_coords[:3])), occ))
+            x, y, z = map(float, site.frac_coords)
+            ions.append(Ion(specie, i, (x, y, z), occ))
     return ions
 
 
