@@ -170,9 +170,8 @@ class Header(MSONable):
         """
         Args:
             struct: Structure or Molecule object. If a Structure, SpaceGroupAnalyzer is used to
-                determine symmetrically-equivalent sites and the calculation is performed
-                in reciprocal space. If a Molecule, there is no symmetry checking and the
-                calculation is performed in real space.
+                determine symmetrically-equivalent sites. If a Molecule, there is no symmetry
+                checking.
             source: User supplied identifier, i.e. for Materials Project this
                 would be the material ID number
             comment: Comment for first header line
@@ -191,8 +190,8 @@ class Header(MSONable):
                 self.periodic = True
                 sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
                 data = sym.get_symmetry_dataset()
-                self.space_number = data["number"]
-                self.space_group = data["international"]
+                self.space_number = data.get("number")
+                self.space_group = data.get("international")
             # for Molecule, skip the symmetry check
             elif isinstance(self.struct, Molecule):
                 self.periodic = False
