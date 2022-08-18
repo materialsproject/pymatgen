@@ -407,7 +407,6 @@ class PathsTest(unittest.TestCase):
             "0.000000 0.000000 0.000000 0 Fe",
         ]
         answer = "\n".join(lines)
-        print(self.paths)
         self.assertEqual(answer, str(self.paths))
 
 
