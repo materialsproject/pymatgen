@@ -538,6 +538,8 @@ class TestLobsterNeighbors(unittest.TestCase):
         sg = self.chemenvlobsterNaCl.get_bonded_structure(
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
             decorate=True,
+            edge_properties=True,
+            weights=True,
         )
         self.assertAlmostEqual(sg.graph[0, 1]["ICOHP"], -0.56541)
         self.assertAlmostEqual(sg.graph[0, 1]["ICOBI"], 0.08484)
