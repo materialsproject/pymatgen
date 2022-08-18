@@ -195,11 +195,8 @@ class Header(MSONable):
             # for Molecule, skip the symmetry check
             elif isinstance(self.struct, Molecule):
                 self.periodic = False
-                # sym = PointGroupAnalyzer(struct)
-                # symm_data = sym.get_equivalent_atoms()
                 self.space_number = None
                 self.space_group = None
-                # self.space_group = sym.get_pointgroup()
             else:
                 raise ValueError("'struct' argument must be a Structure or Molecule!")
             self.comment = comment or "None given"
