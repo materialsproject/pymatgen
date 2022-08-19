@@ -1,5 +1,9 @@
+"""
+Provides parsing and read/write support for ShelX .res files as produced by the AIRSS code.
+"""
+
 from dataclasses import dataclass
-from typing import Iterator, Optional
+from typing import Iterator, List, Optional, Set, Tuple
 
 from monty.io import zopen
 
@@ -54,7 +58,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: tuple[float, float, float]
+    pos: Tuple[float, float, float]
     occupancy: float
 
     def __str__(self) -> str:
@@ -63,8 +67,8 @@ class Ion:
 
 @dataclass
 class ResSFAC:
-    species: set[str]
-    ions: list[Ion]
+    species: Set[str]
+    ions: List[Ion]
 
     def __str__(self) -> str:
         return "SFAC {}\n{}\nEND".format(" ".join(map("{:<2s}".format, self.species)), "\n".join(map(str, self.ions)))
@@ -72,8 +76,12 @@ class ResSFAC:
 
 @dataclass
 class Res:
+    """
+    Representation for the data in a res file.
+    """
+
     TITL: Optional[AirssTITL]
-    REMS: list[str]
+    REMS: List[str]
     CELL: ResCELL
     SFAC: ResSFAC
 
@@ -158,7 +166,7 @@ class ResParser:
 
     def _parse_txt(self) -> Res:
         """Parses the text of the file."""
-        _REMS: list[str] = []
+        _REMS: List[str] = []
         _TITL: Optional[AirssTITL] = None
         _CELL: Optional[ResCELL] = None
         _SFAC: Optional[ResSFAC] = None
@@ -217,7 +225,7 @@ def _lattice(cell: ResCELL) -> Lattice:
     return Lattice.from_parameters(cell.a, cell.b, cell.c, cell.alpha, cell.beta, cell.gamma)
 
 
-def _sites(sfactag: ResSFAC, lattice: Lattice) -> list[PeriodicSite]:
+def _sites(sfactag: ResSFAC, lattice: Lattice) -> List[PeriodicSite]:
     """Produce a list of pymatgen PeriodicSite from a parsed SFAC block and a pymatgen Lattice."""
     return [PeriodicSite(ion.specie, ion.pos, lattice) for ion in sfactag.ions]
 
@@ -232,9 +240,9 @@ def _cell(lattice: Lattice) -> ResCELL:
     return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
 
 
-def _ions(sites: list[PeriodicSite]) -> list[Ion]:
+def _ions(sites: List[PeriodicSite]) -> List[Ion]:
     """Produce a list of entries for a SFAC block from a list of pymatgen PeriodicSite."""
-    ions: list[Ion] = []
+    ions: List[Ion] = []
     i = 0
     for site in sites:
         for specie, occ in site.species.items():
@@ -244,7 +252,7 @@ def _ions(sites: list[PeriodicSite]) -> list[Ion]:
     return ions
 
 
-def _sfac(sites: list[PeriodicSite]) -> ResSFAC:
+def _sfac(sites: List[PeriodicSite]) -> ResSFAC:
     """Produce a SFAC block from a list of pymatgen PeriodicSite."""
     ions = _ions(sites)
     species = {ion.specie for ion in ions}
@@ -257,6 +265,10 @@ def _res(structure: Structure) -> Res:
 
 
 class ResIO:
+    """
+    Class providing methods for converting a Structure to/from a string or file.
+    """
+
     @classmethod
     def structure_from_txt(cls, txt: str) -> Structure:
         """
