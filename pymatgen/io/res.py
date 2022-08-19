@@ -165,7 +165,7 @@ class ResParser:
                     break
                 ions.append(self._parse_ion(line))
         except StopIteration:
-            raise ParseError(f"Encountered end of file before END tag at end of SFAC block.")
+            raise ParseError("Encountered end of file before END tag at end of SFAC block.")
         return ResSFAC(species, ions)
 
     def _parse_txt(self) -> Res:
@@ -204,7 +204,7 @@ class ResParser:
         except StopIteration:
             pass
         if _CELL is None or _SFAC is None:
-            raise ParseError(f"Did not encounter CELL or SFAC entry when parsing.")
+            raise ParseError("Did not encounter CELL or SFAC entry when parsing.")
         return Res(_TITL, _REMS, _CELL, _SFAC)
 
     @classmethod
