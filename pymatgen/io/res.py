@@ -26,15 +26,16 @@ class AirssTITL:
     appearances: int
 
     def __str__(self) -> str:
-        return "TITL {} {:.2f} {:.4f} {:.5f} {} {} {} {}".format(
+        title_fmt = "TITL {:s} {:.2f} {:.4f} {:.5f} {:f} {:f} ({:s}) n - {:d}"
+        return title_fmt.format(
             self.seed,
             self.pressure,
             self.volume,
             self.energy,
             self.integrated_spin_density,
             self.integrated_absolute_spin_density,
-            f"({self.spacegroup_label})",
-            f"n - {self.appearances}",
+            self.spacegroup_label,
+            self.appearances,
         )
 
 
@@ -49,9 +50,8 @@ class ResCELL:
     gamma: float
 
     def __str__(self) -> str:
-        return "CELL {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f}".format(
-            self.unknown_field_1, self.a, self.b, self.c, self.alpha, self.beta, self.gamma
-        )
+        cell_fmt = "CELL {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f}"
+        return cell_fmt.format(self.unknown_field_1, self.a, self.b, self.c, self.alpha, self.beta, self.gamma)
 
 
 @dataclass
@@ -62,7 +62,8 @@ class Ion:
     occupancy: float
 
     def __str__(self) -> str:
-        return "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f}".format(self.specie, self.specie_num, *self.pos, self.occupancy)
+        ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f}"
+        return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy)
 
 
 @dataclass
@@ -71,7 +72,10 @@ class ResSFAC:
     ions: List[Ion]
 
     def __str__(self) -> str:
-        return "SFAC {}\n{}\nEND".format(" ".join(map("{:<2s}".format, self.species)), "\n".join(map(str, self.ions)))
+        sfac_fmt = "SFAC {species}\n" "{ions}\n" "END"
+        return sfac_fmt.format(
+            species=" ".join(f"{specie:<2s}" for specie in self.species), ions="\n".join(map(str, self.ions))
+        )
 
 
 @dataclass
