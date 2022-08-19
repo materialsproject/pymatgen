@@ -10,6 +10,7 @@ from monty.io import zopen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 __all__ = ["ResIO"]
 
@@ -239,6 +240,12 @@ def _structure(res: Res) -> Structure:
     return Structure.from_sites(_sites(res.SFAC, _lattice(res.CELL)))
 
 
+def _entry(res: Res) -> ComputedStructureEntry:
+    """Produce a pymatgen ComputedStructureEntry from a parsed Res file."""
+    energy = res.TITL and res.TITL.energy or float("nan")
+    return ComputedStructureEntry(_structure(res), energy)
+
+
 def _cell(lattice: Lattice) -> ResCELL:
     """Produce CELL entry from a pymatgen Lattice."""
     return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
@@ -263,14 +270,33 @@ def _sfac(sites: List[PeriodicSite]) -> ResSFAC:
     return ResSFAC(species, ions)
 
 
-def _res(structure: Structure) -> Res:
-    """Produce a res file from a pymatgen Structure."""
+def _structure2res(structure: Structure) -> Res:
+    """Produce a res file structure from a pymatgen Structure."""
     return Res(None, [], _cell(structure.lattice), _sfac(list(structure.sites)))
+
+
+def _entry2res(entry: ComputedStructureEntry) -> Res:
+    """Produce a res file structure from a pymatgen ComputedStructureEntry."""
+    pres = float(entry.parameters.get("pressure", 0))
+    isd = float(entry.parameters.get("isd", 0))
+    iasd = float(entry.parameters.get("iasd", 0))
+    spg, _ = entry.structure.get_space_group_info()
+    rems = [f"{str(k)} : {str(v)}" for k, v in entry.parameters.items() if k not in ["pressure", "isd", "iasd"]]
+    return Res(
+        AirssTITL(str(hash(entry)), pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
+        rems,
+        _cell(entry.structure.lattice),
+        _sfac(list(entry.structure.sites)),
+    )
 
 
 class ResIO:
     """
-    Class providing methods for converting a Structure to/from a string or file.
+    Class providing methods for converting a `Structure` or `ComputedStructureEntry`
+    to/from a string or file in the res format as used by AIRSS.
+
+    Note: If the TITL entry doesn't exist or is malformed, then the resulting
+    `ComputedStructureEntry` will have the energy set to `float('nan')`.
     """
 
     @classmethod
@@ -290,15 +316,45 @@ class ResIO:
     @classmethod
     def structure_to_txt(cls, structure: Structure) -> str:
         """
-        Produce the contents of a res file a pymatgen Structure.
+        Produce the contents of a res file from a pymatgen Structure.
         """
-        return str(_res(structure))
+        return str(_structure2res(structure))
 
     @classmethod
     def structure_to_file(cls, structure: Structure, filename: str) -> None:
         """
         Write a pymatgen Structure to a res file.
         """
-        with open(filename, "w") as file:
+        with zopen(filename, "w") as file:
             file.write(cls.structure_to_txt(structure))
+        return
+
+    @classmethod
+    def entry_from_txt(cls, txt: str) -> ComputedStructureEntry:
+        """
+        Produce a pymatgen ComputedStructureEntry from contents of a res file.
+        """
+        return _entry(ResParser._parse_str(txt))
+
+    @classmethod
+    def entry_from_file(cls, filename: str) -> ComputedStructureEntry:
+        """
+        Produce a pymatgen ComputedStructureEntry from a res file.
+        """
+        return _entry(ResParser._parse_filename(filename))
+
+    @classmethod
+    def entry_to_txt(cls, entry: ComputedStructureEntry) -> str:
+        """
+        Produce the contents of a res file from a pymatgen ComputedStructureEntry.
+        """
+        return str(_entry2res(entry))
+
+    @classmethod
+    def entry_to_file(cls, entry: ComputedStructureEntry, filename: str) -> None:
+        """
+        Write a pymatgen ComputedStructureEntry to a res file.
+        """
+        with zopen(filename, "w") as file:
+            file.write(cls.entry_to_txt(entry))
         return
