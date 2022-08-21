@@ -57,13 +57,18 @@ class LobsterNeighbors(NearNeighbors):
         filename_CHARGE=None,
         which_charge="Mulliken",
         adapt_extremum_to_add_cond=False,
+        add_additional_data_sg=False,
+        filename_blist_sg1=None,
+        filename_blist_sg2=None,
+        id_blist_sg1="ICOOP",
+        id_blist_sg2="ICOBI",
     ):
         """
 
         Args:
             are_coops: (Bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
             ICOHPLIST.lobster so far
-            filename_ICOHP: (str) Path to ICOOPLIST.lobster
+            filename_ICOHP: (str) Path to ICOHPLIST.lobster
             valences: (list of integers/floats) gives valence/charge for each element
             limits: limit to decide which ICOHPs should be considered
             structure: (Structure Object) typically constructed by: Structure.from_file("POSCAR") (Structure object
@@ -86,6 +91,13 @@ class LobsterNeighbors(NearNeighbors):
             which_charge: (str) "Mulliken" or "Loewdin"
             adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
             additional condition
+            add_additional_data_sg: (bool) will add the information from filename_add_bondinglist_sg1,
+            filename_blist_sg1: (str) Path to additional ICOOP, ICOBI data for structure graphs
+            filename_blist_sg2: (str) Path to dditional ICOOP, ICOBI data for structure graphs
+            id_blist_sg1: (str) Identity of data in filename_blist_sg1,
+                e.g., "icoop" or "icobi"
+            id_blist_sg2: (str) Identity of data in filename_blist_sg2,
+                e.g., "icoop" or "icobi"
         """
 
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
@@ -95,6 +107,42 @@ class LobsterNeighbors(NearNeighbors):
         self.only_bonds_to = only_bonds_to
         self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
         self.are_coops = are_coops
+        self.add_additional_data_sg = add_additional_data_sg
+        self.filename_blist_sg1 = filename_blist_sg1
+        self.filename_blist_sg2 = filename_blist_sg2
+
+        allowed_arguments = ["icoop", "icobi"]
+        if id_blist_sg1.lower() not in allowed_arguments or id_blist_sg2.lower() not in allowed_arguments:
+            raise ValueError("Algorithm can only work with ICOOPs, ICOBIs")
+        self.id_blist_sg1 = id_blist_sg1
+        self.id_blist_sg2 = id_blist_sg2
+        if add_additional_data_sg:
+            if self.id_blist_sg1.lower() == "icoop":
+                are_coops_id1 = True
+                are_cobis_id1 = False
+            elif self.id_blist_sg1.lower() == "icobi":
+                are_coops_id1 = False
+                are_cobis_id1 = True
+            else:
+                raise ValueError("only icoops and icobis can be added")
+            self.bonding_list_1 = Icohplist(
+                filename=self.filename_blist_sg1,
+                are_coops=are_coops_id1,
+                are_cobis=are_cobis_id1,
+            )
+
+            if self.id_blist_sg2.lower() == "icoop":
+                are_coops_id2 = True
+                are_cobis_id2 = False
+            elif self.id_blist_sg2.lower() == "icobi":
+                are_coops_id2 = False
+                are_cobis_id2 = True
+
+            self.bonding_list_2 = Icohplist(
+                filename=self.filename_blist_sg2,
+                are_coops=are_coops_id2,
+                are_cobis=are_cobis_id2,
+            )
 
         if are_coops:
             raise ValueError("Algorithm only works correctly for ICOHPLIST.lobster")
@@ -439,9 +487,14 @@ class LobsterNeighbors(NearNeighbors):
 
         """
         # TODO: add options for orbital-resolved cohps
-        summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
-            isites=isites, onlycation_isites=onlycation_isites
-        )
+        (
+            summed_icohps,
+            list_icohps,
+            number_bonds,
+            labels,
+            atoms,
+            final_isites,
+        ) = self.get_info_icohps_to_neighbors(isites=isites, onlycation_isites=onlycation_isites)
 
         import tempfile
 
@@ -470,7 +523,9 @@ class LobsterNeighbors(NearNeighbors):
 
             plotlabel = self._get_plot_label(atoms, per_bond)
             summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
-                label_list=labels, divisor=divisor, summed_spin_channels=summed_spin_channels
+                label_list=labels,
+                divisor=divisor,
+                summed_spin_channels=summed_spin_channels,
             )
 
         else:
@@ -485,7 +540,10 @@ class LobsterNeighbors(NearNeighbors):
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly!
                     if str(self.structure[isite].species.elements[0]) != atomtype:
-                        if atomtype in (self._split_string(atompair[0])[0], self._split_string(atompair[1])[0]):
+                        if atomtype in (
+                            self._split_string(atompair[0])[0],
+                            self._split_string(atompair[1])[0],
+                        ):
                             present = True
                     else:
                         if (
@@ -506,7 +564,9 @@ class LobsterNeighbors(NearNeighbors):
 
                 plotlabel = self._get_plot_label(new_atoms, per_bond)
                 summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
-                    label_list=new_labels, divisor=divisor, summed_spin_channels=summed_spin_channels
+                    label_list=new_labels,
+                    divisor=divisor,
+                    summed_spin_channels=summed_spin_channels,
                 )
             else:
                 plotlabel = None
@@ -519,7 +579,10 @@ class LobsterNeighbors(NearNeighbors):
         # count the types of bonds and append a label:
         all_labels = []
         for atomsnames in atoms:
-            new = [self._split_string(atomsnames[0])[0], self._split_string(atomsnames[1])[0]]
+            new = [
+                self._split_string(atomsnames[0])[0],
+                self._split_string(atomsnames[1])[0],
+            ]
             new.sort()
             # print(new2)
             string_here = new[0] + "-" + new[1]
@@ -661,6 +724,7 @@ class LobsterNeighbors(NearNeighbors):
             that are still considered for the evalulation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
             extremum
+
         Returns:
 
         """
@@ -680,9 +744,14 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Please give two limits or leave them both at None")
 
         # find environments based on ICOHP values
-        list_icohps, list_keys, list_lengths, list_neighisite, list_neighsite, list_coords = self._find_environments(
-            additional_condition, lowerlimit, upperlimit, only_bonds_to
-        )
+        (
+            list_icohps,
+            list_keys,
+            list_lengths,
+            list_neighisite,
+            list_neighsite,
+            list_coords,
+        ) = self._find_environments(additional_condition, lowerlimit, upperlimit, only_bonds_to)
 
         self.list_icohps = list_icohps
         self.list_lengths = list_lengths
@@ -693,32 +762,78 @@ class LobsterNeighbors(NearNeighbors):
 
         # make a structure graph
         # make sure everything is relative to the given Structure and not just the atoms in the unit cell
-        self.sg_list = [
-            [
-                {
-                    "site": neighbor,
-                    "image": tuple(
-                        int(round(i))
-                        for i in (
-                            neighbor.frac_coords
-                            - self.structure[
-                                [
-                                    isite
-                                    for isite, site in enumerate(self.structure)
-                                    if neighbor.is_periodic_image(site)
-                                ][0]
-                            ].frac_coords
-                        )
-                    ),
-                    "weight": 1,
-                    "site_index": [
-                        isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
-                    ][0],
-                }
-                for neighbor in neighbors
+        if self.add_additional_data_sg:
+
+            self.sg_list = [
+                [
+                    {
+                        "site": neighbor,
+                        "image": tuple(
+                            int(round(i))
+                            for i in (
+                                neighbor.frac_coords
+                                - self.structure[
+                                    [
+                                        isite
+                                        for isite, site in enumerate(self.structure)
+                                        if neighbor.is_periodic_image(site)
+                                    ][0]
+                                ].frac_coords
+                            )
+                        ),
+                        "weight": 1,
+                        # Here, the ICOBIs and ICOOPs are added based on the bond
+                        # strength cutoff of the ICOHP
+                        # more changes are neccessary here if we use icobis for cutoffs
+                        "edge_properties": {
+                            "ICOHP": self.list_icohps[ineighbors][ineighbor],
+                            "bond_length": self.list_lengths[ineighbors][ineighbor],
+                            self.id_blist_sg1.upper(): self.bonding_list_1.icohpcollection.get_icohp_by_label(
+                                self.list_keys[ineighbors][ineighbor]
+                            ),
+                            self.id_blist_sg2.upper(): self.bonding_list_2.icohpcollection.get_icohp_by_label(
+                                self.list_keys[ineighbors][ineighbor]
+                            ),
+                        },
+                        "site_index": [
+                            isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
+                        ][0],
+                    }
+                    for ineighbor, neighbor in enumerate(neighbors)
+                ]
+                for ineighbors, neighbors in enumerate(self.list_neighsite)
             ]
-            for neighbors in self.list_neighsite
-        ]
+        else:
+            self.sg_list = [
+                [
+                    {
+                        "site": neighbor,
+                        "image": tuple(
+                            int(round(i))
+                            for i in (
+                                neighbor.frac_coords
+                                - self.structure[
+                                    [
+                                        isite
+                                        for isite, site in enumerate(self.structure)
+                                        if neighbor.is_periodic_image(site)
+                                    ][0]
+                                ].frac_coords
+                            )
+                        ),
+                        "weight": 1,
+                        "edge_properties": {
+                            "ICOHP": self.list_icohps[ineighbors][ineighbor],
+                            "bond_length": self.list_lengths[ineighbors][ineighbor],
+                        },
+                        "site_index": [
+                            isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
+                        ][0],
+                    }
+                    for ineighbor, neighbor in enumerate(neighbors)
+                ]
+                for ineighbors, neighbors in enumerate(self.list_neighsite)
+            ]
 
     def _find_environments(self, additional_condition, lowerlimit, upperlimit, only_bonds_to):
         """
@@ -824,7 +939,14 @@ class LobsterNeighbors(NearNeighbors):
                 list_lengths.append([])
                 list_keys.append([])
                 list_coords.append([])
-        return list_icohps, list_keys, list_lengths, list_neighisite, list_neighsite, list_coords
+        return (
+            list_icohps,
+            list_keys,
+            list_lengths,
+            list_neighisite,
+            list_neighsite,
+            list_coords,
+        )
 
     def _find_relevant_atoms_additional_condition(self, isite, icohps, additional_condition):
         """
@@ -956,7 +1078,12 @@ class LobsterNeighbors(NearNeighbors):
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
 
-        return keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, icohps_from_ICOHPs
+        return (
+            keys_from_ICOHPs,
+            lengths_from_ICOHPs,
+            neighbors_from_ICOHPs,
+            icohps_from_ICOHPs,
+        )
 
     @staticmethod
     def _get_icohps(icohpcollection, isite, lowerlimit, upperlimit, only_bonds_to):
@@ -1025,7 +1152,11 @@ class LobsterNeighbors(NearNeighbors):
         return unitcell
 
     def _get_limit_from_extremum(
-        self, icohpcollection, percentage=0.15, adapt_extremum_to_add_cond=False, additional_condition=0
+        self,
+        icohpcollection,
+        percentage=0.15,
+        adapt_extremum_to_add_cond=False,
+        additional_condition=0,
     ):
         # TODO: adapt this to give the extremum for the correct type of bond
         # TODO add tests
@@ -1189,7 +1320,11 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                     all_nbs_sites_indices_here.append(counter)
 
                     all_nbs_sites.append(
-                        {"site": neighsite, "index": list_neighisite[isite][ineighsite], "image_cell": nb_image_cell}
+                        {
+                            "site": neighsite,
+                            "index": list_neighisite[isite][ineighsite],
+                            "image_cell": nb_image_cell,
+                        }
                     )
                     counter = counter + 1
 
@@ -1207,7 +1342,12 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                 )
 
             else:
-                nb_set = cls.NeighborsSet(structure=structure, isite=isite, all_nbs_sites=[], all_nbs_sites_indices=[])
+                nb_set = cls.NeighborsSet(
+                    structure=structure,
+                    isite=isite,
+                    all_nbs_sites=[],
+                    all_nbs_sites_indices=[],
+                )
 
             coordination_environments.append([ce_dict])
             neighbors_sets.append([nb_set])

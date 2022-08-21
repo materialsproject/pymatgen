@@ -542,7 +542,11 @@ class NearNeighbors:
         raise Exception("Site not found!")
 
     def get_bonded_structure(
-        self, structure: Structure, decorate: bool = False, weights: bool = True
+        self,
+        structure: Structure,
+        decorate: bool = False,
+        weights: bool = True,
+        edge_properties: bool = False,
     ) -> StructureGraph | MoleculeGraph:
         """
         Obtain a StructureGraph object using this NearNeighbor
@@ -556,6 +560,8 @@ class NearNeighbors:
             this NearNeighbor class
             weights (bool): whether to include edge weights from
             NearNeighbor class in StructureGraph
+            edge_properties (bool) whether to include further
+             edge properties from NearNeighbor class in StructureGraph
 
         Returns: a pymatgen.analysis.graphs.StructureGraph object
         """
@@ -567,8 +573,10 @@ class NearNeighbors:
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights)
+        sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights, edge_properties=edge_properties)
 
+        # sets the attributes
+        sg.set_node_attributes()
         return sg
 
     def get_local_order_parameters(self, structure: Structure, n: int):
