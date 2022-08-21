@@ -29,6 +29,7 @@ from scipy.spatial import Voronoi
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
+from pymatgen.core.composition import SpeciesLike
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
@@ -1156,11 +1157,15 @@ class JmolNN(NearNeighbors):
     states.
     """
 
-    def __init__(self, tol=0.45, min_bond_distance=0.4, el_radius_updates=None):
+    def __init__(
+        self, tol: float = 0.45, min_bond_distance: float = 0.4, el_radius_updates: dict[SpeciesLike, float] = None
+    ):
         """
         Args:
             tol (float): tolerance parameter for bond determination
-                (default: 0.56).
+                Defaults to 0.56.
+            min_bond_distance (float): minimum bond distance for consideration
+                Defaults to 0.4.
             el_radius_updates: (dict) symbol->float to override default atomic
                 radii table values
         """
@@ -1267,7 +1272,7 @@ class MinimumDistanceNN(NearNeighbors):
     (relative) distance tolerance parameter.
     """
 
-    def __init__(self, tol=0.1, cutoff=10.0, get_all_sites=False):
+    def __init__(self, tol: float = 0.1, cutoff=10.0, get_all_sites=False):
         """
         Args:
             tol (float): tolerance parameter for neighbor identification
@@ -1528,7 +1533,7 @@ class CovalentBondNN(NearNeighbors):
     structures.
     """
 
-    def __init__(self, tol=0.2, order=True):
+    def __init__(self, tol: float = 0.2, order=True):
         """
         Args:
             tol (float): Tolerance for covalent bond checking.
@@ -1578,11 +1583,11 @@ class CovalentBondNN(NearNeighbors):
 
         # This is unfortunately inefficient, but is the best way to fit the
         # current NearNeighbors scheme
-        self.bonds = structure.get_covalent_bonds(tol=self.tol)
+        self.bonds = bonds = structure.get_covalent_bonds(tol=self.tol)
 
         siw = []
 
-        for bond in self.bonds:
+        for bond in bonds:
             capture_bond = False
             if bond.site1 == structure[n]:
                 site = bond.site2
@@ -1598,14 +1603,7 @@ class CovalentBondNN(NearNeighbors):
                 else:
                     weight = bond.length
 
-                siw.append(
-                    {
-                        "site": site,
-                        "image": (0, 0, 0),
-                        "weight": weight,
-                        "site_index": index,
-                    }
-                )
+                siw.append({"site": site, "image": (0, 0, 0), "weight": weight, "site_index": index})
 
         return siw
 
@@ -1687,7 +1685,7 @@ class MinimumOKeeffeNN(NearNeighbors):
     to calculate relative distances.
     """
 
-    def __init__(self, tol=0.1, cutoff=10.0):
+    def __init__(self, tol: float = 0.1, cutoff=10.0):
         """
         Args:
             tol (float): tolerance parameter for neighbor identification
@@ -1783,7 +1781,7 @@ class MinimumVIRENN(NearNeighbors):
     to calculate relative distances.
     """
 
-    def __init__(self, tol=0.1, cutoff=10.0):
+    def __init__(self, tol: float = 0.1, cutoff=10.0):
         """
         Args:
             tol (float): tolerance parameter for neighbor identification
@@ -2794,7 +2792,7 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
-    def get_order_parameters(self, structure: Structure, n, indices_neighs=None, tol=0.0, target_spec=None):
+    def get_order_parameters(self, structure: Structure, n, indices_neighs=None, tol: float = 0.0, target_spec=None):
         """
         Compute all order parameters of site n.
 
@@ -3351,7 +3349,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
     largest reciprocal gap in interatomic distances.
     """
 
-    def __init__(self, tol=1.0e-4, cutoff=8.0):
+    def __init__(self, tol: float = 1.0e-4, cutoff=8.0):
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3424,7 +3422,7 @@ class BrunnerNN_relative(NearNeighbors):
     of largest relative gap in interatomic distances.
     """
 
-    def __init__(self, tol=1.0e-4, cutoff=8.0):
+    def __init__(self, tol: float = 1.0e-4, cutoff=8.0):
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3497,7 +3495,7 @@ class BrunnerNN_real(NearNeighbors):
     largest gap in interatomic distances.
     """
 
-    def __init__(self, tol=1.0e-4, cutoff=8.0):
+    def __init__(self, tol: float = 1.0e-4, cutoff=8.0):
         """
         Args:
             tol (float): tolerance parameter for bond determination
