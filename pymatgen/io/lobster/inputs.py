@@ -20,8 +20,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 __author__ = "Janine George, Marco Esters"
@@ -704,7 +704,7 @@ class Lobsterin(dict, MSONable):
 
         if option in [
             "standard",
-            "standard_with_comp_range",
+            "standard_with_energy_range_from_vasprun",
             "onlycohp",
             "onlycoop",
             "onlycobi",

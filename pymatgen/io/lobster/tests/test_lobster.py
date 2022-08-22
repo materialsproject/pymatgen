@@ -1965,14 +1965,14 @@ class LobsterinTest(unittest.TestCase):
                 option="standard_with_fatband",
             )
 
-    def test_standard_with_comp_range(self):
-        # test standard_with_comp_range option
+    def test_standard_with_energy_range_from_vasprun(self):
+        # test standard_with_energy_range_from_vasprun
         lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
             os.path.join(test_dir_doscar, "POSCAR.C2.gz"),
             os.path.join(test_dir_doscar, "INCAR.C2.gz"),
             os.path.join(test_dir_doscar, "POTCAR.C2.gz"),
             os.path.join(test_dir_doscar, "vasprun.xml.C2.gz"),
-            option="standard_with_comp_range",
+            option="standard_with_energy_range_from_vasprun",
         )
         self.assertEqual(lobsterin_comp["COHPstartEnergy"], -28.3679)
         self.assertEqual(lobsterin_comp["COHPendEnergy"], 32.8968)
