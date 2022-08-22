@@ -234,7 +234,7 @@ class Dos(MSONable):
         Returns:
             Dict of Gaussian-smeared densities.
         """
-        from scipy.ndimage.filters import gaussian_filter1d
+        from scipy.ndimage import gaussian_filter1d
 
         smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
