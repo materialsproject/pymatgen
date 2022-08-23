@@ -10,7 +10,6 @@ Subpackages
    :maxdepth: 7
 
    pymatgen.analysis.chemenv
-   pymatgen.analysis.defects
    pymatgen.analysis.diffraction
    pymatgen.analysis.elasticity
    pymatgen.analysis.ferroelectricity

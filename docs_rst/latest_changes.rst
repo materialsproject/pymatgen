@@ -1,6 +1,10 @@
 Change log
 ==========
 
-v2022.7.25
+v2022.8.23
 ----------
-* Implemented sufficient methods for new MPRester to cover about 70-80% of common use cases.
+* Structure Graphs from Lobster Data (@JaGeo)
+* Added 'get_orbit_and_generators'-method to SpaceGroup class (@nheinsdorf)
+* Class to handle Thermal displacements matrices (@JaGeo)
+* Change default number of significant digits to write VASP POSCAR (@henriquemiranda)
+* Misc bug fixes.

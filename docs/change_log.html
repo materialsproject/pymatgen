@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.8.23 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -40,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2022.8.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-8-23">v2022.8.23</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-25">v2022.7.25</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-24-1">v2022.7.24.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-24">v2022.7.24</a></li>
@@ -403,6 +404,16 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2022-8-23">
+<h2>v2022.8.23<a class="headerlink" href="#v2022-8-23" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Structure Graphs from Lobster Data (&#64;JaGeo)</p></li>
+<li><p>Added ‘get_orbit_and_generators’-method to SpaceGroup class (&#64;nheinsdorf)</p></li>
+<li><p>Class to handle Thermal displacements matrices (&#64;JaGeo)</p></li>
+<li><p>Change default number of significant digits to write VASP POSCAR (&#64;henriquemiranda)</p></li>
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</section>
 <section id="v2022-7-25">
 <h2>v2022.7.25<a class="headerlink" href="#v2022-7-25" title="Permalink to this heading"></a></h2>
 <ul class="simple">
@@ -770,7 +781,7 @@ method of the <cite>SpacegroupAnalyzer</cite> for triclinic crystals.</p></li>
 <li><p>PR #2132 from &#64;htz1992213 speeds up LammpsData.as_string for
 non-hybrid data with large coeff sections and adds as_lammpsdata method to
 CombinedData</p></li>
-<li><p>PR #2129 from &#64;richardtran415 improves analysis of surface symmetry of slabs.</p></li>
+<li><p>PR #2129 from &#64;CifLord improves analysis of surface symmetry of slabs.</p></li>
 <li><p>PR #2117 from &#64;nwinner contains bug fixes for bader caller.</p></li>
 </ul>
 </section>
@@ -1122,7 +1133,7 @@ to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (&#
 <ul class="simple">
 <li><p>New high-symmetry k-path algorithm (&#64;munrojm, &#64;kt-latimer)</p></li>
 <li><p>New TEM diffraction calculator (&#64;welltemperedpaprika, &#64;thefrankwan, &#64;shyamd)</p></li>
-<li><p>New plotly plotting option for Wulff shapes (&#64;richardtran415)</p></li>
+<li><p>New plotly plotting option for Wulff shapes (&#64;CifLord)</p></li>
 <li><p>Improvements to SQS caller (&#64;rwoodsrobinson)</p></li>
 <li><p>Various bug fixes and improvements (&#64;mfherbst, &#64;chc273,
 &#64;jacksund, &#64;espottesmith, &#64;hongyi-zhao, &#64;montoyjh,
@@ -1148,7 +1159,7 @@ allow setting of arbitrary precision.</p></li>
 <ul class="simple">
 <li><p>New MonteCarloRattleTransformation and phonopy integration (&#64;utf)</p></li>
 <li><p>New structure connectivity features in Chemenv analysis (&#64;davidwaroquiers)</p></li>
-<li><p>Bug fixes (&#64;richardtran415, &#64;chc273, &#64;JaGeo, &#64;dskoda, &#64;rkingsbury,
+<li><p>Bug fixes (&#64;CifLord, &#64;chc273, &#64;JaGeo, &#64;dskoda, &#64;rkingsbury,
 &#64;jmmshn, &#64;espottesmith, &#64;gVallverdu, &#64;yimingchen95, &#64;fraricci)</p></li>
 </ul>
 </section>
@@ -1255,7 +1266,7 @@ Actions as well as CircleCI.</p></li>
 <h2>v2019.9.7<a class="headerlink" href="#v2019-9-7" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>New fast Pourbaix algorithm (&#64;montoyjh)</p></li>
-<li><p>VASP Incar parameter checking (&#64;richardtran415)</p></li>
+<li><p>VASP Incar parameter checking (&#64;CifLord)</p></li>
 <li><p>New VASP input set for Lobster, read support for GROSSPOP file (&#64;JaGeo)</p></li>
 <li><p>New CombinedData class  for LAMMPS (&#64;htz1992213)</p></li>
 <li><p>Improvements to molecule fragmenter (&#64;samblau)</p></li>
@@ -1300,7 +1311,7 @@ and PRs must pass pycodestyle.</p></li>
 <li><p>Improved Lobster interface (&#64;JaGeo)</p></li>
 <li><p>Bug fixes (&#64;sthartman, &#64;dwinston, &#64;utf)</p></li>
 <li><p>New functionality for calculation of Heisenberg exchange parameters (&#64;ncfrey)</p></li>
-<li><p>Improvements to Miller indices handling and Lattice (&#64;richardtran415)</p></li>
+<li><p>Improvements to Miller indices handling and Lattice (&#64;CifLord)</p></li>
 </ul>
 </section>
 <section id="v2019-7-2">
@@ -1319,7 +1330,7 @@ and PRs must pass pycodestyle.</p></li>
 <h2>v2019.6.20<a class="headerlink" href="#v2019-6-20" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>New interface class (&#64;sivonxay, &#64;kylebystrom, &#64;shyamd)</p></li>
-<li><p>Updates to SlabGenerator (&#64;richardtran415)</p></li>
+<li><p>Updates to SlabGenerator (&#64;CifLord)</p></li>
 <li><p>Updates to PiezoTensor (&#64;dongsenfo)</p></li>
 <li><p>Add support for parsing on-site density matrix to Outcar (&#64;mkhorton, &#64;mhsiron, &#64;clegaspi)</p></li>
 <li><p>Fixes for magnetic space groups (&#64;simonward86)</p></li>
@@ -1389,7 +1400,7 @@ checking for standardization.</p></li>
 more
 * Improvements to COHP (&#64;JaGeo)
 * Support to read WAVEDER files (&#64;knc6)
-* Addition of van Arkel-Ketelaar triangle plots (&#64;richardtran415)
+* Addition of van Arkel-Ketelaar triangle plots (&#64;CifLord)
 * Addition of optional user agent to MPRester API calls, see documentation
 for more information (&#64;dwinston)</p>
 </section>
@@ -1494,10 +1505,10 @@ remove non-ground-states, etc. Makes it easier to grab a large set of entries an
 (&#64;dwinston)</p></li>
 <li><p>MVLRelax52Set which uses VASP 52 pseudopotentials. (&#64;HanmeiTang)</p></li>
 <li><p>EPH calculations in ABINIT (&#64;gmatteo)</p></li>
-<li><p>New ScaleToRelaxedTransformation (&#64;richardtran415)</p></li>
+<li><p>New ScaleToRelaxedTransformation (&#64;CifLord)</p></li>
 <li><p>New dimensionality finder, and consolidation of existing algorithms (&#64;utf)</p></li>
 <li><p>New dopant predictor built on structure predictor (&#64;utf)</p></li>
-<li><p>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;richardtran415)</p></li>
+<li><p>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;CifLord)</p></li>
 </ul>
 </section>
 <section id="v2018-11-6">
@@ -1594,7 +1605,7 @@ input doping (&#64;albalu)</p></li>
 <ul class="simple">
 <li><p>Improved local_env and MoleculeGraph (&#64;WardLT, &#64;espottesmith)</p></li>
 <li><p>Improve BabelMolAdaptor with conformer search and other functions (&#64;Qi-Max)</p></li>
-<li><p>Improved surface analysis (&#64;richardtran415)</p></li>
+<li><p>Improved surface analysis (&#64;CifLord)</p></li>
 </ul>
 </section>
 <section id="v2018-6-11">
