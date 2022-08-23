@@ -2,7 +2,7 @@
 # Distributed under the terms of the MIT License
 
 """
-Module for reading Lobster output files. For more information
+Module for reading Lobster input files. For more information
 on LOBSTER see www.cohp.de.
 """
 
@@ -20,6 +20,7 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -645,6 +646,7 @@ class Lobsterin(dict, MSONable):
         POSCAR_input: str = "POSCAR",
         INCAR_input: str = "INCAR",
         POTCAR_input: str | None = None,
+        Vasprun_output: str = "vasprun.xml",
         dict_for_basis: dict | None = None,
         option: str = "standard",
     ):
@@ -660,6 +662,8 @@ class Lobsterin(dict, MSONable):
 
             option (str): 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
                 calculated
+                'standard_with_energy_range_from_vasprun' will start a normal lobster run for entire energy range
+                of VASP static run. vasprun.xml file needs to be in current directory.
                 'standard_from_projection' will start a normal lobster run from a projection
                 'standard_with_fatband' will do a fatband calculation, run over all orbitals
                 'onlyprojection' will only do a projection
@@ -679,6 +683,7 @@ class Lobsterin(dict, MSONable):
             "standard",
             "standard_from_projection",
             "standard_with_fatband",
+            "standard_with_energy_range_from_vasprun",
             "onlyprojection",
             "onlydos",
             "onlycohp",
@@ -699,6 +704,7 @@ class Lobsterin(dict, MSONable):
 
         if option in [
             "standard",
+            "standard_with_energy_range_from_vasprun",
             "onlycohp",
             "onlycoop",
             "onlycobi",
@@ -714,6 +720,12 @@ class Lobsterin(dict, MSONable):
         if option == "standard_from_projection":
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             Lobsterindict["loadProjectionFromFile"] = True
+
+        if option == "standard_with_energy_range_from_vasprun":
+            Vr = Vasprun(Vasprun_output)
+            Lobsterindict["COHPstartEnergy"] = round(min(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
+            Lobsterindict["COHPendEnergy"] = round(max(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
+            Lobsterindict["COHPSteps"] = len(Vr.complete_dos.energies)
 
         # TODO: add cobi here! might be relevant lobster version
         if option == "onlycohp":
