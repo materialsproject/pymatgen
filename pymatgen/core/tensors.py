@@ -102,7 +102,7 @@ class Tensor(np.ndarray, MSONable):
     def __repr__(self):
         return f"{type(self).__name__}({self})"
 
-    def zeroed(self, tol=1e-3):
+    def zeroed(self, tol: float = 1e-3):
         """
         returns the matrix with all entries below a certain threshold
         (i.e. tol) set to zero
@@ -120,7 +120,7 @@ class Tensor(np.ndarray, MSONable):
         """
         return self.__class__(symm_op.transform_tensor(self))
 
-    def rotate(self, matrix, tol=1e-3):
+    def rotate(self, matrix, tol: float = 1e-3):
         """
         Applies a rotation directly, and tests input matrix to ensure a valid
         rotation.
@@ -315,7 +315,7 @@ class Tensor(np.ndarray, MSONable):
         new_v = sum(np.transpose(v, ind) for ind in perms) / len(perms)
         return type(self).from_voigt(new_v)
 
-    def is_symmetric(self, tol=1e-5):
+    def is_symmetric(self, tol: float = 1e-5):
         """
         Tests whether a tensor is symmetric or not based on the residual
         with its symmetric part, from self.symmetrized
@@ -340,7 +340,7 @@ class Tensor(np.ndarray, MSONable):
         symm_ops = sga.get_symmetry_operations(cartesian=True)
         return sum(self.transform(symm_op) for symm_op in symm_ops) / len(symm_ops)
 
-    def is_fit_to_structure(self, structure: Structure, tol=1e-2):
+    def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
         """
         Tests whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
@@ -366,20 +366,20 @@ class Tensor(np.ndarray, MSONable):
             warnings.warn("Tensor is not symmetric, information may be lost in voigt conversion.")
         return v_matrix * self._vscale
 
-    def is_voigt_symmetric(self, tol=1e-6):
+    def is_voigt_symmetric(self, tol: float = 1e-6):
         """
         Tests symmetry of tensor to that necessary for voigt-conversion
         by grouping indices into pairs and constructing a sequence of
         possible permutations to be used in a tensor transpose
         """
         transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
-        transpose_pieces += [[range(j, j + 2)] for j in range(self.rank % 2, self.rank, 2)]
+        transpose_pieces += [[list(range(j, j + 2))] for j in range(self.rank % 2, self.rank, 2)]
         for n in range(self.rank % 2, len(transpose_pieces)):
             if len(transpose_pieces[n][0]) == 2:
                 transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
         for trans_seq in itertools.product(*transpose_pieces):
-            trans_seq = list(itertools.chain(*trans_seq))
-            if (self - self.transpose(trans_seq) > tol).any():
+            transpose_seq = list(itertools.chain(*trans_seq))
+            if any(self - self.transpose(transpose_seq) > tol):
                 return False
         return True
 
@@ -727,7 +727,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     def __iter__(self):
         return self.tensors.__iter__()
 
-    def zeroed(self, tol=1e-3):
+    def zeroed(self, tol: float = 1e-3):
         """
         :param tol: Tolerance
         :return: TensorCollection where small values are set to 0.
@@ -743,7 +743,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return self.__class__([t.transform(symm_op) for t in self])
 
-    def rotate(self, matrix, tol=1e-3):
+    def rotate(self, matrix, tol: float = 1e-3):
         """
         Rotates TensorCollection.
 
@@ -760,7 +760,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return self.__class__([t.symmetrized for t in self])
 
-    def is_symmetric(self, tol=1e-5):
+    def is_symmetric(self, tol: float = 1e-5):
         """
         :param tol: tolerance
         :return: Whether all tensors are symmetric.
@@ -777,7 +777,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return self.__class__([t.fit_to_structure(structure, symprec) for t in self])
 
-    def is_fit_to_structure(self, structure: Structure, tol=1e-2):
+    def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
         """
         :param structure: Structure
         :param tol: tolerance
@@ -799,7 +799,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return [t.rank for t in self]
 
-    def is_voigt_symmetric(self, tol=1e-6):
+    def is_voigt_symmetric(self, tol: float = 1e-6):
         """
         :param tol: tolerance
         :return: Whether all tensors are voigt symmetric.
@@ -920,7 +920,7 @@ class SquareTensor(Tensor):
         """
         return np.linalg.det(self)
 
-    def is_rotation(self, tol=1e-3, include_improper=True):
+    def is_rotation(self, tol: float = 1e-3, include_improper=True):
         """
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
@@ -992,7 +992,7 @@ def get_uvec(vec):
     return vec / l
 
 
-def symmetry_reduce(tensors, structure: Structure, tol=1e-8, **kwargs):
+def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with symmop
@@ -1039,7 +1039,7 @@ class TensorMapping(collections.abc.MutableMapping):
 
     """
 
-    def __init__(self, tensors=None, values=None, tol=1e-5):
+    def __init__(self, tensors=None, values=None, tol: float = 1e-5):
         """
         Initialize a TensorMapping
 
