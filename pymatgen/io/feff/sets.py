@@ -15,6 +15,7 @@ import abc
 import logging
 import os
 import sys
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -22,6 +23,7 @@ from monty.json import MSONable
 from monty.os.path import zpath
 from monty.serialization import loadfn
 
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 
 __author__ = "Kiran Mathew"
@@ -128,7 +130,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     def __init__(
         self,
         absorbing_atom: str | int,
-        structure,
+        structure: Structure | Molecule,
         radius: float,
         config_dict: dict,
         edge: str = "K",
@@ -141,7 +143,9 @@ class FEFFDictSet(AbstractFeffInputSet):
 
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
-            structure (Structure): input structure
+            structure: Structure or Molecule object. If a Structure, SpaceGroupAnalyzer is used to
+                determine symmetrically-equivalent sites. If a Molecule, there is no symmetry
+                checking.
             radius (float): cluster radius
             config_dict (dict): control tag settings dict
             edge (str): absorption edge
@@ -157,6 +161,38 @@ class FEFFDictSet(AbstractFeffInputSet):
                 E.g., {"symprec": 0.01, "angle_tolerance": 4}
         """
         self.absorbing_atom = absorbing_atom
+        # make sure there are no partial occupancies
+        if structure.is_ordered:
+            if isinstance(structure, Structure):
+                # charged structures should never be supported b/c periodic boundaries
+                # cause problems
+                if structure.charge != 0:
+                    raise ValueError("Structure objects with a net charge are not supported!")
+            elif isinstance(structure, Molecule):
+                # charged Molecules should eventually be supported. According to Joshua Kas (FEFF expert),
+                # the correct approach is to divide the total charge on the Molecule equally among
+                # all atoms. Then, add one ION card with that charge for each atom type (i.e., each
+                # unique ipot value)
+                # for example, for a cluster with a +1 charge and 10 atoms and 3 unique potentials, you
+                # would add
+                # ION 0 0.1
+                # ION 1 0.1
+                # ION 2 0.1
+                # This is also most appropriate for self-consistent calculations like XANES.
+                # For non-self-consistent calc types, the manual says its best to check results
+                # with and without a net charge b/c it's often better not to use charge
+                if structure.charge != 0:
+                    warnings.warn(
+                        "Molecule objects with a net charge are not currently supported!"
+                        " You should set one or more ION tags in the input file."
+                        " At present, this must be done manually. Consult the FEFF10 User Guide"
+                        " for more information.",
+                        UserWarning,
+                    )
+            else:
+                raise ValueError("'structure' argument must be a Structure or Molecule!")
+        else:
+            raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
         self.structure = structure
         self.radius = radius
         self.config_dict = deepcopy(config_dict)

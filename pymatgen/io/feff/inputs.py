@@ -180,28 +180,23 @@ class Header(MSONable):
         """
         self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
         self.periodic = False
-
-        # make sure there are no partial occupancies
-        if struct.is_ordered:
-            self.struct = struct
-            self.source = source
-            # if Structure, check symmetry
-            if isinstance(self.struct, Structure):
-                self.periodic = True
-                sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
-                data = sym.get_symmetry_dataset()
-                self.space_number = data.get("number")
-                self.space_group = data.get("international")
-            # for Molecule, skip the symmetry check
-            elif isinstance(self.struct, Molecule):
-                self.periodic = False
-                self.space_number = None
-                self.space_group = None
-            else:
-                raise ValueError("'struct' argument must be a Structure or Molecule!")
-            self.comment = comment or "None given"
+        self.struct = struct
+        self.source = source
+        # if Structure, check symmetry
+        if isinstance(self.struct, Structure):
+            self.periodic = True
+            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
+            data = sym.get_symmetry_dataset()
+            self.space_number = data.get("number")
+            self.space_group = data.get("international")
+        # for Molecule, skip the symmetry check
+        elif isinstance(self.struct, Molecule):
+            self.periodic = False
+            self.space_number = None
+            self.space_group = None
         else:
-            raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
+            raise ValueError("'struct' argument must be a Structure or Molecule!")
+        self.comment = comment or "None given"
 
     @staticmethod
     def from_cif_file(cif_file, source="", comment=""):
