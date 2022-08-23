@@ -36,7 +36,6 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
@@ -89,8 +88,11 @@ class VoronoiNNTest(PymatgenTest):
         self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
 
     def test_get_cn(self):
-        self.assertAlmostEqual(self.nn.get_cn(self.s, 0, use_weights=True), 5.809265748999465, 7)
-        self.assertAlmostEqual(self.nn_sic.get_cn(self.s_sic, 0, use_weights=True), 4.5381161643940668, 7)
+        site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take max species")
+        self.assertAlmostEqual(site_0_coord_num, 5.809265748999465, 7)
+
+        site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take max species")
+        self.assertAlmostEqual(site_0_coord_num, 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
@@ -1263,10 +1265,12 @@ class CrystalNNTest(PymatgenTest):
         self.prev_warnings = warnings.filters
         warnings.simplefilter("ignore")
 
-        FeO_struct = Structure(Lattice.cubic(3), ["Fe", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.disordered_FeO_struct: Structure = SubstitutionTransformation(
-            {"Fe": {"Fe": 0.75, "C": 0.25}}
-        ).apply_transformation(FeO_struct)
+        self.disordered_struct = Structure(
+            Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
+        self.disordered_struct_with_majority = Structure(
+            Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
 
     def tearDown(self):
         warnings.filters = self.prev_warnings
@@ -1363,19 +1367,32 @@ class CrystalNNTest(PymatgenTest):
     def test_get_cn(self):
         cnn = CrystalNN()
 
-        self.assertEqual(cnn.get_cn(self.disordered_FeO_struct, 0), 8)
+        site_0_coord_num = cnn.get_cn(self.disordered_struct, 0, on_disorder="take max species")
+        site_0_coord_num_with_majority = cnn.get_cn(
+            self.disordered_struct_with_majority, 0, on_disorder="take majority"
+        )
+        self.assertEqual(site_0_coord_num, 8)
+        self.assertEqual(site_0_coord_num, site_0_coord_num_with_majority)
 
-        self.assertRaises(ValueError, cnn.get_cn, self.disordered_FeO_struct, 0, on_disorder="error")
+        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="take majority")
+        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="error")
 
     def test_get_bonded_structure(self):
         cnn = CrystalNN()
 
-        structure_graph = cnn.get_bonded_structure(self.disordered_FeO_struct, on_disorder="take majority")
+        structure_graph = cnn.get_bonded_structure(self.disordered_struct, on_disorder="take max species")
+        structure_graph_with_majority = cnn.get_bonded_structure(
+            self.disordered_struct_with_majority, on_disorder="take majority"
+        )
 
         self.assertIsInstance(structure_graph, StructureGraph)
         self.assertEqual(len(structure_graph), 2)
+        self.assertEqual(structure_graph, structure_graph_with_majority)
 
-        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_FeO_struct, 0, on_disorder="error")
+        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="take majority")
+        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
+
+        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
 
 
 class CutOffDictNNTest(PymatgenTest):

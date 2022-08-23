@@ -212,6 +212,8 @@ class ValenceIonicRadiusEvaluator:
 
 
 def _handle_disorder(structure: Structure, on_disorder: Literal["take majority", "take max species", "error"]):
+    """What to do in bonding and coordination number analysis if a site is disordered."""
+
     if all(site.is_ordered for site in structure):
         return structure
 
@@ -233,7 +235,7 @@ def _handle_disorder(structure: Structure, on_disorder: Literal["take majority",
         for idx, site in enumerate(structure):
             max_specie = max(site.species, key=site.species.get)  # type: ignore
             max_val = site.species[max_specie]
-            if max_val < 0.5 and on_disorder == "take majority":
+            if max_val <= 0.5 and on_disorder == "take majority":
                 raise ValueError(
                     f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
                 )
