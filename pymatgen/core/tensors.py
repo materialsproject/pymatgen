@@ -325,7 +325,7 @@ class Tensor(np.ndarray, MSONable):
         """
         return (self - self.symmetrized < tol).all()
 
-    def fit_to_structure(self, structure: Structure, symprec=0.1):
+    def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
         """
         Returns a tensor that is invariant with respect to symmetry
         operations corresponding to a structure
@@ -379,7 +379,7 @@ class Tensor(np.ndarray, MSONable):
                 transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
         for trans_seq in itertools.product(*transpose_pieces):
             transpose_seq = list(itertools.chain(*trans_seq))
-            if any(self - self.transpose(transpose_seq) > tol):
+            if (self - self.transpose(transpose_seq) > tol).any():
                 return False
         return True
 
@@ -767,7 +767,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return all(t.is_symmetric(tol) for t in self)
 
-    def fit_to_structure(self, structure: Structure, symprec=0.1):
+    def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
         """
         Fits all tensors to a Structure.
 
