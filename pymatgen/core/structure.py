@@ -2578,7 +2578,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res":
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_txt(input_string)
+            s = ResIO.structure_from_str(input_string)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
