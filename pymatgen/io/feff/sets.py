@@ -200,11 +200,6 @@ class FEFFDictSet(AbstractFeffInputSet):
         self.spectrum = spectrum
         self.nkpts = nkpts
         self.user_tag_settings = user_tag_settings or {}
-        # handle multiple ION cards
-        self.ions = None
-        if "IONS" in self.user_tag_settings:
-            self.ions = self.user_tag_settings["IONS"].copy()
-            del self.user_tag_settings["IONS"]
         self.config_dict["EDGE"] = self.edge
         self.config_dict.update(self.user_tag_settings)
         if "_del" in self.user_tag_settings:
@@ -261,7 +256,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                 self.config_dict.pop("KMESH", None)
                 self.config_dict.pop("STRFAC", None)
 
-        return Tags(self.config_dict, self.ions)
+        return Tags(self.config_dict)
 
     @property
     def potential(self) -> Potential:

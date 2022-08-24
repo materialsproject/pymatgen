@@ -572,7 +572,7 @@ class Tags(dict):
     FEFF control parameters.
     """
 
-    def __init__(self, params=None, ions=None):
+    def __init__(self, params=None):
         """
         Args:
             params: A set of input parameters as a dictionary.
@@ -580,7 +580,6 @@ class Tags(dict):
         super().__init__()
         if params:
             self.update(params)
-        self.ions = ions
 
     def __setitem__(self, key, val):
         """
@@ -647,7 +646,10 @@ class Tags(dict):
             keys = sorted(keys)
         lines = []
         for k in keys:
-            if isinstance(self[k], dict):
+            if k == "IONS":
+                for t in self[k]:
+                    lines.append(["ION", f"{t[0]} {t[1]:.4f}"])
+            elif isinstance(self[k], dict):
                 if k in ["ELNES", "EXELFS"]:
                     lines.append([k, self._stringify_val(self[k]["ENERGY"])])
                     beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
@@ -664,9 +666,6 @@ class Tags(dict):
                     lines.append([self._stringify_val(self[k]["POSITION"])])
             else:
                 lines.append([k, self._stringify_val(self[k])])
-        if self.ions:
-            for t in self.ions:
-                lines.append(["ION", f"{t[0]} {t[1]:.4f}"])
         if pretty:
             return tabulate(lines)
 
