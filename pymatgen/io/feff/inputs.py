@@ -572,7 +572,7 @@ class Tags(dict):
     FEFF control parameters.
     """
 
-    def __init__(self, params=None):
+    def __init__(self, params=None, ions=None):
         """
         Args:
             params: A set of input parameters as a dictionary.
@@ -580,6 +580,7 @@ class Tags(dict):
         super().__init__()
         if params:
             self.update(params)
+        self.ions = ions
 
     def __setitem__(self, key, val):
         """
@@ -663,6 +664,9 @@ class Tags(dict):
                     lines.append([self._stringify_val(self[k]["POSITION"])])
             else:
                 lines.append([k, self._stringify_val(self[k])])
+        if self.ions:
+            for t in self.ions:
+                lines.append(["ION", f"{t[0]} {t[1]:.4f}"])
         if pretty:
             return tabulate(lines)
 
