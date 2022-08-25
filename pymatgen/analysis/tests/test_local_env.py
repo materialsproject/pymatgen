@@ -5,6 +5,7 @@ import unittest
 import warnings
 from math import pi
 from shutil import which
+from typing import get_args
 
 import numpy as np
 import pytest
@@ -31,6 +32,7 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
+    on_disorder_options,
     site_is_of_motif_type,
     solid_angle,
 )
@@ -88,10 +90,10 @@ class VoronoiNNTest(PymatgenTest):
         self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
 
     def test_get_cn(self):
-        site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take max species")
+        site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take_max_species")
         self.assertAlmostEqual(site_0_coord_num, 5.809265748999465, 7)
 
-        site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take max species")
+        site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take_max_species")
         self.assertAlmostEqual(site_0_coord_num, 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
@@ -632,6 +634,14 @@ class NearNeighborTest(PymatgenTest):
                 nn_info = subclass().get_nn_info(self.diamond, 0)
                 self.assertEqual(nn_info[0]["site_index"], 1)
                 self.assertEqual(nn_info[0]["image"][0], 1)
+
+    def test_on_disorder_options(self):
+        assert get_args(on_disorder_options) == (
+            "take_majority_strict",
+            "take_majority_drop",
+            "take_max_species",
+            "error",
+        )
 
     def tearDown(self):
         del self.diamond
@@ -1367,29 +1377,34 @@ class CrystalNNTest(PymatgenTest):
     def test_get_cn(self):
         cnn = CrystalNN()
 
-        site_0_coord_num = cnn.get_cn(self.disordered_struct, 0, on_disorder="take max species")
-        site_0_coord_num_with_majority = cnn.get_cn(
-            self.disordered_struct_with_majority, 0, on_disorder="take majority"
+        site_0_coord_num = cnn.get_cn(self.disordered_struct, 0, on_disorder="take_max_species")
+        site_0_coord_num_strict_majority = cnn.get_cn(
+            self.disordered_struct_with_majority, 0, on_disorder="take_majority_strict"
         )
-        self.assertEqual(site_0_coord_num, 8)
-        self.assertEqual(site_0_coord_num, site_0_coord_num_with_majority)
+        assert site_0_coord_num == 8
+        assert site_0_coord_num == site_0_coord_num_strict_majority
 
-        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="take majority")
+        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="take_majority_strict")
         self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="error")
 
     def test_get_bonded_structure(self):
         cnn = CrystalNN()
 
-        structure_graph = cnn.get_bonded_structure(self.disordered_struct, on_disorder="take max species")
-        structure_graph_with_majority = cnn.get_bonded_structure(
-            self.disordered_struct_with_majority, on_disorder="take majority"
+        structure_graph = cnn.get_bonded_structure(self.disordered_struct, on_disorder="take_max_species")
+        structure_graph_strict_majority = cnn.get_bonded_structure(
+            self.disordered_struct_with_majority, on_disorder="take_majority_strict"
+        )
+        structure_graph_drop_majority = cnn.get_bonded_structure(
+            self.disordered_struct_with_majority, on_disorder="take_majority_drop"
         )
 
-        self.assertIsInstance(structure_graph, StructureGraph)
-        self.assertEqual(len(structure_graph), 2)
-        self.assertEqual(structure_graph, structure_graph_with_majority)
+        assert isinstance(structure_graph, StructureGraph)
+        assert len(structure_graph) == 2
+        assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
 
-        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="take majority")
+        self.assertRaises(
+            ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="take_majority_strict"
+        )
         self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
 
         self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
