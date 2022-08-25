@@ -338,15 +338,15 @@ class InsertionElectrode(AbstractElectrode):
 
         d.update(
             {
-                "id_charge": self.fully_charged_entry.entry_id,
+                "id_charge": self.fully_charged_entry.data["material_id"],
                 "formula_charge": chg_comp.reduced_formula,
-                "id_discharge": self.fully_discharged_entry.entry_id,
+                "id_discharge": self.fully_discharged_entry.data["material_id"],
                 "formula_discharge": dischg_comp.reduced_formula,
                 "max_instability": self.get_max_instability(),
                 "min_instability": self.get_min_instability(),
-                "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
-                "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
-                "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
+                "material_ids": [itr_ent.data["material_id"] for itr_ent in self.get_all_entries()],
+                "stable_material_ids": [itr_ent.data["material_id"] for itr_ent in self.get_stable_entries()],
+                "unstable_material_ids": [itr_ent.data["material_id"] for itr_ent in self.get_unstable_entries()],
             }
         )
         if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
@@ -355,13 +355,13 @@ class InsertionElectrode(AbstractElectrode):
                     "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
                     "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
                     "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
+                        itr_ent.data["material_id"]: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
                     },
                 }
             )
 
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
+            d.update({"muO2_data": {itr_ent.data["material_id"]: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
         return d
 
