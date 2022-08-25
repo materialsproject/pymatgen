@@ -18,7 +18,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 import numpy as np
 from monty.dev import requires
@@ -211,7 +211,10 @@ class ValenceIonicRadiusEvaluator:
         return valences
 
 
-def _handle_disorder(structure: Structure, on_disorder: Literal["take majority", "take max species", "error"]):
+on_disorder_options = Literal["take_majority_strict", "take_majority_drop", "take_max_species", "error"]
+
+
+def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
     """What to do in bonding and coordination number analysis if a site is disordered."""
 
     if all(site.is_ordered for site in structure):
@@ -220,14 +223,15 @@ def _handle_disorder(structure: Structure, on_disorder: Literal["take majority",
     if on_disorder == "error":
         raise ValueError(
             f"""Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder='take
-            majority' | 'take max species' | 'error'. 'take majority' considers only the majority species from
-            each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. {{Fe:
-            0.4, O: 0.4, C: 0.2}}). 'take max species' extracts the first max species on each site (Fe in prev.
+            majority' | 'take_max_species' | 'error'. 'take_majority_strict' considers only the majority species from
+            each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {{Fe:
+            0.4, O: 0.4, C: 0.2}}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds as
+            if it didn't exist. 'take_max_species' extracts the first max species on each site (Fe in prev.
             example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case
             of disordered structure. Offending {structure = }
         """
         )
-    elif on_disorder in ("take majority", "take max species"):
+    elif on_disorder.startswith("take_"):
         # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
         # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
         # As a workaround, we create a new structure with majority species on each site.
@@ -235,14 +239,18 @@ def _handle_disorder(structure: Structure, on_disorder: Literal["take majority",
         for idx, site in enumerate(structure):
             max_specie = max(site.species, key=site.species.get)  # type: ignore
             max_val = site.species[max_specie]
-            if max_val <= 0.5 and on_disorder == "take majority":
-                raise ValueError(
-                    f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
-                )
+            if max_val <= 0.5:
+                if on_disorder == "take_majority_strict":
+                    raise ValueError(
+                        f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
+                    )
+                elif on_disorder == "take_majority_drop":
+                    continue
 
+            # this is the take_max_species case
             site.species = max_specie  # set site species in copied structure to max specie
     else:
-        raise ValueError(f"Unexpected {on_disorder = }, should be 'take majority' or 'error'")
+        raise ValueError(f"Unexpected {on_disorder = }, should be one of {get_args(on_disorder_options)}")
 
     return structure
 
@@ -291,7 +299,7 @@ class NearNeighbors:
         structure: Structure,
         n: int,
         use_weights: bool = False,
-        on_disorder: Literal["take majority", "take max species", "error"] = "take majority",
+        on_disorder: on_disorder_options = "take_majority_strict",
     ) -> float:
         """
         Get coordination number, CN, of site with index n in structure.
@@ -301,11 +309,13 @@ class NearNeighbors:
             n (int): index of site for which to determine CN.
             use_weights (boolean): flag indicating whether (True) to use weights for computing the coordination
                 number or not (False, default: each coordinated site has equal weight).
-            on_disorder ('take majority' | 'take max species' | 'error'): What to do when encountering a disordered
-                structure. 'error' will raise ValueError. 'take majority' will use the majority specie on each site
-                and raise ValueError if no majority exists. 'take max species' will use the first max specie on each
-                site. E.g. for e.g. {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take majority' will raise ValueError
-                while 'take max species' will return use Fe as the site specie.
+            on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
+                What to do when encountering a disordered structure. 'error' will raise ValueError.
+                'take_majority_strict' will use the majority specie on each site and raise
+                ValueError if no majority exists. 'take_max_species' will use the first max specie
+                on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
+                will raise ValueError, while 'take_majority_drop' ignores this site altogether and
+                'take_max_species' will use Fe as the site specie.
         Returns:
             cn (int or float): coordination number.
         """
@@ -592,7 +602,7 @@ class NearNeighbors:
         decorate: bool = False,
         weights: bool = True,
         edge_properties: bool = False,
-        on_disorder: Literal["take majority", "take max species", "error"] = "take majority",
+        on_disorder: on_disorder_options = "take_majority_strict",
     ) -> StructureGraph | MoleculeGraph:
         """
         Obtain a StructureGraph object using this NearNeighbor
@@ -605,11 +615,13 @@ class NearNeighbors:
                 determined by this NearNeighbor class
             weights (bool): whether to include edge weights from NearNeighbor class in StructureGraph
             edge_properties (bool) whether to include further edge properties from NearNeighbor class in StructureGraph
-            on_disorder ('take majority' | 'take max species' | 'error'): What to do when encountering a disordered
-                structure. 'error' will raise ValueError. 'take majority' will use the majority specie on each site
-                and raise ValueError if no majority exists. 'take max species' will use the first max specie on each
-                site. E.g. for e.g. {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take majority' will raise ValueError
-                while 'take max species' will return use Fe as the site specie.
+            on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
+                What to do when encountering a disordered structure. 'error' will raise ValueError.
+                'take_majority_strict' will use the majority specie on each site and raise
+                ValueError if no majority exists. 'take_max_species' will use the first max specie
+                on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
+                will raise ValueError, while 'take_majority_drop' ignores this site altogether and
+                'take_max_species' will use Fe as the site specie.
 
         Returns: a pymatgen.analysis.graphs.StructureGraph object
         """
@@ -4048,11 +4060,13 @@ class CrystalNN(NearNeighbors):
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
-            on_disorder ('take majority' | 'take max species' | 'error'): What to do when encountering a disordered
-                structure. 'error' will raise ValueError. 'take majority' will use the majority specie on each site
-                and raise ValueError if no majority exists. 'take max species' will use the first max specie on each
-                site. E.g. for e.g. {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take majority' will raise ValueError
-                while 'take max species' will return use Fe as the site specie.
+            on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
+                What to do when encountering a disordered structure. 'error' will raise ValueError.
+                'take_majority_strict' will use the majority specie on each site and raise
+                ValueError if no majority exists. 'take_max_species' will use the first max specie
+                on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
+                will raise ValueError, while 'take_majority_drop' ignores this site altogether and
+                'take_max_species' will use Fe as the site specie.
 
         Returns:
             cn (int or float): coordination number.
