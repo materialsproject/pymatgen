@@ -788,7 +788,7 @@ class LobsterNeighbors(NearNeighbors):
                         "edge_properties": {
                             "ICOHP": self.list_icohps[ineighbors][ineighbor],
                             "bond_length": self.list_lengths[ineighbors][ineighbor],
-                            "ICOHP_bond_key": self.list_keys[ineighbors][ineighbor],
+                            "bond_label": self.list_keys[ineighbors][ineighbor],
                             self.id_blist_sg1.upper(): self.bonding_list_1.icohpcollection.get_icohp_by_label(
                                 self.list_keys[ineighbors][ineighbor]
                             ),
@@ -826,7 +826,7 @@ class LobsterNeighbors(NearNeighbors):
                         "edge_properties": {
                             "ICOHP": self.list_icohps[ineighbors][ineighbor],
                             "bond_length": self.list_lengths[ineighbors][ineighbor],
-                            "ICOHP_bond_key": self.list_keys[ineighbors][ineighbor],
+                            "bond_label": self.list_keys[ineighbors][ineighbor],
                         },
                         "site_index": [
                             isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
