@@ -45,7 +45,7 @@ look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/netwo
 * `QuAcc <https://github.com/arosen93/quacc>`_: A platform to enable high-throughput, database-driven quantum
   chemistry and computational materials science.
 
-* `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze Lobster (<http://www.cohp.de>) runs.
+* `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze Lobster (http://www.cohp.de) runs.
 
 * `pymatviz <https://github.com/janosh/pymatviz>`_: Complements ``pymatgen`` with additional plotting
   functionality for larger datasets common in materials informatics.
