@@ -4395,7 +4395,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     "branch_x". If the run has not been divided in branches the method will
     turn to parsing vasprun.xml directly.
 
-    The method returns None is there"s a parsing error
+    The method returns None is there's a parsing error
 
     Args:
         dir_name: Directory containing all bandstructure runs.

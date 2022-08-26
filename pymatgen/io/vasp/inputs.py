@@ -348,20 +348,20 @@ class Poscar(MSONable):
                 atomic_symbols.extend([symbols[i]] * nat)
             ipos = 5 + 2 * nlines_symbols
 
-        postype = lines[ipos].split()[0]
+        pos_type = lines[ipos].split()[0]
 
-        sdynamics = False
+        has_selective_dynamics = False
         # Selective dynamics
-        if postype[0] in "sS":
-            sdynamics = True
+        if pos_type[0] in "sS":
+            has_selective_dynamics = True
             ipos += 1
-            postype = lines[ipos].split()[0]
+            pos_type = lines[ipos].split()[0]
 
-        cart = postype[0] in "cCkK"
-        nsites = sum(natoms)
+        cart = pos_type[0] in "cCkK"
+        n_sites = sum(natoms)
 
         # If default_names is specified (usually coming from a POTCAR), use
-        # them. This is in line with Vasp"s parsing order that the POTCAR
+        # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
             try:
@@ -373,10 +373,10 @@ class Poscar(MSONable):
                 pass
 
         if not vasp5_symbols:
-            ind = 3 if not sdynamics else 6
+            ind = 3 if not has_selective_dynamics else 6
             try:
                 # Check if names are appended at the end of the coordinates.
-                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]]
+                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + n_sites]]
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
@@ -391,12 +391,12 @@ class Poscar(MSONable):
 
         # read the atomic coordinates
         coords = []
-        selective_dynamics = [] if sdynamics else None
-        for i in range(nsites):
+        selective_dynamics = [] if has_selective_dynamics else None
+        for i in range(n_sites):
             toks = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in toks[:3]])
-            if sdynamics:
+            if has_selective_dynamics:
                 selective_dynamics.append([tok.upper()[0] == "T" for tok in toks[3:6]])
 
         struct = Structure(
@@ -429,12 +429,12 @@ class Poscar(MSONable):
                 # Third line is the thermostat parameters
                 predictor_corrector_preamble = lines[0] + "\n" + lines[1] + "\n" + lines[2]
                 # Rest is three sets of parameters, each set contains
-                # x, y, z predictor-corrector parameters for every atom in orde
+                # x, y, z predictor-corrector parameters for every atom in order
                 lines = lines[3:]
-                for st in range(nsites):
+                for st in range(n_sites):
                     d1 = [float(tok) for tok in lines[st].split()]
-                    d2 = [float(tok) for tok in lines[st + nsites].split()]
-                    d3 = [float(tok) for tok in lines[st + 2 * nsites].split()]
+                    d2 = [float(tok) for tok in lines[st + n_sites].split()]
+                    d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
             velocities = None
@@ -458,7 +458,7 @@ class Poscar(MSONable):
 
         Args:
             direct (bool): Whether coordinates are output in direct or
-                cartesian. Defaults to True.
+                Cartesian. Defaults to True.
             vasp4_compatible (bool): Set to True to omit site symbols on 6th
                 line to maintain backward vasp 4.x compatibility. Defaults
                 to False.
