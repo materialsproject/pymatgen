@@ -213,7 +213,7 @@ class Poscar(MSONable):
         1. If check_for_POTCAR is True, the code will try to check if a POTCAR
         is in the same directory as the POSCAR and use elements from that by
         default. (This is the VASP default sequence of priority).
-        2. If the input file is Vasp5-like and contains element symbols in the
+        2. If the input file is VASP5-like and contains element symbols in the
         6th line, the code will use that if check_for_POTCAR is False or there
         is no POTCAR found.
         3. Failing (2), the code will check if a symbol is provided at the end
@@ -261,7 +261,7 @@ class Poscar(MSONable):
         default names comes from an external source, such as a POTCAR in the
         same directory.
 
-        2. If there are no valid default names but the input file is Vasp5-like
+        2. If there are no valid default names but the input file is VASP5-like
         and contains element symbols in the 6th line, the code will use that.
 
         3. Failing (2), the code will check if a symbol is provided at the end
@@ -1721,7 +1721,7 @@ class PotcarSingle:
         """
         self.data = data  # raw POTCAR as a string
 
-        # Vasp parses header in vasprun.xml and this differs from the titel
+        # VASP parses header in vasprun.xml and this differs from the titel
         self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(

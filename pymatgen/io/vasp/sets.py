@@ -71,7 +71,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     """
-    Base class representing a set of Vasp input parameters with a structure
+    Base class representing a set of VASP input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this
     class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
@@ -1210,8 +1210,8 @@ class MPStaticSet(MPRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
+        Generate a set of VASP input files for static calculations from a
+        directory of previous VASP run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs(
@@ -1312,8 +1312,8 @@ class MPScanStaticSet(MPScanRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
+        Generate a set of VASP input files for static calculations from a
+        directory of previous VASP run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs(
@@ -1489,8 +1489,8 @@ class MPHSEBSSet(MPHSERelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run.
+        Generate a set of VASP input files for HSE calculations from a
+        directory of previous VASP run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
@@ -1728,8 +1728,8 @@ class MPNonSCFSet(MPRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for NonSCF calculations from a
-        directory of previous static Vasp run.
+        Generate a set of VASP input files for NonSCF calculations from a
+        directory of previous static VASP run.
 
         Args:
             prev_calc_dir (str): The directory contains the outputs(
@@ -1871,8 +1871,8 @@ class MPSOCSet(MPStaticSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for SOC calculations from a
-        directory of previous static Vasp run. SOC calc requires all 3
+        Generate a set of VASP input files for SOC calculations from a
+        directory of previous static VASP run. SOC calc requires all 3
         components for MAGMOM for each atom in the structure.
 
         Args:
@@ -2140,8 +2140,8 @@ class MVLGWSet(DictSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode="DIAG", **kwargs):
         """
-        Generate a set of Vasp input files for GW or BSE calculations from a
-        directory of previous Exact Diag Vasp run.
+        Generate a set of VASP input files for GW or BSE calculations from a
+        directory of previous Exact Diag VASP run.
 
         Args:
             prev_calc_dir (str): The directory contains the outputs(
@@ -2907,7 +2907,7 @@ def get_structure_from_prev_run(vasprun, outcar=None):
 
     Returns:
         Returns the magmom-decorated structure that can be passed to get
-        Vasp input files, e.g. get_kpoints.
+        VASP input files, e.g. get_kpoints.
     """
     structure = vasprun.final_structure
 
@@ -3273,7 +3273,7 @@ class MPAbsorptionSet(MPRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode, **kwargs):
         """
-        Generate a set of Vasp input files for absorption calculation
+        Generate a set of VASP input files for absorption calculation
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.
