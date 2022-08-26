@@ -42,7 +42,7 @@ External Tools
 If you would like your own tool to be listed here, please `submit a PR <https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst>`_! For a more complete but less curated list, have a
 look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/network/dependents>`_.
 
-* `QuAcc <https://github.com/JaGeo/LobsterPy>`_: A platform to enable high-throughput, database-driven quantum
+* `QuAcc <https://github.com/arosen93/quacc>`_: A platform to enable high-throughput, database-driven quantum
   chemistry and computational materials science.
 
 * `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze Lobster (<http://www.cohp.de>) runs.
