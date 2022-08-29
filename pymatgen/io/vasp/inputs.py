@@ -203,7 +203,7 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @staticmethod
-    def from_file(filename, check_for_POTCAR=True, read_velocities=True):
+    def from_file(filename, check_for_POTCAR=True, read_velocities=True) -> Poscar:
         """
         Reads a Poscar from a file.
 
