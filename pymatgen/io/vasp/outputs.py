@@ -5718,11 +5718,22 @@ class WSWQ(MSONable):
     me_real: np.ndarray
     me_imag: np.ndarray
 
+    @property
+    def data(self):
+        """Complex overlap matrix."""
+        return self.me_real + 1j * self.me_imag
+
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename) -> WSWQ:
+        """Constructs a WSWQ object from a file.
+
+        Args:
+            filename: Name of WSWQ file.
+
+        Returns:
+            WSWQ object.
         """
-        Search for lines containing "spin"
-        """
+        # Grab the spin and kpoint values from lines containing "spin"
         spin_res = regrep(
             filename,
             {"spin": r"spin\s*=\s*(\d+)\s?\,\s?kpoint\s*=\s*(\d+)"},
@@ -5731,6 +5742,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["spin"]
         (nspin, nkpoints), _ = spin_res[0]
+        # Grab the index values from the parts with "i    =" and "j    ="
         ij_res = regrep(
             filename,
             {"ij": r"i\s*=\s*(\d+)\s?\,\s?j\s*=\s*(\d+)"},
@@ -5739,6 +5751,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["ij"]
         (nbands, _), _ = ij_res[0]
+        # Grab the matrix elements from the parts after the ":"
         data_res = regrep(
             filename,
             {"data": r"\:\s*([-+]?\d*\.\d+)\s+([-+]?\d*\.\d+)"},
