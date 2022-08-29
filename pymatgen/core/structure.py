@@ -2495,7 +2495,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res" or fnmatch(fname, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_to_txt(self)
+            s = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as f:
                     f.write(s)

@@ -1,5 +1,6 @@
 TITL coc-115925-9326-14 15.0252 57.051984 -3.90427411E+003 0 0 7 (R3) n - 1
 REM
+REM Run started: Fri, 16 Jul 2021 17:12:24 -0400 in /path/to/airss/run
 REM CASTEP 19.11| from code version
 REM Functional Perdew Burke Ernzerhof Relativity Koelling-Harmon Dispersion off
 REM Cut-off 326.5366 eV Grid scale 1.7500 Gmax 16.2010 1/A FBSC automatic

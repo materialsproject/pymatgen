@@ -12,7 +12,7 @@ REM entries.
 import datetime
 import re
 from dataclasses import dataclass
-from typing import Callable, Dict, Iterator, List, Literal, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Literal, Optional, Set, Tuple, Union
 
 import dateutil.parser
 from monty.io import zopen
@@ -105,7 +105,7 @@ class Res:
         return "\n".join(
             [
                 "TITL" if self.TITL is None else str(self.TITL),
-                "\n".join(self.REMS),
+                "\n".join((f"REM {rem}" for rem in self.REMS)),
                 str(self.CELL),
                 "LATT -1",
                 str(self.SFAC),
@@ -286,15 +286,14 @@ class ResWriter:
     @classmethod
     def _res_from_entry(cls, entry: ComputedStructureEntry) -> Res:
         """Produce a res file structure from a pymatgen ComputedStructureEntry."""
-        pres = float(entry.parameters.get("pressure", 0))
-        isd = float(entry.parameters.get("isd", 0))
-        iasd = float(entry.parameters.get("iasd", 0))
+        seed = entry.data.get("seed") or str(hash(entry))
+        pres = float(entry.data.get("pressure", 0))
+        isd = float(entry.data.get("isd", 0))
+        iasd = float(entry.data.get("iasd", 0))
         spg, _ = entry.structure.get_space_group_info()
-        rems = [
-            f"PARAM {str(k)} : {str(v)}" for k, v in entry.parameters.items() if k not in ["pressure", "isd", "iasd"]
-        ]
+        rems = [str(x) for x in entry.data.get("rems", [])]
         return Res(
-            AirssTITL(str(hash(entry)), pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
+            AirssTITL(seed, pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
             rems,
             cls._cell_from_lattice(entry.structure.lattice),
             cls._sfac_from_sites(list(entry.structure.sites)),
@@ -450,7 +449,7 @@ class AirssProvider(ResProvider):
         for rem in self._res.REMS:
             if rem.strip().startswith("CASTEP"):
                 srem = rem.split()
-                return srem[1]
+                return srem[1][:-1]
         return self._raise_or_none(ParseError("Could not find castep version."))  # type: ignore
 
     def get_func_rel_disp(self) -> Optional[Tuple[str, str, str]]:
@@ -492,9 +491,9 @@ class AirssProvider(ResProvider):
         for rem in self._res.REMS:
             if rem.strip().startswith("MP grid"):
                 srem = rem.split()
-                p, r, q = map(int, srem[2:5])
-                po, ro, qo = map(float, srem[6:9])
-                return (p, q, r), (po, ro, qo), int(11), float(13)
+                p, q, r = map(int, srem[2:5])
+                po, qo, ro = map(float, srem[6:9])
+                return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
         return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
 
     def get_airss_version(self) -> Optional[Tuple[str, datetime.date]]:
@@ -520,34 +519,21 @@ class AirssProvider(ResProvider):
     def _get_rng_seeds(self):
         raise NotImplementedError()
 
-    def get_pspots(self) -> List[str]:
+    def get_pspots(self) -> Dict[str, str]:
         """
         Retrieves the OTFG pseudopotential string that can be used to generate the
         pseudopotentials used in the calculation.
 
         Returns:
-            list of pspot strings
+            dict[specie, potential]
         """
-        pspots: List[str] = []
+        pspots: Dict[str, str] = {}
         for rem in self._res.REMS:
             srem = rem.split()
             if len(srem) == 2 and Element.is_valid_symbol(srem[0]):
-                pspots.append(srem[1])
+                k, v = srem
+                pspots[k] = v
         return pspots
-
-    def get_res_params(self) -> Dict[str, str]:
-        """
-        Retirieves parameters that may have been written if the res file was written
-        using this module.
-        """
-        d = {}
-        for rem in self._res.REMS:
-            if rem.startswith("PARAM"):
-                srem = rem[5:].split(":", maxsplit=1)
-                if len(srem) == 2:
-                    k, v = srem
-                    d[k] = v
-        return d
 
     @property
     def seed(self) -> str:
@@ -601,7 +587,7 @@ class AirssProvider(ResProvider):
         """
         Get this res file as a ComputedStructureEntry.
         """
-        return ComputedStructureEntry(self.structure, self.energy)
+        return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
 
 class ResIO:
