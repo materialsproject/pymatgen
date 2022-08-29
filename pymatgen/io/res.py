@@ -12,7 +12,7 @@ REM entries.
 import datetime
 import re
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Iterator, List, Literal, Optional, Set, Tuple, Union
+from typing import Callable, Dict, Iterator, List, Literal, Optional, Set, Tuple, Union
 
 import dateutil.parser
 from monty.io import zopen
@@ -379,14 +379,12 @@ class AirssProvider(ResProvider):
     The other properties that get put in the TITL should still be accessible even if CASTEP was
     not used.
 
-    Attributes:
-        parse_rems: Setting to control whether functions that fail to retrieve information
-            from the REM entries should return ``None``. If this is set to ``"strict"``,
-            then a :class:`ParseError` may be raised, but the return value will not be ``None``.
-            If it is set to anything else then ``None`` will be returned instead of raising an
-            exception. This setting applies to all methods of this class that are typed to return
-            an Optional type. Default is ``"gentle"``.
-
+    The :attr:`parse_rems` attribute controls whether functions that fail to retrieve information
+    from the REM entries should return ``None``. If this is set to ``"strict"``,
+    then a :class:`ParseError` may be raised, but the return value will not be ``None``.
+    If it is set to anything else then ``None`` will be returned instead of raising an
+    exception. This setting applies to all methods of this class that are typed to return
+    an Optional type. Default is ``"gentle"``.
     """
 
     _date_fmt = re.compile(r"[MTWFS][a-z]{2}, (\d{2}) ([A-Z][a-z]{2}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) ([+-]?\d{4})")
