@@ -105,7 +105,7 @@ class Res:
         return "\n".join(
             [
                 "TITL" if self.TITL is None else str(self.TITL),
-                "\n".join((f"REM {rem}" for rem in self.REMS)),
+                "\n".join(f"REM {rem}" for rem in self.REMS),
                 str(self.CELL),
                 "LATT -1",
                 str(self.SFAC),
