@@ -15,7 +15,7 @@ import itertools
 import json
 import logging
 import re
-from typing import Iterable, List, Literal
+from typing import Iterable, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -89,7 +89,7 @@ def group_entries_by_structure(
     angle_tol=5,
     primitive_cell=True,
     scale=True,
-    comparator=SpeciesComparator(),
+    comparator=None,
     ncpus=None,
 ):
     """
@@ -118,6 +118,8 @@ def group_entries_by_structure(
         Sequence of sequence of entries by structural similarity. e.g,
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
+    if comparator is None:
+        comparator = SpeciesComparator()
     start = datetime.datetime.now()
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
@@ -245,7 +247,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         chemsys = set()
         for e in self.entries:
-            chemsys.update([el.symbol for el in e.composition.keys()])
+            chemsys.update([el.symbol for el in e.composition])
         return chemsys
 
     @property
@@ -293,7 +295,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             raise ValueError(f"{chem_sys} is not a subset of {self.chemsys}")
         subset = set()
         for e in self.entries:
-            elements = [sp.symbol for sp in e.composition.keys()]
+            elements = [sp.symbol for sp in e.composition]
             if chem_sys.issuperset(elements):
                 subset.add(e)
         return EntrySet(subset)
@@ -353,7 +355,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             )
             entries = []
             header_read = False
-            elements = []  # type: List[str]
+            elements: list[str] = []
             for row in reader:
                 if not header_read:
                     elements = row[1 : (len(row) - 1)]

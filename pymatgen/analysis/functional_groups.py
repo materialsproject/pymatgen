@@ -129,7 +129,7 @@ class FunctionalGroupExtractor:
         The conditions for marking carbon atoms are (quoted from Ertl):
             "- atoms connected by non-aromatic double or triple bond to any
             heteroatom
-            - atoms in nonaromatic carbon–carbon double or triple bonds
+            - atoms in nonaromatic carbon-carbon double or triple bonds
             - acetal carbons, i.e. sp3 carbons connected to two or more oxygens,
             nitrogens or sulfurs; these O, N or S atoms must have only single bonds
             - all atoms in oxirane, aziridine and thiirane rings"
@@ -170,11 +170,11 @@ class FunctionalGroupExtractor:
         for node in carbons:
             neighbors = self.molgraph.graph[node]
 
-            neighbor_spec = [str(self.species[n]) for n in neighbors.keys()]
+            neighbor_spec = [str(self.species[n]) for n in neighbors]
 
             ons = len([n for n in neighbor_spec if n in ["O", "N", "S"]])
 
-            if len(neighbors.keys()) == 4 and ons >= 2:
+            if len(neighbors) == 4 and ons >= 2:
                 specials.add(node)
 
         # Condition four: oxirane/aziridine/thiirane rings
@@ -217,7 +217,7 @@ class FunctionalGroupExtractor:
             grp_hs = set()
             for node in func_grp:
                 neighbors = self.molgraph.graph[node]
-                for neighbor in neighbors.keys():
+                for neighbor in neighbors:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
@@ -283,7 +283,7 @@ class FunctionalGroupExtractor:
                         neighbors = self.molgraph.graph[node]
 
                         # Add hydrogens to the functional group
-                        for neighbor in neighbors.keys():
+                        for neighbor in neighbors:
                             if neighbor in hydrogens:
                                 ring_group.add(neighbor)
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.4.26 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.8.23 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -37,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.4.26
+                2022.8.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -84,14 +85,15 @@
            <div itemprop="articleBody">
              
   <section id="change-log">
-<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
-<section id="v2022-4-26">
-<h2>v2022.4.26<a class="headerlink" href="#v2022-4-26" title="Permalink to this headline"></a></h2>
+<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2022-8-23">
+<h2>v2022.8.23<a class="headerlink" href="#v2022-8-23" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Fix dipole units in recent vasp versions (at least 6.3, maybe even before) (&#64;&#64;fraricci)</p></li>
-<li><p>Removed complex numbers from the definition of WSWQ (&#64;jmmshn)</p></li>
-<li><p>MP database version logging is now no longer logged in the .pmgrc.yaml but rather in the .mprester.log.yaml.
-This avoids the MPRester constantly rewriting a config file and causing users’ pymatgen to completely fail.</p></li>
+<li><p>Structure Graphs from Lobster Data (&#64;JaGeo)</p></li>
+<li><p>Added ‘get_orbit_and_generators’-method to SpaceGroup class (&#64;nheinsdorf)</p></li>
+<li><p>Class to handle Thermal displacements matrices (&#64;JaGeo)</p></li>
+<li><p>Change default number of significant digits to write VASP POSCAR (&#64;henriquemiranda)</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </section>
 </section>

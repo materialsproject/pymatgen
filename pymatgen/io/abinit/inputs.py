@@ -687,7 +687,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError(f"key: {key} not in self:\n {list(self.keys())}")
+                raise KeyError(f"key: {key} not in self:\n {list(self)}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -741,8 +741,8 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         # Internal dict with variables. we use an ordered dict so that
         # variables will be likely grouped by `topics` when we fill the input.
-        abi_args = [] if abi_args is None else abi_args
-        for key, value in abi_args:
+        abi_args = abi_args or []
+        for key, _value in abi_args:
             self._check_varname(key)
 
         abi_kwargs = {} if abi_kwargs is None else abi_kwargs
@@ -1083,7 +1083,7 @@ class BasicMultiDataset:
 
         return multi
 
-    def __init__(self, structure, pseudos, pseudo_dir="", ndtset=1):
+    def __init__(self, structure: Structure, pseudos, pseudo_dir="", ndtset=1):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
@@ -1158,8 +1158,7 @@ class BasicMultiDataset:
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(
-                "Cannot find attribute %s. Tried in %s and then in BasicAbinitInput object"
-                % (type(self).__name__, name)
+                f"Cannot find attribute {type(self).__name__}. Tried in {name} and then in BasicAbinitInput object"
             )
         isattr = not callable(m)
 

@@ -49,6 +49,7 @@ class QCInput(InputFile):
         vdw_mode: str = "atomic",
         plots: dict | None = None,
         nbo: dict | None = None,
+        geom_opt: dict | None = None,
     ):
         """
         Args:
@@ -93,6 +94,9 @@ class QCInput(InputFile):
                     A dictionary of all the input parameters for the plots section of QChem input file.
             nbo (dict):
                     A dictionary of all the input parameters for the nbo section of QChem input file.
+            geom_opt (dict):
+                    A dictionary of input parameters for the geom_opt section of the QChem input file.
+                    This section is required when using the new libopt3 geometry optimizer.
 
         """
         self.molecule = molecule
@@ -106,6 +110,7 @@ class QCInput(InputFile):
         self.vdw_mode = vdw_mode
         self.plots = lower_and_check_unique(plots)
         self.nbo = lower_and_check_unique(nbo)
+        self.geom_opt = lower_and_check_unique(geom_opt)
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -145,7 +150,7 @@ class QCInput(InputFile):
         """
         Return a string representation of an entire input file.
         """
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         combined_list = []
@@ -186,6 +191,10 @@ class QCInput(InputFile):
         if self.nbo is not None:
             combined_list.append(self.nbo_template(self.nbo))
             combined_list.append("")
+        # geom_opt section
+        if self.geom_opt is not None:
+            combined_list.append(self.geom_opt_template(self.geom_opt))
+            combined_list.append("")
         return "\n".join(combined_list)
 
     @staticmethod
@@ -200,9 +209,9 @@ class QCInput(InputFile):
         multi_job_string = ""
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
-                multi_job_string += job_i.__str__() + "\n@@@\n\n"
+                multi_job_string += str(job_i) + "\n@@@\n\n"
             else:
-                multi_job_string += job_i.__str__()
+                multi_job_string += str(job_i)
         return multi_job_string
 
     @classmethod
@@ -229,6 +238,7 @@ class QCInput(InputFile):
         vdw_mode = "atomic"
         plots = None
         nbo = None
+        geom_opt = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -245,6 +255,8 @@ class QCInput(InputFile):
             plots = cls.read_plots(string)
         if "nbo" in sections:
             nbo = cls.read_nbo(string)
+        if "geom_opt" in sections:
+            geom_opt = cls.read_geom_opt(string)
         return cls(
             molecule,
             rem,
@@ -257,6 +269,7 @@ class QCInput(InputFile):
             vdw_mode=vdw_mode,
             plots=plots,
             nbo=nbo,
+            geom_opt=geom_opt,
         )
 
     @staticmethod
@@ -321,11 +334,7 @@ class QCInput(InputFile):
         else:
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
-                mol_list.append(
-                    " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
-                        atom=site.species_string, x=site.x, y=site.y, z=site.z
-                    )
-                )
+                mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
         mol_list.append("$end")
         return "\n".join(mol_list)
 
@@ -512,6 +521,22 @@ class QCInput(InputFile):
         return "\n".join(nbo_list)
 
     @staticmethod
+    def geom_opt_template(geom_opt: dict) -> str:
+        """
+        Args:
+            geom_opt ():
+
+        Returns:
+            (str)
+        """
+        geom_opt_list = []
+        geom_opt_list.append("$geom_opt")
+        for key, value in geom_opt.items():
+            geom_opt_list.append(f"   {key} = {value}")
+        geom_opt_list.append("$end")
+        return "\n".join(geom_opt_list)
+
+    @staticmethod
     def find_sections(string: str) -> list:
         """
         Find sections in the string.
@@ -529,7 +554,7 @@ class QCInput(InputFile):
         # remove end from sections
         sections = [sec for sec in sections if sec != "end"]
         # this error should be replaced by a multi job read function when it is added
-        if "multiple_jobs" in matches.keys():
+        if "multiple_jobs" in matches:
             raise ValueError("Output file contains multiple qchem jobs please parse separately")
         if "molecule" not in sections:
             raise ValueError("Output file does not contain a molecule section")
@@ -556,11 +581,11 @@ class QCInput(InputFile):
             "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)",
         }
         matches = read_pattern(string, patterns)
-        if "read" in matches.keys():
+        if "read" in matches:
             return "read"
-        if "charge" in matches.keys():
+        if "charge" in matches:
             charge = float(matches["charge"][0][0])
-        if "spin_mult" in matches.keys():
+        if "spin_mult" in matches:
             spin_mult = int(matches["spin_mult"][0][0])
         header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
         row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
@@ -609,7 +634,7 @@ class QCInput(InputFile):
             "CONNECT": r"^\s*CONNECT",
         }
         opt_matches = read_pattern(string, patterns)
-        opt_sections = list(opt_matches.keys())
+        opt_sections = list(opt_matches)
         opt = {}
         if "CONSTRAINT" in opt_sections:
             c_header = r"^\s*CONSTRAINT\n"
@@ -825,3 +850,26 @@ class QCInput(InputFile):
         for key, val in nbo_table[0]:
             nbo[key] = val
         return nbo
+
+    @staticmethod
+    def read_geom_opt(string: str) -> dict:
+        """
+        Read geom_opt parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) geom_opt parameters.
+        """
+        header = r"^\s*\$geom_opt"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        footer = r"^\s*\$end"
+        geom_opt_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if geom_opt_table == []:
+            print("No valid geom_opt inputs found.")
+            return {}
+        geom_opt = {}
+        for key, val in geom_opt_table[0]:
+            geom_opt[key] = val
+        return geom_opt

@@ -71,8 +71,8 @@ class CovalentBond:
             Float value of bond order. For example, for C-C bond in
             benzene, return 1.7.
         """
-        sp1 = list(self.site1.species.keys())[0]
-        sp2 = list(self.site2.species.keys())[0]
+        sp1 = list(self.site1.species)[0]
+        sp2 = list(self.site2.species)[0]
         dist = self.site1.distance(self.site2)
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
@@ -94,8 +94,8 @@ class CovalentBond:
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        sp1 = list(site1.species.keys())[0]
-        sp2 = list(site2.species.keys())[0]
+        sp1 = list(site1.species)[0]
+        sp2 = list(site2.species)[0]
         dist = site1.distance(site2)
         syms = tuple(sorted([sp1.symbol, sp2.symbol]))
         if syms in bond_lengths:
@@ -108,7 +108,7 @@ class CovalentBond:
             return False
         if default_bl:
             return dist < (1 + tol) * default_bl
-        raise ValueError("No bond data for elements {} - {}".format(*syms))
+        raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
     def __repr__(self):
         return f"Covalent bond between {self.site1} and {self.site2}"
@@ -140,7 +140,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
         return bond_lengths[syms].copy()
     if default_bl is not None:
         return {1: default_bl}
-    raise ValueError("No bond data for elements {} - {}".format(*syms))
+    raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
 
 def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | None = None):

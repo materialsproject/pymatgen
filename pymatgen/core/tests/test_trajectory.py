@@ -39,40 +39,40 @@ class TrajectoryTest(PymatgenTest):
         return lattice, species, frac_coords
 
     def test_single_index_slice(self):
-        self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
+        assert all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)])
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
+            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
         else:
-            self.assertTrue(False)
+            raise AssertionError
 
         sliced_traj = self.traj[:-4:2]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
+            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
         else:
-            self.assertTrue(False)
+            raise AssertionError
 
     def test_list_slice(self):
         sliced_traj = self.traj[[10, 30, 70]]
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
+            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
         else:
-            self.assertTrue(False)
+            raise AssertionError
 
     def test_conversion(self):
         # Convert to displacements and back, and then check structures.
         self.traj.to_displacements()
         self.traj.to_positions()
 
-        self.assertTrue(all([struct == self.structures[i] for i, struct in enumerate(self.traj)]))
+        assert all([struct == self.structures[i] for i, struct in enumerate(self.traj)])
 
     def test_site_properties(self):
         lattice, species, frac_coords = self._get_lattice_species_and_coords()
@@ -135,7 +135,7 @@ class TrajectoryTest(PymatgenTest):
         except Exception:
             incompatible_test_success = True
 
-        self.assertTrue(compatible_success and incompatible_test_success)
+        assert compatible_success and incompatible_test_success
 
     def test_extend_site_props(self):
         lattice, species, frac_coords = self._get_lattice_species_and_coords()
@@ -265,7 +265,7 @@ class TrajectoryTest(PymatgenTest):
         self.assertEqual(traj_combined.frame_properties, None)
 
     def test_length(self):
-        self.assertTrue(len(self.traj) == len(self.structures))
+        assert len(self.traj) == len(self.structures)
 
     def test_displacements(self):
         poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
@@ -281,14 +281,14 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()
 
-        self.assertTrue(np.allclose(traj.frac_coords, displacements))
+        assert np.allclose(traj.frac_coords, displacements)
 
     def test_variable_lattice(self):
         structure = self.structures[0]
 
         # Generate structures with different lattices
         structures = []
-        for i in range(10):
+        for _ in range(10):
             new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
@@ -297,9 +297,7 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=False)
 
         # Check if lattices were properly stored
-        self.assertTrue(
-            all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
-        )
+        assert all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
 
         # Check if the file is written correctly when lattice is not constant.
         traj.write_Xdatcar(filename="traj_test_XDATCAR")
@@ -312,7 +310,7 @@ class TrajectoryTest(PymatgenTest):
     def test_to_from_dict(self):
         d = self.traj.as_dict()
         traj = Trajectory.from_dict(d)
-        self.assertEqual(type(traj), Trajectory)
+        assert isinstance(traj, Trajectory)
 
     def test_xdatcar_write(self):
         self.traj.write_Xdatcar(filename="traj_test_XDATCAR")

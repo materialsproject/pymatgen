@@ -259,12 +259,12 @@ class GulpIO:
 
     @staticmethod
     def structure_lines(
-        structure,
-        cell_flg=True,
-        frac_flg=True,
-        anion_shell_flg=True,
-        cation_shell_flg=False,
-        symm_flg=True,
+        structure: Structure,
+        cell_flg: bool = True,
+        frac_flg: bool = True,
+        anion_shell_flg: bool = True,
+        cation_shell_flg: bool = False,
+        symm_flg: bool = True,
     ):
         """
         Generates GULP input string corresponding to pymatgen structure.
@@ -292,8 +292,10 @@ class GulpIO:
         gin = ""
         if cell_flg:
             gin += "cell\n"
-            l = structure.lattice
-            lat_str = f"{l.a:6f} {l.b:6f} {l.c:6f} {l.alpha:6f} {l.beta:6f} {l.gamma:6f}"
+            lattice = structure.lattice
+            alpha, beta, gamma = lattice.angles
+            a, b, c = lattice.lengths
+            lat_str = f"{a:6f} {b:6f} {c:6f} {alpha:6f} {beta:6f} {gamma:6f}"
             gin += lat_str + "\n"
 
         if frac_flg:
@@ -358,7 +360,7 @@ class GulpIO:
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = "GULP_LIB" in os.environ.keys()
+        gulplib_set = "GULP_LIB" in os.environ
 
         def readable(f):
             return os.path.isfile(f) and os.access(f, os.R_OK)
@@ -379,7 +381,7 @@ class GulpIO:
             return gin + "\n"
         raise GulpError("GULP Library not found")
 
-    def buckingham_input(self, structure, keywords, library=None, uc=True, valence_dict=None):
+    def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
         from library.
@@ -432,10 +434,10 @@ class GulpIO:
         bpb = BuckinghamPotential("bush")
         bpl = BuckinghamPotential("lewis")
         gin = ""
-        for key in val_dict.keys():
+        for key in val_dict:
             use_bush = True
             el = re.sub(r"[1-9,+,\-]", "", key)
-            if el not in bpb.species_dict.keys():
+            if el not in bpb.species_dict:
                 use_bush = False
             elif val_dict[key] != bpb.species_dict[el]["oxi"]:
                 use_bush = False
@@ -452,7 +454,7 @@ class GulpIO:
             # use_lewis = True
             if el != "O":  # For metals the key is "Metal_OxiState+"
                 k = el + "_" + str(int(val_dict[key])) + "+"
-                if k not in bpl.species_dict.keys():
+                if k not in bpl.species_dict:
                     # use_lewis = False
                     raise GulpError(f"Element {k} not in library")
                 gin += "species\n"
@@ -471,7 +473,7 @@ class GulpIO:
                 gin += bpl.spring_dict[key]
         return gin
 
-    def tersoff_input(self, structure, periodic=False, uc=True, *keywords):
+    def tersoff_input(self, structure: Structure, periodic=False, uc=True, *keywords):
         """
         Gets a GULP input with Tersoff potential for an oxide structure
 
@@ -844,7 +846,7 @@ class BuckinghamPotential:
                 elmnt = row.split()[0]
                 if sp_flg:
                     if bush_lewis_flag == "bush":
-                        if elmnt not in species_dict.keys():
+                        if elmnt not in species_dict:
                             species_dict[elmnt] = {"inp_str": "", "oxi": 0}
                         species_dict[elmnt]["inp_str"] += row
                         species_dict[elmnt]["oxi"] += float(row.split()[2])
@@ -877,8 +879,8 @@ class BuckinghamPotential:
 
             if bush_lewis_flag == "bush":
                 # Fill the null keys in spring dict with empty strings
-                for key in pot_dict.keys():
-                    if key not in spring_dict.keys():
+                for key in pot_dict:
+                    if key not in spring_dict:
                         spring_dict[key] = ""
 
             self.species_dict = species_dict

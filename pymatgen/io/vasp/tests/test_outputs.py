@@ -57,6 +57,15 @@ class VasprunTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_vasprun_ml(self):
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.ml_md")
+        self.assertEqual(len(v.md_data), 100)
+        for d in v.md_data:
+            self.assertIn("structure", d)
+            self.assertIn("forces", d)
+            self.assertIn("energy", d)
+        self.assertAlmostEqual(v.md_data[-1]["energy"]["total"], -491.51831988)
+
     def test_bad_random_seed(self):
         _ = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
 
@@ -81,7 +90,7 @@ class VasprunTest(PymatgenTest):
     def test_optical_absorption_coeff(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
         absorption_coeff = v.optical_absorption_coeff
-        self.assertEqual(absorption_coeff[1], 24966408728.917931)
+        self.assertEqual(absorption_coeff[1], 0.8327903762077188)
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with self.assertRaises(NotImplementedError):
@@ -168,7 +177,7 @@ class VasprunTest(PymatgenTest):
 
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
-        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]].keys())
+        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
         self.assertIn(OrbitalType.s, orbs)
 
     def test_standard(self):
@@ -729,14 +738,18 @@ class VasprunTest(PymatgenTest):
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
-        self.assertEqual(vasprun.structures[0].charge, 1)
+        self.assertEqual(vasprun.structures[0].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
         vpath = self.TEST_FILES_DIR / "vasprun.split.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.split.charged.gz"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 0), 7)
-        self.assertEqual(vasprun.structures[-1].charge, 1)
+        self.assertEqual(vasprun.structures[-1].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
     def test_kpointset_electronvelocities(self):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
@@ -814,7 +827,7 @@ class OutcarTest(PymatgenTest):
             self.assertFalse(outcar.lepsilon)
 
             toten = 0
-            for k in outcar.final_energy_contribs.keys():
+            for k in outcar.final_energy_contribs:
                 toten += outcar.final_energy_contribs[k]
             self.assertAlmostEqual(toten, outcar.final_energy, 6)
 
@@ -1204,7 +1217,7 @@ class OutcarTest(PymatgenTest):
         ]
         self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
         for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
-            for k in e1.keys():
+            for k in e1:
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
         exepected_tensors = [
@@ -1616,7 +1629,7 @@ class ChgcarTest(PymatgenTest):
 
     def test_soc_chgcar(self):
         self.assertEqual(
-            set(self.chgcar_NiO_SOC.data.keys()),
+            set(self.chgcar_NiO_SOC.data),
             {"total", "diff_x", "diff_y", "diff_z", "diff"},
         )
         self.assertTrue(self.chgcar_NiO_SOC.is_soc)
@@ -1670,8 +1683,7 @@ class ChgcarTest(PymatgenTest):
         os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
-        d = self.chgcar_spin.spin_data
-        for k, v in d.items():
+        for v in self.chgcar_spin.spin_data.values():
             self.assertEqual(v.shape, (48, 48, 48))
 
     def test_add(self):

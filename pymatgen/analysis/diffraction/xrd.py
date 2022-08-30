@@ -5,12 +5,15 @@
 This module implements an XRD pattern calculator.
 """
 
+from __future__ import annotations
+
 import json
 import os
 from math import asin, cos, degrees, pi, radians, sin
 
 import numpy as np
 
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from .core import (
@@ -107,7 +110,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     """
 
     # Tuple of available radiation keywords.
-    AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
+    AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
     def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
         """
@@ -137,7 +140,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
-    def get_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
+    def get_pattern(self, structure: Structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the diffraction pattern for a structure.
 
@@ -176,45 +179,42 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of zs, coeffs, fcoords and occus. This is
-        # used to perform vectorized computation of atomic scattering factors
-        # later. Note that these are not necessarily the same size as the
-        # structure as each partially occupied specie occupies its own
-        # position in the flattened array.
-        zs = []
-        coeffs = []
-        fcoords = []
-        occus = []
-        dwfactors = []
+        # Create a flattened array of zs, coeffs, fcoords and occus. This is used to perform
+        # vectorized computation of atomic scattering factors later. Note that these are not
+        # necessarily the same size as the structure as each partially occupied specie occupies its
+        # own position in the flattened array.
+        _zs = []
+        _coeffs = []
+        _fcoords = []
+        _occus = []
+        _dwfactors = []
 
         for site in structure:
             for sp, occu in site.species.items():
-                zs.append(sp.Z)
+                _zs.append(sp.Z)
                 try:
                     c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
                 except KeyError:
                     raise ValueError(
                         f"Unable to calculate XRD pattern as there is no scattering coefficients for {sp.symbol}."
                     )
-                coeffs.append(c)
-                dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                fcoords.append(site.frac_coords)
-                occus.append(occu)
+                _coeffs.append(c)
+                _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
+                _fcoords.append(site.frac_coords)
+                _occus.append(occu)
 
-        zs = np.array(zs)
-        coeffs = np.array(coeffs)
-        fcoords = np.array(fcoords)
-        occus = np.array(occus)
-        dwfactors = np.array(dwfactors)
-        peaks = {}
-        two_thetas = []
+        zs = np.array(_zs)
+        coeffs = np.array(_coeffs)
+        fcoords = np.array(_fcoords)
+        occus = np.array(_occus)
+        dwfactors = np.array(_dwfactors)
+        peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
+        two_thetas: list[float] = []
 
         for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
-                d_hkl = 1 / g_hkl
 
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
@@ -238,7 +238,9 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 #      coeff = ATOMIC_SCATTERING_PARAMS[el.symbol]
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
-                fs = zs - 41.78214 * s2 * np.sum(coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
+                fs = zs - 41.78214 * s2 * np.sum(
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1  # type: ignore
+                )
 
                 dw_correction = np.exp(-dwfactors * s2)
 
@@ -264,8 +266,9 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 )
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
-                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
+                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))  # type: ignore
                 else:
+                    d_hkl = 1 / g_hkl
                     peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
                     two_thetas.append(two_theta)
 
@@ -275,10 +278,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         y = []
         hkls = []
         d_hkls = []
-        for k in sorted(peaks.keys()):
+        for k in sorted(peaks):
             v = peaks[k]
             fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
+            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:  # type: ignore
                 x.append(k)
                 y.append(v[0])
                 hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])

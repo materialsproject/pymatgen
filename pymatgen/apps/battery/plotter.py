@@ -149,7 +149,15 @@ class VoltageProfilePlotter:
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
-            data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
+            # add Nones to x and y so vertical connecting lines are not plotted
+            plot_x, plot_y = [x[0]], [y[0]]
+            for i in range(1, len(x)):
+                if x[i - 1] == x[i]:
+                    plot_x.append(None)
+                    plot_y.append(None)
+                plot_x.append(x[i])
+                plot_y.append(y[i])
+            data.append(go.Scatter(x=plot_x, y=plot_y, name=label, hovertemplate=hover_temp))
 
         fig = go.Figure(
             data=data,
