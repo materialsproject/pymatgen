@@ -165,12 +165,12 @@ class StructureGraphTest(PymatgenTest):
         coords = nx.get_node_attributes(self.square_sg.graph, "coords")
         properties = nx.get_node_attributes(self.square_sg.graph, "properties")
 
-        for i in range(len(self.square_sg.structure)):
-            self.assertEqual(str(specie[i]), str(self.square_sg.structure[i].specie))
-            self.assertEqual(coords[i][0], self.square_sg.structure[i].coords[0])
-            self.assertEqual(coords[i][1], self.square_sg.structure[i].coords[1])
-            self.assertEqual(coords[i][2], self.square_sg.structure[i].coords[2])
-            self.assertEqual(properties[i], self.square_sg.structure[i].properties)
+        for idx, site in enumerate(self.square_sg.structure):
+            self.assertEqual(str(specie[idx]), str(site.specie))
+            self.assertEqual(coords[idx][0], site.coords[0])
+            self.assertEqual(coords[idx][1], site.coords[1])
+            self.assertEqual(coords[idx][2], site.coords[2])
+            self.assertEqual(properties[idx], site.properties)
 
     def test_edge_editing(self):
         square = copy.deepcopy(self.square_sg)
@@ -685,12 +685,12 @@ class MoleculeGraphTest(unittest.TestCase):
         coords = nx.get_node_attributes(self.ethylene.graph, "coords")
         properties = nx.get_node_attributes(self.ethylene.graph, "properties")
 
-        for i in range(len(self.ethylene.molecule)):
-            self.assertEqual(str(specie[i]), str(self.ethylene.molecule[i].specie))
-            self.assertEqual(coords[i][0], self.ethylene.molecule[i].coords[0])
-            self.assertEqual(coords[i][1], self.ethylene.molecule[i].coords[1])
-            self.assertEqual(coords[i][2], self.ethylene.molecule[i].coords[2])
-            self.assertEqual(properties[i], self.ethylene.molecule[i].properties)
+        for idx, site in enumerate(self.ethylene.molecule):
+            self.assertEqual(str(specie[idx]), str(site.specie))
+            self.assertEqual(coords[idx][0], site.coords[0])
+            self.assertEqual(coords[idx][1], site.coords[1])
+            self.assertEqual(coords[idx][2], site.coords[2])
+            self.assertEqual(properties[idx], site.properties)
 
     def test_coordination(self):
         molecule = Molecule(["C", "C"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])

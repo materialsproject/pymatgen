@@ -297,7 +297,7 @@ class Slab(Structure):
         unique = [ss[0] for ss in s.group_structures(slabs)]
         return unique
 
-    def is_symmetric(self, symprec=0.1):
+    def is_symmetric(self, symprec: float = 0.1):
         """
         Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
             or screw axis (rotation and translation) about [hkl].

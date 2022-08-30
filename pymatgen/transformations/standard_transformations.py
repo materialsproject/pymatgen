@@ -760,7 +760,7 @@ class ConventionalCellTransformation(AbstractTransformation):
     This class finds the conventional cell of the input structure.
     """
 
-    def __init__(self, symprec=0.01, angle_tolerance=5, international_monoclinic=True):
+    def __init__(self, symprec: float = 0.01, angle_tolerance=5, international_monoclinic=True):
         """
         Args:
             symprec (float): tolerance as in SpacegroupAnalyzer

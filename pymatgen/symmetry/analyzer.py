@@ -43,7 +43,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5.0):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5.0):
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry

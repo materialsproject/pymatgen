@@ -339,7 +339,7 @@ class GrainBoundaryGenerator:
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
 
-    def __init__(self, initial_structure, symprec=0.1, angle_tolerance=1):
+    def __init__(self, initial_structure, symprec: float = 0.1, angle_tolerance=1):
         """
         initial_structure (Structure): Initial input structure. It can
                be conventional or primitive cell (primitive cell works for bcc and fcc).

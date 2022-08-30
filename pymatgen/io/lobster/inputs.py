@@ -414,7 +414,9 @@ class Lobsterin(dict, MSONable):
         return list_basis_dict
 
     @staticmethod
-    def write_POSCAR_with_standard_primitive(POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec=0.01):
+    def write_POSCAR_with_standard_primitive(
+        POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec: float = 0.01
+    ):
         """
         writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
         Args:

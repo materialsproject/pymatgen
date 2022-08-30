@@ -157,7 +157,7 @@ class Vasprun(MSONable):
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of
     magnitude for larger files (~10Mb).
 
-    **Vasp results**
+    **VASP results**
 
     .. attribute:: ionic_steps
 
@@ -263,7 +263,7 @@ class Vasprun(MSONable):
             }
         ]
 
-    **Vasp inputs**
+    **VASP inputs**
 
     .. attribute:: incar
 
@@ -1735,7 +1735,7 @@ class Outcar:
 
     .. attribute:: is_stopped
 
-        True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
+        True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
 
     .. attribute:: run_stats
 
@@ -4395,7 +4395,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     "branch_x". If the run has not been divided in branches the method will
     turn to parsing vasprun.xml directly.
 
-    The method returns None is there"s a parsing error
+    The method returns None is there's a parsing error
 
     Args:
         dir_name: Directory containing all bandstructure runs.

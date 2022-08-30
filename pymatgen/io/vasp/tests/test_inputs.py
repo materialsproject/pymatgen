@@ -37,7 +37,7 @@ class PoscarTest(PymatgenTest):
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
-        # Vasp 4 type with symbols at the end.
+        # VASP 4 type with symbols at the end.
         poscar_string = """Test1
 1.0
 3.840198 0.000000 0.000000
@@ -54,7 +54,7 @@ direct
         poscar_string = ""
         self.assertRaises(ValueError, Poscar.from_string, poscar_string)
 
-        # Vasp 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
 1.0
 3.840198 0.000000 0.000000
@@ -69,7 +69,7 @@ direct
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
-        # Vasp 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -237,7 +237,7 @@ direct
 
         self.assertEqual(str(poscar), expected_str, "Wrong POSCAR output!")
 
-        # Vasp 4 type with symbols at the end.
+        # VASP 4 type with symbols at the end.
         poscar_string = """Test1
 1.0
 -3.840198 0.000000 0.000000

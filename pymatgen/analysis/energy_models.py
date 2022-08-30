@@ -107,7 +107,7 @@ class SymmetryModel(EnergyModel):
     :class:`pymatgen.symmetry.finder.SpacegroupAnalyzer`.
     """
 
-    def __init__(self, symprec=0.1, angle_tolerance=5):
+    def __init__(self, symprec: float = 0.1, angle_tolerance=5):
         """
         Args:
             symprec (float): Symmetry tolerance. Defaults to 0.1.

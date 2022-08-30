@@ -59,16 +59,16 @@ Welcome to new contributors @naveensrinivasan, @xivh, @dgaines2, @yang-ruoxi, @c
 * Enhancement: Remove not converged warning for VASP AIMD runs, PR #2571 by @mjwen
 * Fix: generation of continuous line-mode band structures, PR #2533 by @munrojm
 * Fix: duplicate site properties for magnetic moments hwen using `AseAtomsAdaptor`, PR #2545 by @arosen93
-* Fix: bug in Grüneisen parameter calculation, PR #2543 by by @ab5424
+* Fix: bug in Grüneisen parameter calculation, PR #2543 by @ab5424
 * Fix: allow a comment on final line of KPOINTS file, PR #2549 by @xivh
 * Fix: for `Composition.replace` with complex mappings, PR #2555 by @jacksund
 * Fix: Implement equality method and fix __iter__ for InputSet, PR #2575 by @rkingsbury
 * Fix: use negative charge convention for electron in "update_charge_from_potcar", PR #2577 by @jmmshn
 * Fix: ensure charge is applied to initial and final structures parsed from vasprun.xml, PR #2579 by @jmmshn
 * Chore: Set permissions for GitHub actions, PR #2547 by @naveensrinivasan
-* Chore: Included GitHub actions in the Dependabot config, PR #2548 by by @naveensrinivasan
+* Chore: Included GitHub actions in the Dependabot config, PR #2548 by @naveensrinivasan
 * Documentation: fix typos in pymatgen.symmetry.analyzer docstrings, PR #2561 by @dgaines2
-* Documentation: clarification about usage of InputFile, PR #2570 by by @orionarcher
+* Documentation: clarification about usage of InputFile, PR #2570 by @orionarcher
 * Documentation: Improve messages and warnings, PR #2572 and PR #2573 by @cajfisher
 * Documentation: fix typo, PR #2580 by @janosh
 
@@ -131,7 +131,7 @@ v2022.3.22
 * Support kwargs for ASE adaptor. (@arosen93)
 * Fix for cation error in Lobster analysis. (@JaGeo)
 * Major revampt of Abstract interface for Input classes in IO. (@rkingsbury)
-* Orbital-projected band center, band filling, band ceneter, skewness, kurtosis, etc. (@arosen93)
+* Orbital-projected band center, band filling, band center, skewness, kurtosis, etc. (@arosen93)
 * Misc cleanups. (@janosh)
 
 v2022.3.7

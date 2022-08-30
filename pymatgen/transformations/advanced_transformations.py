@@ -686,7 +686,6 @@ class MagOrderingTransformation(AbstractTransformation):
         mag_species_occurrences = {}
         for site in disordered_structure:
             if not site.is_ordered:
-                op = max(site.species.values())
                 # this very hacky bit of code only works because we know
                 # that on disordered sites in this class, all species are the same
                 # but have different spins, and this is comma-delimited
@@ -694,6 +693,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 if sp in mag_species_order_parameter:
                     mag_species_occurrences[sp] += 1
                 else:
+                    op = max(site.species.values())
                     mag_species_order_parameter[sp] = op
                     mag_species_occurrences[sp] = 1
 
@@ -827,14 +827,21 @@ class MagOrderingTransformation(AbstractTransformation):
         logger.debug(f"Structure with spin magnitudes:\n{structure}")
         return structure
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
-        """
-        Apply MagOrderTransformation to an input structure.
-        :param structure: Any ordered structure.
-        :param return_ranked_list: As in other Transformations.
-        :return:
-        """
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> Structure | list[Structure]:
+        """Apply MagOrderTransformation to an input structure.
 
+        Args:
+            structure (Structure): Any ordered structure.
+            return_ranked_list (bool, optional): As in other Transformations. Defaults to False.
+
+        Raises:
+            ValueError: On disordered structures.
+
+        Returns:
+            Structure | list[Structure]: Structure(s) after MagOrderTransformation.
+        """
         if not structure.is_ordered:
             raise ValueError("Create an ordered approximation of your  input structure first.")
 
@@ -902,7 +909,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         self._all_structures = sorted(out, key=lambda d: d["energy"])
 
-        return self._all_structures[0:num_to_return]
+        return self._all_structures[0:num_to_return]  # type: ignore
 
     def __str__(self):
         return "MagOrderingTransformation"
