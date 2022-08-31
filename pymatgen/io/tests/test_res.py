@@ -84,9 +84,8 @@ class TestAirssProvider:
         with pytest.raises(ParseError):
             prov.get_castep_version()
 
-class TestStructureModule:
 
+class TestStructureModule:
     def test_structure_from_file(self):
         structure = Structure.from_file(res_coc)
         assert structure.lattice.alpha - 49.32125 < 0.000001
-        
