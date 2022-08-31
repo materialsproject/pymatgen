@@ -4,6 +4,7 @@ import pytest
 
 from pymatgen.io.res import AirssProvider, ParseError, ResWriter
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core import Structure
 
 res_coc = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "coc-115925-9326-14.res")
 
@@ -82,3 +83,10 @@ class TestAirssProvider:
         assert entry.structure == prov.entry.structure
         with pytest.raises(ParseError):
             prov.get_castep_version()
+
+class TestStructureModule:
+
+    def test_structure_from_file(self):
+        structure = Structure.from_file(res_coc)
+        assert structure.lattice.alpha - 49.32125 < 0.000001
+        
