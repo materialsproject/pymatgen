@@ -2492,6 +2492,15 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             writer = FleurInput(self, **kwargs)
+        elif fmt == "res" or fnmatch(fname, "*.res"):
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_to_str(self)
+            if filename:
+                with zopen(filename, "wt", encoding="utf8") as f:
+                    f.write(s)
+                return None
+            return s
         else:
             raise ValueError(f"Invalid format: `{str(fmt)}`")
 
@@ -2504,7 +2513,7 @@ class IStructure(SiteCollection, MSONable):
     def from_str(
         cls,
         input_string: str,
-        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs"],
+        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs", "res"],
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
@@ -2566,6 +2575,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             s = FleurInput.from_string(input_string, inpgen_input=False).structure
+        elif fmt == "res":
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_from_str(input_string)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
@@ -2669,6 +2682,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             s = FleurInput.from_file(filename).structure
+        elif fnmatch(fname, "*.res"):
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_from_file(filename)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
