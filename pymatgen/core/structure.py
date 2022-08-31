@@ -2685,7 +2685,7 @@ class IStructure(SiteCollection, MSONable):
         elif fnmatch(fname, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_file(fname)
+            s = ResIO.structure_from_file(filename)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
