@@ -9,10 +9,13 @@ REM entries.
 
 """
 
+from __future__ import annotations
+
 import datetime
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Callable, Dict, Iterator, List, Literal, Optional, Set, Tuple, Union
+from typing import Callable, Literal
 
 import dateutil.parser  # type: ignore
 from monty.io import zopen
@@ -70,7 +73,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: Tuple[float, float, float]
+    pos: tuple[float, float, float]
     occupancy: float
 
     def __str__(self) -> str:
@@ -80,8 +83,8 @@ class Ion:
 
 @dataclass(frozen=True)
 class ResSFAC:
-    species: Set[str]
-    ions: List[Ion]
+    species: set[str]
+    ions: list[Ion]
 
     def __str__(self) -> str:
         sfac_fmt = "SFAC {species}\n" "{ions}\n" "END"
@@ -96,8 +99,8 @@ class Res:
     Representation for the data in a res file.
     """
 
-    TITL: Optional[AirssTITL]
-    REMS: List[str]
+    TITL: AirssTITL | None
+    REMS: list[str]
     CELL: ResCELL
     SFAC: ResSFAC
 
@@ -135,10 +138,10 @@ class ResParser:
 
     def __init__(self):
         self.line: int = 0
-        self.filename: Optional[str] = None
+        self.filename: str | None = None
         self.source: str = ""
 
-    def _parse_titl(self, line: str) -> Optional[AirssTITL]:
+    def _parse_titl(self, line: str) -> AirssTITL | None:
         """Parses the TITL entry. Checks for airss values in the entry."""
         fields = line.split(maxsplit=6)
         if len(fields) >= 6:
@@ -195,10 +198,10 @@ class ResParser:
 
     def _parse_txt(self) -> Res:
         """Parses the text of the file."""
-        _REMS: List[str] = []
-        _TITL: Optional[AirssTITL] = None
-        _CELL: Optional[ResCELL] = None
-        _SFAC: Optional[ResSFAC] = None
+        _REMS: list[str] = []
+        _TITL: AirssTITL | None = None
+        _CELL: ResCELL | None = None
+        _SFAC: ResSFAC | None = None
 
         txt = self.source
         it = iter(txt.splitlines())
@@ -260,9 +263,9 @@ class ResWriter:
         return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
 
     @classmethod
-    def _ions_from_sites(cls, sites: List[PeriodicSite]) -> List[Ion]:
+    def _ions_from_sites(cls, sites: list[PeriodicSite]) -> list[Ion]:
         """Produce a list of entries for a SFAC block from a list of pymatgen PeriodicSite."""
-        ions: List[Ion] = []
+        ions: list[Ion] = []
         i = 0
         for site in sites:
             for specie, occ in site.species.items():
@@ -272,7 +275,7 @@ class ResWriter:
         return ions
 
     @classmethod
-    def _sfac_from_sites(cls, sites: List[PeriodicSite]) -> ResSFAC:
+    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
         """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions = cls._ions_from_sites(sites)
         species = {ion.specie for ion in ions}
@@ -299,11 +302,11 @@ class ResWriter:
             cls._sfac_from_sites(list(entry.structure.sites)),
         )
 
-    def __init__(self, entry: Union[Structure, ComputedStructureEntry]):
+    def __init__(self, entry: Structure | ComputedStructureEntry):
         """
         This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object.
         """
-        func: Union[Callable[[Structure], Res], Callable[[ComputedStructureEntry], Res]]
+        func: Callable[[Structure], Res] | Callable[[ComputedStructureEntry], Res]
         func = self._res_from_structure
         if isinstance(entry, ComputedStructureEntry):
             func = self._res_from_entry
@@ -344,7 +347,7 @@ class ResProvider:
         return cls(ResParser._parse_filename(filename))
 
     @property
-    def rems(self) -> List[str]:
+    def rems(self) -> list[str]:
         """The full list of REM entries contained within the res file."""
         return self._res.REMS.copy()
 
@@ -355,7 +358,7 @@ class ResProvider:
         return Lattice.from_parameters(cell.a, cell.b, cell.c, cell.alpha, cell.beta, cell.gamma)
 
     @property
-    def sites(self) -> List[PeriodicSite]:
+    def sites(self) -> list[PeriodicSite]:
         """Construct a list of PeriodicSites from the res file."""
         sfactag = self._res.SFAC
         return [PeriodicSite(ion.specie, ion.pos, self.lattice) for ion in sfactag.ions]
@@ -423,7 +426,7 @@ class AirssProvider(ResProvider):
             return None
         raise e
 
-    def get_run_start_info(self) -> Optional[Tuple[datetime.date, str]]:
+    def get_run_start_info(self) -> tuple[datetime.date, str] | None:
         """
         Retrieves the run start date and the path it was started in from the REM entries.
 
@@ -437,7 +440,7 @@ class AirssProvider(ResProvider):
                 return date, path
         return self._raise_or_none(ParseError("Could not find run started information."))
 
-    def get_castep_version(self) -> Optional[str]:
+    def get_castep_version(self) -> str | None:
         """
         Retrieves the version of CASTEP that the res file was computed with from the REM entries.
 
@@ -450,7 +453,7 @@ class AirssProvider(ResProvider):
                 return srem[1][:-1]
         return self._raise_or_none(ParseError("Could not find castep version."))  # type: ignore
 
-    def get_func_rel_disp(self) -> Optional[Tuple[str, str, str]]:
+    def get_func_rel_disp(self) -> tuple[str, str, str] | None:
         """
         Retrieves the functional, relativity scheme, and dispersion correction from the REM entries.
 
@@ -463,7 +466,7 @@ class AirssProvider(ResProvider):
                 return " ".join(srem[1:4]), srem[5], srem[7]
         return self._raise_or_none(ParseError("Could not find functional, relativity, and dispersion."))  # type: ignore
 
-    def get_cut_grid_gmax_fsbc(self) -> Optional[Tuple[float, float, float, str]]:
+    def get_cut_grid_gmax_fsbc(self) -> tuple[float, float, float, str] | None:
         """
         Retirieves the cut-off energy, grid scale, Gmax, and finite basis set correction setting
         from the REM entries.
@@ -479,7 +482,7 @@ class AirssProvider(ResProvider):
 
     def get_mpgrid_offset_nkpts_spacing(
         self,
-    ) -> Optional[Tuple[Tuple[int, int, int], Tuple[float, float, float], int, float]]:
+    ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximim kpoint spacing.
 
@@ -494,7 +497,7 @@ class AirssProvider(ResProvider):
                 return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
         return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
 
-    def get_airss_version(self) -> Optional[Tuple[str, datetime.date]]:
+    def get_airss_version(self) -> tuple[str, datetime.date] | None:
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
@@ -517,7 +520,7 @@ class AirssProvider(ResProvider):
     def _get_rng_seeds(self):
         raise NotImplementedError()
 
-    def get_pspots(self) -> Dict[str, str]:
+    def get_pspots(self) -> dict[str, str]:
         """
         Retrieves the OTFG pseudopotential string that can be used to generate the
         pseudopotentials used in the calculation.
@@ -525,7 +528,7 @@ class AirssProvider(ResProvider):
         Returns:
             dict[specie, potential]
         """
-        pspots: Dict[str, str] = {}
+        pspots: dict[str, str] = {}
         for rem in self._res.REMS:
             srem = rem.split()
             if len(srem) == 2 and Element.is_valid_symbol(srem[0]):
